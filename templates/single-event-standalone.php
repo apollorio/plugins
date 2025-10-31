@@ -1,0 +1,581 @@
+<?php
+/**
+ * Single Event Standalone Template
+ * For direct page access (not lightbox)
+ * Based 100% on CodePen EaPpjXP
+ */
+
+defined('ABSPATH') || exit;
+
+$event_id = get_the_ID();
+
+// === ALL EVENT VARIABLES ===
+$event_title = get_post_meta($event_id, '_event_title', true) ?: get_the_title();
+$event_banner = get_post_meta($event_id, '_event_banner', true);
+$event_video_url = get_post_meta($event_id, '_event_video_url', true);
+$event_start_date = get_post_meta($event_id, '_event_start_date', true);
+$event_end_date = get_post_meta($event_id, '_event_end_date', true);
+$event_start_time = get_post_meta($event_id, '_event_start_time', true);
+$event_end_time = get_post_meta($event_id, '_event_end_time', true);
+$event_description = get_post_meta($event_id, '_event_description', true) ?: get_the_content();
+$event_tickets_ext = get_post_meta($event_id, '_tickets_ext', true);
+$event_cupom_ario = get_post_meta($event_id, '_cupom_ario', true);
+$event_3_imagens_promo = get_post_meta($event_id, '_3_imagens_promo', true);
+$event_timetable = get_post_meta($event_id, '_timetable', true);
+$event_imagem_final = get_post_meta($event_id, '_imagem_final', true);
+
+// === LOCAL VARIABLES WITH VALIDATION ===
+$event_local_id = get_post_meta($event_id, '_event_local', true);
+if (empty($event_local_id)) {
+    $event_local_id = get_post_meta($event_id, '_event_local_ids', true);
+}
+
+$event_local_title = get_post_meta($event_id, '_event_location', true);
+$event_local_address = '';
+$event_local_regiao = '';
+$event_local_images = [];
+$event_local_latitude = '';
+$event_local_longitude = '';
+
+// Only process if we have a valid local ID
+if (!empty($event_local_id) && is_numeric($event_local_id)) {
+    $local_post = get_post($event_local_id);
+
+    if ($local_post && $local_post->post_status === 'publish') {
+        $temp_title = get_post_meta($event_local_id, '_local_name', true);
+        if (!empty($temp_title)) {
+            $event_local_title = $temp_title;
+        } else {
+            $event_local_title = $local_post->post_title;
+        }
+
+        $event_local_address = get_post_meta($event_local_id, '_local_address', true);
+
+        // Get coordinates - try multiple meta keys
+        $event_local_latitude = get_post_meta($event_local_id, '_local_latitude', true);
+        if (empty($event_local_latitude)) {
+            $event_local_latitude = get_post_meta($event_local_id, '_local_lat', true);
+        }
+
+        $event_local_longitude = get_post_meta($event_local_id, '_local_longitude', true);
+        if (empty($event_local_longitude)) {
+            $event_local_longitude = get_post_meta($event_local_id, '_local_lng', true);
+        }
+
+        $event_local_city = get_post_meta($event_local_id, '_local_city', true);
+        $event_local_state = get_post_meta($event_local_id, '_local_state', true);
+        $event_local_regiao = $event_local_city ? $event_local_city : ($event_local_state ?: '');
+
+        // Get local images (up to 5)
+        for ($i = 1; $i <= 5; $i++) {
+            $img = get_post_meta($event_local_id, '_local_image_' . $i, true);
+            if (!empty($img)) {
+                $event_local_images[] = $img;
+            }
+        }
+    }
+}
+
+// Fallback to event coordinates
+if (!$event_local_latitude) $event_local_latitude = get_post_meta($event_id, '_event_latitude', true) ?: get_post_meta($event_id, 'geolocation_lat', true);
+if (!$event_local_longitude) $event_local_longitude = get_post_meta($event_id, '_event_longitude', true) ?: get_post_meta($event_id, 'geolocation_long', true);
+
+// === SOUNDS/GENRES ===
+$event_sounds = wp_get_post_terms($event_id, 'event_sounds');
+if (is_wp_error($event_sounds)) $event_sounds = [];
+
+// === DATE FORMATTING ===
+$event_day = '';
+$event_month = '';
+$event_year = '';
+if ($event_start_date) {
+    $timestamp = strtotime($event_start_date);
+    $event_day = date('d', $timestamp);
+    $month_abbr = date('M', $timestamp);
+    $event_year = date('y', $timestamp);
+    
+    $month_map = [
+        'Jan' => 'Jan', 'Feb' => 'Fev', 'Mar' => 'Mar', 
+        'Apr' => 'Abr', 'May' => 'Mai', 'Jun' => 'Jun',
+        'Jul' => 'Jul', 'Aug' => 'Ago', 'Sep' => 'Set',
+        'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
+    ];
+    $event_month = $month_map[$month_abbr] ?? $month_abbr;
+}
+
+// === BANNER/VIDEO ===
+$event_banner_url = '';
+if ($event_banner) {
+    $event_banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
+}
+if (!$event_banner_url && has_post_thumbnail()) {
+    $event_banner_url = get_the_post_thumbnail_url($event_id, 'full');
+}
+if (!$event_banner_url) {
+    $event_banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
+}
+
+// Process YouTube
+$event_youtube_embed = '';
+if ($event_video_url) {
+    $video_id = '';
+    if (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $event_video_url, $id)) {
+        $video_id = $id[1];
+    } elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $event_video_url, $id)) {
+        $video_id = $id[1];
+    }
+    if ($video_id) {
+        $event_youtube_embed = "https://www.youtube.com/embed/{$video_id}?autoplay=1&mute=1&loop=1&playlist={$video_id}&controls=0&showinfo=0&modestbranding=1";
+    }
+}
+
+// === FAVORITES COUNT ===
+$event_favorites_count = function_exists('favorites_get_count') ? favorites_get_count($event_id) : 40;
+
+// === EVENT TAGS ===
+$event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
+if (is_wp_error($event_tags)) $event_tags = [];
+
+// Force CSS inline
+$css_url = 'https://assets.apollo.rio.br/uni.css';
+$css_response = wp_remote_get($css_url, ['timeout' => 15]);
+$css_content = '';
+
+if (!is_wp_error($css_response)) {
+    $css_content = wp_remote_retrieve_body($css_response);
+}
+
+if (!$css_content) {
+    $local_css = APOLLO_WPEM_PATH . 'assets/uni.css';
+    if (file_exists($local_css)) {
+        $css_content = file_get_contents($local_css);
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
+    <title><?php echo esc_html($event_title); ?> @ <?php echo $event_day . ' ' . $event_month; ?> - Apollo::rio</title>
+    <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
+    
+    <?php if ($css_content): ?>
+    <style type="text/css">
+        <?php echo $css_content; ?>
+    </style>
+    <?php endif; ?>
+    
+    <?php wp_head(); ?>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- Hero Media -->
+    <div class="hero-media">
+        <?php if ($event_youtube_embed): ?>
+        <div class="video-cover">
+            <iframe src="<?php echo esc_url($event_youtube_embed); ?>" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe>
+        </div>
+        <?php else: ?>
+        <img src="<?php echo esc_url($event_banner_url); ?>" alt="<?php echo esc_attr($event_title); ?>">
+        <?php endif; ?>
+        
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <?php if (!empty($event_tags)): ?>
+                <?php foreach (array_slice($event_tags, 0, 4) as $tag): ?>
+                <span class="event-tag-pill">
+                    <i class="ri-megaphone-fill"></i> <?php echo esc_html($tag->name); ?>
+                </span>
+                <?php endforeach; ?>
+            <?php else: ?>
+            <span class="event-tag-pill">
+                <i class="ri-megaphone-fill"></i> Novidade
+            </span>
+            <?php endif; ?>
+            
+            <h1 class="hero-title"><?php echo esc_html($event_title); ?></h1>
+            
+            <div class="hero-meta">
+                <div class="hero-meta-item">
+                    <i class="ri-calendar-line"></i>
+                    <span><?php echo $event_day . ' ' . $event_month . " '" . $event_year; ?></span>
+                </div>
+                <div class="hero-meta-item">
+                    <i class="ri-time-line"></i>
+                    <span id="Hora"><?php echo $event_start_time . ' — ' . $event_end_time; ?></span>
+                    <font style="opacity:.7;font-weight:300; font-size:.81rem;">(GMT-03h00)</font>
+                </div>
+                <div class="hero-meta-item">
+                    <i class="ri-map-pin-line"></i>
+                    <span class="event_local"><?php echo esc_html($event_local_title); ?></span>
+                    <?php if ($event_local_regiao): ?>
+                    <span style="opacity:.5" class="event_local_regiao">(<?php echo esc_html($event_local_regiao); ?>)</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Body -->
+    <div class="event-body">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="#route_TICKETS" class="quick-action">
+                <div class="quick-action-icon"><i class="ri-ticket-2-line"></i></div>
+                <span class="quick-action-label">TICKETS</span>
+            </a>
+            <a href="#route_LINE" class="quick-action">
+                <div class="quick-action-icon"><i class="ri-draft-line"></i></div>
+                <span class="quick-action-label">Line-up</span>
+            </a>
+            <a href="#route_ROUTE" class="quick-action">
+                <div class="quick-action-icon"><i class="ri-treasure-map-line"></i></div>
+                <span class="quick-action-label">ROUTE</span>
+            </a>
+            <a href="#" class="quick-action apollo-favorite-trigger" data-event-id="<?php echo $event_id; ?>">
+                <div class="quick-action-icon"><i class="ri-rocket-line"></i></div>
+                <span class="quick-action-label">Interesse</span>
+            </a>
+        </div>
+
+        <!-- RSVP Row -->
+        <div class="rsvp-row">
+            <div class="avatars-explosion">
+                <?php
+                // Get users who favorited (if Favorites plugin active)
+                $favorited_users = function_exists('favorites_get_users') ? favorites_get_users($event_id) : [];
+                
+                if (!empty($favorited_users)):
+                    $shown = 0;
+                    foreach ($favorited_users as $user_id):
+                        if ($shown >= 10) break;
+                        $avatar_url = get_avatar_url($user_id, ['size' => 100]);
+                ?>
+                <div class="avatar" style="background-image: url('<?php echo esc_url($avatar_url); ?>')"></div>
+                <?php 
+                        $shown++;
+                    endforeach;
+                    $remaining = max(0, count($favorited_users) - 10);
+                else:
+                    // Sample avatars
+                    for ($i = 1; $i <= 10; $i++):
+                        $gender = ($i % 2 == 0) ? 'women' : 'men';
+                ?>
+                <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/<?php echo $gender; ?>/<?php echo $i; ?>.jpg')"></div>
+                <?php 
+                    endfor;
+                    $remaining = 35;
+                endif;
+                ?>
+                <div class="avatar-count">+<?php echo $remaining; ?></div>
+                <p class="interested-text" style="margin: 0 8px 0px 20px;">
+                    <i class="ri-bar-chart-2-fill"></i> 
+                    <span id="result"><?php echo $event_favorites_count; ?> interessados</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <i class="ri-brain-ai-3-fill"></i> Info
+            </h2>
+            <div class="info-card">
+                <p class="info-text"><?php echo wpautop($event_description); ?></p>
+            </div>
+            
+            <!-- Music Tags Marquee (8x repetition) -->
+            <?php if (!empty($event_sounds)): ?>
+            <div class="music-tags-marquee">
+                <div class="music-tags-track">
+                    <?php for ($rep = 0; $rep < 8; $rep++): ?>
+                        <?php foreach ($event_sounds as $sound): ?>
+                        <span class="music-tag"><?php echo esc_html($sound->name); ?></span>
+                        <?php endforeach; ?>
+                    <?php endfor; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </section>
+
+        <!-- Promo Gallery (max 5) -->
+        <?php if ($event_3_imagens_promo && is_array($event_3_imagens_promo)): ?>
+        <div class="promo-gallery-slider">
+            <div class="promo-track" id="promoTrack">
+                <?php 
+                $img_count = 0;
+                foreach ($event_3_imagens_promo as $img_id):
+                    if ($img_count >= 5) break;
+                    $img_url = is_numeric($img_id) ? wp_get_attachment_url($img_id) : $img_id;
+                    if ($img_url):
+                ?>
+                <div class="promo-slide" style="border-radius:12px">
+                    <img src="<?php echo esc_url($img_url); ?>">
+                </div>
+                <?php 
+                        $img_count++;
+                    endif;
+                endforeach;
+                ?>
+            </div>
+            <div class="promo-controls">
+                <button class="promo-prev"><i class="ri-arrow-left-s-line"></i></button>
+                <button class="promo-next"><i class="ri-arrow-right-s-line"></i></button>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- DJ Lineup -->
+        <?php if (!empty($event_timetable) && is_array($event_timetable)): ?>
+        <section class="section" id="route_LINE">
+            <h2 class="section-title">
+                <i class="ri-disc-line"></i> Line-up
+            </h2>
+            <div class="lineup-list">
+                <?php foreach ($event_timetable as $slot):
+                    // Support multiple timetable formats
+                    $dj_id = isset($slot['dj']) ? $slot['dj'] : (isset($slot['dj_id']) ? $slot['dj_id'] : null);
+                    $dj_time_in = isset($slot['dj_time_in']) ? $slot['dj_time_in'] : (isset($slot['time_in']) ? $slot['time_in'] : '');
+                    $dj_time_out = isset($slot['dj_time_out']) ? $slot['dj_time_out'] : (isset($slot['time_out']) ? $slot['time_out'] : '');
+
+                    if (empty($dj_id)) continue;
+
+                    // Get DJ data
+                    $dj_name = '';
+                    $dj_photo_url = '';
+                    $dj_permalink = '#';
+
+                    if (is_numeric($dj_id)) {
+                        $dj_post = get_post($dj_id);
+                        if ($dj_post && $dj_post->post_status === 'publish') {
+                            $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                            if (empty($dj_name)) {
+                                $dj_name = $dj_post->post_title;
+                            }
+
+                            $dj_photo = get_post_meta($dj_id, '_photo', true);
+                            if (empty($dj_photo)) {
+                                $dj_photo = get_post_meta($dj_id, '_dj_image', true);
+                            }
+
+                            if (is_numeric($dj_photo)) {
+                                $dj_photo_url = wp_get_attachment_url($dj_photo);
+                            } elseif (!empty($dj_photo)) {
+                                $dj_photo_url = $dj_photo;
+                            }
+
+                            if (empty($dj_photo_url) && has_post_thumbnail($dj_id)) {
+                                $dj_photo_url = get_the_post_thumbnail_url($dj_id, 'medium');
+                            }
+
+                            $dj_permalink = get_permalink($dj_id);
+                        }
+                    } else {
+                        // If dj_id is a string (DJ name), use it directly
+                        $dj_name = $dj_id;
+                    }
+
+                    if (empty($dj_name)) continue;
+                ?>
+                ?>
+                <div class="lineup-card">
+                    <?php if ($dj_photo_url): ?>
+                    <img src="<?php echo esc_url($dj_photo_url); ?>" alt="<?php echo esc_attr($dj_name); ?>" class="lineup-avatar-img">
+                    <?php endif; ?>
+                    <div class="lineup-info">
+                        <h3 class="lineup-name">
+                            <a href="<?php echo esc_url($dj_permalink); ?>" target="_blank" class="dj-link">
+                                <?php echo esc_html($dj_name); ?>
+                            </a>
+                        </h3>
+                        <?php if ($dj_time_in && $dj_time_out): ?>
+                        <div class="lineup-time">
+                            <i class="ri-time-line"></i>
+                            <span><?php echo esc_html($dj_time_in . ' - ' . $dj_time_out); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php 
+                    endif;
+                endforeach;
+                ?>
+            </div>
+        </section>
+        <?php endif; ?>
+
+        <!-- Venue Section -->
+        <section class="section" id="route_ROUTE">
+            <h2 class="section-title">
+                <i class="ri-map-pin-2-line"></i> <?php echo esc_html($event_local_title); ?>
+            </h2>
+            <p class="local-endereco"><?php echo esc_html($event_local_address); ?></p>
+            
+            <!-- Local Images Slider (max 5) -->
+            <?php if (!empty($event_local_images)): ?>
+            <div class="local-images-slider" style="min-height:450px;">
+                <div class="local-images-track" id="localTrack" style="min-height:500px;">
+                    <?php 
+                    $img_count = 0;
+                    foreach ($event_local_images as $img):
+                        if ($img_count >= 5) break;
+                        $img_url = is_numeric($img) ? wp_get_attachment_url($img) : $img;
+                        if ($img_url):
+                    ?>
+                    <div class="local-image" style="min-height:450px;">
+                        <img src="<?php echo esc_url($img_url); ?>">
+                    </div>
+                    <?php 
+                            $img_count++;
+                        endif;
+                    endforeach;
+                    ?>
+                </div>
+                <div class="slider-nav" id="localDots"></div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Map View (OpenStreetMap) -->
+            <?php if ($event_local_latitude && $event_local_longitude): ?>
+            <div class="map-view" id="eventMap" 
+                 style="margin:0 auto; z-index:0; width:100%; height:285px; border-radius:12px;"
+                 data-lat="<?php echo esc_attr($event_local_latitude); ?>"
+                 data-lng="<?php echo esc_attr($event_local_longitude); ?>">
+            </div>
+            <script>
+            (function() {
+                if (typeof L !== 'undefined') {
+                    var lat = <?php echo json_encode((float)$event_local_latitude); ?>;
+                    var lng = <?php echo json_encode((float)$event_local_longitude); ?>;
+                    var map = L.map('eventMap').setView([lat, lng], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap',
+                        maxZoom: 19
+                    }).addTo(map);
+                    L.marker([lat, lng]).addTo(map).bindPopup('<?php echo esc_js($event_local_title); ?>');
+                }
+            })();
+            </script>
+            <?php else: ?>
+            <div class="map-view" style="margin:0 auto; z-index:0; background:green; width:100%; height:285px; border-radius:12px; background-image:url('https://img.freepik.com/premium-vector/city-map-scheme-background-flat-style-vector-illustration_833641-2300.jpg'); background-size:cover; background-repeat:no-repeat; background-position:center;"></div>
+            <?php endif; ?>
+
+            <!-- Route Controls -->
+            <div class="route-controls" style="transform:translateY(-80px); padding:0 0.5rem;">
+                <div class="route-input">
+                    <i class="ri-map-pin-line"></i>
+                    <input type="text" id="origin-input" placeholder="Seu endereço de partida">
+                </div>
+                <button id="route-btn" class="route-button">
+                    <i class="ri-send-plane-line"></i>
+                </button>
+            </div>
+            
+            <script>
+            document.getElementById('route-btn')?.addEventListener('click', function() {
+                var origin = document.getElementById('origin-input').value;
+                <?php if ($event_local_latitude && $event_local_longitude): ?>
+                if (origin) {
+                    var url = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(origin) + 
+                              '&destination=<?php echo $event_local_latitude; ?>,<?php echo $event_local_longitude; ?>'+
+                              '&travelmode=driving';
+                    window.open(url, '_blank');
+                } else {
+                    alert('Digite seu endereço de partida');
+                }
+                <?php else: ?>
+                alert('Coordenadas do local não disponíveis');
+                <?php endif; ?>
+            });
+            </script>
+        </section>
+
+        <!-- Tickets Section -->
+        <section class="section" id="route_TICKETS">
+            <h2 class="section-title">
+                <i class="ri-ticket-2-line" style="margin:2px 0 -2px 0"></i> Acessos
+            </h2>
+            
+            <div class="tickets-grid">
+                <?php if ($event_tickets_ext): ?>
+                <a href="<?php echo esc_url($event_tickets_ext); ?>?ref=apollo.rio.br" class="ticket-card" target="_blank">
+                    <div class="ticket-icon"><i class="ri-ticket-line"></i></div>
+                    <div class="ticket-info">
+                        <h3 class="ticket-name">
+                            <span id="changingword" style="opacity: 1;">Biglietti</span>
+                        </h3>
+                        <span class="ticket-cta">Seguir para Bilheteria Digital →</span>
+                    </div>
+                </a>
+                <?php else: ?>
+                <div class="ticket-card disabled">
+                    <div class="ticket-icon"><i class="ri-ticket-line"></i></div>
+                    <div class="ticket-info">
+                        <h3 class="ticket-name">Biglietti</h3>
+                        <span class="ticket-cta">Em breve</span>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Apollo Coupon -->
+                <?php if ($event_cupom_ario): ?>
+                <div class="apollo-coupon-detail">
+                    <i class="ri-coupon-3-line"></i>
+                    <span>Verifique se o cupom <strong>APOLLO</strong> está ativo com desconto</span>
+                    <button class="copy-code-mini" onclick="copyPromoCode()">
+                        <i class="ri-file-copy-fill"></i>
+                    </button>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Other Accesses -->
+                <a href="" target="_blank">
+                    <div class="ticket-card disabled">
+                        <div class="ticket-icon"><i class="ri-list-check"></i></div>
+                        <div class="ticket-info">
+                            <h3 class="ticket-name">Acessos Diversos</h3>
+                            <span class="ticket-cta">Seguir para Acessos Diversos →</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Final Event Image -->
+        <?php if ($event_imagem_final): 
+            $final_img_url = is_numeric($event_imagem_final) ? wp_get_attachment_url($event_imagem_final) : $event_imagem_final;
+        ?>
+        <section class="section">
+            <div class="secondary-image" style="margin-bottom:3rem;">
+                <img src="<?php echo esc_url($final_img_url); ?>" alt="Event Final Photo">
+            </div>
+        </section>
+        <?php endif; ?>
+        
+        <!-- Protection Notice -->
+        <section class="section">
+            <div class="respaldo_eve">
+                *A organização e execução deste evento cabem integralmente aos seus idealizadores.
+            </div>
+        </section>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <a href="#route_TICKETS" class="bottom-btn primary" id="bottomTicketBtn">
+            <i class="ri-ticket-fill"></i>
+            <span id="changingword">Tickets</span>
+        </a>
+        <button class="bottom-btn secondary" id="bottomShareBtn">
+            <i class="ri-share-forward-line"></i>
+        </button>
+    </div>
+</div>
+
+<?php wp_footer(); ?>
+<script src="https://assets.apollo.rio.br/event-page.js"></script>
+</body>
+</html>
+
