@@ -25,9 +25,10 @@ $event_timetable = get_post_meta($event_id, '_timetable', true);
 $event_imagem_final = get_post_meta($event_id, '_imagem_final', true);
 
 // === LOCAL VARIABLES WITH VALIDATION ===
-$event_local_id = get_post_meta($event_id, '_event_local', true);
+// ✅ CORRECT: Use _event_local_ids first
+$event_local_id = get_post_meta($event_id, '_event_local_ids', true);
 if (empty($event_local_id)) {
-    $event_local_id = get_post_meta($event_id, '_event_local_ids', true);
+    $event_local_id = get_post_meta($event_id, '_event_local', true); // Fallback
 }
 
 $event_local_title = get_post_meta($event_id, '_event_location', true);
@@ -104,9 +105,12 @@ if ($event_start_date) {
 }
 
 // === BANNER/VIDEO ===
+// ✅ CORRECT: Banner is URL, not attachment ID
 $event_banner_url = '';
-if ($event_banner) {
-    $event_banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
+if ($event_banner && filter_var($event_banner, FILTER_VALIDATE_URL)) {
+    $event_banner_url = $event_banner; // It's already a URL!
+} elseif ($event_banner && is_numeric($event_banner)) {
+    $event_banner_url = wp_get_attachment_url($event_banner); // Fallback if numeric
 }
 if (!$event_banner_url && has_post_thumbnail()) {
     $event_banner_url = get_the_post_thumbnail_url($event_id, 'full');
@@ -328,13 +332,34 @@ if (!$css_content) {
         <?php endif; ?>
 
         <!-- DJ Lineup -->
-        <?php if (!empty($event_timetable) && is_array($event_timetable)): ?>
+        <?php
+        // ✅ CORRECT: Try _event_dj_ids first, then _timetable
+        $dj_lineup = [];
+        
+        // Try _event_dj_ids (serialized array)
+        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+        if (!empty($dj_ids_raw)) {
+            $dj_ids = maybe_unserialize($dj_ids_raw);
+            if (is_array($dj_ids)) {
+                foreach ($dj_ids as $dj_id) {
+                    $dj_lineup[] = ['dj' => intval($dj_id)];
+                }
+            }
+        }
+        
+        // Fallback: Use _timetable if available
+        if (empty($dj_lineup) && !empty($event_timetable) && is_array($event_timetable)) {
+            $dj_lineup = $event_timetable;
+        }
+        ?>
+        
+        <?php if (!empty($dj_lineup)): ?>
         <section class="section" id="route_LINE">
             <h2 class="section-title">
                 <i class="ri-disc-line"></i> Line-up
             </h2>
             <div class="lineup-list">
-                <?php foreach ($event_timetable as $slot):
+                <?php foreach ($dj_lineup as $slot):
                     // Support multiple timetable formats
                     $dj_id = isset($slot['dj']) ? $slot['dj'] : (isset($slot['dj_id']) ? $slot['dj_id'] : null);
                     $dj_time_in = isset($slot['dj_time_in']) ? $slot['dj_time_in'] : (isset($slot['time_in']) ? $slot['time_in'] : '');
@@ -379,7 +404,6 @@ if (!$css_content) {
 
                     if (empty($dj_name)) continue;
                 ?>
-                ?>
                 <div class="lineup-card">
                     <?php if ($dj_photo_url): ?>
                     <img src="<?php echo esc_url($dj_photo_url); ?>" alt="<?php echo esc_attr($dj_name); ?>" class="lineup-avatar-img">
@@ -398,10 +422,7 @@ if (!$css_content) {
                         <?php endif; ?>
                     </div>
                 </div>
-                <?php 
-                    endif;
-                endforeach;
-                ?>
+                <?php endforeach; ?>
             </div>
         </section>
         <?php endif; ?>
