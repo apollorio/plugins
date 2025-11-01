@@ -119,17 +119,25 @@ if (!$event_banner_url) {
     $event_banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
 }
 
-// Process YouTube
+// ✅ CORRECT YOUTUBE PROCESSING
 $event_youtube_embed = '';
 if ($event_video_url) {
     $video_id = '';
-    if (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $event_video_url, $id)) {
-        $video_id = $id[1];
-    } elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $event_video_url, $id)) {
-        $video_id = $id[1];
+    
+    // Try all YouTube URL patterns
+    if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $event_video_url, $matches)) {
+        $video_id = $matches[1];
     }
-    if ($video_id) {
+    
+    // Debug log (only if WP_DEBUG_LOG enabled)
+    if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && !empty($video_id)) {
+        error_log("✅ YouTube Video ID extracted for event {$event_id}: {$video_id}");
+    }
+    
+    if (!empty($video_id)) {
         $event_youtube_embed = "https://www.youtube.com/embed/{$video_id}?autoplay=1&mute=1&loop=1&playlist={$video_id}&controls=0&showinfo=0&modestbranding=1";
+    } else if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+        error_log("❌ YouTube Video ID NOT extracted for event {$event_id} from URL: {$event_video_url}");
     }
 }
 
@@ -238,8 +246,14 @@ if (!$css_content) {
                 <div class="quick-action-icon"><i class="ri-treasure-map-line"></i></div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <a href="#" class="quick-action apollo-favorite-trigger" data-event-id="<?php echo $event_id; ?>">
-                <div class="quick-action-icon"><i class="ri-rocket-line"></i></div>
+            <?php 
+            // ✅ FAVORITES INFRASTRUCTURE
+            $user_favorited = false; // TODO: Check user meta when social features ready
+            ?>
+            <a href="#" class="quick-action apollo-favorite-trigger" id="favoriteTrigger" data-event-id="<?php echo $event_id; ?>">
+                <div class="quick-action-icon">
+                    <i class="<?php echo $user_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
+                </div>
                 <span class="quick-action-label">Interesse</span>
             </a>
         </div>
@@ -353,11 +367,11 @@ if (!$css_content) {
         }
         ?>
         
-        <?php if (!empty($dj_lineup)): ?>
         <section class="section" id="route_LINE">
             <h2 class="section-title">
                 <i class="ri-disc-line"></i> Line-up
             </h2>
+            <?php if (!empty($dj_lineup)): ?>
             <div class="lineup-list">
                 <?php foreach ($dj_lineup as $slot):
                     // Support multiple timetable formats
@@ -424,8 +438,13 @@ if (!$css_content) {
                 </div>
                 <?php endforeach; ?>
             </div>
+            <?php else: ?>
+            <div class="lineup-placeholder" style="padding:40px 20px;text-align:center;background:var(--bg-surface,#f5f5f5);border-radius:12px;">
+                <i class="ri-disc-line" style="font-size:3rem;opacity:0.3;display:block;margin-bottom:15px;"></i>
+                <p style="color:var(--text-secondary,#999);margin:0;">Line-up em breve</p>
+            </div>
+            <?php endif; ?>
         </section>
-        <?php endif; ?>
 
         <!-- Venue Section -->
         <section class="section" id="route_ROUTE">
@@ -459,28 +478,84 @@ if (!$css_content) {
             <?php endif; ?>
 
             <!-- Map View (OpenStreetMap) -->
-            <?php if ($event_local_latitude && $event_local_longitude): ?>
-            <div class="map-view" id="eventMap" 
-                 style="margin:0 auto; z-index:0; width:100%; height:285px; border-radius:12px;"
-                 data-lat="<?php echo esc_attr($event_local_latitude); ?>"
-                 data-lng="<?php echo esc_attr($event_local_longitude); ?>">
-            </div>
-            <script>
-            (function() {
-                if (typeof L !== 'undefined') {
-                    var lat = <?php echo json_encode((float)$event_local_latitude); ?>;
-                    var lng = <?php echo json_encode((float)$event_local_longitude); ?>;
-                    var map = L.map('eventMap').setView([lat, lng], 15);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap',
-                        maxZoom: 19
-                    }).addTo(map);
-                    L.marker([lat, lng]).addTo(map).bindPopup('<?php echo esc_js($event_local_title); ?>');
+            <?php
+            // ✅ COMPREHENSIVE COORDINATE FALLBACK
+            $map_lat = $map_lng = 0;
+            
+            // Tentativa 1: Local vinculado (múltiplas variações)
+            if (!empty($event_local_id) && is_numeric($event_local_id)) {
+                foreach (['_local_latitude','_local_lat'] as $k) {
+                    if ($v = get_post_meta($event_local_id, $k, true)) { 
+                        $map_lat = $v; 
+                        break; 
+                    }
                 }
-            })();
+                foreach (['_local_longitude','_local_lng'] as $k) {
+                    if ($v = get_post_meta($event_local_id, $k, true)) { 
+                        $map_lng = $v; 
+                        break; 
+                    }
+                }
+            }
+            
+            // Tentativa 2: Campos no evento (fallback)
+            if (!$map_lat) {
+                foreach (['_event_latitude','geolocation_lat'] as $k) {
+                    if ($v = get_post_meta($event_id, $k, true)) { 
+                        $map_lat = $v; 
+                        break; 
+                    }
+                }
+            }
+            if (!$map_lng) {
+                foreach (['_event_longitude','geolocation_long'] as $k) {
+                    if ($v = get_post_meta($event_id, $k, true)) { 
+                        $map_lng = $v; 
+                        break; 
+                    }
+                }
+            }
+            
+            // Sanitiza e valida
+            $map_lat = is_numeric($map_lat) ? floatval($map_lat) : 0;
+            $map_lng = is_numeric($map_lng) ? floatval($map_lng) : 0;
+            ?>
+            
+            <?php if ($map_lat && $map_lng && $map_lat !== 0 && $map_lng !== 0): ?>
+            <div id="eventMap" data-lat="<?php echo $map_lat; ?>" data-lng="<?php echo $map_lng; ?>" style="height:320px;border-radius:12px;margin:0 auto;z-index:0;width:100%;"></div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                if (typeof L === 'undefined') { 
+                    console.error('❌ Leaflet library not loaded!'); 
+                    return; 
+                }
+                console.log('✅ Leaflet loaded. Initializing map with coords:', <?php echo $map_lat;?>, <?php echo $map_lng;?>);
+                
+                try {
+                    var m = L.map('eventMap').setView([<?php echo $map_lat;?>, <?php echo $map_lng;?>], 15);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(m);
+                    L.marker([<?php echo $map_lat;?>, <?php echo $map_lng;?>])
+                        .addTo(m)
+                        .bindPopup('<?php echo esc_js($event_local_title); ?>');
+                    console.log('✅ Map rendered successfully');
+                } catch(e) {
+                    console.error('❌ Map render error:', e);
+                }
+            }, {once:true});
             </script>
             <?php else: ?>
-            <div class="map-view" style="margin:0 auto; z-index:0; background:green; width:100%; height:285px; border-radius:12px; background-image:url('https://img.freepik.com/premium-vector/city-map-scheme-background-flat-style-vector-illustration_833641-2300.jpg'); background-size:cover; background-repeat:no-repeat; background-position:center;"></div>
+            <div class="map-placeholder" style="height:285px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border-radius:12px;margin:0 auto;width:100%;">
+                <p style="color:#999;text-align:center;padding:20px;">
+                    <i class="ri-map-pin-line" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
+                    Mapa disponível em breve
+                </p>
+            </div>
+            <script>
+            console.log('⚠️ Map not displayed - no coordinates found for event <?php echo $event_id; ?>');
+            </script>
             <?php endif; ?>
 
             <!-- Route Controls -->
@@ -597,6 +672,38 @@ if (!$css_content) {
 
 <?php wp_footer(); ?>
 <script src="https://assets.apollo.rio.br/event-page.js"></script>
+
+<!-- ✅ FAVORITES TOGGLE LOGIC -->
+<script>
+(function() {
+    var favBtn = document.getElementById('favoriteTrigger');
+    if (!favBtn) return;
+    
+    favBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var eventId = this.dataset.eventId;
+        var icon = this.querySelector('i');
+        
+        // TODO: Implement AJAX call to save to database
+        console.log('Favorite toggle for event:', eventId);
+        
+        // Placeholder animation
+        if (icon.classList.contains('ri-rocket-line')) {
+            icon.classList.remove('ri-rocket-line');
+            icon.classList.add('ri-rocket-fill');
+            console.log('✅ Event favorited (placeholder)');
+            // TODO: Increment _favorites_count meta
+        } else {
+            icon.classList.remove('ri-rocket-fill');
+            icon.classList.add('ri-rocket-line');
+            console.log('❌ Event unfavorited (placeholder)');
+            // TODO: Decrement _favorites_count meta
+        }
+    });
+    
+    console.log('✅ Favorites system initialized (placeholder mode)');
+})();
+</script>
 </body>
 </html>
 

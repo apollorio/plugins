@@ -93,8 +93,59 @@ class Apollo_Events_Manager_Plugin {
         // Save custom fields
         add_action('event_manager_save_event_listing', array($this, 'save_custom_event_fields'), 10, 2);
 
+        // Auto-geocoding for event_local posts
+        add_action('save_post_event_local', array($this, 'auto_geocode_local'), 10, 2);
+
         // Content injector for single events
         add_filter('the_content', array($this, 'inject_event_content'), 10);
+    }
+
+    /**
+     * Auto-geocode Local posts when saved
+     * Uses OpenStreetMap Nominatim API to get coordinates from address
+     */
+    public function auto_geocode_local($post_id, $post) {
+        // Skip autosave/revisions
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+        if (wp_is_post_revision($post_id)) return;
+        
+        // Get address and city
+        $addr = get_post_meta($post_id, '_local_address', true);
+        $city = get_post_meta($post_id, '_local_city', true);
+        
+        // Need at least city
+        if (empty($city)) return;
+        
+        // Check if already has coordinates
+        $lat = get_post_meta($post_id, '_local_latitude', true);
+        $lng = get_post_meta($post_id, '_local_longitude', true);
+        if (!empty($lat) && !empty($lng)) return; // Already has coords
+        
+        // Build search query
+        $query_parts = array_filter([$addr, $city, 'Brasil']);
+        $query = urlencode(implode(', ', $query_parts));
+        $url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=BR&q={$query}";
+        
+        // Call Nominatim API
+        $res = wp_remote_get($url, [
+            'timeout' => 10,
+            'user-agent' => 'Apollo::Rio/1.0 (WordPress Event Manager)'
+        ]);
+        
+        if (is_wp_error($res)) {
+            error_log("❌ Geocoding failed for local {$post_id}: " . $res->get_error_message());
+            return;
+        }
+        
+        $data = json_decode(wp_remote_retrieve_body($res), true);
+        
+        if (!empty($data[0]['lat']) && !empty($data[0]['lon'])) {
+            update_post_meta($post_id, '_local_latitude', $data[0]['lat']);
+            update_post_meta($post_id, '_local_longitude', $data[0]['lon']);
+            error_log("✅ Auto-geocoded local {$post_id}: {$data[0]['lat']}, {$data[0]['lon']}");
+        } else {
+            error_log("⚠️ No coordinates found for local {$post_id}: {$query}");
+        }
     }
 
     /**

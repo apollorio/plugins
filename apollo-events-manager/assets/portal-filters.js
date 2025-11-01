@@ -152,13 +152,13 @@
     // Layout toggle
     window.toggleLayout = function(element) {
         const icon = element.querySelector('i');
-        if (icon.classList.contains('ri-list-view')) {
-            icon.classList.remove('ri-list-view');
+        if (icon.classList.contains('ri-list-check-2')) {
+            icon.classList.remove('ri-list-check-2');
             icon.classList.add('ri-grid-view');
             element.title = 'Events Grid View';
         } else {
             icon.classList.remove('ri-grid-view');
-            icon.classList.add('ri-list-view');
+            icon.classList.add('ri-list-check-2');
             element.title = 'Events List View';
         }
     };

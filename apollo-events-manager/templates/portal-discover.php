@@ -125,7 +125,7 @@ if (!$css_content || is_wp_error($css_content)) {
                     
                     <!-- LAYOUT TOGGLE -->
                     <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="true" onclick="toggleLayout(this)">
-                        <i class="ri-list-view" aria-hidden="true"></i>
+                        <i class="ri-list-check-2" aria-hidden="true"></i>
                         <span class="visually-hidden">Alternar layout</span>
                     </button>
                 </div>
