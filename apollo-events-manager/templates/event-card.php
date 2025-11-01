@@ -19,6 +19,13 @@ $event_title = get_post_meta($event_id, '_event_title', true) ?: get_the_title()
 $start_date = get_post_meta($event_id, '_event_start_date', true);
 $event_banner = get_post_meta($event_id, '_event_banner', true);
 
+// Debug: Show meta retrieval
+if (current_user_can('administrator')) {
+    echo '<!-- DEBUG: Event ID: ' . $event_id . ' -->';
+    echo '<!-- DEBUG: _event_start_date: "' . esc_html($start_date) . '" -->';
+    echo '<!-- DEBUG: _event_banner: "' . esc_html($event_banner) . '" -->';
+}
+
 // Get categories with proper error handling
 $categories = wp_get_post_terms($event_id, 'event_listing_category');
 $categories = is_wp_error($categories) ? array() : $categories;
@@ -111,29 +118,62 @@ $month = '';
 $month_str = '';
 if ($start_date) {
     $timestamp = strtotime($start_date);
-    $day = date('j', $timestamp); // Use 'j' for day without leading zero
-    $month = date('M', $timestamp);
-    
-    // Convert to Portuguese abbreviations
-    $month_lower = strtolower($month);
-    $month_map = array(
-        'jan' => 'jan', 'feb' => 'fev', 'mar' => 'mar', 
-        'apr' => 'abr', 'may' => 'mai', 'jun' => 'jun',
-        'jul' => 'jul', 'aug' => 'ago', 'sep' => 'set',
-        'oct' => 'out', 'nov' => 'nov', 'dec' => 'dez'
-    );
-    $month_str = isset($month_map[$month_lower]) ? $month_map[$month_lower] : $month_lower;
+    if ($timestamp && $timestamp > 0) {
+        $day = date('j', $timestamp); // Use 'j' for day without leading zero
+        $month = date('M', $timestamp);
+
+        // Convert to Portuguese abbreviations
+        $month_lower = strtolower($month);
+        $month_map = array(
+            'jan' => 'jan', 'feb' => 'fev', 'mar' => 'mar',
+            'apr' => 'abr', 'may' => 'mai', 'jun' => 'jun',
+            'jul' => 'jul', 'aug' => 'ago', 'sep' => 'set',
+            'oct' => 'out', 'nov' => 'nov', 'dec' => 'dez'
+        );
+        $month_str = isset($month_map[$month_lower]) ? $month_map[$month_lower] : $month_lower;
+    } else {
+        // Debug: Invalid date format
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG: Invalid date format: ' . esc_html($start_date) . ' -->';
+        }
+    }
+} else {
+    // Debug: No start date
+    if (current_user_can('administrator')) {
+        echo '<!-- DEBUG: No _event_start_date meta found -->';
+    }
 }
 
 // ✅ CORRECT: Banner is URL, not attachment ID
 $banner_url = '';
-if ($event_banner && filter_var($event_banner, FILTER_VALIDATE_URL)) {
-    $banner_url = $event_banner; // It's already a URL!
-} elseif ($event_banner && is_numeric($event_banner)) {
-    $banner_url = wp_get_attachment_url($event_banner); // Fallback if numeric
+if ($event_banner) {
+    // Try as URL first
+    if (filter_var($event_banner, FILTER_VALIDATE_URL)) {
+        $banner_url = $event_banner;
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG: Banner is valid URL: ' . esc_html($event_banner) . ' -->';
+        }
+    } elseif (is_numeric($event_banner)) {
+        $banner_url = wp_get_attachment_url($event_banner);
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG: Banner is attachment ID: ' . esc_html($event_banner) . ' -> ' . esc_html($banner_url) . ' -->';
+        }
+    } else {
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG: Banner value is neither URL nor numeric: ' . esc_html($event_banner) . ' (type: ' . gettype($event_banner) . ') -->';
+        }
+    }
+} else {
+    if (current_user_can('administrator')) {
+        echo '<!-- DEBUG: No _event_banner meta found -->';
+    }
 }
+
 if (!$banner_url) {
     $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
+    if (current_user_can('administrator')) {
+        echo '<!-- DEBUG: Using fallback banner -->';
+    }
 }
 ?>
 
@@ -145,8 +185,8 @@ if (!$banner_url) {
    
     <!-- Date Box -->
     <div class="box-date-event">
-        <span class="date-day"><?php echo $day; ?></span>
-        <span class="date-month"><?php echo $month_str; ?></span>
+        <span class="date-day"><?php echo $day ?: '--'; ?></span>
+        <span class="date-month"><?php echo $month_str ?: '---'; ?></span>
     </div>
     
     <!-- Event Image -->
