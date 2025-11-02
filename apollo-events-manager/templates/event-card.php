@@ -175,13 +175,39 @@ if (!$banner_url) {
         echo '<!-- DEBUG: Using fallback banner -->';
     }
 }
+
+// Debug: Show content analysis for card height
+if (current_user_can('administrator')) {
+    $content_height_factors = array(
+        'djs_count' => count($djs_names),
+        'local_length' => strlen($local_name . $local_region),
+        'tags_count' => count($sounds),
+        'title_length' => strlen($event_title)
+    );
+    
+    echo '<!-- DEBUG: Height factors - DJs: ' . $content_height_factors['djs_count'] . 
+         ', Local length: ' . $content_height_factors['local_length'] . 
+         ', Tags: ' . $content_height_factors['tags_count'] . 
+         ', Title length: ' . $content_height_factors['title_length'] . ' -->';
+}
+
+// Calculate content density for visual indicator
+$content_density = count($djs_names) + (strlen($local_name . $local_region) > 50 ? 2 : 1) + count($sounds);
+$density_class = $content_density > 5 ? 'high-density' : ($content_density > 3 ? 'medium-density' : 'low-density');
 ?>
 
 <a href="<?php echo get_permalink(); ?>" 
-   class="event_listing" 
+   class="event_listing <?php echo $density_class; ?>" 
    data-event-id="<?php echo $event_id; ?>" 
    data-category="<?php echo esc_attr($category_slug); ?>" 
-   data-month-str="<?php echo esc_attr($month_str); ?>">
+   data-month-str="<?php echo esc_attr($month_str); ?>"
+   data-density="<?php echo $content_density; ?>">
+   
+    <?php if (current_user_can('administrator')): ?>
+    <div class="admin-debug-indicator" style="position:absolute;top:5px;right:5px;background:<?php echo $content_density > 5 ? 'red' : ($content_density > 3 ? 'orange' : 'green'); ?>;color:white;padding:2px 5px;border-radius:3px;font-size:10px;z-index:1000;">
+        D:<?php echo $content_density; ?>
+    </div>
+    <?php endif; ?>
    
     <!-- Date Box -->
     <div class="box-date-event">

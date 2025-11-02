@@ -305,3 +305,4 @@ define('WP_DEBUG_DISPLAY', false);
 
 Tudo funcionando, tudo documentado, tudo seguro.
 
+

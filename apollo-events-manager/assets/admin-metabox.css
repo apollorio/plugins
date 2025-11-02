@@ -1,0 +1,160 @@
+/**
+ * Apollo Events Manager - Admin Metabox Styles
+ */
+
+.apollo-metabox-container {
+    padding: 15px;
+}
+
+.apollo-field-group {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.apollo-field-group:last-child {
+    border-bottom: none;
+}
+
+.apollo-field-group h3 {
+    margin: 0 0 15px 0;
+    padding: 10px 0;
+    font-size: 15px;
+    border-bottom: 2px solid #2271b1;
+    color: #1d2327;
+}
+
+.apollo-field {
+    margin-bottom: 20px;
+}
+
+.apollo-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.apollo-field-controls {
+    position: relative;
+}
+
+.apollo-field-controls select.widefat {
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+.apollo-field-controls .button {
+    margin-right: 5px;
+}
+
+.apollo-field-controls .description {
+    margin-top: 5px;
+    color: #646970;
+    font-style: italic;
+}
+
+/* Timetable Table */
+#apollo_timetable_table {
+    margin-top: 15px;
+}
+
+#apollo_timetable_table input[type="time"] {
+    width: 100%;
+    padding: 5px 8px;
+    font-size: 14px;
+}
+
+#apollo_timetable_empty {
+    margin: 15px 0;
+    text-align: center;
+}
+
+/* Dialog Forms */
+.ui-dialog .ui-dialog-content {
+    padding: 20px;
+}
+
+.ui-dialog input[type="text"],
+.ui-dialog input[type="url"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+.ui-dialog label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.ui-dialog p {
+    margin-bottom: 15px;
+}
+
+.ui-dialog p:last-of-type {
+    margin-bottom: 0;
+}
+
+.ui-dialog .description {
+    font-size: 13px;
+    color: #646970;
+    font-style: italic;
+}
+
+/* Messages in dialogs */
+#apollo_dj_form_message,
+#apollo_local_form_message {
+    padding: 10px;
+    border-left: 4px solid #72aee6;
+    background: #f0f6fc;
+    margin-top: 15px;
+}
+
+#apollo_dj_form_message.notice-error,
+#apollo_local_form_message.notice-error {
+    border-left-color: #d63638;
+    background: #fcf0f1;
+}
+
+#apollo_dj_form_message.notice-success,
+#apollo_local_form_message.notice-success {
+    border-left-color: #00a32a;
+    background: #f0f6fc;
+}
+
+#apollo_dj_form_message p,
+#apollo_local_form_message p {
+    margin: 0;
+}
+
+/* Buttons with dashicons */
+.button .dashicons {
+    vertical-align: middle;
+    margin-right: 5px;
+    margin-top: -2px;
+}
+
+/* Select multiple styling */
+select[multiple] {
+    height: auto !important;
+    min-height: 150px;
+}
+
+select[multiple] option {
+    padding: 6px 10px;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .apollo-metabox-container {
+        padding: 10px;
+    }
+    
+    .apollo-field-controls .button {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+

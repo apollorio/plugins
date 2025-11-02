@@ -75,6 +75,10 @@ class Apollo_Events_Manager_Plugin {
         add_action('wp_ajax_load_event_single', array($this, 'ajax_load_event_single'));
         add_action('wp_ajax_nopriv_load_event_single', array($this, 'ajax_load_event_single'));
         
+        // Favorites AJAX handlers
+        add_action('wp_ajax_toggle_favorite', array($this, 'ajax_toggle_favorite'));
+        add_action('wp_ajax_nopriv_toggle_favorite', array($this, 'ajax_toggle_favorite'));
+        
         // Force Brazil as default country
         add_filter('submit_event_form_fields', array($this, 'force_brazil_country'));
 
@@ -95,6 +99,11 @@ class Apollo_Events_Manager_Plugin {
 
         // Auto-geocoding for event_local posts
         add_action('save_post_event_local', array($this, 'auto_geocode_local'), 10, 2);
+
+        // Load admin metaboxes
+        if (is_admin()) {
+            require_once APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php';
+        }
 
         // Content injector for single events
         add_filter('the_content', array($this, 'inject_event_content'), 10);
@@ -476,14 +485,7 @@ class Apollo_Events_Manager_Plugin {
         return $location ?: __('Location TBA', 'apollo-events-manager');
     }
 
-    /**
-     * Get event organizer
-     */
-    private function get_event_organizer($event) {
-        $event_id = is_object($event) ? $event->ID : $event;
-        $organizer = get_post_meta($event_id, apollo_cfg()['meta']['event'][12], true); // _event_organizer
-        return $organizer ?: __('TBA', 'apollo-events-manager');
-    }
+    // REMOVED: get_event_organizer - not used in this plugin (only DJs and Local)
 
     /**
      * Get event banner
@@ -756,6 +758,38 @@ class Apollo_Events_Manager_Plugin {
     }
 
     /**
+     * Handle favorite toggle AJAX
+     */
+    public function ajax_toggle_favorite() {
+        $event_id = intval($_POST['event_id'] ?? 0);
+        
+        if (!$event_id) {
+            wp_send_json_error('Invalid event ID');
+        }
+        
+        // Get current favorites count
+        $current_count = get_post_meta($event_id, '_favorites_count', true);
+        $current_count = $current_count ? intval($current_count) : 0;
+        
+        // For now, just increment/decrement based on request
+        // TODO: Implement proper user-based favorites tracking
+        $action = sanitize_text_field($_POST['action_type'] ?? 'add');
+        
+        if ($action === 'add') {
+            $new_count = $current_count + 1;
+        } else {
+            $new_count = max(0, $current_count - 1);
+        }
+        
+        update_post_meta($event_id, '_favorites_count', $new_count);
+        
+        wp_send_json_success(array(
+            'count' => $new_count,
+            'action' => $action
+        ));
+    }
+
+    /**
      * Force Brazil as the default country
      */
     public function force_brazil_country($fields) {
@@ -794,12 +828,12 @@ class Apollo_Events_Manager_Plugin {
 
         // Add local selection field
         $fields['event']['event_local'] = array(
-            'label' => __('Venue', 'apollo-events-manager'),
+            'label' => __('Local', 'apollo-events-manager'),
             'type' => 'select',
             'required' => false,
             'options' => $this->get_local_options(),
-            'placeholder' => __('Select a venue', 'apollo-events-manager'),
-            'description' => __('Choose the event venue', 'apollo-events-manager'),
+            'placeholder' => __('Selecione um local', 'apollo-events-manager'),
+            'description' => __('Escolha o local do evento', 'apollo-events-manager'),
             'priority' => 9
         );
 
@@ -861,7 +895,7 @@ class Apollo_Events_Manager_Plugin {
      * Get local options for select field
      */
     private function get_local_options() {
-        $options = array('' => __('Select a venue', 'apollo-events-manager'));
+        $options = array('' => __('Selecione um local', 'apollo-events-manager'));
 
         $locals = get_posts(array(
             'post_type' => 'event_local',
@@ -895,10 +929,10 @@ class Apollo_Events_Manager_Plugin {
                 'description' => __('Select the DJs performing at this event', 'apollo-events-manager')
             ),
             'event_local' => array(
-                'label' => __('Venue', 'apollo-events-manager'),
+                'label' => __('Local', 'apollo-events-manager'),
                 'type' => 'select',
                 'required' => false,
-                'description' => __('Choose the event venue', 'apollo-events-manager')
+                'description' => __('Escolha o local do evento', 'apollo-events-manager')
             ),
             '_3_imagens_promo' => array(
                 'label' => __('Promotional Images', 'apollo-events-manager'),

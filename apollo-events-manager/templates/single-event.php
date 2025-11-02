@@ -21,30 +21,33 @@ $event_3_imagens_promo = get_post_meta($event_id, '_3_imagens_promo', true);
 $event_timetable = get_post_meta($event_id, '_timetable', true);
 $event_imagem_final = get_post_meta($event_id, '_imagem_final', true);
 
-// Local data with comprehensive validation
-$event_local_id = get_post_meta($event_id, '_event_local', true);
-$event_local_title = get_post_meta($event_id, '_event_location', true);
-$event_local_address = '';
-$event_local_regiao = '';
+// Local coordinates with comprehensive fallback
+$local_lat = '';
+$local_lng = '';
 
+// Try local coordinates (multiple meta key variations)
 if (!empty($event_local_id) && is_numeric($event_local_id)) {
-    $local_post = get_post($event_local_id);
+    $local_lat = get_post_meta($event_local_id, '_local_latitude', true);
+    if (empty($local_lat)) $local_lat = get_post_meta($event_local_id, '_local_lat', true);
 
-    if ($local_post && $local_post->post_status === 'publish') {
-        $temp_title = get_post_meta($event_local_id, '_local_name', true);
-        if (!empty($temp_title)) {
-            $event_local_title = $temp_title;
-        } else {
-            $event_local_title = $local_post->post_title;
-        }
-
-        $event_local_address = get_post_meta($event_local_id, '_local_address', true);
-        $event_local_city = get_post_meta($event_local_id, '_local_city', true);
-        $event_local_state = get_post_meta($event_local_id, '_local_state', true);
-        $event_local_regiao = $event_local_city && $event_local_state ? "({$event_local_city}, {$event_local_state})" :
-                             ($event_local_city ? "({$event_local_city})" : ($event_local_state ? "({$event_local_state})" : ''));
-    }
+    $local_lng = get_post_meta($event_local_id, '_local_longitude', true);
+    if (empty($local_lng)) $local_lng = get_post_meta($event_local_id, '_local_lng', true);
 }
+
+// Fallback to event coordinates
+if (empty($local_lat)) {
+    $local_lat = get_post_meta($event_id, '_event_latitude', true);
+    if (empty($local_lat)) $local_lat = get_post_meta($event_id, 'geolocation_lat', true);
+}
+
+if (empty($local_lng)) {
+    $local_lng = get_post_meta($event_id, '_event_longitude', true);
+    if (empty($local_lng)) $local_lng = get_post_meta($event_id, 'geolocation_long', true);
+}
+
+// Validate coordinates are numeric
+$local_lat = is_numeric($local_lat) ? floatval($local_lat) : 0;
+$local_lng = is_numeric($local_lng) ? floatval($local_lng) : 0;
 
 // Sounds/genres
 $event_sounds = wp_get_post_terms($event_id, 'event_sounds');
@@ -81,31 +84,36 @@ if (!$event_banner_url) {
     $event_banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
 }
 
-// YouTube processing
+// YouTube processing - comprehensive URL pattern matching
 $event_youtube_embed = '';
 if ($event_video_url) {
     $video_id = '';
-    if (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $event_video_url, $id)) {
-        $video_id = $id[1];
-    } elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $event_video_url, $id)) {
-        $video_id = $id[1];
+
+    // Try all YouTube URL patterns
+    if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $event_video_url, $matches)) {
+        $video_id = $matches[1];
     }
-    if ($video_id) {
+
+    if (!empty($video_id)) {
         $event_youtube_embed = "https://www.youtube.com/embed/{$video_id}?autoplay=1&mute=1&loop=1&playlist={$video_id}&controls=0&showinfo=0&modestbranding=1";
     }
 }
 
-// Favorites count
-$event_favorites_count = function_exists('favorites_get_count') ? favorites_get_count($event_id) : 40;
+// Favorites count - basic implementation
+$event_favorites_count = get_post_meta($event_id, '_favorites_count', true);
+$event_favorites_count = $event_favorites_count ? intval($event_favorites_count) : 0;
 
-// DJs from timetable with comprehensive validation
+// DJs from _event_dj_ids (primary) or _timetable (fallback) with comprehensive validation
 $event_djs = [];
-if (!empty($event_timetable) && is_array($event_timetable)) {
-    foreach ($event_timetable as $slot) {
-        if (isset($slot['dj']) && !empty($slot['dj'])) {
-            $dj_id = $slot['dj'];
 
-            if (is_numeric($dj_id)) {
+// PRIMARY: Try _event_dj_ids (serialized array)
+$dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+if (!empty($dj_ids_raw)) {
+    $dj_ids = maybe_unserialize($dj_ids_raw);
+    if (is_array($dj_ids)) {
+        foreach ($dj_ids as $dj_id_str) {
+            $dj_id = intval($dj_id_str); // Convert "92" to 92
+            if ($dj_id > 0) {
                 $dj_post = get_post($dj_id);
                 if ($dj_post && $dj_post->post_status === 'publish') {
                     $dj_name = get_post_meta($dj_id, '_dj_name', true);
@@ -117,21 +125,48 @@ if (!empty($event_timetable) && is_array($event_timetable)) {
                     if (empty($dj_img)) {
                         $dj_img = get_the_post_thumbnail_url($dj_id, 'full');
                     }
-                } else {
-                    continue; // Skip invalid DJ posts
-                }
-            } else {
-                $dj_name = $dj_id;
-                $dj_img = '';
-            }
 
-            if (!empty($dj_name)) {
-                $event_djs[] = [
-                    'name' => $dj_name,
-                    'image' => $dj_img ?: 'https://via.placeholder.com/100x100',
-                    'time_start' => isset($slot['time_start']) ? $slot['time_start'] : '',
-                    'time_end' => isset($slot['time_end']) ? $slot['time_end'] : ''
-                ];
+                    $event_djs[] = [
+                        'name' => $dj_name,
+                        'image' => $dj_img ?: 'https://via.placeholder.com/100x100',
+                        'time_start' => '', // No time data in _event_dj_ids
+                        'time_end' => ''
+                    ];
+                }
+            }
+        }
+    }
+}
+
+// FALLBACK: Only use _timetable if it's actually an array (ignore numeric values)
+if (empty($event_djs)) {
+    $timetable = get_post_meta($event_id, '_timetable', true);
+    if (!empty($timetable) && is_array($timetable)) {
+        foreach ($timetable as $slot) {
+            if (isset($slot['dj']) && !empty($slot['dj'])) {
+                $dj_id = $slot['dj'];
+
+                if (is_numeric($dj_id)) {
+                    $dj_post = get_post($dj_id);
+                    if ($dj_post && $dj_post->post_status === 'publish') {
+                        $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                        if (empty($dj_name)) {
+                            $dj_name = $dj_post->post_title;
+                        }
+
+                        $dj_img = get_post_meta($dj_id, '_dj_image', true);
+                        if (empty($dj_img)) {
+                            $dj_img = get_the_post_thumbnail_url($dj_id, 'full');
+                        }
+
+                        $event_djs[] = [
+                            'name' => $dj_name,
+                            'image' => $dj_img ?: 'https://via.placeholder.com/100x100',
+                            'time_start' => isset($slot['time_start']) ? $slot['time_start'] : '',
+                            'time_end' => isset($slot['time_end']) ? $slot['time_end'] : ''
+                        ];
+                    }
+                }
             }
         }
     }
@@ -394,21 +429,13 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 </script>
-    if (!$local_long) $local_long = get_post_meta($local_id, '_local_lng', true);
-    
-    // Get local images
+// Get local images
+$local_images = [];
+if (!empty($event_local_id) && is_numeric($event_local_id)) {
     for ($i = 1; $i <= 5; $i++) {
-        $img = get_post_meta($local_id, '_local_image_' . $i, true);
+        $img = get_post_meta($event_local_id, '_local_image_' . $i, true);
         if ($img) $local_images[] = $img;
     }
-}
-
-// If no local coordinates, try event coordinates (geocoded from event address)
-if (!$local_lat || !$local_long) {
-    $local_lat = get_post_meta($event_id, '_event_latitude', true);
-    $local_long = get_post_meta($event_id, '_event_longitude', true);
-    if (!$local_lat) $local_lat = get_post_meta($event_id, 'geolocation_lat', true);
-    if (!$local_long) $local_long = get_post_meta($event_id, 'geolocation_long', true);
 }
 
 // Get sounds/genres
@@ -676,20 +703,22 @@ if ($video_url) {
             <?php endif; ?>
 
             <!-- Map View -->
-            <?php if ($local_lat && $local_long) : ?>
+            <?php if ($local_lat && $local_lng && $local_lat !== 0 && $local_lng !== 0) : ?>
             <div class="map-view" id="eventMap" 
                  style="margin:00px auto 0px auto; z-index:0; width:100%; height:285px; border-radius:12px;"
                  data-lat="<?php echo esc_attr($local_lat); ?>"
-                 data-lng="<?php echo esc_attr($local_long); ?>">
+                 data-lng="<?php echo esc_attr($local_lng); ?>">
             </div>
             
             <script>
             // Initialize Leaflet map
             (function() {
                 if (typeof L === 'undefined') {
-                    console.error('Leaflet not loaded');
+                    console.error('❌ Leaflet library not loaded!');
                     return;
                 }
+                
+                console.log('✅ Leaflet loaded. Coords:', <?php echo $local_lat; ?>, <?php echo $local_lng; ?>);
                 
                 var mapEl = document.getElementById('eventMap');
                 if (!mapEl) return;
@@ -707,7 +736,7 @@ if ($video_url) {
                 }).addTo(map);
                 
                 var marker = L.marker([lat, lng]).addTo(map);
-                marker.bindPopup('<?php echo esc_js($local_name); ?>');
+                marker.bindPopup('<?php echo esc_js($event_local_title); ?>');
                 
                 // Route button handler
                 document.getElementById('route-btn')?.addEventListener('click', function() {
@@ -722,10 +751,18 @@ if ($video_url) {
                 });
             })();
             </script>
+            <?php else: ?>
+            <!-- Map Placeholder -->
+            <div class="map-placeholder" style="height:285px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border-radius:12px;">
+                <p style="color:#999;text-align:center;">
+                    <i class="ri-map-pin-line" style="font-size:2rem;"></i><br>
+                    Mapa disponível em breve
+                </p>
+            </div>
             <?php endif; ?>
 
             <!-- Route Controls -->
-            <?php if ($local_lat && $local_long) : ?>
+            <?php if ($local_lat && $local_lng && $local_lat !== 0 && $local_lng !== 0) : ?>
             <div class="route-controls" style="transform:translateY(-80px); padding:0 0.5rem;">
                 <div class="route-input">
                     <i class="ri-map-pin-line"></i>
@@ -803,6 +840,33 @@ if ($video_url) {
         </button>
     </div>
 </div>
+
+<script>
+// Favorites functionality
+document.getElementById('favoriteTrigger')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    var eventId = this.dataset.eventId;
+    var icon = this.querySelector('i');
+    
+    if (!eventId) {
+        console.error('No event ID found for favorite button');
+        return;
+    }
+    
+    // Toggle icon
+    if (icon.classList.contains('ri-heart-line')) {
+        icon.classList.remove('ri-heart-line');
+        icon.classList.add('ri-heart-fill');
+        // TODO: Send AJAX request to add favorite
+        console.log('Adding favorite for event:', eventId);
+    } else {
+        icon.classList.remove('ri-heart-fill');
+        icon.classList.add('ri-heart-line');
+        // TODO: Send AJAX request to remove favorite
+        console.log('Removing favorite for event:', eventId);
+    }
+});
+</script>
 
 <script src="https://assets.apollo.rio.br/event-page.js"></script>
 

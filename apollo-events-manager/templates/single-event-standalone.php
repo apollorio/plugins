@@ -446,7 +446,7 @@ if (!$css_content) {
             <?php endif; ?>
         </section>
 
-        <!-- Venue Section -->
+        <!-- Local Section -->
         <section class="section" id="route_ROUTE">
             <h2 class="section-title">
                 <i class="ri-map-pin-2-line"></i> <?php echo esc_html($event_local_title); ?>

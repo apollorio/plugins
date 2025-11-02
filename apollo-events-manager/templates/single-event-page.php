@@ -270,13 +270,34 @@ $favorites_count = 40;
         <?php endif; ?>
 
         <!-- DJ Lineup -->
-        <?php if (!empty($timetable) && is_array($timetable)): ?>
+        <?php
+        // ✅ CORRECT: Try _event_dj_ids first, then _timetable
+        $dj_lineup = [];
+        
+        // Try _event_dj_ids (serialized array)
+        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+        if (!empty($dj_ids_raw)) {
+            $dj_ids = maybe_unserialize($dj_ids_raw);
+            if (is_array($dj_ids)) {
+                foreach ($dj_ids as $dj_id) {
+                    $dj_lineup[] = ['dj' => intval($dj_id)];
+                }
+            }
+        }
+        
+        // Fallback: Use _timetable if available
+        if (empty($dj_lineup) && !empty($timetable) && is_array($timetable)) {
+            $dj_lineup = $timetable;
+        }
+        ?>
+        
+        <?php if (!empty($dj_lineup)): ?>
         <section class="section" id="route_LINE">
             <h2 class="section-title">
                 <i class="ri-disc-line"></i> Line-up
             </h2>
             <div class="lineup-list">
-                <?php foreach ($timetable as $slot):
+                <?php foreach ($dj_lineup as $slot):
                     // Support multiple timetable formats
                     $dj_id = isset($slot['dj']) ? $slot['dj'] : (isset($slot['dj_id']) ? $slot['dj_id'] : null);
                     $time_in = isset($slot['dj_time_in']) ? $slot['dj_time_in'] : (isset($slot['time_in']) ? $slot['time_in'] : '');
@@ -374,7 +395,7 @@ $favorites_count = 40;
             <?php endif; ?>
 
             <!-- Map View -->
-            <?php if ($local_lat && $local_long): ?>
+            <?php if ($local_lat && $local_long && $local_lat !== 0 && $local_long !== 0): ?>
             <div class="map-view" id="eventMap" 
                  style="margin:0 auto; z-index:0; width:100%; height:285px; border-radius:12px;"
                  data-lat="<?php echo esc_attr($local_lat); ?>"
@@ -384,6 +405,7 @@ $favorites_count = 40;
             <script>
             (function() {
                 if (typeof L !== 'undefined') {
+                    console.log('✅ Leaflet loaded. Coords:', <?php echo $local_lat; ?>, <?php echo $local_long; ?>);
                     var mapEl = document.getElementById('eventMap');
                     if (mapEl) {
                         var lat = parseFloat(mapEl.dataset.lat);
@@ -397,15 +419,26 @@ $favorites_count = 40;
                             L.marker([lat, lng]).addTo(map).bindPopup('<?php echo esc_js($local_name); ?>');
                         }
                     }
+                } else {
+                    console.error('❌ Leaflet library not loaded!');
                 }
             })();
             </script>
             <?php else: ?>
-            <div class="map-view" style="margin:0 auto; z-index:0; background:green; width:100%; height:285px; border-radius:12px; background-image:url('https://img.freepik.com/premium-vector/city-map-scheme-background-flat-style-vector-illustration_833641-2300.jpg'); background-size:cover; background-repeat:no-repeat; background-position:center;">
+            <!-- Map Placeholder -->
+            <div class="map-placeholder" style="height:285px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border-radius:12px;margin:0 auto;width:100%;">
+                <p style="color:#999;text-align:center;">
+                    <i class="ri-map-pin-line" style="font-size:2rem;"></i><br>
+                    Mapa disponível em breve
+                </p>
             </div>
+            <script>
+            console.log('⚠️ Map not displayed - no coordinates found for event <?php echo $event_id; ?>');
+            </script>
             <?php endif; ?>
 
             <!-- Route Controls -->
+            <?php if ($local_lat && $local_long && $local_lat !== 0 && $local_long !== 0): ?>
             <div class="route-controls" style="transform:translateY(-80px); padding:0 0.5rem;">
                 <div class="route-input">
                     <i class="ri-map-pin-line"></i>
@@ -419,19 +452,16 @@ $favorites_count = 40;
             <script>
             document.getElementById('route-btn')?.addEventListener('click', function() {
                 var origin = document.getElementById('origin-input').value;
-                <?php if ($local_lat && $local_long): ?>
                 if (origin) {
                     var url = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(origin) + 
-                              '&destination=<?php echo $local_lat; ?>,<?php echo $local_long; ?>';
+                              '&destination=<?php echo $local_lat; ?>,<?php echo $local_long; ?>&travelmode=driving';
                     window.open(url, '_blank');
                 } else {
                     alert('Digite seu endereço de partida');
                 }
-                <?php else: ?>
-                alert('Coordenadas do local não disponíveis');
-                <?php endif; ?>
             });
             </script>
+            <?php endif; ?>
         </section>
 
         <!-- Tickets Section -->
