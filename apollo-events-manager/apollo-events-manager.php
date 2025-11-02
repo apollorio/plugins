@@ -102,7 +102,10 @@ class Apollo_Events_Manager_Plugin {
 
         // Load admin metaboxes
         if (is_admin()) {
-            require_once APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php';
+            $admin_file = APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php';
+            if (file_exists($admin_file)) {
+                require_once $admin_file;
+            }
         }
 
         // Content injector for single events
@@ -456,18 +459,12 @@ class Apollo_Events_Manager_Plugin {
         ob_start();
         if ($events) {
             foreach ($events as $event) {
-                $event_id = $event->ID;
-                $start_date = get_post_meta($event_id, '_event_start_date', true);
-                $location = $this->get_event_location($event);
-                $categories = get_the_terms($event_id, 'event_listing_category');
-                $category_slug = $categories ? $categories[0]->slug : 'music';
-                $month_short = date('M', strtotime($start_date));
-                $day = date('j', strtotime($start_date));
-                $banner = $this->get_event_banner($event_id);
-                $banner_url = is_array($banner) ? $banner[0] : '';
-
+                global $post;
+                $post = $event;
+                setup_postdata($post);
                 include APOLLO_WPEM_PATH . 'templates/content-event_listing.php';
             }
+            wp_reset_postdata();
         } else {
             echo '<p>' . esc_html__('No events found.', 'apollo-events-manager') . '</p>';
         }
@@ -1022,18 +1019,32 @@ class Apollo_Events_Manager_Plugin {
     public function save_custom_event_fields($post_id, $post) {
         // Save DJs
         if (isset($_POST['event_djs'])) {
-            $djs = array_map('intval', (array) $_POST['event_djs']);
-            update_post_meta($post_id, '_event_djs', $djs);
+            $djs = array_map('strval', array_map('intval', (array) $_POST['event_djs']));
+            update_post_meta($post_id, '_event_dj_ids', serialize($djs));
         }
 
         // Save local
         if (isset($_POST['event_local'])) {
-            update_post_meta($post_id, '_event_local', intval($_POST['event_local']));
+            update_post_meta($post_id, '_event_local_ids', intval($_POST['event_local']));
         }
 
         // Save timetable
-        if (isset($_POST['timetable'])) {
-            update_post_meta($post_id, '_timetable', $_POST['timetable']);
+        if (isset($_POST['timetable']) && is_array($_POST['timetable'])) {
+            $clean_timetable = array();
+            foreach ($_POST['timetable'] as $slot) {
+                if (!empty($slot['dj']) && !empty($slot['start'])) {
+                    $clean_timetable[] = array(
+                        'dj' => intval($slot['dj']),
+                        'start' => sanitize_text_field($slot['start']),
+                        'end' => sanitize_text_field($slot['end'] ?? $slot['start'])
+                    );
+                }
+            }
+            // Sort by start time
+            usort($clean_timetable, function($a, $b) {
+                return strcmp($a['start'], $b['start']);
+            });
+            update_post_meta($post_id, '_event_timetable', $clean_timetable);
         }
 
         // Save promotional images
@@ -1107,6 +1118,11 @@ class Apollo_Events_Manager_Plugin {
 
 // Initialize the plugin
 new Apollo_Events_Manager_Plugin();
+
+// Clear cache when event is saved
+add_action('save_post_event_listing', function($post_id) {
+    wp_cache_flush_group('apollo_events');
+});
 
 // Log verification completion
 if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
