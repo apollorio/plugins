@@ -1,11 +1,15 @@
 <?php
 /**
- * Single Event Standalone Template
- * For direct page access (not lightbox)
- * Based 100% on CodePen EaPpjXP
+ * Template: Single Event Apollo
+ * Baseado 100% no CodePen JoGvgaY
+ * URL: https://codepen.io/Rafael-Valle-the-looper/pen/JoGvgaY
+ * 
+ * STRICT MODE: Este template é SEMPRE usado para /evento/{slug}, independente do tema.
  */
 
 defined('ABSPATH') || exit;
+
+get_header(); // Use WordPress header
 
 $event_id = get_the_ID();
 
@@ -148,19 +152,9 @@ $event_favorites_count = function_exists('favorites_get_count') ? favorites_get_
 $event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
 if (is_wp_error($event_tags)) $event_tags = [];
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
-    <title><?php echo esc_html($event_title); ?> @ <?php echo $event_day . ' ' . $event_month; ?> - Apollo::rio</title>
-    <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-    
-    <?php wp_head(); ?>
-</head>
-<body>
-<div class="mobile-container">
+
+<!-- Apollo Single Event Container -->
+<div class="apollo-single mobile-container">
     <!-- Hero Media -->
     <div class="hero-media">
         <?php if ($event_youtube_embed): ?>
@@ -682,6 +676,8 @@ if (is_wp_error($event_tags)) $event_tags = [];
     console.log('✅ Favorites system initialized (placeholder mode)');
 })();
 </script>
-</body>
-</html>
+
+</div><!-- .apollo-single -->
+
+<?php get_footer(); // Use WordPress footer ?>
 

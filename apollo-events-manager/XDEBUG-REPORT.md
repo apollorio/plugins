@@ -609,3 +609,6 @@ Este é apenas um relatório de análise.
 
 **Próximo passo:** Decidir qual opção de correção usar (A ou B)
 
+
+
+

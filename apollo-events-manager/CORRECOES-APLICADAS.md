@@ -1,192 +1,147 @@
-# ✅ CORREÇÕES APLICADAS - Apollo Events Manager
+# ✅ CORREÇÕES APLICADAS - Portal Discover
 
-**Data**: 2025-10-27
-**Status**: ✅ Plugin corrigido e funcionando
-
----
-
-## 🔧 PROBLEMAS CORRIGIDOS:
-
-### 1. ✅ Config.php com lixo removido
-**Arquivo**: `includes/config.php`
-**Linha**: 20
-**Problema**: Path do plugin no final
-**Solução**: Removido
-
-### 2. ✅ CSS da Apollo.rio.br integrado
-**Arquivo**: `apollo-events-manager.php` + `apollo-canvas.php`
-**Problema**: Usava assets locais, não externos
-**Solução**: Adicionado link direto para `https://assets.apollo.rio.br/uni.css`
-
-**Ordem de carregamento**:
-1. `https://assets.apollo.rio.br/uni.css` (PRIMARY)
-2. `https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css`
-3. Assets locais (FALLBACK)
-
-### 3. ✅ Templates criados
-**Novos arquivos**:
-- `templates/single-event.php` ← Single event page completo
-- `templates/event-card.php` ← Event card para loop
-
-### 4. ✅ Shortcode [eventos-page] adicionado
-**Arquivo**: `apollo-events-manager.php`
-**Novo método**: `eventos_page_shortcode()`
-**Features**:
-- Loop completo de eventos
-- Filtros por categoria
-- Date picker
-- Search box
-- Lightbox AJAX
-- Banner highlight
-
-### 5. ✅ AJAX handler para lightbox
-**Action**: `load_event_single`
-**Template**: `templates/single-event.php`
-**Features**:
-- Carrega evento via AJAX
-- Exibe em modal mobile-first
-- Fecha com ESC ou click overlay
-
-### 6. ✅ Template canvas otimizado
-**Arquivo**: `templates/apollo-canvas.php`
-**Melhorias**:
-- CSS externo da Apollo primeiro
-- Whitelist inteligente (mantém jQuery, etc)
-- Variáveis CSS ativas (--bg-main, --font-primary)
+**Data:** 2025-11-04  
+**Arquivos Modificados:** 4 arquivos
 
 ---
 
-## 📦 ESTRUTURA FINAL:
+## 📋 PROBLEMAS CORRIGIDOS
 
-```
-apollo-events-manager/
-├── apollo-events-manager.php      ✅ 640 linhas (atualizado)
-├── includes/
-│   └── config.php                 ✅ 17 linhas (corrigido)
-├── assets/
-│   ├── uni.css                    ✅ 1997 linhas (local fallback)
-│   └── uni.js                     ✅ 798 linhas (local fallback)
-├── templates/
-│   ├── apollo-canvas.php          ✅ Canvas template (corrigido)
-│   ├── event-listings-start.php   ✅ Header/filtros
-│   ├── event-card.php             ✅ NOVO - Event card
-│   ├── single-event.php           ✅ NOVO - Single event
-│   ├── event-listings-end.php     ✅ Footer
-│   └── (arquivos legados mantidos)
-└── DEBUG-CHECKLIST.md             ✅ Guia de debug
-```
+### ✅ PROBLEMA 1: MODAL NÃO ABRE AO CLICAR NO CARD
+
+**Correção:**
+- ✅ Criado arquivo `includes/ajax-handlers.php` com handler `apollo_ajax_load_event_modal()`
+- ✅ Handler registrado com action `apollo_load_event_modal` (corrigido de `apollo_get_event_modal`)
+- ✅ JavaScript atualizado para usar action correto: `apollo_load_event_modal`
+- ✅ Inclusão do ajax-handlers.php no plugin principal adicionada
+
+**Arquivos:**
+- `includes/ajax-handlers.php` (NOVO)
+- `assets/js/apollo-events-portal.js` (CORRIGIDO)
+- `apollo-events-manager.php` (MODIFICADO - linha ~104)
 
 ---
 
-## 🎯 SHORTCODES DISPONÍVEIS:
+### ✅ PROBLEMA 2: DJs NÃO APARECEM NOS CARDS
 
-### 1. `[apollo_events]`
-- **Uso**: Loop simples de eventos
-- **Template**: event-listings-start + event-card + event-listings-end
-- **CSS**: Carrega automaticamente
+**Correção:**
+- ✅ Lógica robusta com 3 tentativas de fallback:
+  1. `_timetable` (array de slots com DJs)
+  2. `_dj_name` direto no evento (meta)
+  3. `_event_djs` (relationships array)
+- ✅ Error log adicionado: `error_log("❌ Apollo: Evento #{$event_id} sem DJs")`
+- ✅ Display sempre mostra algo: "Line-up em breve" se vazio
 
-### 2. `[eventos-page]`
-- **Uso**: Portal completo com filtros/busca/lightbox
-- **Template**: Inline no shortcode (completo)
-- **CSS**: Carrega automaticamente
-- **Features**: Filtros, busca, date picker, lightbox
-
----
-
-## 🌐 ASSETS EXTERNOS USADOS:
-
-### CSS (Priority Order):
-1. **https://assets.apollo.rio.br/uni.css** ← PRIMARY
-2. **https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css**
-3. `../assets/uni.css` ← Fallback local
-
-### JavaScript:
-1. **https://assets.apollo.rio.br/base.js**
-2. **https://assets.apollo.rio.br/event-page.js**
-3. `../assets/uni.js` ← Fallback local
+**Arquivos:**
+- `templates/portal-discover.php` (linhas 224-300)
 
 ---
 
-## 🧪 TESTE AGORA:
+### ✅ PROBLEMA 3: LOCAL NÃO APARECE NOS CARDS
 
-### 1. Acesse:
-```
-http://localhost:10004/eventos/
-```
+**Correção:**
+- ✅ Validação robusta do formato "Local | Área"
+- ✅ Split por "|" APENAS se existe "|"
+- ✅ Fallback: exibe só nome sem área se não tiver pipe
+- ✅ Error log adicionado: `error_log("⚠️ Apollo: Evento #{$event_id} sem local")`
 
-### 2. DevTools (F12) → Network:
-Verifique se carregam:
-- ✅ `uni.css` (from assets.apollo.rio.br)
-- ✅ `remixicon.css` (from cdn.jsdelivr.net)
-- ✅ `base.js` (from assets.apollo.rio.br)
-- ✅ `event-page.js` (from assets.apollo.rio.br)
-
-### 3. Elements Inspector:
-Classes CSS devem estar aplicadas:
-- `.event_listing`
-- `.box-date-event`
-- `.picture`
-- `.event-line`
-
-### 4. Console:
-Não deve ter erros. Se tiver "$ is not defined" → jQuery problema.
+**Arquivos:**
+- `templates/portal-discover.php` (linhas 302-319)
 
 ---
 
-## 💡 MELHORIAS IMPLEMENTADAS:
+### ✅ PROBLEMA 4: PÁGINA LENTA (PERFORMANCE)
 
-### Assets Externos vs Locais:
-- **Externos**: Sempre carregam primeiro
-- **Locais**: Fallback se CDN falhar
-- **Ordem**: Importa! CSS Apollo depois do RemixIcon
+**Correção:**
+- ✅ Query limitada a 50 eventos (não mais -1)
+- ✅ Transient cache de 5 minutos implementado
+- ✅ `update_meta_cache()` pré-carrega todos os metas (evita N+1 queries)
+- ✅ Imagens já têm `loading="lazy"` (já estava correto)
 
-### Template System:
-- **Loop**: Usa `setup_postdata()` corretamente
-- **Includes**: Usa `include` ao invés de `get_template_part()`
-- **Global $post**: Acessível em todos os templates
-
-### AJAX Lightbox:
-- **Action**: `load_event_single`
-- **Response**: HTML completo do single-event.php
-- **Mobile**: Design 9:16 perfeito para modal
+**Arquivos:**
+- `templates/portal-discover.php` (linhas 164-203)
 
 ---
 
-## 🎉 RESULTADO ESPERADO:
+## 📁 ARQUIVOS COMPLETOS CRIADOS/MODIFICADOS
 
-```
-Página /eventos/ deve mostrar:
-✅ Hero section com título
-✅ Filtros por categoria (Underground, Mainstream, etc)
-✅ Date picker (prev/next month)
-✅ Search box com typewriter placeholder
-✅ Grid de eventos com cards estilizados
-✅ Date box em cada card (cutout effect)
-✅ Tags de gênero nos cards
-✅ Banner highlight no final
-✅ Lightbox ao clicar em evento
-✅ Dark mode toggle funcionando
-```
+### 1. `includes/ajax-handlers.php` (NOVO)
+- Handler AJAX completo para modal
+- Processa DJs, local, banner, data
+- Retorna HTML completo do modal
 
----
+### 2. `assets/js/apollo-events-portal.js` (CORRIGIDO)
+- Action corrigido: `apollo_load_event_modal`
+- Feedback visual de loading
+- Error handling melhorado
+- Event delegation otimizado
 
-## 🚀 PRÓXIMO PASSO:
+### 3. `templates/portal-discover.php` (CORRIGIDO)
+- Query otimizada com cache
+- Lógica robusta de DJs (3 fallbacks)
+- Lógica robusta de Local (validação)
+- Error logs para debug
 
-**TESTE AGORA**: `http://localhost:10004/eventos/`
-
-**Se CSS não carregar**:
-1. Hard refresh: `Ctrl + Shift + R`
-2. Verifique Network tab
-3. Me mostre screenshot ou View Source
-
-**Se carregar mas estiver quebrado**:
-1. Console errors
-2. Elements inspector (classes aplicadas?)
-3. Specific CSS rules
+### 4. `apollo-events-manager.php` (MODIFICADO)
+- Linha ~104: `require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';`
 
 ---
 
-**Confidence: 98%** que vai funcionar agora! 🎯
+## 🧪 CHECKLIST DE VALIDAÇÃO
 
-**Todos os templates necessários foram criados e o CSS externo está linkado corretamente.**
+Após aplicar as correções, teste:
 
+1. [ ] Clicar em card de evento → Modal abre
+2. [ ] Modal mostra título, banner, data, DJs, descrição
+3. [ ] Cards mostram DJs (se tiver) ou "Line-up em breve"
+4. [ ] Cards mostram Local (se tiver)
+5. [ ] Página carrega em < 2 segundos
+6. [ ] Debug logs aparecem no error.log do WP (se eventos sem DJs/local)
+7. [ ] Transient cache funciona (5 min) - testar recarregando página
+8. [ ] Imagens lazy-load corretamente
+
+---
+
+## 🔍 PRÓXIMOS PASSOS RECOMENDADOS
+
+1. **Testar no frontend:**
+   - Abrir `/eventos/` no navegador
+   - Verificar console do navegador (F12) para erros JS
+   - Clicar em cards de eventos
+   - Verificar se modal abre e carrega conteúdo
+
+2. **Verificar logs:**
+   - Abrir `wp-content/debug.log` (se WP_DEBUG está ativo)
+   - Procurar por mensagens "❌ Apollo: Evento #X sem DJs"
+   - Procurar por mensagens "⚠️ Apollo: Evento #X sem local"
+
+3. **Limpar cache (se necessário):**
+   ```php
+   // Adicionar temporariamente no functions.php ou no plugin:
+   delete_transient('apollo_upcoming_events_' . date('Ymd'));
+   ```
+
+4. **Verificar se CSS do modal está no uni.css:**
+   - Confirmar que estilos de `.apollo-event-modal` existem
+   - Verificar `MODAL-CSS-REQUIRED.md` para referência
+
+---
+
+## 📊 IMPACTO ESPERADO
+
+### Performance:
+- **Antes:** Query sem limite (-1) + N+1 queries de meta = lento
+- **Depois:** Limite 50 + meta cache + transient = rápido (< 2s)
+
+### Funcionalidade:
+- **Antes:** Modal não abria, DJs/local não apareciam
+- **Depois:** Modal funciona, DJs/local sempre exibidos (com fallbacks)
+
+### Debug:
+- **Antes:** Sem logs, difícil identificar problemas
+- **Depois:** Error logs mostram eventos sem DJs/local
+
+---
+
+**Status:** ✅ TODAS AS CORREÇÕES APLICADAS  
+**Pronto para:** Testes no frontend
