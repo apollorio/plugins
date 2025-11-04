@@ -26,89 +26,6 @@ define('APOLLO_WPEM_URL', plugin_dir_url(__FILE__));
 if (!defined('APOLLO_DEBUG')) {
     define('APOLLO_DEBUG', false);
 }
-// === Capabilities e ativação ===
-register_activation_hook(__FILE__, function() {
-    // Define capability customizada para visualizar estatísticas
-    $cap = 'view_apollo_event_stats';
-    $roles_to_grant = array('administrator', 'editor');
-    foreach ($roles_to_grant as $role_name) {
-        $role = get_role($role_name);
-        if ($role && !$role->has_cap($cap)) {
-            $role->add_cap($cap);
-        }
-    }
-    // Define papéis permitidos por padrão (configurável depois)
-    if (get_option('apollo_stats_allowed_roles') === false) {
-        update_option('apollo_stats_allowed_roles', $roles_to_grant);
-    }
-});
-
-// Helper básico disponível globalmente para futuros módulos (social/analytics)
-if (!function_exists('apollo_record_event_view')) {
-    function apollo_record_event_view($event_id) {
-        $event_id = intval($event_id);
-        if ($event_id <= 0) return;
-        $views = (int) get_post_meta($event_id, '_apollo_event_views', true);
-        $views++;
-        update_post_meta($event_id, '_apollo_event_views', $views);
-        do_action('apollo_event_viewed', $event_id, get_current_user_id());
-    }
-}
-
-
-/**
- * Helper function: Parse event start date
- * Aceita _event_start_date em "Y-m-d", "Y-m-d H:i:s" ou o que strtotime() aceitar.
- * Retorna array com: timestamp, day, month_pt, iso_date, iso_dt
- */
-if (!function_exists('apollo_eve_parse_start_date')) {
-    function apollo_eve_parse_start_date($raw) {
-        $raw = trim((string) $raw);
-        
-        if ($raw === '') {
-            return array(
-                'timestamp' => null,
-                'day'       => '',
-                'month_pt'  => '',
-                'iso_date'  => '',
-                'iso_dt'    => '',
-            );
-        }
-        
-        // 1) tenta parser direto
-        $ts = strtotime($raw);
-        
-        // 2) fallback: se vier só "Y-m-d", garante datetime
-        if (!$ts) {
-            $dt = DateTime::createFromFormat('Y-m-d', $raw);
-            if ($dt instanceof DateTime) {
-                $ts = $dt->getTimestamp();
-            }
-        }
-        
-        if (!$ts) {
-            // nada deu certo
-            return array(
-                'timestamp' => null,
-                'day'       => '',
-                'month_pt'  => '',
-                'iso_date'  => '',
-                'iso_dt'    => '',
-            );
-        }
-        
-        $pt_months = array('jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez');
-        $month_idx = (int) date_i18n('n', $ts) - 1;
-        
-        return array(
-            'timestamp' => $ts,
-            'day'       => date_i18n('d', $ts),
-            'month_pt'  => $pt_months[$month_idx] ?? '',
-            'iso_date'  => date_i18n('Y-m-d', $ts),
-            'iso_dt'    => date_i18n('Y-m-d H:i:s', $ts),
-        );
-    }
-}
 
 // apollo-events-manager.php (top-level helper) - DEFENSIVE VERSION
 function apollo_cfg(): array {
@@ -131,62 +48,6 @@ function apollo_cfg(): array {
     $cfg = is_array($loaded) ? $loaded : [];
     return $cfg;
 }
-
-// Include AJAX handlers
-require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
-
-// Include Dashboard
-require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-dashboard.php';
-
-// === Admin: página "Shortcodes & Placeholders" (documentação)
-add_action('admin_menu', function() {
-    // Determina se o usuário pode ver estatísticas/documentação
-    $allowed_roles = (array) get_option('apollo_stats_allowed_roles', array('administrator'));
-    $user = wp_get_current_user();
-    $can_view = current_user_can('view_apollo_event_stats');
-    if (!$can_view) {
-        foreach ($allowed_roles as $role) {
-            if (in_array($role, (array) $user->roles, true)) {
-                $can_view = true;
-                break;
-            }
-        }
-    }
-    $capability = $can_view ? 'read' : 'manage_options';
-
-    // Adiciona como submenu do Dashboard Apollo (se existir)
-    add_submenu_page(
-        'apollo-events-dashboard',
-        __('Shortcodes & Placeholders', 'apollo-events-manager'),
-        __('Shortcodes & Placeholders', 'apollo-events-manager'),
-        $capability,
-        'apollo-events-docs',
-        function() {
-            echo '<div class="wrap">';
-            echo '<h1>Shortcodes & Placeholders</h1>';
-            echo '<p>Referência rápida de shortcodes e meta keys usadas no portal de eventos.</p>';
-            echo '<h2>Shortcodes</h2><ul>';
-            echo '<li><code>[apollo_events]</code> — (opcional) exibe listagem de eventos.</li>';
-            echo '</ul>';
-            echo '<h2>Meta keys (Eventos)</h2>';
-            echo '<table class="widefat"><thead><tr><th>Meta key</th><th>Descrição</th></tr></thead><tbody>';
-            $rows = array(
-                array('_event_start_date', 'Data/hora de início (Y-m-d ou Y-m-d H:i:s)'),
-                array('_event_location', 'Local | Área (string)'),
-                array('_event_banner', 'Banner do evento (ID ou URL)'),
-                array('_timetable', 'Slots de DJs (array serializado com dj/time)'),
-                array('_dj_name', 'Fallback de DJ (string)'),
-                array('_event_djs', 'Relacionamento com posts de DJ (array de IDs)'),
-                array('_apollo_event_views', 'Contador de visualizações do evento (int)'),
-            );
-            foreach ($rows as $r) {
-                printf('<tr><td><code>%s</code></td><td>%s</td></tr>', esc_html($r[0]), esc_html($r[1]));
-            }
-            echo '</tbody></table>';
-            echo '</div>';
-        }
-    );
-});
 
 /**
  * Main Plugin Class
@@ -222,10 +83,6 @@ class Apollo_Events_Manager_Plugin {
         // Favorites AJAX handlers
         add_action('wp_ajax_toggle_favorite', array($this, 'ajax_toggle_favorite'));
         add_action('wp_ajax_nopriv_toggle_favorite', array($this, 'ajax_toggle_favorite'));
-        
-        // Modal AJAX handler
-        add_action('wp_ajax_apollo_get_event_modal', array($this, 'ajax_get_event_modal'));
-        add_action('wp_ajax_nopriv_apollo_get_event_modal', array($this, 'ajax_get_event_modal'));
         
         // Force Brazil as default country
         add_filter('submit_event_form_fields', array($this, 'force_brazil_country'));
@@ -386,67 +243,47 @@ class Apollo_Events_Manager_Plugin {
 
     /**
      * Ensure the Eventos page exists (self-healing)
-     * Uses helper function to check trash status - does NOT create if in trash
      */
     public function ensure_events_page() {
         if (is_admin()) return;
-        
-        $events_page = apollo_em_get_events_page();
-        
-        // Only create if page doesn't exist at all (not in trash)
-        // Restoration from trash should only happen on activation
-        if (!$events_page) {
+        $slug = 'eventos';
+        if (!get_page_by_path($slug)) {
             $page_id = wp_insert_post([
                 'post_title'   => 'Eventos',
-                'post_name'    => 'eventos',
+                'post_name'    => $slug,
                 'post_status'  => 'publish',
                 'post_type'    => 'page',
-                'post_content' => '[apollo_events_portal]',
+                'post_content' => '[apollo_events]',
             ]);
             if ($page_id && !is_wp_error($page_id)) {
                 flush_rewrite_rules(false);
-                error_log('✅ Apollo: Auto-created /eventos/ page (ID: ' . $page_id . ')');
             }
         }
     }
 
     /**
-     * Force Apollo templates for events - STRICT MODE
-     * Plugin templates ALWAYS override theme, regardless of active theme
-     * 
-     * This ensures visual consistency matching CodePens:
-     * - /eventos/ → templates/portal-discover.php (raxqVGR)
-     * - /evento/{slug} → templates/single-event-standalone.php (JoGvgaY)
+     * Override template for Eventos page (canvas mode)
+     * Improved with theme template check and admin guard
      */
     public function canvas_template($template) {
-        // Don't override in admin
-        if (is_admin()) {
+        // Don't override in admin or if not the eventos page
+        if (!is_page('eventos') || is_admin()) {
             return $template;
         }
         
-        // FORCE SINGLE EVENT TEMPLATE
-        // Any single event_listing MUST use our standalone template
-        if (is_singular('event_listing')) {
-            $plugin_template = APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
-            if (file_exists($plugin_template)) {
-                // Log for debugging
-                error_log('🎯 Apollo: Forcing single-event-standalone.php for event: ' . get_the_ID());
-                return $plugin_template;
-            }
+        // If theme already has page-eventos.php, don't override
+        $theme_template = locate_template('page-eventos.php');
+        if ($theme_template) {
+            return $theme_template;
         }
         
-        // FORCE ARCHIVE/LIST TEMPLATE
-        // /eventos/ page OR event_listing archive MUST use portal-discover
-        if (is_page('eventos') || is_post_type_archive('event_listing')) {
-            $plugin_template = APOLLO_WPEM_PATH . 'templates/portal-discover.php';
-            if (file_exists($plugin_template)) {
-                // Log for debugging
-                error_log('🎯 Apollo: Forcing portal-discover.php for /eventos/');
-                return $plugin_template;
-            }
+        global $post;
+        // Don't override if page has eventos-page shortcode
+        if (isset($post) && has_shortcode($post->post_content, 'eventos-page')) {
+            return $template;
         }
         
-        return $template;
+        return APOLLO_WPEM_PATH . 'templates/portal-discover.php';
     }
 
     /**
@@ -496,17 +333,8 @@ class Apollo_Events_Manager_Plugin {
                 true
             );
             
-            // Portal modal handler (local JS)
-            wp_enqueue_script(
-                'apollo-events-portal',
-                APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
-                array(), // Vanilla JS, sem dependências
-                '1.0.1',
-                true
-            );
-            
-            // Localize for AJAX (shared between base.js and portal.js)
-            wp_localize_script('apollo-events-portal', 'apollo_events_ajax', array(
+            // Localize for AJAX
+            wp_localize_script('apollo-base-js', 'apollo_events_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('apollo_events_nonce')
             ));
@@ -1049,168 +877,6 @@ class Apollo_Events_Manager_Plugin {
     }
 
     /**
-     * AJAX handler for event modal content
-     * Returns HTML for the lightbox modal
-     */
-    public function ajax_get_event_modal() {
-        // Verificar nonce
-        check_ajax_referer('apollo_events_nonce', 'nonce');
-        
-        // Validar ID
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
-        if (!$event_id) {
-            wp_send_json_error(array('message' => 'ID do evento inválido'));
-        }
-        
-        // Verificar se evento existe
-        $post = get_post($event_id);
-        if (!$post || $post->post_type !== 'event_listing' || $post->post_status !== 'publish') {
-            wp_send_json_error(array('message' => 'Evento não encontrado'));
-        }
-        
-        // Obter dados do evento
-        $start_date_raw = get_post_meta($event_id, '_event_start_date', true);
-        $event_location_r = get_post_meta($event_id, '_event_location', true);
-        $event_banner = get_post_meta($event_id, '_event_banner', true);
-        $timetable = get_post_meta($event_id, '_timetable', true);
-        
-        // Processar data
-        $date_info = apollo_eve_parse_start_date($start_date_raw);
-        $day = $date_info['day'];
-        $month_pt = $date_info['month_pt'];
-        
-        // Processar localização
-        $event_location = '';
-        $event_location_area = '';
-        if (!empty($event_location_r)) {
-            if (strpos($event_location_r, '|') !== false) {
-                list($event_location, $event_location_area) = array_map('trim', explode('|', $event_location_r, 2));
-            } else {
-                $event_location = trim($event_location_r);
-            }
-        }
-        
-        // Processar DJs
-        $djs_names = array();
-        if (!empty($timetable) && is_array($timetable)) {
-            foreach ($timetable as $slot) {
-                if (empty($slot['dj'])) {
-                    continue;
-                }
-                $dj_id = $slot['dj'];
-                if (is_numeric($dj_id)) {
-                    $dj_post = get_post($dj_id);
-                    if ($dj_post && $dj_post->post_status === 'publish') {
-                        $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                        if (empty($dj_name)) {
-                            $dj_name = $dj_post->post_title;
-                        }
-                        if (!empty($dj_name)) {
-                            $djs_names[] = trim($dj_name);
-                        }
-                    }
-                } else {
-                    $djs_names[] = trim((string) $dj_id);
-                }
-            }
-        }
-        
-        // Fallback DJ meta
-        $event_dj_meta = get_post_meta($event_id, '_dj_name', true);
-        if (!empty($event_dj_meta)) {
-            $djs_names[] = trim($event_dj_meta);
-        }
-        
-        $djs_names = array_values(array_unique(array_filter($djs_names)));
-        
-        // Formatar display de DJs
-        if (!empty($djs_names)) {
-            $max_visible = 6;
-            $visible = array_slice($djs_names, 0, $max_visible);
-            $remaining = max(count($djs_names) - $max_visible, 0);
-            
-            $dj_display = '<strong>' . esc_html($visible[0]) . '</strong>';
-            if (count($visible) > 1) {
-                $rest = array_slice($visible, 1);
-                $dj_display .= ', ' . esc_html(implode(', ', $rest));
-            }
-            if ($remaining > 0) {
-                $dj_display .= ' <span class="dj-more">+' . $remaining . ' DJs</span>';
-            }
-        } else {
-            $dj_display = '<span class="dj-fallback">Line-up em breve</span>';
-        }
-        
-        // Processar banner
-        $banner_url = '';
-        if ($event_banner) {
-            $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
-        }
-        if (!$banner_url && has_post_thumbnail($event_id)) {
-            $banner_url = get_the_post_thumbnail_url($event_id, 'large');
-        }
-        if (!$banner_url) {
-            $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
-        }
-        
-        // Obter conteúdo do evento
-        $content = apply_filters('the_content', get_post_field('post_content', $event_id));
-        
-        // Gerar HTML do modal
-        ob_start();
-        ?>
-        <div class="apollo-event-modal-overlay" data-apollo-close></div>
-        <div class="apollo-event-modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title-<?php echo $event_id; ?>">
-            
-            <button class="apollo-event-modal-close" type="button" data-apollo-close aria-label="Fechar">
-                <i class="ri-close-line"></i>
-            </button>
-            
-            <div class="apollo-event-hero">
-                <div class="apollo-event-hero-media">
-                    <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr(get_the_title($event_id)); ?>">
-                    <div class="apollo-event-date-chip">
-                        <span class="d"><?php echo esc_html($day); ?></span>
-                        <span class="m"><?php echo esc_html($month_pt); ?></span>
-                    </div>
-                </div>
-                
-                <div class="apollo-event-hero-info">
-                    <h1 class="apollo-event-title" id="modal-title-<?php echo $event_id; ?>">
-                        <?php echo esc_html(get_the_title($event_id)); ?>
-                    </h1>
-                    <p class="apollo-event-djs">
-                        <i class="ri-sound-module-fill"></i>
-                        <span><?php echo wp_kses_post($dj_display); ?></span>
-                    </p>
-                    <?php if (!empty($event_location)): ?>
-                        <p class="apollo-event-location">
-                            <i class="ri-map-pin-2-line"></i>
-                            <span class="event-location-name">
-                                <?php echo esc_html($event_location); ?>
-                            </span>
-                            <?php if (!empty($event_location_area)): ?>
-                                <span class="event-location-area">
-                                    (<?php echo esc_html($event_location_area); ?>)
-                                </span>
-                            <?php endif; ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <div class="apollo-event-body">
-                <?php echo $content; ?>
-            </div>
-            
-        </div>
-        <?php
-        $html = ob_get_clean();
-        
-        wp_send_json_success(array('html' => $html));
-    }
-
-    /**
      * Force Brazil as the default country
      */
     public function force_brazil_country($fields) {
@@ -1425,13 +1091,6 @@ class Apollo_Events_Manager_Plugin {
         if (isset($_POST['cupom_ario'])) {
             update_post_meta($post_id, '_cupom_ario', sanitize_text_field($_POST['cupom_ario']));
         }
-        
-        // Clear cache after saving (safe for any WordPress installation)
-        clean_post_cache($post_id);
-        
-        // Clear custom transients if used
-        delete_transient('apollo_events_portal_cache');
-        delete_transient('apollo_events_home_cache');
     }
 
     /**
@@ -1490,36 +1149,14 @@ class Apollo_Events_Manager_Plugin {
 // Initialize the plugin
 new Apollo_Events_Manager_Plugin();
 
+// Clear cache when event is saved
+add_action('save_post_event_listing', function($post_id) {
+    wp_cache_flush_group('apollo_events');
+});
+
 // Log verification completion
 if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
     error_log('Apollo Events Manager 2.0.0: Plugin loaded successfully - ' . date('Y-m-d H:i:s'));
-}
-
-/**
- * Helper: Get events page (published or trash)
- * Returns page object if found, null otherwise
- */
-function apollo_em_get_events_page() {
-    // Try published page first
-    $page = get_page_by_path('eventos');
-    if ($page) {
-        return $page;
-    }
-    
-    // Try to find in trash
-    $trashed = get_posts([
-        'post_type'      => 'page',
-        'post_status'    => 'trash',
-        'name'           => 'eventos',
-        'posts_per_page' => 1,
-        'fields'         => 'all',
-    ]);
-    
-    if (!empty($trashed)) {
-        return $trashed[0];
-    }
-    
-    return null;
 }
 
 /**
@@ -1531,32 +1168,20 @@ function apollo_events_manager_activate() {
     require_once plugin_dir_path(__FILE__) . 'includes/post-types.php';
     Apollo_Post_Types::flush_rewrite_rules_on_activation();
     
-    // Handle events page creation/restoration
-    $events_page = apollo_em_get_events_page();
-    
-    if ($events_page && 'trash' === $events_page->post_status) {
-        // Restore from trash
-        wp_update_post([
-            'ID'          => $events_page->ID,
-            'post_status' => 'publish',
-        ]);
-        error_log('✅ Apollo: Restored /eventos/ page from trash (ID: ' . $events_page->ID . ')');
-    } elseif (!$events_page) {
-        // Create new only if doesn't exist at all
-        $page_id = wp_insert_post([
+    // Create "Eventos" page with shortcode if it doesn't exist
+    $events_page = get_page_by_path('eventos');
+    if (!$events_page) {
+        $page_id = wp_insert_post(array(
             'post_title'   => 'Eventos',
             'post_name'    => 'eventos',
+            'post_content' => '[apollo_events]',
             'post_status'  => 'publish',
             'post_type'    => 'page',
-            'post_content' => '[apollo_events_portal]',
-        ]);
+        ));
         
         if ($page_id && !is_wp_error($page_id)) {
             error_log('✅ Apollo: Created /eventos/ page (ID: ' . $page_id . ')');
         }
-    } else {
-        // Page already exists and is published
-        error_log('✅ Apollo: /eventos/ page already exists (ID: ' . $events_page->ID . ')');
     }
     
     // Log activation
