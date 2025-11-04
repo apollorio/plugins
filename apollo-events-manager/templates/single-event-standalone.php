@@ -147,22 +147,6 @@ $event_favorites_count = function_exists('favorites_get_count') ? favorites_get_
 // === EVENT TAGS ===
 $event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
 if (is_wp_error($event_tags)) $event_tags = [];
-
-// Force CSS inline
-$css_url = 'https://assets.apollo.rio.br/uni.css';
-$css_response = wp_remote_get($css_url, ['timeout' => 15]);
-$css_content = '';
-
-if (!is_wp_error($css_response)) {
-    $css_content = wp_remote_retrieve_body($css_response);
-}
-
-if (!$css_content) {
-    $local_css = APOLLO_WPEM_PATH . 'assets/uni.css';
-    if (file_exists($local_css)) {
-        $css_content = file_get_contents($local_css);
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -172,12 +156,6 @@ if (!$css_content) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
     <title><?php echo esc_html($event_title); ?> @ <?php echo $event_day . ' ' . $event_month; ?> - Apollo::rio</title>
     <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-    
-    <?php if ($css_content): ?>
-    <style type="text/css">
-        <?php echo $css_content; ?>
-    </style>
-    <?php endif; ?>
     
     <?php wp_head(); ?>
 </head>

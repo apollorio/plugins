@@ -6,17 +6,6 @@
  */
 
 defined('ABSPATH') || exit;
-
-// Force CSS inline
-$css_url = 'https://assets.apollo.rio.br/uni.css';
-$css_content = wp_remote_retrieve_body(wp_remote_get($css_url, ['timeout' => 10]));
-if (!$css_content || is_wp_error($css_content)) {
-    // Fallback to local
-    $local_css = APOLLO_WPEM_PATH . 'assets/uni.css';
-    if (file_exists($local_css)) {
-        $css_content = file_get_contents($local_css);
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -31,25 +20,6 @@ if (!$css_content || is_wp_error($css_content)) {
     <title>Discover Events - Apollo::rio</title>
     
     <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-    
-    <?php
-    // Force CSS inline injection
-    $css_url = 'https://assets.apollo.rio.br/uni.css';
-    $css_response = wp_remote_get($css_url, ['timeout' => 15]);
-    
-    if (!is_wp_error($css_response)) {
-        $css_content = wp_remote_retrieve_body($css_response);
-        if ($css_content) {
-            echo '<style type="text/css">' . $css_content . '</style>';
-        }
-    } else {
-        // Fallback to local
-        $local_css_path = APOLLO_WPEM_PATH . 'assets/uni.css';
-        if (file_exists($local_css_path)) {
-            echo '<style type="text/css">' . file_get_contents($local_css_path) . '</style>';
-        }
-    }
-    ?>
     
     <?php wp_head(); ?>
 </head>

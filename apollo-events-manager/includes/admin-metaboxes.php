@@ -401,10 +401,10 @@ class Apollo_Events_Admin_Metaboxes {
             return;
         }
         
-        // ✅ Save DJs (as serialized array of string IDs - matching database format)
+        // ✅ Save DJs (WordPress handles serialization automatically)
         if (isset($_POST['apollo_event_djs']) && is_array($_POST['apollo_event_djs'])) {
-            $dj_ids = array_map('strval', array_map('intval', $_POST['apollo_event_djs'])); // Convert to string array
-            update_post_meta($post_id, '_event_dj_ids', serialize($dj_ids));
+            $dj_ids = array_map('intval', $_POST['apollo_event_djs']);
+            update_post_meta($post_id, '_event_dj_ids', $dj_ids);
         } else {
             delete_post_meta($post_id, '_event_dj_ids');
         }
@@ -447,4 +447,7 @@ class Apollo_Events_Admin_Metaboxes {
 if (is_admin()) {
     new Apollo_Events_Admin_Metaboxes();
 }
+
+
+
 
