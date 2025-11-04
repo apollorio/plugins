@@ -442,3 +442,4 @@ Usuário acessa /eventos/
 **Última atualização:** 04/11/2025  
 **Desenvolvedor:** Apollo Events Team
 
+

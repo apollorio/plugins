@@ -26,6 +26,35 @@ define('APOLLO_WPEM_URL', plugin_dir_url(__FILE__));
 if (!defined('APOLLO_DEBUG')) {
     define('APOLLO_DEBUG', false);
 }
+// === Capabilities e ativação ===
+register_activation_hook(__FILE__, function() {
+    // Define capability customizada para visualizar estatísticas
+    $cap = 'view_apollo_event_stats';
+    $roles_to_grant = array('administrator', 'editor');
+    foreach ($roles_to_grant as $role_name) {
+        $role = get_role($role_name);
+        if ($role && !$role->has_cap($cap)) {
+            $role->add_cap($cap);
+        }
+    }
+    // Define papéis permitidos por padrão (configurável depois)
+    if (get_option('apollo_stats_allowed_roles') === false) {
+        update_option('apollo_stats_allowed_roles', $roles_to_grant);
+    }
+});
+
+// Helper básico disponível globalmente para futuros módulos (social/analytics)
+if (!function_exists('apollo_record_event_view')) {
+    function apollo_record_event_view($event_id) {
+        $event_id = intval($event_id);
+        if ($event_id <= 0) return;
+        $views = (int) get_post_meta($event_id, '_apollo_event_views', true);
+        $views++;
+        update_post_meta($event_id, '_apollo_event_views', $views);
+        do_action('apollo_event_viewed', $event_id, get_current_user_id());
+    }
+}
+
 
 /**
  * Helper function: Parse event start date
@@ -108,6 +137,56 @@ require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
 
 // Include Dashboard
 require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-dashboard.php';
+
+// === Admin: página "Shortcodes & Placeholders" (documentação)
+add_action('admin_menu', function() {
+    // Determina se o usuário pode ver estatísticas/documentação
+    $allowed_roles = (array) get_option('apollo_stats_allowed_roles', array('administrator'));
+    $user = wp_get_current_user();
+    $can_view = current_user_can('view_apollo_event_stats');
+    if (!$can_view) {
+        foreach ($allowed_roles as $role) {
+            if (in_array($role, (array) $user->roles, true)) {
+                $can_view = true;
+                break;
+            }
+        }
+    }
+    $capability = $can_view ? 'read' : 'manage_options';
+
+    // Adiciona como submenu do Dashboard Apollo (se existir)
+    add_submenu_page(
+        'apollo-events-dashboard',
+        __('Shortcodes & Placeholders', 'apollo-events-manager'),
+        __('Shortcodes & Placeholders', 'apollo-events-manager'),
+        $capability,
+        'apollo-events-docs',
+        function() {
+            echo '<div class="wrap">';
+            echo '<h1>Shortcodes & Placeholders</h1>';
+            echo '<p>Referência rápida de shortcodes e meta keys usadas no portal de eventos.</p>';
+            echo '<h2>Shortcodes</h2><ul>';
+            echo '<li><code>[apollo_events]</code> — (opcional) exibe listagem de eventos.</li>';
+            echo '</ul>';
+            echo '<h2>Meta keys (Eventos)</h2>';
+            echo '<table class="widefat"><thead><tr><th>Meta key</th><th>Descrição</th></tr></thead><tbody>';
+            $rows = array(
+                array('_event_start_date', 'Data/hora de início (Y-m-d ou Y-m-d H:i:s)'),
+                array('_event_location', 'Local | Área (string)'),
+                array('_event_banner', 'Banner do evento (ID ou URL)'),
+                array('_timetable', 'Slots de DJs (array serializado com dj/time)'),
+                array('_dj_name', 'Fallback de DJ (string)'),
+                array('_event_djs', 'Relacionamento com posts de DJ (array de IDs)'),
+                array('_apollo_event_views', 'Contador de visualizações do evento (int)'),
+            );
+            foreach ($rows as $r) {
+                printf('<tr><td><code>%s</code></td><td>%s</td></tr>', esc_html($r[0]), esc_html($r[1]));
+            }
+            echo '</tbody></table>';
+            echo '</div>';
+        }
+    );
+});
 
 /**
  * Main Plugin Class

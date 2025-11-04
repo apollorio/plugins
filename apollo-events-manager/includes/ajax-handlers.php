@@ -18,6 +18,28 @@ add_action('wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_mod
  * AJAX Handler: Load event modal content
  * Returns complete HTML for the lightbox modal
  */
+if (!function_exists('apollo_record_event_view')) {
+    /**
+     * Incrementa contador de views do evento e dispara hooks para integrações futuras.
+     */
+    function apollo_record_event_view($event_id) {
+        $event_id = intval($event_id);
+        if ($event_id <= 0) {
+            return;
+        }
+        $views = (int) get_post_meta($event_id, '_apollo_event_views', true);
+        $views++;
+        update_post_meta($event_id, '_apollo_event_views', $views);
+
+        /**
+         * Hook: Disparado quando um evento é visualizado (modal aberto).
+         * @param int $event_id
+         * @param int $user_id 0 se visitante
+         */
+        do_action('apollo_event_viewed', $event_id, get_current_user_id());
+    }
+}
+
 function apollo_ajax_load_event_modal() {
     // Verificar nonce
     check_ajax_referer('apollo_events_nonce', 'nonce');
@@ -138,6 +160,9 @@ function apollo_ajax_load_event_modal() {
     
     // Obter conteúdo do evento
     $content = apply_filters('the_content', $event->post_content);
+
+    // Registrar view do evento (analytics básico)
+    apollo_record_event_view($event_id);
     
     // Montar HTML do modal
     ob_start();

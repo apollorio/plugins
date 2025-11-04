@@ -691,3 +691,4 @@ function apollo_ajax_load_more() {
 **Status:** 🚀 CÓDIGO PRONTO - RESOLVER AMBIENTE  
 **Última atualização:** 04/11/2025
 
+

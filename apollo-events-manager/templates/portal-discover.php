@@ -282,22 +282,17 @@ get_header(); // Use WordPress header
                         // Remover duplicados e valores vazios
                         $djs_names = array_values(array_unique(array_filter($djs_names)));
                         
-                        // Formatar display de DJs - SEMPRE tem algo
-                        if (!empty($djs_names)) {
+                        // Preparar display: primeiro DJ em negrito, até 3 nomes, +N se houver
+                        $dj_has_data = !empty($djs_names);
+                        if ($dj_has_data) {
                             $max_visible  = 3;
                             $visible      = array_slice($djs_names, 0, $max_visible);
                             $remaining    = max(count($djs_names) - $max_visible, 0);
-                            
-                            $dj_display = esc_html($visible[0]);
+                            $dj_first     = $visible[0] ?? '';
+                            $dj_rest_list = [];
                             if (count($visible) > 1) {
-                                $rest = array_slice($visible, 1);
-                                $dj_display .= ', ' . esc_html(implode(', ', $rest));
+                                $dj_rest_list = array_slice($visible, 1);
                             }
-                            if ($remaining > 0) {
-                                $dj_display .= ' +' . $remaining;
-                            }
-                        } else {
-                            $dj_display = 'Line-up em breve';
                         }
                         
                         // ============================================
@@ -386,7 +381,15 @@ get_header(); // Use WordPress header
                                     <!-- DJs - SEMPRE EXIBIDO -->
                                     <p class="event-li-detail of-dj mb04rem">
                                         <i class="ri-sound-module-fill"></i>
-                                        <span><?php echo esc_html($dj_display); ?></span>
+                                        <span>
+                                            <?php if ($dj_has_data): ?>
+                                                <strong><?php echo esc_html($dj_first); ?></strong>
+                                                <?php if (!empty($dj_rest_list)): ?>, <?php echo esc_html(implode(', ', $dj_rest_list)); ?><?php endif; ?>
+                                                <?php if ($remaining > 0): ?> +<?php echo (int) $remaining; ?><?php endif; ?>
+                                            <?php else: ?>
+                                                <?php echo esc_html('Line-up em breve'); ?>
+                                            <?php endif; ?>
+                                        </span>
                                     </p>
                                     
                                     <!-- Local - EXIBIDO SE EXISTIR -->

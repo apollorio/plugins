@@ -107,6 +107,7 @@
             if (!card) return;
             
             e.preventDefault();
+            console.log('[Apollo] Click detectado em card');
             
             const eventId = card.getAttribute('data-event-id');
             if (!eventId) {
@@ -121,6 +122,7 @@
             openModal('<div class="apollo-loading" style="padding:40px;text-align:center;color:#fff;">Carregando...</div>');
             
             // Fetch AJAX
+            console.log('[Apollo] Enviando AJAX para carregar evento', eventId);
             fetch(apollo_events_ajax.ajax_url, {
                 method: 'POST',
                 headers: {
@@ -140,9 +142,11 @@
             })
             .then(data => {
                 card.classList.remove('is-loading');
+                console.log('[Apollo] Resposta AJAX recebida', data);
                 
                 if (data.success && data.data && data.data.html) {
                     openModal(data.data.html);
+                    console.log('[Apollo] Modal aberto');
                 } else {
                     const errorMsg = data.data && data.data.message ? data.data.message : 'Erro ao carregar evento.';
                     openModal('<div class="apollo-error" style="padding:40px;text-align:center;color:#fff;">' + errorMsg + '</div>');

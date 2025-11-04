@@ -337,3 +337,4 @@ apollo-events-manager/
 
 **🎯 Tudo funcionando conforme solicitado!**
 
+
