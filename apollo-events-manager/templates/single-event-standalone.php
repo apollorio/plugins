@@ -190,11 +190,11 @@ if (is_wp_error($event_tags)) $event_tags = [];
             <div class="hero-meta">
                 <div class="hero-meta-item">
                     <i class="ri-calendar-line"></i>
-                    <span><?php echo $event_day . ' ' . $event_month . " '" . $event_year; ?></span>
+                    <span><?php echo esc_html($event_day . ' ' . $event_month . " '" . $event_year); ?></span>
                 </div>
                 <div class="hero-meta-item">
                     <i class="ri-time-line"></i>
-                    <span id="Hora"><?php echo $event_start_time . ' — ' . $event_end_time; ?></span>
+                    <span id="Hora"><?php echo esc_html($event_start_time . ' — ' . $event_end_time); ?></span>
                     <font style="opacity:.7;font-weight:300; font-size:.81rem;">(GMT-03h00)</font>
                 </div>
                 <div class="hero-meta-item">
@@ -279,7 +279,7 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 <i class="ri-brain-ai-3-fill"></i> Info
             </h2>
             <div class="info-card">
-                <p class="info-text"><?php echo wpautop($event_description); ?></p>
+                <p class="info-text"><?php echo wp_kses_post(wpautop($event_description)); ?></p>
             </div>
             
             <!-- Music Tags Marquee (8x repetition) -->
@@ -507,15 +507,15 @@ if (is_wp_error($event_tags)) $event_tags = [];
                     console.error('❌ Leaflet library not loaded!'); 
                     return; 
                 }
-                console.log('✅ Leaflet loaded. Initializing map with coords:', <?php echo $map_lat;?>, <?php echo $map_lng;?>);
+                console.log('✅ Leaflet loaded. Initializing map with coords:', <?php echo floatval($map_lat);?>, <?php echo floatval($map_lng);?>);
                 
                 try {
-                    var m = L.map('eventMap').setView([<?php echo $map_lat;?>, <?php echo $map_lng;?>], 15);
+                    var m = L.map('eventMap').setView([<?php echo floatval($map_lat);?>, <?php echo floatval($map_lng);?>], 15);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
                         maxZoom: 19,
                         attribution: '© OpenStreetMap'
                     }).addTo(m);
-                    L.marker([<?php echo $map_lat;?>, <?php echo $map_lng;?>])
+                    L.marker([<?php echo floatval($map_lat);?>, <?php echo floatval($map_lng);?>])
                         .addTo(m)
                         .bindPopup('<?php echo esc_js($event_local_title); ?>');
                     console.log('✅ Map rendered successfully');
@@ -532,7 +532,7 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 </p>
             </div>
             <script>
-            console.log('⚠️ Map not displayed - no coordinates found for event <?php echo $event_id; ?>');
+            console.log('⚠️ Map not displayed - no coordinates found for event <?php echo absint($event_id); ?>');
             </script>
             <?php endif; ?>
 
@@ -553,7 +553,7 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 <?php if ($event_local_latitude && $event_local_longitude): ?>
                 if (origin) {
                     var url = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(origin) + 
-                              '&destination=<?php echo $event_local_latitude; ?>,<?php echo $event_local_longitude; ?>'+
+                              '&destination=<?php echo floatval($event_local_latitude); ?>,<?php echo floatval($event_local_longitude); ?>'+
                               '&travelmode=driving';
                     window.open(url, '_blank');
                 } else {

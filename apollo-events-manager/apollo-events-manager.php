@@ -1029,6 +1029,19 @@ class Apollo_Events_Manager_Plugin {
      * Save custom event fields
      */
     public function save_custom_event_fields($post_id, $post) {
+        // Security checks
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'update-post_' . $post_id)) {
+            return;
+        }
+        
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
         // Save DJs (WordPress handles serialization automatically)
         if (isset($_POST['event_djs'])) {
             $djs = array_map('intval', (array) $_POST['event_djs']);
@@ -1059,14 +1072,19 @@ class Apollo_Events_Manager_Plugin {
             update_post_meta($post_id, '_event_timetable', $clean_timetable);
         }
 
-        // Save promotional images
-        if (isset($_POST['_3_imagens_promo'])) {
-            update_post_meta($post_id, '_3_imagens_promo', $_POST['_3_imagens_promo']);
+        // Save promotional images (array of URLs)
+        if (isset($_POST['_3_imagens_promo']) && is_array($_POST['_3_imagens_promo'])) {
+            $clean_images = array_map('esc_url_raw', array_filter($_POST['_3_imagens_promo']));
+            update_post_meta($post_id, '_3_imagens_promo', $clean_images);
         }
 
-        // Save final image
+        // Save final image (ID or URL)
         if (isset($_POST['_imagem_final'])) {
-            update_post_meta($post_id, '_imagem_final', $_POST['_imagem_final']);
+            $final_image = is_numeric($_POST['_imagem_final'])
+                ? absint($_POST['_imagem_final'])
+                : esc_url_raw($_POST['_imagem_final']);
+            
+            update_post_meta($post_id, '_imagem_final', $final_image);
         }
 
         // Save coupon

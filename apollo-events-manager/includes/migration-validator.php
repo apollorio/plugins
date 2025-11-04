@@ -350,7 +350,9 @@ function apollo_migration_validator_page() {
         </div>
         
         <?php
-        if (isset($_GET['run_validation'])) {
+        if (isset($_GET['run_validation']) && $_GET['run_validation'] === '1') {
+            check_admin_referer('apollo_run_validation');
+            
             $issues = Apollo_Migration_Validator::validate_migration();
             echo Apollo_Migration_Validator::generate_html_report($issues);
             
@@ -362,8 +364,11 @@ function apollo_migration_validator_page() {
         ?>
         
         <p>
-            <a href="<?php echo admin_url('tools.php?page=apollo-migration-validator&run_validation=1'); ?>" class="button button-primary">
-                🔍 Run Validation Now
+            <a href="<?php echo wp_nonce_url(
+                admin_url('tools.php?page=apollo-migration-validator&run_validation=1'),
+                'apollo_run_validation'
+            ); ?>" class="button button-primary">
+                <?php esc_html_e('🔍 Run Validation Now', 'apollo-events-manager'); ?>
             </a>
         </p>
     </div>

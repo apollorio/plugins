@@ -71,10 +71,14 @@ class Apollo_Data_Migration {
         
         // Migrate _event_local -> _event_local_ids
         $events_with_old_key = $wpdb->get_results(
-            "SELECT post_id, meta_value 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_event_local' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_listing')"
+            $wpdb->prepare(
+                "SELECT post_id, meta_value 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_event_local',
+                'event_listing'
+            )
         );
         
         foreach ($events_with_old_key as $row) {
@@ -91,10 +95,14 @@ class Apollo_Data_Migration {
         
         // Migrate _local_lat -> _local_latitude
         $locals_with_old_lat = $wpdb->get_results(
-            "SELECT post_id, meta_value 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_local_lat' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_local')"
+            $wpdb->prepare(
+                "SELECT post_id, meta_value 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_local_lat',
+                'event_local'
+            )
         );
         
         foreach ($locals_with_old_lat as $row) {
@@ -108,10 +116,14 @@ class Apollo_Data_Migration {
         
         // Migrate _local_lng -> _local_longitude
         $locals_with_old_lng = $wpdb->get_results(
-            "SELECT post_id, meta_value 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_local_lng' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_local')"
+            $wpdb->prepare(
+                "SELECT post_id, meta_value 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_local_lng',
+                'event_local'
+            )
         );
         
         foreach ($locals_with_old_lng as $row) {
@@ -273,25 +285,37 @@ class Apollo_Data_Migration {
         
         // Count events with old meta keys
         $status['stats']['events_with_old_local_key'] = $wpdb->get_var(
-            "SELECT COUNT(DISTINCT post_id) 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_event_local' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_listing')"
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT post_id) 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_event_local',
+                'event_listing'
+            )
         );
         
         // Count locals with old coordinate keys
         $status['stats']['locals_with_old_lat'] = $wpdb->get_var(
-            "SELECT COUNT(DISTINCT post_id) 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_local_lat' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_local')"
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT post_id) 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_local_lat',
+                'event_local'
+            )
         );
         
         $status['stats']['locals_with_old_lng'] = $wpdb->get_var(
-            "SELECT COUNT(DISTINCT post_id) 
-             FROM {$wpdb->postmeta} 
-             WHERE meta_key = '_local_lng' 
-             AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'event_local')"
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT post_id) 
+                 FROM {$wpdb->postmeta} 
+                 WHERE meta_key = %s 
+                 AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = %s)",
+                '_local_lng',
+                'event_local'
+            )
         );
         
         // Count total events and locals

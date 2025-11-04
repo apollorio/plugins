@@ -5,11 +5,15 @@
  * Used in the events listing loop
  */
 
-// DEBUG: Show all event meta for admins
-if (current_user_can('administrator')) {
+// DEBUG: Show all event meta for admins (enabled via APOLLO_EVENTS_DEBUG)
+// To enable, add to wp-config.php (or another bootstrap file):
+//   define('APOLLO_EVENTS_DEBUG', true);
+// Default: disabled. Output is still restricted to administrators.
+if ( defined('APOLLO_EVENTS_DEBUG') && constant('APOLLO_EVENTS_DEBUG') && current_user_can('administrator') ) {
     echo '<pre style="background:#000;color:#0f0;padding:20px;overflow:auto;max-height:300px;">';
     echo "Event ID: " . get_the_ID() . "\n\n";
-    print_r(get_post_meta(get_the_ID()));
+    // Use print_r for readable array output; admins only.
+    print_r( get_post_meta( get_the_ID() ) );
     echo '</pre>';
 }
 
@@ -19,12 +23,7 @@ $event_title = get_post_meta($event_id, '_event_title', true) ?: get_the_title()
 $start_date = get_post_meta($event_id, '_event_start_date', true);
 $event_banner = get_post_meta($event_id, '_event_banner', true);
 
-// Debug: Show meta retrieval
-if (current_user_can('administrator')) {
-    echo '<!-- DEBUG: Event ID: ' . $event_id . ' -->';
-    echo '<!-- DEBUG: _event_start_date: "' . esc_html($start_date) . '" -->';
-    echo '<!-- DEBUG: _event_banner: "' . esc_html($event_banner) . '" -->';
-}
+// ✅ PRODUCTION: Debug comments removed
 
 // Get categories with proper error handling
 $categories = wp_get_post_terms($event_id, 'event_listing_category');
@@ -204,15 +203,15 @@ $density_class = $content_density > 5 ? 'high-density' : ($content_density > 3 ?
    data-density="<?php echo $content_density; ?>">
    
     <?php if (current_user_can('administrator')): ?>
-    <div class="admin-debug-indicator" style="position:absolute;top:5px;right:5px;background:<?php echo $content_density > 5 ? 'red' : ($content_density > 3 ? 'orange' : 'green'); ?>;color:white;padding:2px 5px;border-radius:3px;font-size:10px;z-index:1000;">
-        D:<?php echo $content_density; ?>
+    <div class="admin-debug-indicator" style="position:absolute;top:5px;right:5px;background:<?php echo esc_attr($content_density > 5 ? 'red' : ($content_density > 3 ? 'orange' : 'green')); ?>;color:white;padding:2px 5px;border-radius:3px;font-size:10px;z-index:1000;">
+        D:<?php echo absint($content_density); ?>
     </div>
     <?php endif; ?>
    
     <!-- Date Box -->
     <div class="box-date-event">
-        <span class="date-day"><?php echo $day ?: '--'; ?></span>
-        <span class="date-month"><?php echo $month_str ?: '---'; ?></span>
+        <span class="date-day"><?php echo esc_html($day ?: '--'); ?></span>
+        <span class="date-month"><?php echo esc_html($month_str ?: '---'); ?></span>
     </div>
     
     <!-- Event Image -->
