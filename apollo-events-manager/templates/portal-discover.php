@@ -203,6 +203,8 @@ get_header(); // Use WordPress header
                 }
                 
                 // Error handling: prevent white screen if DB fails
+                $event_ids_for_lightboxes = array(); // Store IDs for lightbox generation
+                
                 if (is_wp_error($events_query)) {
                     error_log('❌ Apollo: WP_Query error in portal-discover: ' . $events_query->get_error_message());
                     echo '<p class="no-events-found">Erro ao carregar eventos. Tente novamente.</p>';
@@ -210,6 +212,7 @@ get_header(); // Use WordPress header
                     while ($events_query->have_posts()) {
                         $events_query->the_post();
                         $event_id = get_the_ID();
+                        $event_ids_for_lightboxes[] = $event_id; // Store for lightbox generation
                         
                         // -------- META BÁSICA (já está no cache) --------
                         $start_date_raw   = get_post_meta($event_id, '_event_start_date', true);
@@ -390,8 +393,8 @@ get_header(); // Use WordPress header
                         }
                         ?>
                         
-                        <a href="#"
-                           class="event_listing"
+                        <a href="#lightbox-event-<?php echo esc_attr($event_id); ?>"
+                           class="event_listing auto-lightbox"
                            data-event-id="<?php echo esc_attr($event_id); ?>"
                            data-category="<?php echo esc_attr($category_slug); ?>"
                            data-month-str="<?php echo esc_attr($month_pt); ?>">
@@ -459,6 +462,22 @@ get_header(); // Use WordPress header
             </div>
             <!-- END EVENT LISTING GRID -->
             
+            <!-- LIGHTBOXES CONTAINER - Generated for each event -->
+            <div class="apollo-lightboxes-container" style="display: none;">
+                <?php
+                // Generate lightboxes for all events using stored IDs
+                if (!empty($event_ids_for_lightboxes)) {
+                    foreach ($event_ids_for_lightboxes as $lightbox_event_id) {
+                        ?>
+                        <div id="lightbox-event-<?php echo esc_attr($lightbox_event_id); ?>" class="apollo-lightbox" style="display:none;">
+                            <?php echo do_shortcode('[event id="' . absint($lightbox_event_id) . '"]'); ?>
+                        </div>
+                        <?php
+                    }
+                }
+                ?>
+            </div>
+            
             <!-- HIGHLIGHT BANNER (from latest blog post) -->
             <?php
             // Get latest post
@@ -524,6 +543,231 @@ get_header(); // Use WordPress header
         <div id="apollo-event-modal" class="apollo-event-modal" aria-hidden="true"></div>
         
     </main>
+    
+    <!-- Apollo Lightbox System CSS & JS -->
+    <style>
+    /* Apollo Lightbox System */
+    .apollo-lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 999999;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    
+    .apollo-lightbox.is-open {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .apollo-lightbox-content {
+        position: relative;
+        background: #fff;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: apollo-lightbox-fade-in 0.3s ease;
+    }
+    
+    @keyframes apollo-lightbox-fade-in {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .apollo-lightbox-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+    }
+    
+    .apollo-lightbox-close:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .apollo-lightbox-content .apollo-event-lightbox-content {
+        padding: 40px;
+    }
+    
+    .apollo-event-hero {
+        margin-bottom: 30px;
+    }
+    
+    .apollo-event-hero-media {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .apollo-event-hero-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .apollo-event-date-chip {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .apollo-event-date-chip .d {
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 1;
+    }
+    
+    .apollo-event-date-chip .m {
+        font-size: 14px;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+    
+    .apollo-event-hero-info h1 {
+        font-size: 2rem;
+        margin: 0 0 15px 0;
+    }
+    
+    .apollo-event-hero-info p {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .apollo-event-hero-info i {
+        font-size: 1.2em;
+    }
+    
+    .apollo-event-body {
+        line-height: 1.6;
+    }
+    
+    body.apollo-lightbox-open {
+        overflow: hidden;
+    }
+    </style>
+    
+    <script>
+    (function() {
+        'use strict';
+        
+        // Lightbox System
+        function initApolloLightbox() {
+            const lightboxLinks = document.querySelectorAll('a.auto-lightbox[href^="#lightbox-event-"]');
+            
+            lightboxLinks.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href').substring(1); // Remove #
+                    const lightbox = document.getElementById(targetId);
+                    
+                    if (!lightbox) {
+                        console.warn('Lightbox not found:', targetId);
+                        return;
+                    }
+                    
+                    // Open lightbox
+                    lightbox.style.display = 'flex';
+                    lightbox.classList.add('is-open');
+                    document.body.classList.add('apollo-lightbox-open');
+                    
+                    // Wrap content in container if not already
+                    if (!lightbox.querySelector('.apollo-lightbox-content')) {
+                        const content = lightbox.innerHTML;
+                        lightbox.innerHTML = '<div class="apollo-lightbox-content">' +
+                            '<button class="apollo-lightbox-close" aria-label="Fechar"><i class="ri-close-line"></i></button>' +
+                            content +
+                            '</div>';
+                    }
+                    
+                    // Close button handler
+                    const closeBtn = lightbox.querySelector('.apollo-lightbox-close');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', closeLightbox);
+                    }
+                    
+                    // Close on overlay click
+                    lightbox.addEventListener('click', function(e) {
+                        if (e.target === lightbox) {
+                            closeLightbox();
+                        }
+                    });
+                    
+                    // Close on ESC
+                    document.addEventListener('keydown', handleEsc);
+                });
+            });
+        }
+        
+        function closeLightbox() {
+            const openLightbox = document.querySelector('.apollo-lightbox.is-open');
+            if (openLightbox) {
+                openLightbox.classList.remove('is-open');
+                setTimeout(function() {
+                    openLightbox.style.display = 'none';
+                }, 300);
+                document.body.classList.remove('apollo-lightbox-open');
+                document.removeEventListener('keydown', handleEsc);
+            }
+        }
+        
+        function handleEsc(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        }
+        
+        // Auto-initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApolloLightbox);
+        } else {
+            initApolloLightbox();
+        }
+    })();
+    </script>
 
     <!-- DARK MODE TOGGLE -->
     <div class="dark-mode-toggle" id="darkModeToggle" role="button" aria-label="Alternar modo escuro">

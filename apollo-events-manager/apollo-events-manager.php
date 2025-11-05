@@ -141,6 +141,7 @@ class Apollo_Events_Manager_Plugin {
         
         // Additional shortcodes
         add_shortcode('events', array($this, 'events_shortcode')); // Alias
+        add_shortcode('event', array($this, 'event_single_shortcode')); // NEW: Full event content for lightbox
         add_shortcode('event_djs', array($this, 'event_djs_shortcode'));
         add_shortcode('event_locals', array($this, 'event_locals_shortcode'));
         add_shortcode('event_summary', array($this, 'event_summary_shortcode'));
@@ -1870,6 +1871,133 @@ class Apollo_Events_Manager_Plugin {
         return ob_get_clean();
     }
 
+    /**
+     * Shortcode: [event id="123"] - Full event content for lightbox
+     */
+    public function event_single_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'id' => 0,
+        ), $atts, 'event');
+        
+        $event_id = $atts['id'] ? absint($atts['id']) : get_the_ID();
+        if (!$event_id) {
+            return '<p>' . esc_html__('Event ID not provided.', 'apollo-events-manager') . '</p>';
+        }
+        
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event_listing' || $event->post_status !== 'publish') {
+            return '<p>' . esc_html__('Event not found.', 'apollo-events-manager') . '</p>';
+        }
+        
+        // Setup post data
+        global $post;
+        $original_post = $post;
+        $post = $event;
+        setup_postdata($post);
+        
+        // Get event data
+        $start_date_raw = get_post_meta($event_id, '_event_start_date', true);
+        $date_info = apollo_eve_parse_start_date($start_date_raw);
+        $banner = get_post_meta($event_id, '_event_banner', true);
+        $video_url = get_post_meta($event_id, '_event_video_url', true);
+        $tickets_url = get_post_meta($event_id, '_tickets_ext', true);
+        
+        // Get DJs
+        $dj_list = apollo_event_get_placeholder_value('dj_list', $event_id);
+        
+        // Get Location
+        $location = apollo_event_get_placeholder_value('location', $event_id);
+        $location_area = apollo_event_get_placeholder_value('location_area', $event_id);
+        
+        // Get Banner URL
+        $banner_url = apollo_event_get_placeholder_value('banner_url', $event_id);
+        
+        ob_start();
+        ?>
+        <div class="apollo-event-lightbox-content">
+            <div class="apollo-event-hero">
+                <div class="apollo-event-hero-media">
+                    <?php if ($banner_url): ?>
+                        <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+                    <?php endif; ?>
+                    
+                    <?php if ($date_info['day'] && $date_info['month_pt']): ?>
+                        <div class="apollo-event-date-chip">
+                            <span class="d"><?php echo esc_html($date_info['day']); ?></span>
+                            <span class="m"><?php echo esc_html($date_info['month_pt']); ?></span>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="apollo-event-hero-info">
+                    <h1 class="apollo-event-title"><?php echo esc_html(get_the_title()); ?></h1>
+                    
+                    <?php if ($dj_list): ?>
+                        <p class="apollo-event-djs">
+                            <i class="ri-sound-module-fill"></i>
+                            <span><?php echo wp_kses_post($dj_list); ?></span>
+                        </p>
+                    <?php endif; ?>
+                    
+                    <?php if ($location): ?>
+                        <p class="apollo-event-location">
+                            <i class="ri-map-pin-2-line"></i>
+                            <span><?php echo esc_html($location); ?></span>
+                            <?php if ($location_area): ?>
+                                <span style="opacity: 0.5;">&nbsp;(<?php echo esc_html($location_area); ?>)</span>
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
+                    
+                    <?php if ($date_info['iso_date']): ?>
+                        <p class="apollo-event-date">
+                            <i class="ri-calendar-event-line"></i>
+                            <span><?php echo esc_html(date_i18n('l, F j, Y', strtotime($date_info['iso_date']))); ?></span>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="apollo-event-body">
+                <?php echo apply_filters('the_content', get_the_content()); ?>
+                
+                <?php if ($video_url): ?>
+                    <div class="apollo-event-video" style="margin: 20px 0;">
+                        <?php
+                        // Simple YouTube embed detection
+                        if (strpos($video_url, 'youtube.com') !== false || strpos($video_url, 'youtu.be') !== false) {
+                            preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $video_url, $matches);
+                            if (!empty($matches[1])) {
+                                echo '<div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">';
+                                echo '<iframe src="https://www.youtube.com/embed/' . esc_attr($matches[1]) . '" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>';
+                                echo '</div>';
+                            }
+                        } else {
+                            echo '<p><a href="' . esc_url($video_url) . '" target="_blank" rel="noopener">' . esc_html__('Watch Video', 'apollo-events-manager') . '</a></p>';
+                        }
+                        ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($tickets_url): ?>
+                    <div class="apollo-event-tickets" style="margin: 20px 0;">
+                        <a href="<?php echo esc_url($tickets_url); ?>" target="_blank" rel="noopener" class="button button-primary" style="display: inline-block; padding: 12px 24px; background: #0078d4; color: #fff; text-decoration: none; border-radius: 4px;">
+                            <?php echo esc_html__('Buy Tickets', 'apollo-events-manager'); ?>
+                            <i class="ri-external-link-line"></i>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+        
+        // Restore original post
+        $post = $original_post;
+        wp_reset_postdata();
+        
+        return ob_get_clean();
+    }
+    
     /**
      * Shortcode: [event_djs] - Lista de DJs
      */
