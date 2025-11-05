@@ -49,6 +49,24 @@ function apollo_cfg(): array {
     return $cfg;
 }
 
+// Carrega camada de analytics (hooks globais + helpers)
+$analytics_file = APOLLO_WPEM_PATH . 'includes/analytics.php';
+if (file_exists($analytics_file)) {
+    require_once $analytics_file;
+}
+
+$plausible_file = APOLLO_WPEM_PATH . 'includes/plausible-integration.php';
+if (file_exists($plausible_file)) {
+    require_once $plausible_file;
+}
+
+if (is_admin()) {
+    $analytics_admin_file = APOLLO_WPEM_PATH . 'includes/analytics-admin.php';
+    if (file_exists($analytics_admin_file)) {
+        require_once $analytics_admin_file;
+    }
+}
+
 /**
  * Main Plugin Class
  */
@@ -69,10 +87,12 @@ class Apollo_Events_Manager_Plugin {
         add_action('init', array($this, 'ensure_events_page'));
         add_filter('template_include', array($this, 'canvas_template'), 99);
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
+        add_action('template_redirect', array($this, 'track_event_view'));
         
         // Shortcodes
         add_shortcode('apollo_events', array($this, 'events_shortcode'));
         add_shortcode('eventos-page', array($this, 'eventos_page_shortcode'));
+        add_shortcode('apollo_event_user_overview', 'apollo_event_user_overview_shortcode');
         
         // AJAX handlers
         add_action('wp_ajax_filter_events', array($this, 'ajax_filter_events'));
@@ -358,6 +378,17 @@ class Apollo_Events_Manager_Plugin {
                 'nonce' => wp_create_nonce('apollo_events_nonce')
             ));
         }
+
+        // ============================================
+        // ANALYTICS: Plausible tracking helpers
+        // ============================================
+        wp_enqueue_script(
+            'apollo-plausible-tracking',
+            APOLLO_WPEM_URL . 'assets/plausible-tracking.js',
+            array('jquery'),
+            APOLLO_WPEM_VERSION,
+            true
+        );
 
         // ============================================
         // FORCE LOAD: Leaflet (maps - all pages)
@@ -829,6 +860,10 @@ class Apollo_Events_Manager_Plugin {
         }
         
         setup_postdata($post);
+
+        if (function_exists('apollo_record_event_view')) {
+            apollo_record_event_view($event_id, get_current_user_id());
+        }
         
         include APOLLO_WPEM_PATH . 'templates/single-event.php';
         
@@ -869,11 +904,51 @@ class Apollo_Events_Manager_Plugin {
         }
         
         update_post_meta($event_id, '_favorites_count', $new_count);
+
+        if (function_exists('apollo_events_record_favorite_change')) {
+            $user_id = get_current_user_id();
+            if ($user_id) {
+                apollo_events_record_favorite_change($event_id, $user_id, $action === 'add');
+            }
+        }
         
         wp_send_json_success(array(
             'count' => $new_count,
             'action' => $action
         ));
+    }
+
+    /**
+     * Registra view quando a single de evento é acessada diretamente.
+     */
+    public function track_event_view() {
+        if (!function_exists('apollo_events_is_event_context') || !function_exists('apollo_record_event_view')) {
+            return;
+        }
+
+        if (is_admin()) {
+            return;
+        }
+
+        $config = apollo_cfg();
+        $event_post_type = isset($config['cpt']['event']) ? $config['cpt']['event'] : 'event_listing';
+
+        if (!is_singular($event_post_type)) {
+            return;
+        }
+
+        $event_id = get_queried_object_id();
+        if (!$event_id) {
+            return;
+        }
+
+        static $view_tracked = false;
+        if ($view_tracked) {
+            return;
+        }
+
+        $view_tracked = true;
+        apollo_record_event_view($event_id, get_current_user_id());
     }
 
     /**
@@ -1167,6 +1242,14 @@ function apollo_events_manager_activate() {
     // Register CPTs and flush rewrite rules
     require_once plugin_dir_path(__FILE__) . 'includes/post-types.php';
     Apollo_Post_Types::flush_rewrite_rules_on_activation();
+
+    if (function_exists('apollo_events_install_analytics_schema')) {
+        apollo_events_install_analytics_schema();
+    }
+
+    if (function_exists('apollo_events_register_stats_capabilities')) {
+        apollo_events_register_stats_capabilities();
+    }
     
     // Create "Eventos" page with shortcode if it doesn't exist
     $events_page = get_page_by_path('eventos');

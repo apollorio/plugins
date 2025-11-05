@@ -173,7 +173,7 @@ if (empty($event_djs)) {
 }
 ?>
 
-<div class="mobile-container">
+<div class="mobile-container" data-event-id="<?php echo esc_attr($event_id); ?>">
     <!-- Hero Media -->
     <div class="hero-media">
         <?php if ($event_youtube_embed): ?>
@@ -227,7 +227,7 @@ if (empty($event_djs)) {
                 </div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <a href="#" class="quick-action" id="favoriteTrigger">
+            <a href="#" class="quick-action" id="favoriteTrigger" data-event-id="<?php echo esc_attr($event_id); ?>">
                 <div class="quick-action-icon">
                     <i class="ri-rocket-line"></i>
                 </div>
