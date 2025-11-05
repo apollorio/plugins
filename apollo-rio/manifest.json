@@ -1,7 +1,7 @@
 {
   "name": "Apollo::rio",
   "short_name": "Apollo",
-  "description": "Apollo::rio, a plataforma difital da cultura e música eletrônica do Rio de Janeiro.",
+  "description": "Apollo::rio, a plataforma digital da cultura e música eletrônica do Rio de Janeiro.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

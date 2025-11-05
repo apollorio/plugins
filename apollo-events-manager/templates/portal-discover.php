@@ -1,29 +1,74 @@
 <?php
 /**
- * Template: Discover Events Portal
- * Based 100% on CodePen vELzbrx
- * URL: https://codepen.io/Rafael-Valle-the-looper/pen/vELzbrx
+ * Template: Portal de Eventos Apollo
+ * Baseado 100% no CodePen raxqVGR
+ * URL: https://codepen.io/Rafael-Valle-the-looper/pen/raxqVGR
+ * 
+ * STRICT MODE: Este template é SEMPRE usado para /eventos/, independente do tema.
  */
 
 defined('ABSPATH') || exit;
+
+if (!function_exists('apollo_eve_parse_start_date')) {
+    /**
+     * Aceita _event_start_date em "Y-m-d", "Y-m-d H:i:s" ou o que strtotime() aceitar.
+     * Retorna array com:
+     *  - 'timestamp'
+     *  - 'day'        => "22"
+     *  - 'month_pt'   => "jan", "fev", ...
+     *  - 'iso_date'   => "Y-m-d"
+     *  - 'iso_dt'     => "Y-m-d H:i:s"
+     */
+    function apollo_eve_parse_start_date($raw) {
+        $raw = trim((string) $raw);
+        
+        if ($raw === '') {
+            return [
+                'timestamp' => null,
+                'day'       => '',
+                'month_pt'  => '',
+                'iso_date'  => '',
+                'iso_dt'    => '',
+            ];
+        }
+        
+        // 1) tenta parser direto
+        $ts = strtotime($raw);
+        
+        // 2) fallback: se vier só "Y-m-d", garante datetime
+        if (!$ts) {
+            $dt = DateTime::createFromFormat('Y-m-d', $raw);
+            if ($dt instanceof DateTime) {
+                $ts = $dt->getTimestamp();
+            }
+        }
+        
+        if (!$ts) {
+            // nada deu certo
+            return [
+                'timestamp' => null,
+                'day'       => '',
+                'month_pt'  => '',
+                'iso_date'  => '',
+                'iso_dt'    => '',
+            ];
+        }
+        
+        $pt_months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        $month_idx = (int) date_i18n('n', $ts) - 1;
+        
+        return [
+            'timestamp' => $ts,
+            'day'       => date_i18n('d', $ts),
+            'month_pt'  => $pt_months[$month_idx] ?? '',
+            'iso_date'  => date_i18n('Y-m-d', $ts),
+            'iso_dt'    => date_i18n('Y-m-d H:i:s', $ts),
+        ];
+    }
+}
+
+get_header(); // Use WordPress header
 ?>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
-    
-    <title>Discover Events - Apollo::rio</title>
-    
-    <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-    
-    <?php wp_head(); ?>
-</head>
-<body>
 
     <!-- FIXED HEADER -->
     <header class="site-header">
@@ -116,84 +161,176 @@ defined('ABSPATH') || exit;
             <!-- EVENT LISTINGS GRID -->
             <div class="event_listings">
                 <?php
-                // Get events
-                $args = [
-                    'post_type' => 'event_listing',
-                    'posts_per_page' => -1,
-                    'post_status' => 'publish',
-                    'meta_key' => '_event_start_date',
-                    'orderby' => 'meta_value',
-                    'order' => 'ASC',
-                    'meta_query' => [
-                        [
-                            'key' => '_event_start_date',
-                            'value' => date('Y-m-d'),
-                            'compare' => '>=',
-                            'type' => 'DATE'
-                        ]
-                    ]
-                ];
+                // ============================================
+                // PERFORMANCE: Query otimizada com cache
+                // ============================================
+                $cache_key = 'apollo_upcoming_events_' . date('Ymd');
+                $events_data = get_transient($cache_key);
                 
-                $events_query = new WP_Query($args);
+                if (false === $events_data) {
+                    // Query otimizada: LIMITE de 50 eventos (não -1)
+                    $now_mysql = current_time('mysql');
+                    $args = array(
+                        'post_type'      => 'event_listing',
+                        'posts_per_page' => 50, // LIMITE: próximos 50 eventos
+                        'post_status'    => 'publish',
+                        'meta_key'       => '_event_start_date',
+                        'orderby'        => 'meta_value',
+                        'order'          => 'ASC',
+                        'meta_query'     => array(
+                            array(
+                                'key'     => '_event_start_date',
+                                'value'   => $now_mysql,
+                                'compare' => '>=',
+                                'type'    => 'DATETIME',
+                            ),
+                        ),
+                    );
+                    
+                    $events_query = new WP_Query($args);
+                    
+                    // PRÉ-CARREGAR TODOS OS METAS (evita N+1 queries)
+                    if ($events_query->have_posts()) {
+                        $event_ids = wp_list_pluck($events_query->posts, 'ID');
+                        update_meta_cache('post', $event_ids);
+                    }
+                    
+                    // Salvar em transient por 5 minutos
+                    set_transient($cache_key, $events_query, 5 * MINUTE_IN_SECONDS);
+                    $events_data = $events_query;
+                } else {
+                    $events_query = $events_data;
+                }
                 
-                if ($events_query->have_posts()):
-                    while ($events_query->have_posts()): $events_query->the_post();
+                // Error handling: prevent white screen if DB fails
+                if (is_wp_error($events_query)) {
+                    error_log('❌ Apollo: WP_Query error in portal-discover: ' . $events_query->get_error_message());
+                    echo '<p class="no-events-found">Erro ao carregar eventos. Tente novamente.</p>';
+                } elseif ($events_query->have_posts()) {
+                    while ($events_query->have_posts()) {
+                        $events_query->the_post();
                         $event_id = get_the_ID();
                         
-                        // Get data
-                        $start_date = get_post_meta($event_id, '_event_start_date', true);
-                        $event_location = get_post_meta($event_id, '_event_location', true);
-                        $event_banner = get_post_meta($event_id, '_event_banner', true);
+                        // -------- META BÁSICA (já está no cache) --------
+                        $start_date_raw   = get_post_meta($event_id, '_event_start_date', true);
+                        $event_location_r = get_post_meta($event_id, '_event_location', true);
+                        $event_banner     = get_post_meta($event_id, '_event_banner', true);
                         
-                        // Get DJs from timetable with comprehensive validation
+                        // -------- DATA (usa helper, tolerante a formatos) --------
+                        $date_info  = apollo_eve_parse_start_date($start_date_raw);
+                        $day        = $date_info['day'];
+                        $month_pt   = $date_info['month_pt'];
+                        
+                        // ============================================
+                        // DJs: LÓGICA ROBUSTA COM FALLBACKS
+                        // ============================================
+                        $djs_names = array();
+                        
+                        // Tentativa 1: _timetable
                         $timetable = get_post_meta($event_id, '_timetable', true);
-                        $djs_names = [];
                         if (!empty($timetable) && is_array($timetable)) {
                             foreach ($timetable as $slot) {
-                                if (isset($slot['dj']) && !empty($slot['dj'])) {
-                                    $dj_id = $slot['dj'];
-
-                                    if (is_numeric($dj_id)) {
-                                        $dj_post = get_post($dj_id);
-                                        if ($dj_post && $dj_post->post_status === 'publish') {
-                                            $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                                            if (empty($dj_name)) {
-                                                $dj_name = $dj_post->post_title;
-                                            }
-                                            if (!empty($dj_name)) {
-                                                $djs_names[] = $dj_name;
-                                            }
-                                        }
-                                    } else {
-                                        // If dj_id is a string (DJ name), use it directly
-                                        $djs_names[] = $dj_id;
+                                if (empty($slot['dj'])) {
+                                    continue;
+                                }
+                                
+                                if (is_numeric($slot['dj'])) {
+                                    // É um post de DJ
+                                    $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
+                                    if (!$dj_name) {
+                                        $dj_post = get_post($slot['dj']);
+                                        $dj_name = $dj_post ? $dj_post->post_title : '';
+                                    }
+                                } else {
+                                    // É string direta
+                                    $dj_name = (string) $slot['dj'];
+                                }
+                                
+                                if (!empty($dj_name)) {
+                                    $djs_names[] = trim($dj_name);
+                                }
+                            }
+                        }
+                        
+                        // Tentativa 2: _dj_name direto (fallback)
+                        if (empty($djs_names)) {
+                            $dj_meta = get_post_meta($event_id, '_dj_name', true);
+                            if ($dj_meta) {
+                                $djs_names[] = trim($dj_meta);
+                            }
+                        }
+                        
+                        // Tentativa 3: Buscar relationships (se usa meta _event_djs)
+                        if (empty($djs_names)) {
+                            $related_djs = get_post_meta($event_id, '_event_djs', true);
+                            if (is_array($related_djs)) {
+                                foreach ($related_djs as $dj_id) {
+                                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                                    if ($dj_name) {
+                                        $djs_names[] = trim($dj_name);
                                     }
                                 }
                             }
                         }
-                        $dj_display = !empty($djs_names) ? implode(', ', $djs_names) : get_post_meta($event_id, '_dj_name', true);
                         
-                        // Format date
-                        $date_obj = DateTime::createFromFormat('Y-m-d', $start_date);
-                        $day = $date_obj ? $date_obj->format('d') : '';
-                        $month_num = $date_obj ? $date_obj->format('n') - 1 : 0;
-                        $pt_months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-                        $month_pt = $pt_months[$month_num] ?? '';
+                        // DEBUG: log DJs encontrados
+                        if (empty($djs_names)) {
+                            error_log("❌ Apollo: Evento #{$event_id} sem DJs");
+                        }
                         
-                        // Get categories
+                        // Remover duplicados e valores vazios
+                        $djs_names = array_values(array_unique(array_filter($djs_names)));
+                        
+                        // Formatar display de DJs - SEMPRE tem algo
+                        if (!empty($djs_names)) {
+                            $max_visible  = 3;
+                            $visible      = array_slice($djs_names, 0, $max_visible);
+                            $remaining    = max(count($djs_names) - $max_visible, 0);
+                            
+                            $dj_display = esc_html($visible[0]);
+                            if (count($visible) > 1) {
+                                $rest = array_slice($visible, 1);
+                                $dj_display .= ', ' . esc_html(implode(', ', $rest));
+                            }
+                            if ($remaining > 0) {
+                                $dj_display .= ' +' . $remaining;
+                            }
+                        } else {
+                            $dj_display = 'Line-up em breve';
+                        }
+                        
+                        // ============================================
+                        // LOCAL: LÓGICA ROBUSTA COM VALIDAÇÃO
+                        // ============================================
+                        $event_location      = '';
+                        $event_location_area = '';
+                        
+                        if (!empty($event_location_r)) {
+                            if (strpos($event_location_r, '|') !== false) {
+                                list($event_location, $event_location_area) = array_map('trim', explode('|', $event_location_r, 2));
+                            } else {
+                                $event_location = trim($event_location_r);
+                            }
+                        }
+                        
+                        // DEBUG: log local
+                        if (empty($event_location)) {
+                            error_log("⚠️ Apollo: Evento #{$event_id} sem local");
+                        }
+                        
+                        // -------- CATEGORIA / TAGS --------
                         $categories = wp_get_post_terms($event_id, 'event_listing_category');
                         if (is_wp_error($categories)) {
-                            $categories = [];
+                            $categories = array();
                         }
                         $category_slug = !empty($categories) ? $categories[0]->slug : 'general';
                         
-                        // Get tags (sounds)
                         $tags = wp_get_post_terms($event_id, 'event_sounds');
                         if (is_wp_error($tags)) {
-                            $tags = [];
+                            $tags = array();
                         }
                         
-                        // Get banner URL
+                        // -------- BANNER --------
                         $banner_url = '';
                         if ($event_banner) {
                             $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
@@ -206,7 +343,12 @@ defined('ABSPATH') || exit;
                         }
                         ?>
                         
-                        <a href="#" class="event_listing" data-event-id="<?php echo esc_attr($event_id); ?>" data-category="<?php echo esc_attr($category_slug); ?>" data-month-str="<?php echo esc_attr($month_pt); ?>">
+                        <a href="#"
+                           class="event_listing"
+                           data-event-id="<?php echo esc_attr($event_id); ?>"
+                           data-category="<?php echo esc_attr($category_slug); ?>"
+                           data-month-str="<?php echo esc_attr($month_pt); ?>">
+                            
                             <!-- Date box outside .picture -->
                             <div class="box-date-event">
                                 <span class="date-day"><?php echo esc_html($day); ?></span>
@@ -214,22 +356,25 @@ defined('ABSPATH') || exit;
                             </div>
                             
                             <div class="picture">
-                                <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+                                <img src="<?php echo esc_url($banner_url); ?>"
+                                     alt="<?php echo esc_attr(get_the_title()); ?>"
+                                     loading="lazy">
                                 
-                                <!-- Event card tags -->
                                 <?php if (!empty($tags)): ?>
-                                <div class="event-card-tags">
-                                    <?php 
-                                    $tag_count = 0;
-                                    foreach ($tags as $tag):
-                                        if ($tag_count >= 3) break;
-                                    ?>
-                                        <span><?php echo esc_html($tag->name); ?></span>
-                                    <?php 
-                                        $tag_count++;
-                                    endforeach;
-                                    ?>
-                                </div>
+                                    <div class="event-card-tags">
+                                        <?php
+                                        $tag_count = 0;
+                                        foreach ($tags as $tag):
+                                            if ($tag_count >= 3) {
+                                                break;
+                                            }
+                                            ?>
+                                            <span><?php echo esc_html($tag->name); ?></span>
+                                            <?php
+                                            $tag_count++;
+                                        endforeach;
+                                        ?>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                             
@@ -237,17 +382,20 @@ defined('ABSPATH') || exit;
                                 <div class="box-info-event">
                                     <h2 class="event-li-title mb04rem"><?php the_title(); ?></h2>
                                     
-                                    <?php if ($dj_display): ?>
+                                    <!-- DJs - SEMPRE EXIBIDO -->
                                     <p class="event-li-detail of-dj mb04rem">
                                         <i class="ri-sound-module-fill"></i>
                                         <span><?php echo esc_html($dj_display); ?></span>
                                     </p>
-                                    <?php endif; ?>
                                     
-                                    <?php if ($event_location): ?>
+                                    <!-- Local - EXIBIDO SE EXISTIR -->
+                                    <?php if (!empty($event_location)): ?>
                                     <p class="event-li-detail of-location mb04rem">
                                         <i class="ri-map-pin-2-line"></i>
-                                        <span><?php echo esc_html($event_location); ?></span>
+                                        <span class="event-location-name"><?php echo esc_html($event_location); ?></span>
+                                        <?php if (!empty($event_location_area)): ?>
+                                            <span class="event-location-area">(<?php echo esc_html($event_location_area); ?>)</span>
+                                        <?php endif; ?>
                                     </p>
                                     <?php endif; ?>
                                 </div>
@@ -255,11 +403,11 @@ defined('ABSPATH') || exit;
                         </a>
                         
                         <?php
-                    endwhile;
+                    }
                     wp_reset_postdata();
-                else:
+                } else {
                     echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
-                endif;
+                }
                 ?>
             </div>
             <!-- END EVENT LISTING GRID -->
@@ -324,16 +472,17 @@ defined('ABSPATH') || exit;
             ?>
 
         </div>
+        
+        <!-- Apollo Event Modal Container (for lightbox JS) -->
+        <div id="apollo-event-modal" class="apollo-event-modal" aria-hidden="true"></div>
+        
     </main>
 
     <!-- DARK MODE TOGGLE -->
-    <div class="dark-mode-toggle" id="darkModeToggle" role="button" aria-label="Toggle dark mode">
+    <div class="dark-mode-toggle" id="darkModeToggle" role="button" aria-label="Alternar modo escuro">
         <i class="ri-sun-line"></i>
         <i class="ri-moon-line"></i>
     </div>
 
-    <?php wp_footer(); ?>
-    <script src="https://assets.apollo.rio.br/base.js"></script>
-</body>
-</html>
+<?php get_footer(); // Use WordPress footer ?>
 

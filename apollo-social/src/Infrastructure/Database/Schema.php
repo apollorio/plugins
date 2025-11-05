@@ -1,0 +1,433 @@
+<?php
+
+namespace Apollo\Infrastructure\Database;
+
+/**
+ * Apollo Database Schema
+ * 
+ * Creates and manages database tables for Apollo Social plugin.
+ */
+class Schema
+{
+    private string $version = '1.0.0';
+
+    /**
+     * Install all Apollo tables
+     */
+    public function install(): void
+    {
+        $this->createWorkflowLogTable();
+        $this->createModerationQueueTable();
+        $this->createAnalyticsTable();
+        $this->createSignatureRequestsTable();
+        $this->createOnboardingProgressTable();
+        $this->updateSchemaVersion();
+    }
+
+    /**
+     * Create workflow log table
+     */
+    private function createWorkflowLogTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_workflow_log';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            content_id bigint(20) unsigned NOT NULL,
+            content_type varchar(50) NOT NULL,
+            from_state varchar(50) NOT NULL,
+            to_state varchar(50) NOT NULL,
+            user_id bigint(20) unsigned NOT NULL,
+            reason text,
+            metadata longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY content_idx (content_id, content_type),
+            KEY user_idx (user_id),
+            KEY state_idx (from_state, to_state),
+            KEY created_idx (created_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create moderation queue table
+     */
+    private function createModerationQueueTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_moderation_queue';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            content_id bigint(20) unsigned NOT NULL,
+            content_type varchar(50) NOT NULL,
+            content_title varchar(255) NOT NULL,
+            author_id bigint(20) unsigned NOT NULL,
+            status enum('pending', 'approved', 'rejected', 'escalated') NOT NULL DEFAULT 'pending',
+            priority tinyint(1) unsigned NOT NULL DEFAULT 1,
+            assigned_moderator_id bigint(20) unsigned NULL,
+            submitted_at datetime DEFAULT CURRENT_TIMESTAMP,
+            reviewed_at datetime NULL,
+            reviewer_id bigint(20) unsigned NULL,
+            review_notes text,
+            metadata longtext,
+            PRIMARY KEY (id),
+            KEY content_idx (content_id, content_type),
+            KEY author_idx (author_id),
+            KEY status_idx (status),
+            KEY priority_idx (priority),
+            KEY moderator_idx (assigned_moderator_id),
+            KEY submitted_idx (submitted_at),
+            KEY reviewed_idx (reviewed_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create analytics table
+     */
+    private function createAnalyticsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_analytics';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            event_type varchar(100) NOT NULL,
+            event_name varchar(100) NOT NULL,
+            user_id bigint(20) unsigned NULL,
+            session_id varchar(100) NOT NULL,
+            ip_address varchar(45) NULL,
+            user_agent text,
+            url varchar(500) NOT NULL,
+            referrer varchar(500),
+            properties longtext,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY event_idx (event_type, event_name),
+            KEY user_idx (user_id),
+            KEY session_idx (session_id),
+            KEY created_idx (created_at),
+            KEY url_idx (url(191))
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create signature requests table
+     */
+    private function createSignatureRequestsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_signature_requests';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            request_token varchar(100) NOT NULL UNIQUE,
+            requester_id bigint(20) unsigned NOT NULL,
+            signer_name varchar(255) NOT NULL,
+            signer_phone varchar(20) NOT NULL,
+            signer_instagram varchar(100),
+            document_title varchar(255) NOT NULL,
+            document_hash varchar(64) NOT NULL,
+            signature_type enum('canvas', 'typed') NOT NULL,
+            signature_data longtext,
+            evidence_pack longtext,
+            status enum('pending', 'signed', 'expired', 'cancelled') NOT NULL DEFAULT 'pending',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            signed_at datetime NULL,
+            expires_at datetime NOT NULL,
+            metadata longtext,
+            PRIMARY KEY (id),
+            UNIQUE KEY token_idx (request_token),
+            KEY requester_idx (requester_id),
+            KEY status_idx (status),
+            KEY created_idx (created_at),
+            KEY expires_idx (expires_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create onboarding progress table
+     */
+    private function createOnboardingProgressTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_onboarding_progress';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) unsigned NOT NULL,
+            step_number tinyint(2) unsigned NOT NULL,
+            step_name varchar(100) NOT NULL,
+            status enum('pending', 'completed', 'skipped') NOT NULL DEFAULT 'pending',
+            step_data longtext,
+            completed_at datetime NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_step_idx (user_id, step_number),
+            KEY user_idx (user_id),
+            KEY status_idx (status),
+            KEY completed_idx (completed_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Update Apollo groups table to include status column
+     */
+    public function updateGroupsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_groups';
+
+        // Check if status column exists
+        $column_exists = $wpdb->get_results($wpdb->prepare(
+            "SHOW COLUMNS FROM {$table_name} LIKE %s",
+            'status'
+        ));
+
+        if (empty($column_exists)) {
+            $wpdb->query("ALTER TABLE {$table_name} ADD COLUMN status enum('draft', 'pending_review', 'published', 'rejected', 'suspended') NOT NULL DEFAULT 'draft' AFTER visibility");
+            $wpdb->query("ALTER TABLE {$table_name} ADD INDEX status_idx (status)");
+        }
+
+        // Update existing records to published if they don't have a status
+        $wpdb->query("UPDATE {$table_name} SET status = 'published' WHERE status = '' OR status IS NULL");
+    }
+
+    /**
+     * Update Apollo ads table to include status column
+     */
+    public function updateAdsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_ads';
+
+        // Check if status column exists
+        $column_exists = $wpdb->get_results($wpdb->prepare(
+            "SHOW COLUMNS FROM {$table_name} LIKE %s",
+            'status'
+        ));
+
+        if (empty($column_exists)) {
+            $wpdb->query("ALTER TABLE {$table_name} ADD COLUMN status enum('draft', 'pending_review', 'published', 'rejected', 'expired') NOT NULL DEFAULT 'draft' AFTER price");
+            $wpdb->query("ALTER TABLE {$table_name} ADD INDEX status_idx (status)");
+        }
+
+        // Update existing records to published if they don't have a status
+        $wpdb->query("UPDATE {$table_name} SET status = 'published' WHERE status = '' OR status IS NULL");
+    }
+
+    /**
+     * Create user verification tokens table
+     */
+    public function createVerificationTokensTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_verification_tokens';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) unsigned NOT NULL,
+            platform varchar(50) NOT NULL,
+            username varchar(100) NOT NULL,
+            token varchar(100) NOT NULL,
+            status enum('pending', 'verified', 'failed', 'expired') NOT NULL DEFAULT 'pending',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            verified_at datetime NULL,
+            expires_at datetime NOT NULL,
+            metadata longtext,
+            PRIMARY KEY (id),
+            UNIQUE KEY user_platform_idx (user_id, platform),
+            KEY platform_idx (platform),
+            KEY username_idx (username),
+            KEY token_idx (token),
+            KEY status_idx (status),
+            KEY expires_idx (expires_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Get current schema version
+     */
+    public function getSchemaVersion(): string
+    {
+        return get_option('apollo_schema_version', '0.0.0');
+    }
+
+    /**
+     * Update schema version
+     */
+    private function updateSchemaVersion(): void
+    {
+        update_option('apollo_schema_version', $this->version);
+    }
+
+    /**
+     * Check if schema needs update
+     */
+    public function needsUpdate(): bool
+    {
+        return version_compare($this->getSchemaVersion(), $this->version, '<');
+    }
+
+    /**
+     * Run schema migrations
+     */
+    public function migrate(): void
+    {
+        $current_version = $this->getSchemaVersion();
+
+        // Migration from 0.0.0 to 1.0.0
+        if (version_compare($current_version, '1.0.0', '<')) {
+            $this->install();
+            $this->updateGroupsTable();
+            $this->updateAdsTable();
+            $this->createVerificationTokensTable();
+        }
+
+        $this->updateSchemaVersion();
+    }
+
+    /**
+     * Drop all Apollo tables (for uninstall)
+     */
+    public function uninstall(): void
+    {
+        global $wpdb;
+
+        $tables = [
+            $wpdb->prefix . 'apollo_workflow_log',
+            $wpdb->prefix . 'apollo_moderation_queue',
+            $wpdb->prefix . 'apollo_analytics',
+            $wpdb->prefix . 'apollo_signature_requests',
+            $wpdb->prefix . 'apollo_onboarding_progress',
+            $wpdb->prefix . 'apollo_verification_tokens'
+        ];
+
+        foreach ($tables as $table) {
+            $wpdb->query("DROP TABLE IF EXISTS {$table}");
+        }
+
+        // Remove schema version option
+        delete_option('apollo_schema_version');
+    }
+
+    /**
+     * Get table creation status
+     */
+    public function getInstallationStatus(): array
+    {
+        global $wpdb;
+
+        $tables = [
+            'workflow_log' => $wpdb->prefix . 'apollo_workflow_log',
+            'moderation_queue' => $wpdb->prefix . 'apollo_moderation_queue',
+            'analytics' => $wpdb->prefix . 'apollo_analytics',
+            'signature_requests' => $wpdb->prefix . 'apollo_signature_requests',
+            'onboarding_progress' => $wpdb->prefix . 'apollo_onboarding_progress',
+            'verification_tokens' => $wpdb->prefix . 'apollo_verification_tokens'
+        ];
+
+        $status = [];
+        foreach ($tables as $name => $table) {
+            $exists = $wpdb->get_var($wpdb->prepare(
+                "SHOW TABLES LIKE %s",
+                $table
+            )) === $table;
+            
+            $status[$name] = $exists;
+        }
+
+        $status['schema_version'] = $this->getSchemaVersion();
+        $status['needs_update'] = $this->needsUpdate();
+
+        return $status;
+    }
+
+    /**
+     * Get database statistics
+     */
+    public function getStatistics(): array
+    {
+        global $wpdb;
+
+        $stats = [];
+
+        // Workflow log statistics
+        $stats['workflow_transitions'] = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_workflow_log"
+        );
+
+        // Moderation queue statistics
+        $stats['pending_moderation'] = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_moderation_queue WHERE status = 'pending'"
+        );
+
+        // Analytics statistics
+        $stats['total_events'] = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_analytics"
+        );
+
+        $stats['events_today'] = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_analytics WHERE DATE(created_at) = %s",
+            current_time('Y-m-d')
+        ));
+
+        // Signature requests statistics
+        $stats['signature_requests'] = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_signature_requests"
+        );
+
+        $stats['pending_signatures'] = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}apollo_signature_requests WHERE status = 'pending'"
+        );
+
+        // Onboarding statistics
+        $stats['users_in_onboarding'] = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->prefix}apollo_onboarding_progress WHERE status = 'pending'"
+        );
+
+        $stats['completed_onboarding'] = $wpdb->get_var(
+            "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->prefix}apollo_onboarding_progress WHERE step_number = 7 AND status = 'completed'"
+        );
+
+        return $stats;
+    }
+}

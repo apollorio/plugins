@@ -1,0 +1,23 @@
+/**
+ * Canvas Mode CSS (stub)
+ * 
+ * Main styles for Apollo Social Canvas Mode.
+ * TODO: Implement Canvas Mode styling that works independently of theme styles.
+ */
+
+/* TODO: Add Canvas Mode layout styles */
+/* TODO: Add component styles for groups, users, classifieds, etc. */
+/* TODO: Add responsive design for Canvas Mode */
+/* TODO: Ensure no conflicts with theme styles */
+
+.apollo-canvas {
+    /* TODO: Add Canvas Mode body styles */
+}
+
+#apollo-canvas-wrapper {
+    /* TODO: Add wrapper styles */
+}
+
+#apollo-main {
+    /* TODO: Add main content area styles */
+}

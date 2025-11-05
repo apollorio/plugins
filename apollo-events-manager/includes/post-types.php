@@ -389,12 +389,20 @@ class Apollo_Post_Types {
         // DJ META FIELDS
         // ============================================
         $dj_meta_fields = array(
-            '_dj_name'        => 'string',
-            '_dj_bio'         => 'string',
-            '_dj_website'     => 'string',
-            '_dj_soundcloud'  => 'string',
-            '_dj_instagram'   => 'string',
-            '_dj_facebook'    => 'string',
+            '_dj_name'               => 'string',
+            '_dj_bio'                => 'string',
+            '_dj_website'            => 'string',
+            '_dj_soundcloud'         => 'string',
+            '_dj_instagram'          => 'string',
+            '_dj_facebook'           => 'string',
+            '_dj_image'              => 'string', // URL or attachment ID
+            '_dj_original_project_1' => 'string', // Original Project 1
+            '_dj_original_project_2' => 'string', // Original Project 2
+            '_dj_original_project_3' => 'string', // Original Project 3
+            '_dj_set_url'            => 'string', // DJ Set URL
+            '_dj_media_kit_url'      => 'string', // Media Kit URL
+            '_dj_rider_url'          => 'string', // Rider URL
+            '_dj_mix_url'            => 'string', // DJ Mix URL
         );
         
         foreach ($dj_meta_fields as $meta_key => $type) {

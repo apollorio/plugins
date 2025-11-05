@@ -1,0 +1,193 @@
+/* Apollo Social Canvas Mode Styles */
+
+/* Reset básico */
+.apollo-canvas * {
+    box-sizing: border-box;
+}
+
+.apollo-canvas {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Layout principal */
+#apollo-canvas-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header e navegação */
+.apollo-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.apollo-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.apollo-brand a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.apollo-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+}
+
+.apollo-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.apollo-menu a:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Conteúdo principal */
+.apollo-content {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+.apollo-breadcrumbs {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.apollo-page-content h1 {
+    color: #1e3a8a;
+    margin-bottom: 1.5rem;
+}
+
+/* Cards e grids */
+.apollo-user-directory,
+.apollo-group-directory,
+.apollo-union-directory,
+.apollo-ad-directory {
+    margin-top: 1rem;
+}
+
+.user-grid,
+.group-grid,
+.union-grid,
+.ad-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.user-card,
+.group-card,
+.union-card,
+.ad-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s;
+}
+
+.user-card:hover,
+.group-card:hover,
+.union-card:hover,
+.ad-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.user-card h3,
+.group-card h3,
+.union-card h3,
+.ad-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1e3a8a;
+}
+
+.user-card h3 a,
+.group-card h3 a,
+.union-card h3 a,
+.ad-card h3 a {
+    color: #1e3a8a;
+    text-decoration: none;
+}
+
+.user-card h3 a:hover,
+.group-card h3 a:hover,
+.union-card h3 a:hover,
+.ad-card h3 a:hover {
+    text-decoration: underline;
+}
+
+/* Páginas individuais */
+.apollo-user-single,
+.apollo-group-single,
+.apollo-union-single,
+.apollo-ad-single {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.apollo-ad-single .price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #059669;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+.apollo-footer {
+    background: #f3f4f6;
+    padding: 1rem 0;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+    margin-top: auto;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .apollo-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .apollo-menu {
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .user-grid,
+    .group-grid,
+    .union-grid,
+    .ad-grid {
+        grid-template-columns: 1fr;
+    }
+}

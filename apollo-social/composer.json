@@ -1,0 +1,12 @@
+{
+  "name": "apollorio/apollo-social-core",
+  "description": "Apollo Social Core — plugin skeleton for Canvas Mode, routes and integrations",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Apollo\\": "src/"
+    }
+  },
+  "require": {}
+}

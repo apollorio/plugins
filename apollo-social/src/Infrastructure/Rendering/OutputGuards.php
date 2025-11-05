@@ -1,0 +1,270 @@
+<?php
+namespace Apollo\Infrastructure\Rendering;
+
+/**
+ * Output guards
+ *
+ * Prevents theme output when Canvas Mode is active.
+ */
+class OutputGuards
+{
+    private $installed = false;
+
+    /**
+     * Install output guards
+     */
+    public function install()
+    {
+        if ($this->installed) {
+            return;
+        }
+
+        // Remove theme actions that might interfere
+        $this->removeThemeActions();
+
+        // Block theme assets if configured
+        $this->blockThemeAssets();
+
+        $this->installed = true;
+    }
+
+    /**
+     * Remove output guards
+     */
+    public function remove()
+    {
+        // TODO: Restore theme actions if needed
+        $this->installed = false;
+    }
+
+    /**
+     * Remove theme actions that add unwanted output
+     */
+    private function removeThemeActions()
+    {
+        // Remove common theme hooks that add header/footer content
+        remove_all_actions('wp_head');
+        remove_all_actions('wp_footer');
+
+        // Re-add essential WordPress hooks
+        add_action('wp_head', 'wp_enqueue_scripts', 1);
+        add_action('wp_head', 'wp_print_styles', 8);
+        add_action('wp_head', 'wp_print_head_scripts', 9);
+        add_action('wp_footer', 'wp_print_footer_scripts', 20);
+
+        // Keep admin bar if allowed
+        $canvas_config = $this->getCanvasConfig();
+        if (!empty($canvas_config['allow_admin_bar'])) {
+            add_action('wp_head', '_admin_bar_bump_cb');
+        }
+    }
+
+    /**
+     * Block theme assets
+     */
+    private function blockThemeAssets()
+    {
+        $canvas_config = $this->getCanvasConfig();
+        
+        if (!empty($canvas_config['block_theme_css'])) {
+            add_action('wp_print_styles', [$this, 'dequeueThemeStyles'], 100);
+        }
+
+        if (!empty($canvas_config['block_theme_js'])) {
+            add_action('wp_print_scripts', [$this, 'dequeueThemeScripts'], 100);
+            add_action('wp_print_footer_scripts', [$this, 'dequeueThemeScripts'], 100);
+        }
+    }
+
+    /**
+     * Dequeue theme styles
+     */
+    public function dequeueThemeStyles()
+    {
+        global $wp_styles;
+        
+        if (!$wp_styles) {
+            return;
+        }
+
+        $theme_url = get_template_directory_uri();
+        $child_theme_url = get_stylesheet_directory_uri();
+
+        foreach ($wp_styles->registered as $handle => $style) {
+            if (strpos($style->src, $theme_url) !== false || 
+                strpos($style->src, $child_theme_url) !== false) {
+                wp_dequeue_style($handle);
+            }
+        }
+    }
+
+    /**
+     * Dequeue theme scripts
+     */
+    public function dequeueThemeScripts()
+    {
+        global $wp_scripts;
+        
+        if (!$wp_scripts) {
+            return;
+        }
+
+        $theme_url = get_template_directory_uri();
+        $child_theme_url = get_stylesheet_directory_uri();
+
+        foreach ($wp_scripts->registered as $handle => $script) {
+            if (strpos($script->src, $theme_url) !== false || 
+                strpos($script->src, $child_theme_url) !== false) {
+                wp_dequeue_script($handle);
+            }
+        }
+    }
+    
+    /**
+     * Enhanced method to completely block theme assets in Canvas Mode
+     */
+    public function blockThemeAssetsCompletely(): void
+    {
+        // Remove theme styles completely
+        add_action('wp_print_styles', [$this, 'removeAllThemeStyles'], 999);
+        
+        // Remove theme scripts
+        add_action('wp_print_scripts', [$this, 'removeAllThemeScripts'], 999);
+        
+        // Remove theme's header and footer hooks
+        $this->removeThemeHooksCompletely();
+        
+        // Block theme customizer styles
+        remove_action('wp_head', 'wp_custom_css_cb', 101);
+        
+        // Block theme mod styles
+        remove_action('wp_head', 'wp_theme_mod_custom_css', 101);
+        
+        // Override body classes
+        add_filter('body_class', [$this, 'overrideBodyClasses'], 999);
+    }
+    
+    /**
+     * Remove all theme stylesheets
+     */
+    public function removeAllThemeStyles(): void
+    {
+        global $wp_styles;
+        
+        if (!is_object($wp_styles)) {
+            return;
+        }
+        
+        $theme_uri = get_template_directory_uri();
+        $child_theme_uri = get_stylesheet_directory_uri();
+        
+        foreach ($wp_styles->queue as $handle) {
+            if (isset($wp_styles->registered[$handle])) {
+                $src = $wp_styles->registered[$handle]->src ?? '';
+                
+                // Remove if it's from active theme or child theme
+                if (strpos($src, $theme_uri) !== false || strpos($src, $child_theme_uri) !== false) {
+                    wp_dequeue_style($handle);
+                    wp_deregister_style($handle);
+                }
+            }
+        }
+        
+        // Also remove common theme styles by handle patterns
+        $theme_handles = [
+            'theme-style',
+            'style',
+            'main-style',
+            'theme-css',
+            'custom-style'
+        ];
+        
+        foreach ($theme_handles as $handle) {
+            wp_dequeue_style($handle);
+            wp_deregister_style($handle);
+        }
+    }
+    
+    /**
+     * Remove theme scripts
+     */
+    public function removeAllThemeScripts(): void
+    {
+        global $wp_scripts;
+        
+        if (!is_object($wp_scripts)) {
+            return;
+        }
+        
+        $theme_uri = get_template_directory_uri();
+        $child_theme_uri = get_stylesheet_directory_uri();
+        
+        foreach ($wp_scripts->queue as $handle) {
+            if (isset($wp_scripts->registered[$handle])) {
+                $src = $wp_scripts->registered[$handle]->src ?? '';
+                
+                // Remove if it's from active theme
+                if (strpos($src, $theme_uri) !== false || strpos($src, $child_theme_uri) !== false) {
+                    wp_dequeue_script($handle);
+                    wp_deregister_script($handle);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Remove theme hooks and actions completely
+     */
+    private function removeThemeHooksCompletely(): void
+    {
+        // Remove theme setup hooks
+        remove_action('wp_head', 'wp_generator');
+        remove_action('wp_head', 'wlwmanifest_link');
+        remove_action('wp_head', 'rsd_link');
+        
+        // Remove theme customization hooks that might interfere
+        remove_action('wp_head', 'print_emoji_detection_script', 7);
+        remove_action('wp_print_styles', 'print_emoji_styles');
+    }
+    
+    /**
+     * Override body classes to ensure clean Canvas Mode
+     */
+    public function overrideBodyClasses(array $classes): array
+    {
+        // Keep only essential WordPress classes and add Canvas classes
+        $essential_classes = array_filter($classes, function($class) {
+            return in_array($class, [
+                'logged-in',
+                'admin-bar',
+                'wp-admin',
+                'wp-core-ui'
+            ]);
+        });
+        
+        // Add Apollo Canvas classes
+        $essential_classes[] = 'apollo-canvas';
+        $essential_classes[] = 'apollo-social-canvas';
+        
+        return $essential_classes;
+    }
+
+    /**
+     * Get Canvas configuration
+     */
+    private function getCanvasConfig()
+    {
+        static $config = null;
+        
+        if ($config === null) {
+            $config_file = APOLLO_SOCIAL_PLUGIN_DIR . 'config/canvas.php';
+            if (file_exists($config_file)) {
+                $config = require $config_file;
+            } else {
+                $config = [];
+            }
+        }
+
+        return $config;
+    }
+}
