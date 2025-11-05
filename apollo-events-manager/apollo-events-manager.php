@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Apollo Events Manager
  * Plugin URI: https://apollo.rio.br
- * Description: Complete event management system for Apollo::Rio with custom templates, maps, and favorites
- * Version: 0.1.0
+ * Description: Complete event management system for Apollo::Rio with custom templates, maps, favorites, and analytics dashboards
+ * Version: 2.1.0
  * Author: Apollo Events Team
  * License: GPL v2 or later
  * Text Domain: apollo-events-manager
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define constants
-define('APOLLO_WPEM_VERSION', '0.1.0');
+define('APOLLO_WPEM_VERSION', '2.1.0');
 define('APOLLO_WPEM_PATH', plugin_dir_path(__FILE__));
 define('APOLLO_WPEM_URL', plugin_dir_url(__FILE__));
 
@@ -114,6 +114,16 @@ class Apollo_Events_Manager_Plugin {
             
             // Load migration validator
             require_once APOLLO_WPEM_PATH . 'includes/migration-validator.php';
+        }
+        
+        // Load Analytics & Dashboards system (2.1.0+)
+        require_once APOLLO_WPEM_PATH . 'includes/class-apollo-events-analytics.php';
+        require_once APOLLO_WPEM_PATH . 'includes/class-apollo-events-shortcodes.php';
+        require_once APOLLO_WPEM_PATH . 'includes/class-apollo-events-plausible.php';
+        
+        // Load Admin Dashboard (admin only)
+        if (is_admin()) {
+            require_once APOLLO_WPEM_PATH . 'includes/class-apollo-events-admin-dashboard.php';
         }
         
         // Backward compatibility layer (prevents fatal errors if WPEM reactivated)
@@ -300,6 +310,17 @@ class Apollo_Events_Manager_Plugin {
         $config = apollo_cfg();
         $event_post_type = isset($config['cpt']['event']) ? $config['cpt']['event'] : 'event_listing';
         $is_single_event = is_singular($event_post_type);
+        
+        // Enqueue Plausible tracking script (if on event pages)
+        if (!$is_single_event) {
+            wp_enqueue_script(
+                'apollo-plausible-tracking',
+                APOLLO_WPEM_URL . 'assets/apollo-plausible-tracking.js',
+                array('jquery'),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+        }
 
         // ============================================
         // FORCE LOAD: RemixIcon (required for all)
@@ -1184,8 +1205,16 @@ function apollo_events_manager_activate() {
         }
     }
     
+    // Initialize analytics table
+    require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
+    $analytics = new Apollo_Events_Analytics();
+    $analytics->maybe_create_table();
+    
+    // Reset capabilities flag to ensure they get added
+    delete_option('apollo_analytics_caps_added');
+    
     // Log activation
-    error_log('✅ Apollo Events Manager 2.0.0 activated successfully');
+    error_log('✅ Apollo Events Manager 2.1.0 activated successfully with Analytics & Dashboards');
 }
 
 /**
