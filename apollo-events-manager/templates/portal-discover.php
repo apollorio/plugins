@@ -222,37 +222,85 @@ get_header(); // Use WordPress header
                         $month_pt   = $date_info['month_pt'];
                         
                         // ============================================
-                        // DJs: LÓGICA ROBUSTA COM FALLBACKS
+                        // DJs: LÓGICA ROBUSTA COM FALLBACKS (CORRIGIDA)
                         // ============================================
                         $djs_names = array();
                         
-                        // Tentativa 1: _timetable
-                        $timetable = get_post_meta($event_id, '_timetable', true);
-                        if (!empty($timetable) && is_array($timetable)) {
-                            foreach ($timetable as $slot) {
-                                if (empty($slot['dj'])) {
-                                    continue;
-                                }
-                                
-                                if (is_numeric($slot['dj'])) {
-                                    // É um post de DJ
-                                    $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
-                                    if (!$dj_name) {
-                                        $dj_post = get_post($slot['dj']);
-                                        $dj_name = $dj_post ? $dj_post->post_title : '';
+                        // Tentativa 1: _event_dj_ids (correto meta key)
+                        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+                        if (!empty($dj_ids_raw)) {
+                            $dj_ids = maybe_unserialize($dj_ids_raw);
+                            if (is_array($dj_ids)) {
+                                foreach ($dj_ids as $dj_id) {
+                                    $dj_id = is_numeric($dj_id) ? absint($dj_id) : 0;
+                                    if ($dj_id > 0) {
+                                        $dj_post = get_post($dj_id);
+                                        if ($dj_post && $dj_post->post_status === 'publish' && $dj_post->post_type === 'event_dj') {
+                                            $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                                            if (empty($dj_name)) {
+                                                $dj_name = $dj_post->post_title;
+                                            }
+                                            if (!empty($dj_name)) {
+                                                $djs_names[] = trim($dj_name);
+                                            }
+                                        }
                                     }
-                                } else {
-                                    // É string direta
-                                    $dj_name = (string) $slot['dj'];
-                                }
-                                
-                                if (!empty($dj_name)) {
-                                    $djs_names[] = trim($dj_name);
                                 }
                             }
                         }
                         
-                        // Tentativa 2: _dj_name direto (fallback)
+                        // Tentativa 2: _event_timetable (se existir)
+                        if (empty($djs_names)) {
+                            $timetable = get_post_meta($event_id, '_event_timetable', true);
+                            if (!empty($timetable)) {
+                                $timetable = maybe_unserialize($timetable);
+                                if (is_array($timetable)) {
+                                    foreach ($timetable as $slot) {
+                                        if (empty($slot['dj'])) continue;
+                                        
+                                        if (is_numeric($slot['dj'])) {
+                                            $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
+                                            if (!$dj_name) {
+                                                $dj_post = get_post($slot['dj']);
+                                                $dj_name = $dj_post ? $dj_post->post_title : '';
+                                            }
+                                        } else {
+                                            $dj_name = (string) $slot['dj'];
+                                        }
+                                        
+                                        if (!empty($dj_name)) {
+                                            $djs_names[] = trim($dj_name);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Tentativa 3: _timetable (fallback para formato antigo)
+                        if (empty($djs_names)) {
+                            $timetable_old = get_post_meta($event_id, '_timetable', true);
+                            if (!empty($timetable_old) && is_array($timetable_old)) {
+                                foreach ($timetable_old as $slot) {
+                                    if (empty($slot['dj'])) continue;
+                                    
+                                    if (is_numeric($slot['dj'])) {
+                                        $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
+                                        if (!$dj_name) {
+                                            $dj_post = get_post($slot['dj']);
+                                            $dj_name = $dj_post ? $dj_post->post_title : '';
+                                        }
+                                    } else {
+                                        $dj_name = (string) $slot['dj'];
+                                    }
+                                    
+                                    if (!empty($dj_name)) {
+                                        $djs_names[] = trim($dj_name);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Tentativa 4: _dj_name direto (último fallback)
                         if (empty($djs_names)) {
                             $dj_meta = get_post_meta($event_id, '_dj_name', true);
                             if ($dj_meta) {
@@ -260,62 +308,61 @@ get_header(); // Use WordPress header
                             }
                         }
                         
-                        // Tentativa 3: Buscar relationships (se usa meta _event_djs)
-                        if (empty($djs_names)) {
-                            $related_djs = get_post_meta($event_id, '_event_djs', true);
-                            if (is_array($related_djs)) {
-                                foreach ($related_djs as $dj_id) {
-                                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                                    if ($dj_name) {
-                                        $djs_names[] = trim($dj_name);
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // DEBUG: log DJs encontrados
-                        if (empty($djs_names)) {
-                            error_log("❌ Apollo: Evento #{$event_id} sem DJs");
-                        }
-                        
                         // Remover duplicados e valores vazios
                         $djs_names = array_values(array_unique(array_filter($djs_names)));
                         
-                        // Formatar display de DJs - SEMPRE tem algo
+                        // Formatar display de DJs
                         if (!empty($djs_names)) {
-                            $max_visible  = 3;
+                            $max_visible  = 6; // Mostrar até 6 DJs
                             $visible      = array_slice($djs_names, 0, $max_visible);
                             $remaining    = max(count($djs_names) - $max_visible, 0);
                             
-                            $dj_display = esc_html($visible[0]);
+                            $dj_display = '<strong>' . esc_html($visible[0]) . '</strong>';
                             if (count($visible) > 1) {
                                 $rest = array_slice($visible, 1);
                                 $dj_display .= ', ' . esc_html(implode(', ', $rest));
                             }
                             if ($remaining > 0) {
-                                $dj_display .= ' +' . $remaining;
+                                $dj_display .= ' <span style="opacity:0.7">+' . $remaining . ' DJs</span>';
                             }
                         } else {
                             $dj_display = 'Line-up em breve';
                         }
                         
                         // ============================================
-                        // LOCAL: LÓGICA ROBUSTA COM VALIDAÇÃO
+                        // LOCAL: LÓGICA ROBUSTA COM VALIDAÇÃO (CORRIGIDA)
                         // ============================================
                         $event_location      = '';
                         $event_location_area = '';
                         
-                        if (!empty($event_location_r)) {
+                        // Tentativa 1: _event_local_ids (relacionamento com event_local post)
+                        $local_id = get_post_meta($event_id, '_event_local_ids', true);
+                        if (!empty($local_id) && is_numeric($local_id)) {
+                            $local_post = get_post(absint($local_id));
+                            if ($local_post && $local_post->post_status === 'publish' && $local_post->post_type === 'event_local') {
+                                $event_location = get_post_meta($local_id, '_local_name', true);
+                                if (empty($event_location)) {
+                                    $event_location = $local_post->post_title;
+                                }
+                                
+                                // Área do local
+                                $local_city = get_post_meta($local_id, '_local_city', true);
+                                $local_state = get_post_meta($local_id, '_local_state', true);
+                                if ($local_city && $local_state) {
+                                    $event_location_area = $local_city . ', ' . $local_state;
+                                } elseif ($local_city) {
+                                    $event_location_area = $local_city;
+                                }
+                            }
+                        }
+                        
+                        // Tentativa 2: _event_location (string direto "Nome | Área")
+                        if (empty($event_location) && !empty($event_location_r)) {
                             if (strpos($event_location_r, '|') !== false) {
                                 list($event_location, $event_location_area) = array_map('trim', explode('|', $event_location_r, 2));
                             } else {
                                 $event_location = trim($event_location_r);
                             }
-                        }
-                        
-                        // DEBUG: log local
-                        if (empty($event_location)) {
-                            error_log("⚠️ Apollo: Evento #{$event_id} sem local");
                         }
                         
                         // -------- CATEGORIA / TAGS --------
@@ -394,7 +441,7 @@ get_header(); // Use WordPress header
                                         <i class="ri-map-pin-2-line"></i>
                                         <span class="event-location-name"><?php echo esc_html($event_location); ?></span>
                                         <?php if (!empty($event_location_area)): ?>
-                                            <span class="event-location-area">(<?php echo esc_html($event_location_area); ?>)</span>
+                                            <span class="event-location-area" style="opacity: 0.5;">&nbsp;(<?php echo esc_html($event_location_area); ?>)</span>
                                         <?php endif; ?>
                                     </p>
                                     <?php endif; ?>

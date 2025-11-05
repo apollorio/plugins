@@ -127,7 +127,7 @@
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'apollo_load_event_modal',
+                    action: 'apollo_get_event_modal',
                     nonce: apollo_events_ajax.nonce,
                     event_id: eventId
                 })
