@@ -406,6 +406,70 @@ function apollo_events_get_placeholders() {
             'key'         => '_event_dj_ids[0] -> _dj_facebook',
             'example'     => 'https://facebook.com/djalpha',
         ],
+        'dj_bandcamp' => [
+            'id'          => 'dj_bandcamp',
+            'label'       => __('DJ Bandcamp (first)', 'apollo-events-manager'),
+            'description' => __('Bandcamp URL of the first DJ from related event_dj post _dj_bandcamp meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_bandcamp',
+            'example'     => 'https://djalpha.bandcamp.com',
+        ],
+        'dj_spotify' => [
+            'id'          => 'dj_spotify',
+            'label'       => __('DJ Spotify (first)', 'apollo-events-manager'),
+            'description' => __('Spotify artist URL of the first DJ from related event_dj post _dj_spotify meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_spotify',
+            'example'     => 'https://open.spotify.com/artist/...',
+        ],
+        'dj_youtube' => [
+            'id'          => 'dj_youtube',
+            'label'       => __('DJ YouTube (first)', 'apollo-events-manager'),
+            'description' => __('YouTube channel URL of the first DJ from related event_dj post _dj_youtube meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_youtube',
+            'example'     => 'https://youtube.com/@djalpha',
+        ],
+        'dj_mixcloud' => [
+            'id'          => 'dj_mixcloud',
+            'label'       => __('DJ Mixcloud (first)', 'apollo-events-manager'),
+            'description' => __('Mixcloud profile URL of the first DJ from related event_dj post _dj_mixcloud meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_mixcloud',
+            'example'     => 'https://mixcloud.com/djalpha',
+        ],
+        'dj_beatport' => [
+            'id'          => 'dj_beatport',
+            'label'       => __('DJ Beatport (first)', 'apollo-events-manager'),
+            'description' => __('Beatport artist page URL of the first DJ from related event_dj post _dj_beatport meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_beatport',
+            'example'     => 'https://beatport.com/artist/dj-alpha/...',
+        ],
+        'dj_resident_advisor' => [
+            'id'          => 'dj_resident_advisor',
+            'label'       => __('DJ Resident Advisor (first)', 'apollo-events-manager'),
+            'description' => __('Resident Advisor profile URL of the first DJ from related event_dj post _dj_resident_advisor meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_resident_advisor',
+            'example'     => 'https://ra.co/dj/djalpha',
+        ],
+        'dj_twitter' => [
+            'id'          => 'dj_twitter',
+            'label'       => __('DJ Twitter/X (first)', 'apollo-events-manager'),
+            'description' => __('Twitter/X handle of the first DJ from related event_dj post _dj_twitter meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_twitter',
+            'example'     => '@djalpha',
+        ],
+        'dj_tiktok' => [
+            'id'          => 'dj_tiktok',
+            'label'       => __('DJ TikTok (first)', 'apollo-events-manager'),
+            'description' => __('TikTok profile URL of the first DJ from related event_dj post _dj_tiktok meta.', 'apollo-events-manager'),
+            'source'      => 'computed',
+            'key'         => '_event_dj_ids[0] -> _dj_tiktok',
+            'example'     => 'https://tiktok.com/@djalpha',
+        ],
         'dj_image' => [
             'id'          => 'dj_image',
             'label'       => __('DJ Image (first)', 'apollo-events-manager'),
@@ -906,6 +970,110 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             $first_dj_id = absint( $ids_array[0] );
             $facebook = get_post_meta( $first_dj_id, '_dj_facebook', true );
             return $facebook ? esc_url( $facebook ) : '';
+            
+        case 'dj_bandcamp':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $bandcamp = get_post_meta( $first_dj_id, '_dj_bandcamp', true );
+            return $bandcamp ? esc_url( $bandcamp ) : '';
+            
+        case 'dj_spotify':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $spotify = get_post_meta( $first_dj_id, '_dj_spotify', true );
+            return $spotify ? esc_url( $spotify ) : '';
+            
+        case 'dj_youtube':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $youtube = get_post_meta( $first_dj_id, '_dj_youtube', true );
+            return $youtube ? esc_url( $youtube ) : '';
+            
+        case 'dj_mixcloud':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $mixcloud = get_post_meta( $first_dj_id, '_dj_mixcloud', true );
+            return $mixcloud ? esc_url( $mixcloud ) : '';
+            
+        case 'dj_beatport':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $beatport = get_post_meta( $first_dj_id, '_dj_beatport', true );
+            return $beatport ? esc_url( $beatport ) : '';
+            
+        case 'dj_resident_advisor':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $ra = get_post_meta( $first_dj_id, '_dj_resident_advisor', true );
+            return $ra ? esc_url( $ra ) : '';
+            
+        case 'dj_twitter':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $twitter = get_post_meta( $first_dj_id, '_dj_twitter', true );
+            return $twitter ? esc_html( $twitter ) : '';
+            
+        case 'dj_tiktok':
+            $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+            if ( empty( $dj_ids ) ) {
+                return '';
+            }
+            $ids_array = maybe_unserialize( $dj_ids );
+            if ( ! is_array( $ids_array ) || empty( $ids_array ) ) {
+                return '';
+            }
+            $first_dj_id = absint( $ids_array[0] );
+            $tiktok = get_post_meta( $first_dj_id, '_dj_tiktok', true );
+            return $tiktok ? esc_url( $tiktok ) : '';
             
         case 'dj_image':
             $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );

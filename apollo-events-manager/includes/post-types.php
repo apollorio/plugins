@@ -389,19 +389,32 @@ class Apollo_Post_Types {
         // DJ META FIELDS
         // ============================================
         $dj_meta_fields = array(
+            // Basic Info
             '_dj_name'               => 'string',
             '_dj_bio'                => 'string',
+            '_dj_image'              => 'string', // URL or attachment ID
+            
+            // Social Media & Streaming Platforms
             '_dj_website'            => 'string',
-            '_dj_soundcloud'         => 'string',
             '_dj_instagram'          => 'string',
             '_dj_facebook'           => 'string',
-            '_dj_image'              => 'string', // URL or attachment ID
+            '_dj_soundcloud'         => 'string',
+            '_dj_bandcamp'           => 'string', // NEW: Bandcamp profile
+            '_dj_spotify'            => 'string', // NEW: Spotify artist profile
+            '_dj_youtube'            => 'string', // NEW: YouTube channel
+            '_dj_mixcloud'           => 'string', // NEW: Mixcloud profile
+            '_dj_beatport'           => 'string', // NEW: Beatport artist page
+            '_dj_resident_advisor'   => 'string', // NEW: Resident Advisor profile
+            '_dj_twitter'            => 'string', // NEW: Twitter/X handle
+            '_dj_tiktok'             => 'string', // NEW: TikTok profile
+            
+            // Professional Content
             '_dj_original_project_1' => 'string', // Original Project 1
             '_dj_original_project_2' => 'string', // Original Project 2
             '_dj_original_project_3' => 'string', // Original Project 3
-            '_dj_set_url'            => 'string', // DJ Set URL
-            '_dj_media_kit_url'      => 'string', // Media Kit URL
-            '_dj_rider_url'          => 'string', // Rider URL
+            '_dj_set_url'            => 'string', // DJ Set URL (SoundCloud, YouTube, etc)
+            '_dj_media_kit_url'      => 'string', // Media Kit download URL
+            '_dj_rider_url'          => 'string', // Rider download URL
             '_dj_mix_url'            => 'string', // DJ Mix URL
         );
         
