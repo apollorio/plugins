@@ -1,0 +1,465 @@
+/* ──────────────────────────────────────<!DOCTYPE html>
+
+   DJ CONTACTS GLASS TABLE STYLES<html lang="en">
+
+   Production-ready, uni.css compatible<head>
+
+   ────────────────────────────────────── */  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+/* GLASS CARD + RESPONSIVE TABLE */  <title>DJ Contacts – Glass Table</title>
+
+.glass-table-card {
+
+  background: var(--glass-color);  <!-- UNI.CSS + REMIXICON -->
+
+  backdrop-filter: blur(var(--glass-blur));  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+
+  border-radius: var(--glass-radius);  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css">
+
+  overflow: visible !important;
+
+  box-shadow: 0 8px 32px var(--card-shadow-light);  <style>
+
+  position: relative;    /* ──────────────────────────────────────
+
+}       GLASS CARD + RESPONSIVE TABLE
+
+.glass-table-card::before {       ────────────────────────────────────── */
+
+  content: "";    .glass-table-card {
+
+  position: absolute;      background: var(--glass-color);
+
+  inset: 0;      backdrop-filter: blur(var(--glass-blur));
+
+  border: var(--glass-border-thick) solid transparent;      border-radius: var(--glass-radius);
+
+  background: linear-gradient(45deg,      overflow: visible !important;   /* ← THIS IS THE MAGIC */
+
+    var(--glass-border-color2),      box-shadow: 0 8px 32px var(--card-shadow-light);
+
+    var(--glass-border-color1),      position: relative;
+
+    var(--glass-border-color2)) border-box;    }
+
+  mask: linear-gradient(black, black) border-box,    .glass-table-card::before {
+
+        linear-gradient(black, black) padding-box;      content: "";
+
+  mask-composite: subtract;      position: absolute;
+
+  border-radius: inherit;      inset: 0;
+
+  z-index: -1;      border: var(--glass-border-thick) solid transparent;
+
+}      background: linear-gradient(45deg,
+
+        var(--glass-border-color2),
+
+.table-header {        var(--glass-border-color1),
+
+  padding: 1.25rem 1.5rem;        var(--glass-border-color2)) border-box;
+
+  border-bottom: 1px solid var(--border-color);      mask: linear-gradient(black, black) border-box,
+
+  background: rgba(255,255,255,.03);            linear-gradient(black, black) padding-box;
+
+  backdrop-filter: blur(8px);      mask-composite: subtract;
+
+}      border-radius: inherit;
+
+.table-header h3 {      z-index: -1;
+
+  margin: 0;    }
+
+  font-size: 1.1rem;
+
+  font-weight: 600;    .table-header {
+
+  color: var(--text-primary);      padding: 1.25rem 1.5rem;
+
+}      border-bottom: 1px solid var(--border-color);
+
+      background: rgba(255,255,255,.03);
+
+.table-wrapper {      backdrop-filter: blur(8px);
+
+  overflow-x: auto;    }
+
+  overflow-y: visible;    .table-header h3 {
+
+  -webkit-overflow-scrolling: touch;      margin: 0;
+
+}      font-size: 1.1rem;
+
+      font-weight: 600;
+
+/* TABLE STYLES (pure classes) */      color: var(--text-primary);
+
+.table {    }
+
+  width: 100%;
+
+  min-width: 860px;    .table-wrapper {
+
+  border-collapse: collapse;      overflow-x: auto;
+
+  font-size: .925rem;      overflow-y: visible;           /* dropdown escapes */
+
+}      -webkit-overflow-scrolling: touch;
+
+.table th,    }
+
+.table td {
+
+  padding: .9rem 1rem;    /* ──────────────────────────────────────
+
+  text-align: left;       TABLE STYLES (pure classes)
+
+  border-top: 1px solid var(--border-color);       ────────────────────────────────────── */
+
+  white-space: nowrap;    .table {
+
+}      width: 100%;
+
+.table th {      min-width: 860px;
+
+  background: rgba(245,245,245,.06);      border-collapse: collapse;
+
+  color: var(--text-primary);      font-size: .925rem;
+
+  font-weight: 600;    }
+
+  font-size: .8rem;    .table th,
+
+  text-transform: uppercase;    .table td {
+
+  letter-spacing: .5px;      padding: .9rem 1rem;
+
+}      text-align: left;
+
+.table tbody tr {      border-top: 1px solid var(--border-color);
+
+  transition: background .3s ease;      white-space: nowrap;
+
+}    }
+
+.table tbody tr:hover {    .table th {
+
+  background: rgba(255,255,255,.05);      background: rgba(245,245,245,.06);
+
+}      color: var(--text-primary);
+
+      font-weight: 600;
+
+/* BIGGER AVATAR (1:1) */      font-size: .8rem;
+
+.avatar {      text-transform: uppercase;
+
+  width: 44px;      letter-spacing: .5px;
+
+  height: 44px;    }
+
+  border-radius: 50%;    .table tbody tr {
+
+  object-fit: cover;      transition: background .3s ease;
+
+  flex-shrink: 0;    }
+
+  border: 2px solid var(--glass-border-color1);    .table tbody tr:hover {
+
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);      background: rgba(255,255,255,.05);
+
+}    }
+
+
+
+/* STICKY ACTIONS COLUMN */    /* ──────────────────────────────────────
+
+.table th:last-child,       BIGGER AVATAR (1:1)
+
+.table td:last-child {       ────────────────────────────────────── */
+
+  position: sticky;    .avatar {
+
+  right: 0;      width: 44px;
+
+  z-index: 12;      height: 44px;
+
+  background: inherit;      border-radius: 50%;
+
+  text-align: center;      object-fit: cover;
+
+  width: 60px;      flex-shrink: 0;
+
+}      border: 2px solid var(--glass-border-color1);
+
+.table thead th:last-child { background: rgba(245,245,245,.08); }      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+
+.table tbody td:last-child { background: var(--glass-color); }    }
+
+
+
+/* REMIXICON GEAR + GLASS DROPDOWN */    /* ──────────────────────────────────────
+
+.gear-btn {       STICKY ACTIONS COLUMN
+
+  display: flex;       ────────────────────────────────────── */
+
+  align-items: center;    .table th:last-child,
+
+  justify-content: center;    .table td:last-child {
+
+  width: 36px;      position: sticky;
+
+  height: 36px;      right: 0;
+
+  margin: 0 auto;      z-index: 12;
+
+  color: var(--text-primary);      background: inherit;
+
+  font-size: 1.35rem;      text-align: center;
+
+  cursor: pointer;      width: 60px;
+
+  transition: color .25s ease;    }
+
+}    .table thead th:last-child { background: rgba(245,245,245,.08); }
+
+.gear-btn:hover { color: var(--accent-color); }    .table tbody td:last-child { background: var(--glass-color); }
+
+
+
+.gear-menu {    /* ──────────────────────────────────────
+
+  position: absolute;       REMIXICON GEAR + GLASS DROPDOWN
+
+  top: 100%;       ────────────────────────────────────── */
+
+  right: 8px;    .gear-btn {
+
+  min-width: 160px;      display: flex;
+
+  margin-top: 6px;      align-items: center;
+
+  padding: .5rem 0;      justify-content: center;
+
+  background: var(--glass-color);      width: 36px;
+
+  backdrop-filter: blur(20px);      height: 36px;
+
+  border-radius: var(--radius-sec);      margin: 0 auto;
+
+  border: 1px solid var(--glass-border-color1);      color: var(--text-primary);
+
+  box-shadow: 0 12px 28px rgba(0,0,0,.18);      font-size: 1.35rem;
+
+  z-index: 99;      cursor: pointer;
+
+  opacity: 0;      transition: color .25s ease;
+
+  visibility: hidden;    }
+
+  transform: translateY(-8px);    .gear-btn:hover { color: var(--accent-color); }
+
+  transition: all .25s ease;
+
+}    .gear-menu {
+
+.gear-item {      position: absolute;
+
+  display: flex;      top: 100%;
+
+  align-items: center;      right: 8px;
+
+  gap: .6rem;      min-width: 160px;
+
+  padding: .5rem 1rem;      margin-top: 6px;
+
+  color: var(--text-main);      padding: .5rem 0;
+
+  font-size: .9rem;      background: var(--glass-color);
+
+  transition: all .25s ease;      backdrop-filter: blur(20px);
+
+}      border-radius: var(--radius-sec);
+
+.gear-item:hover {      border: 1px solid var(--glass-border-color1);
+
+  background: rgba(255,255,255,.12);      box-shadow: 0 12px 28px rgba(0,0,0,.18);
+
+  color: var(--text-primary);      z-index: 99;
+
+}      opacity: 0;
+
+.gear-item i { font-size: 1.1rem; }      visibility: hidden;
+
+      transform: translateY(-8px);
+
+/* Show on hover */      transition: all .25s ease;
+
+.gear-cell:hover .gear-menu {    }
+
+  opacity: 1;    .gear-item {
+
+  visibility: visible;      display: flex;
+
+  transform: translateY(0);      align-items: center;
+
+}      gap: .6rem;
+
+      padding: .5rem 1rem;
+
+/* BADGES */      color: var(--text-main);
+
+.badge {      font-size: .9rem;
+
+  display: inline-block;      transition: all .25s ease;
+
+  padding: .25em .6em;    }
+
+  font-size: .75rem;    .gear-item:hover {
+
+  font-weight: 700;      background: rgba(255,255,255,.12);
+
+  border-radius: 1rem;      color: var(--text-primary);
+
+  min-width: 48px;    }
+
+  text-align: center;    .gear-item i { font-size: 1.1rem; }
+
+}
+
+.badge-success { background: rgba(25,135,84,.15); color: #198754; }    /* Show on hover */
+
+.badge-warning { background: rgba(255,193,7,.15); color: #e6a800; }    .gear-cell:hover .gear-menu {
+
+.badge-danger  { background: rgba(220,53,69,.15); color: #dc3545; }      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* ──────────────────────────────────────
+       BADGES
+       ────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: .25em .6em;
+      font-size: .75rem;
+      font-weight: 700;
+      border-radius: 1rem;
+      min-width: 48px;
+      text-align: center;
+    }
+    .badge-success { background: rgba(25,135,84,.15); color: #198754; }
+    .badge-warning { background: rgba(255,193,7,.15); color: #e6a800; }
+    .badge-danger  { background: rgba(220,53,69,.15); color: #dc3545; }
+  </style>
+</head>
+<body>
+
+<div class="container p-10" style="max-width:1180px;margin:auto;">
+  <div class="glass-table-card glass">
+
+    <!-- Header -->
+    <div class="table-header">
+      <h3>DJ Contacts</h3>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Score</th>
+            <th>Platform</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:.75rem;">
+                <img src="https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80" class="avatar" alt="Robert">
+                <a href="#" style="color:var(--text-primary);font-weight:600;">Robert Fox</a>
+              </div>
+            </td>
+            <td>Web Designer</td>
+            <td><a href="mailto:robert.fox@example.com" style="color:var(--text-main);">robert.fox@example.com</a></td>
+            <td><a href="tel:202-555-0152" style="color:var(--text-main);">202-555-0152</a></td>
+            <td><span class="badge badge-success">7/10</span></td>
+            <td><a href="#" style="color:var(--text-primary);">Dribbble</a></td>
+            <td class="gear-cell" style="position:relative;">
+              <div class="gear-btn">
+                <i class="ri-settings-6-line"></i>
+              </div>
+              <div class="gear-menu glass">
+                <a href="#" class="gear-item"><i class="ri-user-line"></i> View Profile</a>
+                <a href="#" class="gear-item"><i class="ri-message-3-line"></i> Send Message</a>
+                <a href="#" class="gear-item"><i class="ri-delete-bin-line"></i> Remove</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:.75rem;">
+                <img src="https://images.unsplash.com/photo-1610271340738-726e199f0258?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80" class="avatar" alt="Darlene">
+                <a href="#" style="color:var(--text-primary);font-weight:600;">Darlene Robertson</a>
+              </div>
+            </td>
+            <td>Developer</td>
+            <td><a href="mailto:darlene@example.com" style="color:var(--text-main);">darlene@example.com</a></td>
+            <td><a href="tel:224-567-2662" style="color:var(--text-main);">224-567-2662</a></td>
+            <td><span class="badge badge-warning">5/10</span></td>
+            <td><a href="#" style="color:var(--text-primary);">Netguru</a></td>
+            <td class="gear-cell" style="position:relative;">
+              <div class="gear-btn">
+                <i class="ri-settings-6-line"></i>
+              </div>
+              <div class="gear-menu glass">
+                <a href="#" class="gear-item"><i class="ri-user-line"></i> View Profile</a>
+                <a href="#" class="gear-item"><i class="ri-message-3-line"></i> Send Message</a>
+                <a href="#" class="gear-item"><i class="ri-delete-bin-line"></i> Remove</a>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:.75rem;">
+                <img src="https://images.unsplash.com/photo-1610878722345-79c5eaf6a48c?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80" class="avatar" alt="Theresa">
+                <a href="#" style="color:var(--text-primary);font-weight:600;">Theresa Webb</a>
+              </div>
+            </td>
+            <td>Marketing</td>
+            <td><a href="mailto:theresa@example.com" style="color:var(--text-main);">theresa@example.com</a></td>
+            <td><a href="tel:401-505-6800" style="color:var(--text-main);">401-505-6800</a></td>
+            <td><span class="badge badge-danger">2/10</span></td>
+            <td><a href="#" style="color:var(--text-primary);">Figma</a></td>
+            <td class="gear-cell" style="position:relative;">
+              <div class="gear-btn">
+                <i class="ri-settings-6-line"></i>
+              </div>
+              <div class="gear-menu glass">
+                <a href="#" class="gear-item"><i class="ri-user-line"></i> View Profile</a>
+                <a href="#" class="gear-item"><i class="ri-message-3-line"></i> Send Message</a>
+                <a href="#" class="gear-item"><i class="ri-delete-bin-line"></i> Remove</a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html></content>
+<parameter name="filePath">c:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-social\templates\dj-contacts-table.php

@@ -153,7 +153,7 @@ if (empty($venue_name)) {
     
     <div class="event-line">
         <div class="box-info-event">
-            <h2 class="event-li-title mb04rem"><?php the_title(); ?></h2>
+            <h2 class="event-li-title afasta-bmin"><?php the_title(); ?></h2>
             <p class="event-li-meta">
                 <span class="event-li-local">[venue] · [city]</span>
                 <span class="event-li-djs">[djs]</span>

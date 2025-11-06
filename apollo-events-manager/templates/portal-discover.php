@@ -156,7 +156,7 @@ get_header(); // Use WordPress header
                 </form>
             </div>
             
-            <p style="margin-bottom:15px;"></p>
+            <p class="afasta-2b"></p>
 
             <!-- EVENT LISTINGS GRID -->
             <div class="event_listings">
@@ -393,7 +393,7 @@ get_header(); // Use WordPress header
                         }
                         ?>
                         
-                        <a href="#lightbox-event-<?php echo esc_attr($event_id); ?>"
+                        <a href="#ID<?php echo esc_attr($event_id); ?>"
                            class="event_listing auto-lightbox"
                            data-event-id="<?php echo esc_attr($event_id); ?>"
                            data-category="<?php echo esc_attr($category_slug); ?>"
@@ -430,17 +430,17 @@ get_header(); // Use WordPress header
                             
                             <div class="event-line">
                                 <div class="box-info-event">
-                                    <h2 class="event-li-title mb04rem"><?php the_title(); ?></h2>
+                                    <h2 class="event-li-title afasta-bmin"><?php the_title(); ?></h2>
                                     
                                     <!-- DJs - SEMPRE EXIBIDO -->
-                                    <p class="event-li-detail of-dj mb04rem">
+                                    <p class="event-li-detail of-dj afasta-bmin">
                                         <i class="ri-sound-module-fill"></i>
                                         <span><?php echo esc_html($dj_display); ?></span>
                                     </p>
                                     
                                     <!-- Local - EXIBIDO SE EXISTIR -->
                                     <?php if (!empty($event_location)): ?>
-                                    <p class="event-li-detail of-location mb04rem">
+                                    <p class="event-li-detail of-location afasta-bmin">
                                         <i class="ri-map-pin-2-line"></i>
                                         <span class="event-location-name"><?php echo esc_html($event_location); ?></span>
                                         <?php if (!empty($event_location_area)): ?>
@@ -469,7 +469,7 @@ get_header(); // Use WordPress header
                 if (!empty($event_ids_for_lightboxes)) {
                     foreach ($event_ids_for_lightboxes as $lightbox_event_id) {
                         ?>
-                        <div id="lightbox-event-<?php echo esc_attr($lightbox_event_id); ?>" class="apollo-lightbox" style="display:none;">
+                        <div id="ID<?php echo esc_attr($lightbox_event_id); ?>" class="apollo-lightbox" style="display:none;">
                             <?php echo do_shortcode('[event id="' . absint($lightbox_event_id) . '"]'); ?>
                         </div>
                         <?php
@@ -695,7 +695,7 @@ get_header(); // Use WordPress header
         
         // Lightbox System
         function initApolloLightbox() {
-            const lightboxLinks = document.querySelectorAll('a.auto-lightbox[href^="#lightbox-event-"]');
+            const lightboxLinks = document.querySelectorAll('a.auto-lightbox[href^="#ID"]');
             
             lightboxLinks.forEach(function(link) {
                 link.addEventListener('click', function(e) {

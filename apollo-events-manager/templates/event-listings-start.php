@@ -304,7 +304,7 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
                     
                     <div class="event-line">
                         <div class="box-info-event">
-                            <h2 class="event-li-title mb04rem"><?php the_title(); ?></h2>
+                            <h2 class="event-li-title afasta-bmin"><?php the_title(); ?></h2>
                             
                             <p class="event-li-meta">
                                 <?php if (!empty($venue_name)): ?>

@@ -239,17 +239,17 @@ $density_class = $content_density > 5 ? 'high-density' : ($content_density > 3 ?
     <!-- Event Info -->
     <div class="event-line">
         <div class="box-info-event">
-            <h2 class="event-li-title mb04rem"><?php echo esc_html($event_title); ?></h2>
+            <h2 class="event-li-title afasta-bmin"><?php echo esc_html($event_title); ?></h2>
             
             <?php if (!empty($djs_names)) : ?>
-            <p class="event-li-detail of-dj mb04rem">
+            <p class="event-li-detail of-dj afasta-bmin">
                 <i class="ri-sound-module-fill"></i>
                 <span><?php echo esc_html(implode(', ', $djs_names)); ?></span>
             </p>
             <?php endif; ?>
             
             <?php if ($local_name) : ?>
-            <p class="event-li-detail of-location mb04rem">
+            <p class="event-li-detail of-location afasta-bmin">
                 <i class="ri-map-pin-2-line"></i>
                 <span id="Local_nome"><?php echo esc_html($local_name); ?></span> 
                 <?php if ($local_region): ?>

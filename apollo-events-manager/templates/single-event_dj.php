@@ -126,10 +126,10 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo esc_html($dj_name); ?> | Apollo Events</title>
     
-    <!-- uni.css -->
+    <!-- 1. UNI.CSS FIRST (CRITICAL - defines root variables) -->
     <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
     
-    <!-- RemixIcon -->
+    <!-- 2. RemixIcon (after uni.css) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css">
     
     <!-- SoundCloud Widget API -->

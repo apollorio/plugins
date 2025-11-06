@@ -422,23 +422,25 @@ class Apollo_Events_Manager_Plugin {
         $is_single_event = is_singular($event_post_type);
 
         // ============================================
-        // FORCE LOAD: RemixIcon (required for all)
-        // ============================================
-        wp_enqueue_style(
-            'remixicon',
-            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-            array(),
-            '4.7.0'
-        );
-
-        // ============================================
-        // FORCE LOAD: uni.css (required for all)
+        // FORCE LOAD: uni.css FIRST (CRITICAL - defines root variables)
         // ============================================
         wp_enqueue_style(
             'apollo-uni-css',
             'https://assets.apollo.rio.br/uni.css',
-            array('remixicon'),
-            '2.0.0'
+            array(), // No dependencies - loads FIRST
+            '2.0.0',
+            'all'
+        );
+
+        // ============================================
+        // FORCE LOAD: RemixIcon (after uni.css)
+        // ============================================
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            array('apollo-uni-css'), // Depends on uni.css
+            '4.7.0',
+            'all'
         );
 
         // ============================================

@@ -29,7 +29,7 @@ Adicionar ao `uni.css` (ou CSS global) para estilizar a área do local com 50% d
 O template agora gera:
 
 ```html
-<p class="event-li-detail of-location mb04rem">
+<p class="event-li-detail of-location afasta-bmin">
     <i class="ri-map-pin-2-line"></i>
     <span class="event-location-name">D-Edge</span>
     <span class="event-location-area">(Copacabana)</span>
