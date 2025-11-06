@@ -116,6 +116,15 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics
 require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
 
+// Load Save-Date cleaner
+require_once plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php';
+
+// Load public event form
+require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
+
+// Load role badges system
+require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
+
 /**
  * Main Plugin Class
  */
@@ -1563,7 +1572,7 @@ class Apollo_Events_Manager_Plugin {
     }
 
     /**
-     * Render analytics dashboard page
+     * Render analytics dashboard page (Enhanced with shadcn-style components)
      */
     public function render_analytics_dashboard() {
         // Allow manage_options as fallback for admin
@@ -1578,137 +1587,632 @@ class Apollo_Events_Manager_Plugin {
 
         $stats = apollo_get_global_event_stats();
         $top_users = apollo_get_top_users_by_interactions(10);
+        
+        // Load dashboard widgets
+        require_once APOLLO_WPEM_PATH . 'includes/dashboard-widgets.php';
+        
+        // Get current user role badge
+        $current_user = wp_get_current_user();
+        $user_badge = function_exists('apollo_get_role_badge') ? apollo_get_role_badge($current_user) : '';
         ?>
-        <div class="wrap">
-            <h1><?php echo esc_html__('Apollo Events – Dashboard', 'apollo-events-manager'); ?></h1>
-            
-            <h2><?php echo esc_html__('Key Metrics', 'apollo-events-manager'); ?></h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
-                <div class="card">
-                    <h3><?php echo esc_html__('Total Events', 'apollo-events-manager'); ?></h3>
-                    <p style="font-size: 32px; font-weight: bold; margin: 0;"><?php echo esc_html(number_format_i18n($stats['total_events'])); ?></p>
+        <div class="wrap apollo-dashboard-wrap">
+            <!-- Dashboard Header -->
+            <div class="apollo-dashboard-header">
+                <div>
+                    <h1 class="apollo-dashboard-title">
+                        <?php echo esc_html__('Apollo Events Dashboard', 'apollo-events-manager'); ?>
+                    </h1>
+                    <p class="apollo-dashboard-subtitle">
+                        <?php echo esc_html__('Analytics, statistics, and management tools', 'apollo-events-manager'); ?>
+                    </p>
                 </div>
-                <div class="card">
-                    <h3><?php echo esc_html__('Future Events', 'apollo-events-manager'); ?></h3>
-                    <p style="font-size: 32px; font-weight: bold; margin: 0;"><?php echo esc_html(number_format_i18n($stats['future_events'])); ?></p>
-                </div>
-                <div class="card">
-                    <h3><?php echo esc_html__('Total Views', 'apollo-events-manager'); ?></h3>
-                    <p style="font-size: 32px; font-weight: bold; margin: 0;"><?php echo esc_html(number_format_i18n($stats['total_views'])); ?></p>
+                <div class="apollo-dashboard-user-info">
+                    <?php echo wp_kses_post($user_badge); ?>
+                    <span class="apollo-user-name"><?php echo esc_html($current_user->display_name); ?></span>
                 </div>
             </div>
+            
+            <!-- Key Metrics Cards (shadcn-style) -->
+            <div class="apollo-metrics-grid">
+                <div class="apollo-metric-card">
+                    <div class="metric-icon">
+                        <i class="ri-calendar-event-line"></i>
+                    </div>
+                    <div class="metric-content">
+                        <p class="metric-label"><?php echo esc_html__('Total Events', 'apollo-events-manager'); ?></p>
+                        <p class="metric-value"><?php echo esc_html(number_format_i18n($stats['total_events'])); ?></p>
+                    </div>
+                </div>
+                
+                <div class="apollo-metric-card">
+                    <div class="metric-icon">
+                        <i class="ri-calendar-check-line"></i>
+                    </div>
+                    <div class="metric-content">
+                        <p class="metric-label"><?php echo esc_html__('Future Events', 'apollo-events-manager'); ?></p>
+                        <p class="metric-value"><?php echo esc_html(number_format_i18n($stats['future_events'])); ?></p>
+                    </div>
+                </div>
+                
+                <div class="apollo-metric-card">
+                    <div class="metric-icon">
+                        <i class="ri-eye-line"></i>
+                    </div>
+                    <div class="metric-content">
+                        <p class="metric-label"><?php echo esc_html__('Total Views', 'apollo-events-manager'); ?></p>
+                        <p class="metric-value"><?php echo esc_html(number_format_i18n($stats['total_views'])); ?></p>
+                    </div>
+                </div>
+                
+                <div class="apollo-metric-card">
+                    <div class="metric-icon">
+                        <i class="ri-user-heart-line"></i>
+                    </div>
+                    <div class="metric-content">
+                        <p class="metric-label"><?php echo esc_html__('Top Users', 'apollo-events-manager'); ?></p>
+                        <p class="metric-value"><?php echo esc_html(count($top_users)); ?></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid: Main Content + Widgets -->
+            <div class="apollo-dashboard-grid">
+                <!-- Main Content Column -->
+                <div class="apollo-dashboard-main">
 
-            <h2><?php echo esc_html__('Top Events by Views', 'apollo-events-manager'); ?></h2>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;"><?php echo esc_html__('ID', 'apollo-events-manager'); ?></th>
-                        <th style="width: 60%;"><?php echo esc_html__('Event Title', 'apollo-events-manager'); ?></th>
-                        <th style="width: 15%;"><?php echo esc_html__('Views', 'apollo-events-manager'); ?></th>
-                        <th style="width: 20%;"><?php echo esc_html__('Actions', 'apollo-events-manager'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($stats['top_events_by_views'])): ?>
-                        <?php foreach ($stats['top_events_by_views'] as $event): ?>
-                        <tr>
-                            <td><?php echo esc_html($event['id']); ?></td>
-                            <td><strong><?php echo esc_html($event['title']); ?></strong></td>
-                            <td><?php echo esc_html(number_format_i18n($event['views'])); ?></td>
-                            <td>
-                                <a href="<?php echo esc_url($event['permalink']); ?>" target="_blank"><?php echo esc_html__('View', 'apollo-events-manager'); ?></a> |
-                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $event['id'] . '&action=edit')); ?>"><?php echo esc_html__('Edit', 'apollo-events-manager'); ?></a>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="4"><?php echo esc_html__('No events with views yet.', 'apollo-events-manager'); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <h2><?php echo esc_html__('Top Sounds (by Event Count)', 'apollo-events-manager'); ?></h2>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th style="width: 70%;"><?php echo esc_html__('Sound', 'apollo-events-manager'); ?></th>
-                        <th style="width: 30%;"><?php echo esc_html__('Event Count', 'apollo-events-manager'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($stats['top_sounds'])): ?>
-                        <?php foreach ($stats['top_sounds'] as $sound): ?>
-                        <tr>
-                            <td><strong><?php echo esc_html($sound['name']); ?></strong></td>
-                            <td><?php echo esc_html(number_format_i18n($sound['count'])); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="2"><?php echo esc_html__('No sounds found.', 'apollo-events-manager'); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <h2><?php echo esc_html__('Top Locations (by Event Count)', 'apollo-events-manager'); ?></h2>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th style="width: 70%;"><?php echo esc_html__('Location', 'apollo-events-manager'); ?></th>
-                        <th style="width: 30%;"><?php echo esc_html__('Event Count', 'apollo-events-manager'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($stats['top_locations'])): ?>
-                        <?php foreach ($stats['top_locations'] as $location): ?>
-                        <tr>
-                            <td><strong><?php echo esc_html($location['name']); ?></strong></td>
-                            <td><?php echo esc_html(number_format_i18n($location['count'])); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="2"><?php echo esc_html__('No locations found.', 'apollo-events-manager'); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-
-            <h2><?php echo esc_html__('Top Users by Interactions', 'apollo-events-manager'); ?></h2>
-            <table class="wp-list-table widefat fixed striped">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;"><?php echo esc_html__('ID', 'apollo-events-manager'); ?></th>
-                        <th style="width: 30%;"><?php echo esc_html__('Name', 'apollo-events-manager'); ?></th>
-                        <th style="width: 30%;"><?php echo esc_html__('Email', 'apollo-events-manager'); ?></th>
-                        <th style="width: 15%;"><?php echo esc_html__('Co-Author', 'apollo-events-manager'); ?></th>
-                        <th style="width: 15%;"><?php echo esc_html__('Favorited', 'apollo-events-manager'); ?></th>
-                        <th style="width: 15%;"><?php echo esc_html__('Total', 'apollo-events-manager'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($top_users)): ?>
-                        <?php foreach ($top_users as $user_data): ?>
-                        <tr>
-                            <td><?php echo esc_html($user_data['id']); ?></td>
-                            <td><strong><?php echo esc_html($user_data['name']); ?></strong></td>
-                            <td><?php echo esc_html($user_data['email']); ?></td>
-                            <td><?php echo esc_html(number_format_i18n($user_data['coauthor_count'])); ?></td>
-                            <td><?php echo esc_html(number_format_i18n($user_data['favorited_count'])); ?></td>
-                            <td><strong><?php echo esc_html(number_format_i18n($user_data['total_interactions'])); ?></strong></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="6"><?php echo esc_html__('No user interactions found.', 'apollo-events-manager'); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    <!-- Top Events Table -->
+                    <div class="apollo-dashboard-section">
+                        <div class="apollo-section-header">
+                            <h2>
+                                <i class="ri-bar-chart-line"></i>
+                                <?php echo esc_html__('Top Events by Views', 'apollo-events-manager'); ?>
+                            </h2>
+                        </div>
+                        <div class="apollo-table-wrapper">
+                            <table class="apollo-table">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo esc_html__('ID', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Event Title', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Views', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Actions', 'apollo-events-manager'); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($stats['top_events_by_views'])): ?>
+                                        <?php foreach ($stats['top_events_by_views'] as $event): ?>
+                                        <tr>
+                                            <td><span class="apollo-badge apollo-badge-secondary"><?php echo esc_html($event['id']); ?></span></td>
+                                            <td><strong><?php echo esc_html($event['title']); ?></strong></td>
+                                            <td>
+                                                <span class="apollo-badge apollo-badge-primary">
+                                                    <i class="ri-eye-line"></i> <?php echo esc_html(number_format_i18n($event['views'])); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="<?php echo esc_url($event['permalink']); ?>" 
+                                                   target="_blank" 
+                                                   class="apollo-btn apollo-btn-sm apollo-btn-link"
+                                                   title="<?php esc_attr_e('View Event', 'apollo-events-manager'); ?>">
+                                                    <i class="ri-external-link-line"></i>
+                                                </a>
+                                                <a href="<?php echo esc_url(admin_url('post.php?post=' . $event['id'] . '&action=edit')); ?>" 
+                                                   class="apollo-btn apollo-btn-sm apollo-btn-link"
+                                                   title="<?php esc_attr_e('Edit Event', 'apollo-events-manager'); ?>">
+                                                    <i class="ri-edit-line"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="apollo-empty-state">
+                                                <i class="ri-inbox-line"></i>
+                                                <?php echo esc_html__('No events with views yet.', 'apollo-events-manager'); ?>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Sounds & Locations (Side by Side) -->
+                    <div class="apollo-dashboard-section-grid">
+                        <div class="apollo-dashboard-section">
+                            <div class="apollo-section-header">
+                                <h2>
+                                    <i class="ri-music-2-line"></i>
+                                    <?php echo esc_html__('Top Sounds', 'apollo-events-manager'); ?>
+                                </h2>
+                            </div>
+                            <div class="apollo-table-wrapper">
+                                <table class="apollo-table">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo esc_html__('Sound', 'apollo-events-manager'); ?></th>
+                                            <th><?php echo esc_html__('Count', 'apollo-events-manager'); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (!empty($stats['top_sounds'])): ?>
+                                            <?php foreach ($stats['top_sounds'] as $sound): ?>
+                                            <tr>
+                                                <td><strong><?php echo esc_html($sound['name']); ?></strong></td>
+                                                <td><span class="apollo-badge"><?php echo esc_html(number_format_i18n($sound['count'])); ?></span></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="2" class="apollo-empty-state">
+                                                    <?php echo esc_html__('No sounds found.', 'apollo-events-manager'); ?>
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="apollo-dashboard-section">
+                            <div class="apollo-section-header">
+                                <h2>
+                                    <i class="ri-map-pin-2-line"></i>
+                                    <?php echo esc_html__('Top Locations', 'apollo-events-manager'); ?>
+                                </h2>
+                            </div>
+                            <div class="apollo-table-wrapper">
+                                <table class="apollo-table">
+                                    <thead>
+                                        <tr>
+                                            <th><?php echo esc_html__('Location', 'apollo-events-manager'); ?></th>
+                                            <th><?php echo esc_html__('Count', 'apollo-events-manager'); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (!empty($stats['top_locations'])): ?>
+                                            <?php foreach ($stats['top_locations'] as $location): ?>
+                                            <tr>
+                                                <td><strong><?php echo esc_html($location['name']); ?></strong></td>
+                                                <td><span class="apollo-badge"><?php echo esc_html(number_format_i18n($location['count'])); ?></span></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="2" class="apollo-empty-state">
+                                                    <?php echo esc_html__('No locations found.', 'apollo-events-manager'); ?>
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Users Table -->
+                    <div class="apollo-dashboard-section">
+                        <div class="apollo-section-header">
+                            <h2>
+                                <i class="ri-user-star-line"></i>
+                                <?php echo esc_html__('Top Users by Interactions', 'apollo-events-manager'); ?>
+                            </h2>
+                        </div>
+                        <div class="apollo-table-wrapper">
+                            <table class="apollo-table">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo esc_html__('User', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Co-Author', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Favorited', 'apollo-events-manager'); ?></th>
+                                        <th><?php echo esc_html__('Total', 'apollo-events-manager'); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($top_users)): ?>
+                                        <?php foreach ($top_users as $user_data): 
+                                            $user_badge = function_exists('apollo_get_role_badge') ? apollo_get_role_badge($user_data['id']) : '';
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <div class="apollo-user-cell">
+                                                    <?php echo wp_kses_post($user_badge); ?>
+                                                    <div>
+                                                        <strong><?php echo esc_html($user_data['name']); ?></strong>
+                                                        <small><?php echo esc_html($user_data['email']); ?></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="apollo-badge"><?php echo esc_html(number_format_i18n($user_data['coauthor_count'])); ?></span></td>
+                                            <td><span class="apollo-badge"><?php echo esc_html(number_format_i18n($user_data['favorited_count'])); ?></span></td>
+                                            <td><span class="apollo-badge apollo-badge-primary"><?php echo esc_html(number_format_i18n($user_data['total_interactions'])); ?></span></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="apollo-empty-state">
+                                                <?php echo esc_html__('No user interactions found.', 'apollo-events-manager'); ?>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Widgets Column -->
+                <div class="apollo-dashboard-sidebar">
+                    <?php apollo_render_reminders_widget(); ?>
+                    <?php apollo_render_personal_todo_widget(); ?>
+                    <?php apollo_render_nucleo_todo_widget(); ?>
+                    <?php apollo_render_pre_save_date_calendar_widget(); ?>
+                </div>
+            </div>
         </div>
+        
+        <style>
+        /* Apollo Dashboard Styles (shadcn-inspired) */
+        .apollo-dashboard-wrap {
+            max-width: 1400px;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .apollo-dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color, #e2e8f0);
+        }
+        
+        .apollo-dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+        
+        .apollo-dashboard-subtitle {
+            color: var(--text-secondary, #666);
+            margin: 0;
+        }
+        
+        .apollo-dashboard-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .apollo-user-name {
+            font-weight: 500;
+        }
+        
+        .apollo-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .apollo-metric-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-primary, #fff);
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .apollo-metric-card:hover {
+            border-color: var(--primary-color, #0078d4);
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.1);
+        }
+        
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary, #f5f5f5);
+            border-radius: 8px;
+            font-size: 24px;
+            color: var(--primary-color, #0078d4);
+        }
+        
+        .metric-content {
+            flex: 1;
+        }
+        
+        .metric-label {
+            margin: 0 0 4px 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        .metric-value {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary, #1a1a1a);
+        }
+        
+        .apollo-dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        
+        .apollo-dashboard-main {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .apollo-dashboard-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .apollo-dashboard-section {
+            background: var(--bg-primary, #fff);
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .apollo-dashboard-section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .apollo-section-header {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .apollo-section-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .apollo-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .apollo-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .apollo-table thead {
+            background: var(--bg-secondary, #f5f5f5);
+        }
+        
+        .apollo-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .apollo-table td {
+            padding: 12px;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .apollo-table tbody tr:hover {
+            background: var(--bg-secondary, #f5f5f5);
+        }
+        
+        .apollo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--bg-secondary, #f5f5f5);
+            color: var(--text-primary, #1a1a1a);
+        }
+        
+        .apollo-badge-primary {
+            background: var(--primary-color, #0078d4);
+            color: #fff;
+        }
+        
+        .apollo-badge-secondary {
+            background: var(--bg-secondary, #f5f5f5);
+            color: var(--text-secondary, #666);
+        }
+        
+        .apollo-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            background: var(--bg-primary, #fff);
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .apollo-btn:hover {
+            background: var(--bg-secondary, #f5f5f5);
+        }
+        
+        .apollo-btn-sm {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+        
+        .apollo-btn-link {
+            border: none;
+            background: transparent;
+        }
+        
+        .apollo-user-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .apollo-user-cell small {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        .apollo-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary, #666);
+        }
+        
+        .apollo-empty-state i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+        
+        /* Dashboard Widgets */
+        .apollo-dashboard-widget {
+            background: var(--bg-primary, #fff);
+            border: 2px solid var(--border-color, #e2e8f0);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .apollo-widget-header {
+            padding: 16px;
+            background: var(--bg-secondary, #f5f5f5);
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .apollo-widget-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .apollo-widget-body {
+            padding: 16px;
+        }
+        
+        .apollo-reminders-list,
+        .apollo-todo-list,
+        .apollo-calendar-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .apollo-reminder-item,
+        .apollo-todo-item,
+        .apollo-calendar-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .apollo-reminder-item:last-child,
+        .apollo-todo-item:last-child,
+        .apollo-calendar-item:last-child {
+            border-bottom: none;
+        }
+        
+        .reminder-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .reminder-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .todo-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .todo-text {
+            flex: 1;
+        }
+        
+        .calendar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .calendar-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--bg-secondary, #f5f5f5);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        
+        .date-day {
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .date-month {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary, #666);
+        }
+        
+        .calendar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .calendar-date-full {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        @media (max-width: 1200px) {
+            .apollo-dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        </style>
         <?php
     }
 
