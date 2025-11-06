@@ -112,6 +112,10 @@ require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placehold
 // Load analytics and statistics
 require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
 
+// Load organized shortcodes and widgets
+require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
+require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
+
 /**
  * Main Plugin Class
  */
