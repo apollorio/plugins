@@ -331,3 +331,5 @@ add_action('wp_ajax_nopriv_apollo_get_event_modal', array($this, 'ajax_get_event
 **Versão do Plugin:** 2.0.1  
 **Status:** ✅ PRODUCTION READY
 
+
+

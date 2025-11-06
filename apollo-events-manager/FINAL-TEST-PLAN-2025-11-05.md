@@ -712,3 +712,5 @@ AND meta_key = 'wp_capabilities';
 **Versão do Plugin:** 2.0.1  
 **Status:** 🟡 AWAITING EXECUTION
 
+
+

@@ -371,6 +371,16 @@ class Apollo_Events_Manager_Plugin {
             return $template;
         }
         
+        // FORCE SINGLE DJ TEMPLATE
+        // Any single event_dj MUST use our DJ template
+        if (is_singular('event_dj')) {
+            $plugin_template = APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+            if (file_exists($plugin_template)) {
+                error_log('🎯 Apollo: Forcing single-event_dj.php for DJ: ' . get_the_ID());
+                return $plugin_template;
+            }
+        }
+        
         // FORCE SINGLE EVENT TEMPLATE
         // Any single event_listing MUST use our standalone template
         if (is_singular('event_listing')) {

@@ -606,3 +606,5 @@ define('APOLLO_DEBUG', true); // wp-config.php
 **Versão do Plugin:** 2.0.0  
 **Status:** ✅ Produção
 
+
+
