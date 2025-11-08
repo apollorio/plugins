@@ -165,15 +165,33 @@ function apollo_render_pwa_install_page() {
                         <span class="apollo-pwa-accordion-icon">▼</span>
                     </button>
                     <div id="android-content" class="apollo-pwa-accordion-content">
-                        <a href="<?php echo esc_url(get_option('apollo_android_app_url', '#')); ?>" 
-                           class="apollo-pwa-download-btn android-btn" 
-                           target="_blank" 
-                           rel="noopener">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.5 11.5 0 0 0-8.94 0L5.65 5.67c-.19-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C4.05 11.15 2.5 13.64 2.5 16.5h19c0-2.86-1.55-5.35-3.9-7.02zM7 14.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/>
-                            </svg>
-                            <?php _e('Baixar para Android', 'apollo-rio'); ?>
-                        </a>
+                        <?php
+                        $android_url = get_option('apollo_android_app_url', '');
+                        if (!empty($android_url) && filter_var($android_url, FILTER_VALIDATE_URL)) :
+                        ?>
+                            <a href="<?php echo esc_url($android_url); ?>"
+                               class="apollo-pwa-download-btn android-btn"
+                               target="_blank"
+                               rel="noopener">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24a11.5 11.5 0 0 0-8.94 0L5.65 5.67c-.19-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85l1.84 3.18C4.05 11.15 2.5 13.64 2.5 16.5h19c0-2.86-1.55-5.35-3.9-7.02zM7 14.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25zm10 0c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/>
+                                </svg>
+                                <?php _e('Baixar para Android', 'apollo-rio'); ?>
+                            </a>
+                        <?php else : ?>
+                            <div class="apollo-pwa-android-fallback">
+                                <p><?php _e('Para instalar no Android:', 'apollo-rio'); ?></p>
+                                <ol>
+                                    <li><?php _e('Abra este site no Chrome ou Edge', 'apollo-rio'); ?></li>
+                                    <li><?php _e('Toque no menu (três pontos) no canto superior direito', 'apollo-rio'); ?></li>
+                                    <li><?php _e('Selecione "Adicionar à tela inicial" ou "Instalar app"', 'apollo-rio'); ?></li>
+                                    <li><?php _e('Siga as instruções para instalar', 'apollo-rio'); ?></li>
+                                </ol>
+                                <p class="apollo-pwa-note">
+                                    <small><?php _e('Nota: Configure o URL do app Android nas configurações do plugin para um link direto.', 'apollo-rio'); ?></small>
+                                </p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 

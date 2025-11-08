@@ -12,16 +12,27 @@
      * Detect if running in PWA mode (standalone)
      */
     function isPWA() {
-        // Method 1: Display mode
+        // Method 1: Display mode (most reliable)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-        
+
         // Method 2: iOS specific
         const isIOSStandalone = window.navigator.standalone === true;
-        
-        // Method 3: Android/Chrome specific
+
+        // Method 3: Android/Chrome specific - check referrer
         const isAndroidStandalone = document.referrer.includes('android-app://');
-        
-        return isStandalone || isIOSStandalone || isAndroidStandalone;
+
+        // Method 4: Check if app is running in WebAPK (Android)
+        const isWebAPK = window.matchMedia('(display-mode: standalone)').matches &&
+                        navigator.userAgent.includes('Android') &&
+                        !navigator.userAgent.includes('Chrome/') &&
+                        window.performance.getEntriesByType('navigation')[0]?.type === 'navigate';
+
+        // Method 5: Check for PWA-specific APIs availability
+        const hasPWAApis = 'serviceWorker' in navigator &&
+                          'caches' in window &&
+                          'Notification' in window;
+
+        return isStandalone || isIOSStandalone || isAndroidStandalone || isWebAPK;
     }
     
     /**
