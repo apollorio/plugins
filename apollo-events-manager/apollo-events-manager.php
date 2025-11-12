@@ -639,14 +639,6 @@ class Apollo_Events_Manager_Plugin {
             APOLLO_WPEM_VERSION,
             'all'
         );
-        
-        wp_enqueue_style(
-            'apollo-event-modal-codepen-css',
-            APOLLO_WPEM_URL . 'assets/css/event-modal-codepen.css',
-            array('apollo-event-modal-css'),
-            APOLLO_WPEM_VERSION,
-            'all'
-        );
 
         // Legacy micromodal scripts intentionally skipped for Step 2 release.
 
@@ -1555,18 +1547,46 @@ class Apollo_Events_Manager_Plugin {
                     </a>
                 </div>
                 
+                <!-- RSVP Row with Avatar Explosion -->
+                <div class="rsvp-row">
+                    <div class="avatars-explosion">
+                        <?php
+                        // TODO: Replace with actual user avatars who favorited this event
+                        $sample_avatars = [
+                            'https://randomuser.me/api/portraits/men/1.jpg',
+                            'https://randomuser.me/api/portraits/women/2.jpg',
+                            'https://randomuser.me/api/portraits/men/3.jpg',
+                            'https://randomuser.me/api/portraits/women/4.jpg',
+                            'https://randomuser.me/api/portraits/men/5.jpg',
+                            'https://randomuser.me/api/portraits/women/6.jpg',
+                            'https://randomuser.me/api/portraits/men/7.jpg',
+                            'https://randomuser.me/api/portraits/women/8.jpg',
+                        ];
+                        foreach ($sample_avatars as $avatar_url):
+                        ?>
+                        <div class="avatar" style="background-image: url('<?php echo esc_url($avatar_url); ?>')"></div>
+                        <?php endforeach; ?>
+                        <div class="avatar-count">+35</div>
+                        <p class="interested-text" style="margin: 0 8px 0px 20px;">
+                            <i class="ri-bar-chart-2-fill"></i> 
+                            <span id="result"><?php echo get_post_meta($event_id, '_favorites_count', true) ?: '0'; ?> interessados</span>
+                        </p>
+                    </div>
+                </div>
+                
                 <!-- Info Section -->
                 <section class="section">
-                    <h2 class="section-title"><i class="ri-information-line"></i> Info</h2>
+                    <h2 class="section-title">
+                        <i class="ri-information-line"></i> Info
+                    </h2>
                     <div class="info-card">
-                        <div class="info-text"><?php echo $content; ?></div>
+                        <p class="info-text"><?php echo $content; ?></p>
                     </div>
-                    
                     <?php if (!empty($sounds_list)): ?>
                     <div class="music-tags-marquee">
                         <div class="music-tags-track">
                             <?php 
-                            // Repeat sounds 8 times for infinite scroll effect
+                            // Repeat sounds 8 times for infinite scroll
                             for ($i = 0; $i < 8; $i++):
                                 foreach ($sounds_list as $sound):
                             ?>
@@ -1579,6 +1599,32 @@ class Apollo_Events_Manager_Plugin {
                     </div>
                     <?php endif; ?>
                 </section>
+                
+                <?php if (!empty($promo_images) && is_array($promo_images)): ?>
+                <!-- Promo Gallery (max 5 Images) -->
+                <div class="promo-gallery-slider">
+                    <div class="promo-track" id="promoTrack">
+                        <?php 
+                        $promo_images_filtered = array_filter($promo_images);
+                        $promo_images_limited = array_slice($promo_images_filtered, 0, 5);
+                        foreach ($promo_images_limited as $promo_img):
+                            $promo_url = is_numeric($promo_img) ? wp_get_attachment_url($promo_img) : $promo_img;
+                            if ($promo_url):
+                        ?>
+                        <div class="promo-slide" style="border-radius:12px">
+                            <img src="<?php echo esc_url($promo_url); ?>" alt="Promo">
+                        </div>
+                        <?php 
+                            endif;
+                        endforeach; 
+                        ?>
+                    </div>
+                    <div class="promo-controls">
+                        <button class="promo-prev"><i class="ri-arrow-left-s-line"></i></button>
+                        <button class="promo-next"><i class="ri-arrow-right-s-line"></i></button>
+                    </div>
+                </div>
+                <?php endif; ?>
                 
                 <?php if (!empty($timetable)): ?>
                 <!-- DJ Lineup -->
@@ -1640,23 +1686,36 @@ class Apollo_Events_Manager_Plugin {
                     <?php endif; ?>
                     
                     <?php if ($venue_lat && $venue_lng): ?>
-                    <div class="map-view" id="event-map-<?php echo $event_id; ?>" style="width:100%;height:285px;border-radius:12px;margin:20px 0;"></div>
+                    <div class="map-view" id="event-map-<?php echo $event_id; ?>" style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;"></div>
                     <script>
                     if (typeof L !== 'undefined') {
                         setTimeout(function() {
-                            var map = L.map('event-map-<?php echo $event_id; ?>').setView([<?php echo esc_js($venue_lat); ?>, <?php echo esc_js($venue_lng); ?>], 15);
+                            var map = L.map('event-map-<?php echo $event_id; ?>', {
+                                zoomControl: false,
+                                scrollWheelZoom: false,
+                                dragging: false,
+                                touchZoom: false,
+                                doubleClickZoom: false
+                            }).setView([<?php echo esc_js($venue_lat); ?>, <?php echo esc_js($venue_lng); ?>], 15);
                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: '© OpenStreetMap'
+                                attribution: ''
                             }).addTo(map);
                             L.marker([<?php echo esc_js($venue_lat); ?>, <?php echo esc_js($venue_lng); ?>]).addTo(map);
                         }, 500);
                     }
                     </script>
                     <?php else: ?>
-                    <div class="map-view" style="width:100%;height:285px;border-radius:12px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#999;">
-                        <i class="ri-map-pin-line" style="font-size:3rem;"></i>
-                    </div>
+                    <div class="map-view" style="margin:0 auto;z-index:0;background:green;width:100%;height:285px;border-radius:12px;background-image:url('https://img.freepik.com/premium-vector/city-map-scheme-background-flat-style-vector-illustration_833641-2300.jpg');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>
                     <?php endif; ?>
+                    
+                    <!-- Route Input -->
+                    <div class="route-controls" style="transform:translateY(-80px);padding:0 0.5rem;">
+                        <div class="route-input">
+                            <i class="ri-map-pin-line"></i>
+                            <input type="text" id="origin-input" placeholder="Seu endereço de partida" data-venue-lat="<?php echo esc_attr($venue_lat); ?>" data-venue-lng="<?php echo esc_attr($venue_lng); ?>">
+                        </div>
+                        <button id="route-btn" class="route-button"><i class="ri-send-plane-line"></i></button>
+                    </div>
                 </section>
                 <?php endif; ?>
                 
@@ -1703,7 +1762,21 @@ class Apollo_Events_Manager_Plugin {
                 
             </div>
             
+            <!-- Bottom Bar -->
+            <div class="bottom-bar">
+                <a href="<?php echo $tickets_url ? esc_url($tickets_url) : '#route_TICKETS'; ?>" class="bottom-btn primary" id="bottomTicketBtn">
+                    <i class="ri-ticket-fill"></i>
+                    <span>Tickets</span>
+                </a>
+                <button class="bottom-btn secondary" id="bottomShareBtn" data-share-url="<?php echo esc_url(get_permalink($event_id)); ?>" data-share-title="<?php echo esc_attr(get_the_title($event_id)); ?>">
+                    <i class="ri-share-forward-line"></i>
+                </button>
+            </div>
+            
         </div>
+        
+        <!-- Load event-page.js for interactive features -->
+        <script src="https://assets.apollo.rio.br/event-page.js"></script>
         <?php
         $html = ob_get_clean();
         
