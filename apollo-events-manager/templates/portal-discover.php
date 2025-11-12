@@ -139,7 +139,7 @@ get_header(); // Use WordPress header
                     </div>
                     
                     <!-- LAYOUT TOGGLE -->
-                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="true" onclick="toggleLayout(this)">
+                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="true" data-layout="list">
                         <i class="ri-list-check-2" aria-hidden="true"></i>
                         <span class="visually-hidden">Alternar layout</span>
                     </button>

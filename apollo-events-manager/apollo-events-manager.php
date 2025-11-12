@@ -651,7 +651,7 @@ class Apollo_Events_Manager_Plugin {
                 'apollo-events-portal',
                 APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
                 array('jquery'),
-                '1.0.2',
+                APOLLO_WPEM_VERSION,
                 true
             );
 

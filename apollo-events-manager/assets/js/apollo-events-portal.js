@@ -250,6 +250,14 @@
 
         initLayoutPreference();
 
+        // Attach layout toggle button listener
+        const layoutToggleBtn = document.getElementById('wpem-event-toggle-layout');
+        if (layoutToggleBtn) {
+            layoutToggleBtn.addEventListener('click', function() {
+                handleLayoutToggle(this);
+            });
+        }
+
         if (typeof apollo_events_ajax === 'undefined') {
             console.error(
                 'apollo_events_ajax não está definido. Verifique wp_localize_script.'
