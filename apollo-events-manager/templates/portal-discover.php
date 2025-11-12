@@ -479,7 +479,7 @@ get_header(); // Use WordPress header
                                     <!-- DJs - SEMPRE EXIBIDO -->
                                     <p class="event-li-detail of-dj afasta-bmin">
                                         <i class="ri-sound-module-fill"></i>
-                                        <span><?php echo esc_html($dj_display); ?></span>
+                                        <span><?php echo $dj_display; // Already escaped in construction ?></span>
                                     </p>
                                     
                                     <!-- Local - EXIBIDO SE EXISTIR -->
