@@ -244,9 +244,14 @@
     }
 
     function init() {
+        console.log('Apollo Events Portal: Initializing...');
+        
         if (!initModal()) {
+            console.error('Apollo Events Portal: Modal initialization failed');
             return;
         }
+        
+        console.log('Apollo Events Portal: Modal initialized successfully');
 
         initLayoutPreference();
 
@@ -277,6 +282,8 @@
             return;
         }
 
+        console.log('Apollo Events Portal: Click listener attached to .event_listings');
+
         container.addEventListener('click', function(event) {
             const card = event.target.closest('.event_listing');
             if (!card) {
@@ -284,6 +291,9 @@
             }
 
             event.preventDefault();
+            event.stopPropagation();
+            
+            console.log('Apollo Events Portal: Card clicked, event ID:', card.getAttribute('data-event-id'));
 
             const eventId = card.getAttribute('data-event-id');
             if (!eventId) {
