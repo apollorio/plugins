@@ -655,6 +655,15 @@ class Apollo_Events_Manager_Plugin {
                 true
             );
 
+            // Date picker for month navigation
+            wp_enqueue_script(
+                'apollo-date-picker',
+                APOLLO_WPEM_URL . 'assets/js/date-picker.js',
+                array(),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+
             wp_enqueue_script(
                 'apollo-events-favorites',
                 APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',

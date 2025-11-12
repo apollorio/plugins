@@ -134,7 +134,7 @@ get_header(); // Use WordPress header
                     <!-- DATE CHIP -->
                     <div class="date-chip" id="eventDatePicker">
                         <button type="button" class="date-arrow" id="datePrev" aria-label="Mês anterior">‹</button>
-                        <span class="date-display" id="dateDisplay" aria-live="polite">Out</span>
+                        <span class="date-display" id="dateDisplay" aria-live="polite"><?php echo date_i18n('M'); ?></span>
                         <button type="button" class="date-arrow" id="dateNext" aria-label="Próximo mês">›</button>
                     </div>
                     
@@ -439,7 +439,8 @@ get_header(); // Use WordPress header
                            class="event_listing"
                            data-event-id="<?php echo esc_attr($event_id); ?>"
                            data-category="<?php echo esc_attr($category_slug); ?>"
-                           data-month-str="<?php echo esc_attr($month_pt); ?>">
+                           data-month-str="<?php echo esc_attr($month_pt); ?>"
+                           data-event-start-date="<?php echo esc_attr($iso_date); ?>">
                             
                             <!-- Date box outside .picture -->
                             <div class="box-date-event">
