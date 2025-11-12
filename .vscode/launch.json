@@ -1,0 +1,39 @@
+{
+  // Debug configurations for Apollo (PHP + Xdebug)
+  // ✅ Xdebug 3.2.1 já está ATIVO no seu LocalWP
+  // ✅ Modo: debug,develop
+  // ✅ Porta: 9003
+  // ✅ start_with_request: yes
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Listen for Xdebug (LocalWP Apollo 1212)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "hostname": "localhost",
+      // Xdebug já está configurado no php.ini do LocalWP
+      // Sem necessidade de pathMappings (mesmo host)
+      "log": true,
+      "xdebugSettings": {
+        "max_data": 65535,
+        "show_hidden": 1,
+        "max_children": 100,
+        "max_depth": 5
+      }
+    },
+    {
+      "name": "Single Script (CLI Debug)",
+      "type": "php",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "port": 9003,
+      "runtimeArgs": ["-dxdebug.mode=debug", "-dxdebug.start_with_request=yes"],
+      "env": {
+        "APOLLO_ENV": "dev"
+      },
+      "log": true
+    }
+  ]
+}

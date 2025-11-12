@@ -96,13 +96,13 @@ return [
     'analytics' => [
         'track_on_canvas' => true,
         'events' => [
-            'onboarding_start',
-            'onboarding_roles_selected',
-            'onboarding_memberships_selected',
-            'onboarding_contacts_submitted',
-            'onboarding_token_issued',
+            'onboarding_started',
+            'onboarding_step_completed',
             'onboarding_completed',
-            'verification_asset_uploaded',
+            'verification_dm_requested',
+            'verification_approved',
+            'verification_canceled',
+            'verification_rejected',
         ],
     ],
 ];

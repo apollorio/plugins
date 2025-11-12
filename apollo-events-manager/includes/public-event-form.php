@@ -26,7 +26,11 @@ function apollo_render_public_event_form($atts = array()) {
     $submitted = false;
     $error_message = '';
     
-    if (isset($_POST['apollo_submit_event']) && wp_verify_nonce($_POST['apollo_event_nonce'], 'apollo_submit_public_event')) {
+    $submitted_nonce = isset($_POST['apollo_event_nonce'])
+        ? sanitize_text_field(wp_unslash($_POST['apollo_event_nonce']))
+        : '';
+
+    if (isset($_POST['apollo_submit_event']) && wp_verify_nonce($submitted_nonce, 'apollo_public_event')) {
         $submitted = apollo_process_public_event_submission();
         if (is_wp_error($submitted)) {
             $error_message = $submitted->get_error_message();
@@ -57,8 +61,12 @@ function apollo_render_public_event_form($atts = array()) {
             <?php endif; ?>
             
             <form method="post" class="apollo-public-event-form" id="apolloPublicEventForm">
-                <?php wp_nonce_field('apollo_submit_public_event', 'apollo_event_nonce'); ?>
+                <?php wp_nonce_field('apollo_public_event', 'apollo_event_nonce'); ?>
                 
+                <p class="apollo-form-helper">
+                    <?php esc_html_e('Todos os envios ficam pendentes até revisão da equipe Apollo.', 'apollo-events-manager'); ?>
+                </p>
+
                 <div class="apollo-form-field">
                     <label for="event_date_start" class="apollo-field-label">
                         <i class="ri-calendar-event-line"></i>
@@ -169,6 +177,12 @@ function apollo_render_public_event_form($atts = array()) {
         flex-direction: column;
         gap: 8px;
     }
+
+    .apollo-form-helper {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-secondary, #4a5568);
+    }
     
     .apollo-field-label {
         display: flex;
@@ -273,35 +287,95 @@ function apollo_render_public_event_form($atts = array()) {
  * 
  * @return bool|WP_Error True on success, WP_Error on failure
  */
-function apollo_process_public_event_submission() {
-    // Validate required fields
+function apollo_process_public_event_submission()
+{
     if (empty($_POST['day_start']) || empty($_POST['event_name']) || empty($_POST['local_write'])) {
-        return new WP_Error('missing_fields', __('Please fill in all required fields.', 'apollo-events-manager'));
+        return new WP_Error(
+            'missing_fields',
+            __('Please fill in all required fields.', 'apollo-events-manager')
+        );
     }
-    
-    // Sanitize inputs
-    $date_start = sanitize_text_field($_POST['day_start']);
-    $event_name = sanitize_text_field($_POST['event_name']);
-    $local_write = sanitize_text_field($_POST['local_write']);
-    $url_tickets = !empty($_POST['url_tickets']) ? esc_url_raw($_POST['url_tickets']) : '';
-    $coupon_apollo = !empty($_POST['coupon_apollo']) ? sanitize_text_field($_POST['coupon_apollo']) : '';
-    
-    // Validate date
+
+    $date_start  = sanitize_text_field(wp_unslash($_POST['day_start']));
+    $event_name  = sanitize_text_field(wp_unslash($_POST['event_name']));
+    $local_write = sanitize_text_field(wp_unslash($_POST['local_write']));
+    $url_tickets = !empty($_POST['url_tickets'])
+        ? esc_url_raw(wp_unslash($_POST['url_tickets']))
+        : '';
+    $coupon_apollo = !empty($_POST['coupon_apollo'])
+        ? sanitize_text_field(wp_unslash($_POST['coupon_apollo']))
+        : '';
+
     $date_timestamp = strtotime($date_start);
     if (!$date_timestamp || $date_timestamp < strtotime('today')) {
-        return new WP_Error('invalid_date', __('Please select a valid future date.', 'apollo-events-manager'));
+        return new WP_Error(
+            'invalid_date',
+            __('Please select a valid future date.', 'apollo-events-manager')
+        );
     }
-    
-    // Create event as draft (pending moderation)
+
+    $current_user_id = get_current_user_id();
+    $allow_guest = apply_filters('apollo_public_event_allow_guest_submission', true);
+
+    if (!$current_user_id && !$allow_guest) {
+        return new WP_Error(
+            'login_required',
+            __('Please log in to submit an event.', 'apollo-events-manager')
+        );
+    }
+
+    $restricted_caps = $current_user_id
+        && !current_user_can('edit_event_listings')
+        && !current_user_can('publish_posts');
+
+    if ($restricted_caps) {
+        /**
+         * Fired when a user submits an event without elevated capabilities.
+         * Allows auditing or custom throttling while still accepting the entry.
+         */
+        do_action('apollo_public_event_limited_caps_submission', $current_user_id);
+    }
+
+    $default_author = (int) apply_filters(
+        'apollo_public_event_default_author',
+        (int) get_option('apollo_events_default_author', 1)
+    );
+
+    $post_author = $current_user_id ?: $default_author;
+
     $event_data = array(
-        'post_title' => $event_name,
+        'post_title'   => $event_name,
         'post_content' => '',
-        'post_status' => 'pending', // Requires moderation
-        'post_type' => 'event_listing',
-        'post_author' => get_current_user_id() ?: 1, // Use current user or admin
+        'post_status'  => 'pending',
+        'post_type'    => 'event_listing',
+        'post_author'  => $post_author,
     );
     
-    $event_id = wp_insert_post($event_data);
+    $grant_caps = function ($allcaps, $caps, $args, $user) {
+        if (empty($caps)) {
+            return $allcaps;
+        }
+
+        $targets = array(
+            'edit_event_listing',
+            'edit_event_listings',
+            'publish_event_listings',
+            'edit_posts',
+            'edit_post',
+        );
+
+        if (array_intersect($targets, $caps)) {
+            foreach ($targets as $cap) {
+                $allcaps[$cap] = true;
+            }
+        }
+
+        return $allcaps;
+    };
+
+    add_filter('user_has_cap', $grant_caps, 10, 4);
+    $event_id = wp_insert_post($event_data, true);
+    remove_filter('user_has_cap', $grant_caps, 10);
     
     if (is_wp_error($event_id)) {
         return $event_id;
@@ -310,6 +384,8 @@ function apollo_process_public_event_submission() {
     // Save meta fields
     update_post_meta($event_id, '_event_start_date', $date_start);
     update_post_meta($event_id, '_event_location', $local_write);
+
+    // TODO(step-3): collect organizer contact details for reviewers.
     
     if ($url_tickets) {
         update_post_meta($event_id, '_tickets_ext', $url_tickets);
@@ -322,24 +398,32 @@ function apollo_process_public_event_submission() {
     // Mark as public submission
     update_post_meta($event_id, '_apollo_public_submission', '1');
     update_post_meta($event_id, '_apollo_submission_date', current_time('mysql'));
-    
-    // Log submission
-    error_log(sprintf(
-        '✅ Apollo: Public event submission #%d: "%s" on %s at %s',
-        $event_id,
-        $event_name,
-        $date_start,
-        $local_write
-    ));
+
+    error_log(
+        sprintf(
+            '✅ Apollo: Public event submission #%d: "%s" on %s at %s',
+            $event_id,
+            $event_name,
+            $date_start,
+            $local_write
+        )
+    );
     
     // Send notification email to admin (optional)
     $admin_email = get_option('admin_email');
     if ($admin_email) {
         wp_mail(
             $admin_email,
-            sprintf(__('New Event Submission: %s', 'apollo-events-manager'), $event_name),
             sprintf(
-                __("A new event has been submitted for review:\n\nEvent: %s\nDate: %s\nLocation: %s\n\nView: %s", 'apollo-events-manager'),
+                __('New Event Submission: %s', 'apollo-events-manager'),
+                $event_name
+            ),
+            sprintf(
+                __(
+                    'A new event has been submitted for review:' .
+                    "\n\nEvent: %s\nDate: %s\nLocation: %s\n\nView: %s",
+                    'apollo-events-manager'
+                ),
                 $event_name,
                 $date_start,
                 $local_write,

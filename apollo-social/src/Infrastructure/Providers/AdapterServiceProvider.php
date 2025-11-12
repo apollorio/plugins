@@ -6,7 +6,6 @@ use Apollo\Infrastructure\Adapters\GroupsAdapter;
 use Apollo\Infrastructure\Adapters\EventManagerAdapter;
 use Apollo\Infrastructure\Adapters\WPAdvertsAdapter;
 use Apollo\Infrastructure\Adapters\BadgeOSAdapter;
-use Apollo\Infrastructure\Adapters\DocuSealAdapter;
 
 /**
  * Service Provider for External Plugin Adapters
@@ -29,8 +28,7 @@ class AdapterServiceProvider {
             'groups' => GroupsAdapter::class,
             'event_manager' => EventManagerAdapter::class,
             'wpadverts' => WPAdvertsAdapter::class,
-            'badgeos' => BadgeOSAdapter::class,
-            'docuseal' => DocuSealAdapter::class
+            'badgeos' => BadgeOSAdapter::class
         ];
     }
     
@@ -69,7 +67,6 @@ class AdapterServiceProvider {
             'event_manager' => 'wp_event_manager',
             'wpadverts' => 'wpadverts',
             'badgeos' => 'badgeos',
-            'docuseal' => 'docuseal',
             default => $adapter_key
         };
         
@@ -200,12 +197,7 @@ class AdapterServiceProvider {
         return $this->get_adapter('badgeos');
     }
     
-    /**
-     * Get DocuSeal adapter (DocuSeal integration)
-     */
-    public function docuseal(): ?DocuSealAdapter {
-        return $this->get_adapter('docuseal');
-    }
+
     
     /**
      * Register hooks for adapter management
@@ -272,8 +264,7 @@ class AdapterServiceProvider {
             'groups' => 'itthinx Groups',
             'event_manager' => 'WP Event Manager',
             'wpadverts' => 'WPAdverts',
-            'badgeos' => 'BadgeOS',
-            'docuseal' => 'DocuSeal'
+            'badgeos' => 'BadgeOS'
         ];
         
         $adapter_name = $adapter_names[$adapter_key] ?? ucfirst($adapter_key);
@@ -469,8 +460,7 @@ class AdapterServiceProvider {
                 'groups' => 'Groups',
                 'event_manager' => 'Events',
                 'wpadverts' => 'Adverts',
-                'badgeos' => 'Badges',
-                'docuseal' => 'DocuSeal'
+                'badgeos' => 'Badges'
             ];
             $name = $adapter_names[$key] ?? ucfirst($key);
             
@@ -490,7 +480,6 @@ class AdapterServiceProvider {
             'event_manager' => 'wp_event_manager',
             'wpadverts' => 'wpadverts',
             'badgeos' => 'badgeos',
-            'docuseal' => 'docuseal',
             default => $adapter_key
         };
         

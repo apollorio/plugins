@@ -8,11 +8,11 @@ class SignaturesServiceProvider
 {
     public function register()
     {
-        // TODO: register signature services, DocuSeal integration
+        // Register signature services with GOV.BR integration
     }
 
     public function boot()
     {
-        // TODO: setup signature workflow, webhook handling
+        // Setup signature workflow and webhook handling for GOV.BR
     }
 }

@@ -29,6 +29,7 @@ class VerificationsTable
         add_action('wp_ajax_apollo_get_verification_stats', [$this, 'ajaxGetVerificationStats']);
         add_action('wp_ajax_apollo_approve_verification', [$this, 'ajaxApproveVerification']);
         add_action('wp_ajax_apollo_reject_verification', [$this, 'ajaxRejectVerification']);
+        add_action('wp_ajax_apollo_cancel_verification', [$this, 'ajaxCancelVerification']);
     }
     
     /**
@@ -127,8 +128,8 @@ class VerificationsTable
                         <div class="stat-label">Aguardando</div>
                     </div>
                     <div class="apollo-stat-card awaiting">
-                        <div class="stat-number" id="stat-submitted"><?php echo $stats['assets_submitted'] ?? 0; ?></div>
-                        <div class="stat-label">Submetidos</div>
+                        <div class="stat-number" id="stat-dm-requested"><?php echo $stats['dm_requested'] ?? 0; ?></div>
+                        <div class="stat-label">DM Solicitado</div>
                     </div>
                     <div class="apollo-stat-card verified">
                         <div class="stat-number" id="stat-verified"><?php echo $stats['verified']; ?></div>
@@ -152,10 +153,10 @@ class VerificationsTable
                         <label for="status-filter">Status:</label>
                         <select id="status-filter" name="status" class="apollo-select">
                             <option value="">Todos os status</option>
-                            <option value="awaiting_instagram_verify">Aguardando</option>
-                            <option value="assets_submitted">Submetidos</option>
-                            <option value="verified">Verificados</option>
-                            <option value="rejected">Rejeitados</option>
+                        <option value="awaiting_instagram_verify">Aguardando</option>
+                        <option value="dm_requested">DM Solicitado</option>
+                        <option value="verified">Verificados</option>
+                        <option value="rejected">Rejeitados</option>
                         </select>
                     </div>
                     
@@ -358,12 +359,13 @@ class VerificationsTable
         }
         
         try {
-            $result = $this->approveVerification($user_id);
+            $verifyInstagram = new \Apollo\Application\Users\VerifyInstagram();
+            $result = $verifyInstagram->confirmVerification($user_id, get_current_user_id());
             
-            if ($result) {
+            if ($result['success']) {
                 wp_send_json_success(['message' => 'Verificação aprovada com sucesso']);
             } else {
-                wp_send_json_error(['message' => 'Erro ao aprovar verificação']);
+                wp_send_json_error(['message' => $result['message'] ?? 'Erro ao aprovar verificação']);
             }
             
         } catch (\Exception $e) {
@@ -390,12 +392,45 @@ class VerificationsTable
         }
         
         try {
-            $result = $this->rejectVerification($user_id, $reason);
+            $verifyInstagram = new \Apollo\Application\Users\VerifyInstagram();
+            $result = $verifyInstagram->cancelVerification($user_id, get_current_user_id(), $reason);
             
-            if ($result) {
+            if ($result['success']) {
                 wp_send_json_success(['message' => 'Verificação rejeitada']);
             } else {
-                wp_send_json_error(['message' => 'Erro ao rejeitar verificação']);
+                wp_send_json_error(['message' => $result['message'] ?? 'Erro ao rejeitar verificação']);
+            }
+            
+        } catch (\Exception $e) {
+            wp_send_json_error(['message' => 'Erro interno no servidor']);
+        }
+    }
+    
+    /**
+     * AJAX: Cancel verification
+     */
+    public function ajaxCancelVerification(): void
+    {
+        check_ajax_referer('apollo_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized');
+        }
+        
+        $user_id = intval($_POST['user_id'] ?? 0);
+        
+        if (!$user_id) {
+            wp_send_json_error(['message' => 'ID do usuário inválido']);
+        }
+        
+        try {
+            $verifyInstagram = new \Apollo\Application\Users\VerifyInstagram();
+            $result = $verifyInstagram->cancelVerification($user_id, get_current_user_id(), '');
+            
+            if ($result['success']) {
+                wp_send_json_success(['message' => 'Verificação cancelada']);
+            } else {
+                wp_send_json_error(['message' => $result['message'] ?? 'Erro ao cancelar verificação']);
             }
             
         } catch (\Exception $e) {
@@ -418,8 +453,11 @@ class VerificationsTable
         
         // Status filter
         if (!empty($filters['status'])) {
-            $where_conditions[] = 'v.verify_status = %s';
-            $params[] = $filters['status'];
+            $allowed_statuses = ['awaiting_instagram_verify', 'dm_requested', 'verified', 'rejected'];
+            if (in_array($filters['status'], $allowed_statuses)) {
+                $where_conditions[] = 'v.verify_status = %s';
+                $params[] = $filters['status'];
+            }
         }
         
         // Search filter

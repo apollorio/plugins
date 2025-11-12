@@ -164,15 +164,15 @@ get_header(); // Use WordPress header
                 // ============================================
                 // PERFORMANCE: Query otimizada com cache
                 // ============================================
-                $cache_key = 'apollo_upcoming_events_' . date('Ymd');
-                $events_data = get_transient($cache_key);
+                $cache_key  = 'apollo_upcoming_event_ids_' . date('Ymd');
+                $event_ids  = get_transient($cache_key);
+                $event_posts = array();
                 
-                if (false === $events_data) {
-                    // Query otimizada: LIMITE de 50 eventos (não -1)
+                if (false === $event_ids) {
                     $now_mysql = current_time('mysql');
-                    $args = array(
+                    $query_args = array(
                         'post_type'      => 'event_listing',
-                        'posts_per_page' => 50, // LIMITE: próximos 50 eventos
+                        'posts_per_page' => 50,
                         'post_status'    => 'publish',
                         'meta_key'       => '_event_start_date',
                         'orderby'        => 'meta_value',
@@ -187,42 +187,82 @@ get_header(); // Use WordPress header
                         ),
                     );
                     
-                    $events_query = new WP_Query($args);
+                    $query = new WP_Query($query_args);
+                    $collected_ids = array();
                     
-                    // PRÉ-CARREGAR TODOS OS METAS (evita N+1 queries)
-                    if ($events_query->have_posts()) {
-                        $event_ids = wp_list_pluck($events_query->posts, 'ID');
-                        update_meta_cache('post', $event_ids);
+                    if ($query->have_posts()) {
+                        while ($query->have_posts()) {
+                            $query->the_post();
+                            $candidate_id   = get_the_ID();
+                            $start_date_raw = get_post_meta($candidate_id, '_event_start_date', true);
+                            $date_info      = apollo_eve_parse_start_date($start_date_raw);
+                            
+                            if (empty($date_info['timestamp'])) {
+                                continue;
+                            }
+                            
+                            $collected_ids[] = absint($candidate_id);
+                        }
+                        wp_reset_postdata();
                     }
                     
-                    // Salvar em transient por 5 minutos
-                    set_transient($cache_key, $events_query, 5 * MINUTE_IN_SECONDS);
-                    $events_data = $events_query;
-                } else {
-                    $events_query = $events_data;
+                    $event_ids = array_values(array_unique(array_filter($collected_ids)));
+                    set_transient($cache_key, $event_ids, 5 * MINUTE_IN_SECONDS);
                 }
                 
-                // Error handling: prevent white screen if DB fails
-                $event_ids_for_lightboxes = array(); // Store IDs for lightbox generation
+                if (!empty($event_ids)) {
+                    $event_posts = get_posts(array(
+                        'post_type'      => 'event_listing',
+                        'post_status'    => 'publish',
+                        'post__in'       => $event_ids,
+                        'orderby'        => 'post__in',
+                        'posts_per_page' => count($event_ids),
+                    ));
+                    
+                    if (!empty($event_posts)) {
+                        update_meta_cache('post', $event_ids);
+                    }
+                }
                 
-                if (is_wp_error($events_query)) {
-                    error_log('❌ Apollo: WP_Query error in portal-discover: ' . $events_query->get_error_message());
-                    echo '<p class="no-events-found">Erro ao carregar eventos. Tente novamente.</p>';
-                } elseif ($events_query->have_posts()) {
-                    while ($events_query->have_posts()) {
-                        $events_query->the_post();
-                        $event_id = get_the_ID();
-                        $event_ids_for_lightboxes[] = $event_id; // Store for lightbox generation
+                if (empty($event_posts)) {
+                    echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                }
+
+                if (!empty($event_posts)) {
+                    $filtered_events = array();
+
+                    foreach ($event_posts as $event_post) {
+                        $event_id        = $event_post->ID;
+                        $start_date_raw  = get_post_meta($event_id, '_event_start_date', true);
+                        $date_info       = apollo_eve_parse_start_date($start_date_raw);
                         
-                        // -------- META BÁSICA (já está no cache) --------
-                        $start_date_raw   = get_post_meta($event_id, '_event_start_date', true);
-                        $event_location_r = get_post_meta($event_id, '_event_location', true);
-                        $event_banner     = get_post_meta($event_id, '_event_banner', true);
+                        if (empty($date_info['timestamp'])) {
+                            continue;
+                        }
                         
-                        // -------- DATA (usa helper, tolerante a formatos) --------
-                        $date_info  = apollo_eve_parse_start_date($start_date_raw);
-                        $day        = $date_info['day'];
-                        $month_pt   = $date_info['month_pt'];
+                        $filtered_events[] = array(
+                            'post'      => $event_post,
+                            'date_info' => $date_info,
+                        );
+                    }
+                    
+                    if (empty($filtered_events)) {
+                        echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                    }
+
+                    if (!empty($filtered_events)) {
+                        foreach ($filtered_events as $event_context) {
+                            $event_post = $event_context['post'];
+                            $event_id   = $event_post->ID;
+                            $date_info  = $event_context['date_info'];
+                            
+                            // -------- META BÁSICA --------
+                            $start_date_raw   = get_post_meta($event_id, '_event_start_date', true);
+                            $event_location_r = get_post_meta($event_id, '_event_location', true);
+                            $event_banner     = get_post_meta($event_id, '_event_banner', true);
+                            
+                            $day      = $date_info['day'];
+                            $month_pt = $date_info['month_pt'];
                         
                         // ============================================
                         // DJs: LÓGICA ROBUSTA COM FALLBACKS (CORRIGIDA)
@@ -385,7 +425,7 @@ get_header(); // Use WordPress header
                         if ($event_banner) {
                             $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
                         }
-                        if (!$banner_url && has_post_thumbnail()) {
+                        if (!$banner_url && has_post_thumbnail($event_id)) {
                             $banner_url = get_the_post_thumbnail_url($event_id, 'large');
                         }
                         if (!$banner_url) {
@@ -393,8 +433,8 @@ get_header(); // Use WordPress header
                         }
                         ?>
                         
-                        <a href="#ID<?php echo esc_attr($event_id); ?>"
-                           class="event_listing auto-lightbox"
+                        <a href="<?php echo esc_url(get_permalink($event_id)); ?>"
+                           class="event_listing"
                            data-event-id="<?php echo esc_attr($event_id); ?>"
                            data-category="<?php echo esc_attr($category_slug); ?>"
                            data-month-str="<?php echo esc_attr($month_pt); ?>">
@@ -407,7 +447,7 @@ get_header(); // Use WordPress header
                             
                             <div class="picture">
                                 <img src="<?php echo esc_url($banner_url); ?>"
-                                     alt="<?php echo esc_attr(get_the_title()); ?>"
+                                     alt="<?php echo esc_attr(get_the_title($event_id)); ?>"
                                      loading="lazy">
                                 
                                 <?php if (!empty($tags)): ?>
@@ -430,7 +470,7 @@ get_header(); // Use WordPress header
                             
                             <div class="event-line">
                                 <div class="box-info-event">
-                                    <h2 class="event-li-title afasta-bmin"><?php the_title(); ?></h2>
+                                    <h2 class="event-li-title afasta-bmin"><?php echo esc_html(get_the_title($event_id)); ?></h2>
                                     
                                     <!-- DJs - SEMPRE EXIBIDO -->
                                     <p class="event-li-detail of-dj afasta-bmin">
@@ -454,29 +494,11 @@ get_header(); // Use WordPress header
                         
                         <?php
                     }
-                    wp_reset_postdata();
-                } else {
-                    echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                }
                 }
                 ?>
             </div>
             <!-- END EVENT LISTING GRID -->
-            
-            <!-- LIGHTBOXES CONTAINER - Generated for each event -->
-            <div class="apollo-lightboxes-container" style="display: none;">
-                <?php
-                // Generate lightboxes for all events using stored IDs
-                if (!empty($event_ids_for_lightboxes)) {
-                    foreach ($event_ids_for_lightboxes as $lightbox_event_id) {
-                        ?>
-                        <div id="ID<?php echo esc_attr($lightbox_event_id); ?>" class="apollo-lightbox" style="display:none;">
-                            <?php echo do_shortcode('[event id="' . absint($lightbox_event_id) . '"]'); ?>
-                        </div>
-                        <?php
-                    }
-                }
-                ?>
-            </div>
             
             <!-- HIGHLIGHT BANNER (from latest blog post) -->
             <?php
@@ -544,231 +566,6 @@ get_header(); // Use WordPress header
         
     </main>
     
-    <!-- Apollo Lightbox System CSS & JS -->
-    <style>
-    /* Apollo Lightbox System */
-    .apollo-lightbox {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999999;
-        background: rgba(0, 0, 0, 0.85);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        box-sizing: border-box;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    
-    .apollo-lightbox.is-open {
-        opacity: 1;
-        visibility: visible;
-    }
-    
-    .apollo-lightbox-content {
-        position: relative;
-        background: #fff;
-        max-width: 900px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        animation: apollo-lightbox-fade-in 0.3s ease;
-    }
-    
-    @keyframes apollo-lightbox-fade-in {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    
-    .apollo-lightbox-close {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        width: 40px;
-        height: 40px;
-        background: rgba(0, 0, 0, 0.5);
-        border: none;
-        border-radius: 50%;
-        color: #fff;
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s ease;
-    }
-    
-    .apollo-lightbox-close:hover {
-        background: rgba(0, 0, 0, 0.8);
-    }
-    
-    .apollo-lightbox-content .apollo-event-lightbox-content {
-        padding: 40px;
-    }
-    
-    .apollo-event-hero {
-        margin-bottom: 30px;
-    }
-    
-    .apollo-event-hero-media {
-        position: relative;
-        width: 100%;
-        height: 300px;
-        overflow: hidden;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    
-    .apollo-event-hero-media img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .apollo-event-date-chip {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(0, 0, 0, 0.7);
-        color: #fff;
-        padding: 10px 15px;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .apollo-event-date-chip .d {
-        font-size: 24px;
-        font-weight: bold;
-        line-height: 1;
-    }
-    
-    .apollo-event-date-chip .m {
-        font-size: 14px;
-        text-transform: uppercase;
-        margin-top: 4px;
-    }
-    
-    .apollo-event-hero-info h1 {
-        font-size: 2rem;
-        margin: 0 0 15px 0;
-    }
-    
-    .apollo-event-hero-info p {
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .apollo-event-hero-info i {
-        font-size: 1.2em;
-    }
-    
-    .apollo-event-body {
-        line-height: 1.6;
-    }
-    
-    body.apollo-lightbox-open {
-        overflow: hidden;
-    }
-    </style>
-    
-    <script>
-    (function() {
-        'use strict';
-        
-        // Lightbox System
-        function initApolloLightbox() {
-            const lightboxLinks = document.querySelectorAll('a.auto-lightbox[href^="#ID"]');
-            
-            lightboxLinks.forEach(function(link) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href').substring(1); // Remove #
-                    const lightbox = document.getElementById(targetId);
-                    
-                    if (!lightbox) {
-                        console.warn('Lightbox not found:', targetId);
-                        return;
-                    }
-                    
-                    // Open lightbox
-                    lightbox.style.display = 'flex';
-                    lightbox.classList.add('is-open');
-                    document.body.classList.add('apollo-lightbox-open');
-                    
-                    // Wrap content in container if not already
-                    if (!lightbox.querySelector('.apollo-lightbox-content')) {
-                        const content = lightbox.innerHTML;
-                        lightbox.innerHTML = '<div class="apollo-lightbox-content">' +
-                            '<button class="apollo-lightbox-close" aria-label="Fechar"><i class="ri-close-line"></i></button>' +
-                            content +
-                            '</div>';
-                    }
-                    
-                    // Close button handler
-                    const closeBtn = lightbox.querySelector('.apollo-lightbox-close');
-                    if (closeBtn) {
-                        closeBtn.addEventListener('click', closeLightbox);
-                    }
-                    
-                    // Close on overlay click
-                    lightbox.addEventListener('click', function(e) {
-                        if (e.target === lightbox) {
-                            closeLightbox();
-                        }
-                    });
-                    
-                    // Close on ESC
-                    document.addEventListener('keydown', handleEsc);
-                });
-            });
-        }
-        
-        function closeLightbox() {
-            const openLightbox = document.querySelector('.apollo-lightbox.is-open');
-            if (openLightbox) {
-                openLightbox.classList.remove('is-open');
-                setTimeout(function() {
-                    openLightbox.style.display = 'none';
-                }, 300);
-                document.body.classList.remove('apollo-lightbox-open');
-                document.removeEventListener('keydown', handleEsc);
-            }
-        }
-        
-        function handleEsc(e) {
-            if (e.key === 'Escape') {
-                closeLightbox();
-            }
-        }
-        
-        // Auto-initialize
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApolloLightbox);
-        } else {
-            initApolloLightbox();
-        }
-    })();
-    </script>
-
     <!-- DARK MODE TOGGLE -->
     <div class="dark-mode-toggle" id="darkModeToggle" role="button" aria-label="Alternar modo escuro">
         <i class="ri-sun-line"></i>

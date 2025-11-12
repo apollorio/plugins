@@ -18,7 +18,6 @@ class DigitalSignature
     const LEVEL_QUALIFIED = 'qualified';     // Assinatura eletrônica qualificada (ICP-Brasil)
 
     // Signature providers
-    const PROVIDER_DOCUSEAL = 'docuseal';
     const PROVIDER_GOVBR = 'govbr';
     const PROVIDER_ICP = 'icp_provider';
 

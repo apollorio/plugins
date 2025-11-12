@@ -41,6 +41,20 @@ spl_autoload_register(function ($class) {
 add_action('plugins_loaded', function() {
     $plugin = new \Apollo\Plugin();
     $plugin->bootstrap();
+    
+    // Load user-pages module
+    $user_pages_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/user-pages-loader.php';
+    if (file_exists($user_pages_loader)) {
+        require_once $user_pages_loader;
+    }
+    
+    // Load Help Menu Admin
+    if (is_admin()) {
+        $help_menu = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/HelpMenuAdmin.php';
+        if (file_exists($help_menu)) {
+            require_once $help_menu;
+        }
+    }
 });
 
 // Flush rewrite rules on activation
@@ -48,6 +62,19 @@ register_activation_hook(__FILE__, function() {
     // Register routes first
     $routes = new \Apollo\Infrastructure\Http\Routes();
     $routes->register();
+    
+    // Load user-pages CPT and rewrite
+    $user_pages_cpt = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-cpt.php';
+    if (file_exists($user_pages_cpt)) {
+        require_once $user_pages_cpt;
+        Apollo_User_Page_CPT::register();
+    }
+    
+    $user_pages_rewrite = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-rewrite.php';
+    if (file_exists($user_pages_rewrite)) {
+        require_once $user_pages_rewrite;
+        Apollo_User_Page_Rewrite::add_rewrite();
+    }
     
     // Flush rewrite rules
     flush_rewrite_rules();

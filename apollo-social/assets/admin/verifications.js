@@ -96,6 +96,17 @@ class ApolloVerificationsAdmin {
                 }
             }
         });
+        
+        // Quick cancel
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.btn-quick-cancel') || e.target.closest('.btn-quick-cancel')) {
+                e.preventDefault();
+                const userId = e.target.closest('[data-user-id]')?.dataset.userId;
+                if (userId) {
+                    this.quickCancel(userId);
+                }
+            }
+        });
     }
     
     bindModalEvents() {
@@ -127,6 +138,17 @@ class ApolloVerificationsAdmin {
                 const reason = document.getElementById('rejection-reason')?.value;
                 if (userId) {
                     this.rejectVerification(userId, reason);
+                }
+            }
+        });
+        
+        // Cancel button
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.btn-modal-cancel') || e.target.closest('.btn-modal-cancel')) {
+                e.preventDefault();
+                const userId = document.querySelector('.apollo-modal')?.dataset.userId;
+                if (userId) {
+                    this.cancelVerification(userId);
                 }
             }
         });
@@ -285,14 +307,23 @@ class ApolloVerificationsAdmin {
                         <span class="btn-icon">👁️</span>
                         Ver Detalhes
                     </button>
-                    ${verification.verify_status === 'assets_submitted' ? `
-                        <button class="apollo-btn small success btn-quick-approve">
+                    ${verification.verify_status === 'dm_requested' ? `
+                        <button class="apollo-btn small success btn-quick-approve" title="Mark as Verified (DM OK)">
                             <span class="btn-icon">✅</span>
-                            Aprovar
+                            Marcar como Verificado (DM OK)
                         </button>
-                        <button class="apollo-btn small danger btn-quick-reject">
+                        <button class="apollo-btn small warning btn-quick-cancel" title="Cancel/Waiting DM">
+                            <span class="btn-icon">⏸️</span>
+                            Cancelar/Esperando DM
+                        </button>
+                        <button class="apollo-btn small danger btn-quick-reject" title="Reject (optional)">
                             <span class="btn-icon">❌</span>
-                            Rejeitar
+                            Rejeitar (opcional)
+                        </button>
+                    ` : verification.verify_status === 'awaiting_instagram_verify' ? `
+                        <button class="apollo-btn small warning btn-quick-cancel" title="Cancel/Waiting DM">
+                            <span class="btn-icon">⏸️</span>
+                            Cancelar/Esperando DM
                         </button>
                     ` : ''}
                 </div>
@@ -405,22 +436,33 @@ class ApolloVerificationsAdmin {
                             </div>
                         ` : ''}
                         
-                        ${verification.verify_status === 'assets_submitted' ? `
+                        ${verification.verify_status === 'dm_requested' ? `
                             <div class="modal-actions">
+                                <div class="action-group">
+                                    <button class="apollo-btn success btn-modal-approve">
+                                        <span class="btn-icon">✅</span>
+                                        Marcar como Verificado (DM OK)
+                                    </button>
+                                    <button class="apollo-btn warning btn-modal-cancel">
+                                        <span class="btn-icon">⏸️</span>
+                                        Cancelar/Esperando DM
+                                    </button>
+                                </div>
                                 <div class="reject-section">
                                     <label for="rejection-reason">Motivo da rejeição (opcional):</label>
                                     <textarea id="rejection-reason" class="apollo-textarea" placeholder="Digite o motivo da rejeição..."></textarea>
                                     <button class="apollo-btn danger btn-modal-reject">
                                         <span class="btn-icon">❌</span>
-                                        Rejeitar Verificação
+                                        Rejeitar (opcional)
                                     </button>
                                 </div>
-                                <div>
-                                    <button class="apollo-btn success btn-modal-approve">
-                                        <span class="btn-icon">✅</span>
-                                        Aprovar Verificação
-                                    </button>
-                                </div>
+                            </div>
+                        ` : verification.verify_status === 'awaiting_instagram_verify' ? `
+                            <div class="modal-actions">
+                                <button class="apollo-btn warning btn-modal-cancel">
+                                    <span class="btn-icon">⏸️</span>
+                                    Cancelar/Esperando DM
+                                </button>
                             </div>
                         ` : ''}
                     </div>
@@ -464,37 +506,48 @@ class ApolloVerificationsAdmin {
         await this.rejectVerification(userId, reason);
     }
     
+    async quickCancel(userId) {
+        if (!confirm('Tem certeza que deseja cancelar esta verificação?')) {
+            return;
+        }
+        
+        await this.cancelVerification(userId);
+    }
+    
     async approveVerification(userId) {
         try {
             this.showLoading(true);
             
-            const params = new URLSearchParams({
-                action: 'apollo_approve_verification',
-                nonce: apolloAdmin.nonce,
-                user_id: userId
-            });
-            
-            const response = await fetch(apolloAdmin.ajaxUrl, {
+            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/confirm', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': apolloAdmin.nonce
                 },
-                body: params
+                body: JSON.stringify({ user_id: userId })
             });
             
             const data = await response.json();
             
-            if (data.success) {
-                this.showNotification('Verificação aprovada com sucesso!', 'success');
+            if (response.ok && data.success) {
+                this.showToast('EMAIL ACCOUN RELEASED! WELCOME TO OUR WORLD, WELCOME TO APOLLO!', 'success');
                 this.closeModal();
                 await this.loadVerifications(this.currentFilters);
                 await this.loadStats();
             } else {
-                throw new Error(data.message || 'Erro ao aprovar verificação');
+                const message = data.message || data.data?.message || 'Erro ao aprovar verificação';
+                const status = response.status;
+                if (status === 403) {
+                    this.showToast('Sem permissão para esta ação', 'error');
+                } else if (status === 422) {
+                    this.showToast(message, 'error');
+                } else {
+                    this.showToast(message, 'error');
+                }
             }
         } catch (error) {
             console.error('Error approving verification:', error);
-            this.showNotification('Erro ao aprovar verificação', 'error');
+            this.showToast('Erro ao aprovar verificação', 'error');
         } finally {
             this.showLoading(false);
         }
@@ -504,34 +557,74 @@ class ApolloVerificationsAdmin {
         try {
             this.showLoading(true);
             
-            const params = new URLSearchParams({
-                action: 'apollo_reject_verification',
-                nonce: apolloAdmin.nonce,
-                user_id: userId,
-                reason: reason
-            });
-            
-            const response = await fetch(apolloAdmin.ajaxUrl, {
+            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/cancel', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': apolloAdmin.nonce
                 },
-                body: params
+                body: JSON.stringify({ 
+                    user_id: userId,
+                    reason: reason || ''
+                })
             });
             
             const data = await response.json();
             
-            if (data.success) {
-                this.showNotification('Verificação rejeitada', 'warning');
+            if (response.ok && data.success) {
+                this.showToast('Verificação rejeitada', 'warning');
                 this.closeModal();
                 await this.loadVerifications(this.currentFilters);
                 await this.loadStats();
             } else {
-                throw new Error(data.message || 'Erro ao rejeitar verificação');
+                const message = data.message || data.data?.message || 'Erro ao rejeitar verificação';
+                const status = response.status;
+                if (status === 403) {
+                    this.showToast('Sem permissão para esta ação', 'error');
+                } else if (status === 422) {
+                    this.showToast(message, 'error');
+                } else {
+                    this.showToast(message, 'error');
+                }
             }
         } catch (error) {
             console.error('Error rejecting verification:', error);
-            this.showNotification('Erro ao rejeitar verificação', 'error');
+            this.showToast('Erro ao rejeitar verificação', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    
+    async cancelVerification(userId) {
+        try {
+            this.showLoading(true);
+            
+            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/cancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-WP-Nonce': apolloAdmin.nonce
+                },
+                body: JSON.stringify({ 
+                    user_id: userId,
+                    reason: '' // No reason for cancel
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                this.showToast('Verificação cancelada', 'info');
+                this.closeModal();
+                await this.loadVerifications(this.currentFilters);
+                await this.loadStats();
+            } else {
+                const message = data.message || data.data?.message || 'Erro ao cancelar verificação';
+                this.showToast(message, 'error');
+            }
+        } catch (error) {
+            console.error('Error canceling verification:', error);
+            this.showToast('Erro ao cancelar verificação', 'error');
         } finally {
             this.showLoading(false);
         }
@@ -571,14 +664,18 @@ class ApolloVerificationsAdmin {
     }
     
     setupAutoRefresh() {
-        // Auto-refresh every 30 seconds for pending verifications
+        // Auto-refresh every 30 seconds ONLY for awaiting/dm_requested
         setInterval(() => {
             if (!this.currentModal) { // Don't refresh if modal is open
-                this.loadStats();
+                const currentStatus = this.currentFilters.status || '';
                 
-                // Only refresh list if showing pending items
-                if (this.currentFilters.status !== 'verified' && this.currentFilters.status !== 'rejected') {
+                // Only auto-refresh for awaiting_instagram_verify or dm_requested
+                if (currentStatus === 'awaiting_instagram_verify' || currentStatus === 'dm_requested' || currentStatus === '') {
+                    this.loadStats();
                     this.loadVerifications(this.currentFilters);
+                } else {
+                    // Still refresh stats but not the list
+                    this.loadStats();
                 }
             }
         }, 30000);
@@ -659,28 +756,77 @@ class ApolloVerificationsAdmin {
     }
     
     showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `apollo-notification apollo-notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
+        this.showToast(message, type);
+    }
+    
+    showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.apollo-toast');
+        existingToasts.forEach(toast => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        });
+        
+        const toast = document.createElement('div');
+        toast.className = `apollo-toast apollo-toast-${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${type === 'success' ? '#5cb85c' : type === 'error' ? '#d9534f' : type === 'warning' ? '#f0ad4e' : '#5bc0de'};
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#3b82f6'};
             color: white;
-            padding: 15px 20px;
+            padding: 16px 24px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             z-index: 10001;
-            max-width: 300px;
+            max-width: 400px;
             word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+            animation: slideInRight 0.3s ease-out;
         `;
         
-        document.body.appendChild(notification);
+        // Add animation
+        if (!document.getElementById('apollo-toast-styles')) {
+            const style = document.createElement('style');
+            style.id = 'apollo-toast-styles';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(toast);
         
         setTimeout(() => {
-            if (document.body.contains(notification)) {
-                document.body.removeChild(notification);
+            if (document.body.contains(toast)) {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
             }
         }, 5000);
     }
@@ -689,7 +835,7 @@ class ApolloVerificationsAdmin {
     getStatusLabel(status) {
         const labels = {
             'awaiting_instagram_verify': 'Aguardando',
-            'assets_submitted': 'Submetido',
+            'dm_requested': 'DM Solicitado',
             'verified': 'Verificado',
             'rejected': 'Rejeitado'
         };

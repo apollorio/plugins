@@ -5,6 +5,8 @@ namespace Apollo\Infrastructure\CLI;
 use Apollo\Infrastructure\Database\Schema;
 use Apollo\Infrastructure\Security\Caps;
 use Apollo\Infrastructure\Workflows\ContentWorkflow;
+use Apollo\Application\Users\VerifyInstagram;
+use Apollo\Infrastructure\Adapters\WPAdvertsAdapter;
 
 /**
  * Apollo CLI Commands
@@ -20,6 +22,8 @@ class Commands
     {
         if (defined('WP_CLI') && WP_CLI) {
             \WP_CLI::add_command('apollo', $this);
+            \WP_CLI::add_command('apollo-social verify', [$this, 'verify']);
+            \WP_CLI::add_command('apollo-social adverts', [$this, 'adverts']);
         }
     }
 
@@ -972,5 +976,135 @@ class Commands
             'suspended' => 'SUS',
             default => strtoupper(substr($status, 0, 3))
         };
+    }
+    
+    /**
+     * Verify commands
+     */
+    
+    /**
+     * Confirm verification
+     * 
+     * ## OPTIONS
+     * 
+     * --user=<id|login>
+     * : User ID or login
+     * 
+     * ## EXAMPLES
+     * 
+     *     wp apollo-social verify confirm --user=123
+     *     wp apollo-social verify confirm --user=admin
+     */
+    public function verify($args, $assoc_args)
+    {
+        if (empty($args) || $args[0] !== 'confirm' && $args[0] !== 'cancel' && $args[0] !== 'token') {
+            \WP_CLI::error('Usage: wp apollo-social verify <confirm|cancel|token> --user=<id|login> [--reason="..."]');
+        }
+        
+        $action = $args[0];
+        $user_identifier = $assoc_args['user'] ?? null;
+        
+        if (!$user_identifier) {
+            \WP_CLI::error('--user parameter is required');
+        }
+        
+        // Get user by ID or login
+        $user = is_numeric($user_identifier) 
+            ? get_user_by('ID', intval($user_identifier))
+            : get_user_by('login', $user_identifier);
+        
+        if (!$user) {
+            \WP_CLI::error("User not found: {$user_identifier}");
+        }
+        
+        $verifyInstagram = new VerifyInstagram();
+        
+        switch ($action) {
+            case 'confirm':
+                $result = $verifyInstagram->confirmVerification($user->ID, get_current_user_id() ?: 1);
+                if ($result['success']) {
+                    \WP_CLI::success("Verification confirmed for user: {$user->user_login} (ID: {$user->ID})");
+                } else {
+                    \WP_CLI::error($result['message'] ?? 'Failed to confirm verification');
+                }
+                break;
+                
+            case 'cancel':
+                $reason = $assoc_args['reason'] ?? '';
+                $result = $verifyInstagram->cancelVerification($user->ID, get_current_user_id() ?: 1, $reason);
+                if ($result['success']) {
+                    \WP_CLI::success("Verification canceled for user: {$user->user_login} (ID: {$user->ID})");
+                } else {
+                    \WP_CLI::error($result['message'] ?? 'Failed to cancel verification');
+                }
+                break;
+                
+            case 'token':
+                $status = $verifyInstagram->getVerificationStatus($user->ID);
+                if ($status['status'] !== 'not_found') {
+                    $phrase = $status['phrase'] ?? '';
+                    \WP_CLI::log("User: {$user->user_login} (ID: {$user->ID})");
+                    \WP_CLI::log("Status: {$status['status']}");
+                    \WP_CLI::log("Token: {$status['verify_token']}");
+                    \WP_CLI::log("Phrase for DM: {$phrase}");
+                } else {
+                    \WP_CLI::error("No verification found for user: {$user_identifier}");
+                }
+                break;
+        }
+    }
+    
+    /**
+     * List classifieds (WPAdverts)
+     * 
+     * ## OPTIONS
+     * 
+     * --per-page=<number>
+     * : Number of ads per page (default: 10)
+     * 
+     * --page=<number>
+     * : Page number (default: 1)
+     * 
+     * ## EXAMPLES
+     * 
+     *     wp apollo-social adverts list --per-page=10 --page=1
+     */
+    public function adverts($args, $assoc_args)
+    {
+        if (empty($args) || $args[0] !== 'list') {
+            \WP_CLI::error('Usage: wp apollo-social adverts list [--per-page=10] [--page=1]');
+        }
+        
+        if (!WPAdvertsAdapter::isActive()) {
+            \WP_CLI::error('WPAdverts plugin is not active');
+        }
+        
+        $per_page = intval($assoc_args['per-page'] ?? 10);
+        $page = intval($assoc_args['page'] ?? 1);
+        
+        $result = WPAdvertsAdapter::listAds([
+            'posts_per_page' => $per_page,
+            'paged' => $page,
+        ]);
+        
+        if (empty($result['ads'])) {
+            \WP_CLI::log('No ads found');
+            return;
+        }
+        
+        \WP_CLI::log("Found {$result['total']} ads (Page {$page} of {$result['pages']}):");
+        \WP_CLI::log('');
+        \WP_CLI::log("ID\tTitle\t\t\tPrice\t\tAuthor");
+        \WP_CLI::log(str_repeat('-', 80));
+        
+        foreach ($result['ads'] as $ad) {
+            $title = strlen($ad['title']) > 25 ? substr($ad['title'], 0, 22) . '...' : $ad['title'];
+            $title = str_pad($title, 25);
+            $price = $ad['price'] ?: 'N/A';
+            $price = str_pad($price, 15);
+            $author = str_pad($ad['author_name'], 20);
+            
+            \WP_CLI::log("{$ad['id']}\t{$title}\t{$price}\t{$author}");
+        }
     }
 }

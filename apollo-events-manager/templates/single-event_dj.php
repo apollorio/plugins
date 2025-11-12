@@ -22,6 +22,11 @@ if (get_post_type($dj_id) !== 'event_dj') {
     wp_die(__('Este template é apenas para DJs.', 'apollo-events-manager'));
 }
 
+// Add data attribute for front-beacon.js
+?>
+<div data-event-id="<?php echo esc_attr($dj_id); ?>" style="display:none;"></div>
+<?php
+
 // ============================================
 // GET DJ DATA
 // ============================================

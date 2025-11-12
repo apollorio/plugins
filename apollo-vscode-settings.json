@@ -1,0 +1,28 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "php": "html"
+  },
+  "tailwindCSS.experimental.configFile": "tailwind.config.js",
+  "tailwindCSS.files.exclude": ["**/node_modules/**", "**/.git/**"],
+  
+  "php.suggest.basic": false,
+  "php.validate.executablePath": "",
+  "intelephense.files.maxSize": 5000000,
+  
+  "prettier.requireConfig": true,
+  "prettier.configPath": ".prettierrc",
+  
+  "github.copilot.enable": {
+    "php": true,
+    "javascript": true,
+    "css": true,
+    "html": true,
+    "markdown": true
+  },
+  
+  "errorLens.enabledDiagnosticLevels": ["error", "warning"],
+  
+  "projectManager.git.baseFolders": [
+    "C:\\Users\\rafae\\Local Sites"
+  ]
+}

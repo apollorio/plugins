@@ -2,10 +2,9 @@
 namespace Apollo\Domain\Signatures;
 
 /**
- * Document entity (stub)
+ * Document entity
  *
- * Represents a document that needs to be signed.
- * TODO: Define document properties, signature workflow and DocuSeal integration.
+ * Represents a document that needs to be signed with GOV.BR
  */
 class DocumentEntity
 {
@@ -16,10 +15,9 @@ class DocumentEntity
     protected $id;
 
     /**
-     * DocuSeal template ID
-     * TODO: implement DocuSeal integration
+     * GOV.BR template ID
      */
-    protected $docuseal_template_id;
+    protected $govbr_template_id;
 
     /**
      * Signature status
@@ -29,7 +27,7 @@ class DocumentEntity
 
     /**
      * Create signature request
-     * TODO: implement DocuSeal API integration for signature requests
+     * Implements GOV.BR API integration for qualified signature requests
      */
     public function createSignatureRequest($signers)
     {

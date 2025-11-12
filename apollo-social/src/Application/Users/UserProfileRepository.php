@@ -409,7 +409,7 @@ class UserProfileRepository
             SELECT v.*, u.user_login, u.user_email, u.display_name, u.user_registered
             FROM {$verification_table} v
             INNER JOIN {$wpdb->users} u ON v.user_id = u.ID
-            WHERE v.verify_status IN ('awaiting_instagram_verify', 'assets_submitted')
+            WHERE v.verify_status IN ('awaiting_instagram_verify', 'dm_requested')
             ORDER BY v.submitted_at DESC
             LIMIT %d OFFSET %d
         ";
@@ -452,7 +452,7 @@ class UserProfileRepository
         
         $formatted_stats = [
             'awaiting_instagram_verify' => 0,
-            'assets_submitted' => 0,
+            'dm_requested' => 0,
             'verified' => 0,
             'rejected' => 0,
             'total' => 0

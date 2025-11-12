@@ -37,6 +37,10 @@ class Plugin
         
         $this->providers = [
             new CoreServiceProvider(),
+            new \Apollo\Modules\Auth\AuthServiceProvider(),
+            new \Apollo\Modules\Builder\BuilderServiceProvider(),
+            new \Apollo\Modules\Shortcodes\ShortcodeServiceProvider(),
+            new \Apollo\Modules\Pwa\PwaServiceProvider(),
             new \Apollo\Infrastructure\Providers\AnalyticsServiceProvider(),
         ];
 
@@ -61,9 +65,6 @@ class Plugin
         
         // Handle plugin requests
         add_action('template_redirect', [$this, 'handlePluginRequests']);
-        
-        // Initialize DJ Contacts Table
-        $this->initializeDJContactsTable();
     }
 
     /**
@@ -82,15 +83,5 @@ class Plugin
     {
         $routes = new Routes();
         $routes->handleRequest();
-    }
-
-    /**
-     * Initialize DJ Contacts Table component
-     */
-    private function initializeDJContactsTable()
-    {
-        if (class_exists('\Apollo\Admin\DJContactsTable')) {
-            new \Apollo\Admin\DJContactsTable();
-        }
     }
 }

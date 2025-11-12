@@ -44,3 +44,43 @@ if (!function_exists('config')) {
         return $value;
     }
 }
+
+if (!function_exists('apollo_get_user_page')) {
+    /**
+     * Fetch the user_page assigned to the given user.
+     *
+     * @param int $user_id User identifier.
+     *
+     * @return \WP_Post|null
+     */
+    function apollo_get_user_page($user_id)
+    {
+        $user_id = absint($user_id);
+
+        if ($user_id <= 0) {
+            return null;
+        }
+
+        return \Apollo\Modules\UserPages\UserPageRepository::get($user_id);
+    }
+}
+
+if (!function_exists('apollo_get_or_create_user_page')) {
+    /**
+     * Retrieve the user_page or create it when missing.
+     *
+     * @param int $user_id User identifier.
+     *
+     * @return \WP_Post|null
+     */
+    function apollo_get_or_create_user_page($user_id)
+    {
+        $user_id = absint($user_id);
+
+        if ($user_id <= 0) {
+            return null;
+        }
+
+        return \Apollo\Modules\UserPages\UserPageRepository::getOrCreate($user_id);
+    }
+}

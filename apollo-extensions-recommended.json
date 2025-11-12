@@ -1,0 +1,179 @@
+{
+  "apollo-essential-extensions": {
+    "description": "Extensões essenciais para desenvolvimento Apollo",
+    "core": [
+      {
+        "id": "github.copilot",
+        "name": "GitHub Copilot",
+        "priority": "MUST",
+        "reason": "Assistente AI principal",
+        "login_required": true,
+        "setup_notes": "Precisa de conta GitHub Pro/Team/Enterprise"
+      },
+      {
+        "id": "github.copilot-chat", 
+        "name": "GitHub Copilot Chat",
+        "priority": "MUST",
+        "reason": "Chat AI integrado",
+        "login_required": true,
+        "setup_notes": "Automaticamente ativado com Copilot"
+      },
+      {
+        "id": "github.vscode-pull-request-github",
+        "name": "GitHub Pull Requests",
+        "priority": "MUST", 
+        "reason": "Gestão de PRs Apollo",
+        "login_required": true,
+        "setup_notes": "Login GitHub para ver PRs do repositório apollorio/plugins"
+      }
+    ],
+    "apollo_stack": [
+      {
+        "id": "bradlc.vscode-tailwindcss",
+        "name": "Tailwind CSS IntelliSense",
+        "priority": "MUST",
+        "reason": "Para uni.css e global.css Apollo",
+        "login_required": false,
+        "setup_notes": "Auto-detecta Tailwind no projeto"
+      },
+      {
+        "id": "shakililham.remix-icon-snippets-for-html",
+        "name": "Remix Icon Snippets",
+        "priority": "MUST", 
+        "reason": "Icons obrigatórios Apollo",
+        "login_required": false,
+        "setup_notes": "Funciona imediatamente"
+      },
+      {
+        "id": "nrjdalal.shadcn-ui-next",
+        "name": "Shadcn/UI Next.js",
+        "priority": "MUST",
+        "reason": "Componentes Apollo blocks",
+        "login_required": false,
+        "setup_notes": "Auto-detecta setup Next.js"
+      }
+    ],
+    "php_wordpress": [
+      {
+        "id": "bmewburn.vscode-intelephense-client",
+        "name": "PHP Intelephense",
+        "priority": "HIGH",
+        "reason": "IntelliSense PHP principal",
+        "login_required": false,
+        "setup_notes": "Premium features via licença (opcional)"
+      },
+      {
+        "id": "aequabit.php-cs-fixer",
+        "name": "PHP CS Fixer",
+        "priority": "HIGH",
+        "reason": "Formatação PHP Apollo",
+        "login_required": false,
+        "setup_notes": "Configurar .php_cs ou .php-cs-fixer.php"
+      },
+      {
+        "id": "xdebug.php-debug",
+        "name": "PHP Debug",
+        "priority": "HIGH",
+        "reason": "Debug apollo-events-manager",
+        "login_required": false,
+        "setup_notes": "Configurar Xdebug no Local/XAMPP"
+      },
+      {
+        "id": "wordpressplayground.wordpress-playground",
+        "name": "WordPress Playground",
+        "priority": "MEDIUM",
+        "reason": "Testes rápidos plugins Apollo",
+        "login_required": false,
+        "setup_notes": "Funciona standalone"
+      }
+    ],
+    "development_tools": [
+      {
+        "id": "esbenp.prettier-vscode",
+        "name": "Prettier",
+        "priority": "HIGH",
+        "reason": "Formatação CSS/JS Apollo assets",
+        "login_required": false,
+        "setup_notes": "Configurar .prettierrc"
+      },
+      {
+        "id": "usernamehw.errorlens",
+        "name": "Error Lens",
+        "priority": "HIGH",
+        "reason": "Debug visual inline",
+        "login_required": false,
+        "setup_notes": "Funciona imediatamente"
+      },
+      {
+        "id": "ms-python.python",
+        "name": "Python",
+        "priority": "MEDIUM",
+        "reason": "Scripts automation Apollo",
+        "login_required": false,
+        "setup_notes": "Detecta Python instalado"
+      }
+    ],
+    "project_management": [
+      {
+        "id": "alefragnani.project-manager",
+        "name": "Project Manager",
+        "priority": "MEDIUM",
+        "reason": "Gestão projetos Apollo múltiplos",
+        "login_required": false,
+        "setup_notes": "Configurar projetos manualmente"
+      },
+      {
+        "id": "mhutchie.git-graph",
+        "name": "Git Graph",
+        "priority": "MEDIUM",
+        "reason": "Visualizar history Apollo repo",
+        "login_required": false,
+        "setup_notes": "Funciona com git local"
+      },
+      {
+        "id": "cweijan.vscode-mysql-client2",
+        "name": "MySQL Client",
+        "priority": "MEDIUM",
+        "reason": "Gestão DB Apollo events",
+        "login_required": false,
+        "setup_notes": "Configurar conexões Local Sites DB"
+      }
+    ],
+    "office_docs": [
+      {
+        "id": "cweijan.vscode-office",
+        "name": "Office Viewer",
+        "priority": "LOW",
+        "reason": "Visualizar docs contratos",
+        "login_required": false,
+        "setup_notes": "Funciona imediatamente"
+      },
+      {
+        "id": "yzane.markdown-pdf",
+        "name": "Markdown PDF",
+        "priority": "LOW", 
+        "reason": "Gerar PDFs documentação Apollo",
+        "login_required": false,
+        "setup_notes": "Instalar Puppeteer se necessário"
+      }
+    ]
+  },
+  "removed_conflicts": [
+    "calebporzio.simple-php-cs-fixer",
+    "fterrag.vscode-php-cs-fixer", 
+    "selemondev.shadcn-vue",
+    "selemondev.vscode-shadcn-svelte",
+    "adrianub.shadcn-ng",
+    "robberphex.php-debug",
+    "tiansin.php-debug"
+  ],
+  "apollo_assets": {
+    "css": [
+      "https://assets.apollo.rio.br/uni.css",
+      "https://assets.apollo.rio.br/global.css"
+    ],
+    "js": [
+      "https://assets.apollo.rio.br/js/dark-mode.js"
+    ]
+  }
+}

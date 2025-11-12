@@ -488,39 +488,25 @@
                 <p class="step-subtitle">Selecione o nível de segurança jurídica necessário</p>
 
                 <div class="track-selection">
-                    <div class="track-card" data-track="track_a">
-                        <div class="track-icon">⚡</div>
-                        <h3>Trilho A - Rápido</h3>
-                        <div class="track-subtitle">Assinatura Avançada</div>
-                        <div class="track-description">
-                            Ideal para contratos comerciais, termos de uso e documentos internos. 
-                            Processo rápido e simples via DocuSeal.
-                        </div>
-                        <div class="track-legal">
-                            <strong>Base Legal:</strong> Lei 14.063/2020 Art. 10 § 2º<br>
-                            <strong>Validade:</strong> Presunção de autenticidade
-                        </div>
-                    </div>
-
                     <div class="track-card" data-track="track_b">
                         <div class="track-icon">🛡️</div>
-                        <h3>Trilho B - Qualificado</h3>
-                        <div class="track-subtitle">Assinatura ICP-Brasil</div>
+                        <h3>Assinatura Qualificada</h3>
+                        <div class="track-subtitle">ICP-Brasil (GOV.BR)</div>
                         <div class="track-description">
                             Para documentos oficiais, cartórios e órgãos públicos. 
-                            Requer certificado digital ICP-Brasil.
+                            Requer certificado digital ICP-Brasil ou login GOV.BR.
                         </div>
                         <div class="track-legal">
                             <strong>Base Legal:</strong> Lei 14.063/2020 + MP 2.200-2/2001<br>
-                            <strong>Validade:</strong> Equivale à manuscrita
+                            <strong>Validade:</strong> Equivale à assinatura manuscrita
                         </div>
                     </div>
                 </div>
 
                 <div class="compliance-info">
                     <h4>ℹ️ Informações de Compliance</h4>
-                    <p><strong>Trilho A:</strong> Adequado para 90% dos casos comerciais. Aceito por empresas privadas e com presunção legal de validade.</p>
-                    <p><strong>Trilho B:</strong> Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita.</p>
+                    <p><strong>Assinatura Qualificada:</strong> Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita com presunção absoluta de validade.</p>
+                    <p><strong>Certificação:</strong> Utiliza infraestrutura de chaves públicas brasileira (ICP-Brasil) via integração GOV.BR.</p>
                 </div>
 
                 <div class="buttons">

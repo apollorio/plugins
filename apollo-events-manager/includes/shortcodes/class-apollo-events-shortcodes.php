@@ -77,17 +77,36 @@ class Apollo_Events_Shortcodes {
      * Show the event submission form
      */
     public function submit_event_form($atts = array()) {
-        if (!is_user_logged_in()) {
-            return '<div class="apollo-alert apollo-alert-info">' . 
-                   esc_html__('You must be logged in to submit an event.', 'apollo-events-manager') . 
-                   ' <a href="' . esc_url(wp_login_url()) . '">' . 
-                   esc_html__('Login', 'apollo-events-manager') . '</a></div>';
+        if (!function_exists('apollo_render_public_event_form')) {
+            return '<div class="apollo-alert apollo-alert-danger">' .
+                esc_html__('Event submission form is temporarily unavailable.', 'apollo-events-manager') .
+                '</div>';
         }
-        
-        // TODO: Integrate with Apollo forms system
-        return '<div class="apollo-submit-event-form">' . 
-               esc_html__('Event submission form coming soon.', 'apollo-events-manager') . 
-               '</div>';
+
+        $atts = shortcode_atts(
+            array(
+                'show_title' => true,
+                'title'      => __('Submit Your Event', 'apollo-events-manager'),
+            ),
+            $atts,
+            'submit_event_form'
+        );
+
+        ob_start();
+
+        if (!is_user_logged_in()) {
+            echo '<div class="apollo-alert apollo-alert-info">';
+            echo '<i class="ri-information-line"></i>';
+            echo '<p>' . esc_html__(
+                'Envie seu evento para aparecer no portal. Nossa equipe revisa tudo antes de publicar.',
+                'apollo-events-manager'
+            ) . '</p>';
+            echo '</div>';
+        }
+
+        echo apollo_render_public_event_form($atts);
+
+        return ob_get_clean();
     }
     
     /**
@@ -386,14 +405,14 @@ class Apollo_Events_Shortcodes {
             echo '</div>';
             
             // Pagination
-            if ($atts['show_pagination'] && $events->max_num_pages > 1) {
+            if ($atts['show_pagination'] && $events->max_num_pages > 1):
                 echo '<div class="apollo-pagination">';
                 echo paginate_links(array(
                     'total' => $events->max_num_pages,
                     'current' => max(1, get_query_var('paged')),
                 ));
                 echo '</div>';
-            }
+            endif;
         else:
             echo '<p class="apollo-alert apollo-alert-info">' . 
                  esc_html__('No events found.', 'apollo-events-manager') . 
@@ -448,47 +467,157 @@ class Apollo_Events_Shortcodes {
      */
     public function output_event_summary($atts) {
         $atts = shortcode_atts(array(
-            'id' => 0,
-            'width' => '250px',
-            'align' => 'left',
+            'id'       => 0,
+            'width'    => '320px',
+            'align'    => 'left',
             'featured' => null,
-            'limit' => -1,
+            'limit'    => 1,
         ), $atts);
-        
-        ob_start();
-        
-        $args = array(
-            'post_type' => 'event_listing',
-            'post_status' => 'publish',
-        );
-        
-        if ($atts['id']) {
-            $args['p'] = absint($atts['id']);
+
+        $limit = intval($atts['limit']);
+        if ($limit === 0) {
+            $limit = 1;
+        }
+
+        $selected_ids = array();
+
+        if (!empty($atts['id'])) {
+            $selected_ids[] = absint($atts['id']);
         } else {
-            $args['posts_per_page'] = absint($atts['limit']);
-            $args['orderby'] = 'rand';
+            if (is_singular('event_listing')) {
+                $selected_ids[] = get_queried_object_id();
+            } else {
+                global $post;
+                if ($post instanceof \WP_Post && $post->post_type === 'event_listing') {
+                    $selected_ids[] = $post->ID;
+                }
+            }
         }
-        
-        if (!is_null($atts['featured'])) {
-            $args['meta_query'][] = array(
-                'key' => '_featured',
-                'value' => '1',
-                'compare' => $atts['featured'] ? '=' : '!='
+
+        $selected_ids = array_values(array_unique(array_filter(array_map('absint', $selected_ids))));
+
+        if ($limit > 0 && !empty($selected_ids)) {
+            $selected_ids = array_slice($selected_ids, 0, $limit);
+        }
+
+        $events = array();
+
+        if (!empty($selected_ids)) {
+            $events = get_posts(array(
+                'post_type'      => 'event_listing',
+                'post_status'    => 'publish',
+                'post__in'       => $selected_ids,
+                'orderby'        => 'post__in',
+                'posts_per_page' => -1,
+            ));
+        } else {
+            $query_args = array(
+                'post_type'      => 'event_listing',
+                'post_status'    => 'publish',
+                'posts_per_page' => $limit > 0 ? $limit : -1,
             );
+
+            if (!is_null($atts['featured'])) {
+                $query_args['meta_query'][] = array(
+                    'key'     => '_featured',
+                    'value'   => '1',
+                    'compare' => $atts['featured'] ? '=' : '!='
+                );
+            }
+
+            $events = get_posts($query_args);
         }
-        
-        $events = new WP_Query($args);
-        
-        if ($events->have_posts()):
-            while ($events->have_posts()): $events->the_post();
-                echo '<div class="apollo-event-summary" style="width: ' . esc_attr($atts['width']) . '; text-align: ' . esc_attr($atts['align']) . ';">';
-                the_title('<h3>', '</h3>');
-                the_excerpt();
-                echo '</div>';
-            endwhile;
-        endif;
-        
-        wp_reset_postdata();
+
+        if (empty($events)) {
+            return '<p class="apollo-alert apollo-alert-info">' .
+                esc_html__('No events found.', 'apollo-events-manager') .
+                '</p>';
+        }
+
+        $width = trim($atts['width']);
+        $align = strtolower(trim($atts['align']));
+
+        $style_rules = array();
+        if ($width !== '') {
+            $style_rules[] = 'max-width:' . esc_attr($width);
+        }
+
+        if ($align === 'center') {
+            $style_rules[] = 'margin:0 auto';
+            $style_rules[] = 'text-align:center';
+        } elseif ($align === 'right') {
+            $style_rules[] = 'margin-left:auto';
+            $style_rules[] = 'text-align:right';
+        } else {
+            $style_rules[] = 'text-align:left';
+        }
+
+        $card_style = !empty($style_rules) ? implode(';', $style_rules) : '';
+
+        ob_start();
+        echo '<div class="apollo-event-summary-wrapper">';
+
+        foreach ($events as $event_post) {
+            $event_id    = $event_post->ID;
+            $title       = get_the_title($event_id);
+            $permalink   = get_permalink($event_id);
+            $excerpt_src = get_post_field('post_excerpt', $event_id);
+
+            if (empty($excerpt_src)) {
+                $excerpt_src = get_post_field('post_content', $event_id);
+            }
+
+            $excerpt = $excerpt_src ? wp_trim_words(wp_strip_all_tags($excerpt_src), 26, '…') : '';
+
+            $start_date_raw = get_post_meta($event_id, '_event_start_date', true);
+            $start_label    = '';
+
+            if (!empty($start_date_raw)) {
+                $timestamp = strtotime($start_date_raw);
+                if ($timestamp) {
+                    $start_label = date_i18n(get_option('date_format'), $timestamp);
+                }
+            }
+
+            $location_display = '';
+            $location_meta    = get_post_meta($event_id, '_event_location', true);
+
+            if (!empty($location_meta)) {
+                if (strpos($location_meta, '|') !== false) {
+                    list($loc_name, $loc_area) = array_map('trim', explode('|', $location_meta, 2));
+                    $location_display = trim($loc_name . ' ' . ($loc_area ? '(' . $loc_area . ')' : ''));
+                } else {
+                    $location_display = trim($location_meta);
+                }
+            }
+
+            echo '<div class="apollo-card apollo-event-summary-card" style="' . esc_attr($card_style) . '">';
+            echo '  <div class="apollo-card-header">';
+            echo '      <div class="apollo-card-title"><i class="ri-calendar-event-line"></i> ' . esc_html($title) . '</div>';
+            if ($start_label) {
+                echo '      <p class="apollo-card-description"><i class="ri-time-line"></i> ' . esc_html($start_label) . '</p>';
+            }
+            if ($location_display) {
+                echo '      <p class="apollo-card-description"><i class="ri-map-pin-2-line"></i> ' . esc_html($location_display) . '</p>';
+            }
+            echo '  </div>';
+            echo '  <div class="apollo-card-body">';
+            if ($excerpt) {
+                echo '      <p class="apollo-card-text">' . esc_html($excerpt) . '</p>';
+            } else {
+                echo '      <p class="apollo-card-text">' . esc_html__('Event details coming soon.', 'apollo-events-manager') . '</p>';
+            }
+            echo '  </div>';
+            echo '  <div class="apollo-card-footer">';
+            echo '      <a class="apollo-btn apollo-btn-primary apollo-btn-sm" href="' . esc_url($permalink) . '">';
+            echo '          <i class="ri-arrow-right-line"></i> ' . esc_html__('View Event', 'apollo-events-manager');
+            echo '      </a>';
+            echo '  </div>';
+            echo '</div>';
+        }
+
+        echo '</div>';
+
         return ob_get_clean();
     }
     
@@ -721,19 +850,168 @@ class Apollo_Events_Shortcodes {
         return '<div class="apollo-dj-dashboard">DJ Dashboard coming soon.</div>';
     }
     
+    /**
+     * Output Event DJs - Lista de DJs
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_event_djs($atts) {
-        // Already implemented in main plugin file
-        return '';
+        $atts = shortcode_atts(array(
+            'event_id' => 0,
+            'per_page' => 12,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'show_bio' => false,
+            'layout' => 'grid', // grid, list, slider
+        ), $atts);
+        
+        ob_start();
+        
+        $args = array(
+            'post_type' => 'event_dj',
+            'post_status' => 'publish',
+            'posts_per_page' => absint($atts['per_page']),
+            'orderby' => $atts['orderby'],
+            'order' => $atts['order'],
+        );
+        
+        // Se especificou event_id, buscar DJs daquele evento
+        if ($atts['event_id']) {
+            $event_id = absint($atts['event_id']);
+            $dj_ids = get_post_meta($event_id, '_event_dj_ids', true);
+            
+            if (!empty($dj_ids) && is_array($dj_ids)) {
+                $args['post__in'] = array_map('absint', $dj_ids);
+                $args['orderby'] = 'post__in'; // Manter ordem do evento
+            } else {
+                // Nenhum DJ associado
+                echo '<p class="apollo-alert apollo-alert-info">' . 
+                     esc_html__('No DJs found for this event.', 'apollo-events-manager') . 
+                     '</p>';
+                return ob_get_clean();
+            }
+        }
+        
+        $djs = new WP_Query($args);
+        
+        if ($djs->have_posts()):
+            $layout_class = 'apollo-djs-' . esc_attr($atts['layout']);
+            echo '<div class="apollo-event-djs ' . $layout_class . '">';
+            
+            while ($djs->have_posts()): $djs->the_post();
+                $dj_id = get_the_ID();
+                $dj_name = get_the_title();
+                $dj_bio = $atts['show_bio'] ? get_the_excerpt() : '';
+                $dj_photo = get_the_post_thumbnail_url($dj_id, 'medium');
+                $dj_link = get_permalink($dj_id);
+                $instagram = get_post_meta($dj_id, '_dj_instagram', true);
+                $soundcloud = get_post_meta($dj_id, '_dj_soundcloud', true);
+                
+                // Include DJ card template
+                if (file_exists(APOLLO_WPEM_PATH . 'templates/dj-card.php')) {
+                    include APOLLO_WPEM_PATH . 'templates/dj-card.php';
+                } else {
+                    // Fallback basic card
+                    ?>
+                    <div class="apollo-dj-card">
+                        <?php if ($dj_photo): ?>
+                        <div class="dj-photo">
+                            <img src="<?php echo esc_url($dj_photo); ?>" alt="<?php echo esc_attr($dj_name); ?>">
+                        </div>
+                        <?php endif; ?>
+                        <div class="dj-info">
+                            <h3><a href="<?php echo esc_url($dj_link); ?>"><?php echo esc_html($dj_name); ?></a></h3>
+                            <?php if ($dj_bio): ?>
+                            <p class="dj-bio"><?php echo esc_html($dj_bio); ?></p>
+                            <?php endif; ?>
+                            <?php if ($instagram || $soundcloud): ?>
+                            <div class="dj-social">
+                                <?php if ($instagram): ?>
+                                <a href="<?php echo esc_url($instagram); ?>" target="_blank" rel="noopener" class="social-link instagram">
+                                    <i class="ri-instagram-line"></i>
+                                </a>
+                                <?php endif; ?>
+                                <?php if ($soundcloud): ?>
+                                <a href="<?php echo esc_url($soundcloud); ?>" target="_blank" rel="noopener" class="social-link soundcloud">
+                                    <i class="ri-soundcloud-line"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php
+                }
+            endwhile;
+            
+            echo '</div>';
+        else:
+            echo '<p class="apollo-alert apollo-alert-info">' . 
+                 esc_html__('No DJs found.', 'apollo-events-manager') . 
+                 '</p>';
+        endif;
+        
+        wp_reset_postdata();
+        return ob_get_clean();
     }
     
+    /**
+     * Output Single Event DJ
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_event_dj($atts) {
-        // TODO: Implement single DJ output
-        return '';
+        $atts = shortcode_atts(array(
+            'id' => 0,
+            'show_events' => true,
+            'show_bio' => true,
+            'show_social' => true,
+        ), $atts);
+        
+        $dj_id = $atts['id'] ? absint($atts['id']) : (is_singular('event_dj') ? get_the_ID() : 0);
+        
+        if (!$dj_id) {
+            return '<p class="apollo-alert apollo-alert-danger">' . 
+                   esc_html__('DJ ID is required.', 'apollo-events-manager') . 
+                   '</p>';
+        }
+        
+        $dj = get_post($dj_id);
+        if (!$dj || $dj->post_type !== 'event_dj') {
+            return '<p class="apollo-alert apollo-alert-danger">' . 
+                   esc_html__('DJ not found.', 'apollo-events-manager') . 
+                   '</p>';
+        }
+        
+        ob_start();
+        
+        // Include single DJ template
+        if (file_exists(APOLLO_WPEM_PATH . 'templates/single-event_dj.php')) {
+            include APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+        } else {
+            echo '<div class="apollo-single-dj">';
+            echo '<h2>' . esc_html($dj->post_title) . '</h2>';
+            if ($atts['show_bio']) {
+                echo '<div class="dj-bio">' . wp_kses_post($dj->post_content) . '</div>';
+            }
+            echo '</div>';
+        }
+        
+        return ob_get_clean();
     }
     
+    /**
+     * Output Single Event DJ Page
+     * Same as output_event_dj but for full page context
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_single_event_dj($atts) {
-        // Already implemented in main plugin file
-        return '';
+        // Use the same implementation as output_event_dj
+        return $this->output_event_dj($atts);
     }
     
     // Local Dashboard methods
@@ -753,19 +1031,206 @@ class Apollo_Events_Shortcodes {
         return '<div class="apollo-local-dashboard">Venue Dashboard coming soon.</div>';
     }
     
+    /**
+     * Output Event Locals/Venues - Lista de Locais
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_event_locals($atts) {
-        // Already implemented in main plugin file
-        return '';
+        $atts = shortcode_atts(array(
+            'per_page' => 12,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'show_next_events' => true,
+            'region' => '',
+            'layout' => 'grid', // grid, list, map
+        ), $atts);
+        
+        ob_start();
+        
+        $args = array(
+            'post_type' => 'event_local',
+            'post_status' => 'publish',
+            'posts_per_page' => absint($atts['per_page']),
+            'orderby' => $atts['orderby'],
+            'order' => $atts['order'],
+        );
+        
+        // Filter by region if specified
+        if (!empty($atts['region'])) {
+            $args['meta_query'][] = array(
+                'key' => '_local_region',
+                'value' => sanitize_text_field($atts['region']),
+                'compare' => 'LIKE'
+            );
+        }
+        
+        $locals = new WP_Query($args);
+        
+        if ($locals->have_posts()):
+            $layout_class = 'apollo-locals-' . esc_attr($atts['layout']);
+            echo '<div class="apollo-event-locals ' . $layout_class . '">';
+            
+            while ($locals->have_posts()): $locals->the_post();
+                $local_id = get_the_ID();
+                $local_name = get_the_title();
+                $local_region = get_post_meta($local_id, '_local_region', true);
+                $local_address = get_post_meta($local_id, '_local_address', true);
+                $local_photo = get_the_post_thumbnail_url($local_id, 'medium');
+                $local_link = get_permalink($local_id);
+                $local_capacity = get_post_meta($local_id, '_local_capacity', true);
+                
+                // Get next events for this local if requested
+                $next_events = array();
+                if ($atts['show_next_events']) {
+                    $today = current_time('Y-m-d');
+                    $events_query = new WP_Query(array(
+                        'post_type' => 'event_listing',
+                        'post_status' => 'publish',
+                        'posts_per_page' => 3,
+                        'orderby' => 'meta_value',
+                        'order' => 'ASC',
+                        'meta_key' => '_event_start_date',
+                        'meta_type' => 'DATETIME',
+                        'meta_query' => array(
+                            array(
+                                'key' => '_event_local_ids',
+                                'value' => '"' . $local_id . '"',
+                                'compare' => 'LIKE'
+                            ),
+                            array(
+                                'key' => '_event_start_date',
+                                'value' => $today,
+                                'compare' => '>=',
+                                'type' => 'DATE'
+                            )
+                        )
+                    ));
+                    
+                    if ($events_query->have_posts()) {
+                        while ($events_query->have_posts()) {
+                            $events_query->the_post();
+                            $next_events[] = array(
+                                'id' => get_the_ID(),
+                                'title' => get_the_title(),
+                                'date' => get_post_meta(get_the_ID(), '_event_start_date', true),
+                                'link' => get_permalink()
+                            );
+                        }
+                        wp_reset_postdata();
+                    }
+                }
+                
+                // Include local card template
+                if (file_exists(APOLLO_WPEM_PATH . 'templates/local-card.php')) {
+                    include APOLLO_WPEM_PATH . 'templates/local-card.php';
+                } else {
+                    // Fallback basic card
+                    ?>
+                    <div class="apollo-local-card">
+                        <?php if ($local_photo): ?>
+                        <div class="local-photo">
+                            <img src="<?php echo esc_url($local_photo); ?>" alt="<?php echo esc_attr($local_name); ?>">
+                        </div>
+                        <?php endif; ?>
+                        <div class="local-info">
+                            <h3><a href="<?php echo esc_url($local_link); ?>"><?php echo esc_html($local_name); ?></a></h3>
+                            <?php if ($local_region): ?>
+                            <p class="local-region"><i class="ri-map-pin-line"></i> <?php echo esc_html($local_region); ?></p>
+                            <?php endif; ?>
+                            <?php if ($local_capacity): ?>
+                            <p class="local-capacity"><i class="ri-group-line"></i> <?php echo esc_html($local_capacity); ?> pessoas</p>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($next_events)): ?>
+                            <div class="local-next-events">
+                                <h4><?php esc_html_e('Próximos Eventos', 'apollo-events-manager'); ?></h4>
+                                <ul>
+                                <?php foreach ($next_events as $event): ?>
+                                    <li>
+                                        <a href="<?php echo esc_url($event['link']); ?>">
+                                            <?php echo esc_html($event['title']); ?>
+                                            <span class="event-date"><?php echo esc_html(date('d/m', strtotime($event['date']))); ?></span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                                </ul>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php
+                }
+            endwhile;
+            
+            echo '</div>';
+        else:
+            echo '<p class="apollo-alert apollo-alert-info">' . 
+                 esc_html__('No venues found.', 'apollo-events-manager') . 
+                 '</p>';
+        endif;
+        
+        wp_reset_postdata();
+        return ob_get_clean();
     }
     
+    /**
+     * Output Single Event Local
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_event_local($atts) {
-        // TODO: Implement single Local output
-        return '';
+        $atts = shortcode_atts(array(
+            'id' => 0,
+            'show_events' => true,
+            'show_description' => true,
+            'show_map' => true,
+        ), $atts);
+        
+        $local_id = $atts['id'] ? absint($atts['id']) : (is_singular('event_local') ? get_the_ID() : 0);
+        
+        if (!$local_id) {
+            return '<p class="apollo-alert apollo-alert-danger">' . 
+                   esc_html__('Venue ID is required.', 'apollo-events-manager') . 
+                   '</p>';
+        }
+        
+        $local = get_post($local_id);
+        if (!$local || $local->post_type !== 'event_local') {
+            return '<p class="apollo-alert apollo-alert-danger">' . 
+                   esc_html__('Venue not found.', 'apollo-events-manager') . 
+                   '</p>';
+        }
+        
+        ob_start();
+        
+        // Include single local template
+        if (file_exists(APOLLO_WPEM_PATH . 'templates/single-event_local.php')) {
+            include APOLLO_WPEM_PATH . 'templates/single-event_local.php';
+        } else {
+            echo '<div class="apollo-single-local">';
+            echo '<h2>' . esc_html($local->post_title) . '</h2>';
+            if ($atts['show_description']) {
+                echo '<div class="local-description">' . wp_kses_post($local->post_content) . '</div>';
+            }
+            echo '</div>';
+        }
+        
+        return ob_get_clean();
     }
     
+    /**
+     * Output Single Event Local Page
+     * Same as output_event_local but for full page context
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
     public function output_single_event_local($atts) {
-        // Already implemented in main plugin file
-        return '';
+        // Use the same implementation as output_event_local
+        return $this->output_event_local($atts);
     }
 }
 

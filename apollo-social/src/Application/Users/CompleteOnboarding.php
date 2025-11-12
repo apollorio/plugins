@@ -185,7 +185,7 @@ class CompleteOnboarding
             instagram_username varchar(30) NOT NULL,
             whatsapp_number varchar(20) NOT NULL,
             verify_token varchar(100) NOT NULL,
-            verify_status enum('awaiting_instagram_verify','verified','rejected') DEFAULT 'awaiting_instagram_verify',
+            verify_status enum('awaiting_instagram_verify','dm_requested','verified','rejected') DEFAULT 'awaiting_instagram_verify',
             verify_assets longtext DEFAULT NULL,
             submitted_at datetime NOT NULL,
             reviewed_at datetime DEFAULT NULL,

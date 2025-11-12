@@ -5,21 +5,19 @@ namespace Apollo\Modules\Signatures\Services;
 use Apollo\Modules\Signatures\Models\DocumentTemplate;
 use Apollo\Modules\Signatures\Models\DigitalSignature;
 use Apollo\Modules\Signatures\Repositories\TemplatesRepository;
-use Apollo\Modules\Signatures\Adapters\DocuSealApi;
 use Apollo\Modules\Signatures\Adapters\GovbrApi;
 
 /**
  * Signatures Service
  * 
  * Main service for digital signatures with multiple providers
- * Supports: DocuSeal (advanced), GOV.BR (qualified), ICP-Brasil (qualified)
+ * Supports: GOV.BR (qualified), ICP-Brasil (qualified)
  * 
  * @since 1.0.0
  */
 class SignaturesService
 {
     // Signature tracks according to Lei 14.063/2020
-    const TRACK_A = 'track_a'; // Trilho A: Assinatura rápida (DocuSeal)
     const TRACK_B = 'track_b'; // Trilho B: Assinatura qualificada (GOV.BR/ICP-Brasil)
 
     /** @var TemplatesRepository */
@@ -27,9 +25,6 @@ class SignaturesService
     
     /** @var RenderService */
     private $render_service;
-    
-    /** @var DocuSealApi */
-    private $docuseal_api;
     
     /** @var GovbrApi */
     private $govbr_api;
@@ -46,7 +41,6 @@ class SignaturesService
         
         $this->templates_repository = new TemplatesRepository();
         $this->render_service = new RenderService();
-        $this->docuseal_api = new DocuSealApi();
         $this->govbr_api = new GovbrApi();
         $this->signatures_table = $wpdb->prefix . 'apollo_digital_signatures';
     }
@@ -70,7 +64,7 @@ class SignaturesService
             signer_email varchar(255) NOT NULL,
             signer_document varchar(20),
             signature_level enum('simple','advanced','qualified') NOT NULL,
-            provider enum('docuseal','govbr','icp_provider') NOT NULL,
+            provider enum('govbr','icp_provider') NOT NULL,
             provider_envelope_id varchar(255),
             signing_url text,
             status enum('pending','signed','declined','expired','error') DEFAULT 'pending',
@@ -109,7 +103,7 @@ class SignaturesService
         int $template_id, 
         array $template_data, 
         array $signer_info, 
-        string $track = self::TRACK_A,
+        string $track = self::TRACK_B,
         array $options = []
     ): DigitalSignature|false {
         
@@ -195,10 +189,6 @@ class SignaturesService
     private function getProviderAndLevel(string $track, array $options = []): array
     {
         switch ($track) {
-            case self::TRACK_A:
-                // Trilho A: Assinatura rápida com DocuSeal (avançada)
-                return ['docuseal', DigitalSignature::LEVEL_ADVANCED];
-                
             case self::TRACK_B:
                 // Trilho B: Assinatura qualificada
                 $provider = $options['provider'] ?? 'govbr';
@@ -210,7 +200,7 @@ class SignaturesService
                 }
                 
             default:
-                return ['docuseal', DigitalSignature::LEVEL_ADVANCED];
+                return ['govbr', DigitalSignature::LEVEL_QUALIFIED];
         }
     }
 
@@ -225,18 +215,15 @@ class SignaturesService
     private function createEnvelope(DigitalSignature $signature, string $pdf_path, array $options = []): array|false
     {
         switch ($signature->provider) {
-            case 'docuseal':
-                return $this->docuseal_api->createEnvelope($signature, $pdf_path, $options);
-                
             case 'govbr':
                 return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
                 
             case 'icp_provider':
-                // TODO: Implement other ICP-Brasil providers
+                // Other ICP-Brasil providers use GOV.BR infrastructure
                 return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
                 
             default:
-                return false;
+                return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
         }
     }
 
@@ -310,14 +297,11 @@ class SignaturesService
     {
         try {
             switch ($provider) {
-                case 'docuseal':
-                    return $this->docuseal_api->processWebhook($payload);
-                    
                 case 'govbr':
                     return $this->govbr_api->processWebhook($payload);
                     
                 default:
-                    return false;
+                    return $this->govbr_api->processWebhook($payload);
             }
         } catch (\Exception $e) {
             error_log('Apollo Signatures Webhook Error: ' . $e->getMessage());

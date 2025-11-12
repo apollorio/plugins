@@ -46,19 +46,6 @@ return [
         'leaderboard_integration' => true
     ],
     
-    'docuseal' => [
-        'enabled' => true,
-        'api_endpoint' => '',
-        'api_key' => '',
-        'webhook_secret' => '',
-        'auto_process' => true,
-        'template_mapping' => [
-            'membership_agreement' => '',
-            'season_contract' => '',
-            'classified_terms' => ''
-        ]
-    ],
-    
     'elementor' => [
         'enabled' => true,
         'widget_categories' => ['apollo-social'],

@@ -54,10 +54,10 @@ class OnboardingEndpoints
             'args' => $this->getCompleteOnboardingArgs()
         ]);
         
-        // Upload verification assets
-        register_rest_route('apollo/v1', '/onboarding/verify/upload', [
+        // Request DM verification (user)
+        register_rest_route('apollo/v1', '/onboarding/verify/request-dm', [
             'methods' => 'POST',
-            'callback' => [$this, 'uploadVerificationAssets'],
+            'callback' => [$this, 'requestDmVerification'],
             'permission_callback' => [$this, 'checkUserPermission']
         ]);
         
@@ -68,11 +68,18 @@ class OnboardingEndpoints
             'permission_callback' => [$this, 'checkUserPermission']
         ]);
         
-        // Delete verification assets (for re-upload)
-        register_rest_route('apollo/v1', '/onboarding/verify/delete', [
-            'methods' => 'DELETE',
-            'callback' => [$this, 'deleteVerificationAssets'],
-            'permission_callback' => [$this, 'checkUserPermission']
+        // Confirm verification (admin/mod)
+        register_rest_route('apollo/v1', '/onboarding/verify/confirm', [
+            'methods' => 'POST',
+            'callback' => [$this, 'confirmVerification'],
+            'permission_callback' => [$this, 'checkAdminPermission']
+        ]);
+        
+        // Cancel verification (admin/mod)
+        register_rest_route('apollo/v1', '/onboarding/verify/cancel', [
+            'methods' => 'POST',
+            'callback' => [$this, 'cancelVerification'],
+            'permission_callback' => [$this, 'checkAdminPermission']
         ]);
         
         // Get user profile
@@ -192,9 +199,9 @@ class OnboardingEndpoints
     }
     
     /**
-     * Upload verification assets
+     * Request DM verification (user)
      */
-    public function uploadVerificationAssets(\WP_REST_Request $request): \WP_REST_Response
+    public function requestDmVerification(\WP_REST_Request $request): \WP_REST_Response
     {
         try {
             $user_id = get_current_user_id();
@@ -205,23 +212,22 @@ class OnboardingEndpoints
                 ], 401);
             }
             
-            // Get uploaded files
-            $files = $request->get_file_params();
-            
-            if (empty($files)) {
+            // Rate limiting: 1 request per minute
+            $rate_check = $this->checkDmRequestRateLimit($user_id);
+            if (!$rate_check['allowed']) {
                 return new \WP_REST_Response([
                     'success' => false,
-                    'message' => 'Nenhum arquivo enviado'
-                ], 400);
+                    'message' => "Aguarde {$rate_check['wait_time']} segundos antes de solicitar novamente"
+                ], 429);
             }
             
-            // Process upload
-            $result = $this->verifyInstagram->handleUpload($user_id, $files);
+            // Request DM verification
+            $result = $this->verifyInstagram->requestDmVerification($user_id);
             
             return new \WP_REST_Response($result, $result['success'] ? 200 : 400);
             
         } catch (\Exception $e) {
-            error_log('OnboardingEndpoints::uploadVerificationAssets error: ' . $e->getMessage());
+            error_log('OnboardingEndpoints::requestDmVerification error: ' . $e->getMessage());
             
             return new \WP_REST_Response([
                 'success' => false,
@@ -262,25 +268,72 @@ class OnboardingEndpoints
     }
     
     /**
-     * Delete verification assets
+     * Confirm verification (admin/mod)
      */
-    public function deleteVerificationAssets(\WP_REST_Request $request): \WP_REST_Response
+    public function confirmVerification(\WP_REST_Request $request): \WP_REST_Response
     {
         try {
-            $user_id = get_current_user_id();
+            if (!current_user_can('manage_options') && !current_user_can('edit_users')) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'message' => 'Sem permissão'
+                ], 403);
+            }
+            
+            $params = $request->get_json_params();
+            $user_id = isset($params['user_id']) ? intval($params['user_id']) : 0;
+            
             if (!$user_id) {
                 return new \WP_REST_Response([
                     'success' => false,
-                    'message' => 'Usuário não autenticado'
-                ], 401);
+                    'message' => 'ID do usuário inválido'
+                ], 400);
             }
             
-            $result = $this->verifyInstagram->deleteAssets($user_id);
+            $result = $this->verifyInstagram->confirmVerification($user_id, get_current_user_id());
             
             return new \WP_REST_Response($result, $result['success'] ? 200 : 400);
             
         } catch (\Exception $e) {
-            error_log('OnboardingEndpoints::deleteVerificationAssets error: ' . $e->getMessage());
+            error_log('OnboardingEndpoints::confirmVerification error: ' . $e->getMessage());
+            
+            return new \WP_REST_Response([
+                'success' => false,
+                'message' => 'Erro interno no servidor'
+            ], 500);
+        }
+    }
+    
+    /**
+     * Cancel verification (admin/mod)
+     */
+    public function cancelVerification(\WP_REST_Request $request): \WP_REST_Response
+    {
+        try {
+            if (!current_user_can('manage_options') && !current_user_can('edit_users')) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'message' => 'Sem permissão'
+                ], 403);
+            }
+            
+            $params = $request->get_json_params();
+            $user_id = isset($params['user_id']) ? intval($params['user_id']) : 0;
+            $reason = isset($params['reason']) ? sanitize_textarea_field($params['reason']) : '';
+            
+            if (!$user_id) {
+                return new \WP_REST_Response([
+                    'success' => false,
+                    'message' => 'ID do usuário inválido'
+                ], 400);
+            }
+            
+            $result = $this->verifyInstagram->cancelVerification($user_id, get_current_user_id(), $reason);
+            
+            return new \WP_REST_Response($result, $result['success'] ? 200 : 400);
+            
+        } catch (\Exception $e) {
+            error_log('OnboardingEndpoints::cancelVerification error: ' . $e->getMessage());
             
             return new \WP_REST_Response([
                 'success' => false,
@@ -342,6 +395,34 @@ class OnboardingEndpoints
         wp_cache_set($cache_key, $requests + 1, '', HOUR_IN_SECONDS);
         
         return true;
+    }
+    
+    /**
+     * Check admin/mod permission for API access
+     */
+    public function checkAdminPermission(\WP_REST_Request $request): bool
+    {
+        return current_user_can('manage_options') || current_user_can('edit_users');
+    }
+    
+    /**
+     * Check DM request rate limit (1 per minute)
+     */
+    private function checkDmRequestRateLimit(int $user_id): array
+    {
+        $cache_key = "apollo_dm_request_rate_limit_{$user_id}";
+        $last_request = wp_cache_get($cache_key);
+        
+        if ($last_request && (time() - $last_request) < 60) {
+            return [
+                'allowed' => false,
+                'wait_time' => 60 - (time() - $last_request)
+            ];
+        }
+        
+        wp_cache_set($cache_key, time(), '', 60);
+        
+        return ['allowed' => true];
     }
     
     /**

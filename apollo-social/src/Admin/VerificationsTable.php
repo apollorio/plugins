@@ -287,14 +287,21 @@ class VerificationsTable
                     Ver Detalhes
                 </button>
                 
-                <?php if (in_array($verification['verify_status'], ['assets_submitted'])): ?>
-                    <button class="apollo-btn small success verify-user" data-user-id="<?php echo esc_attr($verification['user_id']); ?>">
+                <?php if (in_array($verification['verify_status'], ['dm_requested', 'awaiting_instagram_verify'])): ?>
+                    <button class="apollo-btn small success verify-user" data-user-id="<?php echo esc_attr($verification['user_id']); ?>" title="Marcar como verificado (DM OK)">
                         <span class="btn-icon">✅</span>
-                        Verificar
+                        Marcar como verificado (DM OK)
                     </button>
-                    <button class="apollo-btn small danger reject-user" data-user-id="<?php echo esc_attr($verification['user_id']); ?>">
+                    <button class="apollo-btn small warning cancel-verification" data-user-id="<?php echo esc_attr($verification['user_id']); ?>" title="Cancelar/Esperando DM">
+                        <span class="btn-icon">⏸️</span>
+                        Cancelar/Esperando DM
+                    </button>
+                <?php endif; ?>
+                
+                <?php if (in_array($verification['verify_status'], ['dm_requested', 'awaiting_instagram_verify'])): ?>
+                    <button class="apollo-btn small danger reject-user" data-user-id="<?php echo esc_attr($verification['user_id']); ?>" title="Rejeitar (opcional)">
                         <span class="btn-icon">❌</span>
-                        Rejeitar
+                        Rejeitar (opcional)
                     </button>
                 <?php endif; ?>
             </div>

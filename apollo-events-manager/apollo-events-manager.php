@@ -209,7 +209,7 @@ class Apollo_Events_Manager_Plugin {
             }
             
             // Load migration validator
-            require_once APOLLO_WPEM_PATH . 'includes/migration-validator.php';
+        // Legacy micromodal scripts are intentionally skipped for the Step 2 release.
         }
         
         // Backward compatibility layer (prevents fatal errors if WPEM reactivated)
@@ -455,6 +455,27 @@ class Apollo_Events_Manager_Plugin {
             '4.7.0',
             'all'
         );
+
+        // ============================================
+        // FORCE LOAD: Apollo ShadCN Components + modal shell
+        // ============================================
+        wp_enqueue_style(
+            'apollo-shadcn-components',
+            APOLLO_WPEM_URL . 'assets/css/apollo-shadcn-components.css',
+            array('apollo-uni-css', 'remixicon'),
+            APOLLO_WPEM_VERSION,
+            'all'
+        );
+
+        wp_enqueue_style(
+            'apollo-event-modal-css',
+            APOLLO_WPEM_URL . 'assets/css/event-modal.css',
+            array('apollo-shadcn-components'),
+            APOLLO_WPEM_VERSION,
+            'all'
+        );
+
+        // Legacy micromodal scripts intentionally skipped for Step 2 release.
 
         // ============================================
         // CONDITIONAL: base.js (events portal/listing)
@@ -723,14 +744,29 @@ class Apollo_Events_Manager_Plugin {
      * Eventos Page Shortcode (Complete Portal)
      */
     public function eventos_page_shortcode($atts) {
-        ob_start();
-        
-        // Get config safely
         $config = apollo_cfg();
-        if (!is_array($config) || !isset($config['cpt']) || !is_array($config['cpt']) || !isset($config['cpt']['event'])) {
+        if (!is_array($config) || !isset($config['cpt']['event'])) {
             return '<p>' . esc_html__('Configuration error.', 'apollo-events-manager') . '</p>';
         }
 
+        $template = APOLLO_WPEM_PATH . 'templates/portal-discover.php';
+        if (file_exists($template)) {
+            ob_start();
+
+            /**
+             * STEP-2 RELEASE NOTE:
+             * /eventos/ always renders `portal-discover.php` and relies on the
+             * iframe modal logic inside that template. Legacy hash/lightbox
+             * flows stay disabled until a dedicated follow-up.
+             */
+            include $template;
+
+            return ob_get_clean();
+        }
+
+        ob_start();
+
+        // Legacy fallback kept for safety if template is missing
         $event_post_type = $config['cpt']['event'];
         
         // Get all events
@@ -858,7 +894,8 @@ class Apollo_Events_Manager_Plugin {
             
         </div>
 
-        <!-- Lightbox Modal for Single Event -->
+    <!-- Legacy fallback modal markup. Step 2 canonical flow uses portal-discover.php iframe modal. -->
+    <!-- Lightbox Modal for Single Event -->
         <div id="eventLightbox" class="event-lightbox" style="display:none;">
             <div class="event-lightbox-overlay"></div>
             <div class="event-lightbox-content">
