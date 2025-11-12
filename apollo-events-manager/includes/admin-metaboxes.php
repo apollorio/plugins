@@ -94,8 +94,64 @@ class Apollo_Events_Admin_Metaboxes {
         
         $event_video_url = get_post_meta($post->ID, '_event_video_url', true);
         
+        // Get event dates
+        $event_start_date = get_post_meta($post->ID, '_event_start_date', true);
+        $event_end_date = get_post_meta($post->ID, '_event_end_date', true);
+        $event_start_time = get_post_meta($post->ID, '_event_start_time', true);
+        $event_end_time = get_post_meta($post->ID, '_event_end_time', true);
+        
         ?>
         <div class="apollo-metabox-container">
+            
+            <!-- ===== DATE & TIME SECTION ===== -->
+            <div class="apollo-field-group">
+                <h3><?php _e('Data e Horário do Evento', 'apollo-events-manager'); ?></h3>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_start_date"><?php _e('Data de Início:', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="date" 
+                        name="apollo_event_start_date" 
+                        id="apollo_event_start_date" 
+                        class="widefat" 
+                        value="<?php echo esc_attr($event_start_date); ?>"
+                        required
+                    >
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_start_time"><?php _e('Hora de Início:', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="time" 
+                        name="apollo_event_start_time" 
+                        id="apollo_event_start_time" 
+                        class="widefat" 
+                        value="<?php echo esc_attr($event_start_time); ?>"
+                    >
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_end_date"><?php _e('Data de Término (opcional):', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="date" 
+                        name="apollo_event_end_date" 
+                        id="apollo_event_end_date" 
+                        class="widefat" 
+                        value="<?php echo esc_attr($event_end_date); ?>"
+                    >
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_end_time"><?php _e('Hora de Término (opcional):', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="time" 
+                        name="apollo_event_end_time" 
+                        id="apollo_event_end_time" 
+                        class="widefat" 
+                        value="<?php echo esc_attr($event_end_time); ?>"
+                    >
+                </div>
+            </div>
             
             <!-- ===== DJS SECTION ===== -->
             <div class="apollo-field-group">
@@ -422,6 +478,31 @@ class Apollo_Events_Admin_Metaboxes {
         
         if (!current_user_can('edit_post', $post_id)) {
             return;
+        }
+        
+        // ✅ Save Date & Time fields
+        if (!empty($_POST['apollo_event_start_date'])) {
+            update_post_meta($post_id, '_event_start_date', sanitize_text_field($_POST['apollo_event_start_date']));
+        } else {
+            delete_post_meta($post_id, '_event_start_date');
+        }
+        
+        if (!empty($_POST['apollo_event_start_time'])) {
+            update_post_meta($post_id, '_event_start_time', sanitize_text_field($_POST['apollo_event_start_time']));
+        } else {
+            delete_post_meta($post_id, '_event_start_time');
+        }
+        
+        if (!empty($_POST['apollo_event_end_date'])) {
+            update_post_meta($post_id, '_event_end_date', sanitize_text_field($_POST['apollo_event_end_date']));
+        } else {
+            delete_post_meta($post_id, '_event_end_date');
+        }
+        
+        if (!empty($_POST['apollo_event_end_time'])) {
+            update_post_meta($post_id, '_event_end_time', sanitize_text_field($_POST['apollo_event_end_time']));
+        } else {
+            delete_post_meta($post_id, '_event_end_time');
         }
         
         // ✅ Save DJs (WordPress handles serialization automatically)
