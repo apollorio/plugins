@@ -63,14 +63,22 @@
         const eventCards = document.querySelectorAll('.event_listing');
         const targetMonth = selectedMonth + 1; // 1-based
         const targetYear = selectedYear;
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        // If viewing current month, show all events (no filter needed on initial load)
+        const isCurrentMonth = (targetMonth === currentMonth && targetYear === currentYear);
 
         let visibleCount = 0;
 
         eventCards.forEach(function(card) {
             const startDate = card.getAttribute('data-event-start-date');
             
-            if (!startDate) {
-                card.style.display = 'none';
+            // If no date or viewing current month, show the card
+            if (!startDate || isCurrentMonth) {
+                card.style.display = '';
+                visibleCount++;
                 return;
             }
 

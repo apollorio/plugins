@@ -263,6 +263,7 @@ get_header(); // Use WordPress header
                             
                             $day      = $date_info['day'];
                             $month_pt = $date_info['month_pt'];
+                            $iso_date = $date_info['iso_date']; // Y-m-d format for data attribute
                         
                         // ============================================
                         // DJs: LÓGICA ROBUSTA COM FALLBACKS (CORRIGIDA)
