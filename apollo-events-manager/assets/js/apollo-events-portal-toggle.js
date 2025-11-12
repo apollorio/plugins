@@ -9,3 +9,4 @@ window.toggleLayout = function () {
   if (pref === 'grid') document.documentElement.classList.add('aem-grid');
 })();
 
+

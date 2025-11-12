@@ -28,24 +28,65 @@ if (!defined('APOLLO_DEBUG')) {
     define('APOLLO_DEBUG', false);
 }
 
-            $out[] = array(
-                'dj'   => $dj,
-                'from' => $from,
-                'to'   => $to,
+if (!function_exists('apollo_eve_parse_start_date')) {
+    /**
+     * Helper function: Parse event start date.
+     *
+     * Accepts raw event start dates in "Y-m-d", "Y-m-d H:i:s" or any format supported by strtotime().
+     *
+     * @param mixed $raw Raw event start date value.
+     * @return array{
+     *     timestamp:int|null,
+     *     day:string,
+     *     month_pt:string,
+     *     iso_date:string,
+     *     iso_dt:string
+     * }
+     */
+    function apollo_eve_parse_start_date($raw) {
+        $raw = trim((string) $raw);
+
+        if ($raw === '') {
+            return array(
+                'timestamp' => null,
+                'day'       => '',
+                'month_pt'  => '',
+                'iso_date'  => '',
+                'iso_dt'    => '',
             );
         }
 
-        if (!empty($out)) {
-            usort(
-                $out,
-                static function ($a, $b) {
-                    return strcmp($a['from'], $b['from']);
-                }
+        $ts = strtotime($raw);
+
+        if (!$ts) {
+            $dt = DateTime::createFromFormat('Y-m-d', $raw);
+            if ($dt instanceof DateTime) {
+                $ts = $dt->getTimestamp();
+            }
+        }
+
+        if (!$ts) {
+            return array(
+                'timestamp' => null,
+                'day'       => '',
+                'month_pt'  => '',
+                'iso_date'  => '',
+                'iso_dt'    => '',
             );
         }
 
-        return $out;
+        $pt_months = array('jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez');
+        $month_idx = (int) date_i18n('n', $ts) - 1;
+
+        return array(
+            'timestamp' => $ts,
+            'day'       => date_i18n('d', $ts),
+            'month_pt'  => $pt_months[$month_idx] ?? '',
+            'iso_date'  => date_i18n('Y-m-d', $ts),
+            'iso_dt'    => date_i18n('Y-m-d H:i:s', $ts),
+        );
     }
+}
 
 // apollo-events-manager.php (top-level helper) - DEFENSIVE VERSION
 function apollo_cfg(): array {
@@ -71,35 +112,6 @@ function apollo_cfg(): array {
 
     $cfg = is_array($loaded) ? $loaded : array();
     return $cfg;
- * Helper function: Parse event start date
-            $dt = DateTime::createFromFormat('Y-m-d', $raw);
-            if ($dt instanceof DateTime) {
-                $ts = $dt->getTimestamp();
-            }
-        }
-        
-        if (!$ts) {
-            // nada deu certo
-            return array(
-                'timestamp' => null,
-                'day'       => '',
-                'month_pt'  => '',
-                'iso_date'  => '',
-                'iso_dt'    => '',
-            );
-        }
-        
-        $pt_months = array('jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez');
-        $month_idx = (int) date_i18n('n', $ts) - 1;
-        
-        return array(
-            'timestamp' => $ts,
-            'day'       => date_i18n('d', $ts),
-            'month_pt'  => $pt_months[$month_idx] ?? '',
-            'iso_date'  => date_i18n('Y-m-d', $ts),
-            'iso_dt'    => date_i18n('Y-m-d H:i:s', $ts),
-        );
-    }
 }
 
 if (!function_exists('apollo_aem_bootstrap_versioning')) {
@@ -194,61 +206,59 @@ if (!function_exists('apollo_sanitize_timetable')) {
     }
 }
 
-// apollo-events-manager.php (top-level helper) - DEFENSIVE VERSION
-function apollo_cfg(): array {
-    static $cfg = null;
-    if ($cfg !== null) {
-        return $cfg;
-    }
-
-    $path = plugin_dir_path(__FILE__) . 'includes/config.php';
-    if (!file_exists($path)) {
-        return array();
-    }
-
-    // Capture output buffer to prevent leaks
-    ob_start();
-    $loaded = include $path;
-    $leaked = ob_get_clean();
-
-    // Log if config leaked content
-    if (!empty($leaked)) {
-        error_log('Apollo Config leaked content: ' . $leaked);
-    }
-
-    $cfg = is_array($loaded) ? $loaded : array();
-    return $cfg;
+// Migration helpers
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/migrations.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/migrations.php';
 }
 
-// Migration helpers
-require_once plugin_dir_path(__FILE__) . 'includes/migrations.php';
-
 // Core helpers
-require_once plugin_dir_path(__FILE__) . 'includes/cache.php';
-require_once plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php';
-require_once plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/cache.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/cache.php';
+}
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php';
+}
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php';
+}
 
 // Include AJAX handlers
-require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
+}
 
 // Load placeholder registry and access API
-require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php';
+}
 
 // Load analytics and statistics
-require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
+}
 
 // Load organized shortcodes and widgets
-require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
-require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
+}
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
+}
 
 // Load Save-Date cleaner
-require_once plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php';
+}
 
 // Load public event form
-require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/public-event-form.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
+}
 
 // Load role badges system
-require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/role-badges.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
+}
 
 add_action(
     'init',
