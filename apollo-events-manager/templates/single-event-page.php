@@ -18,13 +18,17 @@ $description = get_post_meta($event_id, '_event_description', true) ?: get_the_c
 $tickets_url = get_post_meta($event_id, '_tickets_ext', true);
 $cupom_ario = get_post_meta($event_id, '_cupom_ario', true);
 $promo_images = get_post_meta($event_id, '_3_imagens_promo', true);
-$timetable = get_post_meta($event_id, '_timetable', true);
+$timetable = apollo_sanitize_timetable(get_post_meta($event_id, '_event_timetable', true));
+if (empty($timetable)) {
+    $timetable = apollo_sanitize_timetable(get_post_meta($event_id, '_timetable', true));
+}
 $final_image = get_post_meta($event_id, '_imagem_final', true);
 
 // Local data with comprehensive validation
-$local_id = get_post_meta($event_id, '_event_local', true);
-if (empty($local_id)) {
-    $local_id = get_post_meta($event_id, '_event_local_ids', true);
+$local_id = apollo_get_primary_local_id($event_id);
+if (!$local_id) {
+    $legacy   = get_post_meta($event_id, '_event_local', true);
+    $local_id = $legacy ? (int) $legacy : 0;
 }
 
 $local_name = get_post_meta($event_id, '_event_location', true);
@@ -34,7 +38,7 @@ $local_lat = '';
 $local_long = '';
 
 // Only process if we have a valid local ID
-if (!empty($local_id) && is_numeric($local_id)) {
+if ($local_id) {
     $local_post = get_post($local_id);
 
     if ($local_post && $local_post->post_status === 'publish') {
@@ -132,8 +136,18 @@ if ($video_url) {
     }
 }
 
-// Count favorites (sample - replace with real user data)
-$favorites_count = 40;
+// Count favorites
+$favorites_count_meta = get_post_meta($event_id, '_favorites_count', true);
+$favorites_count = is_numeric($favorites_count_meta) ? max(0, intval($favorites_count_meta)) : 0;
+
+$user_has_favorited = false;
+if (is_user_logged_in()) {
+    $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
+    if (is_array($user_favorites)) {
+        $user_favorites = array_map('intval', $user_favorites);
+        $user_has_favorited = in_array((int) $event_id, $user_favorites, true);
+    }
+}
 ?>
 
 <div class="mobile-container">
@@ -189,8 +203,18 @@ $favorites_count = 40;
                 <div class="quick-action-icon"><i class="ri-treasure-map-line"></i></div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <a href="#" class="quick-action" id="favoriteTrigger">
-                <div class="quick-action-icon"><i class="ri-rocket-line"></i></div>
+            <a
+                href="#"
+                class="quick-action apollo-favorite-trigger"
+                id="favoriteTrigger"
+                data-apollo-favorite
+                data-event-id="<?php echo esc_attr($event_id); ?>"
+                data-favorited="<?php echo $user_has_favorited ? '1' : '0'; ?>"
+                data-apollo-favorite-count=".apollo-favorite-count"
+                data-apollo-favorite-icon-active="ri-rocket-fill"
+                data-apollo-favorite-icon-inactive="ri-rocket-line"
+            >
+                <div class="quick-action-icon"><i class="<?php echo $user_has_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i></div>
                 <span class="quick-action-label">Interesse</span>
             </a>
         </div>
@@ -210,7 +234,13 @@ $favorites_count = 40;
                 <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/8.jpg')"></div>
                 <div class="avatar-count">+35</div>
                 <p class="interested-text" style="margin: 0 8px 0px 20px;">
-                    <i class="ri-bar-chart-2-fill"></i> <span id="result"><?php echo $favorites_count; ?> interessados</span>
+                    <i class="ri-bar-chart-2-fill"></i>
+                    <span
+                        id="result"
+                        class="apollo-favorite-count"
+                        data-count-prefix=""
+                        data-count-suffix=" interessados"
+                    ><?php echo esc_html($favorites_count); ?> interessados</span>
                 </p>
             </div>
         </div>

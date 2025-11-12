@@ -39,6 +39,7 @@ apollo-events-manager/
 │   ├── config.php                     # Configurações
 │   ├── data-migration.php             # Migrações de dados
 │   ├── migration-validator.php        # Validação de migrações
+│   ├── cache.php                      # Helpers de cache/transients
 │   └── post-types.php                 # CPTs e taxonomias
 ├── templates/
 │   ├── apollo-canvas.php             # Canvas wrapper
@@ -398,6 +399,14 @@ apollo_event_get_location_area($event_id)
 ```php
 apollo_event_get_dj_names($event_id)
 ```
+
+### 11. Cache & Performance Helpers
+
+**Arquivo:** `includes/cache.php`
+
+- `aem_events_transient_key()` → Retorna slug padrão `apollo_events:list:futuro`
+- Hook `save_post_event_listing` → Invalida transients quando evento é salvo (exceto autosave/revisão)
+- Integra com formulários frontend (`[submit_event_form]`) para manter listagens atualizadas
 
 #### Banner Helpers
 ```php

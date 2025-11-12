@@ -19,6 +19,7 @@ if (!defined('ABSPATH')) {
 
 // Define constants
 define('APOLLO_WPEM_VERSION', '0.1.0');
+define('APOLLO_AEM_VERSION', '2.1.0');
 define('APOLLO_WPEM_PATH', plugin_dir_path(__FILE__));
 define('APOLLO_WPEM_URL', plugin_dir_url(__FILE__));
 
@@ -27,30 +28,50 @@ if (!defined('APOLLO_DEBUG')) {
     define('APOLLO_DEBUG', false);
 }
 
-/**
- * Helper function: Parse event start date
- * Aceita _event_start_date em "Y-m-d", "Y-m-d H:i:s" ou o que strtotime() aceitar.
- * Retorna array com: timestamp, day, month_pt, iso_date, iso_dt
- */
-if (!function_exists('apollo_eve_parse_start_date')) {
-    function apollo_eve_parse_start_date($raw) {
-        $raw = trim((string) $raw);
-        
-        if ($raw === '') {
-            return array(
-                'timestamp' => null,
-                'day'       => '',
-                'month_pt'  => '',
-                'iso_date'  => '',
-                'iso_dt'    => '',
+            $out[] = array(
+                'dj'   => $dj,
+                'from' => $from,
+                'to'   => $to,
             );
         }
-        
-        // 1) tenta parser direto
-        $ts = strtotime($raw);
-        
-        // 2) fallback: se vier só "Y-m-d", garante datetime
-        if (!$ts) {
+
+        if (!empty($out)) {
+            usort(
+                $out,
+                static function ($a, $b) {
+                    return strcmp($a['from'], $b['from']);
+                }
+            );
+        }
+
+        return $out;
+    }
+
+// apollo-events-manager.php (top-level helper) - DEFENSIVE VERSION
+function apollo_cfg(): array {
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+
+    $path = plugin_dir_path(__FILE__) . 'includes/config.php';
+    if (!file_exists($path)) {
+        return array();
+    }
+
+    // Capture output buffer to prevent leaks
+    ob_start();
+    $loaded = include $path;
+    $leaked = ob_get_clean();
+
+    // Log if config leaked content
+    if (!empty($leaked)) {
+        error_log('Apollo Config leaked content: ' . $leaked);
+    }
+
+    $cfg = is_array($loaded) ? $loaded : array();
+    return $cfg;
+ * Helper function: Parse event start date
             $dt = DateTime::createFromFormat('Y-m-d', $raw);
             if ($dt instanceof DateTime) {
                 $ts = $dt->getTimestamp();
@@ -81,27 +102,131 @@ if (!function_exists('apollo_eve_parse_start_date')) {
     }
 }
 
+if (!function_exists('apollo_aem_bootstrap_versioning')) {
+    function apollo_aem_bootstrap_versioning() {
+        $stored_version = get_option('apollo_aem_version');
+
+        if ($stored_version !== APOLLO_AEM_VERSION) {
+            /**
+             * Fires when the Apollo Events Manager version changes.
+             *
+             * @param string|null $stored_version Previously stored version (null on first run).
+             * @param string      $target_version Target plugin version.
+             */
+            do_action('apollo_aem_version_upgrade', $stored_version, APOLLO_AEM_VERSION);
+
+            update_option('apollo_aem_version', APOLLO_AEM_VERSION, false);
+        }
+    }
+
+    add_action('plugins_loaded', 'apollo_aem_bootstrap_versioning', 5);
+}
+
+if (!function_exists('apollo_disable_legacy_event_saver')) {
+    function apollo_disable_legacy_event_saver() {
+        remove_action('event_manager_save_event_listing', 'save_custom_event_fields', 10);
+    }
+
+    add_action('init', 'apollo_disable_legacy_event_saver', 1);
+}
+
+if (!function_exists('apollo_sanitize_timetable')) {
+    function apollo_sanitize_timetable($raw) {
+        if (is_string($raw)) {
+            $raw = wp_unslash($raw);
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $raw = $decoded;
+            }
+        }
+
+        if (is_array($raw)) {
+            $raw = wp_unslash($raw);
+        }
+
+        $out = array();
+
+        if (!is_array($raw)) {
+            return $out;
+        }
+
+        foreach ($raw as $slot) {
+            if (!is_array($slot)) {
+                continue;
+            }
+
+            $dj = isset($slot['dj']) ? intval($slot['dj']) : 0;
+            if (!$dj) {
+                continue;
+            }
+
+            $from = isset($slot['from']) ? sanitize_text_field($slot['from']) : '';
+            if ($from === '' && isset($slot['start'])) {
+                $from = sanitize_text_field($slot['start']);
+            }
+
+            $to = isset($slot['to']) ? sanitize_text_field($slot['to']) : '';
+            if ($to === '' && isset($slot['end'])) {
+                $to = sanitize_text_field($slot['end']);
+            }
+
+            if ($from === '') {
+                continue;
+            }
+
+            $out[] = array(
+                'dj'   => $dj,
+                'from' => $from,
+                'to'   => $to,
+            );
+        }
+
+        if (!empty($out)) {
+            usort(
+                $out,
+                static function ($a, $b) {
+                    return strcmp($a['from'], $b['from']);
+                }
+            );
+        }
+
+        return $out;
+    }
+}
+
 // apollo-events-manager.php (top-level helper) - DEFENSIVE VERSION
 function apollo_cfg(): array {
     static $cfg = null;
-    if ($cfg !== null) return $cfg;
+    if ($cfg !== null) {
+        return $cfg;
+    }
 
     $path = plugin_dir_path(__FILE__) . 'includes/config.php';
-    if (!file_exists($path)) return [];
+    if (!file_exists($path)) {
+        return array();
+    }
 
     // Capture output buffer to prevent leaks
     ob_start();
     $loaded = include $path;
     $leaked = ob_get_clean();
-    
+
     // Log if config leaked content
     if (!empty($leaked)) {
         error_log('Apollo Config leaked content: ' . $leaked);
     }
-    
-    $cfg = is_array($loaded) ? $loaded : [];
+
+    $cfg = is_array($loaded) ? $loaded : array();
     return $cfg;
 }
+
+// Migration helpers
+require_once plugin_dir_path(__FILE__) . 'includes/migrations.php';
+
+// Core helpers
+require_once plugin_dir_path(__FILE__) . 'includes/cache.php';
+require_once plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php';
+require_once plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php';
 
 // Include AJAX handlers
 require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
@@ -125,6 +250,26 @@ require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
 // Load role badges system
 require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
 
+add_action(
+    'init',
+    static function () {
+        add_shortcode('apollo_events', 'apollo_events_shortcode_handler');
+        add_shortcode('events', 'apollo_events_shortcode_handler');
+
+        if (shortcode_exists('apollo_eventos')) {
+            remove_shortcode('apollo_eventos');
+        }
+
+        if (shortcode_exists('eventos')) {
+            remove_shortcode('eventos');
+        }
+
+        if (shortcode_exists('apollo_register')) {
+            remove_shortcode('apollo_register');
+        }
+    }
+);
+
 /**
  * Main Plugin Class
  */
@@ -147,13 +292,10 @@ class Apollo_Events_Manager_Plugin {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
         
         // Shortcodes
-        add_shortcode('apollo_events', array($this, 'events_shortcode'));
-        add_shortcode('eventos-page', array($this, 'eventos_page_shortcode'));
         add_shortcode('apollo_event', array($this, 'apollo_event_shortcode'));
         add_shortcode('apollo_event_user_overview', array($this, 'apollo_event_user_overview_shortcode'));
-        
+
         // Additional shortcodes
-        add_shortcode('events', array($this, 'events_shortcode')); // Alias
         add_shortcode('event', array($this, 'event_single_shortcode')); // NEW: Full event content for lightbox
         add_shortcode('event_djs', array($this, 'event_djs_shortcode'));
         add_shortcode('event_locals', array($this, 'event_locals_shortcode'));
@@ -162,19 +304,12 @@ class Apollo_Events_Manager_Plugin {
         add_shortcode('past_events', array($this, 'past_events_shortcode'));
         add_shortcode('single_event_dj', array($this, 'single_event_dj_shortcode'));
         add_shortcode('single_event_local', array($this, 'single_event_local_shortcode'));
-        add_shortcode('submit_event_form', array($this, 'submit_event_form_shortcode'));
-        add_shortcode('submit_dj_form', array($this, 'submit_dj_form_shortcode'));
-        add_shortcode('submit_local_form', array($this, 'submit_local_form_shortcode'));
         
         // AJAX handlers
         add_action('wp_ajax_filter_events', array($this, 'ajax_filter_events'));
         add_action('wp_ajax_nopriv_filter_events', array($this, 'ajax_filter_events'));
         add_action('wp_ajax_load_event_single', array($this, 'ajax_load_event_single'));
         add_action('wp_ajax_nopriv_load_event_single', array($this, 'ajax_load_event_single'));
-        
-        // Favorites AJAX handlers
-        add_action('wp_ajax_toggle_favorite', array($this, 'ajax_toggle_favorite'));
-        add_action('wp_ajax_nopriv_toggle_favorite', array($this, 'ajax_toggle_favorite'));
         
         // Modal AJAX handler
         add_action('wp_ajax_apollo_get_event_modal', array($this, 'ajax_get_event_modal'));
@@ -488,21 +623,34 @@ class Apollo_Events_Manager_Plugin {
                 '2.0.0',
                 true
             );
-            
+
             // Portal modal handler (local JS)
             wp_enqueue_script(
                 'apollo-events-portal',
                 APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
-                array(), // Vanilla JS, sem dependências
-                '1.0.1',
+                array('jquery'),
+                '1.0.2',
                 true
             );
-            
+
+            wp_enqueue_script(
+                'apollo-events-favorites',
+                APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
+                array('apollo-events-portal'),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+
             // Localize for AJAX (shared between base.js and portal.js)
-            wp_localize_script('apollo-events-portal', 'apollo_events_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('apollo_events_nonce')
-            ));
+            wp_localize_script(
+                'apollo-events-portal',
+                'apollo_events_ajax',
+                array(
+                    'url'      => admin_url('admin-ajax.php'),
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce'    => wp_create_nonce('apollo_events_nonce'),
+                )
+            );
         }
 
         // ============================================
@@ -516,12 +664,25 @@ class Apollo_Events_Manager_Plugin {
                 '2.0.0',
                 true
             );
-            
+
+            wp_enqueue_script(
+                'apollo-events-favorites',
+                APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
+                array('apollo-event-page-js'),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+
             // Localize for AJAX
-            wp_localize_script('apollo-event-page-js', 'apollo_events_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('apollo_events_nonce')
-            ));
+            wp_localize_script(
+                'apollo-event-page-js',
+                'apollo_events_ajax',
+                array(
+                    'url'      => admin_url('admin-ajax.php'),
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce'    => wp_create_nonce('apollo_events_nonce'),
+                )
+            );
         }
 
         // ============================================
@@ -639,7 +800,7 @@ class Apollo_Events_Manager_Plugin {
      * AJAX event filtering
      */
     public function ajax_filter_events() {
-        check_ajax_referer('apollo_events_nonce', 'nonce');
+        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
 
         // Get config safely
         $config = apollo_cfg();
@@ -906,18 +1067,29 @@ class Apollo_Events_Manager_Plugin {
 
         <script>
         jQuery(document).ready(function($) {
+            var ajaxUrl = (window.apollo_events_ajax &&
+                (window.apollo_events_ajax.url || window.apollo_events_ajax.ajax_url)) ||
+                '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
+
+            var ajaxNonce = (window.apollo_events_ajax && window.apollo_events_ajax.nonce) ||
+                '<?php echo wp_create_nonce('apollo_events_nonce'); ?>';
+
             // Event card click handler for lightbox
             $(document).on('click', '.event_listing', function(e) {
                 e.preventDefault();
                 var eventId = $(this).data('event-id');
-                
-                // Load event content via AJAX
+
+                if (!eventId) {
+                    return;
+                }
+
                 $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    url: ajaxUrl,
                     type: 'POST',
                     data: {
                         action: 'load_event_single',
-                        event_id: eventId
+                        event_id: eventId,
+                        _ajax_nonce: ajaxNonce
                     },
                     success: function(response) {
                         $('#eventLightboxBody').html(response);
@@ -926,11 +1098,11 @@ class Apollo_Events_Manager_Plugin {
                     }
                 });
             });
-            
+
             // Close lightbox
             $(document).on('click', '.event-lightbox-close, .event-lightbox-overlay', function() {
                 $('#eventLightbox').fadeOut(300);
-                $('body').css('overflow', 'auto');
+                $('body').css('overflow', '');
             });
         });
         </script>
@@ -994,7 +1166,7 @@ class Apollo_Events_Manager_Plugin {
      * AJAX handler for loading single event
      */
     public function ajax_load_event_single() {
-        check_ajax_referer('apollo_events_nonce', 'nonce');
+        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
         
         $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
         
@@ -1021,7 +1193,7 @@ class Apollo_Events_Manager_Plugin {
      * Handle favorite toggle AJAX
      */
     public function ajax_toggle_favorite() {
-        check_ajax_referer('apollo_events_nonce', 'nonce');
+        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
         
         $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
         
@@ -1063,73 +1235,111 @@ class Apollo_Events_Manager_Plugin {
      */
     public function ajax_get_event_modal() {
         // Verificar nonce
-        check_ajax_referer('apollo_events_nonce', 'nonce');
-        
+        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
+
         // Validar ID
         $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
         if (!$event_id) {
             wp_send_json_error(array('message' => 'ID do evento inválido'));
         }
-        
+
         // Verificar se evento existe
         $post = get_post($event_id);
         if (!$post || $post->post_type !== 'event_listing' || $post->post_status !== 'publish') {
             wp_send_json_error(array('message' => 'Evento não encontrado'));
         }
-        
+
         // Obter dados do evento
         $start_date_raw = get_post_meta($event_id, '_event_start_date', true);
         $event_location_r = get_post_meta($event_id, '_event_location', true);
         $event_banner = get_post_meta($event_id, '_event_banner', true);
-        $timetable = get_post_meta($event_id, '_timetable', true);
-        
+
+        $event_timetable = get_post_meta($event_id, '_event_timetable', true);
+        $timetable = apollo_sanitize_timetable($event_timetable);
+
+        if (empty($timetable)) {
+            $legacy_timetable = get_post_meta($event_id, '_timetable', true);
+            $timetable = apollo_sanitize_timetable($legacy_timetable);
+
+            if (!empty($timetable)) {
+                update_post_meta($event_id, '_event_timetable', $timetable);
+            }
+        }
+
         // Processar data
         $date_info = apollo_eve_parse_start_date($start_date_raw);
         $day = $date_info['day'];
         $month_pt = $date_info['month_pt'];
-        
+
         // Processar localização
         $event_location = '';
         $event_location_area = '';
         if (!empty($event_location_r)) {
             if (strpos($event_location_r, '|') !== false) {
-                list($event_location, $event_location_area) = array_map('trim', explode('|', $event_location_r, 2));
+                list($event_location, $event_location_area) = array_map(
+                    'trim',
+                    explode('|', $event_location_r, 2)
+                );
             } else {
                 $event_location = trim($event_location_r);
             }
         }
-        
+
         // Processar DJs
         $djs_names = array();
-        if (!empty($timetable) && is_array($timetable)) {
+
+        if (!empty($timetable)) {
             foreach ($timetable as $slot) {
-                if (empty($slot['dj'])) {
+                $dj_id = isset($slot['dj']) ? (int) $slot['dj'] : 0;
+                if (!$dj_id) {
                     continue;
                 }
-                $dj_id = $slot['dj'];
-                if (is_numeric($dj_id)) {
-                    $dj_post = get_post($dj_id);
-                    if ($dj_post && $dj_post->post_status === 'publish') {
-                        $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                        if (empty($dj_name)) {
-                            $dj_name = $dj_post->post_title;
-                        }
-                        if (!empty($dj_name)) {
-                            $djs_names[] = trim($dj_name);
-                        }
+
+                $dj_post = get_post($dj_id);
+                if ($dj_post && $dj_post->post_status === 'publish') {
+                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                    if ($dj_name === '') {
+                        $dj_name = $dj_post->post_title;
                     }
-                } else {
-                    $djs_names[] = trim((string) $dj_id);
+
+                    if ($dj_name !== '') {
+                        $djs_names[] = trim($dj_name);
+                    }
                 }
             }
         }
-        
-        // Fallback DJ meta
-        $event_dj_meta = get_post_meta($event_id, '_dj_name', true);
-        if (!empty($event_dj_meta)) {
-            $djs_names[] = trim($event_dj_meta);
+
+        if (empty($djs_names)) {
+            $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+            $dj_ids = is_array($dj_ids_raw) ? $dj_ids_raw : (array) $dj_ids_raw;
+
+            foreach ($dj_ids as $dj_id) {
+                $dj_id = (int) $dj_id;
+                if (!$dj_id) {
+                    continue;
+                }
+
+                $dj_post = get_post($dj_id);
+                if ($dj_post && $dj_post->post_status === 'publish') {
+                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                    if ($dj_name === '') {
+                        $dj_name = $dj_post->post_title;
+                    }
+
+                    if ($dj_name !== '') {
+                        $djs_names[] = trim($dj_name);
+                    }
+                }
+            }
         }
-        
+
+        if (empty($djs_names)) {
+            $event_dj_meta = get_post_meta($event_id, '_dj_name', true);
+            if (!empty($event_dj_meta)) {
+                $djs_names[] = trim($event_dj_meta);
+            }
+        }
+
         $djs_names = array_values(array_unique(array_filter($djs_names)));
         
         // Formatar display de DJs
@@ -1386,33 +1596,35 @@ class Apollo_Events_Manager_Plugin {
         }
         
         // Save DJs (WordPress handles serialization automatically)
-        if (isset($_POST['event_djs'])) {
-            $djs = array_map('intval', (array) $_POST['event_djs']);
-            update_post_meta($post_id, '_event_dj_ids', $djs);
+        $posted_djs = isset($_POST['event_djs']) ? wp_unslash($_POST['event_djs']) : null;
+        if ($posted_djs !== null) {
+            $dj_ids = array_values(array_filter(array_map('intval', (array) $posted_djs)));
+            if (!empty($dj_ids)) {
+                update_post_meta($post_id, '_event_dj_ids', $dj_ids);
+            } else {
+                delete_post_meta($post_id, '_event_dj_ids');
+            }
         }
 
-        // Save local
-        if (isset($_POST['event_local'])) {
-            update_post_meta($post_id, '_event_local_ids', intval($_POST['event_local']));
+        // Save local relationships as array
+        $posted_locals = isset($_POST['event_local']) ? wp_unslash($_POST['event_local']) : null;
+        if ($posted_locals !== null) {
+            $local_ids = array_values(array_filter(array_map('intval', (array) $posted_locals)));
+            if (!empty($local_ids)) {
+                update_post_meta($post_id, '_event_local_ids', $local_ids);
+            } else {
+                delete_post_meta($post_id, '_event_local_ids');
+            }
         }
 
         // Save timetable
-        if (isset($_POST['timetable']) && is_array($_POST['timetable'])) {
-            $clean_timetable = array();
-            foreach ($_POST['timetable'] as $slot) {
-                if (!empty($slot['dj']) && !empty($slot['start'])) {
-                    $clean_timetable[] = array(
-                        'dj' => intval($slot['dj']),
-                        'start' => sanitize_text_field($slot['start']),
-                        'end' => sanitize_text_field($slot['end'] ?? $slot['start'])
-                    );
-                }
+        if (array_key_exists('timetable', $_POST)) {
+            $clean_timetable = apollo_sanitize_timetable($_POST['timetable']);
+            if (!empty($clean_timetable)) {
+                update_post_meta($post_id, '_event_timetable', $clean_timetable);
+            } else {
+                delete_post_meta($post_id, '_event_timetable');
             }
-            // Sort by start time
-            usort($clean_timetable, function($a, $b) {
-                return strcmp($a['start'], $b['start']);
-            });
-            update_post_meta($post_id, '_event_timetable', $clean_timetable);
         }
 
         // Save promotional images (array of URLs)
@@ -3170,7 +3382,8 @@ echo esc_html( "[apollo_event field=\"dj_set_url\"]\n" );
 }
 
 // Initialize the plugin
-new Apollo_Events_Manager_Plugin();
+global $apollo_events_manager;
+$apollo_events_manager = new Apollo_Events_Manager_Plugin();
 
 // Log verification completion
 if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {

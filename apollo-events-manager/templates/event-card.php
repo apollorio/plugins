@@ -35,14 +35,15 @@ $sounds = wp_get_post_terms($event_id, 'event_sounds');
 $sounds = is_wp_error($sounds) ? array() : $sounds;
 
 // ✅ CORRECT: Get local with comprehensive validation
-$local_id = get_post_meta($event_id, '_event_local_ids', true);
-if (empty($local_id)) {
-    $local_id = get_post_meta($event_id, '_event_local', true); // Fallback
+$local_id = apollo_get_primary_local_id($event_id);
+if (!$local_id) {
+    $legacy = get_post_meta($event_id, '_event_local', true); // Fallback
+    $local_id = $legacy ? (int) $legacy : 0;
 }
 $local_name = '';
 $local_region = '';
 
-if (!empty($local_id) && is_numeric($local_id)) {
+if ($local_id) {
     $local_post = get_post($local_id);
 
     if ($local_post && $local_post->post_status === 'publish') {
@@ -89,22 +90,28 @@ if (!empty($dj_ids_raw)) {
 
 // Fallback: Try _timetable (may be buggy numeric or array)
 if (empty($djs_names)) {
-    $timetable = get_post_meta($event_id, '_timetable', true);
-    if (!empty($timetable) && is_array($timetable)) {
+    $event_timetable = get_post_meta($event_id, '_event_timetable', true);
+    $timetable = apollo_sanitize_timetable($event_timetable);
+    if (empty($timetable)) {
+        $legacy_timetable = get_post_meta($event_id, '_timetable', true);
+        $timetable = apollo_sanitize_timetable($legacy_timetable);
+    }
+
+    if (!empty($timetable)) {
         foreach ($timetable as $slot) {
-            if (isset($slot['dj']) && !empty($slot['dj'])) {
-                $dj_id = $slot['dj'];
-                if (is_numeric($dj_id)) {
-                    $dj_post = get_post($dj_id);
-                    if ($dj_post && $dj_post->post_status === 'publish') {
-                        $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                        if (empty($dj_name)) {
-                            $dj_name = $dj_post->post_title;
-                        }
-                        if (!empty($dj_name)) {
-                            $djs_names[] = $dj_name;
-                        }
-                    }
+            $dj_id = isset($slot['dj']) ? (int) $slot['dj'] : 0;
+            if (!$dj_id) {
+                continue;
+            }
+
+            $dj_post = get_post($dj_id);
+            if ($dj_post && $dj_post->post_status === 'publish') {
+                $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                if (empty($dj_name)) {
+                    $dj_name = $dj_post->post_title;
+                }
+                if (!empty($dj_name)) {
+                    $djs_names[] = $dj_name;
                 }
             }
         }

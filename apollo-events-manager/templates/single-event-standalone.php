@@ -146,7 +146,20 @@ if ($event_video_url) {
 }
 
 // === FAVORITES COUNT ===
-$event_favorites_count = function_exists('favorites_get_count') ? favorites_get_count($event_id) : 40;
+$favorites_count_meta = get_post_meta($event_id, '_favorites_count', true);
+$event_favorites_count = is_numeric($favorites_count_meta) ? max(0, intval($favorites_count_meta)) : 0;
+if (!$event_favorites_count && function_exists('favorites_get_count')) {
+    $event_favorites_count = max(0, intval(favorites_get_count($event_id)));
+}
+
+$user_has_favorited = false;
+if (is_user_logged_in()) {
+    $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
+    if (is_array($user_favorites)) {
+        $user_favorites = array_map('intval', $user_favorites);
+        $user_has_favorited = in_array((int) $event_id, $user_favorites, true);
+    }
+}
 
 // === EVENT TAGS ===
 $event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
@@ -218,13 +231,19 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 <div class="quick-action-icon"><i class="ri-treasure-map-line"></i></div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <?php 
-            // ✅ FAVORITES INFRASTRUCTURE
-            $user_favorited = false; // TODO: Check user meta when social features ready
-            ?>
-            <a href="#" class="quick-action apollo-favorite-trigger" id="favoriteTrigger" data-event-id="<?php echo $event_id; ?>">
+            <a
+                href="#"
+                class="quick-action apollo-favorite-trigger"
+                id="favoriteTrigger"
+                data-apollo-favorite
+                data-event-id="<?php echo esc_attr($event_id); ?>"
+                data-favorited="<?php echo $user_has_favorited ? '1' : '0'; ?>"
+                data-apollo-favorite-count=".apollo-favorite-count"
+                data-apollo-favorite-icon-active="ri-rocket-fill"
+                data-apollo-favorite-icon-inactive="ri-rocket-line"
+            >
                 <div class="quick-action-icon">
-                    <i class="<?php echo $user_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
+                    <i class="<?php echo $user_has_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
                 </div>
                 <span class="quick-action-label">Interesse</span>
             </a>
@@ -261,8 +280,13 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 ?>
                 <div class="avatar-count">+<?php echo $remaining; ?></div>
                 <p class="interested-text" style="margin: 0 8px 0px 20px;">
-                    <i class="ri-bar-chart-2-fill"></i> 
-                    <span id="result"><?php echo $event_favorites_count; ?> interessados</span>
+                    <i class="ri-bar-chart-2-fill"></i>
+                    <span
+                        id="result"
+                        class="apollo-favorite-count"
+                        data-count-prefix=""
+                        data-count-suffix=" interessados"
+                    ><?php echo esc_html($event_favorites_count); ?> interessados</span>
                 </p>
             </div>
         </div>
@@ -644,38 +668,6 @@ if (is_wp_error($event_tags)) $event_tags = [];
 
 <?php wp_footer(); ?>
 <script src="https://assets.apollo.rio.br/event-page.js"></script>
-
-<!-- ✅ FAVORITES TOGGLE LOGIC -->
-<script>
-(function() {
-    var favBtn = document.getElementById('favoriteTrigger');
-    if (!favBtn) return;
-    
-    favBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var eventId = this.dataset.eventId;
-        var icon = this.querySelector('i');
-        
-        // TODO: Implement AJAX call to save to database
-        console.log('Favorite toggle for event:', eventId);
-        
-        // Placeholder animation
-        if (icon.classList.contains('ri-rocket-line')) {
-            icon.classList.remove('ri-rocket-line');
-            icon.classList.add('ri-rocket-fill');
-            console.log('✅ Event favorited (placeholder)');
-            // TODO: Increment _favorites_count meta
-        } else {
-            icon.classList.remove('ri-rocket-fill');
-            icon.classList.add('ri-rocket-line');
-            console.log('❌ Event unfavorited (placeholder)');
-            // TODO: Decrement _favorites_count meta
-        }
-    });
-    
-    console.log('✅ Favorites system initialized (placeholder mode)');
-})();
-</script>
 
 </div><!-- .apollo-single -->
 

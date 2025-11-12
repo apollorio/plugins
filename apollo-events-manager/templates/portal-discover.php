@@ -379,18 +379,20 @@ get_header(); // Use WordPress header
                         $event_location_area = '';
                         
                         // Tentativa 1: _event_local_ids (relacionamento com event_local post)
-                        $local_id = get_post_meta($event_id, '_event_local_ids', true);
-                        if (!empty($local_id) && is_numeric($local_id)) {
-                            $local_post = get_post(absint($local_id));
+                        $local_meta = apollo_get_event_local_ids($event_id);
+                        $primary_local_id = $local_meta[0] ?? 0;
+
+                        if ($primary_local_id) {
+                            $local_post = get_post($primary_local_id);
                             if ($local_post && $local_post->post_status === 'publish' && $local_post->post_type === 'event_local') {
-                                $event_location = get_post_meta($local_id, '_local_name', true);
+                                $event_location = get_post_meta($primary_local_id, '_local_name', true);
                                 if (empty($event_location)) {
                                     $event_location = $local_post->post_title;
                                 }
                                 
                                 // Área do local
-                                $local_city = get_post_meta($local_id, '_local_city', true);
-                                $local_state = get_post_meta($local_id, '_local_state', true);
+                                $local_city = get_post_meta($primary_local_id, '_local_city', true);
+                                $local_state = get_post_meta($primary_local_id, '_local_state', true);
                                 if ($local_city && $local_state) {
                                     $event_location_area = $local_city . ', ' . $local_state;
                                 } elseif ($local_city) {

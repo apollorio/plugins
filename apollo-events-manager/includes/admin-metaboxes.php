@@ -78,11 +78,19 @@ class Apollo_Events_Admin_Metaboxes {
         $current_djs = get_post_meta($post->ID, '_event_dj_ids', true);
         $current_djs = maybe_unserialize($current_djs);
         $current_djs = is_array($current_djs) ? array_map('intval', $current_djs) : array();
-        
+
         $current_local = get_post_meta($post->ID, '_event_local_ids', true);
-        
-        $current_timetable = get_post_meta($post->ID, '_event_timetable', true);
-        $current_timetable = is_array($current_timetable) ? $current_timetable : array();
+        if (is_array($current_local)) {
+            $current_local = array_values(array_filter(array_map('intval', $current_local)));
+        } elseif (!empty($current_local)) {
+            $current_local = array((int) $current_local);
+        } else {
+            $current_local = array();
+        }
+
+    $current_timetable_raw = get_post_meta($post->ID, '_event_timetable', true);
+    $current_timetable     = apollo_sanitize_timetable($current_timetable_raw);
+    $timetable_json        = !empty($current_timetable) ? wp_json_encode($current_timetable) : '';
         
         $event_video_url = get_post_meta($post->ID, '_event_video_url', true);
         
@@ -98,20 +106,26 @@ class Apollo_Events_Admin_Metaboxes {
                     <div class="apollo-field-controls">
                         <select multiple="multiple" name="apollo_event_djs[]" id="apollo_event_djs" class="widefat" size="8">
                             <?php
-                            $all_djs = get_posts(array(
-                                'post_type' => 'event_dj',
-                                'posts_per_page' => -1,
-                                'orderby' => 'title',
-                                'order' => 'ASC',
-                                'post_status' => 'publish'
-                            ));
+                            $all_djs = get_posts(
+                                array(
+                                    'post_type'      => 'event_dj',
+                                    'posts_per_page' => -1,
+                                    'orderby'        => 'title',
+                                    'order'          => 'ASC',
+                                    'post_status'    => 'publish',
+                                )
+                            );
                             
                             foreach ($all_djs as $dj) {
-                                $dj_name = get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+                                $dj_name   = get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+                                $is_active = in_array($dj->ID, $current_djs, true)
+                                    ? ' selected="selected"'
+                                    : '';
+
                                 printf(
                                     '<option value="%d"%s>%s</option>',
                                     $dj->ID,
-                                    in_array($dj->ID, $current_djs) ? ' selected="selected"' : '',
+                                    $is_active,
                                     esc_html($dj_name)
                                 );
                             }
@@ -154,7 +168,10 @@ class Apollo_Events_Admin_Metaboxes {
                 </div>
                 
                 <!-- Store timetable data as JSON -->
-                <input type="hidden" name="apollo_event_timetable" id="apollo_event_timetable" value="">
+                <input type="hidden"
+                    name="apollo_event_timetable"
+                    id="apollo_event_timetable"
+                    value="<?php echo esc_attr($timetable_json); ?>">
             </div>
             
             <!-- ===== LOCAL SECTION ===== -->
@@ -167,20 +184,26 @@ class Apollo_Events_Admin_Metaboxes {
                         <select name="apollo_event_local" id="apollo_event_local" class="widefat">
                             <option value=""><?php _e('Selecione um local', 'apollo-events-manager'); ?></option>
                             <?php
-                            $all_locals = get_posts(array(
-                                'post_type' => 'event_local',
-                                'posts_per_page' => -1,
-                                'orderby' => 'title',
-                                'order' => 'ASC',
-                                'post_status' => 'publish'
-                            ));
+                            $all_locals = get_posts(
+                                array(
+                                    'post_type'      => 'event_local',
+                                    'posts_per_page' => -1,
+                                    'orderby'        => 'title',
+                                    'order'          => 'ASC',
+                                    'post_status'    => 'publish',
+                                )
+                            );
                             
                             foreach ($all_locals as $local) {
                                 $local_name = get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                                $is_active  = in_array($local->ID, $current_local, true)
+                                    ? ' selected="selected"'
+                                    : '';
+
                                 printf(
                                     '<option value="%d"%s>%s</option>',
                                     $local->ID,
-                                    selected($current_local, $local->ID, false),
+                                    $is_active,
                                     esc_html($local_name)
                                 );
                             }
@@ -403,32 +426,46 @@ class Apollo_Events_Admin_Metaboxes {
         
         // ✅ Save DJs (WordPress handles serialization automatically)
         if (isset($_POST['apollo_event_djs']) && is_array($_POST['apollo_event_djs'])) {
-            $dj_ids = array_map('intval', $_POST['apollo_event_djs']);
-            update_post_meta($post_id, '_event_dj_ids', $dj_ids);
+            $dj_ids = array_values(
+                array_filter(
+                    array_map('intval', wp_unslash($_POST['apollo_event_djs']))
+                )
+            );
+
+            if (!empty($dj_ids)) {
+                update_post_meta($post_id, '_event_dj_ids', $dj_ids);
+            } else {
+                delete_post_meta($post_id, '_event_dj_ids');
+            }
         } else {
             delete_post_meta($post_id, '_event_dj_ids');
         }
-        
-        // ✅ Save Local (as numeric ID)
-        if (!empty($_POST['apollo_event_local'])) {
-            update_post_meta($post_id, '_event_local_ids', intval($_POST['apollo_event_local']));
+
+        // ✅ Save Local (as numeric IDs array)
+        if (isset($_POST['apollo_event_local'])) {
+            $local_ids = array_values(
+                array_filter(
+                    array_map('intval', (array) wp_unslash($_POST['apollo_event_local']))
+                )
+            );
+
+            if (!empty($local_ids)) {
+                update_post_meta($post_id, '_event_local_ids', $local_ids);
+            } else {
+                delete_post_meta($post_id, '_event_local_ids');
+            }
         } else {
             delete_post_meta($post_id, '_event_local_ids');
         }
-        
+
         // ✅ Save Timetable (from JSON string to sorted array)
-        if (!empty($_POST['apollo_event_timetable'])) {
-            $timetable_json = stripslashes($_POST['apollo_event_timetable']);
-            $timetable = json_decode($timetable_json, true);
-            
-            if (is_array($timetable)) {
-                // Sort by start time
-                usort($timetable, function($a, $b) {
-                    return strcmp($a['start'] ?? '', $b['start'] ?? '');
-                });
-                
-                // Save as proper array structure
-                update_post_meta($post_id, '_event_timetable', $timetable);
+        if (isset($_POST['apollo_event_timetable'])) {
+            $clean_timetable = apollo_sanitize_timetable($_POST['apollo_event_timetable']);
+
+            if (!empty($clean_timetable)) {
+                update_post_meta($post_id, '_event_timetable', $clean_timetable);
+            } else {
+                delete_post_meta($post_id, '_event_timetable');
             }
         } else {
             delete_post_meta($post_id, '_event_timetable');

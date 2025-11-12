@@ -759,10 +759,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return implode( ', ', array_map( 'absint', $ids_array ) );
             
         case 'local_id':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
+
             return $local_id ? (string) absint( $local_id ) : '';
             
         case 'timetable':
@@ -803,11 +805,13 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             
         // === LOCAL (event_local) FIELDS ===
         case 'local_name':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $local_post = get_post( absint( $local_id ) );
@@ -821,44 +825,52 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $local_name ? esc_html( $local_name ) : '';
             
         case 'local_description':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $description = get_post_meta( absint( $local_id ), '_local_description', true );
             return $description ? esc_html( $description ) : '';
             
         case 'local_address':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $address = get_post_meta( absint( $local_id ), '_local_address', true );
             return $address ? esc_html( $address ) : '';
             
         case 'local_city':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $city = get_post_meta( absint( $local_id ), '_local_city', true );
             return $city ? esc_html( $city ) : '';
             
         case 'local_coordinates':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $lat = get_post_meta( absint( $local_id ), '_local_latitude', true );
@@ -869,33 +881,39 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return '';
             
         case 'local_website':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $website = get_post_meta( absint( $local_id ), '_local_website', true );
             return $website ? esc_url( $website ) : '';
             
         case 'local_instagram':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $instagram = get_post_meta( absint( $local_id ), '_local_instagram', true );
             return $instagram ? esc_html( $instagram ) : '';
             
         case 'local_facebook':
-            $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-            if ( empty( $local_id ) ) {
-                $local_id = get_post_meta( $event_id, '_event_local', true );
+            $local_id = apollo_get_primary_local_id( $event_id );
+            if ( ! $local_id ) {
+                $legacy   = get_post_meta( $event_id, '_event_local', true );
+                $local_id = $legacy ? (int) $legacy : 0;
             }
-            if ( empty( $local_id ) || ! is_numeric( $local_id ) ) {
+
+            if ( empty( $local_id ) ) {
                 return '';
             }
             $facebook = get_post_meta( absint( $local_id ), '_local_facebook', true );

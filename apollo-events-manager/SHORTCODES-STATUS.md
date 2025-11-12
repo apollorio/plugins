@@ -31,17 +31,18 @@
 - **Atributos:** `id`
 - **Exemplo:** `[event_register id="123"]`
 
+### 6. `[submit_event_form]` - Submissão de Eventos (Frontend)
+- **Status:** ✅ Implementado (requer login)
+- **Comportamento:** Cria `event_listing` como `pending`, salva DJs/Locais, aceita upload de banner
+- **Atributos:** *(sem atributos adicionais)*
+- **Exemplo:** `[submit_event_form]`
+
 ## ⚠️ Parcialmente Implementados (TODOs)
 
 ### 6. `[event_dashboard]` - Dashboard do Usuário
 - **Status:** ⚠️ Estrutura existe, mas básico
 - **Problema:** Listagem simples de eventos do usuário
 - **Necessita:** Filtros, estatísticas, ações rápidas
-
-### 7. `[submit_event_form]` - Formulário de Submissão
-- **Status:** ⚠️ Placeholder apenas
-- **Problema:** Retorna "coming soon"
-- **Necessita:** Integração com Apollo forms system
 
 ## ❌ Não Implementados / Vazios
 
@@ -153,7 +154,7 @@ Usar componentes para:
 - ✅ [related_events]
 - ✅ [event_register]
 - ⚠️ [event_dashboard]
-- ❌ [submit_event_form]
+- ✅ [submit_event_form]
 - ❌ [event_summary] (não encontrado)
 
 ### DJs
@@ -172,5 +173,5 @@ Usar componentes para:
 
 ---
 
-**Data:** <?php echo date('Y-m-d H:i:s'); ?>
+**Data:** 2025-11-12
 **Autor:** Apollo Development Team

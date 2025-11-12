@@ -100,7 +100,19 @@ if ($event_video_url) {
 }
 
 // Favorites count - basic implementation
-$event_favorites_count = get_post_meta($event_id, '_favorites_count', true);
+$event_favorites_count = intval(get_post_meta($event_id, '_favorites_count', true));
+if ($event_favorites_count < 0) {
+    $event_favorites_count = 0;
+}
+
+$user_has_favorited = false;
+if (is_user_logged_in()) {
+    $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
+    if (is_array($user_favorites)) {
+        $user_favorites = array_map('intval', $user_favorites);
+        $user_has_favorited = in_array((int) $event_id, $user_favorites, true);
+    }
+}
 $event_favorites_count = $event_favorites_count ? intval($event_favorites_count) : 0;
 
 // DJs from _event_dj_ids (primary) or _timetable (fallback) with comprehensive validation
@@ -227,9 +239,19 @@ if (empty($event_djs)) {
                 </div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <a href="#" class="quick-action" id="favoriteTrigger">
+            <a
+                href="#"
+                class="quick-action apollo-favorite-trigger"
+                id="favoriteTrigger"
+                data-apollo-favorite
+                data-event-id="<?php echo esc_attr($event_id); ?>"
+                data-favorited="<?php echo $user_has_favorited ? '1' : '0'; ?>"
+                data-apollo-favorite-count=".apollo-favorite-count"
+                data-apollo-favorite-icon-active="ri-rocket-fill"
+                data-apollo-favorite-icon-inactive="ri-rocket-line"
+            >
                 <div class="quick-action-icon">
-                    <i class="ri-rocket-line"></i>
+                    <i class="<?php echo $user_has_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
                 </div>
                 <span class="quick-action-label">Interesse</span>
             </a>
@@ -250,7 +272,13 @@ if (empty($event_djs)) {
                 <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/8.jpg')"></div>
                 <div class="avatar-count">+35</div>
                 <p class="interested-text" style="margin: 0 8px 0px 20px;">
-                    <i class="ri-bar-chart-2-fill"></i> <span id="result"><?php echo $event_favorites_count; ?></span>
+                    <i class="ri-bar-chart-2-fill"></i>
+                    <span
+                        id="result"
+                        class="apollo-favorite-count"
+                        data-count-prefix=""
+                        data-count-suffix=""
+                    ><?php echo esc_html($event_favorites_count); ?></span>
                 </p>
             </div>
         </div>
@@ -549,9 +577,19 @@ if ($video_url) {
                 </div>
                 <span class="quick-action-label">ROUTE</span>
             </a>
-            <a href="#" class="quick-action" id="favoriteTrigger">
+            <a
+                href="#"
+                class="quick-action apollo-favorite-trigger"
+                id="favoriteTriggerSecondary"
+                data-apollo-favorite
+                data-event-id="<?php echo esc_attr($event_id); ?>"
+                data-favorited="<?php echo $user_has_favorited ? '1' : '0'; ?>"
+                data-apollo-favorite-count=".apollo-favorite-count"
+                data-apollo-favorite-icon-active="ri-rocket-fill"
+                data-apollo-favorite-icon-inactive="ri-rocket-line"
+            >
                 <div class="quick-action-icon">
-                    <i class="ri-rocket-line"></i>
+                    <i class="<?php echo $user_has_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
                 </div>
                 <span class="quick-action-label">Interesse</span>
             </a>
@@ -575,7 +613,12 @@ if ($video_url) {
                 <?php endforeach; ?>
                 <div class="avatar-count">+35</div>
                 <p class="interested-text" style="margin: 0 8px 0px 20px;">
-                    <i class="ri-bar-chart-2-fill"></i> <span id="result">40 interessados</span>
+                    <i class="ri-bar-chart-2-fill"></i>
+                    <span
+                        class="apollo-favorite-count"
+                        data-count-prefix=""
+                        data-count-suffix=" interessados"
+                    ><?php echo esc_html($event_favorites_count); ?> interessados</span>
                 </p>
             </div>
         </div>
@@ -840,33 +883,6 @@ if ($video_url) {
         </button>
     </div>
 </div>
-
-<script>
-// Favorites functionality
-document.getElementById('favoriteTrigger')?.addEventListener('click', function(e) {
-    e.preventDefault();
-    var eventId = this.dataset.eventId;
-    var icon = this.querySelector('i');
-    
-    if (!eventId) {
-        console.error('No event ID found for favorite button');
-        return;
-    }
-    
-    // Toggle icon
-    if (icon.classList.contains('ri-heart-line')) {
-        icon.classList.remove('ri-heart-line');
-        icon.classList.add('ri-heart-fill');
-        // TODO: Send AJAX request to add favorite
-        console.log('Adding favorite for event:', eventId);
-    } else {
-        icon.classList.remove('ri-heart-fill');
-        icon.classList.add('ri-heart-line');
-        // TODO: Send AJAX request to remove favorite
-        console.log('Removing favorite for event:', eventId);
-    }
-});
-</script>
 
 <script src="https://assets.apollo.rio.br/event-page.js"></script>
 

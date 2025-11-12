@@ -20,25 +20,36 @@ add_action('wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_mod
  */
 function apollo_ajax_load_event_modal() {
     // Verificar nonce
-    check_ajax_referer('apollo_events_nonce', 'nonce');
-    
+    check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
+
     // Validar ID
     $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
     if (!$event_id) {
         wp_send_json_error(array('message' => 'ID inválido'));
     }
-    
+
     // Verificar se evento existe
     $event = get_post($event_id);
     if (!$event || $event->post_type !== 'event_listing') {
         wp_send_json_error(array('message' => 'Evento não encontrado'));
     }
-    
+
     // Buscar todos metas
     $start_date = get_post_meta($event_id, '_event_start_date', true);
     $banner = get_post_meta($event_id, '_event_banner', true);
     $location = get_post_meta($event_id, '_event_location', true);
-    $timetable = get_post_meta($event_id, '_timetable', true);
+
+    $event_timetable = get_post_meta($event_id, '_event_timetable', true);
+    $timetable = apollo_sanitize_timetable($event_timetable);
+
+    if (empty($timetable)) {
+        $legacy_timetable = get_post_meta($event_id, '_timetable', true);
+        $timetable = apollo_sanitize_timetable($legacy_timetable);
+
+        if (!empty($timetable)) {
+            update_post_meta($event_id, '_event_timetable', $timetable);
+        }
+    }
     
     // Processar data
     $date_info = apollo_eve_parse_start_date($start_date);
@@ -46,49 +57,58 @@ function apollo_ajax_load_event_modal() {
     // Processar DJs (usar mesma lógica do template)
     $djs_names = array();
     
-    // Tentativa 1: _timetable
-    if (!empty($timetable) && is_array($timetable)) {
+    // Tentativa 1: _event_timetable normalizado
+    if (!empty($timetable)) {
         foreach ($timetable as $slot) {
-            if (empty($slot['dj'])) {
+            $dj_id = isset($slot['dj']) ? intval($slot['dj']) : 0;
+            if (!$dj_id) {
                 continue;
             }
-            
-            if (is_numeric($slot['dj'])) {
-                // É um post de DJ
-                $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
-                if (!$dj_name) {
-                    $dj_post = get_post($slot['dj']);
-                    $dj_name = $dj_post ? $dj_post->post_title : '';
+
+            $dj_post = get_post($dj_id);
+            if ($dj_post && $dj_post->post_status === 'publish') {
+                $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                if ($dj_name === '') {
+                    $dj_name = $dj_post->post_title;
                 }
-            } else {
-                // É string direta
-                $dj_name = (string) $slot['dj'];
-            }
-            
-            if (!empty($dj_name)) {
-                $djs_names[] = trim($dj_name);
+
+                if ($dj_name !== '') {
+                    $djs_names[] = trim($dj_name);
+                }
             }
         }
     }
-    
-    // Tentativa 2: _dj_name direto (fallback)
+
+    if (empty($djs_names)) {
+        $related_djs = get_post_meta($event_id, '_event_dj_ids', true);
+        $related_djs = maybe_unserialize($related_djs);
+
+        if (is_array($related_djs)) {
+            foreach ($related_djs as $dj_id) {
+                $dj_id = intval($dj_id);
+                if (!$dj_id) {
+                    continue;
+                }
+
+                $dj_post = get_post($dj_id);
+                if ($dj_post && $dj_post->post_status === 'publish') {
+                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
+                    if ($dj_name === '') {
+                        $dj_name = $dj_post->post_title;
+                    }
+
+                    if ($dj_name !== '') {
+                        $djs_names[] = trim($dj_name);
+                    }
+                }
+            }
+        }
+    }
+
     if (empty($djs_names)) {
         $dj_fallback = get_post_meta($event_id, '_dj_name', true);
         if ($dj_fallback) {
             $djs_names[] = trim($dj_fallback);
-        }
-    }
-    
-    // Tentativa 3: Buscar relationships (se usa meta _event_djs)
-    if (empty($djs_names)) {
-        $related_djs = get_post_meta($event_id, '_event_djs', true);
-        if (is_array($related_djs)) {
-            foreach ($related_djs as $dj_id) {
-                $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                if ($dj_name) {
-                    $djs_names[] = trim($dj_name);
-                }
-            }
         }
     }
     

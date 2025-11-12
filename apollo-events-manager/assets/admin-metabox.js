@@ -233,6 +233,10 @@
                 timetableData = [];
             }
         }
+
+        if (!Array.isArray(timetableData)) {
+            timetableData = [];
+        }
         
         // Rebuild with existing data
         rebuildTimetable();
@@ -269,8 +273,8 @@
             let existingEnd = '';
             const existing = timetableData.find(item => item.dj == djID);
             if (existing) {
-                existingStart = existing.start || '';
-                existingEnd = existing.end || '';
+                existingStart = existing.from || existing.start || '';
+                existingEnd = existing.to || existing.end || '';
             }
             
             const row = $('<tr>', { 'data-dj-id': djID });
@@ -311,9 +315,9 @@
             
             if (start) { // Only add if has start time
                 timetableData.push({
-                    dj: parseInt(djID),
-                    start: start,
-                    end: end || start // Fallback to start if no end
+                    dj: parseInt(djID, 10),
+                    from: start,
+                    to: end || start // Fallback to start if no end
                 });
             }
         });

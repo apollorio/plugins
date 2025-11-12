@@ -133,12 +133,27 @@ Dashboard para usuário gerenciar seus eventos.
 ---
 
 ### `[submit_event_form]` - Formulário de Submissão
-**Status:** ❌ A implementar
-**Requer:** Usuário logado
+**Status:** ✅ Implementado (fluxo básico, requer login)
+**Requer:** Usuário logado (redireciona/CTA para `/membership/` se não autenticado)
 
 ```php
 [submit_event_form]
 ```
+
+**Comportamento:**
+- Cria um `event_listing` com status `pending`
+- Salva campos `_event_dj_ids` (via lista de IDs) e `_event_local_ids`
+- Aceita upload de banner (`event_banner`) e define como thumbnail
+- Limpa o cache/transient de eventos futuros (`apollo_events:list:futuro`)
+
+**Campos padrão do formulário:**
+- `post_title` (texto, obrigatório)
+- `post_content` (textarea, opcional)
+- `event_banner` (arquivo)
+- `dj_ids_raw` (IDs separados por vírgula convertidos em `dj_ids[]`)
+- `local_ids[]` (ID numérico do local)
+
+**Nota:** Utiliza `wp_nonce_field('apollo_submit_event', 'aem_nonce')` para segurança.
 
 ---
 

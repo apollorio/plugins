@@ -219,12 +219,13 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
                 $venue_city = '';
                 
                 // Try _event_local_ids first (primary method)
-                $local_id = get_post_meta($event_id, '_event_local_ids', true);
-                if (empty($local_id)) {
-                    $local_id = get_post_meta($event_id, '_event_local', true); // Fallback
+                $local_id = apollo_get_primary_local_id($event_id);
+                if (!$local_id) {
+                    $legacy   = get_post_meta($event_id, '_event_local', true);
+                    $local_id = $legacy ? (int) $legacy : 0;
                 }
-                
-                if (!empty($local_id) && is_numeric($local_id)) {
+
+                if ($local_id) {
                     $local_post = get_post($local_id);
                     if ($local_post && $local_post->post_status === 'publish') {
                         $venue_name = get_post_meta($local_id, '_local_name', true);
