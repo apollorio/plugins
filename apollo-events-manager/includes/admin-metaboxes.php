@@ -100,6 +100,16 @@ class Apollo_Events_Admin_Metaboxes {
         $event_start_time = get_post_meta($post->ID, '_event_start_time', true);
         $event_end_time = get_post_meta($post->ID, '_event_end_time', true);
         
+        // Get additional event fields
+        $event_title = get_post_meta($post->ID, '_event_title', true);
+        $event_banner = get_post_meta($post->ID, '_event_banner', true);
+        $event_location = get_post_meta($post->ID, '_event_location', true);
+        $event_country = get_post_meta($post->ID, '_event_country', true);
+        $tickets_ext = get_post_meta($post->ID, '_tickets_ext', true);
+        $cupom_ario = get_post_meta($post->ID, '_cupom_ario', true);
+        $promo_images = get_post_meta($post->ID, '_3_imagens_promo', true);
+        $final_image = get_post_meta($post->ID, '_imagem_final', true);
+        
         ?>
         <div class="apollo-metabox-container">
             
@@ -293,6 +303,88 @@ class Apollo_Events_Admin_Metaboxes {
                     <p class="description">
                         <?php _e('YouTube, Vimeo ou outro vídeo promocional (será exibido no hero da página do evento)', 'apollo-events-manager'); ?>
                     </p>
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_banner"><?php _e('Event Banner (URL):', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="url" 
+                        name="apollo_event_banner" 
+                        id="apollo_event_banner" 
+                        class="widefat" 
+                        placeholder="https://..."
+                        value="<?php echo esc_attr($event_banner); ?>"
+                    >
+                    <p class="description">
+                        <?php _e('URL da imagem principal do evento (ou use Featured Image)', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- ===== TICKETING & PROMO SECTION ===== -->
+            <div class="apollo-field-group">
+                <h3><?php _e('Ingressos e Promoção', 'apollo-events-manager'); ?></h3>
+                
+                <div class="apollo-field">
+                    <label for="apollo_tickets_ext"><?php _e('Link de Ingressos (URL Externa):', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="url" 
+                        name="apollo_tickets_ext" 
+                        id="apollo_tickets_ext" 
+                        class="widefat" 
+                        placeholder="https://sympla.com.br/..."
+                        value="<?php echo esc_attr($tickets_ext); ?>"
+                    >
+                    <p class="description">
+                        <?php _e('Link para compra de ingressos (Sympla, Eventbrite, etc)', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_cupom_ario">
+                        <input 
+                            type="checkbox" 
+                            name="apollo_cupom_ario" 
+                            id="apollo_cupom_ario" 
+                            value="1"
+                            <?php checked($cupom_ario, 1); ?>
+                        >
+                        <?php _e('Evento tem cupom Apollo::Rio', 'apollo-events-manager'); ?>
+                    </label>
+                    <p class="description">
+                        <?php _e('Marque se este evento oferece desconto para membros Apollo', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- ===== LOCATION TEXT SECTION ===== -->
+            <div class="apollo-field-group">
+                <h3><?php _e('Localização Adicional', 'apollo-events-manager'); ?></h3>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_location"><?php _e('Location Text (alternativo):', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="text" 
+                        name="apollo_event_location" 
+                        id="apollo_event_location" 
+                        class="widefat" 
+                        placeholder="Nome do local | Área"
+                        value="<?php echo esc_attr($event_location); ?>"
+                    >
+                    <p class="description">
+                        <?php _e('Texto alternativo de localização (usado se nenhum Local post selecionado acima)', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_event_country"><?php _e('País:', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="text" 
+                        name="apollo_event_country" 
+                        id="apollo_event_country" 
+                        class="widefat" 
+                        value="<?php echo esc_attr($event_country ?: 'Brasil'); ?>"
+                    >
                 </div>
             </div>
             
@@ -503,6 +595,41 @@ class Apollo_Events_Admin_Metaboxes {
             update_post_meta($post_id, '_event_end_time', sanitize_text_field($_POST['apollo_event_end_time']));
         } else {
             delete_post_meta($post_id, '_event_end_time');
+        }
+        
+        // ✅ Save Banner
+        if (!empty($_POST['apollo_event_banner'])) {
+            update_post_meta($post_id, '_event_banner', esc_url_raw($_POST['apollo_event_banner']));
+        } else {
+            delete_post_meta($post_id, '_event_banner');
+        }
+        
+        // ✅ Save Tickets URL
+        if (!empty($_POST['apollo_tickets_ext'])) {
+            update_post_meta($post_id, '_tickets_ext', esc_url_raw($_POST['apollo_tickets_ext']));
+        } else {
+            delete_post_meta($post_id, '_tickets_ext');
+        }
+        
+        // ✅ Save Cupom Apollo
+        if (isset($_POST['apollo_cupom_ario'])) {
+            update_post_meta($post_id, '_cupom_ario', 1);
+        } else {
+            update_post_meta($post_id, '_cupom_ario', 0);
+        }
+        
+        // ✅ Save Location Text
+        if (!empty($_POST['apollo_event_location'])) {
+            update_post_meta($post_id, '_event_location', sanitize_text_field($_POST['apollo_event_location']));
+        } else {
+            delete_post_meta($post_id, '_event_location');
+        }
+        
+        // ✅ Save Country
+        if (!empty($_POST['apollo_event_country'])) {
+            update_post_meta($post_id, '_event_country', sanitize_text_field($_POST['apollo_event_country']));
+        } else {
+            delete_post_meta($post_id, '_event_country');
         }
         
         // ✅ Save DJs (WordPress handles serialization automatically)
