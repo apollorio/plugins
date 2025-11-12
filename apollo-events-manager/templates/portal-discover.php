@@ -169,7 +169,7 @@ get_header(); // Use WordPress header
                 $event_posts = array();
                 
                 if (false === $event_ids) {
-                    $now_mysql = current_time('mysql');
+                    $today = current_time('Y-m-d'); // Date format matches _event_start_date storage
                     $query_args = array(
                         'post_type'      => 'event_listing',
                         'posts_per_page' => 50,
@@ -180,9 +180,9 @@ get_header(); // Use WordPress header
                         'meta_query'     => array(
                             array(
                                 'key'     => '_event_start_date',
-                                'value'   => $now_mysql,
+                                'value'   => $today,
                                 'compare' => '>=',
-                                'type'    => 'DATETIME',
+                                'type'    => 'DATE',
                             ),
                         ),
                     );
