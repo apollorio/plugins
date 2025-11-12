@@ -26,6 +26,11 @@ if (is_admin()) {
     require_once APOLLO_PATH . 'includes/admin-settings.php';
 }
 
+// Load optional modules
+if (file_exists(APOLLO_PATH . 'modules/pwa-loader.php')) {
+    require_once APOLLO_PATH . 'modules/pwa-loader.php';
+}
+
 // Activation hook
 register_activation_hook(__FILE__, 'apollo_activate');
 function apollo_activate() {

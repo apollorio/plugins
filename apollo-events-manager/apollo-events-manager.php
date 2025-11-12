@@ -260,6 +260,14 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/role-badges.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
 }
 
+// Load optional modules
+if (file_exists(plugin_dir_path(__FILE__) . 'modules/rest-api-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'modules/rest-api-loader.php';
+}
+if (file_exists(plugin_dir_path(__FILE__) . 'modules/favorites-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'modules/favorites-loader.php';
+}
+
 add_action(
     'init',
     static function () {
