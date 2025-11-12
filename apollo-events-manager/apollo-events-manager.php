@@ -433,6 +433,18 @@ class Apollo_Events_Manager_Plugin {
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
         if (wp_is_post_revision($post_id)) return;
         
+        // Throttle requests to Nominatim (max 1 req/sec shared across site)
+        $throttle_key = 'apollo_geocode_last_request';
+        $last_request = get_transient($throttle_key);
+        if ($last_request) {
+            $elapsed = microtime(true) - (float) $last_request;
+            if ($elapsed < 1) {
+                usleep((int) ((1 - $elapsed) * 1000000));
+            }
+        }
+
+        set_transient($throttle_key, microtime(true), 1);
+
         // Get address and city
         $addr = get_post_meta($post_id, '_local_address', true);
         $city = get_post_meta($post_id, '_local_city', true);
@@ -1592,6 +1604,19 @@ class Apollo_Events_Manager_Plugin {
         }
         
         if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+
+        // Front-end submission uses distinct field names. Bail early on admin saves
+        // to prevent running in parallel with the metabox handler.
+        $has_frontend_fields = isset($_POST['event_djs'])
+            || isset($_POST['event_local'])
+            || isset($_POST['timetable'])
+            || isset($_POST['_3_imagens_promo'])
+            || isset($_POST['_imagem_final'])
+            || isset($_POST['cupom_ario']);
+
+        if (!$has_frontend_fields) {
             return;
         }
         
