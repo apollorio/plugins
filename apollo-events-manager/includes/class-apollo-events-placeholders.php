@@ -1214,6 +1214,35 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
 }
 
 /**
+ * Helper: Get event local IDs array.
+ * Returns array of local (venue) post IDs associated with an event.
+ * 
+ * @param int $event_id Event post ID
+ * @return array Array of local post IDs
+ */
+function apollo_get_event_local_ids( $event_id ) {
+    $local_ids = get_post_meta( $event_id, '_event_local_ids', true );
+    
+    // If it's already an array, return it
+    if ( is_array( $local_ids ) ) {
+        return array_filter( array_map( 'absint', $local_ids ) );
+    }
+    
+    // If it's a single ID, wrap it in array
+    if ( is_numeric( $local_ids ) && $local_ids > 0 ) {
+        return array( absint( $local_ids ) );
+    }
+    
+    // Fallback: try legacy _event_local key
+    $legacy_local = get_post_meta( $event_id, '_event_local', true );
+    if ( is_numeric( $legacy_local ) && $legacy_local > 0 ) {
+        return array( absint( $legacy_local ) );
+    }
+    
+    return array();
+}
+
+/**
  * Internal helper: Get location name from event.
  * Reuses logic from portal-discover.php and event-card.php.
  * 
