@@ -40,6 +40,16 @@ if (!$local_id) {
     $legacy = get_post_meta($event_id, '_event_local', true); // Fallback
     $local_id = $legacy ? (int) $legacy : 0;
 }
+
+// DEBUG: Show what we're getting (admin only)
+if (current_user_can('administrator')) {
+    $local_ids_raw = get_post_meta($event_id, '_event_local_ids', true);
+    $local_legacy = get_post_meta($event_id, '_event_local', true);
+    echo '<!-- DEBUG Event ' . $event_id . ' Local IDs Raw: ' . esc_html(print_r($local_ids_raw, true)) . ' -->';
+    echo '<!-- DEBUG Event ' . $event_id . ' Local Legacy: ' . esc_html($local_legacy) . ' -->';
+    echo '<!-- DEBUG Event ' . $event_id . ' Local ID Final: ' . esc_html($local_id) . ' -->';
+}
+
 $local_name = '';
 $local_region = '';
 
@@ -56,12 +66,27 @@ if ($local_id) {
         $local_state = get_post_meta($local_id, '_local_state', true);
         $local_region = $local_city && $local_state ? "({$local_city}, {$local_state})" :
                        ($local_city ? "({$local_city})" : ($local_state ? "({$local_state})" : ''));
+        
+        // DEBUG
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG Event ' . $event_id . ' Local Post Title: ' . esc_html($local_post->post_title) . ' -->';
+            echo '<!-- DEBUG Event ' . $event_id . ' Local Name Meta: ' . esc_html($local_name) . ' -->';
+        }
+    } else {
+        // DEBUG
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG Event ' . $event_id . ' Local Post NOT FOUND or NOT PUBLISHED (ID: ' . $local_id . ') -->';
+        }
     }
 }
 
 // Fallback to direct location meta
 if (empty($local_name)) {
     $local_name = get_post_meta($event_id, '_event_location', true);
+    // DEBUG
+    if (current_user_can('administrator')) {
+        echo '<!-- DEBUG Event ' . $event_id . ' Using Fallback Location: ' . esc_html($local_name) . ' -->';
+    }
 }
 
 // ✅ CORRECT: Get DJs from _event_dj_ids (primary) or _timetable (fallback)
@@ -69,20 +94,24 @@ $djs_names = array();
 
 // Try _event_dj_ids first (serialized array)
 $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-if (!empty($dj_ids_raw)) {
-    $dj_ids = maybe_unserialize($dj_ids_raw);
-    if (is_array($dj_ids)) {
-        foreach ($dj_ids as $dj_id) {
-            $dj_id = intval($dj_id); // Convert string to int
-            $dj_post = get_post($dj_id);
-            if ($dj_post && $dj_post->post_status === 'publish') {
-                $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                if (empty($dj_name)) {
-                    $dj_name = $dj_post->post_title;
-                }
-                if (!empty($dj_name)) {
-                    $djs_names[] = $dj_name;
-                }
+$dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+
+// DEBUG: Show what we're getting (admin only)
+if (current_user_can('administrator')) {
+    echo '<!-- DEBUG Event ' . $event_id . ' DJ IDs Raw: ' . esc_html(print_r($dj_ids_raw, true)) . ' -->';
+    echo '<!-- DEBUG Event ' . $event_id . ' DJ IDs Parsed: ' . esc_html(implode(', ', $dj_ids)) . ' -->';
+}
+
+if (!empty($dj_ids)) {
+    foreach ($dj_ids as $dj_id) {
+        $dj_post = get_post($dj_id);
+        if ($dj_post && $dj_post->post_status === 'publish') {
+            $dj_name = get_post_meta($dj_id, '_dj_name', true);
+            if (empty($dj_name)) {
+                $dj_name = $dj_post->post_title;
+            }
+            if (!empty($dj_name)) {
+                $djs_names[] = $dj_name;
             }
         }
     }

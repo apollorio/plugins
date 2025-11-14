@@ -129,7 +129,7 @@ get_header(); // Use WordPress header
                     <button class="menutag event-category" data-slug="music">House</button>
                     <button class="menutag event-category" data-slug="art-culture">PsyTrance</button>
                     <button class="menutag event-category" data-slug="mainstream">Techno</button>
-                    <button class="menutag event-category" data-slug="workshops">D-Edge club</button>
+                    <button class="menutag event-category event-local-filter" data-slug="dedge" data-filter-type="local">D-Edge club</button>
                     
                     <!-- DATE CHIP -->
                     <div class="date-chip" id="eventDatePicker">
@@ -382,6 +382,7 @@ get_header(); // Use WordPress header
                         // Tentativa 1: _event_local_ids (relacionamento com event_local post)
                         $local_meta = apollo_get_event_local_ids($event_id);
                         $primary_local_id = $local_meta[0] ?? 0;
+                        $event_local_slug = ''; // Slug do local para filtros
 
                         if ($primary_local_id) {
                             $local_post = get_post($primary_local_id);
@@ -390,6 +391,9 @@ get_header(); // Use WordPress header
                                 if (empty($event_location)) {
                                     $event_location = $local_post->post_title;
                                 }
+                                
+                                // Slug do local para filtros
+                                $event_local_slug = sanitize_title($local_post->post_name ?: $event_location);
                                 
                                 // Área do local
                                 $local_city = get_post_meta($primary_local_id, '_local_city', true);
@@ -440,6 +444,7 @@ get_header(); // Use WordPress header
                            class="event_listing"
                            data-event-id="<?php echo esc_attr($event_id); ?>"
                            data-category="<?php echo esc_attr($category_slug); ?>"
+                           data-local-slug="<?php echo esc_attr($event_local_slug); ?>"
                            data-month-str="<?php echo esc_attr($month_pt); ?>"
                            data-event-start-date="<?php echo esc_attr($iso_date); ?>">
                             

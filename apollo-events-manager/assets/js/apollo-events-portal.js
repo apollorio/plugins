@@ -6,6 +6,79 @@
 (function() {
     'use strict';
 
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise(function(resolve, reject) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.setAttribute('readonly', '');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                if (successful) {
+                    resolve();
+                } else {
+                    reject(new Error('copy_failed'));
+                }
+            } catch (error) {
+                document.body.removeChild(tempInput);
+                reject(error);
+            }
+        });
+    }
+
+    function showTemporaryState(element, className) {
+        if (!element) {
+            return;
+        }
+
+        element.classList.add(className);
+        window.setTimeout(function() {
+            element.classList.remove(className);
+        }, 2000);
+    }
+
+    function resolveCouponCode(sourceElement) {
+        const scope = sourceElement instanceof Element
+            ? sourceElement.closest('.apollo-event-modal-content, .mobile-container')
+            : null;
+        const context = scope || document;
+        const detail = sourceElement instanceof Element && sourceElement.closest('.apollo-coupon-detail')
+            ? sourceElement.closest('.apollo-coupon-detail')
+            : context.querySelector('.apollo-coupon-detail');
+
+        if (!detail) {
+            return 'APOLLO';
+        }
+
+        const strongEl = detail.querySelector('strong');
+        const code = strongEl ? strongEl.textContent.trim() : '';
+        return code !== '' ? code : 'APOLLO';
+    }
+
+    if (typeof window.copyPromoCode !== 'function') {
+        window.copyPromoCode = function() {
+            const activeEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            const code = resolveCouponCode(activeEl);
+
+            copyTextToClipboard(code)
+                .then(function() {
+                    showTemporaryState(activeEl, 'copied');
+                })
+                .catch(function() {
+                    window.alert('Copie o código: ' + code);
+                });
+        };
+    }
+
     const AJAX_ACTIONS = {
         apollo_get_event_modal: true,
         load_event_single: true,
@@ -119,7 +192,6 @@
 
     const MODAL_ID = 'apollo-event-modal';
     const MODAL_CLASS_OPEN = 'is-open';
-    const BODY_CLASS_LOCKED = 'apollo-modal-open';
     const LAYOUT_STORAGE_KEY = 'apollo_events_layout';
     const LAYOUT_CLASS_LIST = 'apollo-layout-list';
     const LAYOUT_CLASS_GRID = 'apollo-layout-grid';
@@ -128,6 +200,37 @@
         'color:#fff;">Carregando...</div>';
 
     let modal = null;
+    let modalOptions = {};
+    let bodyScrollLocked = false;
+    let scrollPosition = 0;
+
+    function lockBodyScroll() {
+        if (bodyScrollLocked) {
+            return;
+        }
+
+        scrollPosition = window.scrollY || window.pageYOffset || 0;
+        document.documentElement.classList.add('apollo-modal-open');
+        document.body.classList.add('apollo-modal-open');
+        document.body.style.position = 'fixed';
+        document.body.style.top = '-' + scrollPosition + 'px';
+        document.body.style.width = '100%';
+        bodyScrollLocked = true;
+    }
+
+    function unlockBodyScroll() {
+        if (!bodyScrollLocked) {
+            return;
+        }
+
+        document.documentElement.classList.remove('apollo-modal-open');
+        document.body.classList.remove('apollo-modal-open');
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollPosition);
+        bodyScrollLocked = false;
+    }
 
     function getStoredLayout() {
         try {
@@ -197,16 +300,16 @@
         );
     }
 
-    function openModal(html) {
+    function openModal(html, options) {
         if (!modal) {
             return;
         }
 
+        modalOptions = options || {};
         modal.innerHTML = html;
         modal.setAttribute('aria-hidden', 'false');
         modal.classList.add(MODAL_CLASS_OPEN);
-        document.documentElement.classList.add(BODY_CLASS_LOCKED);
-        document.body.style.overflow = 'hidden';
+        lockBodyScroll();
 
         modal.querySelectorAll('[data-apollo-close]').forEach(function(btn) {
             btn.addEventListener('click', closeModal);
@@ -217,6 +320,9 @@
             overlay.addEventListener('click', closeModal);
         }
 
+        enhanceModalContent();
+
+        document.dispatchEvent(new Event('apollo:favorites:refresh'));
         document.addEventListener('keydown', handleEscapeKey);
     }
 
@@ -227,8 +333,8 @@
 
         modal.setAttribute('aria-hidden', 'true');
         modal.classList.remove(MODAL_CLASS_OPEN);
-        document.documentElement.classList.remove(BODY_CLASS_LOCKED);
-        document.body.style.overflow = '';
+        modalOptions = {};
+        unlockBodyScroll();
 
         setTimeout(function() {
             modal.innerHTML = '';
@@ -241,6 +347,141 @@
         if (event.key === 'Escape' && modal && modal.classList.contains(MODAL_CLASS_OPEN)) {
             closeModal();
         }
+    }
+
+    function enhanceModalContent() {
+        if (!modal || !modalOptions || modalOptions.loading) {
+            return;
+        }
+
+        const modalContent = modal.querySelector('.apollo-event-modal-content');
+        if (!modalContent) {
+            return;
+        }
+
+        modalContent.classList.add('apollo-modal-mobile');
+        const container = modalContent.querySelector('.mobile-container');
+        if (container) {
+            container.classList.add('apollo-modal-view');
+        }
+
+        setupShareButton(modalContent);
+        setupRouteButton(modalContent);
+        initializeModalMap(modalContent);
+    }
+
+    function setupShareButton(root) {
+        const shareBtn = root.querySelector('[data-share-button]');
+        if (!shareBtn || shareBtn.dataset.apolloShareReady === '1') {
+            return;
+        }
+
+        shareBtn.dataset.apolloShareReady = '1';
+
+        shareBtn.addEventListener('click', function() {
+            const container = root.querySelector('.mobile-container');
+            const eventUrl = (modalOptions && modalOptions.eventUrl) ||
+                (container ? container.getAttribute('data-apollo-event-url') : '') ||
+                window.location.href;
+            const titleElement = container ? container.querySelector('.hero-title') : null;
+            const eventTitle = titleElement ? titleElement.textContent.trim() : document.title;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: eventTitle || 'Apollo Events',
+                    text: eventTitle || 'Confira este evento na Apollo',
+                    url: eventUrl
+                }).catch(function(error) {
+                    if (error && error.name === 'AbortError') {
+                        return;
+                    }
+
+                    copyTextToClipboard(eventUrl)
+                        .then(function() {
+                            showTemporaryState(shareBtn, 'copied');
+                        })
+                        .catch(function() {
+                            window.prompt('Copie o link do evento:', eventUrl);
+                        });
+                });
+                return;
+            }
+
+            copyTextToClipboard(eventUrl)
+                .then(function() {
+                    showTemporaryState(shareBtn, 'copied');
+                })
+                .catch(function() {
+                    window.prompt('Copie o link do evento:', eventUrl);
+                });
+        });
+    }
+
+    function setupRouteButton(root) {
+        const routeBtn = root.querySelector('#route-btn');
+        if (!routeBtn || routeBtn.dataset.apolloRouteReady === '1') {
+            return;
+        }
+
+        routeBtn.dataset.apolloRouteReady = '1';
+
+        routeBtn.addEventListener('click', function() {
+            const container = root.querySelector('.mobile-container');
+            if (!container) {
+                window.alert('Localização indisponível para este evento.');
+                return;
+            }
+
+            const lat = parseFloat(container.getAttribute('data-local-lat') || '');
+            const lng = parseFloat(container.getAttribute('data-local-lng') || '');
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                window.alert('Localização indisponível para este evento.');
+                return;
+            }
+
+            const originInput = root.querySelector('#origin-input');
+            const origin = originInput ? originInput.value.trim() : '';
+
+            let mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(lat + ',' + lng);
+            if (origin) {
+                mapsUrl += '&origin=' + encodeURIComponent(origin);
+            }
+
+            window.open(mapsUrl, '_blank', 'noopener');
+        });
+    }
+
+    function initializeModalMap(root) {
+        const mapEl = root.querySelector('#eventMap');
+        if (!mapEl || mapEl.dataset.apolloMapInitialized === '1') {
+            return;
+        }
+
+        const lat = parseFloat(mapEl.dataset.lat || mapEl.getAttribute('data-lat') || '');
+        const lng = parseFloat(mapEl.dataset.lng || mapEl.getAttribute('data-lng') || '');
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return;
+        }
+
+        if (typeof L === 'undefined') {
+            console.warn('Leaflet não está disponível para renderizar o mapa.');
+            return;
+        }
+
+        mapEl.dataset.apolloMapInitialized = '1';
+        mapEl.innerHTML = '';
+
+        const map = L.map(mapEl).setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
+
+        const container = root.querySelector('.mobile-container');
+        const localName = container ? container.getAttribute('data-local-name') : '';
+        L.marker([lat, lng]).addTo(map).bindPopup(localName || '');
     }
 
     function init() {
@@ -301,8 +542,10 @@
                 return;
             }
 
+            const eventUrl = card.getAttribute('href') || card.dataset.eventUrl || '';
+
             card.classList.add('is-loading');
-            openModal(LOADING_HTML);
+            openModal(LOADING_HTML, { loading: true });
 
             const params = new URLSearchParams({
                 action: 'apollo_get_event_modal',
@@ -338,7 +581,7 @@
                 })
                 .then(function(data) {
                     if (data.success && data.data && data.data.html) {
-                        openModal(data.data.html);
+                        openModal(data.data.html, { eventUrl: eventUrl });
                         return;
                     }
 
@@ -346,7 +589,7 @@
                         data.data.message :
                         'Erro ao carregar evento.';
 
-                    openModal(buildErrorHtml(message));
+                    openModal(buildErrorHtml(message), {});
                     console.error('AJAX error:', data);
                 })
                 .catch(function(error) {
@@ -357,7 +600,7 @@
                     }
 
                     console.error('AJAX error:', error);
-                    openModal(buildErrorHtml(message));
+                    openModal(buildErrorHtml(message), {});
                 })
                 .finally(function() {
                     card.classList.remove('is-loading');

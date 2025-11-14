@@ -19,35 +19,105 @@ $category_slug = !empty($categories) && is_array($categories) ? $categories[0]->
 $sounds = wp_get_post_terms($event_id, 'event_sounds');
 $sounds = is_wp_error($sounds) ? array() : $sounds;
 
-// ✅ CORRECT: Get local
-$local_id = get_post_meta($event_id, '_event_local_ids', true);
-if (empty($local_id)) {
-    $local_id = get_post_meta($event_id, '_event_local', true);
+// ✅ CORRECT: Get local with comprehensive validation (same as event-card.php)
+$local_id = apollo_get_primary_local_id($event_id);
+if (!$local_id) {
+    $legacy = get_post_meta($event_id, '_event_local', true); // Fallback
+    $local_id = $legacy ? (int) $legacy : 0;
 }
-$local_name = '';
 
-if (!empty($local_id) && is_numeric($local_id)) {
+// DEBUG: Show what we're getting (admin only)
+if (current_user_can('administrator')) {
+    $local_ids_raw = get_post_meta($event_id, '_event_local_ids', true);
+    $local_legacy = get_post_meta($event_id, '_event_local', true);
+    echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local IDs Raw: ' . esc_html(print_r($local_ids_raw, true)) . ' -->';
+    echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local Legacy: ' . esc_html($local_legacy) . ' -->';
+    echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local ID Final: ' . esc_html($local_id) . ' -->';
+}
+
+$local_name = '';
+$local_region = '';
+
+if ($local_id) {
     $local_post = get_post($local_id);
+
     if ($local_post && $local_post->post_status === 'publish') {
         $local_name = get_post_meta($local_id, '_local_name', true);
         if (empty($local_name)) {
             $local_name = $local_post->post_title;
         }
+
+        $local_city = get_post_meta($local_id, '_local_city', true);
+        $local_state = get_post_meta($local_id, '_local_state', true);
+        $local_region = $local_city && $local_state ? "({$local_city}, {$local_state})" :
+                       ($local_city ? "({$local_city})" : ($local_state ? "({$local_state})" : ''));
+        
+        // DEBUG
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local Post Title: ' . esc_html($local_post->post_title) . ' -->';
+            echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local Name Meta: ' . esc_html($local_name) . ' -->';
+        }
+    } else {
+        // DEBUG
+        if (current_user_can('administrator')) {
+            echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Local Post NOT FOUND or NOT PUBLISHED (ID: ' . $local_id . ') -->';
+        }
     }
 }
 
+// Fallback to direct location meta
 if (empty($local_name)) {
     $local_name = get_post_meta($event_id, '_event_location', true);
+    // DEBUG
+    if (current_user_can('administrator')) {
+        echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' Using Fallback Location: ' . esc_html($local_name) . ' -->';
+    }
 }
 
-// ✅ CORRECT: Get DJs
+// ✅ CORRECT: Get DJs from _event_dj_ids (primary) or _timetable (fallback)
 $djs_names = array();
+
+// Try _event_dj_ids first (serialized array)
 $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-if (!empty($dj_ids_raw)) {
-    $dj_ids = maybe_unserialize($dj_ids_raw);
-    if (is_array($dj_ids)) {
-        foreach ($dj_ids as $dj_id) {
-            $dj_id = intval($dj_id);
+$dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+
+// DEBUG: Show what we're getting (admin only)
+if (current_user_can('administrator')) {
+    echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' DJ IDs Raw: ' . esc_html(print_r($dj_ids_raw, true)) . ' -->';
+    echo '<!-- DEBUG [content-event_listing] Event ' . $event_id . ' DJ IDs Parsed: ' . esc_html(implode(', ', $dj_ids)) . ' -->';
+}
+
+if (!empty($dj_ids)) {
+    foreach ($dj_ids as $dj_id) {
+        $dj_post = get_post($dj_id);
+        if ($dj_post && $dj_post->post_status === 'publish') {
+            $dj_name = get_post_meta($dj_id, '_dj_name', true);
+            if (empty($dj_name)) {
+                $dj_name = $dj_post->post_title;
+            }
+            if (!empty($dj_name)) {
+                $djs_names[] = $dj_name;
+            }
+        }
+    }
+}
+
+// Fallback: Try _timetable (may be buggy numeric or array)
+if (empty($djs_names)) {
+    $event_timetable = get_post_meta($event_id, '_event_timetable', true);
+    $timetable = apollo_sanitize_timetable($event_timetable);
+    if (empty($timetable)) {
+        $legacy_timetable = get_post_meta($event_id, '_timetable', true);
+        $timetable = apollo_sanitize_timetable($legacy_timetable);
+    }
+
+    if (!empty($timetable)) {
+        foreach ($timetable as $slot) {
+            $dj_id = isset($slot['dj']) ? (int) $slot['dj'] : 0;
+            if (!$dj_id) {
+                continue;
+            }
+
             $dj_post = get_post($dj_id);
             if ($dj_post && $dj_post->post_status === 'publish') {
                 $dj_name = get_post_meta($dj_id, '_dj_name', true);

@@ -1,5 +1,8 @@
 /* Apollo Event Modal Styles */
 
+/* Modal wrapper - covers entire screen - NO OVERFLOW RESTRICTION */
+.modal,
+.micromodal-slide,
 .apollo-event-modal {
   display: none;
   position: fixed;
@@ -7,38 +10,102 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 99999;
+  z-index: 9999;
+  pointer-events: none; /* Let clicks pass through to overlay */
+}
+
+.modal.is-open,
+.micromodal-slide.is-open,
+.apollo-event-modal.is-open {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 50px;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* Apollo modal: ensure proper stacking context above overlays */
+.apollo-event-modal {
+  inset: 0;
+  z-index: 100001;
+  isolation: isolate;
 }
 
 .apollo-event-modal.is-open {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  pointer-events: auto;
+  z-index: 100001;
 }
 
+/* Overlay - behind the container - INDEPENDENT z-index */
+.modal__overlay,
 .apollo-event-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 99998;
+  background: transparent;
+  background: linear-gradient(25deg, #eeeeee40 0%, transparent 100%);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 10000;
+  cursor: pointer;
+  pointer-events: auto; /* Overlay catches clicks */
 }
 
+.apollo-event-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Container - above overlay, NOT position fixed - INDEPENDENT z-index */
+.modal__container,
 .apollo-event-modal-content {
-  position: relative;
+  position: relative; /* Changed from fixed */
   background: var(--bg-main, #fff);
   border-radius: 12px;
+  width: 90%;
   max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 99999;
+  max-height: 95vh;
+  overflow-y: auto; /* Scroll works here */
+  overflow-x: hidden;
+  z-index: 10001;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  margin: 20px;
+  cursor: default;
+  pointer-events: auto; /* Container catches clicks */
+  margin-bottom: 24px;
 }
 
+.apollo-event-modal-content.apollo-modal-mobile {
+  width: min(500px, calc(100vw - 32px));
+  max-width: 500px;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.apollo-event-modal-content.apollo-modal-mobile .apollo-modal-view {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.apollo-event-modal .mobile-container {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  max-height: 95vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.apollo-modal-open,
+body.apollo-modal-open {
+  overflow: hidden;
+}
+
+.modal__close,
 .apollo-event-modal-close {
   position: absolute;
   top: 1rem;
@@ -53,17 +120,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100000;
+  z-index: 10002;
   transition: all 0.2s;
 }
 
+.modal__close:hover,
 .apollo-event-modal-close:hover {
   background: rgba(0, 0, 0, 0.8);
   transform: scale(1.1);
 }
 
+.modal__close i,
 .apollo-event-modal-close i {
   font-size: 1.5rem;
+}
+
+/* Modal content area - NO height restriction, let container handle scroll */
+.modal__content {
+  padding: 0;
+  overflow: visible; /* Let parent handle scroll */
+}
+
+/* Event content inside modal - override any restrictions */
+.modal__container .mobile-container,
+.modal__content .mobile-container {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 0 !important;
 }
 
 /* Modal Content Sections */
@@ -174,6 +258,7 @@
 
 .micromodal-slide.is-open {
   display: block;
+  z-index: 8888;
 }
 
 .micromodal-slide[aria-hidden="false"] .modal__overlay {
@@ -199,13 +284,22 @@
 
 /* Responsivo */
 @media (max-width: 640px) {
-  .modal__container {
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0;
+  .modal.is-open,
+  .micromodal-slide.is-open {
+    padding-top: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .modal__container,
+  .apollo-event-modal-content {
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
   }
   
   .modal__content {
-    padding: 1rem;
+    padding: 0 !important;
   }
 }

@@ -369,11 +369,19 @@ class Apollo_Post_Types {
             '_local_description' => 'string',
             '_local_address'     => 'string',
             '_local_city'        => 'string',
+            '_local_state'       => 'string',
             '_local_latitude'    => 'string',
             '_local_longitude'   => 'string',
+            '_local_lat'         => 'string',
+            '_local_lng'         => 'string',
             '_local_website'     => 'string',
             '_local_facebook'    => 'string',
             '_local_instagram'   => 'string',
+            '_local_image_1'     => 'string',
+            '_local_image_2'     => 'string',
+            '_local_image_3'     => 'string',
+            '_local_image_4'     => 'string',
+            '_local_image_5'     => 'string',
         );
         
         foreach ($local_meta_fields as $meta_key => $type) {

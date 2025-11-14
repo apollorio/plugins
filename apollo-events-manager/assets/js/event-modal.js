@@ -13,7 +13,21 @@
         '</div>';
 
     function setBodyScrollLocked(locked) {
-        document.body.style.overflow = locked ? 'hidden' : '';
+        if (locked) {
+            document.documentElement.classList.add('apollo-modal-open');
+            document.body.classList.add('apollo-modal-open');
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.height = '100vh';
+        } else {
+            document.documentElement.classList.remove('apollo-modal-open');
+            document.body.classList.remove('apollo-modal-open');
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+        }
     }
 
     if (typeof MicroModal !== 'undefined') {
@@ -207,18 +221,22 @@
         modal.setAttribute('aria-hidden', 'true');
 
         modal.innerHTML =
-            '<div class="modal__overlay" tabindex="-1" data-micromodal-close">' +
-            '<div class="modal__container max-w-4xl" role="dialog" aria-modal="true">' +
+            '<div class="modal__overlay" tabindex="-1" data-micromodal-close></div>' +
+            '<div class="modal__container" role="dialog" aria-modal="true">' +
             '<button class="modal__close" aria-label="Fechar" data-micromodal-close>' +
             '<i class="ri-close-line"></i>' +
             '</button>' +
             '<div id="apollo-event-modal-content" class="modal__content">' +
             '<!-- Conteúdo dinâmico aqui -->' +
             '</div>' +
-            '</div>' +
             '</div>';
 
         modal.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal__overlay')) {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+                setBodyScrollLocked(false);
+            }
             if (event.target.hasAttribute('data-micromodal-close')) {
                 modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');

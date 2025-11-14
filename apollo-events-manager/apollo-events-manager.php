@@ -207,66 +207,35 @@ if (!function_exists('apollo_sanitize_timetable')) {
 }
 
 // Migration helpers
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/migrations.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/migrations.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/migrations.php';
 
 // Core helpers
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/cache.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/cache.php';
-}
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php';
-}
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/cache.php';
+require_once plugin_dir_path(__FILE__) . 'includes/shortcodes-submit.php';
+require_once plugin_dir_path(__FILE__) . 'includes/event-helpers.php';
+require_once plugin_dir_path(__FILE__) . 'includes/ajax-favorites.php';
 
 // Include AJAX handlers
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
 
 // Load placeholder registry and access API
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-placeholders.php';
 
 // Load analytics and statistics
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/class-apollo-events-analytics.php';
 
 // Load organized shortcodes and widgets
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
-}
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/shortcodes/class-apollo-events-shortcodes.php';
+require_once plugin_dir_path(__FILE__) . 'includes/widgets/class-apollo-events-widgets.php';
 
 // Load Save-Date cleaner
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/save-date-cleaner.php';
 
 // Load public event form
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/public-event-form.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/public-event-form.php';
 
 // Load role badges system
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/role-badges.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
-}
-
-// Load optional modules
-if (file_exists(plugin_dir_path(__FILE__) . 'modules/rest-api-loader.php')) {
-    require_once plugin_dir_path(__FILE__) . 'modules/rest-api-loader.php';
-}
-if (file_exists(plugin_dir_path(__FILE__) . 'modules/favorites-loader.php')) {
-    require_once plugin_dir_path(__FILE__) . 'modules/favorites-loader.php';
-}
+require_once plugin_dir_path(__FILE__) . 'includes/role-badges.php';
 
 add_action(
     'init',
@@ -659,16 +628,7 @@ class Apollo_Events_Manager_Plugin {
                 'apollo-events-portal',
                 APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
                 array('jquery'),
-                APOLLO_WPEM_VERSION,
-                true
-            );
-
-            // Date picker for month navigation
-            wp_enqueue_script(
-                'apollo-date-picker',
-                APOLLO_WPEM_URL . 'assets/js/date-picker.js',
-                array(),
-                APOLLO_WPEM_VERSION,
+                '1.0.2',
                 true
             );
 
@@ -1283,504 +1243,130 @@ class Apollo_Events_Manager_Plugin {
         }
 
         // Verificar se evento existe
-        $post = get_post($event_id);
-        if (!$post || $post->post_type !== 'event_listing' || $post->post_status !== 'publish') {
+        $event_post = get_post($event_id);
+        if (!$event_post || $event_post->post_type !== 'event_listing' || $event_post->post_status !== 'publish') {
             wp_send_json_error(array('message' => 'Evento não encontrado'));
         }
 
-        // Obter dados do evento
-        $start_date_raw = get_post_meta($event_id, '_event_start_date', true);
-        $event_location_r = get_post_meta($event_id, '_event_location', true);
-        $event_banner = get_post_meta($event_id, '_event_banner', true);
+        // Build local context for template overrides
+        $local_context = array(
+            'local_name' => '',
+            'local_address' => '',
+            'local_images' => array(),
+            'local_lat' => '',
+            'local_long' => ''
+        );
 
-        $event_timetable = get_post_meta($event_id, '_event_timetable', true);
-        $timetable = apollo_sanitize_timetable($event_timetable);
+        $local_id = function_exists('apollo_get_primary_local_id') ? apollo_get_primary_local_id($event_id) : 0;
 
-        if (empty($timetable)) {
-            $legacy_timetable = get_post_meta($event_id, '_timetable', true);
-            $timetable = apollo_sanitize_timetable($legacy_timetable);
+        if ($local_id) {
+            $local_post = get_post($local_id);
+            if ($local_post && $local_post->post_status === 'publish') {
+                $local_name_meta = get_post_meta($local_id, '_local_name', true);
+                $local_context['local_name'] = $local_name_meta !== '' ? $local_name_meta : $local_post->post_title;
 
-            if (!empty($timetable)) {
-                update_post_meta($event_id, '_event_timetable', $timetable);
-            }
-        }
+                $local_address_meta = get_post_meta($local_id, '_local_address', true);
+                $local_city = get_post_meta($local_id, '_local_city', true);
+                $local_state = get_post_meta($local_id, '_local_state', true);
 
-        // Processar data
-        $date_info = apollo_eve_parse_start_date($start_date_raw);
-        $day = $date_info['day'];
-        $month_pt = $date_info['month_pt'];
-
-        // Processar localização
-        $event_location = '';
-        $event_location_area = '';
-        if (!empty($event_location_r)) {
-            if (strpos($event_location_r, '|') !== false) {
-                list($event_location, $event_location_area) = array_map(
-                    'trim',
-                    explode('|', $event_location_r, 2)
-                );
-            } else {
-                $event_location = trim($event_location_r);
-            }
-        }
-
-        // Processar DJs
-        $djs_names = array();
-
-        if (!empty($timetable)) {
-            foreach ($timetable as $slot) {
-                $dj_id = isset($slot['dj']) ? (int) $slot['dj'] : 0;
-                if (!$dj_id) {
-                    continue;
+                if ($local_address_meta !== '') {
+                    $local_context['local_address'] = $local_address_meta;
+                } elseif ($local_city || $local_state) {
+                    $local_context['local_address'] = trim($local_city . ($local_city && $local_state ? ', ' : '') . $local_state);
                 }
 
-                $dj_post = get_post($dj_id);
-                if ($dj_post && $dj_post->post_status === 'publish') {
-                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                    if ($dj_name === '') {
-                        $dj_name = $dj_post->post_title;
-                    }
-
-                    if ($dj_name !== '') {
-                        $djs_names[] = trim($dj_name);
+                for ($i = 1; $i <= 5; $i++) {
+                    $img = get_post_meta($local_id, '_local_image_' . $i, true);
+                    if (!empty($img)) {
+                        $local_context['local_images'][] = is_numeric($img) ? wp_get_attachment_url($img) : $img;
                     }
                 }
-            }
-        }
 
-        if (empty($djs_names)) {
-            $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-            $dj_ids = is_array($dj_ids_raw) ? $dj_ids_raw : (array) $dj_ids_raw;
-
-            foreach ($dj_ids as $dj_id) {
-                $dj_id = (int) $dj_id;
-                if (!$dj_id) {
-                    continue;
+                $lat = get_post_meta($local_id, '_local_latitude', true);
+                if ($lat === '') {
+                    $lat = get_post_meta($local_id, '_local_lat', true);
+                }
+                $lng = get_post_meta($local_id, '_local_longitude', true);
+                if ($lng === '') {
+                    $lng = get_post_meta($local_id, '_local_lng', true);
                 }
 
-                $dj_post = get_post($dj_id);
-                if ($dj_post && $dj_post->post_status === 'publish') {
-                    $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                    if ($dj_name === '') {
-                        $dj_name = $dj_post->post_title;
-                    }
-
-                    if ($dj_name !== '') {
-                        $djs_names[] = trim($dj_name);
-                    }
-                }
+                $local_context['local_lat'] = $lat;
+                $local_context['local_long'] = $lng;
             }
         }
 
-        if (empty($djs_names)) {
-            $event_dj_meta = get_post_meta($event_id, '_dj_name', true);
-            if (!empty($event_dj_meta)) {
-                $djs_names[] = trim($event_dj_meta);
+        if ($local_context['local_name'] === '') {
+            $fallback_location = get_post_meta($event_id, '_event_location', true);
+            if ($fallback_location !== '') {
+                $local_context['local_name'] = $fallback_location;
             }
         }
 
-        $djs_names = array_values(array_unique(array_filter($djs_names)));
-        
-        // Formatar display de DJs
-        if (!empty($djs_names)) {
-            $max_visible = 6;
-            $visible = array_slice($djs_names, 0, $max_visible);
-            $remaining = max(count($djs_names) - $max_visible, 0);
-            
-            $dj_display = '<strong>' . esc_html($visible[0]) . '</strong>';
-            if (count($visible) > 1) {
-                $rest = array_slice($visible, 1);
-                $dj_display .= ', ' . esc_html(implode(', ', $rest));
-            }
-            if ($remaining > 0) {
-                $dj_display .= ' <span class="dj-more">+' . $remaining . ' DJs</span>';
-            }
-        } else {
-            $dj_display = '<span class="dj-fallback">Line-up em breve</span>';
-        }
-        
-        // Processar banner
-        $banner_url = '';
-        if ($event_banner) {
-            $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
-        }
-        if (!$banner_url && has_post_thumbnail($event_id)) {
-            $banner_url = get_the_post_thumbnail_url($event_id, 'large');
-        }
-        if (!$banner_url) {
-            $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
-        }
-        
-        // Obter conteúdo do evento
-        $content = apply_filters('the_content', get_post_field('post_content', $event_id));
-        
-        // Get additional event data
-        $event_video_url = get_post_meta($event_id, '_event_video_url', true);
-        $tickets_url = get_post_meta($event_id, '_tickets_ext', true);
-        $cupom_ario = get_post_meta($event_id, '_cupom_ario', true);
-        $start_time = get_post_meta($event_id, '_event_start_time', true);
-        $end_time = get_post_meta($event_id, '_event_end_time', true);
-        $promo_images = get_post_meta($event_id, '_3_imagens_promo', true);
-        $final_image = get_post_meta($event_id, '_imagem_final', true);
-        
-        // Get venue details
-        $local_ids = apollo_get_event_local_ids($event_id);
-        $venue_name = '';
-        $venue_address = '';
-        $venue_lat = '';
-        $venue_lng = '';
-        
-        if (!empty($local_ids) && isset($local_ids[0])) {
-            $venue_id = $local_ids[0];
-            $venue_post = get_post($venue_id);
-            if ($venue_post && $venue_post->post_status === 'publish') {
-                $venue_name = get_post_meta($venue_id, '_local_name', true) ?: $venue_post->post_title;
-                $venue_address = get_post_meta($venue_id, '_local_address', true);
-                $venue_city = get_post_meta($venue_id, '_local_city', true);
-                $venue_lat = get_post_meta($venue_id, '_local_latitude', true);
-                $venue_lng = get_post_meta($venue_id, '_local_longitude', true);
-                if ($venue_address && $venue_city) {
-                    $venue_address .= ', ' . $venue_city;
-                }
+        if ($local_context['local_address'] === '') {
+            $event_address = get_post_meta($event_id, '_event_address', true);
+            if ($event_address !== '') {
+                $local_context['local_address'] = $event_address;
             }
         }
-        
-        // Get event sounds/genres
-        $sounds = get_the_terms($event_id, 'event_sounds');
-        $sounds_list = array();
-        if ($sounds && !is_wp_error($sounds)) {
-            foreach ($sounds as $sound) {
-                $sounds_list[] = $sound->name;
+
+        if ($local_context['local_lat'] === '' || !is_numeric($local_context['local_lat'])) {
+            $event_lat = get_post_meta($event_id, '_event_latitude', true);
+            if ($event_lat !== '' && is_numeric($event_lat)) {
+                $local_context['local_lat'] = $event_lat;
             }
         }
+
+        if ($local_context['local_long'] === '' || !is_numeric($local_context['local_long'])) {
+            $event_long = get_post_meta($event_id, '_event_longitude', true);
+            if ($event_long !== '' && is_numeric($event_long)) {
+                $local_context['local_long'] = $event_long;
+            }
+        }
+
+        $GLOBALS['apollo_modal_context'] = array(
+            'is_modal' => true,
+            'event_url' => get_permalink($event_id),
+            'local_name' => $local_context['local_name'],
+            'local_address' => $local_context['local_address'],
+            'local_images' => $local_context['local_images'],
+            'local_lat' => $local_context['local_lat'],
+            'local_long' => $local_context['local_long'],
+        );
+
+        // Set up global post for template
+        global $post;
+        $post = $event_post;
+        setup_postdata($post);
         
-        // Gerar HTML do modal (CodePen design)
+        // Load the single event page template (CodePen EaPpjXP design)
         ob_start();
-        ?>
-        <div class="apollo-event-modal-overlay" data-apollo-close></div>
-        <div class="mobile-container" role="dialog" aria-modal="true" aria-labelledby="modal-title-<?php echo $event_id; ?>">
-            
-            <button class="apollo-event-modal-close" type="button" data-apollo-close aria-label="Fechar">
-                <i class="ri-close-line"></i>
-            </button>
-            
-            <!-- Hero Media -->
-            <div class="hero-media">
-                <?php if ($event_video_url): ?>
-                <div class="video-cover">
-                    <?php
-                    $video_embed = '';
-                    if (strpos($event_video_url, 'youtube.com') !== false || strpos($event_video_url, 'youtu.be') !== false) {
-                        preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/', $event_video_url, $matches);
-                        $video_id = $matches[1] ?? '';
-                        if ($video_id) {
-                            $video_embed = "https://www.youtube.com/embed/{$video_id}?autoplay=1&mute=1&loop=1&playlist={$video_id}&controls=0&showinfo=0&modestbranding=1";
-                        }
-                    }
-                    if ($video_embed):
-                    ?>
-                    <iframe src="<?php echo esc_url($video_embed); ?>" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe>
-                    <?php else: ?>
-                    <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr(get_the_title($event_id)); ?>">
-                    <?php endif; ?>
-                </div>
-                <?php else: ?>
-                <img src="<?php echo esc_url($banner_url); ?>" alt="<?php echo esc_attr(get_the_title($event_id)); ?>" style="width:100%;height:auto;">
-                <?php endif; ?>
-                
-                <div class="hero-overlay"></div>
-                <div class="hero-content">
-                    <span class="event-tag-pill"><i class="ri-megaphone-fill"></i> Evento Apollo</span>
-                    <h1 class="hero-title" id="modal-title-<?php echo $event_id; ?>"><?php echo esc_html(get_the_title($event_id)); ?></h1>
-                    <div class="hero-meta">
-                        <div class="hero-meta-item">
-                            <i class="ri-calendar-line"></i>
-                            <span><?php echo esc_html($day . ' ' . $month_pt . ' \'25'); ?></span>
-                        </div>
-                        <?php if ($start_time): ?>
-                        <div class="hero-meta-item">
-                            <i class="ri-time-line"></i>
-                            <span><?php echo esc_html(substr($start_time, 0, 5) . ($end_time ? ' — ' . substr($end_time, 0, 5) : '')); ?></span>
-                            <font style="opacity:.7;font-weight:300;font-size:.81rem;">(GMT-03h00)</font>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($venue_name): ?>
-                        <div class="hero-meta-item">
-                            <i class="ri-map-pin-line"></i>
-                            <span><?php echo esc_html($venue_name); ?></span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Body -->
-            <div class="event-body">
-                
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <?php if ($tickets_url): ?>
-                    <a href="<?php echo esc_url($tickets_url); ?>" class="quick-action" target="_blank">
-                        <div class="quick-action-icon"><i class="ri-ticket-2-line"></i></div>
-                        <span class="quick-action-label">TICKETS</span>
-                    </a>
-                    <?php else: ?>
-                    <a href="#route_TICKETS" class="quick-action">
-                        <div class="quick-action-icon"><i class="ri-ticket-2-line"></i></div>
-                        <span class="quick-action-label">TICKETS</span>
-                    </a>
-                    <?php endif; ?>
-                    
-                    <a href="#route_LINE" class="quick-action">
-                        <div class="quick-action-icon"><i class="ri-draft-line"></i></div>
-                        <span class="quick-action-label">Line-up</span>
-                    </a>
-                    
-                    <a href="#route_ROUTE" class="quick-action">
-                        <div class="quick-action-icon"><i class="ri-treasure-map-line"></i></div>
-                        <span class="quick-action-label">ROUTE</span>
-                    </a>
-                    
-                    <a href="#" class="quick-action" data-event-id="<?php echo $event_id; ?>" data-favorites-button>
-                        <div class="quick-action-icon"><i class="ri-rocket-line"></i></div>
-                        <span class="quick-action-label">Interesse</span>
-                    </a>
-                </div>
-                
-                <!-- RSVP Row with Avatar Explosion -->
-                <div class="rsvp-row">
-                    <div class="avatars-explosion">
-                        <?php
-                        // TODO: Replace with actual user avatars who favorited this event
-                        $sample_avatars = [
-                            'https://randomuser.me/api/portraits/men/1.jpg',
-                            'https://randomuser.me/api/portraits/women/2.jpg',
-                            'https://randomuser.me/api/portraits/men/3.jpg',
-                            'https://randomuser.me/api/portraits/women/4.jpg',
-                            'https://randomuser.me/api/portraits/men/5.jpg',
-                            'https://randomuser.me/api/portraits/women/6.jpg',
-                            'https://randomuser.me/api/portraits/men/7.jpg',
-                            'https://randomuser.me/api/portraits/women/8.jpg',
-                        ];
-                        foreach ($sample_avatars as $avatar_url):
-                        ?>
-                        <div class="avatar" style="background-image: url('<?php echo esc_url($avatar_url); ?>')"></div>
-                        <?php endforeach; ?>
-                        <div class="avatar-count">+35</div>
-                        <p class="interested-text" style="margin: 0 8px 0px 20px;">
-                            <i class="ri-bar-chart-2-fill"></i> 
-                            <span id="result"><?php echo get_post_meta($event_id, '_favorites_count', true) ?: '0'; ?> interessados</span>
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Info Section -->
-                <section class="section">
-                    <h2 class="section-title">
-                        <i class="ri-information-line"></i> Info
-                    </h2>
-                    <div class="info-card">
-                        <p class="info-text"><?php echo $content; ?></p>
-                    </div>
-                    <?php if (!empty($sounds_list)): ?>
-                    <div class="music-tags-marquee">
-                        <div class="music-tags-track">
-                            <?php 
-                            // Repeat sounds 8 times for infinite scroll
-                            for ($i = 0; $i < 8; $i++):
-                                foreach ($sounds_list as $sound):
-                            ?>
-                            <span class="music-tag"><?php echo esc_html($sound); ?></span>
-                            <?php 
-                                endforeach;
-                            endfor;
-                            ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </section>
-                
-                <?php if (!empty($promo_images) && is_array($promo_images)): ?>
-                <!-- Promo Gallery (max 5 Images) -->
-                <div class="promo-gallery-slider">
-                    <div class="promo-track" id="promoTrack">
-                        <?php 
-                        $promo_images_filtered = array_filter($promo_images);
-                        $promo_images_limited = array_slice($promo_images_filtered, 0, 5);
-                        foreach ($promo_images_limited as $promo_img):
-                            $promo_url = is_numeric($promo_img) ? wp_get_attachment_url($promo_img) : $promo_img;
-                            if ($promo_url):
-                        ?>
-                        <div class="promo-slide" style="border-radius:12px">
-                            <img src="<?php echo esc_url($promo_url); ?>" alt="Promo">
-                        </div>
-                        <?php 
-                            endif;
-                        endforeach; 
-                        ?>
-                    </div>
-                    <div class="promo-controls">
-                        <button class="promo-prev"><i class="ri-arrow-left-s-line"></i></button>
-                        <button class="promo-next"><i class="ri-arrow-right-s-line"></i></button>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if (!empty($timetable)): ?>
-                <!-- DJ Lineup -->
-                <section class="section" id="route_LINE">
-                    <h2 class="section-title"><i class="ri-disc-line"></i> Line-up</h2>
-                    <div class="lineup-list">
-                        <?php foreach ($timetable as $slot):
-                            $dj_id = isset($slot['dj']) ? (int) $slot['dj'] : 0;
-                            if (!$dj_id) continue;
-                            
-                            $dj_post = get_post($dj_id);
-                            if (!$dj_post || $dj_post->post_status !== 'publish') continue;
-                            
-                            $dj_name = get_post_meta($dj_id, '_dj_name', true) ?: $dj_post->post_title;
-                            $dj_image = get_post_meta($dj_id, '_dj_image', true);
-                            $dj_image_url = '';
-                            
-                            if ($dj_image) {
-                                $dj_image_url = is_numeric($dj_image) ? wp_get_attachment_url($dj_image) : $dj_image;
-                            }
-                            if (!$dj_image_url && has_post_thumbnail($dj_id)) {
-                                $dj_image_url = get_the_post_thumbnail_url($dj_id, 'thumbnail');
-                            }
-                            
-                            $time_start = isset($slot['from']) ? esc_html($slot['from']) : '';
-                            $time_end = isset($slot['to']) ? esc_html($slot['to']) : '';
-                        ?>
-                        <div class="lineup-card">
-                            <?php if ($dj_image_url): ?>
-                            <img src="<?php echo esc_url($dj_image_url); ?>" alt="<?php echo esc_attr($dj_name); ?>" class="lineup-avatar-img">
-                            <?php else: ?>
-                            <div class="lineup-avatar-img" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.5rem;">
-                                <?php echo esc_html(strtoupper(substr($dj_name, 0, 2))); ?>
-                            </div>
-                            <?php endif; ?>
-                            <div class="lineup-info">
-                                <h3 class="lineup-name">
-                                    <a href="<?php echo get_permalink($dj_id); ?>" class="dj-link"><?php echo esc_html($dj_name); ?></a>
-                                </h3>
-                                <?php if ($time_start): ?>
-                                <div class="lineup-time">
-                                    <i class="ri-time-line"></i>
-                                    <span><?php echo $time_start . ($time_end ? ' — ' . $time_end : ''); ?></span>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </section>
-                <?php endif; ?>
-                
-                <?php if ($venue_name): ?>
-                <!-- Venue Section -->
-                <section class="section" id="route_ROUTE">
-                    <h2 class="section-title"><i class="ri-map-pin-2-line"></i> <?php echo esc_html($venue_name); ?></h2>
-                    <?php if ($venue_address): ?>
-                    <p class="local-endereco"><?php echo esc_html($venue_address); ?></p>
-                    <?php endif; ?>
-                    
-                    <?php if ($venue_lat && $venue_lng): ?>
-                    <div class="map-view" id="event-map-<?php echo $event_id; ?>" style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;"></div>
-                    <script>
-                    if (typeof L !== 'undefined') {
-                        setTimeout(function() {
-                            var map = L.map('event-map-<?php echo $event_id; ?>', {
-                                zoomControl: false,
-                                scrollWheelZoom: false,
-                                dragging: false,
-                                touchZoom: false,
-                                doubleClickZoom: false
-                            }).setView([<?php echo esc_js($venue_lat); ?>, <?php echo esc_js($venue_lng); ?>], 15);
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: ''
-                            }).addTo(map);
-                            L.marker([<?php echo esc_js($venue_lat); ?>, <?php echo esc_js($venue_lng); ?>]).addTo(map);
-                        }, 500);
-                    }
-                    </script>
-                    <?php else: ?>
-                    <div class="map-view" style="margin:0 auto;z-index:0;background:green;width:100%;height:285px;border-radius:12px;background-image:url('https://img.freepik.com/premium-vector/city-map-scheme-background-flat-style-vector-illustration_833641-2300.jpg');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>
-                    <?php endif; ?>
-                    
-                    <!-- Route Input -->
-                    <div class="route-controls" style="transform:translateY(-80px);padding:0 0.5rem;">
-                        <div class="route-input">
-                            <i class="ri-map-pin-line"></i>
-                            <input type="text" id="origin-input" placeholder="Seu endereço de partida" data-venue-lat="<?php echo esc_attr($venue_lat); ?>" data-venue-lng="<?php echo esc_attr($venue_lng); ?>">
-                        </div>
-                        <button id="route-btn" class="route-button"><i class="ri-send-plane-line"></i></button>
-                    </div>
-                </section>
-                <?php endif; ?>
-                
-                <?php if ($tickets_url): ?>
-                <!-- Tickets Section -->
-                <section class="section" id="route_TICKETS">
-                    <h2 class="section-title"><i class="ri-ticket-2-line"></i> Acessos</h2>
-                    <div class="tickets-grid">
-                        <a href="<?php echo esc_url($tickets_url); ?>?ref=apollo.rio.br" class="ticket-card" target="_blank">
-                            <div class="ticket-icon"><i class="ri-ticket-line"></i></div>
-                            <div class="ticket-info">
-                                <h3 class="ticket-name">Ingressos</h3>
-                                <span class="ticket-cta">Seguir para Bilheteria Digital →</span>
-                            </div>
-                        </a>
-                        
-                        <?php if ($cupom_ario): ?>
-                        <div class="apollo-coupon-detail">
-                            <i class="ri-coupon-3-line"></i>
-                            <span>Cupom <strong>APOLLO</strong> pode estar ativo com desconto</span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </section>
-                <?php endif; ?>
-                
-                <?php if ($final_image): 
-                    $final_image_url = is_numeric($final_image) ? wp_get_attachment_url($final_image) : $final_image;
-                    if ($final_image_url):
-                ?>
-                <section class="section">
-                    <div class="secondary-image">
-                        <img src="<?php echo esc_url($final_image_url); ?>" alt="Event Final Photo">
-                    </div>
-                </section>
-                <?php endif; endif; ?>
-                
-                <!-- Protection Notice -->
-                <section class="section">
-                    <div class="respaldo_eve">
-                        *A organização e execução deste evento cabem integralmente aos seus idealizadores.
-                    </div>
-                </section>
-                
-            </div>
-            
-            <!-- Bottom Bar -->
-            <div class="bottom-bar">
-                <a href="<?php echo $tickets_url ? esc_url($tickets_url) : '#route_TICKETS'; ?>" class="bottom-btn primary" id="bottomTicketBtn">
-                    <i class="ri-ticket-fill"></i>
-                    <span>Tickets</span>
-                </a>
-                <button class="bottom-btn secondary" id="bottomShareBtn" data-share-url="<?php echo esc_url(get_permalink($event_id)); ?>" data-share-title="<?php echo esc_attr(get_the_title($event_id)); ?>">
-                    <i class="ri-share-forward-line"></i>
-                </button>
-            </div>
-            
-        </div>
         
-        <!-- Load event-page.js for interactive features -->
-        <script src="https://assets.apollo.rio.br/event-page.js"></script>
-        <?php
+        // Wrap template content in modal structure
+        echo '<div class="apollo-event-modal-overlay" data-apollo-close></div>';
+        echo '<div class="apollo-event-modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title-' . $event_id . '">';
+        echo '<button class="apollo-event-modal-close" type="button" data-apollo-close aria-label="Fechar">';
+        echo '<i class="ri-close-line"></i>';
+        echo '</button>';
+        
+        $template_file = APOLLO_WPEM_PATH . 'templates/single-event-page.php';
+        if (file_exists($template_file)) {
+            include $template_file;
+        } else {
+            echo '<div class="apollo-error">Template não encontrado</div>';
+        }
+        
+        echo '</div>';
+        
         $html = ob_get_clean();
         
-        wp_send_json_success(array('html' => $html));
+        wp_reset_postdata();
+        
+        $response = array('html' => $html);
+
+        unset($GLOBALS['apollo_modal_context']);
+
+        wp_send_json_success($response);
     }
 
     /**

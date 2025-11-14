@@ -29,15 +29,115 @@
         return Number.isFinite(parsed) && !isNaN(parsed) ? parsed : 0;
     }
 
+    function collectDomTargets(selector) {
+        if (!selector) {
+            return [];
+        }
+
+        try {
+            return Array.prototype.slice.call(document.querySelectorAll(selector));
+        } catch (error) {
+            console.error('[Apollo Favorites] Invalid selector:', selector, error);
+            return [];
+        }
+    }
+
+    function renderAvatarList(container, avatars) {
+        if (!container) {
+            return;
+        }
+
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+
+        avatars.forEach(function(item) {
+            if (!item) {
+                return;
+            }
+
+            var avatar = document.createElement('div');
+            avatar.className = 'avatar';
+
+            if (item.id) {
+                avatar.dataset.userId = String(item.id);
+            }
+
+            if (item.name) {
+                avatar.setAttribute('title', item.name);
+                avatar.setAttribute('aria-label', item.name);
+            }
+
+            if (item.avatar) {
+                avatar.style.backgroundImage = 'url(' + JSON.stringify(item.avatar) + ')';
+            } else if (item.initials) {
+                avatar.textContent = item.initials;
+                avatar.classList.add('avatar-initials');
+            }
+
+            container.appendChild(avatar);
+        });
+    }
+
+    function updateAvatarContainers(selector, avatars, remaining, totalCount) {
+        if (!selector) {
+            return;
+        }
+
+        var containers = collectDomTargets(selector);
+        if (!containers.length) {
+            return;
+        }
+
+        containers.forEach(function(container) {
+            // Find the parent rsvp-row (if exists) to toggle visibility
+            var rsvpRow = container.closest('.rsvp-row');
+            
+            // Show rsvp-row only if totalCount > 1
+            if (rsvpRow) {
+                if (totalCount > 1) {
+                    rsvpRow.style.display = '';
+                } else {
+                    rsvpRow.style.display = 'none';
+                }
+            }
+
+            var listEl = container.querySelector('[data-apollo-avatar-list]') || container;
+            renderAvatarList(listEl, Array.isArray(avatars) ? avatars : []);
+
+            var countEl = container.querySelector('[data-apollo-avatar-count]');
+            if (countEl) {
+                var countValue = parseInt(remaining, 10);
+                if (Number.isFinite(countValue) && countValue > 0) {
+                    countEl.textContent = '+' + countValue;
+                    countEl.style.display = '';
+                } else {
+                    countEl.textContent = '';
+                    countEl.style.display = 'none';
+                }
+            }
+
+            container.classList.toggle('is-empty', !(Array.isArray(avatars) && avatars.length));
+        });
+    }
+
     function updateCount(target, count) {
         var prefix = target.getAttribute('data-count-prefix') || '';
         var suffix = target.getAttribute('data-count-suffix') || '';
+        var zeroText = target.getAttribute('data-count-zero') || '';
+
+        if (count === 0 && zeroText) {
+            target.textContent = zeroText;
+            return;
+        }
+
         target.textContent = prefix + count + suffix;
     }
 
     function setState(trigger, favorited) {
         trigger.dataset.favorited = favorited ? '1' : '0';
         trigger.classList.toggle('is-favorited', !!favorited);
+        trigger.setAttribute('aria-pressed', favorited ? 'true' : 'false');
 
         var iconSelector = trigger.getAttribute('data-apollo-favorite-icon');
         var icon = iconSelector ? trigger.querySelector(iconSelector) : trigger.querySelector('i');
@@ -51,16 +151,7 @@
     }
 
     function collectCountTargets(selector) {
-        if (!selector) {
-            return [];
-        }
-
-        try {
-            return Array.prototype.slice.call(document.querySelectorAll(selector));
-        } catch (error) {
-            console.error('[Apollo Favorites] Invalid count selector:', selector, error);
-            return [];
-        }
+        return collectDomTargets(selector);
     }
 
     function handleClick(event) {
@@ -82,7 +173,8 @@
             return;
         }
 
-        var countTargets = collectCountTargets(trigger.getAttribute('data-apollo-favorite-count'));
+    var countTargets = collectCountTargets(trigger.getAttribute('data-apollo-favorite-count'));
+    var avatarSelector = trigger.getAttribute('data-apollo-favorite-avatars');
 
         var params = new URLSearchParams();
         params.set('action', 'toggle_favorite');
@@ -129,14 +221,21 @@
                     throw requestError;
                 }
 
-                var favorited = !!(data.data && data.data.fav);
-                var count = parseCount(data.data && data.data.count);
+                var payload = data.data || {};
+                var favorited = !!payload.fav;
+                var count = parseCount(payload.count);
+                var avatars = Array.isArray(payload.avatars) ? payload.avatars : [];
+                var remaining = parseCount(payload.remaining);
 
                 setState(trigger, favorited);
                 if (countTargets.length) {
                     countTargets.forEach(function(target) {
                         updateCount(target, count);
                     });
+                }
+
+                if (avatarSelector) {
+                    updateAvatarContainers(avatarSelector, avatars, remaining, count);
                 }
             })
             .catch(function(error) {

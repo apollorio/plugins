@@ -473,7 +473,10 @@
           /* MOVED to .event_listing */
           
           
-            height: 400px;
+            height: auto;
+            aspect-ratio: 4/3;
+            min-height: 280px;
+            max-height: 350px;
             position: relative;
             border-radius: var(--radius-main);
             overflow: hidden; /* This is CRITICAL for the mask to respect the radius */
@@ -983,17 +986,34 @@
             margin-bottom: 1rem;
         }
 
+        .apollo-favorite-avatars {
+            display: flex;
+            align-items: center;
+        }
+
         .avatar {
             width: 42px;
             height: 42px;
             border-radius: 49%;
             corner-shape: squircle;
-            border: 0px solid #fff;
+            border: 0 solid #fff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             margin-left: -12px;
             transition: transform 0.3s ease;
             background-size: cover;
             background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            background-color: #f3f4f6;
+        }
+
+        .avatar.avatar-initials {
+            background-image: none !important;
         }
 
         .avatar:first-child {
@@ -1018,6 +1038,10 @@
             font-weight: 500;
             border: 3px solid #fff;
             margin-left: -15px;
+        }
+
+        .avatar-count:empty {
+            display: none;
         }
 
         .interested-text {
@@ -1631,7 +1655,18 @@
           height: 75vh;
           overflow: hidden;
           background: #000;
-          
+        }
+
+        /* Hero Image - for background images and gradients */
+        .hero-image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
         }
 
         .video-cover {
@@ -1776,8 +1811,11 @@
 
             /* --- Card Picture (FIXED) --- */
             .event_listing .picture {
-                /* REVERTED: Back to fixed height */
-                height: 300px; 
+                /* Responsive height - fit to content */
+                height: auto;
+                aspect-ratio: 4/3;
+                min-height: 250px;
+                max-height: 300px;
             }
         
             .banner-ario-1-wrapper {
@@ -1878,7 +1916,10 @@
                 right: 15px;
             }
             .event_listing .picture {
-                height: 350px; /* Taller for single column */
+                height: auto;
+                aspect-ratio: 4/3;
+                min-height: 280px;
+                max-height: 350px;
                 /* Reset mask variables for single column */
                 --r: 12px;
                 --s: 12px;
@@ -1936,6 +1977,10 @@
                 right: 70px;
             }
 
+            .apollo-favorite-avatars {
+                display: flex;
+            }
+
 
             .promo-gallery-slider {
                 height: 255px;
@@ -1977,7 +2022,10 @@
 
 .event_listings.list-view .event_listing .picture {
     flex: 0 0 200px!important; /* Fixed width for image in list view */
-    height: 150px!important; /* Smaller height */
+    height: auto!important;
+    aspect-ratio: 4/3!important;
+    min-height: 150px!important;
+    max-height: 180px!important;
 }
 
 .event_listings.list-view .event_listing .event-line {
@@ -1992,6 +2040,100 @@
     
     .event_listings.list-view .event_listing .picture {
         width: 100%!important;
-        height: 200px!important;
+        height: auto!important;
+        aspect-ratio: 4/3!important;
+        min-height: 180px!important;
+        max-height: 250px!important;
     }
+}
+
+/* ============================================ */
+/* EVENT MODAL STYLES - Z-INDEX & OVERLAY */
+/* ============================================ */
+
+/* Modal wrapper - covers entire screen - NO OVERFLOW BLOCK */
+.modal,
+.micromodal-slide,
+#apollo-event-modal {
+    position: fixed!important;
+    top: 0!important;
+    left: 0!important;
+    right: 0!important;
+    bottom: 0!important;
+    z-index: 9999!important;
+    pointer-events: none!important; /* Let clicks pass to children */
+}
+
+.modal.is-open,
+.micromodal-slide.is-open {
+    display: flex!important;
+    align-items: flex-start!important;
+    justify-content: center!important;
+    padding-top: 50px!important;
+    z-index: 9999!important;
+}
+
+/* Overlay - INDEPENDENT z-index, behind container */
+.modal__overlay,
+.apollo-event-modal-overlay {
+    position: fixed!important;
+    top: 0!important;
+    left: 0!important;
+    right: 0!important;
+    bottom: 0!important;
+    background: transparent!important;
+    background: linear-gradient(25deg, #eeeeee40 0%, transparent 100%)!important;
+    backdrop-filter: blur(5px)!important;
+    -webkit-backdrop-filter: blur(5px)!important;
+    z-index: 10000!important;
+    cursor: pointer!important;
+    pointer-events: auto!important; /* Overlay catches clicks */
+}
+
+/* Container - INDEPENDENT z-index, relative position, scrollable */
+.modal__container,
+.apollo-event-modal-content {
+    position: relative!important; /* NOT fixed - inside flex container */
+    background: var(--bg-main, #fff)!important;
+    border-radius: 12px!important;
+    width: 90%!important;
+    max-width: 900px!important;
+    max-height: 95vh!important;
+    overflow-y: auto!important; /* ONLY CONTAINER SCROLLS */
+    overflow-x: hidden!important;
+    z-index: 10001!important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5)!important;
+    cursor: default!important;
+    pointer-events: auto!important; /* Container catches clicks */
+    margin-bottom: 50px!important; /* Space at bottom when scrolling */
+}
+
+/* Modal content - NO overflow restrictions */
+.modal__content {
+    overflow: visible!important; /* Let container handle all scrolling */
+    padding: 0!important;
+}
+
+/* Close button - sticky at top of scrolling container */
+.modal__close,
+.apollo-event-modal-close {
+    z-index: 10002!important;
+    position: sticky!important;
+    top: 1rem!important;
+    pointer-events: auto!important;
+}
+
+/* Event content inside modal - override any overflow restrictions */
+.modal__container .mobile-container,
+.modal__content .mobile-container {
+    overflow: visible!important;
+    max-height: none!important;
+    height: auto!important;
+    position: relative!important;
+}
+
+/* Hero media inside modal should not have fixed positioning */
+.modal__container .hero-media,
+.modal__content .hero-media {
+    position: relative!important;
 }

@@ -145,21 +145,43 @@ if ($event_video_url) {
     }
 }
 
-// === FAVORITES COUNT ===
-$favorites_count_meta = get_post_meta($event_id, '_favorites_count', true);
-$event_favorites_count = is_numeric($favorites_count_meta) ? max(0, intval($favorites_count_meta)) : 0;
-if (!$event_favorites_count && function_exists('favorites_get_count')) {
-    $event_favorites_count = max(0, intval(favorites_get_count($event_id)));
-}
+// === FAVORITES SNAPSHOT ===
+$favorites_snapshot = function_exists('apollo_get_event_favorites_snapshot')
+    ? apollo_get_event_favorites_snapshot($event_id)
+    : null;
 
+$favorites_count = 0;
+$favorite_avatars = array();
+$favorite_remaining = 0;
 $user_has_favorited = false;
-if (is_user_logged_in()) {
-    $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
-    if (is_array($user_favorites)) {
-        $user_favorites = array_map('intval', $user_favorites);
-        $user_has_favorited = in_array((int) $event_id, $user_favorites, true);
+
+if (is_array($favorites_snapshot)) {
+    $favorites_count = isset($favorites_snapshot['count']) ? (int) $favorites_snapshot['count'] : 0;
+    $favorite_avatars = isset($favorites_snapshot['avatars']) && is_array($favorites_snapshot['avatars'])
+        ? $favorites_snapshot['avatars']
+        : array();
+    $favorite_remaining = isset($favorites_snapshot['remaining']) ? (int) $favorites_snapshot['remaining'] : 0;
+    $user_has_favorited = !empty($favorites_snapshot['current_user_has_favorited']);
+} else {
+    $favorites_count_meta = get_post_meta($event_id, '_favorites_count', true);
+    $favorites_count = is_numeric($favorites_count_meta) ? max(0, (int) $favorites_count_meta) : 0;
+
+    if (function_exists('favorites_get_count') && $favorites_count === 0) {
+        $favorites_count = max(0, (int) favorites_get_count($event_id));
+    }
+
+    if (is_user_logged_in()) {
+        $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
+        if (is_array($user_favorites)) {
+            $user_favorites = array_map('intval', $user_favorites);
+            $user_has_favorited = in_array((int) $event_id, $user_favorites, true);
+        }
     }
 }
+
+$lineup_entries = function_exists('apollo_get_event_lineup')
+    ? apollo_get_event_lineup($event_id)
+    : array();
 
 // === EVENT TAGS ===
 $event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
@@ -239,8 +261,10 @@ if (is_wp_error($event_tags)) $event_tags = [];
                 data-event-id="<?php echo esc_attr($event_id); ?>"
                 data-favorited="<?php echo $user_has_favorited ? '1' : '0'; ?>"
                 data-apollo-favorite-count=".apollo-favorite-count"
+                data-apollo-favorite-avatars=".apollo-favorite-avatars-container"
                 data-apollo-favorite-icon-active="ri-rocket-fill"
                 data-apollo-favorite-icon-inactive="ri-rocket-line"
+                aria-pressed="<?php echo $user_has_favorited ? 'true' : 'false'; ?>"
             >
                 <div class="quick-action-icon">
                     <i class="<?php echo $user_has_favorited ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
@@ -251,42 +275,45 @@ if (is_wp_error($event_tags)) $event_tags = [];
 
         <!-- RSVP Row -->
         <div class="rsvp-row">
-            <div class="avatars-explosion">
-                <?php
-                // Get users who favorited (if Favorites plugin active)
-                $favorited_users = function_exists('favorites_get_users') ? favorites_get_users($event_id) : [];
-                
-                if (!empty($favorited_users)):
-                    $shown = 0;
-                    foreach ($favorited_users as $user_id):
-                        if ($shown >= 10) break;
-                        $avatar_url = get_avatar_url($user_id, ['size' => 100]);
-                ?>
-                <div class="avatar" style="background-image: url('<?php echo esc_url($avatar_url); ?>')"></div>
-                <?php 
-                        $shown++;
-                    endforeach;
-                    $remaining = max(0, count($favorited_users) - 10);
-                else:
-                    // Sample avatars
-                    for ($i = 1; $i <= 10; $i++):
-                        $gender = ($i % 2 == 0) ? 'women' : 'men';
-                ?>
-                <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/<?php echo $gender; ?>/<?php echo $i; ?>.jpg')"></div>
-                <?php 
-                    endfor;
-                    $remaining = 35;
-                endif;
-                ?>
-                <div class="avatar-count">+<?php echo $remaining; ?></div>
+            <div class="avatars-explosion apollo-favorite-avatars-container<?php echo empty($favorite_avatars) ? ' is-empty' : ''; ?>" data-apollo-avatar-container>
+                <div class="apollo-favorite-avatars" data-apollo-avatar-list>
+                    <?php foreach ($favorite_avatars as $avatar):
+                        $avatar_url = isset($avatar['avatar']) ? $avatar['avatar'] : '';
+                        $avatar_name = isset($avatar['name']) ? $avatar['name'] : '';
+                        $avatar_initials = isset($avatar['initials']) ? $avatar['initials'] : '';
+                        $avatar_classes = 'avatar' . (empty($avatar_url) ? ' avatar-initials' : '');
+                    ?>
+                    <div
+                        class="<?php echo esc_attr($avatar_classes); ?>"
+                        <?php if (!empty($avatar_url)): ?>style="background-image: url('<?php echo esc_url($avatar_url); ?>')"<?php endif; ?>
+                        <?php if (!empty($avatar_name)): ?>title="<?php echo esc_attr($avatar_name); ?>" aria-label="<?php echo esc_attr($avatar_name); ?>"<?php endif; ?>
+                    >
+                        <?php if (empty($avatar_url) && !empty($avatar_initials)): ?>
+                            <?php echo esc_html($avatar_initials); ?>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="avatar-count" data-apollo-avatar-count<?php echo $favorite_remaining > 0 ? '' : ' style="display:none;"'; ?>>
+                    <?php if ($favorite_remaining > 0): ?>
+                        +<?php echo esc_html($favorite_remaining); ?>
+                    <?php endif; ?>
+                </div>
                 <p class="interested-text" style="margin: 0 8px 0px 20px;">
                     <i class="ri-bar-chart-2-fill"></i>
                     <span
                         id="result"
                         class="apollo-favorite-count"
                         data-count-prefix=""
-                        data-count-suffix=" interessados"
-                    ><?php echo esc_html($event_favorites_count); ?> interessados</span>
+                        data-count-suffix="<?php echo esc_attr__(' interessados', 'apollo-events-manager'); ?>"
+                        data-count-zero="<?php echo esc_attr__('Seja o primeiro a demonstrar interesse', 'apollo-events-manager'); ?>"
+                    ><?php
+                        if ($favorites_count === 0) {
+                            echo esc_html__('Seja o primeiro a demonstrar interesse', 'apollo-events-manager');
+                        } else {
+                            echo esc_html($favorites_count) . ' ' . esc_html__('interessados', 'apollo-events-manager');
+                        }
+                    ?></span>
                 </p>
             </div>
         </div>
@@ -342,92 +369,46 @@ if (is_wp_error($event_tags)) $event_tags = [];
         <?php endif; ?>
 
         <!-- DJ Lineup -->
-        <?php
-        // ✅ CORRECT: Try _event_dj_ids first, then _timetable
-        $dj_lineup = [];
-        
-        // Try _event_dj_ids (serialized array)
-        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-        if (!empty($dj_ids_raw)) {
-            $dj_ids = maybe_unserialize($dj_ids_raw);
-            if (is_array($dj_ids)) {
-                foreach ($dj_ids as $dj_id) {
-                    $dj_lineup[] = ['dj' => intval($dj_id)];
-                }
-            }
-        }
-        
-        // Fallback: Use _timetable if available
-        if (empty($dj_lineup) && !empty($event_timetable) && is_array($event_timetable)) {
-            $dj_lineup = $event_timetable;
-        }
-        ?>
-        
         <section class="section" id="route_LINE">
             <h2 class="section-title">
                 <i class="ri-disc-line"></i> Line-up
             </h2>
-            <?php if (!empty($dj_lineup)): ?>
+            <?php if (!empty($lineup_entries)): ?>
             <div class="lineup-list">
-                <?php foreach ($dj_lineup as $slot):
-                    // Support multiple timetable formats
-                    $dj_id = isset($slot['dj']) ? $slot['dj'] : (isset($slot['dj_id']) ? $slot['dj_id'] : null);
-                    $dj_time_in = isset($slot['dj_time_in']) ? $slot['dj_time_in'] : (isset($slot['time_in']) ? $slot['time_in'] : '');
-                    $dj_time_out = isset($slot['dj_time_out']) ? $slot['dj_time_out'] : (isset($slot['time_out']) ? $slot['time_out'] : '');
-
-                    if (empty($dj_id)) continue;
-
-                    // Get DJ data
-                    $dj_name = '';
-                    $dj_photo_url = '';
-                    $dj_permalink = '#';
-
-                    if (is_numeric($dj_id)) {
-                        $dj_post = get_post($dj_id);
-                        if ($dj_post && $dj_post->post_status === 'publish') {
-                            $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                            if (empty($dj_name)) {
-                                $dj_name = $dj_post->post_title;
-                            }
-
-                            $dj_photo = get_post_meta($dj_id, '_photo', true);
-                            if (empty($dj_photo)) {
-                                $dj_photo = get_post_meta($dj_id, '_dj_image', true);
-                            }
-
-                            if (is_numeric($dj_photo)) {
-                                $dj_photo_url = wp_get_attachment_url($dj_photo);
-                            } elseif (!empty($dj_photo)) {
-                                $dj_photo_url = $dj_photo;
-                            }
-
-                            if (empty($dj_photo_url) && has_post_thumbnail($dj_id)) {
-                                $dj_photo_url = get_the_post_thumbnail_url($dj_id, 'medium');
-                            }
-
-                            $dj_permalink = get_permalink($dj_id);
-                        }
-                    } else {
-                        // If dj_id is a string (DJ name), use it directly
-                        $dj_name = $dj_id;
-                    }
-
-                    if (empty($dj_name)) continue;
-                ?>
+                <?php foreach ($lineup_entries as $entry): ?>
                 <div class="lineup-card">
-                    <?php if ($dj_photo_url): ?>
-                    <img src="<?php echo esc_url($dj_photo_url); ?>" alt="<?php echo esc_attr($dj_name); ?>" class="lineup-avatar-img">
+                    <?php if (!empty($entry['photo'])): ?>
+                    <img src="<?php echo esc_url($entry['photo']); ?>" alt="<?php echo esc_attr($entry['name']); ?>" class="lineup-avatar-img">
+                    <?php else: ?>
+                    <div class="lineup-avatar-fallback">
+                        <?php echo esc_html(mb_substr($entry['name'], 0, 2)); ?>
+                    </div>
                     <?php endif; ?>
                     <div class="lineup-info">
                         <h3 class="lineup-name">
-                            <a href="<?php echo esc_url($dj_permalink); ?>" target="_blank" class="dj-link">
-                                <?php echo esc_html($dj_name); ?>
+                            <?php if (!empty($entry['permalink'])): ?>
+                            <a href="<?php echo esc_url($entry['permalink']); ?>" target="_blank" class="dj-link">
+                                <?php echo esc_html($entry['name']); ?>
                             </a>
+                            <?php else: ?>
+                            <?php echo esc_html($entry['name']); ?>
+                            <?php endif; ?>
                         </h3>
-                        <?php if ($dj_time_in && $dj_time_out): ?>
+                        <?php if ($entry['from'] !== '' || $entry['to'] !== ''): ?>
                         <div class="lineup-time">
                             <i class="ri-time-line"></i>
-                            <span><?php echo esc_html($dj_time_in . ' - ' . $dj_time_out); ?></span>
+                            <span>
+                                <?php
+                                $time_parts = array();
+                                if ($entry['from'] !== '') {
+                                    $time_parts[] = $entry['from'];
+                                }
+                                if ($entry['to'] !== '') {
+                                    $time_parts[] = $entry['to'];
+                                }
+                                echo esc_html(implode(' - ', $time_parts));
+                                ?>
+                            </span>
                         </div>
                         <?php endif; ?>
                     </div>
