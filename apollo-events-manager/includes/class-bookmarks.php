@@ -264,7 +264,7 @@ class Apollo_Events_Bookmarks
     public function ajax_toggle_bookmark()
     {
         // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'apollo_bookmark_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'apollo_bookmark_nonce')) {
             wp_send_json_error(['message' => 'Nonce inválido']);
             return;
         }
@@ -276,7 +276,7 @@ class Apollo_Events_Bookmarks
         }
         
         $user_id = get_current_user_id();
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        $event_id = isset($_POST['event_id']) ? absint(sanitize_text_field(wp_unslash($_POST['event_id']))) : 0;
         
         if (!$event_id) {
             wp_send_json_error(['message' => 'ID do evento inválido']);
@@ -444,9 +444,11 @@ class Apollo_Events_Bookmarks
     {
         global $wpdb;
         
-        $total_bookmarks = $wpdb->get_var("SELECT COUNT(*) FROM {$this->table_name}");
-        $total_users = $wpdb->get_var("SELECT COUNT(DISTINCT user_id) FROM {$this->table_name}");
-        $total_events = $wpdb->get_var("SELECT COUNT(DISTINCT event_id) FROM {$this->table_name}");
+        // Use prepare for safety (table name is safe but good practice)
+        $table_name = esc_sql($this->table_name);
+        $total_bookmarks = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
+        $total_users = $wpdb->get_var("SELECT COUNT(DISTINCT user_id) FROM {$table_name}");
+        $total_events = $wpdb->get_var("SELECT COUNT(DISTINCT event_id) FROM {$table_name}");
         
         ?>
         <div class="wrap">

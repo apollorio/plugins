@@ -260,11 +260,19 @@ class Apollo_Events_REST_API
 
         // Author
         $author = get_userdata($event->post_author);
-        $formatted['author'] = [
-            'id' => $author->ID,
-            'name' => $author->display_name,
-            'avatar' => get_avatar_url($author->ID),
-        ];
+        if ($author) {
+            $formatted['author'] = [
+                'id' => $author->ID,
+                'name' => $author->display_name ?? '',
+                'avatar' => get_avatar_url($author->ID),
+            ];
+        } else {
+            $formatted['author'] = [
+                'id' => 0,
+                'name' => '',
+                'avatar' => '',
+            ];
+        }
         
         // Local connection - MANDATORY
         if (function_exists('apollo_get_event_local_id')) {

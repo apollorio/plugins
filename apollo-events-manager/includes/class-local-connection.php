@@ -293,15 +293,16 @@ class Apollo_Local_Connection
     {
         global $wpdb;
         
-        $events = $wpdb->get_col(
+        $events = $wpdb->get_col($wpdb->prepare(
             "SELECT p.ID 
             FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '" . esc_sql(self::META_KEY_PRIMARY) . "'
+            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
             WHERE p.post_type = 'event_listing'
             AND p.post_status = 'publish'
             AND (pm.meta_value IS NULL OR pm.meta_value = '' OR pm.meta_value = '0')
-            LIMIT 100"
-        );
+            LIMIT 100",
+            self::META_KEY_PRIMARY
+        ));
         
         return array_map('absint', $events);
     }
