@@ -913,9 +913,9 @@ class Apollo_Events_Admin_Metaboxes {
         if ($local_selected > 0) {
             // Save as single integer (not array) - consistent with database structure
             // Use unified connection manager
-            if (class_exists('Apollo_Venue_Local_Connection')) {
-                $connection = Apollo_Venue_Local_Connection::get_instance();
-                $connection->set_venue_id($post_id, $local_selected);
+            if (class_exists('Apollo_Local_Connection')) {
+                $connection = Apollo_Local_Connection::get_instance();
+                $connection->set_local_id($post_id, $local_selected);
             } else {
                 // Fallback to direct meta update
                 apollo_update_post_meta($post_id, '_event_local_ids', $local_selected);

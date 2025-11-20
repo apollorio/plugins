@@ -1,8 +1,8 @@
 <?php
 /**
- * Venue-Local Connection Manager
+ * Local Connection Manager
  * 
- * Ensures mandatory connection between events and venues (event_local CPT)
+ * Ensures mandatory connection between events and local (event_local CPT)
  * Prevents duplications and provides unified API
  * 
  * @package ApolloEventsManager
@@ -14,18 +14,18 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Apollo Venue-Local Connection Manager
+ * Apollo Local Connection Manager
  * 
- * CRITICAL: This class ensures that every event MUST have a venue (local) connected.
+ * CRITICAL: This class ensures that every event MUST have a local connected.
  * The connection is stored in _event_local_ids meta (single integer ID).
  * Legacy _event_local meta is supported but deprecated.
  */
-class Apollo_Venue_Local_Connection
+class Apollo_Local_Connection
 {
     private static $instance = null;
     
     /**
-     * Primary meta key for venue connection
+     * Primary meta key for local connection
      */
     const META_KEY_PRIMARY = '_event_local_ids';
     
@@ -197,7 +197,7 @@ class Apollo_Venue_Local_Connection
         }
         
         // Check if local is set in POST data
-        $local_id = isset($_POST['apollo_event_local']) ? absint($_POST['apollo_event_local']) : 0;
+        $local_id = isset($_POST['apollo_event_local']) ? absint(sanitize_text_field(wp_unslash($_POST['apollo_event_local']))) : 0;
         
         // If not in POST, check current meta
         if (!$local_id) {
@@ -239,7 +239,7 @@ class Apollo_Venue_Local_Connection
         // Get local ID from POST data
         $local_id = 0;
         if (isset($_POST['apollo_event_local'])) {
-            $local_id = absint($_POST['apollo_event_local']);
+            $local_id = absint(sanitize_text_field(wp_unslash($_POST['apollo_event_local'])));
         }
         
         // If local ID provided, set it
@@ -256,14 +256,12 @@ class Apollo_Venue_Local_Connection
     
     /**
      * Clean up duplicate meta entries
-     * Ensures only _event_local_ids exists (removes legacy and duplicates)
+     * Ensures only primary meta key exists
      * 
      * @param int $event_id Event post ID
      */
     private function cleanup_duplicate_meta($event_id)
     {
-        global $wpdb;
-        
         $event_id = absint($event_id);
         if (!$event_id) {
             return;
@@ -273,33 +271,16 @@ class Apollo_Venue_Local_Connection
         $local_id = $this->get_local_id($event_id);
         
         // Remove all local-related meta except the primary one
-        $wpdb->delete(
-            $wpdb->postmeta,
-            [
-                'post_id' => $event_id,
-                'meta_key' => self::META_KEY_LEGACY
-            ],
-            ['%d', '%s']
-        );
+        $meta_keys_to_check = [
+            self::META_KEY_LEGACY,
+            '_event_local', // Additional legacy variations
+        ];
         
-        // Ensure only one _event_local_ids entry exists
-        $existing = $wpdb->get_results($wpdb->prepare(
-            "SELECT meta_id FROM {$wpdb->postmeta} 
-            WHERE post_id = %d AND meta_key = %s",
-            $event_id,
-            self::META_KEY_PRIMARY
-        ));
-        
-        if (count($existing) > 1) {
-            // Keep first, delete others
-            $keep_id = $existing[0]->meta_id;
-            $wpdb->query($wpdb->prepare(
-                "DELETE FROM {$wpdb->postmeta} 
-                WHERE post_id = %d AND meta_key = %s AND meta_id != %d",
-                $event_id,
-                self::META_KEY_PRIMARY,
-                $keep_id
-            ));
+        foreach ($meta_keys_to_check as $meta_key) {
+            $existing = get_post_meta($event_id, $meta_key, true);
+            if ($existing && $existing != $local_id) {
+                delete_post_meta($event_id, $meta_key);
+            }
         }
     }
     
@@ -312,17 +293,15 @@ class Apollo_Venue_Local_Connection
     {
         global $wpdb;
         
-        $events = $wpdb->get_col($wpdb->prepare(
-            "SELECT p.ID FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = %s
-            LEFT JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = %s
+        $events = $wpdb->get_col(
+            "SELECT p.ID 
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '" . esc_sql(self::META_KEY_PRIMARY) . "'
             WHERE p.post_type = 'event_listing'
             AND p.post_status = 'publish'
-            AND (pm1.meta_value IS NULL OR pm1.meta_value = '' OR pm1.meta_value = '0')
-            AND (pm2.meta_value IS NULL OR pm2.meta_value = '' OR pm2.meta_value = '0')",
-            self::META_KEY_PRIMARY,
-            self::META_KEY_LEGACY
-        ));
+            AND (pm.meta_value IS NULL OR pm.meta_value = '' OR pm.meta_value = '0')
+            LIMIT 100"
+        );
         
         return array_map('absint', $events);
     }

@@ -899,8 +899,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_name':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -921,8 +921,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_description':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -936,8 +936,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_address':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -951,8 +951,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_city':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -966,8 +966,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_coordinates':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -985,8 +985,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_website':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -1000,8 +1000,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_instagram':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }
@@ -1015,8 +1015,8 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
         case 'local_facebook':
             // Use unified connection manager
             $local_id = 0;
-            if (function_exists('apollo_get_event_venue_id')) {
-                $local_id = apollo_get_event_venue_id($event_id);
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
             } elseif (function_exists('apollo_get_primary_local_id')) {
                 $local_id = apollo_get_primary_local_id($event_id);
             }

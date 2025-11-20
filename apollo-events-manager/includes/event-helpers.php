@@ -73,17 +73,17 @@ if (!function_exists('apollo_aem_parse_ids')) {
 if (!function_exists('apollo_get_primary_local_id')) {
     /**
      * Get primary local ID for an event
-     * DEPRECATED: Use apollo_get_event_venue_id() instead
+     * DEPRECATED: Use apollo_get_event_local_id() instead
      * 
      * @param int $event_id Event post ID
      * @return int|false Local ID or false if not found
-     * @deprecated Use apollo_get_event_venue_id() instead
+     * @deprecated Use apollo_get_event_local_id() instead
      */
     function apollo_get_primary_local_id($event_id) {
         // Use unified connection manager
-        if (class_exists('Apollo_Venue_Local_Connection')) {
-            $connection = Apollo_Venue_Local_Connection::get_instance();
-            return $connection->get_venue_id($event_id);
+        if (class_exists('Apollo_Local_Connection')) {
+            $connection = Apollo_Local_Connection::get_instance();
+            return $connection->get_local_id($event_id);
         }
         
         // Fallback to direct meta access (legacy)

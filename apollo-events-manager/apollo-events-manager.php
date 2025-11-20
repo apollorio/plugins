@@ -2514,7 +2514,7 @@ class Apollo_Events_Manager_Plugin {
         }
 
         // Save local relationship as single integer (not array)
-        $posted_local = isset($_POST['event_local']) ? wp_unslash($_POST['event_local']) : null;
+        $posted_local = isset($_POST['event_local']) ? sanitize_text_field(wp_unslash($_POST['event_local'])) : null;
         if ($posted_local !== null) {
             // Handle both single value and array (for backward compatibility)
             $local_id = is_array($posted_local) ? (int) reset($posted_local) : (int) $posted_local;
@@ -2539,7 +2539,7 @@ class Apollo_Events_Manager_Plugin {
 
         // Save timetable
         if (array_key_exists('timetable', $_POST)) {
-            $clean_timetable = apollo_sanitize_timetable($_POST['timetable']);
+            $clean_timetable = apollo_sanitize_timetable(wp_unslash($_POST['timetable']));
             if (!empty($clean_timetable)) {
                 apollo_update_post_meta($post_id, '_event_timetable', $clean_timetable);
             } else {
@@ -2549,13 +2549,13 @@ class Apollo_Events_Manager_Plugin {
 
         // Save promotional images (array of URLs)
         if (isset($_POST['_3_imagens_promo']) && is_array($_POST['_3_imagens_promo'])) {
-            $clean_images = array_map('esc_url_raw', array_filter($_POST['_3_imagens_promo']));
+            $clean_images = array_map('esc_url_raw', array_map('wp_unslash', array_filter($_POST['_3_imagens_promo'])));
             apollo_update_post_meta($post_id, '_3_imagens_promo', $clean_images);
         }
 
         // Save final image (ID or URL)
         if (isset($_POST['_imagem_final'])) {
-            $final_image = is_numeric($_POST['_imagem_final'])
+            $final_image = is_numeric(sanitize_text_field(wp_unslash($_POST['_imagem_final'])))
                 ? absint($_POST['_imagem_final'])
                 : esc_url_raw($_POST['_imagem_final']);
             
@@ -3804,7 +3804,7 @@ class Apollo_Events_Manager_Plugin {
         $locals = get_posts($args);
         
         if (empty($locals)) {
-            return '<p>' . esc_html__('No venues found.', 'apollo-events-manager') . '</p>';
+            return '<p>' . esc_html__('No locals found.', 'apollo-events-manager') . '</p>';
         }
         
         ob_start();
@@ -4198,7 +4198,7 @@ class Apollo_Events_Manager_Plugin {
                     <div class="table-header p-10" style="border-bottom: 1px solid var(--border-color, #e2e8f0);">
                         <h3 style="margin: 0; font-size: 1.3rem; color: var(--text-primary, #1e293b); display: flex; align-items: center; gap: 10px;">
                             <i class="ri-map-pin-line" style="font-size: 1.5rem;"></i>
-                            <?php echo esc_html__('Local / Venue (event_local)', 'apollo-events-manager'); ?>
+                            <?php echo esc_html__('Local (event_local)', 'apollo-events-manager'); ?>
                             <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-main, #64748b); margin-left: 10px;">
                                 (<?php echo count( $organized['event_local'] ); ?> placeholders)
                             </span>
