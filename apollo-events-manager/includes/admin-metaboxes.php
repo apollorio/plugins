@@ -616,19 +616,21 @@ class Apollo_Events_Admin_Metaboxes {
                                 ?>
                             </div>
                         </div>
-                        <!-- Hidden select for form submission (backup) -->
-                        <select name="apollo_event_local" id="apollo_event_local" class="widefat" style="display:none;">
-                            <option value=""><?php _e('Selecione um local', 'apollo-events-manager'); ?></option>
+                        <!-- Hidden select for form submission (backup) - REQUIRED -->
+                        <select name="apollo_event_local" id="apollo_event_local" class="widefat" style="display:none;" required>
+                            <option value=""><?php _e('-- Selecione um local (obrigatório) --', 'apollo-events-manager'); ?></option>
                             <?php
-                            foreach ($all_locals as $local) {
-                                $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
-                                $is_active  = in_array($local->ID, $current_local, true);
-                                printf(
-                                    '<option value="%d"%s>%s</option>',
-                                    $local->ID,
-                                    $is_active ? ' selected="selected"' : '',
-                                    esc_html($local_name)
-                                );
+                            if (!empty($all_locals)) {
+                                foreach ($all_locals as $local) {
+                                    $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                                    $is_active  = in_array($local->ID, $current_local, true);
+                                    printf(
+                                        '<option value="%d"%s>%s</option>',
+                                        $local->ID,
+                                        $is_active ? ' selected="selected"' : '',
+                                        esc_html($local_name)
+                                    );
+                                }
                             }
                             ?>
                         </select>

@@ -196,7 +196,7 @@ class Apollo_Venue_Local_Connection
             return;
         }
         
-        // Check if venue is set
+        // Check if venue is set in POST data
         $venue_id = isset($_POST['apollo_event_local']) ? absint($_POST['apollo_event_local']) : 0;
         
         // If not in POST, check current meta
@@ -204,13 +204,15 @@ class Apollo_Venue_Local_Connection
             $venue_id = $this->get_venue_id($post_id);
         }
         
-        // If still no venue, check if we're updating existing event
+        // If still no venue and event is being published, show warning
         if (!$venue_id && $post->post_status === 'publish') {
-            // Allow saving but add admin notice
-            add_action('admin_notices', function() {
+            // Add admin notice warning
+            add_action('admin_notices', function() use ($post_id) {
+                $edit_link = admin_url('post.php?post=' . $post_id . '&action=edit');
                 echo '<div class="notice notice-warning is-dismissible">';
-                echo '<p><strong>' . esc_html__('Aviso Apollo:', 'apollo-events-manager') . '</strong> ';
-                echo esc_html__('Este evento não possui um local (venue) conectado. Por favor, conecte um local para melhor organização.', 'apollo-events-manager');
+                echo '<p><strong>' . esc_html__('⚠️ Apollo Events Manager:', 'apollo-events-manager') . '</strong> ';
+                echo esc_html__('Este evento não possui um local (venue) conectado. ', 'apollo-events-manager');
+                echo '<a href="' . esc_url($edit_link) . '">' . esc_html__('Conecte um local agora', 'apollo-events-manager') . '</a>.';
                 echo '</p></div>';
             });
         }
