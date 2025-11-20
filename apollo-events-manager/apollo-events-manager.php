@@ -291,6 +291,14 @@ if (file_exists($ajax_favorites_file)) {
     apollo_log_missing_file($ajax_favorites_file);
 }
 
+// Include REST API system (integrated from wpem-rest-api)
+$rest_api_file = plugin_dir_path(__FILE__) . 'includes/class-rest-api.php';
+if (file_exists($rest_api_file)) {
+    require_once $rest_api_file;
+} elseif (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_DEBUG') && APOLLO_DEBUG) {
+    apollo_log_missing_file($rest_api_file);
+}
+
 // Include AJAX handlers
 $ajax_handlers_file = plugin_dir_path(__FILE__) . 'includes/ajax-handlers.php';
 if (file_exists($ajax_handlers_file)) {
@@ -646,7 +654,9 @@ class Apollo_Events_Manager_Plugin {
      * Prevents fatal errors if WPEM is accidentally reactivated
      */
     public function wpem_compatibility_notice($templates) {
-        if (class_exists('WP_Event_Manager')) {
+        // Removed WP_Event_Manager dependency check - Apollo Events Manager is now standalone
+        // Legacy compatibility mode disabled
+        if (false && class_exists('WP_Event_Manager')) {
             error_log('⚠️ WPEM hook called but Apollo is independent now. Consider deactivating WP Event Manager.');
         }
         return $templates;
@@ -682,7 +692,8 @@ class Apollo_Events_Manager_Plugin {
         }
         
         echo '<!-- Apollo Debug Info -->' . "\n";
-        echo '<!-- WPEM Active: ' . (class_exists('WP_Event_Manager') ? 'YES ⚠️' : 'NO ✅') . ' -->' . "\n";
+        // Removed WP_Event_Manager dependency - Apollo Events Manager is standalone
+        echo '<!-- Apollo Events Manager: Standalone Mode ✅ -->' . "\n";
         echo '<!-- CPTs Registered: ' . (post_type_exists('event_listing') ? 'YES ✅' : 'NO ❌') . ' -->' . "\n";
         echo '<!-- event_listing: ' . (post_type_exists('event_listing') ? 'YES' : 'NO') . ' -->' . "\n";
         echo '<!-- event_dj: ' . (post_type_exists('event_dj') ? 'YES' : 'NO') . ' -->' . "\n";

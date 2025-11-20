@@ -1,0 +1,379 @@
+<?php
+/**
+ * REST API for Apollo Events Manager
+ * Integrated from wpem-rest-api functionality
+ * 
+ * @package ApolloEventsManager
+ * @since 1.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Apollo Events REST API Class
+ * Provides REST endpoints for events management
+ */
+class Apollo_Events_REST_API
+{
+    private static $instance = null;
+    private $namespace = 'apollo-events/v1';
+
+    public static function get_instance()
+    {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct()
+    {
+        add_action('rest_api_init', [$this, 'register_routes']);
+    }
+
+    /**
+     * Register REST API routes
+     */
+    public function register_routes()
+    {
+        // Events endpoints
+        register_rest_route($this->namespace, '/events', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_events'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'per_page' => [
+                    'default' => 20,
+                    'sanitize_callback' => 'absint',
+                ],
+                'page' => [
+                    'default' => 1,
+                    'sanitize_callback' => 'absint',
+                ],
+                'search' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'category' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'location' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'date_from' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'date_to' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]);
+
+        register_rest_route($this->namespace, '/events/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_event'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'id' => [
+                    'required' => true,
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+            ],
+        ]);
+
+        // Categories endpoint
+        register_rest_route($this->namespace, '/categories', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_categories'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        // Locations endpoint
+        register_rest_route($this->namespace, '/locations', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_locations'],
+            'permission_callback' => '__return_true',
+        ]);
+
+        // User events endpoint (requires auth)
+        register_rest_route($this->namespace, '/my-events', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_my_events'],
+            'permission_callback' => [$this, 'check_user_permission'],
+        ]);
+    }
+
+    /**
+     * Get events
+     */
+    public function get_events($request)
+    {
+        $args = [
+            'post_type' => 'event_listing',
+            'post_status' => 'publish',
+            'posts_per_page' => isset($request['per_page']) ? absint($request['per_page']) : 20,
+            'paged' => isset($request['page']) ? absint($request['page']) : 1,
+        ];
+
+        // Search
+        if (!empty($request['search'])) {
+            $args['s'] = sanitize_text_field($request['search']);
+        }
+
+        // Category filter
+        if (!empty($request['category'])) {
+            $args['tax_query'][] = [
+                'taxonomy' => 'event_category',
+                'field' => 'slug',
+                'terms' => sanitize_text_field($request['category']),
+            ];
+        }
+
+        // Location filter
+        if (!empty($request['location'])) {
+            $args['meta_query'][] = [
+                'key' => '_event_location',
+                'value' => sanitize_text_field($request['location']),
+                'compare' => 'LIKE',
+            ];
+        }
+
+        // Date filters
+        if (!empty($request['date_from']) || !empty($request['date_to'])) {
+            $date_query = [];
+            
+            if (!empty($request['date_from'])) {
+                $date_query['after'] = sanitize_text_field($request['date_from']);
+            }
+            
+            if (!empty($request['date_to'])) {
+                $date_query['before'] = sanitize_text_field($request['date_to']);
+            }
+            
+            $date_query['column'] = 'meta_value';
+            $date_query['meta_key'] = '_event_start_date';
+            
+            $args['meta_query'][] = $date_query;
+        }
+
+        $query = new WP_Query($args);
+        
+        $events = [];
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $events[] = $this->format_event(get_post());
+            }
+            wp_reset_postdata();
+        }
+
+        return new WP_REST_Response([
+            'events' => $events,
+            'total' => $query->found_posts,
+            'pages' => $query->max_num_pages,
+            'current_page' => absint($request['page'] ?? 1),
+        ], 200);
+    }
+
+    /**
+     * Get single event
+     */
+    public function get_event($request)
+    {
+        $event_id = absint($request['id']);
+        $event = get_post($event_id);
+
+        if (!$event || $event->post_type !== 'event_listing') {
+            return new WP_Error('event_not_found', 'Evento não encontrado', ['status' => 404]);
+        }
+
+        return new WP_REST_Response([
+            'event' => $this->format_event($event, true),
+        ], 200);
+    }
+
+    /**
+     * Format event data
+     */
+    private function format_event($event, $full = false)
+    {
+        $formatted = [
+            'id' => $event->ID,
+            'title' => $event->post_title,
+            'slug' => $event->post_name,
+            'permalink' => get_permalink($event->ID),
+            'excerpt' => get_the_excerpt($event->ID),
+            'content' => $full ? apply_filters('the_content', $event->post_content) : '',
+            'date' => [
+                'published' => $event->post_date,
+                'modified' => $event->post_modified,
+            ],
+        ];
+
+        // Event meta
+        $start_date = get_post_meta($event->ID, '_event_start_date', true);
+        $end_date = get_post_meta($event->ID, '_event_end_date', true);
+        $location = get_post_meta($event->ID, '_event_location', true);
+        $banner = get_post_meta($event->ID, '_event_banner', true);
+
+        $formatted['event'] = [
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'location' => $location,
+            'banner' => $banner ? wp_get_attachment_image_url($banner, 'large') : null,
+        ];
+
+        // Categories
+        $categories = wp_get_post_terms($event->ID, 'event_category', ['fields' => 'all']);
+        $formatted['categories'] = array_map(function($term) {
+            return [
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+            ];
+        }, $categories);
+
+        // Author
+        $author = get_userdata($event->post_author);
+        $formatted['author'] = [
+            'id' => $author->ID,
+            'name' => $author->display_name,
+            'avatar' => get_avatar_url($author->ID),
+        ];
+
+        // Bookmark count
+        if (class_exists('Apollo_Events_Bookmarks')) {
+            $bookmarks = Apollo_Events_Bookmarks::get_instance();
+            $formatted['bookmark_count'] = $bookmarks->get_bookmark_count($event->ID);
+        }
+
+        // Full details
+        if ($full) {
+            $timetable = get_post_meta($event->ID, '_event_timetable', true);
+            $formatted['event']['timetable'] = $timetable;
+            
+            $djs = get_post_meta($event->ID, '_event_dj_ids', true);
+            $formatted['djs'] = $this->format_djs($djs);
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * Format DJs data
+     */
+    private function format_djs($dj_ids)
+    {
+        if (empty($dj_ids)) {
+            return [];
+        }
+
+        $dj_ids = maybe_unserialize($dj_ids);
+        if (!is_array($dj_ids)) {
+            return [];
+        }
+
+        $djs = [];
+        foreach ($dj_ids as $dj_id) {
+            $dj = get_post($dj_id);
+            if ($dj && $dj->post_status === 'publish') {
+                $djs[] = [
+                    'id' => $dj->ID,
+                    'name' => get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title,
+                    'permalink' => get_permalink($dj->ID),
+                ];
+            }
+        }
+
+        return $djs;
+    }
+
+    /**
+     * Get categories
+     */
+    public function get_categories($request)
+    {
+        $categories = get_terms([
+            'taxonomy' => 'event_category',
+            'hide_empty' => false,
+        ]);
+
+        $formatted = array_map(function($term) {
+            return [
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+                'count' => $term->count,
+            ];
+        }, $categories);
+
+        return new WP_REST_Response([
+            'categories' => $formatted,
+        ], 200);
+    }
+
+    /**
+     * Get locations
+     */
+    public function get_locations($request)
+    {
+        global $wpdb;
+        
+        $locations = $wpdb->get_col(
+            "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} 
+            WHERE meta_key = '_event_location' 
+            AND meta_value != '' 
+            ORDER BY meta_value ASC"
+        );
+
+        return new WP_REST_Response([
+            'locations' => array_map('sanitize_text_field', $locations),
+        ], 200);
+    }
+
+    /**
+     * Get user's events
+     */
+    public function get_my_events($request)
+    {
+        $user_id = get_current_user_id();
+        
+        $args = [
+            'post_type' => 'event_listing',
+            'author' => $user_id,
+            'posts_per_page' => isset($request['per_page']) ? absint($request['per_page']) : 20,
+            'paged' => isset($request['page']) ? absint($request['page']) : 1,
+            'post_status' => ['publish', 'draft', 'pending'],
+        ];
+
+        $query = new WP_Query($args);
+        
+        $events = [];
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $events[] = $this->format_event(get_post());
+            }
+            wp_reset_postdata();
+        }
+
+        return new WP_REST_Response([
+            'events' => $events,
+            'total' => $query->found_posts,
+        ], 200);
+    }
+
+    /**
+     * Check user permission
+     */
+    public function check_user_permission()
+    {
+        return is_user_logged_in();
+    }
+}
+
+// Initialize
+Apollo_Events_REST_API::get_instance();
+
