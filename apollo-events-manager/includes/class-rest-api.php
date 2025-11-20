@@ -131,13 +131,36 @@ class Apollo_Events_REST_API
             ];
         }
 
-        // Location filter
+        // Location filter (venue/local)
         if (!empty($request['location'])) {
-            $args['meta_query'][] = [
-                'key' => '_event_location',
-                'value' => sanitize_text_field($request['location']),
-                'compare' => 'LIKE',
-            ];
+            // Try filtering by venue name first
+            $venue_ids = $this->get_venue_ids_by_name(sanitize_text_field($request['location']));
+            if (!empty($venue_ids)) {
+                $args['meta_query'][] = [
+                    'key' => '_event_local_ids',
+                    'value' => $venue_ids,
+                    'compare' => 'IN',
+                ];
+            } else {
+                // Fallback to _event_location text search
+                $args['meta_query'][] = [
+                    'key' => '_event_location',
+                    'value' => sanitize_text_field($request['location']),
+                    'compare' => 'LIKE',
+                ];
+            }
+        }
+        
+        // Venue filter (by venue ID)
+        if (!empty($request['venue_id'])) {
+            $venue_id = absint($request['venue_id']);
+            if ($venue_id > 0) {
+                $args['meta_query'][] = [
+                    'key' => '_event_local_ids',
+                    'value' => $venue_id,
+                    'compare' => '=',
+                ];
+            }
         }
 
         // Date filters
@@ -242,6 +265,26 @@ class Apollo_Events_REST_API
             'name' => $author->display_name,
             'avatar' => get_avatar_url($author->ID),
         ];
+        
+        // Venue (local) connection - MANDATORY
+        if (function_exists('apollo_get_event_venue_id')) {
+            $venue_id = apollo_get_event_venue_id($event->ID);
+            if ($venue_id) {
+                $venue = get_post($venue_id);
+                if ($venue && $venue->post_type === 'event_local') {
+                    $formatted['venue'] = [
+                        'id' => $venue_id,
+                        'name' => get_post_meta($venue_id, '_local_name', true) ?: $venue->post_title,
+                        'address' => get_post_meta($venue_id, '_local_address', true),
+                        'city' => get_post_meta($venue_id, '_local_city', true),
+                        'state' => get_post_meta($venue_id, '_local_state', true),
+                        'latitude' => get_post_meta($venue_id, '_local_latitude', true),
+                        'longitude' => get_post_meta($venue_id, '_local_longitude', true),
+                        'permalink' => get_permalink($venue_id),
+                    ];
+                }
+            }
+        }
 
         // Bookmark count
         if (class_exists('Apollo_Events_Bookmarks')) {
@@ -315,22 +358,92 @@ class Apollo_Events_REST_API
     }
 
     /**
-     * Get locations
+     * Get locations (venues)
+     * Returns list of venues (event_local posts) instead of text locations
      */
     public function get_locations($request)
     {
-        global $wpdb;
+        // Get all published venues
+        $venues = get_posts([
+            'post_type' => 'event_local',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+        ]);
         
-        $locations = $wpdb->get_col(
+        $locations = [];
+        foreach ($venues as $venue) {
+            $venue_name = get_post_meta($venue->ID, '_local_name', true) ?: $venue->post_title;
+            $city = get_post_meta($venue->ID, '_local_city', true);
+            $state = get_post_meta($venue->ID, '_local_state', true);
+            
+            $location_name = $venue_name;
+            if ($city) {
+                $location_name .= ', ' . $city;
+            }
+            if ($state) {
+                $location_name .= ' - ' . $state;
+            }
+            
+            $locations[] = [
+                'id' => $venue->ID,
+                'name' => sanitize_text_field($location_name),
+                'venue_name' => sanitize_text_field($venue_name),
+                'city' => sanitize_text_field($city),
+                'state' => sanitize_text_field($state),
+            ];
+        }
+        
+        // Fallback: Also include text-based locations from _event_location meta
+        global $wpdb;
+        $text_locations = $wpdb->get_col(
             "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} 
             WHERE meta_key = '_event_location' 
             AND meta_value != '' 
             ORDER BY meta_value ASC"
         );
+        
+        foreach ($text_locations as $text_loc) {
+            $text_loc = sanitize_text_field($text_loc);
+            // Only add if not already in venues list
+            $exists = false;
+            foreach ($locations as $loc) {
+                if ($loc['name'] === $text_loc) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                $locations[] = [
+                    'id' => 0,
+                    'name' => $text_loc,
+                    'venue_name' => $text_loc,
+                    'city' => '',
+                    'state' => '',
+                ];
+            }
+        }
 
         return new WP_REST_Response([
-            'locations' => array_map('sanitize_text_field', $locations),
+            'locations' => $locations,
         ], 200);
+    }
+    
+    /**
+     * Get venue IDs by name (helper for location filter)
+     */
+    private function get_venue_ids_by_name($search_term)
+    {
+        $venues = get_posts([
+            'post_type' => 'event_local',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            's' => $search_term,
+            'fields' => 'ids',
+        ]);
+        
+        return array_map('absint', $venues);
     }
 
     /**

@@ -341,14 +341,22 @@ class Apollo_Events_Admin_Metaboxes {
         $current_djs = maybe_unserialize($current_djs);
         $current_djs = is_array($current_djs) ? array_map('intval', $current_djs) : array();
 
-        $current_local = apollo_get_post_meta($post->ID, '_event_local_ids', true);
-        if (is_array($current_local)) {
-            $current_local = array_values(array_filter(array_map('intval', $current_local)));
-        } elseif (!empty($current_local)) {
-            $current_local = array((int) $current_local);
+        // Use unified connection manager
+        $venue_id = 0;
+        if (class_exists('Apollo_Venue_Local_Connection')) {
+            $connection = Apollo_Venue_Local_Connection::get_instance();
+            $venue_id = $connection->get_venue_id($post->ID);
         } else {
-            $current_local = array();
+            // Fallback to direct meta access
+            $venue_id = apollo_get_post_meta($post->ID, '_event_local_ids', true);
+            if (is_array($venue_id)) {
+                $venue_id = !empty($venue_id) ? absint($venue_id[0]) : 0;
+            } else {
+                $venue_id = absint($venue_id);
+            }
         }
+        
+        $current_local = $venue_id > 0 ? array($venue_id) : array();
 
     $current_timetable_raw = apollo_get_post_meta($post->ID, '_event_timetable', true);
     $current_timetable     = apollo_sanitize_timetable($current_timetable_raw);
@@ -547,10 +555,13 @@ class Apollo_Events_Admin_Metaboxes {
             
             <!-- ===== LOCAL SECTION ===== -->
             <div class="apollo-field-group" data-motion-group="true">
-                <h3><?php _e('Local do Evento', 'apollo-events-manager'); ?></h3>
+                <h3><?php _e('Local do Evento (Venue)', 'apollo-events-manager'); ?> <span class="apollo-required" style="color:#d63638;">*</span></h3>
+                <p class="description" style="margin-bottom:15px;color:#646970;">
+                    <strong><?php _e('Obrigatório:', 'apollo-events-manager'); ?></strong> <?php _e('Todo evento deve estar conectado a um local (venue).', 'apollo-events-manager'); ?>
+                </p>
                 
                 <div class="apollo-field">
-                    <label for="apollo_event_local"><?php _e('Local (seleção única):', 'apollo-events-manager'); ?></label>
+                    <label for="apollo_event_local"><?php _e('Local (Venue) - Seleção obrigatória:', 'apollo-events-manager'); ?></label>
                     <div class="apollo-field-controls">
                         <!-- Enhanced Local Selector with Search -->
                         <div class="apollo-enhanced-select apollo-single-select" data-motion-select="true">
@@ -565,15 +576,6 @@ class Apollo_Events_Admin_Metaboxes {
                                 <i class="ri-search-line"></i>
                             </div>
                             <div class="apollo-select-list apollo-single-list" id="apollo_local_list">
-                                <label class="apollo-select-item <?php echo empty($current_local) ? 'selected' : ''; ?>" data-local-id="0">
-                                    <input 
-                                        type="radio" 
-                                        name="apollo_event_local" 
-                                        value=""
-                                        <?php checked(empty($current_local)); ?>
-                                    >
-                                    <span class="apollo-select-item-label"><?php _e('Nenhum local', 'apollo-events-manager'); ?></span>
-                                </label>
                                 <?php
                                 $all_locals = get_posts(
                                     array(
@@ -585,23 +587,31 @@ class Apollo_Events_Admin_Metaboxes {
                                     )
                                 );
                                 
-                                foreach ($all_locals as $local) {
-                                    $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
-                                    $is_selected = in_array($local->ID, $current_local, true);
-                                    ?>
-                                    <label class="apollo-select-item <?php echo $is_selected ? 'selected' : ''; ?>" data-local-id="<?php echo $local->ID; ?>" data-local-name="<?php echo esc_attr(strtolower($local_name)); ?>">
-                                        <input 
-                                            type="radio" 
-                                            name="apollo_event_local" 
-                                            value="<?php echo $local->ID; ?>"
-                                            <?php checked($is_selected); ?>
-                                        >
-                                        <span class="apollo-select-item-label"><?php echo esc_html($local_name); ?></span>
-                                        <?php if ($is_selected): ?>
-                                            <i class="ri-check-line apollo-check-icon"></i>
-                                        <?php endif; ?>
-                                    </label>
-                                    <?php
+                                if (empty($all_locals)) {
+                                    echo '<p class="description" style="color:#d63638;padding:10px;background:#fff3cd;border-left:4px solid #d63638;">';
+                                    echo '<strong>' . esc_html__('Atenção:', 'apollo-events-manager') . '</strong> ';
+                                    echo esc_html__('Nenhum local (venue) cadastrado. Por favor, crie um local antes de salvar o evento.', 'apollo-events-manager');
+                                    echo '</p>';
+                                } else {
+                                    foreach ($all_locals as $local) {
+                                        $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                                        $is_selected = in_array($local->ID, $current_local, true);
+                                        ?>
+                                        <label class="apollo-select-item <?php echo $is_selected ? 'selected' : ''; ?>" data-local-id="<?php echo $local->ID; ?>" data-local-name="<?php echo esc_attr(strtolower($local_name)); ?>">
+                                            <input 
+                                                type="radio" 
+                                                name="apollo_event_local" 
+                                                value="<?php echo $local->ID; ?>"
+                                                <?php checked($is_selected); ?>
+                                                required
+                                            >
+                                            <span class="apollo-select-item-label"><?php echo esc_html($local_name); ?></span>
+                                            <?php if ($is_selected): ?>
+                                                <i class="ri-check-line apollo-check-icon"></i>
+                                            <?php endif; ?>
+                                        </label>
+                                        <?php
+                                    }
                                 }
                                 ?>
                             </div>
@@ -900,7 +910,14 @@ class Apollo_Events_Admin_Metaboxes {
         
         if ($local_selected > 0) {
             // Save as single integer (not array) - consistent with database structure
-            apollo_update_post_meta($post_id, '_event_local_ids', $local_selected);
+            // Use unified connection manager
+            if (class_exists('Apollo_Venue_Local_Connection')) {
+                $connection = Apollo_Venue_Local_Connection::get_instance();
+                $connection->set_venue_id($post_id, $local_selected);
+            } else {
+                // Fallback to direct meta update
+                apollo_update_post_meta($post_id, '_event_local_ids', $local_selected);
+            }
             
             if (current_user_can('administrator') && defined('WP_DEBUG') && WP_DEBUG) {
                 error_log(sprintf('[Apollo Events] Event %d: Saved Local ID: %d', $post_id, $local_selected));

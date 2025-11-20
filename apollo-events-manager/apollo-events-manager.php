@@ -2519,9 +2519,21 @@ class Apollo_Events_Manager_Plugin {
             // Handle both single value and array (for backward compatibility)
             $local_id = is_array($posted_local) ? (int) reset($posted_local) : (int) $posted_local;
             if ($local_id > 0) {
-                apollo_update_post_meta($post_id, '_event_local_ids', $local_id);
+                // Use unified connection manager
+                if (class_exists('Apollo_Venue_Local_Connection')) {
+                    $connection = Apollo_Venue_Local_Connection::get_instance();
+                    $connection->set_venue_id($post_id, $local_id);
+                } else {
+                    apollo_update_post_meta($post_id, '_event_local_ids', $local_id);
+                }
             } else {
-                apollo_delete_post_meta($post_id, '_event_local_ids');
+                // Use unified connection manager
+                if (class_exists('Apollo_Venue_Local_Connection')) {
+                    $connection = Apollo_Venue_Local_Connection::get_instance();
+                    $connection->set_venue_id($post_id, 0);
+                } else {
+                    apollo_delete_post_meta($post_id, '_event_local_ids');
+                }
             }
         }
 
