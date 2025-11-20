@@ -585,14 +585,23 @@
         const $hiddenSelect = $('#apollo_event_djs');
         const $count = $('#apollo_dj_selected_count');
         
-        // Search filter
-        $search.on('input', function() {
-            const query = $(this).val().toLowerCase();
+        // Search filter - REAL TIME (on every keystroke)
+        $search.on('input keyup', function() {
+            const query = $(this).val().toLowerCase().trim();
+            let visibleCount = 0;
+            
             $list.find('.apollo-select-item').each(function() {
                 const $item = $(this);
-                const name = $item.data('dj-name') || '';
-                if (name.indexOf(query) !== -1 || query === '') {
+                const name = ($item.data('dj-name') || '').toLowerCase();
+                const djId = $item.data('dj-id');
+                
+                // Check if name contains query OR if item is selected (always show selected items)
+                const matchesSearch = name.indexOf(query) !== -1 || query === '';
+                const isSelected = $item.find('input[type="checkbox"]').is(':checked');
+                
+                if (matchesSearch || isSelected) {
                     $item.show();
+                    visibleCount++;
                 } else {
                     $item.hide();
                 }
@@ -622,8 +631,13 @@
             updateDJCount();
         });
         
-        // Update count on load
+        // Update count on load AND after any change
         updateDJCount();
+        
+        // Also update count when hidden select changes (from PHP)
+        $hiddenSelect.on('change', function() {
+            updateDJCount();
+        });
         
         function syncDJSelect() {
             $hiddenSelect.find('option').prop('selected', false);
@@ -635,8 +649,28 @@
         
         function updateDJCount() {
             const count = $list.find('input[type="checkbox"]:checked').length;
-            $count.text(count + ' selecionado' + (count !== 1 ? 's' : ''));
+            const text = count + ' selecionado' + (count !== 1 ? 's' : '');
+            $count.text(text);
+            
+            // Also sync hidden select to ensure consistency
+            syncDJSelect();
         }
+        
+        // Initial sync from hidden select to visual checkboxes (on page load)
+        setTimeout(function() {
+            $hiddenSelect.find('option:selected').each(function() {
+                const value = $(this).val();
+                const $checkbox = $list.find('input[type="checkbox"][value="' + value + '"]');
+                if ($checkbox.length && !$checkbox.is(':checked')) {
+                    $checkbox.prop('checked', true);
+                    $checkbox.closest('.apollo-select-item').addClass('selected');
+                    if (!$checkbox.closest('.apollo-select-item').find('.apollo-check-icon').length) {
+                        $checkbox.closest('.apollo-select-item').append('<i class="ri-check-line apollo-check-icon"></i>');
+                    }
+                }
+            });
+            updateDJCount();
+        }, 100);
     }
     
     /**
@@ -647,14 +681,23 @@
         const $list = $('#apollo_local_list');
         const $hiddenSelect = $('#apollo_event_local');
         
-        // Search filter
-        $search.on('input', function() {
-            const query = $(this).val().toLowerCase();
+        // Search filter - REAL TIME (on every keystroke)
+        $search.on('input keyup', function() {
+            const query = $(this).val().toLowerCase().trim();
+            let visibleCount = 0;
+            
             $list.find('.apollo-select-item').each(function() {
                 const $item = $(this);
-                const name = $item.data('local-name') || '';
-                if (name.indexOf(query) !== -1 || query === '') {
+                const name = ($item.data('local-name') || '').toLowerCase();
+                const localId = $item.data('local-id');
+                
+                // Check if name contains query OR if item is selected (always show selected items)
+                const matchesSearch = name.indexOf(query) !== -1 || query === '';
+                const isSelected = $item.find('input[type="radio"]').is(':checked');
+                
+                if (matchesSearch || isSelected) {
                     $item.show();
+                    visibleCount++;
                 } else {
                     $item.hide();
                 }
@@ -679,6 +722,21 @@
             // Sync with hidden select
             $hiddenSelect.val(value);
         });
+        
+        // Initial sync from hidden select to visual radio (on page load)
+        setTimeout(function() {
+            const selectedValue = $hiddenSelect.val();
+            if (selectedValue) {
+                const $radio = $list.find('input[type="radio"][value="' + selectedValue + '"]');
+                if ($radio.length && !$radio.is(':checked')) {
+                    $radio.prop('checked', true);
+                    $radio.closest('.apollo-select-item').addClass('selected');
+                    if (!$radio.closest('.apollo-select-item').find('.apollo-check-icon').length) {
+                        $radio.closest('.apollo-select-item').append('<i class="ri-check-line apollo-check-icon"></i>');
+                    }
+                }
+            }
+        }, 100);
     }
     
     /**

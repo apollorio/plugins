@@ -276,20 +276,38 @@ select[multiple] option {
 }
 
 .apollo-select-list {
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 4px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Single select (Local) - better layout */
+.apollo-single-select .apollo-select-list {
+    max-height: 350px;
+}
+
+.apollo-single-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .apollo-select-item {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
+    padding: 10px 12px;
     margin: 2px 0;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.15s ease, transform 0.15s ease;
     position: relative;
+    min-height: 40px;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .apollo-select-item:hover {
