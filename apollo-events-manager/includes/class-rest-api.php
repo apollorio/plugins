@@ -223,15 +223,15 @@ class Apollo_Events_REST_API
     private function format_event($event, $full = false)
     {
         $formatted = [
-            'id' => $event->ID,
-            'title' => $event->post_title,
-            'slug' => $event->post_name,
-            'permalink' => get_permalink($event->ID),
-            'excerpt' => get_the_excerpt($event->ID),
-            'content' => $full ? apply_filters('the_content', $event->post_content) : '',
+            'id' => (int) $event->ID,
+            'title' => sanitize_text_field($event->post_title ?? ''),
+            'slug' => sanitize_text_field($event->post_name ?? ''),
+            'permalink' => esc_url_raw(get_permalink($event->ID) ?: ''),
+            'excerpt' => wp_kses_post(get_the_excerpt($event->ID) ?: ''),
+            'content' => $full ? wp_kses_post(apply_filters('the_content', $event->post_content ?: '')) : '',
             'date' => [
-                'published' => $event->post_date,
-                'modified' => $event->post_modified,
+                'published' => sanitize_text_field($event->post_date ?? ''),
+                'modified' => sanitize_text_field($event->post_modified ?? ''),
             ],
         ];
 
@@ -242,21 +242,28 @@ class Apollo_Events_REST_API
         $banner = get_post_meta($event->ID, '_event_banner', true);
 
         $formatted['event'] = [
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-            'location' => $location,
-            'banner' => $banner ? wp_get_attachment_image_url($banner, 'large') : null,
+            'start_date' => sanitize_text_field($start_date ?: ''),
+            'end_date' => sanitize_text_field($end_date ?: ''),
+            'location' => sanitize_text_field($location ?: ''),
+            'banner' => $banner ? esc_url_raw(wp_get_attachment_image_url($banner, 'large') ?: '') : null,
         ];
 
         // Categories
         $categories = wp_get_post_terms($event->ID, 'event_category', ['fields' => 'all']);
+        if (is_wp_error($categories)) {
+            $categories = [];
+        }
         $formatted['categories'] = array_map(function($term) {
+            if (!is_object($term) || !isset($term->term_id)) {
+                return null;
+            }
             return [
-                'id' => $term->term_id,
-                'name' => $term->name,
-                'slug' => $term->slug,
+                'id' => (int) $term->term_id,
+                'name' => sanitize_text_field($term->name ?? ''),
+                'slug' => sanitize_text_field($term->slug ?? ''),
             ];
         }, $categories);
+        $formatted['categories'] = array_filter($formatted['categories']);
 
         // Author
         $author = get_userdata($event->post_author);
@@ -280,15 +287,16 @@ class Apollo_Events_REST_API
             if ($local_id) {
                 $local = get_post($local_id);
                 if ($local && $local->post_type === 'event_local') {
+                    $local_name = get_post_meta($local_id, '_local_name', true);
                     $formatted['local'] = [
-                        'id' => $local_id,
-                        'name' => get_post_meta($local_id, '_local_name', true) ?: $local->post_title,
-                        'address' => get_post_meta($local_id, '_local_address', true),
-                        'city' => get_post_meta($local_id, '_local_city', true),
-                        'state' => get_post_meta($local_id, '_local_state', true),
-                        'latitude' => get_post_meta($local_id, '_local_latitude', true),
-                        'longitude' => get_post_meta($local_id, '_local_longitude', true),
-                        'permalink' => get_permalink($local_id),
+                        'id' => (int) $local_id,
+                        'name' => sanitize_text_field($local_name ?: ($local->post_title ?? '')),
+                        'address' => sanitize_text_field(get_post_meta($local_id, '_local_address', true) ?: ''),
+                        'city' => sanitize_text_field(get_post_meta($local_id, '_local_city', true) ?: ''),
+                        'state' => sanitize_text_field(get_post_meta($local_id, '_local_state', true) ?: ''),
+                        'latitude' => sanitize_text_field(get_post_meta($local_id, '_local_latitude', true) ?: ''),
+                        'longitude' => sanitize_text_field(get_post_meta($local_id, '_local_longitude', true) ?: ''),
+                        'permalink' => esc_url_raw(get_permalink($local_id) ?: ''),
                     ];
                 }
             }
