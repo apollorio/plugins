@@ -50,17 +50,17 @@ class Apollo_Venue_Local_Connection
         // Hook into event save to enforce mandatory connection
         add_action('save_post_event_listing', [$this, 'enforce_mandatory_connection'], 10, 2);
         
-        // Validate before save (prevent saving without venue)
-        add_action('save_post_event_listing', [$this, 'validate_venue_connection'], 5, 2);
+        // Validate before save (prevent saving without local)
+        add_action('save_post_event_listing', [$this, 'validate_local_connection'], 5, 2);
     }
     
     /**
-     * Get venue ID for an event
+     * Get local ID for an event
      * 
      * @param int $event_id Event post ID
-     * @return int|false Venue (local) ID or false if not found
+     * @return int|false Local ID or false if not found
      */
-    public function get_venue_id($event_id)
+    public function get_local_id($event_id)
     {
         $event_id = absint($event_id);
         if (!$event_id) {
@@ -68,34 +68,34 @@ class Apollo_Venue_Local_Connection
         }
         
         // Try primary meta key first
-        $venue_id = get_post_meta($event_id, self::META_KEY_PRIMARY, true);
+        $local_id = get_post_meta($event_id, self::META_KEY_PRIMARY, true);
         
         // Handle array format (should be single ID, but support array for safety)
-        if (is_array($venue_id)) {
-            $venue_id = !empty($venue_id) ? absint($venue_id[0]) : 0;
-        } elseif (is_numeric($venue_id)) {
-            $venue_id = absint($venue_id);
+        if (is_array($local_id)) {
+            $local_id = !empty($local_id) ? absint($local_id[0]) : 0;
+        } elseif (is_numeric($local_id)) {
+            $local_id = absint($local_id);
         } else {
-            $venue_id = 0;
+            $local_id = 0;
         }
         
-        // Validate venue exists and is correct post type
-        if ($venue_id > 0) {
-            $venue = get_post($venue_id);
-            if ($venue && $venue->post_type === 'event_local' && $venue->post_status === 'publish') {
-                return $venue_id;
+        // Validate local exists and is correct post type
+        if ($local_id > 0) {
+            $local = get_post($local_id);
+            if ($local && $local->post_type === 'event_local' && $local->post_status === 'publish') {
+                return $local_id;
             }
         }
         
         // Fallback to legacy meta key
-        $legacy_venue = get_post_meta($event_id, self::META_KEY_LEGACY, true);
-        if (is_numeric($legacy_venue) && absint($legacy_venue) > 0) {
-            $venue_id = absint($legacy_venue);
-            $venue = get_post($venue_id);
-            if ($venue && $venue->post_type === 'event_local' && $venue->post_status === 'publish') {
+        $legacy_local = get_post_meta($event_id, self::META_KEY_LEGACY, true);
+        if (is_numeric($legacy_local) && absint($legacy_local) > 0) {
+            $local_id = absint($legacy_local);
+            $local = get_post($local_id);
+            if ($local && $local->post_type === 'event_local' && $local->post_status === 'publish') {
                 // Migrate to primary meta key
-                $this->set_venue_id($event_id, $venue_id);
-                return $venue_id;
+                $this->set_local_id($event_id, $local_id);
+                return $local_id;
             }
         }
         
@@ -103,32 +103,32 @@ class Apollo_Venue_Local_Connection
     }
     
     /**
-     * Set venue ID for an event
+     * Set local ID for an event
      * 
      * @param int $event_id Event post ID
-     * @param int $venue_id Venue (local) post ID
+     * @param int $local_id Local post ID
      * @return bool Success
      */
-    public function set_venue_id($event_id, $venue_id)
+    public function set_local_id($event_id, $local_id)
     {
         $event_id = absint($event_id);
-        $venue_id = absint($venue_id);
+        $local_id = absint($local_id);
         
         if (!$event_id) {
             return false;
         }
         
-        // Validate venue exists
-        if ($venue_id > 0) {
-            $venue = get_post($venue_id);
-            if (!$venue || $venue->post_type !== 'event_local') {
+        // Validate local exists
+        if ($local_id > 0) {
+            $local = get_post($local_id);
+            if (!$local || $local->post_type !== 'event_local') {
                 return false;
             }
         }
         
         // Update primary meta key
-        if ($venue_id > 0) {
-            update_post_meta($event_id, self::META_KEY_PRIMARY, $venue_id);
+        if ($local_id > 0) {
+            update_post_meta($event_id, self::META_KEY_PRIMARY, $local_id);
             
             // Clean up legacy meta if exists
             delete_post_meta($event_id, self::META_KEY_LEGACY);
@@ -142,45 +142,45 @@ class Apollo_Venue_Local_Connection
     }
     
     /**
-     * Get venue post object
+     * Get local post object
      * 
      * @param int $event_id Event post ID
-     * @return WP_Post|false Venue post object or false
+     * @return WP_Post|false Local post object or false
      */
-    public function get_venue($event_id)
+    public function get_local($event_id)
     {
-        $venue_id = $this->get_venue_id($event_id);
-        if (!$venue_id) {
+        $local_id = $this->get_local_id($event_id);
+        if (!$local_id) {
             return false;
         }
         
-        $venue = get_post($venue_id);
-        if ($venue && $venue->post_type === 'event_local' && $venue->post_status === 'publish') {
-            return $venue;
+        $local = get_post($local_id);
+        if ($local && $local->post_type === 'event_local' && $local->post_status === 'publish') {
+            return $local;
         }
         
         return false;
     }
     
     /**
-     * Check if event has venue connected
+     * Check if event has local connected
      * 
      * @param int $event_id Event post ID
      * @return bool
      */
-    public function has_venue($event_id)
+    public function has_local($event_id)
     {
-        return $this->get_venue_id($event_id) !== false;
+        return $this->get_local_id($event_id) !== false;
     }
     
     /**
-     * Validate venue connection before save
-     * Prevents saving event without venue (unless draft/auto-draft)
+     * Validate local connection before save
+     * Prevents saving event without local (unless draft/auto-draft)
      * 
      * @param int $post_id Post ID
      * @param WP_Post $post Post object
      */
-    public function validate_venue_connection($post_id, $post)
+    public function validate_local_connection($post_id, $post)
     {
         // Skip validation for drafts and auto-drafts
         if (in_array($post->post_status, ['draft', 'auto-draft', 'pending'], true)) {
@@ -196,22 +196,22 @@ class Apollo_Venue_Local_Connection
             return;
         }
         
-        // Check if venue is set in POST data
-        $venue_id = isset($_POST['apollo_event_local']) ? absint($_POST['apollo_event_local']) : 0;
+        // Check if local is set in POST data
+        $local_id = isset($_POST['apollo_event_local']) ? absint($_POST['apollo_event_local']) : 0;
         
         // If not in POST, check current meta
-        if (!$venue_id) {
-            $venue_id = $this->get_venue_id($post_id);
+        if (!$local_id) {
+            $local_id = $this->get_local_id($post_id);
         }
         
-        // If still no venue and event is being published, show warning
-        if (!$venue_id && $post->post_status === 'publish') {
+        // If still no local and event is being published, show warning
+        if (!$local_id && $post->post_status === 'publish') {
             // Add admin notice warning
             add_action('admin_notices', function() use ($post_id) {
                 $edit_link = admin_url('post.php?post=' . $post_id . '&action=edit');
                 echo '<div class="notice notice-warning is-dismissible">';
                 echo '<p><strong>' . esc_html__('⚠️ Apollo Events Manager:', 'apollo-events-manager') . '</strong> ';
-                echo esc_html__('Este evento não possui um local (venue) conectado. ', 'apollo-events-manager');
+                echo esc_html__('Este evento não possui um local conectado. ', 'apollo-events-manager');
                 echo '<a href="' . esc_url($edit_link) . '">' . esc_html__('Conecte um local agora', 'apollo-events-manager') . '</a>.';
                 echo '</p></div>';
             });
@@ -220,7 +220,7 @@ class Apollo_Venue_Local_Connection
     
     /**
      * Enforce mandatory connection on save
-     * Ensures venue is properly saved and legacy meta is cleaned up
+     * Ensures local is properly saved and legacy meta is cleaned up
      * 
      * @param int $post_id Post ID
      * @param WP_Post $post Post object
@@ -236,18 +236,18 @@ class Apollo_Venue_Local_Connection
             return;
         }
         
-        // Get venue ID from POST data
-        $venue_id = 0;
+        // Get local ID from POST data
+        $local_id = 0;
         if (isset($_POST['apollo_event_local'])) {
-            $venue_id = absint($_POST['apollo_event_local']);
+            $local_id = absint($_POST['apollo_event_local']);
         }
         
-        // If venue ID provided, set it
-        if ($venue_id > 0) {
-            $this->set_venue_id($post_id, $venue_id);
+        // If local ID provided, set it
+        if ($local_id > 0) {
+            $this->set_local_id($post_id, $local_id);
         } elseif (isset($_POST['apollo_event_local'])) {
-            // Explicitly set to empty (user removed venue)
-            $this->set_venue_id($post_id, 0);
+            // Explicitly set to empty (user removed local)
+            $this->set_local_id($post_id, 0);
         }
         
         // Clean up any duplicate meta entries
@@ -269,10 +269,10 @@ class Apollo_Venue_Local_Connection
             return;
         }
         
-        // Get current venue ID
-        $venue_id = $this->get_venue_id($event_id);
+        // Get current local ID
+        $local_id = $this->get_local_id($event_id);
         
-        // Remove all venue-related meta except the primary one
+        // Remove all local-related meta except the primary one
         $wpdb->delete(
             $wpdb->postmeta,
             [
@@ -304,11 +304,11 @@ class Apollo_Venue_Local_Connection
     }
     
     /**
-     * Get all events without venue connection
+     * Get all events without local connection
      * 
      * @return array Array of event IDs
      */
-    public function get_events_without_venue()
+    public function get_events_without_local()
     {
         global $wpdb;
         
@@ -349,11 +349,11 @@ class Apollo_Venue_Local_Connection
         // Get legacy value
         $legacy = get_post_meta($event_id, self::META_KEY_LEGACY, true);
         if (is_numeric($legacy) && absint($legacy) > 0) {
-            $venue_id = absint($legacy);
-            // Validate venue exists
-            $venue = get_post($venue_id);
-            if ($venue && $venue->post_type === 'event_local') {
-                $this->set_venue_id($event_id, $venue_id);
+            $local_id = absint($legacy);
+            // Validate local exists
+            $local = get_post($local_id);
+            if ($local && $local->post_type === 'event_local') {
+                $this->set_local_id($event_id, $local_id);
                 return true;
             }
         }
@@ -363,63 +363,63 @@ class Apollo_Venue_Local_Connection
 }
 
 // Initialize
-Apollo_Venue_Local_Connection::get_instance();
+Apollo_Local_Connection::get_instance();
 
 /**
- * Helper function: Get venue ID for event
+ * Helper function: Get local ID for event
  * Unified API - use this instead of direct meta access
  * 
  * @param int $event_id Event post ID
- * @return int|false Venue ID or false
+ * @return int|false Local ID or false
  */
-if (!function_exists('apollo_get_event_venue_id')) {
-    function apollo_get_event_venue_id($event_id)
+if (!function_exists('apollo_get_event_local_id')) {
+    function apollo_get_event_local_id($event_id)
     {
-        $connection = Apollo_Venue_Local_Connection::get_instance();
-        return $connection->get_venue_id($event_id);
+        $connection = Apollo_Local_Connection::get_instance();
+        return $connection->get_local_id($event_id);
     }
 }
 
 /**
- * Helper function: Get venue post object
+ * Helper function: Get local post object
  * 
  * @param int $event_id Event post ID
- * @return WP_Post|false Venue post or false
+ * @return WP_Post|false Local post or false
  */
-if (!function_exists('apollo_get_event_venue')) {
-    function apollo_get_event_venue($event_id)
+if (!function_exists('apollo_get_event_local')) {
+    function apollo_get_event_local($event_id)
     {
-        $connection = Apollo_Venue_Local_Connection::get_instance();
-        return $connection->get_venue($event_id);
+        $connection = Apollo_Local_Connection::get_instance();
+        return $connection->get_local($event_id);
     }
 }
 
 /**
- * Helper function: Set venue for event
+ * Helper function: Set local for event
  * 
  * @param int $event_id Event post ID
- * @param int $venue_id Venue post ID
+ * @param int $local_id Local post ID
  * @return bool Success
  */
-if (!function_exists('apollo_set_event_venue')) {
-    function apollo_set_event_venue($event_id, $venue_id)
+if (!function_exists('apollo_set_event_local')) {
+    function apollo_set_event_local($event_id, $local_id)
     {
-        $connection = Apollo_Venue_Local_Connection::get_instance();
-        return $connection->set_venue_id($event_id, $venue_id);
+        $connection = Apollo_Local_Connection::get_instance();
+        return $connection->set_local_id($event_id, $local_id);
     }
 }
 
 /**
- * Helper function: Check if event has venue
+ * Helper function: Check if event has local
  * 
  * @param int $event_id Event post ID
  * @return bool
  */
-if (!function_exists('apollo_event_has_venue')) {
-    function apollo_event_has_venue($event_id)
+if (!function_exists('apollo_event_has_local')) {
+    function apollo_event_has_local($event_id)
     {
-        $connection = Apollo_Venue_Local_Connection::get_instance();
-        return $connection->has_venue($event_id);
+        $connection = Apollo_Local_Connection::get_instance();
+        return $connection->has_local($event_id);
     }
 }
 

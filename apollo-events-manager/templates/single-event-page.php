@@ -32,23 +32,12 @@ if (empty($timetable)) {
 $final_image = apollo_get_post_meta($event_id, '_imagem_final', true);
 
 // Local data with comprehensive validation
-// Verificar se função existe antes de usar
-$local_id = function_exists('apollo_get_primary_local_id') 
-    ? apollo_get_primary_local_id($event_id) 
-    : 0;
-
-if (!$local_id) {
-    // Fallback: usar meta key direto
-    $local_ids_meta = apollo_get_post_meta($event_id, '_event_local_ids', true);
-    if (!empty($local_ids_meta)) {
-        $local_id = is_array($local_ids_meta) ? (int) reset($local_ids_meta) : (int) $local_ids_meta;
-    }
-    
-    // Fallback legacy
-    if (!$local_id) {
-        $legacy = apollo_get_post_meta($event_id, '_event_local', true);
-        $local_id = $legacy ? (int) $legacy : 0;
-    }
+// Use unified connection manager (MANDATORY)
+$local_id = 0;
+if (function_exists('apollo_get_event_local_id')) {
+    $local_id = apollo_get_event_local_id($event_id);
+} elseif (function_exists('apollo_get_primary_local_id')) {
+    $local_id = apollo_get_primary_local_id($event_id);
 }
 
 $local_name = '';

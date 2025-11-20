@@ -342,21 +342,21 @@ class Apollo_Events_Admin_Metaboxes {
         $current_djs = is_array($current_djs) ? array_map('intval', $current_djs) : array();
 
         // Use unified connection manager
-        $venue_id = 0;
-        if (class_exists('Apollo_Venue_Local_Connection')) {
-            $connection = Apollo_Venue_Local_Connection::get_instance();
-            $venue_id = $connection->get_venue_id($post->ID);
+        $local_id = 0;
+        if (class_exists('Apollo_Local_Connection')) {
+            $connection = Apollo_Local_Connection::get_instance();
+            $local_id = $connection->get_local_id($post->ID);
         } else {
             // Fallback to direct meta access
-            $venue_id = apollo_get_post_meta($post->ID, '_event_local_ids', true);
-            if (is_array($venue_id)) {
-                $venue_id = !empty($venue_id) ? absint($venue_id[0]) : 0;
+            $local_id = apollo_get_post_meta($post->ID, '_event_local_ids', true);
+            if (is_array($local_id)) {
+                $local_id = !empty($local_id) ? absint($local_id[0]) : 0;
             } else {
-                $venue_id = absint($venue_id);
+                $local_id = absint($local_id);
             }
         }
         
-        $current_local = $venue_id > 0 ? array($venue_id) : array();
+        $current_local = $local_id > 0 ? array($local_id) : array();
 
     $current_timetable_raw = apollo_get_post_meta($post->ID, '_event_timetable', true);
     $current_timetable     = apollo_sanitize_timetable($current_timetable_raw);
@@ -555,13 +555,13 @@ class Apollo_Events_Admin_Metaboxes {
             
             <!-- ===== LOCAL SECTION ===== -->
             <div class="apollo-field-group" data-motion-group="true">
-                <h3><?php _e('Local do Evento (Venue)', 'apollo-events-manager'); ?> <span class="apollo-required" style="color:#d63638;">*</span></h3>
+                <h3><?php _e('Local do Evento', 'apollo-events-manager'); ?> <span class="apollo-required" style="color:#d63638;">*</span></h3>
                 <p class="description" style="margin-bottom:15px;color:#646970;">
-                    <strong><?php _e('Obrigatório:', 'apollo-events-manager'); ?></strong> <?php _e('Todo evento deve estar conectado a um local (venue).', 'apollo-events-manager'); ?>
+                    <strong><?php _e('Obrigatório:', 'apollo-events-manager'); ?></strong> <?php _e('Todo evento deve estar conectado a um local.', 'apollo-events-manager'); ?>
                 </p>
                 
                 <div class="apollo-field">
-                    <label for="apollo_event_local"><?php _e('Local (Venue) - Seleção obrigatória:', 'apollo-events-manager'); ?></label>
+                    <label for="apollo_event_local"><?php _e('Local - Seleção obrigatória:', 'apollo-events-manager'); ?></label>
                     <div class="apollo-field-controls">
                         <!-- Enhanced Local Selector with Search -->
                         <div class="apollo-enhanced-select apollo-single-select" data-motion-select="true">

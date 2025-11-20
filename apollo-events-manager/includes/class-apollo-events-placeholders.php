@@ -850,25 +850,13 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return implode( ', ', array_map( 'absint', $ids_array ) );
             
         case 'local_id':
-            // Verificar se função existe antes de usar
-            $local_id = function_exists('apollo_get_primary_local_id') 
-                ? apollo_get_primary_local_id( $event_id ) 
-                : 0;
-            
-            if ( ! $local_id ) {
-                // Fallback para meta key direto
-                $local_ids_meta = get_post_meta( $event_id, '_event_local_ids', true );
-                if ( ! empty( $local_ids_meta ) ) {
-                    $local_id = is_array( $local_ids_meta ) ? (int) reset( $local_ids_meta ) : (int) $local_ids_meta;
-                }
-                
-                // Fallback legacy
-                if ( ! $local_id ) {
-                    $legacy = get_post_meta( $event_id, '_event_local', true );
-                    $local_id = $legacy ? (int) $legacy : 0;
-                }
+            // Use unified connection manager (MANDATORY)
+            $local_id = 0;
+            if (function_exists('apollo_get_event_local_id')) {
+                $local_id = apollo_get_event_local_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
-
             return $local_id ? (string) absint( $local_id ) : '';
             
         case 'timetable':
@@ -909,10 +897,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             
         // === LOCAL (event_local) FIELDS ===
         case 'local_name':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -929,10 +919,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $local_name ? esc_html( $local_name ) : '';
             
         case 'local_description':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -942,10 +934,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $description ? esc_html( $description ) : '';
             
         case 'local_address':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -955,10 +949,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $address ? esc_html( $address ) : '';
             
         case 'local_city':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -968,10 +964,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $city ? esc_html( $city ) : '';
             
         case 'local_coordinates':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -985,10 +983,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return '';
             
         case 'local_website':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -998,10 +998,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $website ? esc_url( $website ) : '';
             
         case 'local_instagram':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -1011,10 +1013,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $instagram ? esc_html( $instagram ) : '';
             
         case 'local_facebook':
-            $local_id = apollo_get_primary_local_id( $event_id );
-            if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+            // Use unified connection manager
+            $local_id = 0;
+            if (function_exists('apollo_get_event_venue_id')) {
+                $local_id = apollo_get_event_venue_id($event_id);
+            } elseif (function_exists('apollo_get_primary_local_id')) {
+                $local_id = apollo_get_primary_local_id($event_id);
             }
 
             if ( empty( $local_id ) ) {
@@ -1325,33 +1329,16 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
  * @return array Array of local post IDs
  */
 function apollo_get_event_local_ids( $event_id ) {
-    // CRITICAL FIX: Use apollo_get_post_meta for consistency
-    $local_ids_raw = apollo_get_post_meta( $event_id, '_event_local_ids', true );
-    
-    // CRITICAL: Use apollo_aem_parse_ids() to handle all formats (JSON, serialized, CSV, single ID)
-    if (function_exists('apollo_aem_parse_ids')) {
-        $normalized = apollo_aem_parse_ids($local_ids_raw);
-        if (!empty($normalized)) {
-            return array_values(array_filter(array_map('absint', $normalized)));
-        }
+    // Use unified connection manager (MANDATORY)
+    $local_id = 0;
+    if (function_exists('apollo_get_event_local_id')) {
+        $local_id = apollo_get_event_local_id($event_id);
+    } elseif (function_exists('apollo_get_primary_local_id')) {
+        $local_id = apollo_get_primary_local_id($event_id);
     }
     
-    // Fallback: manual parsing if function doesn't exist
-    if ( is_array( $local_ids_raw ) ) {
-        return array_values(array_filter( array_map( 'absint', $local_ids_raw ) ));
-    }
-    
-    if ( is_numeric( $local_ids_raw ) && $local_ids_raw > 0 ) {
-        return array( absint( $local_ids_raw ) );
-    }
-    
-    // Fallback: try legacy _event_local key
-    $legacy_local = apollo_get_post_meta( $event_id, '_event_local', true );
-    if ( is_numeric( $legacy_local ) && $legacy_local > 0 ) {
-        return array( absint( $legacy_local ) );
-    }
-    
-    return array();
+    // Return as array for compatibility
+    return $local_id > 0 ? array($local_id) : array();
 }
 
 /**
@@ -1362,10 +1349,12 @@ function apollo_get_event_local_ids( $event_id ) {
  * @return string Location name (sanitized)
  */
 function apollo_event_get_location_name( $event_id ) {
-    // Try _event_local_ids first (relationship to event_local post)
-    $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-    if ( empty( $local_id ) ) {
-        $local_id = get_post_meta( $event_id, '_event_local', true );
+    // Use unified connection manager (MANDATORY)
+    $local_id = 0;
+    if (function_exists('apollo_get_event_local_id')) {
+        $local_id = apollo_get_event_local_id($event_id);
+    } elseif (function_exists('apollo_get_primary_local_id')) {
+        $local_id = apollo_get_primary_local_id($event_id);
     }
     
     if ( ! empty( $local_id ) && is_numeric( $local_id ) ) {
@@ -1402,10 +1391,12 @@ function apollo_event_get_location_name( $event_id ) {
  * @return string Location area (sanitized)
  */
 function apollo_event_get_location_area( $event_id ) {
-    // Try _event_local_ids first
-    $local_id = get_post_meta( $event_id, '_event_local_ids', true );
-    if ( empty( $local_id ) ) {
-        $local_id = get_post_meta( $event_id, '_event_local', true );
+    // Use unified connection manager (MANDATORY)
+    $local_id = 0;
+    if (function_exists('apollo_get_event_local_id')) {
+        $local_id = apollo_get_event_local_id($event_id);
+    } elseif (function_exists('apollo_get_primary_local_id')) {
+        $local_id = apollo_get_primary_local_id($event_id);
     }
     
     if ( ! empty( $local_id ) && is_numeric( $local_id ) ) {

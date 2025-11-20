@@ -131,14 +131,14 @@ class Apollo_Events_REST_API
             ];
         }
 
-        // Location filter (venue/local)
+        // Location filter (local)
         if (!empty($request['location'])) {
-            // Try filtering by venue name first
-            $venue_ids = $this->get_venue_ids_by_name(sanitize_text_field($request['location']));
-            if (!empty($venue_ids)) {
+            // Try filtering by local name first
+            $local_ids = $this->get_local_ids_by_name(sanitize_text_field($request['location']));
+            if (!empty($local_ids)) {
                 $args['meta_query'][] = [
                     'key' => '_event_local_ids',
-                    'value' => $venue_ids,
+                    'value' => $local_ids,
                     'compare' => 'IN',
                 ];
             } else {
@@ -151,13 +151,13 @@ class Apollo_Events_REST_API
             }
         }
         
-        // Venue filter (by venue ID)
-        if (!empty($request['venue_id'])) {
-            $venue_id = absint($request['venue_id']);
-            if ($venue_id > 0) {
+        // Local filter (by local ID)
+        if (!empty($request['local_id'])) {
+            $local_id = absint($request['local_id']);
+            if ($local_id > 0) {
                 $args['meta_query'][] = [
                     'key' => '_event_local_ids',
-                    'value' => $venue_id,
+                    'value' => $local_id,
                     'compare' => '=',
                 ];
             }
@@ -266,21 +266,21 @@ class Apollo_Events_REST_API
             'avatar' => get_avatar_url($author->ID),
         ];
         
-        // Venue (local) connection - MANDATORY
-        if (function_exists('apollo_get_event_venue_id')) {
-            $venue_id = apollo_get_event_venue_id($event->ID);
-            if ($venue_id) {
-                $venue = get_post($venue_id);
-                if ($venue && $venue->post_type === 'event_local') {
-                    $formatted['venue'] = [
-                        'id' => $venue_id,
-                        'name' => get_post_meta($venue_id, '_local_name', true) ?: $venue->post_title,
-                        'address' => get_post_meta($venue_id, '_local_address', true),
-                        'city' => get_post_meta($venue_id, '_local_city', true),
-                        'state' => get_post_meta($venue_id, '_local_state', true),
-                        'latitude' => get_post_meta($venue_id, '_local_latitude', true),
-                        'longitude' => get_post_meta($venue_id, '_local_longitude', true),
-                        'permalink' => get_permalink($venue_id),
+        // Local connection - MANDATORY
+        if (function_exists('apollo_get_event_local_id')) {
+            $local_id = apollo_get_event_local_id($event->ID);
+            if ($local_id) {
+                $local = get_post($local_id);
+                if ($local && $local->post_type === 'event_local') {
+                    $formatted['local'] = [
+                        'id' => $local_id,
+                        'name' => get_post_meta($local_id, '_local_name', true) ?: $local->post_title,
+                        'address' => get_post_meta($local_id, '_local_address', true),
+                        'city' => get_post_meta($local_id, '_local_city', true),
+                        'state' => get_post_meta($local_id, '_local_state', true),
+                        'latitude' => get_post_meta($local_id, '_local_latitude', true),
+                        'longitude' => get_post_meta($local_id, '_local_longitude', true),
+                        'permalink' => get_permalink($local_id),
                     ];
                 }
             }
@@ -358,13 +358,13 @@ class Apollo_Events_REST_API
     }
 
     /**
-     * Get locations (venues)
-     * Returns list of venues (event_local posts) instead of text locations
+     * Get locations (locals)
+     * Returns list of locals (event_local posts) instead of text locations
      */
     public function get_locations($request)
     {
-        // Get all published venues
-        $venues = get_posts([
+        // Get all published locals
+        $locals = get_posts([
             'post_type' => 'event_local',
             'post_status' => 'publish',
             'posts_per_page' => -1,
@@ -373,12 +373,12 @@ class Apollo_Events_REST_API
         ]);
         
         $locations = [];
-        foreach ($venues as $venue) {
-            $venue_name = get_post_meta($venue->ID, '_local_name', true) ?: $venue->post_title;
-            $city = get_post_meta($venue->ID, '_local_city', true);
-            $state = get_post_meta($venue->ID, '_local_state', true);
+        foreach ($locals as $local) {
+            $local_name = get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+            $city = get_post_meta($local->ID, '_local_city', true);
+            $state = get_post_meta($local->ID, '_local_state', true);
             
-            $location_name = $venue_name;
+            $location_name = $local_name;
             if ($city) {
                 $location_name .= ', ' . $city;
             }
@@ -387,9 +387,9 @@ class Apollo_Events_REST_API
             }
             
             $locations[] = [
-                'id' => $venue->ID,
+                'id' => $local->ID,
                 'name' => sanitize_text_field($location_name),
-                'venue_name' => sanitize_text_field($venue_name),
+                'local_name' => sanitize_text_field($local_name),
                 'city' => sanitize_text_field($city),
                 'state' => sanitize_text_field($state),
             ];
@@ -406,7 +406,7 @@ class Apollo_Events_REST_API
         
         foreach ($text_locations as $text_loc) {
             $text_loc = sanitize_text_field($text_loc);
-            // Only add if not already in venues list
+            // Only add if not already in locals list
             $exists = false;
             foreach ($locations as $loc) {
                 if ($loc['name'] === $text_loc) {
@@ -418,7 +418,7 @@ class Apollo_Events_REST_API
                 $locations[] = [
                     'id' => 0,
                     'name' => $text_loc,
-                    'venue_name' => $text_loc,
+                    'local_name' => $text_loc,
                     'city' => '',
                     'state' => '',
                 ];
@@ -431,11 +431,11 @@ class Apollo_Events_REST_API
     }
     
     /**
-     * Get venue IDs by name (helper for location filter)
+     * Get local IDs by name (helper for location filter)
      */
-    private function get_venue_ids_by_name($search_term)
+    private function get_local_ids_by_name($search_term)
     {
-        $venues = get_posts([
+        $locals = get_posts([
             'post_type' => 'event_local',
             'post_status' => 'publish',
             'posts_per_page' => -1,
@@ -443,7 +443,7 @@ class Apollo_Events_REST_API
             'fields' => 'ids',
         ]);
         
-        return array_map('absint', $venues);
+        return array_map('absint', $locals);
     }
 
     /**
