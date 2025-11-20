@@ -9,6 +9,10 @@ class AuthServiceProvider
     public function register(): void
     {
         add_filter('login_redirect', [$this, 'redirectToWorld'], 10, 3);
+        
+        // Register User Roles modifications
+        $userRoles = new UserRoles();
+        $userRoles->register();
     }
 
     /**

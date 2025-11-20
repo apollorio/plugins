@@ -43,9 +43,10 @@ class BuilderServiceProvider
         $this->adminPage = new BuilderAdminPage($this->repository);
         $this->adminPage->register();
 
-        if (!$this->dependenciesSatisfied()) {
-            add_action('admin_notices', [$this, 'dependencyNotice']);
-        }
+        // Legacy dependency check removed as we are moving to Apollo Builder (ShadCN)
+        // if (!$this->dependenciesSatisfied()) {
+        //    add_action('admin_notices', [$this, 'dependencyNotice']);
+        // }
     }
 
     private function maybeRegisterRest(): void

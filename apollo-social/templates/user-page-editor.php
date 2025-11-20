@@ -26,6 +26,10 @@ if (!is_array($layout)) $layout = ['grid' => []];
 wp_enqueue_style('apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0');
 wp_enqueue_style('remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0');
 wp_enqueue_script('sortablejs', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', [], '1.15.0', true);
+// Load Motion.dev if available
+if (function_exists('apollo_shadcn_init')) {
+    apollo_shadcn_init();
+}
 
 get_header();
 ?>
@@ -111,13 +115,32 @@ document.addEventListener('DOMContentLoaded', function() {
   const editor = document.getElementById('userpage-editor');
   if (!editor) return;
   
-  // Inicializa Sortable
+  // Inicializa Sortable with Motion.dev integration
   const sortable = Sortable.create(editor, {
-    animation: 150,
+    animation: 200,
     handle: '.widget-item',
     ghostClass: 'opacity-50',
-    chosenClass: 'ring-2 ring-primary',
-    dragClass: 'shadow-lg'
+    chosenClass: 'ring-2 ring-primary shadow-lg',
+    dragClass: 'shadow-xl scale-105',
+    forceFallback: true, // Better performance
+    fallbackOnBody: true,
+    swapThreshold: 0.65,
+    onEnd: function(evt) {
+      // Animate widgets after reorder with Motion.dev
+      if (typeof window.motion !== 'undefined') {
+        const items = editor.querySelectorAll('.widget-item');
+        items.forEach((item, index) => {
+          window.motion.animate(item, {
+            y: [10, 0],
+            opacity: [0.8, 1]
+          }, {
+            duration: 0.3,
+            delay: index * 0.05,
+            easing: 'ease-out'
+          });
+        });
+      }
+    }
   });
   
   // Adicionar widget
@@ -127,15 +150,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const widgetTitle = this.textContent.trim();
       const widgetIcon = this.querySelector('i').className;
       
+      // ShadCN Card structure with Motion.dev
       const widgetHtml = `
-        <div class="widget-item card p-4 bg-card border rounded-lg cursor-move" 
-             data-widget-id="${widgetId}">
+        <div class="widget-item shadcn-card rounded-lg border bg-card p-4 cursor-move shadow-sm" 
+             data-widget-id="${widgetId}"
+             data-motion-item="true"
+             style="opacity: 0; transform: scale(0.95);">
           <div class="widget-header flex items-center justify-between mb-2">
             <span class="font-semibold text-sm flex items-center gap-2">
               <i class="${widgetIcon}"></i>
               ${widgetTitle}
             </span>
-            <button class="remove-widget-btn text-destructive hover:bg-destructive/10 rounded p-1">
+            <button class="remove-widget-btn shadcn-button-ghost h-8 w-8 p-0 text-destructive hover:bg-destructive/10 rounded" aria-label="Remover widget">
               <i class="ri-delete-bin-line"></i>
             </button>
           </div>
@@ -146,15 +172,48 @@ document.addEventListener('DOMContentLoaded', function() {
       `;
       
       editor.insertAdjacentHTML('beforeend', widgetHtml);
+      
+      // Animate new widget with Motion.dev
+      const newWidget = editor.lastElementChild;
+      if (typeof window.motion !== 'undefined' && newWidget) {
+        window.motion.animate(newWidget, {
+          opacity: [0, 1],
+          scale: [0.95, 1]
+        }, {
+          duration: 0.3,
+          easing: 'ease-out'
+        }).then(() => {
+          newWidget.style.opacity = '1';
+          newWidget.style.transform = 'scale(1)';
+        });
+      }
+      
       attachRemoveListeners();
     });
   });
   
-  // Remover widget
+  // Remover widget with Motion.dev animation
   function attachRemoveListeners() {
     document.querySelectorAll('.remove-widget-btn').forEach(btn => {
       btn.onclick = function() {
-        this.closest('.widget-item').remove();
+        const widget = this.closest('.widget-item');
+        if (!widget) return;
+        
+        // Animate out with Motion.dev
+        if (typeof window.motion !== 'undefined') {
+          window.motion.animate(widget, {
+            opacity: [1, 0],
+            scale: [1, 0.9],
+            y: [0, -10]
+          }, {
+            duration: 0.2,
+            easing: 'ease-in'
+          }).then(() => {
+            widget.remove();
+          });
+        } else {
+          widget.remove();
+        }
       };
     });
   }

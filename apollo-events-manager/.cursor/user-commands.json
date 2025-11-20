@@ -1,0 +1,20 @@
+{
+  "commands": [
+    {
+      "name": "php-inspect",
+      "description": "Revisar arquivo PHP atual como PhpStorm",
+      "instructions": "Você é um inspetor de código estilo PhpStorm especializado em PHP 8 e WordPress.\n\nTarefa:\n1. Analise o arquivo atual em busca de:\n   - Problemas de tipo, null, lógica, fluxo.\n   - Problemas de segurança (XSS, SQL injection, uso inseguro de dados do usuário).\n   - Problemas de performance óbvios.\n\n2. Liste os problemas encontrados em tópicos numerados, com:\n   - Linha aproximada.\n   - Explicação breve.\n   - Nível de severidade (warning, error, suggestion).\n\n3. Só depois proponha um patch com as correções mínimas necessárias, em forma de diff.\n\n4. Não reescreva o arquivo inteiro; apenas os trechos que precisam mudar."
+    },
+    {
+      "name": "php-refactor-safe",
+      "description": "Refatorar o arquivo atual com foco em clareza e segurança",
+      "instructions": "Refatore o arquivo PHP atual com as seguintes prioridades:\n\n1. Melhorar legibilidade (nomes claros, funções menores, menos duplicação).\n2. Melhorar segurança (validação/sanitização de input, escape de output).\n3. Adicionar ou ajustar type hints e PHPDocs para refletir o uso real, sem quebrar a API pública.\n\nPassos:\n- Explique rapidamente o plano de refatoração em 3–6 bullets.\n- Mostre o diff completo das alterações.\n- Aponte qualquer mudança que possa alterar comportamento externo (API, hooks, shortcodes).\n\nNão introduza novas bibliotecas externas. Não mude estilo de código (indentação, aspas etc.) fora das linhas tocadas."
+    },
+    {
+      "name": "php-phpdoc",
+      "description": "Gerar ou melhorar PHPDoc no arquivo atual",
+      "instructions": "Analise o arquivo PHP atual e:\n\n- Gere ou atualize PHPDocs para classes, métodos e funções públicas.\n- Use descrições curtas e claras, em português.\n- Garanta que os tipos dos parâmetros e retornos no PHPDoc batam com os type hints e com o uso real.\n- Não apague comentários importantes já existentes; apenas complemente.\n\nNo final, liste rapidamente quais símbolos receberam novos PHPDocs."
+    }
+  ]
+}
+

@@ -199,6 +199,7 @@ class CenaRioModule
 
     /**
      * Enfileira assets específicos da página.
+     * Usa sistema centralizado Apollo ShadCN/Tailwind
      *
      * @return void
      */
@@ -208,26 +209,41 @@ class CenaRioModule
             return;
         }
 
+        // Carregar sistema centralizado ShadCN/Tailwind
+        $shadcn_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/apollo-shadcn-loader.php';
+        if (file_exists($shadcn_loader)) {
+            require_once $shadcn_loader;
+            if (class_exists('Apollo_ShadCN_Loader')) {
+                Apollo_ShadCN_Loader::get_instance();
+            }
+        }
+        
+        // CSS específico da página Cena::Rio
+        wp_enqueue_style(
+            'cena-rio-page',
+            APOLLO_SOCIAL_PLUGIN_URL . 'cena-rio/assets/cena-rio-page.css',
+            array('apollo-shadcn-base', 'apollo-uni-css'),
+            APOLLO_SOCIAL_VERSION
+        );
+        
+        // JavaScript específico da página
         wp_enqueue_script(
-            'cena-rio-tailwind',
-            'https://cdn.tailwindcss.com',
-            [],
-            null,
-            false
+            'cena-rio-page',
+            APOLLO_SOCIAL_PLUGIN_URL . 'cena-rio/assets/cena-rio-page.js',
+            array('jquery'),
+            APOLLO_SOCIAL_VERSION,
+            true
         );
-
-        wp_enqueue_style(
-            'cena-rio-uni',
-            'https://assets.apollo.rio.br/uni.css',
-            [],
-            null
-        );
-
-        wp_enqueue_style(
-            'cena-rio-remixicon',
-            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-            [],
-            null
+        
+        // Localizar script
+        wp_localize_script(
+            'cena-rio-page',
+            'cenaRioData',
+            array(
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('cena_rio_nonce'),
+                'userId' => get_current_user_id(),
+            )
         );
     }
 

@@ -1,0 +1,233 @@
+@import "../../../../../../css/_mixins.scss";
+@import "../../../../../../css/_trx_addons.vars.scss";
+@import "../../../../../../css/_trx_addons.colors.scss";
+
+:root {
+	--trx-addons-base-size: 1;
+	--trx-addons-marquee-highlight-animation-duration: 2000ms;
+}
+
+.trx-addons-marquee-wrap {
+	@include flex;
+	@include flex-direction(row);
+	@include flex-justify-content(flex-start);
+	@include flex-align-items(flex-start);
+
+	&:not(.trx_addons_in_preview_mode) {
+		@include flex-wrap(nowrap);
+		white-space: nowrap;
+	}
+	&.trx_addons_marquee_reverse {
+		@include flex-justify-content(flex-end);
+	}
+}
+
+.trx-addons-marquee {
+	position: relative;
+	margin: 0;
+
+	.trx-addons-marquee-wrap:not(.trx_addons_in_preview_mode) & {
+		white-space: nowrap;
+	}
+
+	& > .sc_item_word:not(:first-child) {
+		white-space-collapse: preserve-spaces;
+
+		&:before {
+			content: ' ';
+			display: inline-block;
+		}
+	}
+}
+
+.trx-addons-marquee-link {
+	display: block;
+	@include abs-cover(10);
+}
+
+.elementor-widget-trx_elm_marquee {
+	&.trx-addons-animate {
+		.trx-addons-svg-wrapper path {
+			stroke-dasharray: 1500;
+			animation: highlighted-line var(--trx-addons-marquee-highlight-animation-duration) cubic-bezier(.29, 1.11, .74, 1.04) forwards;
+			animation-play-state: paused;
+		}
+	}
+	// &.elementor-element-edit-mode path {
+	// 	animation-play-state: running !important
+	// }
+}
+
+.trx-addons-marquee-item-separator {
+	display: inline-block;
+	// vertical-align: middle;
+	width: 0.3em;
+}
+
+.trx-addons-marquee-item {
+	display: inline-block;
+	// vertical-align: middle;
+	position: relative;
+
+	&.trx_addons_marquee_rotation {
+		display: inline-block;
+		// vertical-align: middle;
+		line-height: 0;
+	}
+	.animation_type_sequental &,
+	.animation_type_random & {
+		display: inline-block;
+	}
+	
+	.trx-addons-marquee-wrap:not(.trx_addons_in_preview_mode) &,
+	.sc_item_word {
+		white-space: nowrap;
+	}
+
+	& + .sc_item_animated_block {
+		min-width: 0.3em;
+	}
+
+	.sc_item_animated_block {
+		background-clip: content-box;
+		-webkit-text-fill-color: initial;
+	}	
+
+	// &:not(:last-child) {
+	// 	margin-right: 0.15em;
+	// }
+
+	&.trx-addons-marquee-color,
+	&[class*="trx-addons-marquee-stroke"] {
+		padding-left: 0.1em;
+		padding-right: 0.1em;
+	}
+}
+
+.trx-addons-marquee-item-text {
+	position: relative;
+	@include transition-colors;
+
+	&[class*="trx-addons-marquee-stroke"] {
+		white-space: nowrap;
+	}
+}
+
+.trx-addons-marquee-item-highlighted[class*="trx-addons-marquee-stroke"] .trx-addons-marquee-text {
+	position: relative;
+	z-index: 1;
+}
+
+.trx-addons-marquee-item-text {
+	svg {
+		position: absolute;
+		top: auto;
+		left: -3%;
+		width: 106%;
+		height: 100%;
+		overflow: visible;
+		pointer-events: none;
+	}
+	svg path {
+		stroke-width: 9;
+		fill: none;
+		@include transition-properties(stroke, fill);
+	}
+	.trx-addons-svg-wrapper .sc_item_animated_block {
+		position: absolute;
+		top: 0;
+		left: -3%;
+		width: 106%;
+		height: 100%;
+		pointer-events: none;
+
+		svg {
+			left: 0;
+			width: 100%;
+		}
+	}
+	&.trx-addons-marquee-color {
+		--trx-addons-marquee-color: #f00;
+		background-image: -webkit-gradient(linear, left top, right top, from(var(--trx-addons-marquee-color)), to(var(--trx-addons-marquee-color)));
+		background-image: -webkit-linear-gradient(left, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+		background-image: -o-linear-gradient(left, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+		background-image: linear-gradient(to right, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+		background-position: 0 0;
+		background-repeat: no-repeat;
+		background-size: 0 100%;
+	 	@include transition-property(background-size, 1s, cubic-bezier(.5,.5,0,1));
+
+		&.trx-addons-animate-complete {
+			background-size: 100% 100%;
+		}
+	}
+}
+
+.trx-addons-marquee-item-gallery {
+	img:not(:first-child) {
+		display: none;
+	}
+}
+
+.trx-addons-marquee-item-icon svg,
+.trx-addons-marquee-item-image img,
+.trx-addons-marquee-item-gallery img,
+.trx-addons-marquee-item-video video {
+	vertical-align: middle;
+	max-height: calc( 0.88em * var(--trx-addons-base-size, 1) );
+	max-width: none !important;
+	width: auto;
+	@include content-box;
+}
+.trx-addons-marquee-item-image img,
+.trx-addons-marquee-item-gallery img,
+.trx-addons-marquee-item-video video {
+	@include transition-properties(background-color, border-color);
+}
+.trx-addons-marquee-item.trx-addons-marquee-item-video video {
+	min-height: 0;
+	width: auto;	// To override the default Elementor video width = 100%
+}
+
+.trx-addons-marquee-item-icon svg {
+	height: calc( 0.88em * var(--trx-addons-base-size, 1) );
+	overflow: visible !important;
+}
+.trx-addons-marquee-item-icon .trx-addons-marquee-item-icon-svg {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 0;
+	overflow: hidden;
+}
+
+
+.trx-addons-marquee-item-icon i {
+	vertical-align: middle;
+	font-size: calc( 0.88em * var(--trx-addons-base-size, 1) );
+	@include transition-colors;
+}
+
+
+@keyframes trx-addons-marquee-animate-gradient {
+	0% {
+		background-position: 0 0;
+	}
+
+    50% {
+		background-position: 100% 0;
+    }
+
+	100% {
+		background-position: 0 0;
+    }
+}
+
+@keyframes highlighted-line {
+	from {
+		stroke-dasharray: 0 1500;
+	}
+
+	to {
+		stroke-dasharray: 1500 1500;
+	}
+}

@@ -39,8 +39,14 @@ spl_autoload_register(function ($class) {
 
 // Initialize plugin
 add_action('plugins_loaded', function() {
+    // Constructor automatically calls bootstrap()
     $plugin = new \Apollo\Plugin();
-    $plugin->bootstrap();
+    
+    // Load ShadCN/Tailwind loader (centralizado para todos os plugins Apollo)
+    $shadcn_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/apollo-shadcn-loader.php';
+    if (file_exists($shadcn_loader)) {
+        require_once $shadcn_loader;
+    }
     
     // Load user-pages module
     $user_pages_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/user-pages-loader.php';
@@ -55,10 +61,27 @@ add_action('plugins_loaded', function() {
             require_once $help_menu;
         }
     }
-});
+}, 5);
 
 // Flush rewrite rules on activation
 register_activation_hook(__FILE__, function() {
+    // ✅ Verificar se rewrite rules já foram flushadas recentemente (últimos 5 minutos)
+    $last_flush = get_transient('apollo_social_rewrite_rules_last_flush');
+    if ($last_flush && (time() - $last_flush) < 300) {
+        // Já foi flushado recentemente, pular
+        error_log('✅ Apollo Social: Rewrite rules já foram flushadas recentemente, pulando...');
+        return;
+    }
+    
+    // Create database tables
+    $schema = new \Apollo\Infrastructure\Database\Schema();
+    $schema->install();
+    $schema->updateGroupsTable();
+    
+    // Create default groups (COMUNIDADES and PROJECT TEAM)
+    $default_groups = new \Apollo\Domain\Groups\DefaultGroups();
+    $default_groups->createDefaults();
+    
     // Register routes first
     $routes = new \Apollo\Infrastructure\Http\Routes();
     $routes->register();
@@ -78,6 +101,10 @@ register_activation_hook(__FILE__, function() {
     
     // Flush rewrite rules
     flush_rewrite_rules();
+    
+    // Marcar timestamp do flush
+    set_transient('apollo_social_rewrite_rules_last_flush', time(), 600); // 10 minutos
+    error_log('✅ Apollo Social: Rewrite rules flushadas com sucesso');
 });
 
 // Clean up on deactivation

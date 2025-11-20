@@ -446,10 +446,21 @@ class Apollo_Post_Types {
      * Called by activation hook in main plugin file
      */
     public static function flush_rewrite_rules_on_activation() {
+        // ✅ Verificar se rewrite rules já foram flushadas recentemente (últimos 5 minutos)
+        $last_flush = get_transient('apollo_rewrite_rules_last_flush');
+        if ($last_flush && (time() - $last_flush) < 300) {
+            // Já foi flushado recentemente, pular
+            error_log('✅ Apollo: Rewrite rules já foram flushadas recentemente, pulando...');
+            return;
+        }
+        
         $instance = new self();
         $instance->register_post_types();
         $instance->register_taxonomies();
         flush_rewrite_rules(false); // Don't force hard flush
+        
+        // Marcar timestamp do flush
+        set_transient('apollo_rewrite_rules_last_flush', time(), 600); // 10 minutos
         
         if (defined('APOLLO_DEBUG') && APOLLO_DEBUG) {
             error_log('✅ Apollo Rewrite Rules flushed on activation');

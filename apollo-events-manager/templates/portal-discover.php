@@ -1,10 +1,11 @@
 <?php
 /**
- * Template: Portal de Eventos Apollo
+ * Template: Portal de Eventos Apollo (STANDALONE)
  * Baseado 100% no CodePen raxqVGR
  * URL: https://codepen.io/Rafael-Valle-the-looper/pen/raxqVGR
  * 
  * STRICT MODE: Este template é SEMPRE usado para /eventos/, independente do tema.
+ * STANDALONE: Não usa get_header()/get_footer() - HTML limpo com apenas uni.css
  */
 
 defined('ABSPATH') || exit;
@@ -67,15 +68,137 @@ if (!function_exists('apollo_eve_parse_start_date')) {
     }
 }
 
-get_header(); // Use WordPress header
+// ========================================================================
+// 🎨 BLANK CANVAS MODE: Zero interferência WordPress/Tema
+// ========================================================================
+// ACEITA APENAS: apollo-events-manager + apollo-social
+// BLOQUEIA: Tudo do WordPress core, tema, e outros plugins
+// ========================================================================
+
+// 🚫 STEP 1: Remove admin bar (mesmo para admins)
+add_filter('show_admin_bar', '__return_false', 999);
+remove_action('wp_head', '_admin_bar_bump_cb');
+
+// 🚫 STEP 2: Desabilitar TUDO do wp_head() exceto Apollo
+add_action('wp_enqueue_scripts', function() {
+    global $wp_styles, $wp_scripts;
+    
+    // ============================================
+    // Lista de handles PERMITIDOS (whitelist)
+    // ============================================
+    $allowed_styles = [
+        // Apollo Events Manager
+        'remixicon',
+        'apollo-shadcn-components',
+        'apollo-event-modal-css',
+        'leaflet-css',
+        'apollo-infinite-scroll-css',
+        'apollo-uni-css',
+        
+        // Apollo Social (se ativo)
+        'apollo-social-pwa',
+    ];
+    
+    $allowed_scripts = [
+        // WordPress core essentials (apenas AJAX)
+        'jquery-core',
+        'jquery-migrate',
+        
+        // Apollo Events Manager
+        'apollo-loading-animation',
+        'apollo-base-js',
+        'leaflet',
+        'apollo-events-portal',
+        'apollo-motion-event-card',
+        'apollo-motion-modal',
+        'apollo-infinite-scroll',
+        'apollo-motion-dashboard',
+        'apollo-motion-context-menu',
+        'apollo-character-counter',
+        'apollo-form-validation',
+        'apollo-image-modal',
+        'apollo-events-favorites',
+        'framer-motion',
+        
+        // Apollo Social (se ativo)
+        'apollo-social-pwa',
+    ];
+    
+    // ============================================
+    // Remove TODOS os styles não-permitidos
+    // ============================================
+    if (is_object($wp_styles)) {
+        foreach ($wp_styles->queue as $handle) {
+            if (!in_array($handle, $allowed_styles, true)) {
+                wp_dequeue_style($handle);
+                wp_deregister_style($handle);
+            }
+        }
+    }
+    
+    // ============================================
+    // Remove TODOS os scripts não-permitidos
+    // ============================================
+    if (is_object($wp_scripts)) {
+        foreach ($wp_scripts->queue as $handle) {
+            if (!in_array($handle, $allowed_scripts, true)) {
+                wp_dequeue_script($handle);
+                wp_deregister_script($handle);
+            }
+        }
+    }
+}, 999);
+
+// 🚫 STEP 3: Remove hooks desnecessários do wp_head()
+remove_action('wp_head', 'wp_generator'); // WordPress version
+remove_action('wp_head', 'wlwmanifest_link'); // Windows Live Writer
+remove_action('wp_head', 'rsd_link'); // Really Simple Discovery
+remove_action('wp_head', 'wp_shortlink_wp_head'); // Shortlink
+remove_action('wp_head', 'adjacent_posts_rel_link_wp_head'); // Prev/Next
+remove_action('wp_head', 'feed_links', 2); // RSS feeds
+remove_action('wp_head', 'feed_links_extra', 3); // Extra RSS feeds
+remove_action('wp_head', 'rest_output_link_wp_head'); // REST API link
+remove_action('wp_head', 'wp_oembed_add_discovery_links'); // oEmbed
+remove_action('wp_head', 'print_emoji_detection_script', 7); // Emoji detection
+remove_action('wp_print_styles', 'print_emoji_styles'); // Emoji styles
+
+// 🚫 STEP 4: Remove hooks desnecessários do wp_footer()
+remove_action('wp_footer', 'wp_print_footer_scripts', 20);
+
 ?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    
+    <title>Discover Events - Apollo::rio</title>
+    
+    <!-- Apollo Favicon -->
+    <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
+    
+    <!-- ✅ CANVAS MODE: ONLY uni.css (hardcoded, bypass wp_enqueue) -->
+    <link href="https://assets.apollo.rio.br/uni.css?ver=<?php echo date('Y-m'); ?>" rel="stylesheet">
+    
+    <?php
+    // ⚠️ wp_head() com filtros aplicados (apenas Apollo scripts/styles)
+    wp_head();
+    ?>
+</head>
+<body class="apollo-canvas-mode">
 
     <!-- FIXED HEADER -->
     <header class="site-header">
         <div class="menu-h-apollo-blur"></div>
         <a href="<?php echo home_url('/'); ?>" class="menu-apollo-logo"></a>
         <nav class="main-nav">
-            <a class="a-hover off"><span id="agoraH">--:--</span> RJ</a>
+            <a class="a-hover off"><span id="agoraH">
+                <?php echo esc_html(apollo_get_placeholder('APOLLO_PLACEHOLDER_CURRENT_TIME')); ?>
+            </span> RJ</a>
             <a href="<?php echo home_url('/eventos/'); ?>" class="ario-eve" title="Portal de Eventos">
                 Eventos<i class="ri-arrow-right-up-line"></i>
             </a>
@@ -163,51 +286,48 @@ get_header(); // Use WordPress header
                 <?php
                 // ============================================
                 // PERFORMANCE: Query otimizada com cache
+                // CRITICAL FIX: Remove limit, show ALL events
                 // ============================================
-                $cache_key  = 'apollo_upcoming_event_ids_' . date('Ymd');
+                $cache_key  = 'apollo_all_event_ids_' . date('Ymd');
                 $event_ids  = get_transient($cache_key);
                 $event_posts = array();
                 
                 if (false === $event_ids) {
-                    $today = current_time('Y-m-d'); // Date format matches _event_start_date storage
+                    // CRITICAL: Query ALL published events, no date filter
                     $query_args = array(
                         'post_type'      => 'event_listing',
-                        'posts_per_page' => 50,
+                        'posts_per_page' => -1, // CRITICAL: No limit - get ALL events
                         'post_status'    => 'publish',
                         'meta_key'       => '_event_start_date',
                         'orderby'        => 'meta_value',
                         'order'          => 'ASC',
-                        'meta_query'     => array(
-                            array(
-                                'key'     => '_event_start_date',
-                                'value'   => $today,
-                                'compare' => '>=',
-                                'type'    => 'DATE',
-                            ),
-                        ),
+                        // CRITICAL: Removed date filter to show ALL events
+                        // Include events with or without dates
                     );
                     
                     $query = new WP_Query($query_args);
-                    $collected_ids = array();
                     
-                    if ($query->have_posts()) {
-                        while ($query->have_posts()) {
-                            $query->the_post();
-                            $candidate_id   = get_the_ID();
-                            $start_date_raw = get_post_meta($candidate_id, '_event_start_date', true);
-                            $date_info      = apollo_eve_parse_start_date($start_date_raw);
-                            
-                            if (empty($date_info['timestamp'])) {
-                                continue;
+                    // ✅ Error handling para WP_Query
+                    if (is_wp_error($query)) {
+                        error_log('Apollo: WP_Query error em portal-discover: ' . $query->get_error_message());
+                        $event_ids = array();
+                    } else {
+                        $collected_ids = array();
+                        
+                        if ($query->have_posts()) {
+                            while ($query->have_posts()) {
+                                $query->the_post();
+                                $candidate_id   = get_the_ID();
+                                // CRITICAL: Don't skip events without dates - include them all
+                                $collected_ids[] = absint($candidate_id);
                             }
-                            
-                            $collected_ids[] = absint($candidate_id);
+                            wp_reset_postdata();
                         }
-                        wp_reset_postdata();
+                        
+                        $event_ids = array_values(array_unique(array_filter($collected_ids)));
+                        // CRITICAL: Cache for shorter time to ensure fresh data
+                        set_transient($cache_key, $event_ids, 2 * MINUTE_IN_SECONDS);
                     }
-                    
-                    $event_ids = array_values(array_unique(array_filter($collected_ids)));
-                    set_transient($cache_key, $event_ids, 5 * MINUTE_IN_SECONDS);
                 }
                 
                 if (!empty($event_ids)) {
@@ -233,12 +353,11 @@ get_header(); // Use WordPress header
 
                     foreach ($event_posts as $event_post) {
                         $event_id        = $event_post->ID;
-                        $start_date_raw  = get_post_meta($event_id, '_event_start_date', true);
+                        $start_date_raw  = apollo_get_post_meta($event_id, '_event_start_date', true);
                         $date_info       = apollo_eve_parse_start_date($start_date_raw);
                         
-                        if (empty($date_info['timestamp'])) {
-                            continue;
-                        }
+                        // CRITICAL: Don't skip events without dates - include them with empty date_info
+                        // Events without dates will show with empty date display but still be listed
                         
                         $filtered_events[] = array(
                             'post'      => $event_post,
@@ -257,9 +376,9 @@ get_header(); // Use WordPress header
                             $date_info  = $event_context['date_info'];
                             
                             // -------- META BÁSICA --------
-                            $start_date_raw   = get_post_meta($event_id, '_event_start_date', true);
-                            $event_location_r = get_post_meta($event_id, '_event_location', true);
-                            $event_banner     = get_post_meta($event_id, '_event_banner', true);
+                            $start_date_raw   = apollo_get_post_meta($event_id, '_event_start_date', true);
+                            $event_location_r = apollo_get_post_meta($event_id, '_event_location', true);
+                            $event_banner     = apollo_get_post_meta($event_id, '_event_banner', true);
                             
                             $day      = $date_info['day'];
                             $month_pt = $date_info['month_pt'];
@@ -271,23 +390,20 @@ get_header(); // Use WordPress header
                         $djs_names = array();
                         
                         // Tentativa 1: _event_dj_ids (correto meta key)
-                        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-                        if (!empty($dj_ids_raw)) {
-                            $dj_ids = maybe_unserialize($dj_ids_raw);
-                            if (is_array($dj_ids)) {
-                                foreach ($dj_ids as $dj_id) {
-                                    $dj_id = is_numeric($dj_id) ? absint($dj_id) : 0;
-                                    if ($dj_id > 0) {
-                                        $dj_post = get_post($dj_id);
-                                        if ($dj_post && $dj_post->post_status === 'publish' && $dj_post->post_type === 'event_dj') {
-                                            $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                                            if (empty($dj_name)) {
-                                                $dj_name = $dj_post->post_title;
-                                            }
-                                            if (!empty($dj_name)) {
-                                                $djs_names[] = trim($dj_name);
-                                            }
-                                        }
+                        // ✅ CORRECT: Use _event_dj_ids with maybe_unserialize()
+                        $dj_ids_raw = apollo_get_post_meta($event_id, '_event_dj_ids', true);
+                        $dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+
+                        if (!empty($dj_ids)) {
+                            foreach ($dj_ids as $dj_id) {
+                                $dj_post = get_post($dj_id);
+                                if ($dj_post && $dj_post->post_status === 'publish' && $dj_post->post_type === 'event_dj') {
+                                    $dj_name = apollo_get_post_meta($dj_id, '_dj_name', true);
+                                    if (empty($dj_name)) {
+                                        $dj_name = $dj_post->post_title;
+                                    }
+                                    if (!empty($dj_name)) {
+                                        $djs_names[] = trim($dj_name);
                                     }
                                 }
                             }
@@ -295,7 +411,7 @@ get_header(); // Use WordPress header
                         
                         // Tentativa 2: _event_timetable (se existir)
                         if (empty($djs_names)) {
-                            $timetable = get_post_meta($event_id, '_event_timetable', true);
+                            $timetable = apollo_get_post_meta($event_id, '_event_timetable', true);
                             if (!empty($timetable)) {
                                 $timetable = maybe_unserialize($timetable);
                                 if (is_array($timetable)) {
@@ -303,7 +419,7 @@ get_header(); // Use WordPress header
                                         if (empty($slot['dj'])) continue;
                                         
                                         if (is_numeric($slot['dj'])) {
-                                            $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
+                                            $dj_name = apollo_get_post_meta($slot['dj'], '_dj_name', true);
                                             if (!$dj_name) {
                                                 $dj_post = get_post($slot['dj']);
                                                 $dj_name = $dj_post ? $dj_post->post_title : '';
@@ -322,13 +438,13 @@ get_header(); // Use WordPress header
                         
                         // Tentativa 3: _timetable (fallback para formato antigo)
                         if (empty($djs_names)) {
-                            $timetable_old = get_post_meta($event_id, '_timetable', true);
+                            $timetable_old = apollo_get_post_meta($event_id, '_timetable', true);
                             if (!empty($timetable_old) && is_array($timetable_old)) {
                                 foreach ($timetable_old as $slot) {
                                     if (empty($slot['dj'])) continue;
                                     
                                     if (is_numeric($slot['dj'])) {
-                                        $dj_name = get_post_meta($slot['dj'], '_dj_name', true);
+                                        $dj_name = apollo_get_post_meta($slot['dj'], '_dj_name', true);
                                         if (!$dj_name) {
                                             $dj_post = get_post($slot['dj']);
                                             $dj_name = $dj_post ? $dj_post->post_title : '';
@@ -346,7 +462,7 @@ get_header(); // Use WordPress header
                         
                         // Tentativa 4: _dj_name direto (último fallback)
                         if (empty($djs_names)) {
-                            $dj_meta = get_post_meta($event_id, '_dj_name', true);
+                            $dj_meta = apollo_get_post_meta($event_id, '_dj_name', true);
                             if ($dj_meta) {
                                 $djs_names[] = trim($dj_meta);
                             }
@@ -380,24 +496,32 @@ get_header(); // Use WordPress header
                         $event_location_area = '';
                         
                         // Tentativa 1: _event_local_ids (relacionamento com event_local post)
+                        // CRITICAL: Use apollo_get_event_local_ids() which now uses apollo_aem_parse_ids()
                         $local_meta = apollo_get_event_local_ids($event_id);
-                        $primary_local_id = $local_meta[0] ?? 0;
+                        $primary_local_id = !empty($local_meta) && is_array($local_meta) ? (int) $local_meta[0] : 0;
                         $event_local_slug = ''; // Slug do local para filtros
 
-                        if ($primary_local_id) {
+                        if ($primary_local_id > 0) {
                             $local_post = get_post($primary_local_id);
                             if ($local_post && $local_post->post_status === 'publish' && $local_post->post_type === 'event_local') {
-                                $event_location = get_post_meta($primary_local_id, '_local_name', true);
+                                // CRITICAL: Use apollo_get_post_meta for consistency
+                                $event_location = apollo_get_post_meta($primary_local_id, '_local_name', true);
                                 if (empty($event_location)) {
                                     $event_location = $local_post->post_title;
                                 }
                                 
                                 // Slug do local para filtros
-                                $event_local_slug = sanitize_title($local_post->post_name ?: $event_location);
+                                // Use post_name first, then generate from name, normalize for matching
+                                $event_local_slug = $local_post->post_name;
+                                if (empty($event_local_slug)) {
+                                    $event_local_slug = sanitize_title($event_location);
+                                }
+                                // Normalize slug for better matching (remove hyphens, lowercase)
+                                $event_local_slug_normalized = strtolower(str_replace('-', '', $event_local_slug));
                                 
                                 // Área do local
-                                $local_city = get_post_meta($primary_local_id, '_local_city', true);
-                                $local_state = get_post_meta($primary_local_id, '_local_state', true);
+                                $local_city = apollo_get_post_meta($primary_local_id, '_local_city', true);
+                                $local_state = apollo_get_post_meta($primary_local_id, '_local_state', true);
                                 if ($local_city && $local_state) {
                                     $event_location_area = $local_city . ', ' . $local_state;
                                 } elseif ($local_city) {
@@ -428,9 +552,19 @@ get_header(); // Use WordPress header
                         }
                         
                         // -------- BANNER --------
+                        // ✅ CORRECT: Banner is URL string, NOT attachment ID
                         $banner_url = '';
                         if ($event_banner) {
-                            $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
+                            // Try as URL first (correct format)
+                            if (filter_var($event_banner, FILTER_VALIDATE_URL)) {
+                                $banner_url = $event_banner;
+                            } elseif (is_numeric($event_banner)) {
+                                // Fallback: if numeric, treat as attachment ID
+                                $banner_url = wp_get_attachment_url($event_banner);
+                            } else {
+                                // Try as string URL even if filter_var fails
+                                $banner_url = is_string($event_banner) ? $event_banner : '';
+                            }
                         }
                         if (!$banner_url && has_post_thumbnail($event_id)) {
                             $banner_url = get_the_post_thumbnail_url($event_id, 'large');
@@ -484,7 +618,7 @@ get_header(); // Use WordPress header
                                     <!-- DJs - SEMPRE EXIBIDO -->
                                     <p class="event-li-detail of-dj afasta-bmin">
                                         <i class="ri-sound-module-fill"></i>
-                                        <span><?php echo $dj_display; // Already escaped in construction ?></span>
+                                        <span><?php echo wp_kses_post($dj_display); ?></span>
                                     </p>
                                     
                                     <!-- Local - EXIBIDO SE EXISTIR -->
@@ -521,51 +655,57 @@ get_header(); // Use WordPress header
             ];
             $latest_post_query = new WP_Query($latest_post_args);
             
-            if ($latest_post_query->have_posts()):
-                while ($latest_post_query->have_posts()): $latest_post_query->the_post();
-                    $banner_image = get_the_post_thumbnail_url(get_the_ID(), 'full');
-                    if (!$banner_image) {
-                        $banner_image = 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop';
-                    }
-                    $excerpt = wp_trim_words(get_the_excerpt(), 30, '...');
-                    if (!$excerpt) {
-                        $excerpt = wp_trim_words(get_the_content(), 30, '...');
-                    }
+            // ✅ Error handling para WP_Query
+            if (is_wp_error($latest_post_query)) {
+                error_log('Apollo: WP_Query error em portal-discover (latest_post): ' . $latest_post_query->get_error_message());
+                // Continuar sem banner se houver erro
+            } else {
+                if ($latest_post_query->have_posts()):
+                    while ($latest_post_query->have_posts()): $latest_post_query->the_post();
+                        $banner_image = get_the_post_thumbnail_url(get_the_ID(), 'full');
+                        if (!$banner_image) {
+                            $banner_image = 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop';
+                        }
+                        $excerpt = wp_trim_words(get_the_excerpt(), 30, '...');
+                        if (!$excerpt) {
+                            $excerpt = wp_trim_words(get_the_content(), 30, '...');
+                        }
+                        ?>
+                        <section class="banner-ario-1-wrapper" style="margin-top: 80px;">
+                            <img src="<?php echo esc_url($banner_image); ?>" class="ban-ario-1-img" alt="<?php echo esc_attr(get_the_title()); ?>">
+                            <div class="ban-ario-1-content">
+                                <h3 class="ban-ario-1-subtit">Extra! Extra!</h3>
+                                <h2 class="ban-ario-1-titl"><?php the_title(); ?></h2>
+                                <p class="ban-ario-1-txt">
+                                    <?php echo esc_html($excerpt); ?>
+                                </p>
+                                <a href="<?php the_permalink(); ?>" class="ban-ario-1-btn">
+                                    Saiba Mais <i class="ri-arrow-right-long-line"></i>
+                                </a>
+                            </div>
+                        </section>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else:
+                    // Fallback se não tiver posts
                     ?>
                     <section class="banner-ario-1-wrapper" style="margin-top: 80px;">
-                        <img src="<?php echo esc_url($banner_image); ?>" class="ban-ario-1-img" alt="<?php echo esc_attr(get_the_title()); ?>">
+                        <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop" class="ban-ario-1-img" alt="Upcoming Festival">
                         <div class="ban-ario-1-content">
                             <h3 class="ban-ario-1-subtit">Extra! Extra!</h3>
-                            <h2 class="ban-ario-1-titl"><?php the_title(); ?></h2>
+                            <h2 class="ban-ario-1-titl">Retrospectiva Clubbe::rio 2026</h2>
                             <p class="ban-ario-1-txt">
-                                <?php echo esc_html($excerpt); ?>
+                                A Retrospectiva Clubber 2026 está chegando! E em breve vamos liberar as primeiras novidades... Fique ligado, porque essa publicação promete celebrar tudo o que fez o coração da pista bater mais forte! Spoilers?
                             </p>
-                            <a href="<?php the_permalink(); ?>" class="ban-ario-1-btn">
+                            <a href="<?php echo home_url('/blog/'); ?>" class="ban-ario-1-btn">
                                 Saiba Mais <i class="ri-arrow-right-long-line"></i>
                             </a>
                         </div>
                     </section>
                     <?php
-                endwhile;
-                wp_reset_postdata();
-            else:
-                // Fallback se não tiver posts
-                ?>
-                <section class="banner-ario-1-wrapper" style="margin-top: 80px;">
-                    <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop" class="ban-ario-1-img" alt="Upcoming Festival">
-                    <div class="ban-ario-1-content">
-                        <h3 class="ban-ario-1-subtit">Extra! Extra!</h3>
-                        <h2 class="ban-ario-1-titl">Retrospectiva Clubbe::rio 2026</h2>
-                        <p class="ban-ario-1-txt">
-                            A Retrospectiva Clubber 2026 está chegando! E em breve vamos liberar as primeiras novidades... Fique ligado, porque essa publicação promete celebrar tudo o que fez o coração da pista bater mais forte! Spoilers?
-                        </p>
-                        <a href="<?php echo home_url('/blog/'); ?>" class="ban-ario-1-btn">
-                            Saiba Mais <i class="ri-arrow-right-long-line"></i>
-                        </a>
-                    </div>
-                </section>
-                <?php
-            endif;
+                endif;
+            }
             ?>
 
         </div>
@@ -581,5 +721,59 @@ get_header(); // Use WordPress header
         <i class="ri-moon-line"></i>
     </div>
 
-<?php get_footer(); // Use WordPress footer ?>
+    <!-- ✅ Apollo base.js for interactivity (hardcoded, bypass wp_enqueue) -->
+    <script src="https://assets.apollo.rio.br/base.js?ver=<?php echo date('Y-m'); ?>"></script>
+
+<?php
+// ========================================================================
+// 🎨 CANVAS MODE: Clean wp_footer() output
+// ========================================================================
+
+// Captura wp_footer() em buffer
+ob_start();
+wp_footer();
+$footer_content = ob_get_clean();
+
+// Filtra APENAS scripts Apollo permitidos (baseado na whitelist)
+$allowed_script_patterns = [
+    'apollo-events-manager',
+    'apollo-social',
+    'leaflet',
+    'jquery', // Apenas se necessário para Apollo AJAX
+    'framer-motion',
+];
+
+// Divide em linhas e filtra
+$footer_lines = explode("\n", $footer_content);
+$filtered_footer = [];
+$in_allowed_script = false;
+
+foreach ($footer_lines as $line) {
+    // Detecta início de script
+    if (stripos($line, '<script') !== false) {
+        $in_allowed_script = false;
+        foreach ($allowed_script_patterns as $pattern) {
+            if (stripos($line, $pattern) !== false) {
+                $in_allowed_script = true;
+                break;
+            }
+        }
+    }
+    
+    // Inclui linha se estiver em script permitido
+    if ($in_allowed_script || stripos($line, 'apollo') !== false) {
+        $filtered_footer[] = $line;
+    }
+    
+    // Detecta fim de script
+    if (stripos($line, '</script>') !== false) {
+        $in_allowed_script = false;
+    }
+}
+
+// Output apenas scripts Apollo
+echo implode("\n", $filtered_footer);
+?>
+</body>
+</html>
 

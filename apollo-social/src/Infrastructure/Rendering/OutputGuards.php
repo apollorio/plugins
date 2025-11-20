@@ -42,20 +42,49 @@ class OutputGuards
      */
     private function removeThemeActions()
     {
-        // Remove common theme hooks that add header/footer content
-        remove_all_actions('wp_head');
-        remove_all_actions('wp_footer');
-
-        // Re-add essential WordPress hooks
-        add_action('wp_head', 'wp_enqueue_scripts', 1);
-        add_action('wp_head', 'wp_print_styles', 8);
-        add_action('wp_head', 'wp_print_head_scripts', 9);
-        add_action('wp_footer', 'wp_print_footer_scripts', 20);
+        // Get theme slug to identify theme-specific hooks
+        $theme_slug = get_stylesheet();
+        
+        // Remove theme-specific hooks instead of ALL hooks
+        // This preserves hooks from other plugins
+        global $wp_filter;
+        
+        if (isset($wp_filter['wp_head']) && is_object($wp_filter['wp_head'])) {
+            $callbacks = $wp_filter['wp_head']->callbacks ?? [];
+            foreach ($callbacks as $priority => $hooks) {
+                foreach ($hooks as $hook_id => $hook) {
+                    $function = $hook['function'] ?? null;
+                    if ($function && is_array($function) && isset($function[0])) {
+                        $class_name = get_class($function[0]);
+                        // Remove only theme hooks
+                        if (strpos($class_name, $theme_slug) !== false) {
+                            remove_action('wp_head', $function, $priority);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Re-add essential WordPress hooks (only if not already present)
+        if (!has_action('wp_head', 'wp_enqueue_scripts')) {
+            add_action('wp_head', 'wp_enqueue_scripts', 1);
+        }
+        if (!has_action('wp_head', 'wp_print_styles')) {
+            add_action('wp_head', 'wp_print_styles', 8);
+        }
+        if (!has_action('wp_head', 'wp_print_head_scripts')) {
+            add_action('wp_head', 'wp_print_head_scripts', 9);
+        }
+        if (!has_action('wp_footer', 'wp_print_footer_scripts')) {
+            add_action('wp_footer', 'wp_print_footer_scripts', 20);
+        }
 
         // Keep admin bar if allowed
         $canvas_config = $this->getCanvasConfig();
         if (!empty($canvas_config['allow_admin_bar'])) {
-            add_action('wp_head', '_admin_bar_bump_cb');
+            if (!has_action('wp_head', '_admin_bar_bump_cb')) {
+                add_action('wp_head', '_admin_bar_bump_cb');
+            }
         }
     }
 
@@ -91,9 +120,11 @@ class OutputGuards
         $child_theme_url = get_stylesheet_directory_uri();
 
         foreach ($wp_styles->registered as $handle => $style) {
-            if (strpos($style->src, $theme_url) !== false || 
-                strpos($style->src, $child_theme_url) !== false) {
-                wp_dequeue_style($handle);
+            if (isset($style->src) && is_string($style->src)) {
+                if (strpos($style->src, $theme_url) !== false || 
+                    strpos($style->src, $child_theme_url) !== false) {
+                    wp_dequeue_style($handle);
+                }
             }
         }
     }
@@ -113,9 +144,11 @@ class OutputGuards
         $child_theme_url = get_stylesheet_directory_uri();
 
         foreach ($wp_scripts->registered as $handle => $script) {
-            if (strpos($script->src, $theme_url) !== false || 
-                strpos($script->src, $child_theme_url) !== false) {
-                wp_dequeue_script($handle);
+            if (isset($script->src) && is_string($script->src)) {
+                if (strpos($script->src, $theme_url) !== false || 
+                    strpos($script->src, $child_theme_url) !== false) {
+                    wp_dequeue_script($handle);
+                }
             }
         }
     }

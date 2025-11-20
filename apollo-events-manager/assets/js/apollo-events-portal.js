@@ -47,6 +47,15 @@
     }
 
     function resolveCouponCode(sourceElement) {
+        // Try to get code from data attribute first (most reliable)
+        if (sourceElement instanceof Element) {
+            const couponDetail = sourceElement.closest('.apollo-coupon-detail');
+            if (couponDetail && couponDetail.dataset && couponDetail.dataset.couponCode) {
+                return couponDetail.dataset.couponCode;
+            }
+        }
+        
+        // Fallback: try to find coupon detail in context
         const scope = sourceElement instanceof Element
             ? sourceElement.closest('.apollo-event-modal-content, .mobile-container')
             : null;
@@ -55,29 +64,89 @@
             ? sourceElement.closest('.apollo-coupon-detail')
             : context.querySelector('.apollo-coupon-detail');
 
-        if (!detail) {
-            return 'APOLLO';
+        if (detail) {
+            // Try data attribute first
+            if (detail.dataset && detail.dataset.couponCode) {
+                return detail.dataset.couponCode;
+            }
+            
+            // Fallback: get from strong element
+            const strongEl = detail.querySelector('strong');
+            if (strongEl) {
+                const code = strongEl.textContent.trim();
+                if (code !== '') {
+                    return code;
+                }
+            }
         }
-
-        const strongEl = detail.querySelector('strong');
-        const code = strongEl ? strongEl.textContent.trim() : '';
-        return code !== '' ? code : 'APOLLO';
+        
+        return 'APOLLO';
     }
 
-    if (typeof window.copyPromoCode !== 'function') {
-        window.copyPromoCode = function() {
-            const activeEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-            const code = resolveCouponCode(activeEl);
+    // Override or define copyPromoCode function
+    window.copyPromoCode = function(buttonElement) {
+        // Use button element if provided, otherwise try activeElement
+        const sourceEl = buttonElement instanceof Element 
+            ? buttonElement 
+            : (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+        
+        const code = resolveCouponCode(sourceEl);
 
-            copyTextToClipboard(code)
-                .then(function() {
-                    showTemporaryState(activeEl, 'copied');
-                })
-                .catch(function() {
+        copyTextToClipboard(code)
+            .then(function() {
+                // Show visual feedback
+                if (sourceEl) {
+                    showTemporaryState(sourceEl, 'copied');
+                    
+                    // Also update icon temporarily
+                    const icon = sourceEl.querySelector('i');
+                    if (icon) {
+                        const originalClass = icon.className;
+                        icon.className = 'ri-check-line';
+                        setTimeout(function() {
+                            icon.className = originalClass;
+                        }, 2000);
+                    }
+                }
+                
+                // Optional: show console log for debugging
+                if (window.console && window.console.log) {
+                    console.log('✅ Código copiado: ' + code);
+                }
+            })
+            .catch(function(error) {
+                if (window.console && window.console.error) {
+                    console.error('❌ Erro ao copiar código:', error);
+                }
+                
+                // Fallback: use execCommand for older browsers
+                try {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = code;
+                    tempInput.style.position = 'fixed';
+                    tempInput.style.opacity = '0';
+                    tempInput.style.left = '-9999px';
+                    document.body.appendChild(tempInput);
+                    tempInput.focus();
+                    tempInput.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    
+                    if (success) {
+                        if (sourceEl) {
+                            showTemporaryState(sourceEl, 'copied');
+                        }
+                        if (window.console && window.console.log) {
+                            console.log('✅ Código copiado (fallback): ' + code);
+                        }
+                    } else {
+                        window.alert('Copie o código: ' + code);
+                    }
+                } catch (fallbackError) {
                     window.alert('Copie o código: ' + code);
-                });
-        };
-    }
+                }
+            });
+    };
 
     const AJAX_ACTIONS = {
         apollo_get_event_modal: true,
@@ -203,6 +272,8 @@
     let modalOptions = {};
     let bodyScrollLocked = false;
     let scrollPosition = 0;
+    let currentLayoutMode = null;
+    let filterChangeTimer = null;
 
     function lockBodyScroll() {
         if (bodyScrollLocked) {
@@ -250,17 +321,49 @@
     }
 
     function applyLayout(mode) {
+        const normalized = mode === 'grid' ? 'grid' : 'list';
         const root = document.documentElement;
         root.classList.remove(LAYOUT_CLASS_LIST, LAYOUT_CLASS_GRID);
 
-        const active = mode === 'grid' ? LAYOUT_CLASS_GRID : LAYOUT_CLASS_LIST;
+        const active = normalized === 'grid' ? LAYOUT_CLASS_GRID : LAYOUT_CLASS_LIST;
         root.classList.add(active);
+
+        // Apply class to event_listings container for CSS targeting
+        const eventListings = document.querySelector('.event_listings');
+        if (eventListings) {
+            if (normalized === 'list') {
+                eventListings.classList.add('list-view');
+            } else {
+                eventListings.classList.remove('list-view');
+            }
+        }
 
         const toggle = document.getElementById('wpem-event-toggle-layout');
         if (toggle) {
-            toggle.dataset.layout = mode;
-            toggle.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
-            toggle.classList.toggle('is-grid', mode === 'grid');
+            toggle.dataset.layout = normalized;
+            toggle.setAttribute('aria-pressed', normalized === 'list' ? 'true' : 'false');
+            toggle.classList.toggle('is-grid', normalized === 'grid');
+            
+            // Update icon based on layout
+            const icon = toggle.querySelector('i');
+            if (icon) {
+                if (normalized === 'list') {
+                    icon.className = 'ri-list-check-2';
+                    toggle.setAttribute('title', 'Events List View');
+                } else {
+                    icon.className = 'ri-grid-fill';
+                    toggle.setAttribute('title', 'Events Grid View');
+                }
+            }
+        }
+
+        if (currentLayoutMode !== normalized) {
+            currentLayoutMode = normalized;
+            document.dispatchEvent(
+                new CustomEvent('apollo:layout-changed', {
+                    detail: { layout: normalized }
+                })
+            );
         }
     }
 
@@ -279,6 +382,88 @@
     window.toggleLayout = function(button) {
         handleLayoutToggle(button);
     };
+
+    // Initialize layout toggle button event listener
+    function initLayoutToggle() {
+        const toggle = document.getElementById('wpem-event-toggle-layout');
+        if (toggle) {
+            // Remove any existing onclick to avoid conflicts
+            toggle.removeAttribute('onclick');
+            
+            // Add event listener
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleLayoutToggle(this);
+            });
+            
+            // Initialize layout on page load
+            initLayoutPreference();
+        }
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLayoutToggle);
+    } else {
+        initLayoutToggle();
+    }
+
+    function dispatchFilterChanged(detail) {
+        document.dispatchEvent(
+            new CustomEvent('apollo:filter-changed', {
+                detail: detail || {}
+            })
+        );
+    }
+
+    function scheduleFilterChanged(detail) {
+        if (filterChangeTimer) {
+            clearTimeout(filterChangeTimer);
+        }
+        filterChangeTimer = window.setTimeout(function() {
+            dispatchFilterChanged(detail);
+        }, 150);
+    }
+
+    function initFilterChangeEvents() {
+        const categoryButtons = document.querySelectorAll('.event-category');
+        categoryButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                scheduleFilterChanged({
+                    source: 'category',
+                    slug: button.dataset.slug || ''
+                });
+            });
+        });
+
+        const datePrev = document.getElementById('datePrev');
+        const dateNext = document.getElementById('dateNext');
+        [datePrev, dateNext].forEach(function(btn) {
+            if (!btn) {
+                return;
+            }
+            btn.addEventListener('click', function() {
+                scheduleFilterChanged({
+                    source: 'date',
+                    direction: btn === datePrev ? 'prev' : 'next'
+                });
+            });
+        });
+
+        const searchForm = document.getElementById('eventSearchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function() {
+                scheduleFilterChanged({ source: 'search' });
+            });
+
+            const searchInput = searchForm.querySelector('input[name="search_keywords"]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    scheduleFilterChanged({ source: 'search' });
+                });
+            }
+        }
+    }
 
     function initModal() {
         modal = document.getElementById(MODAL_ID);
@@ -495,6 +680,7 @@
         console.log('Apollo Events Portal: Modal initialized successfully');
 
         initLayoutPreference();
+        initFilterChangeEvents();
 
         // Attach layout toggle button listener
         const layoutToggleBtn = document.getElementById('wpem-event-toggle-layout');

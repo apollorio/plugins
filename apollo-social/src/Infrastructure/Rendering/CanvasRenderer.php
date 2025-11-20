@@ -85,6 +85,12 @@ class CanvasRenderer
 
         $handler_class = $route_config['handler'];
         
+        // Security: Validate that handler class is in Apollo namespace
+        if (strpos($handler_class, 'Apollo\\') !== 0) {
+            error_log('Apollo Security: Attempted to instantiate non-Apollo class: ' . esc_html($handler_class));
+            return $this->renderDefaultHandler($template_data);
+        }
+        
         if (!class_exists($handler_class)) {
             return $this->renderDefaultHandler($template_data);
         }
@@ -103,10 +109,12 @@ class CanvasRenderer
      */
     private function renderDefaultHandler($template_data)
     {
+        $route = isset($template_data['route']) ? sanitize_text_field($template_data['route']) : '';
+        $route_title = ucfirst($route);
         return [
-            'title' => 'Apollo Social - ' . ucfirst($template_data['route']),
-            'content' => '<p>Handler em desenvolvimento para: ' . $template_data['route'] . '</p>',
-            'breadcrumbs' => ['Apollo Social', ucfirst($template_data['route'])],
+            'title' => 'Apollo Social - ' . $route_title,
+            'content' => '<p>Handler em desenvolvimento para: ' . esc_html($route) . '</p>',
+            'breadcrumbs' => ['Apollo Social', $route_title],
         ];
     }
 
@@ -115,6 +123,12 @@ class CanvasRenderer
      */
     private function renderCanvasLayout($route_config, $handler_output, $template_data)
     {
+        // Check for raw output (bypassing layout)
+        if (!empty($handler_output['raw']) || !empty($route_config['raw_html'])) {
+            echo isset($handler_output['content']) ? $handler_output['content'] : '';
+            return;
+        }
+
         // Start output buffering
         ob_start();
 
@@ -147,7 +161,7 @@ class CanvasRenderer
         echo '<!DOCTYPE html>';
         echo '<html ' . get_language_attributes() . '>';
         echo '<head>';
-        echo '<meta charset="' . get_bloginfo('charset') . '">';
+        echo '<meta charset="' . esc_attr(get_bloginfo('charset')) . '">';
         echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
         echo '<title>' . esc_html($title) . '</title>';
         wp_head();
@@ -156,7 +170,7 @@ class CanvasRenderer
         echo '<div id="apollo-canvas-wrapper">';
         echo '<main id="apollo-main">';
         echo '<h1>' . esc_html($title) . '</h1>';
-        echo $content;
+        echo wp_kses_post($content);
         echo '</main>';
         echo '</div>';
         wp_footer();

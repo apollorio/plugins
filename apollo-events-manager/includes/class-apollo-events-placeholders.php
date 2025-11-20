@@ -538,6 +538,97 @@ function apollo_events_get_placeholders() {
 }
 
 /**
+ * Returns associative array of placeholder defaults (string values).
+ *
+ * @return array
+ */
+function apollo_events_placeholder_defaults() {
+    $defaults = [
+        // Visual placeholders (images/banners)
+        'APOLLO_PLACEHOLDER_EVENT_BANNER'       => 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070',
+        'APOLLO_PLACEHOLDER_HIGHLIGHT_BANNER'   => 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop',
+        'APOLLO_PLACEHOLDER_HIGHLIGHT_BANNER_STATIC' => 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop',
+        'APOLLO_PLACEHOLDER_PROMO_IMAGE'        => 'https://via.placeholder.com/400x300',
+        'APOLLO_PLACEHOLDER_DJ_IMAGE'           => 'https://via.placeholder.com/120x120?text=DJ',
+        'APOLLO_PLACEHOLDER_LOCAL_IMAGE'        => 'https://via.placeholder.com/400x300?text=Local',
+
+        // Textual placeholders
+        'APOLLO_PLACEHOLDER_NO_EVENTS'          => __('Nenhum evento encontrado.', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_EVENTS_ERROR'       => __('Erro ao carregar eventos. Tente novamente.', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_SEARCH_INPUT'       => __('Buscar eventos...', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_HIGHLIGHT_TEXT'     => __('A Retrospectiva Clubber 2026 está chegando! Em breve liberaremos novidades — fique ligado.', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_EVENT_NOT_FOUND'    => __('Evento não encontrado.', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_LINEUP_TBA'         => __('Line-up em breve', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_LOCATION_TBA'       => __('Local a confirmar', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_ROUTE_INPUT'        => __('Seu endereço de partida', 'apollo-events-manager'),
+        'APOLLO_PLACEHOLDER_MAP_UNAVAILABLE'    => '<p style="color:#999;text-align:center;"><i class="ri-map-pin-line" style="font-size:2rem;"></i><br>Mapa disponível em breve</p>',
+        'APOLLO_PLACEHOLDER_MAP_ERROR_LOG'      => '⚠️ Map not displayed - no coordinates found for event {event_id}',
+        'APOLLO_PLACEHOLDER_DATE_DAY'           => '--',
+        'APOLLO_PLACEHOLDER_DATE_MONTH'         => '---',
+        'APOLLO_PLACEHOLDER_CURRENT_TIME'       => '--:--',
+    ];
+
+    return apply_filters('apollo_events_placeholder_defaults', $defaults);
+}
+
+/**
+ * Retrieves a placeholder value with optional overrides stored in the database.
+ *
+ * @param string $key
+ * @param string $default
+ * @return string
+ */
+function apollo_get_placeholder($key, $default = '') {
+    $key = strtoupper(trim($key));
+    if ($key === '') {
+        return $default;
+    }
+
+    $overrides = get_option('apollo_events_custom_placeholders', []);
+    if (!is_array($overrides)) {
+        $overrides = [];
+    }
+
+    if (array_key_exists($key, $overrides) && $overrides[$key] !== '') {
+        return apply_filters('apollo_get_placeholder_value', $overrides[$key], $key);
+    }
+
+    $defaults = apollo_events_placeholder_defaults();
+    if (array_key_exists($key, $defaults) && $defaults[$key] !== '') {
+        return apply_filters('apollo_get_placeholder_value', $defaults[$key], $key);
+    }
+
+    return apply_filters('apollo_get_placeholder_value', $default, $key);
+}
+
+/**
+ * Updates (or clears) a placeholder override value.
+ *
+ * @param string $key
+ * @param string $value
+ * @return bool True on success, false on failure.
+ */
+function apollo_update_placeholder($key, $value) {
+    $key = strtoupper(trim($key));
+    if ($key === '') {
+        return false;
+    }
+
+    $overrides = get_option('apollo_events_custom_placeholders', []);
+    if (!is_array($overrides)) {
+        $overrides = [];
+    }
+
+    if ($value === '' || $value === null) {
+        unset($overrides[$key]);
+    } else {
+        $overrides[$key] = $value;
+    }
+
+    return update_option('apollo_events_custom_placeholders', $overrides, false);
+}
+
+/**
  * Get a specific Apollo Event placeholder value for a given event.
  * 
  * @param string   $placeholder_id One of the keys from apollo_events_get_placeholders().
@@ -759,10 +850,23 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return implode( ', ', array_map( 'absint', $ids_array ) );
             
         case 'local_id':
-            $local_id = apollo_get_primary_local_id( $event_id );
+            // Verificar se função existe antes de usar
+            $local_id = function_exists('apollo_get_primary_local_id') 
+                ? apollo_get_primary_local_id( $event_id ) 
+                : 0;
+            
             if ( ! $local_id ) {
-                $legacy   = get_post_meta( $event_id, '_event_local', true );
-                $local_id = $legacy ? (int) $legacy : 0;
+                // Fallback para meta key direto
+                $local_ids_meta = get_post_meta( $event_id, '_event_local_ids', true );
+                if ( ! empty( $local_ids_meta ) ) {
+                    $local_id = is_array( $local_ids_meta ) ? (int) reset( $local_ids_meta ) : (int) $local_ids_meta;
+                }
+                
+                // Fallback legacy
+                if ( ! $local_id ) {
+                    $legacy = get_post_meta( $event_id, '_event_local', true );
+                    $local_id = $legacy ? (int) $legacy : 0;
+                }
             }
 
             return $local_id ? (string) absint( $local_id ) : '';
@@ -1221,20 +1325,28 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
  * @return array Array of local post IDs
  */
 function apollo_get_event_local_ids( $event_id ) {
-    $local_ids = get_post_meta( $event_id, '_event_local_ids', true );
+    // CRITICAL FIX: Use apollo_get_post_meta for consistency
+    $local_ids_raw = apollo_get_post_meta( $event_id, '_event_local_ids', true );
     
-    // If it's already an array, return it
-    if ( is_array( $local_ids ) ) {
-        return array_filter( array_map( 'absint', $local_ids ) );
+    // CRITICAL: Use apollo_aem_parse_ids() to handle all formats (JSON, serialized, CSV, single ID)
+    if (function_exists('apollo_aem_parse_ids')) {
+        $normalized = apollo_aem_parse_ids($local_ids_raw);
+        if (!empty($normalized)) {
+            return array_values(array_filter(array_map('absint', $normalized)));
+        }
     }
     
-    // If it's a single ID, wrap it in array
-    if ( is_numeric( $local_ids ) && $local_ids > 0 ) {
-        return array( absint( $local_ids ) );
+    // Fallback: manual parsing if function doesn't exist
+    if ( is_array( $local_ids_raw ) ) {
+        return array_values(array_filter( array_map( 'absint', $local_ids_raw ) ));
+    }
+    
+    if ( is_numeric( $local_ids_raw ) && $local_ids_raw > 0 ) {
+        return array( absint( $local_ids_raw ) );
     }
     
     // Fallback: try legacy _event_local key
-    $legacy_local = get_post_meta( $event_id, '_event_local', true );
+    $legacy_local = apollo_get_post_meta( $event_id, '_event_local', true );
     if ( is_numeric( $legacy_local ) && $legacy_local > 0 ) {
         return array( absint( $legacy_local ) );
     }

@@ -28,39 +28,69 @@ if (get_post_type($dj_id) !== 'event_dj') {
 <?php
 
 // ============================================
-// GET DJ DATA
+// GET DJ DATA - ALL METakeys
 // ============================================
-$dj_name = get_the_title();
-$dj_bio = get_post_meta($dj_id, '_dj_bio', true) ?: get_the_content();
-$dj_image = get_post_meta($dj_id, '_dj_image', true);
-if (empty($dj_image) && has_post_thumbnail()) {
-    $dj_image = get_the_post_thumbnail_url($dj_id, 'large');
+
+// Nome para exibição
+$dj_name = apollo_get_post_meta($dj_id, '_dj_name', true);
+if (empty($dj_name)) {
+    $dj_name = get_the_title();
 }
 
-// Social Links
-$dj_website = get_post_meta($dj_id, '_dj_website', true);
-$dj_instagram = get_post_meta($dj_id, '_dj_instagram', true);
-$dj_facebook = get_post_meta($dj_id, '_dj_facebook', true);
-$dj_soundcloud = get_post_meta($dj_id, '_dj_soundcloud', true);
-$dj_bandcamp = get_post_meta($dj_id, '_dj_bandcamp', true);
-$dj_spotify = get_post_meta($dj_id, '_dj_spotify', true);
-$dj_youtube = get_post_meta($dj_id, '_dj_youtube', true);
-$dj_mixcloud = get_post_meta($dj_id, '_dj_mixcloud', true);
-$dj_beatport = get_post_meta($dj_id, '_dj_beatport', true);
-$dj_resident_advisor = get_post_meta($dj_id, '_dj_resident_advisor', true);
-$dj_twitter = get_post_meta($dj_id, '_dj_twitter', true);
-$dj_tiktok = get_post_meta($dj_id, '_dj_tiktok', true);
+// Bio/Descrição
+$dj_bio = apollo_get_post_meta($dj_id, '_dj_bio', true);
+if (empty($dj_bio)) {
+    $dj_bio = get_the_content();
+}
 
-// Professional Content
-$dj_set_url = get_post_meta($dj_id, '_dj_set_url', true);
-$dj_mix_url = get_post_meta($dj_id, '_dj_mix_url', true);
-$dj_media_kit_url = get_post_meta($dj_id, '_dj_media_kit_url', true);
-$dj_rider_url = get_post_meta($dj_id, '_dj_rider_url', true);
+// Imagem/Avatar (URL ou Attachment ID) or BANNER + POST type DJ
+$dj_image = apollo_get_post_meta($dj_id, '_dj_image', true);
+if (empty($dj_image)) {
+    // Try Featured Image
+    if (has_post_thumbnail($dj_id)) {
+        $dj_image = get_the_post_thumbnail_url($dj_id, 'large');
+    }
+    // Try Banner meta
+    $dj_banner = apollo_get_post_meta($dj_id, '_dj_banner', true);
+    if (!empty($dj_banner)) {
+        // If it's a numeric ID, get the URL
+        if (is_numeric($dj_banner)) {
+            $dj_image = wp_get_attachment_image_url($dj_banner, 'large');
+        } else {
+            $dj_image = $dj_banner;
+        }
+    }
+}
 
-// Original Projects
-$dj_project_1 = get_post_meta($dj_id, '_dj_original_project_1', true);
-$dj_project_2 = get_post_meta($dj_id, '_dj_original_project_2', true);
-$dj_project_3 = get_post_meta($dj_id, '_dj_original_project_3', true);
+// If _dj_image is numeric, treat as attachment ID
+if (!empty($dj_image) && is_numeric($dj_image)) {
+    $dj_image = wp_get_attachment_image_url($dj_image, 'large');
+}
+
+// Redes & Plataformas
+$dj_website = apollo_get_post_meta($dj_id, '_dj_website', true);
+$dj_soundcloud = apollo_get_post_meta($dj_id, '_dj_soundcloud', true);
+$dj_spotify = apollo_get_post_meta($dj_id, '_dj_spotify', true);
+$dj_youtube = apollo_get_post_meta($dj_id, '_dj_youtube', true);
+$dj_mixcloud = apollo_get_post_meta($dj_id, '_dj_mixcloud', true);
+$dj_beatport = apollo_get_post_meta($dj_id, '_dj_beatport', true);
+$dj_bandcamp = apollo_get_post_meta($dj_id, '_dj_bandcamp', true);
+$dj_resident_advisor = apollo_get_post_meta($dj_id, '_dj_resident_advisor', true);
+$dj_instagram = apollo_get_post_meta($dj_id, '_dj_instagram', true);
+$dj_twitter = apollo_get_post_meta($dj_id, '_dj_twitter', true);
+$dj_tiktok = apollo_get_post_meta($dj_id, '_dj_tiktok', true);
+$dj_facebook = apollo_get_post_meta($dj_id, '_dj_facebook', true);
+
+// Projetos Originais
+$dj_project_1 = apollo_get_post_meta($dj_id, '_dj_original_project_1', true);
+$dj_project_2 = apollo_get_post_meta($dj_id, '_dj_original_project_2', true);
+$dj_project_3 = apollo_get_post_meta($dj_id, '_dj_original_project_3', true);
+
+// URLs Profissionais
+$dj_set_url = apollo_get_post_meta($dj_id, '_dj_set_url', true);
+$dj_media_kit_url = apollo_get_post_meta($dj_id, '_dj_media_kit_url', true);
+$dj_rider_url = apollo_get_post_meta($dj_id, '_dj_rider_url', true);
+$dj_mix_url = apollo_get_post_meta($dj_id, '_dj_mix_url', true);
 
 // Get related events (where this DJ appears)
 $related_events = get_posts(array(
@@ -84,7 +114,7 @@ $past_events = array();
 $today = date('Y-m-d');
 
 foreach ($related_events as $event) {
-    $event_date = get_post_meta($event->ID, '_event_start_date', true);
+    $event_date = apollo_get_post_meta($event->ID, '_event_start_date', true);
     if ($event_date >= $today) {
         $future_events[] = $event;
     } else {
@@ -115,13 +145,13 @@ if (function_exists('geoip_detect2_get_info_from_ip')) {
 
 // Store analytics (simple meta-based tracking)
 $analytics_key = '_dj_view_' . date('Y-m-d');
-$views_today = get_post_meta($dj_id, $analytics_key, true);
-update_post_meta($dj_id, $analytics_key, ($views_today ? intval($views_today) + 1 : 1));
+$views_today = apollo_get_post_meta($dj_id, $analytics_key, true);
+apollo_update_post_meta($dj_id, $analytics_key, ($views_today ? intval($views_today) + 1 : 1));
 
 // Store device/country info (last view)
-update_post_meta($dj_id, '_dj_last_view_device', $device_type);
-update_post_meta($dj_id, '_dj_last_view_country', $country);
-update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
+apollo_update_post_meta($dj_id, '_dj_last_view_device', $device_type);
+apollo_update_post_meta($dj_id, '_dj_last_view_country', $country);
+apollo_update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
 
 ?>
 <!DOCTYPE html>
@@ -143,263 +173,11 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
     <!-- Spotify Embed API -->
     <script src="https://open.spotify.com/embed/iframe-api/v1"></script>
     
-    <style>
-    /* ============================================
-       BENTO GRID - Sem border-radius, linhas estilo Tetris
-       ============================================ */
-    .bento-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 0;
-        margin: 0;
-        padding: 0;
-        border: 2px solid #000;
-    }
-    
-    .bento-cell {
-        border: 2px solid #000;
-        border-radius: 0;
-        padding: 20px;
-        background: var(--bg-primary, #fff);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    /* Linhas de borda começando das bordas da página */
-    .bento-cell::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: #000;
-        z-index: 1;
-    }
-    
-    .bento-cell::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 2px;
-        height: 100%;
-        background: #000;
-        z-index: 1;
-    }
-    
-    /* ============================================
-       VINYL RECORD PLAYER - CodePen wBMZYwY
-       ============================================ */
-    .vinyl-container {
-        position: relative;
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        aspect-ratio: 1;
-    }
-    
-    .vinyl-record {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
-        position: relative;
-        transition: transform 0.3s ease;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    }
-    
-    .vinyl-record.is-playing {
-        animation: spin 3s linear infinite;
-    }
-    
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    .vinyl-center {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 20%;
-        height: 20%;
-        background: #fff;
-        border-radius: 50%;
-        border: 3px solid #000;
-        z-index: 2;
-    }
-    
-    .vinyl-grooves {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: repeating-conic-gradient(
-            from 0deg,
-            transparent 0deg 2deg,
-            rgba(255, 255, 255, 0.1) 2deg 4deg
-        );
-    }
-    
-    .play-button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 60px;
-        height: 60px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 3px solid #fff;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-    
-    .play-button:hover {
-        background: rgba(0, 0, 0, 0.9);
-        transform: translate(-50%, -50%) scale(1.1);
-    }
-    
-    .play-button.is-playing {
-        background: rgba(255, 0, 0, 0.8);
-    }
-    
-    .play-button i {
-        color: #fff;
-        font-size: 24px;
-        margin-left: 3px; /* Offset for play icon */
-    }
-    
-    .player-embed {
-        display: none;
-        width: 100%;
-        height: 166px;
-        border: none;
-        margin-top: 20px;
-    }
-    
-    .player-embed.active {
-        display: block;
-    }
-    
-    /* ============================================
-       DJ HERO SECTION
-       ============================================ */
-    .dj-hero {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 0;
-        border: 2px solid #000;
-        border-radius: 0;
-        margin-bottom: 0;
-    }
-    
-    .dj-hero-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-right: 2px solid #000;
-    }
-    
-    .dj-hero-info {
-        padding: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    
-    .dj-hero-info h1 {
-        font-size: 3rem;
-        margin: 0 0 20px 0;
-        font-weight: 700;
-    }
-    
-    .dj-hero-info .dj-bio {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: var(--text-secondary, #666);
-        margin-bottom: 30px;
-    }
-    
-    .dj-social-links {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    
-    .dj-social-links a {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        background: var(--bg-secondary, #f5f5f5);
-        border: 2px solid #000;
-        border-radius: 0;
-        text-decoration: none;
-        color: var(--text-primary, #000);
-        transition: all 0.2s ease;
-        font-weight: 500;
-    }
-    
-    .dj-social-links a:hover {
-        background: #000;
-        color: #fff;
-        transform: translateY(-2px);
-    }
-    
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 768px) {
-        .dj-hero {
-            grid-template-columns: 1fr;
-        }
-        
-        .dj-hero-image {
-            border-right: none;
-            border-bottom: 2px solid #000;
-        }
-        
-        .bento-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-    
-    /* ============================================
-       ANALYTICS BADGE
-       ============================================ */
-    .analytics-badge {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        padding: 10px 15px;
-        border-radius: 0;
-        border: 2px solid #fff;
-        font-size: 0.85rem;
-        z-index: 1000;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-    
-    .analytics-badge i {
-        font-size: 1.2em;
-    }
-    </style>
+    <!-- DJ Template CSS (loaded via enqueue_assets) -->
 </head>
 <body <?php body_class('apollo-dj-single'); ?>>
 
-<main class="page-wrap" style="max-width: 1400px; margin: 0 auto; padding: 0;">
+<main class="page-wrap">
     
     <!-- DJ Hero Section -->
     <section class="dj-hero">
@@ -417,21 +195,25 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
             <?php endif; ?>
             
             <div class="dj-social-links">
+                <?php 
+                // Normalize Instagram handle (add https:// if it's just @handle)
+                $instagram_url = $dj_instagram;
+                if (!empty($instagram_url) && strpos($instagram_url, '@') === 0) {
+                    $instagram_url = 'https://instagram.com/' . substr($instagram_url, 1);
+                }
+                
+                // Normalize Twitter handle
+                $twitter_url = $dj_twitter;
+                if (!empty($twitter_url) && strpos($twitter_url, '@') === 0) {
+                    $twitter_url = 'https://twitter.com/' . substr($twitter_url, 1);
+                } elseif (!empty($twitter_url) && strpos($twitter_url, 'http') !== 0) {
+                    $twitter_url = 'https://twitter.com/' . ltrim($twitter_url, '@');
+                }
+                ?>
+                
                 <?php if ($dj_website): ?>
                     <a href="<?php echo esc_url($dj_website); ?>" target="_blank" rel="noopener">
                         <i class="ri-global-line"></i> Website
-                    </a>
-                <?php endif; ?>
-                
-                <?php if ($dj_instagram): ?>
-                    <a href="<?php echo esc_url($dj_instagram); ?>" target="_blank" rel="noopener">
-                        <i class="ri-instagram-line"></i> Instagram
-                    </a>
-                <?php endif; ?>
-                
-                <?php if ($dj_facebook): ?>
-                    <a href="<?php echo esc_url($dj_facebook); ?>" target="_blank" rel="noopener">
-                        <i class="ri-facebook-line"></i> Facebook
                     </a>
                 <?php endif; ?>
                 
@@ -447,12 +229,6 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
                     </a>
                 <?php endif; ?>
                 
-                <?php if ($dj_bandcamp): ?>
-                    <a href="<?php echo esc_url($dj_bandcamp); ?>" target="_blank" rel="noopener">
-                        <i class="ri-music-line"></i> Bandcamp
-                    </a>
-                <?php endif; ?>
-                
                 <?php if ($dj_youtube): ?>
                     <a href="<?php echo esc_url($dj_youtube); ?>" target="_blank" rel="noopener">
                         <i class="ri-youtube-line"></i> YouTube
@@ -465,15 +241,45 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
                     </a>
                 <?php endif; ?>
                 
-                <?php if ($dj_twitter): ?>
-                    <a href="<?php echo esc_url($dj_twitter); ?>" target="_blank" rel="noopener">
-                        <i class="ri-twitter-x-line"></i> Twitter
+                <?php if ($dj_beatport): ?>
+                    <a href="<?php echo esc_url($dj_beatport); ?>" target="_blank" rel="noopener">
+                        <i class="ri-music-2-line"></i> Beatport
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($dj_bandcamp): ?>
+                    <a href="<?php echo esc_url($dj_bandcamp); ?>" target="_blank" rel="noopener">
+                        <i class="ri-music-line"></i> Bandcamp
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($dj_resident_advisor): ?>
+                    <a href="<?php echo esc_url($dj_resident_advisor); ?>" target="_blank" rel="noopener">
+                        <i class="ri-calendar-check-line"></i> Resident Advisor
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($instagram_url): ?>
+                    <a href="<?php echo esc_url($instagram_url); ?>" target="_blank" rel="noopener">
+                        <i class="ri-instagram-line"></i> Instagram
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($twitter_url): ?>
+                    <a href="<?php echo esc_url($twitter_url); ?>" target="_blank" rel="noopener">
+                        <i class="ri-twitter-x-line"></i> Twitter / X
                     </a>
                 <?php endif; ?>
                 
                 <?php if ($dj_tiktok): ?>
                     <a href="<?php echo esc_url($dj_tiktok); ?>" target="_blank" rel="noopener">
                         <i class="ri-tiktok-line"></i> TikTok
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($dj_facebook): ?>
+                    <a href="<?php echo esc_url($dj_facebook); ?>" target="_blank" rel="noopener">
+                        <i class="ri-facebook-line"></i> Facebook
                     </a>
                 <?php endif; ?>
             </div>
@@ -602,8 +408,8 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
             </h2>
             <ul style="list-style: none; padding: 0; margin: 0;">
                 <?php foreach ($future_events as $event): 
-                    $event_date = get_post_meta($event->ID, '_event_start_date', true);
-                    $event_location = get_post_meta($event->ID, '_event_location', true);
+                    $event_date = apollo_get_post_meta($event->ID, '_event_start_date', true);
+                    $event_location = apollo_get_post_meta($event->ID, '_event_location', true);
                 ?>
                     <li style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color, #ddd);">
                         <a href="<?php echo esc_url(get_permalink($event->ID)); ?>" 
@@ -630,8 +436,8 @@ update_post_meta($dj_id, '_dj_last_view_date', current_time('mysql'));
             </h2>
             <ul style="list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto;">
                 <?php foreach (array_slice($past_events, 0, 10) as $event): 
-                    $event_date = get_post_meta($event->ID, '_event_start_date', true);
-                    $event_location = get_post_meta($event->ID, '_event_location', true);
+                    $event_date = apollo_get_post_meta($event->ID, '_event_start_date', true);
+                    $event_location = apollo_get_post_meta($event->ID, '_event_location', true);
                 ?>
                     <li style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color, #ddd);">
                         <a href="<?php echo esc_url(get_permalink($event->ID)); ?>" 

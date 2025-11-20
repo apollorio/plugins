@@ -1,0 +1,59 @@
+Este projeto é o plugin WordPress "apollo-events-manager", forkado de WP Event Manager.
+
+Regras para qualquer alteração aqui:
+
+- Trate o projeto como plugin de produção: não quebre hooks, filters ou shortcodes públicos existentes sem avisar.
+
+- Preserve a estrutura geral do plugin (includes, templates, shortcodes, assets) e o padrão de nomes atual.
+
+- Quando sugerir refactors grandes, divida em passos pequenos e aplicáveis, que caibam em um único commit.
+
+- Respeite o autoload e a organização de classes já existentes; não crie frameworks paralelos.
+
+- Evite dependências externas novas sempre que não forem estritamente necessárias.
+
+- Gere código compatível com PHP 8.1+ e WordPress 6.x.
+
+## Estrutura do Plugin
+
+- `includes/` - Classes PHP e funcionalidades principais
+- `templates/` - Templates PHP para exibição
+- `assets/` - CSS, JavaScript e outros assets
+- `shortcodes/` - Shortcodes do WordPress
+- `apollo-events-manager.php` - Arquivo principal do plugin
+
+## Padrões de Código
+
+- Use PSR-12 para PHP
+- Prefixo de funções: `apollo_` ou `apollo_eve_`
+- Prefixo de classes: `Apollo_Events_` ou `Apollo_WPEM_`
+- Prefixo de hooks: `apollo_events_` ou `apollo_wpem_`
+- Prefixo de constants: `APOLLO_` ou `APOLLO_WPEM_`
+
+## Compatibilidade
+
+- PHP: 8.1+
+- WordPress: 6.x
+- Não use recursos deprecados do WordPress
+- Mantenha backward compatibility quando possível
+
+## Hooks e Filters Importantes
+
+- Não remova ou altere hooks públicos sem documentar
+- Não altere assinaturas de filters públicos
+- Adicione novos hooks seguindo o padrão existente
+
+## Refatorações
+
+- Divida refatorações grandes em commits pequenos
+- Cada commit deve ser funcional e testável
+- Documente mudanças significativas
+- Mantenha histórico Git limpo
+
+## Dependências
+
+- Evite adicionar novas dependências externas
+- Use apenas se estritamente necessário
+- Prefira soluções nativas do WordPress quando possível
+- Documente dependências adicionadas
+

@@ -16,12 +16,82 @@ class Schema
      */
     public function install(): void
     {
+        $this->createGroupsTable();
+        $this->createGroupMembersTable();
         $this->createWorkflowLogTable();
         $this->createModerationQueueTable();
         $this->createAnalyticsTable();
         $this->createSignatureRequestsTable();
         $this->createOnboardingProgressTable();
         $this->updateSchemaVersion();
+    }
+
+    /**
+     * Create Apollo groups table
+     */
+    private function createGroupsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_groups';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            title varchar(255) NOT NULL,
+            slug varchar(255) NOT NULL,
+            description text,
+            type enum('comunidade', 'nucleo', 'season') NOT NULL DEFAULT 'comunidade',
+            status enum('draft', 'pending_review', 'published', 'rejected', 'suspended') NOT NULL DEFAULT 'draft',
+            visibility enum('public', 'private', 'members_only') NOT NULL DEFAULT 'public',
+            season_slug varchar(100) NULL,
+            creator_id bigint(20) unsigned NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+            published_at datetime NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY slug_idx (slug),
+            KEY type_idx (type),
+            KEY status_idx (status),
+            KEY visibility_idx (visibility),
+            KEY creator_idx (creator_id),
+            KEY season_idx (season_slug),
+            KEY created_idx (created_at),
+            KEY published_idx (published_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create Apollo group members table
+     */
+    private function createGroupMembersTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_group_members';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            group_id bigint(20) unsigned NOT NULL,
+            user_id bigint(20) unsigned NOT NULL,
+            role enum('member', 'moderator', 'admin') NOT NULL DEFAULT 'member',
+            status enum('active', 'pending', 'banned', 'left') NOT NULL DEFAULT 'active',
+            joined_at datetime DEFAULT CURRENT_TIMESTAMP,
+            left_at datetime NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY group_user_idx (group_id, user_id),
+            KEY group_idx (group_id),
+            KEY user_idx (user_id),
+            KEY status_idx (status),
+            KEY role_idx (role)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
     }
 
     /**

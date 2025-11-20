@@ -59,6 +59,21 @@ class DocumentsRoutes {
      * Handle custom routes
      */
     public function handleRoutes() {
+        // Don't interfere with WordPress core functionality
+        if (is_admin() || wp_doing_ajax() || wp_doing_cron()) {
+            return;
+        }
+        
+        // Don't interfere with feeds, REST API, or other WordPress endpoints
+        if (is_feed() || (defined('REST_REQUEST') && REST_REQUEST)) {
+            return;
+        }
+        
+        // Don't interfere with sitemaps
+        if (function_exists('wp_is_sitemap') && wp_is_sitemap()) {
+            return;
+        }
+        
         $route = get_query_var('apollo_route');
         
         if (empty($route)) {
@@ -256,7 +271,7 @@ class DocumentsRoutes {
     private function loadTemplate($template, $data = []) {
         extract($data);
         
-        $template_path = APOLLO_SOCIAL_PATH . '/templates/' . $template . '.php';
+        $template_path = (defined('APOLLO_SOCIAL_PATH') ? APOLLO_SOCIAL_PATH : plugin_dir_path(dirname(dirname(__DIR__)))) . '/templates/' . $template . '.php';
         
         if (file_exists($template_path)) {
             include $template_path;

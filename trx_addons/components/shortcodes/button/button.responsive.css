@@ -1,0 +1,23 @@
+@media (max-width: 479px) {
+  /* Button */
+  body.trx_addons_customizable_theme .sc_button_multiple {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    gap: 1em;
+  }
+  body.trx_addons_customizable_theme .sc_button_multiple_item + .sc_button_multiple_item {
+    margin-left: 0;
+  }
+}
+
+/*# sourceMappingURL=button.responsive.css.map */

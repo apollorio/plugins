@@ -33,13 +33,13 @@ if (!isset($local_link)) {
     $local_link = get_permalink($local_id);
 }
 if (!isset($local_region)) {
-    $local_region = get_post_meta($local_id, '_local_region', true);
+    $local_region = apollo_get_post_meta($local_id, '_local_region', true);
 }
 if (!isset($local_address)) {
-    $local_address = get_post_meta($local_id, '_local_address', true);
+    $local_address = apollo_get_post_meta($local_id, '_local_address', true);
 }
 if (!isset($local_capacity)) {
-    $local_capacity = get_post_meta($local_id, '_local_capacity', true);
+    $local_capacity = apollo_get_post_meta($local_id, '_local_capacity', true);
 }
 
 // Default placeholder image
@@ -107,7 +107,10 @@ if (!$local_photo) {
             <?php else: ?>
                 <div class="no-events">
                     <i class="ri-calendar-line"></i>
-                    <?php esc_html_e('Nenhum evento agendado', 'apollo-events-manager'); ?>
+                    <?php
+                    // Show the generic “no events” placeholder when this venue has no upcoming events.
+                    echo esc_html(apollo_get_placeholder('APOLLO_PLACEHOLDER_NO_EVENTS'));
+                    ?>
                 </div>
             <?php endif; ?>
         </div>

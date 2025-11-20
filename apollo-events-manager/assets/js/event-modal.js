@@ -190,6 +190,58 @@
             .then(function(resp) {
                 if (resp.success && resp.data && resp.data.html) {
                     modalContent.innerHTML = resp.data.html;
+                    
+                    // ✅ FORCE: Trigger event to initialize map after modal content loads
+                    var event = new CustomEvent('apollo:modal:content:loaded', {
+                        detail: { eventId: eventId }
+                    });
+                    document.dispatchEvent(event);
+                    
+                    // ✅ FORCE: Initialize map after a short delay to ensure DOM is ready
+                    setTimeout(function() {
+                        // Trigger map initialization
+                        var mapInitEvent = new CustomEvent('apollo:map:init', {
+                            detail: { eventId: eventId }
+                        });
+                        document.dispatchEvent(mapInitEvent);
+                        
+                        // Also try direct initialization
+                        if (typeof L !== 'undefined') {
+                            var mapEl = document.getElementById('eventMap');
+                            if (mapEl && mapEl.dataset.lat && mapEl.dataset.lng) {
+                                try {
+                                    var lat = parseFloat(mapEl.dataset.lat);
+                                    var lng = parseFloat(mapEl.dataset.lng);
+                                    if (lat && lng && lat !== 0 && lng !== 0) {
+                                        // Check if map already initialized
+                                        if (!mapEl._leaflet_id) {
+                                            var map = L.map('eventMap', {
+                                                zoomControl: true,
+                                                scrollWheelZoom: true
+                                            }).setView([lat, lng], 15);
+                                            
+                                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                attribution: '© OpenStreetMap',
+                                                maxZoom: 19
+                                            }).addTo(map);
+                                            
+                                            var markerText = mapEl.dataset.marker || 'Local do Evento';
+                                            L.marker([lat, lng]).addTo(map).bindPopup(markerText);
+                                            
+                                            setTimeout(function() {
+                                                map.invalidateSize();
+                                            }, 100);
+                                            
+                                            console.log('✅ Map initialized in modal');
+                                        }
+                                    }
+                                } catch(e) {
+                                    console.error('❌ Map init error in modal:', e);
+                                }
+                            }
+                        }
+                    }, 300);
+                    
                     return;
                 }
 

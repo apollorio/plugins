@@ -1,0 +1,225 @@
+:root {
+  --trx-addons-base-size: 1;
+  --trx-addons-marquee-highlight-animation-duration: 2000ms;
+}
+
+.trx-addons-marquee-wrap {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-justify-content: flex-start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+}
+.trx-addons-marquee-wrap:not(.trx_addons_in_preview_mode) {
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.trx-addons-marquee-wrap.trx_addons_marquee_reverse {
+  -webkit-justify-content: flex-end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+}
+
+.trx-addons-marquee {
+  position: relative;
+  margin: 0;
+}
+.trx-addons-marquee-wrap:not(.trx_addons_in_preview_mode) .trx-addons-marquee {
+  white-space: nowrap;
+}
+.trx-addons-marquee > .sc_item_word:not(:first-child) {
+  white-space-collapse: preserve-spaces;
+}
+.trx-addons-marquee > .sc_item_word:not(:first-child):before {
+  content: ' ';
+  display: inline-block;
+}
+
+.trx-addons-marquee-link {
+  display: block;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.elementor-widget-trx_elm_marquee.trx-addons-animate .trx-addons-svg-wrapper path {
+  stroke-dasharray: 1500;
+  animation: highlighted-line var(--trx-addons-marquee-highlight-animation-duration) cubic-bezier(0.29, 1.11, 0.74, 1.04) forwards;
+  animation-play-state: paused;
+}
+
+.trx-addons-marquee-item-separator {
+  display: inline-block;
+  width: 0.3em;
+}
+
+.trx-addons-marquee-item {
+  display: inline-block;
+  position: relative;
+}
+.trx-addons-marquee-item.trx_addons_marquee_rotation {
+  display: inline-block;
+  line-height: 0;
+}
+.animation_type_sequental .trx-addons-marquee-item, .animation_type_random .trx-addons-marquee-item {
+  display: inline-block;
+}
+.trx-addons-marquee-wrap:not(.trx_addons_in_preview_mode) .trx-addons-marquee-item,
+.trx-addons-marquee-item .sc_item_word {
+  white-space: nowrap;
+}
+.trx-addons-marquee-item + .sc_item_animated_block {
+  min-width: 0.3em;
+}
+.trx-addons-marquee-item .sc_item_animated_block {
+  background-clip: content-box;
+  -webkit-text-fill-color: initial;
+}
+.trx-addons-marquee-item.trx-addons-marquee-color, .trx-addons-marquee-item[class*="trx-addons-marquee-stroke"] {
+  padding-left: 0.1em;
+  padding-right: 0.1em;
+}
+
+.trx-addons-marquee-item-text {
+  position: relative;
+  -webkit-transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  -ms-transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+.trx-addons-marquee-item-text[class*="trx-addons-marquee-stroke"] {
+  white-space: nowrap;
+}
+
+.trx-addons-marquee-item-highlighted[class*="trx-addons-marquee-stroke"] .trx-addons-marquee-text {
+  position: relative;
+  z-index: 1;
+}
+
+.trx-addons-marquee-item-text svg {
+  position: absolute;
+  top: auto;
+  left: -3%;
+  width: 106%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.trx-addons-marquee-item-text svg path {
+  stroke-width: 9;
+  fill: none;
+  -webkit-transition: stroke 0.3s ease, fill 0.3s ease;
+  -ms-transition: stroke 0.3s ease, fill 0.3s ease;
+  transition: stroke 0.3s ease, fill 0.3s ease;
+}
+.trx-addons-marquee-item-text .trx-addons-svg-wrapper .sc_item_animated_block {
+  position: absolute;
+  top: 0;
+  left: -3%;
+  width: 106%;
+  height: 100%;
+  pointer-events: none;
+}
+.trx-addons-marquee-item-text .trx-addons-svg-wrapper .sc_item_animated_block svg {
+  left: 0;
+  width: 100%;
+}
+.trx-addons-marquee-item-text.trx-addons-marquee-color {
+  --trx-addons-marquee-color: #f00;
+  background-image: -webkit-gradient(linear, left top, right top, from(var(--trx-addons-marquee-color)), to(var(--trx-addons-marquee-color)));
+  background-image: -webkit-linear-gradient(left, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+  background-image: -o-linear-gradient(left, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+  background-image: linear-gradient(to right, var(--trx-addons-marquee-color) 0%, var(--trx-addons-marquee-color) 100%);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 0 100%;
+  -webkit-transition: background-size 1s cubic-bezier(0.5, 0.5, 0, 1);
+  -ms-transition: background-size 1s cubic-bezier(0.5, 0.5, 0, 1);
+  transition: background-size 1s cubic-bezier(0.5, 0.5, 0, 1);
+}
+.trx-addons-marquee-item-text.trx-addons-marquee-color.trx-addons-animate-complete {
+  background-size: 100% 100%;
+}
+
+.trx-addons-marquee-item-gallery img:not(:first-child) {
+  display: none;
+}
+
+.trx-addons-marquee-item-icon svg,
+.trx-addons-marquee-item-image img,
+.trx-addons-marquee-item-gallery img,
+.trx-addons-marquee-item-video video {
+  vertical-align: middle;
+  max-height: calc( 0.88em * var(--trx-addons-base-size, 1) );
+  max-width: none !important;
+  width: auto;
+  -webkit-box-sizing: content-box;
+  -ms-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.trx-addons-marquee-item-image img,
+.trx-addons-marquee-item-gallery img,
+.trx-addons-marquee-item-video video {
+  -webkit-transition: background-color 0.3s ease, border-color 0.3s ease;
+  -ms-transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.trx-addons-marquee-item.trx-addons-marquee-item-video video {
+  min-height: 0;
+  width: auto;
+}
+
+.trx-addons-marquee-item-icon svg {
+  height: calc( 0.88em * var(--trx-addons-base-size, 1) );
+  overflow: visible !important;
+}
+
+.trx-addons-marquee-item-icon .trx-addons-marquee-item-icon-svg {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.trx-addons-marquee-item-icon i {
+  vertical-align: middle;
+  font-size: calc( 0.88em * var(--trx-addons-base-size, 1) );
+  -webkit-transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  -ms-transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+@keyframes trx-addons-marquee-animate-gradient {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+@keyframes highlighted-line {
+  from {
+    stroke-dasharray: 0 1500;
+  }
+  to {
+    stroke-dasharray: 1500 1500;
+  }
+}
+
+/*# sourceMappingURL=Marquee.css.map */

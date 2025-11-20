@@ -370,18 +370,12 @@ if (!function_exists('apollo_get_event_lineup')) {
             $entries[] = $entry;
         };
 
-        $timetable = apollo_sanitize_timetable(get_post_meta($event_id, '_event_timetable', true));
-        foreach ($timetable as $slot) {
-            $entry = apollo_aem_build_lineup_entry($slot, $event_id);
-            if ($entry) {
-                $append($entry);
-            }
-        }
-
-        if (empty($entries)) {
-            $legacy = get_post_meta($event_id, '_timetable', true);
-            if (is_array($legacy)) {
-                foreach ($legacy as $slot) {
+        // ✅ PRIORITY 1: Try _event_timetable (with times)
+        $timetable_raw = get_post_meta($event_id, '_event_timetable', true);
+        if (!empty($timetable_raw)) {
+            $timetable = apollo_sanitize_timetable($timetable_raw);
+            if (!empty($timetable) && is_array($timetable)) {
+                foreach ($timetable as $slot) {
                     $entry = apollo_aem_build_lineup_entry($slot, $event_id);
                     if ($entry) {
                         $append($entry);
@@ -390,13 +384,44 @@ if (!function_exists('apollo_get_event_lineup')) {
             }
         }
 
+        // ✅ PRIORITY 2: Try legacy _timetable
         if (empty($entries)) {
-            $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-            $dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+            $legacy = get_post_meta($event_id, '_timetable', true);
+            if (!empty($legacy)) {
+                if (is_string($legacy)) {
+                    $legacy = maybe_unserialize($legacy);
+                }
+                if (is_array($legacy)) {
+                    foreach ($legacy as $slot) {
+                        $entry = apollo_aem_build_lineup_entry($slot, $event_id);
+                        if ($entry) {
+                            $append($entry);
+                        }
+                    }
+                }
+            }
+        }
 
-            if (!empty($dj_ids)) {
-                foreach ($dj_ids as $dj_id) {
-                    $entry = apollo_aem_build_lineup_entry(array('dj' => $dj_id));
+        // ✅ PRIORITY 3: Get DJs from _event_dj_ids (even without timetable)
+        // This ensures DJs are shown even if timetable is empty
+        $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
+        $dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+        
+        if (!empty($dj_ids)) {
+            // Check which DJs are already in entries
+            $existing_dj_ids = array();
+            foreach ($entries as $entry) {
+                if (!empty($entry['id']) && $entry['id'] > 0) {
+                    $existing_dj_ids[] = (int) $entry['id'];
+                }
+            }
+            
+            // Add DJs that are not yet in entries
+            foreach ($dj_ids as $dj_id) {
+                $dj_id_int = is_numeric($dj_id) ? (int) $dj_id : 0;
+                if ($dj_id_int > 0 && !in_array($dj_id_int, $existing_dj_ids, true)) {
+                    // Create entry without time (will show DJ name only)
+                    $entry = apollo_aem_build_lineup_entry(array('dj' => $dj_id_int), $event_id);
                     if ($entry) {
                         $append($entry);
                     }
@@ -404,10 +429,11 @@ if (!function_exists('apollo_get_event_lineup')) {
             }
         }
 
+        // ✅ PRIORITY 4: Legacy _dj_name fallback
         if (empty($entries)) {
             $dj_meta = get_post_meta($event_id, '_dj_name', true);
             if (!empty($dj_meta)) {
-                $entry = apollo_aem_build_lineup_entry(array('dj' => $dj_meta));
+                $entry = apollo_aem_build_lineup_entry(array('dj' => $dj_meta), $event_id);
                 if ($entry) {
                     $append($entry);
                 }

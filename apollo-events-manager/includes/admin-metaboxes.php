@@ -57,6 +57,7 @@ class Apollo_Events_Admin_Metaboxes {
     
     /**
      * Enqueue admin scripts
+     * TODO 102: Enhanced with ShadCN components
      */
     public function enqueue_admin_scripts($hook) {
         global $post_type;
@@ -66,13 +67,22 @@ class Apollo_Events_Admin_Metaboxes {
             return;
         }
         
-        wp_enqueue_style('apollo-admin-metabox', APOLLO_WPEM_URL . 'assets/admin-metabox.css', array(), APOLLO_WPEM_VERSION);
+        // ShadCN components for admin
+        wp_enqueue_style('apollo-shadcn-admin', APOLLO_WPEM_URL . 'assets/css/apollo-shadcn-components.css', array(), APOLLO_WPEM_VERSION);
+        wp_enqueue_style('remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0');
+        wp_enqueue_style('apollo-admin-metabox', APOLLO_WPEM_URL . 'assets/admin-metabox.css', array('apollo-shadcn-admin'), APOLLO_WPEM_VERSION);
         
         if ($post_type === 'event_listing') {
+            // Motion.dev for smooth animations
+            wp_enqueue_script('framer-motion', 'https://cdn.jsdelivr.net/npm/framer-motion@11.0.0/dist/framer-motion.js', array(), '11.0.0', true);
+            
+            // WordPress Media Uploader
+            wp_enqueue_media();
+            
             wp_enqueue_script(
                 'apollo-admin-metabox',
                 APOLLO_WPEM_URL . 'assets/admin-metabox.js',
-                array('jquery', 'jquery-ui-dialog'),
+                array('jquery', 'jquery-ui-dialog', 'media-upload', 'media-views'),
                 APOLLO_WPEM_VERSION,
                 true
             );
@@ -98,28 +108,29 @@ class Apollo_Events_Admin_Metaboxes {
         wp_nonce_field('apollo_dj_meta_save', 'apollo_dj_meta_nonce');
 
         $dj_meta = array(
-            '_dj_name'               => get_post_meta($post->ID, '_dj_name', true),
-            '_dj_bio'                => get_post_meta($post->ID, '_dj_bio', true),
-            '_dj_image'              => get_post_meta($post->ID, '_dj_image', true),
-            '_dj_website'            => get_post_meta($post->ID, '_dj_website', true),
-            '_dj_instagram'          => get_post_meta($post->ID, '_dj_instagram', true),
-            '_dj_facebook'           => get_post_meta($post->ID, '_dj_facebook', true),
-            '_dj_soundcloud'         => get_post_meta($post->ID, '_dj_soundcloud', true),
-            '_dj_bandcamp'           => get_post_meta($post->ID, '_dj_bandcamp', true),
-            '_dj_spotify'            => get_post_meta($post->ID, '_dj_spotify', true),
-            '_dj_youtube'            => get_post_meta($post->ID, '_dj_youtube', true),
-            '_dj_mixcloud'           => get_post_meta($post->ID, '_dj_mixcloud', true),
-            '_dj_beatport'           => get_post_meta($post->ID, '_dj_beatport', true),
-            '_dj_resident_advisor'   => get_post_meta($post->ID, '_dj_resident_advisor', true),
-            '_dj_twitter'            => get_post_meta($post->ID, '_dj_twitter', true),
-            '_dj_tiktok'             => get_post_meta($post->ID, '_dj_tiktok', true),
-            '_dj_original_project_1' => get_post_meta($post->ID, '_dj_original_project_1', true),
-            '_dj_original_project_2' => get_post_meta($post->ID, '_dj_original_project_2', true),
-            '_dj_original_project_3' => get_post_meta($post->ID, '_dj_original_project_3', true),
-            '_dj_set_url'            => get_post_meta($post->ID, '_dj_set_url', true),
-            '_dj_media_kit_url'      => get_post_meta($post->ID, '_dj_media_kit_url', true),
-            '_dj_rider_url'          => get_post_meta($post->ID, '_dj_rider_url', true),
-            '_dj_mix_url'            => get_post_meta($post->ID, '_dj_mix_url', true),
+            '_dj_name'               => apollo_get_post_meta($post->ID, '_dj_name', true),
+            '_dj_bio'                => apollo_get_post_meta($post->ID, '_dj_bio', true),
+            '_dj_image'              => apollo_get_post_meta($post->ID, '_dj_image', true),
+            '_dj_banner'             => apollo_get_post_meta($post->ID, '_dj_banner', true),
+            '_dj_website'            => apollo_get_post_meta($post->ID, '_dj_website', true),
+            '_dj_instagram'          => apollo_get_post_meta($post->ID, '_dj_instagram', true),
+            '_dj_facebook'           => apollo_get_post_meta($post->ID, '_dj_facebook', true),
+            '_dj_soundcloud'         => apollo_get_post_meta($post->ID, '_dj_soundcloud', true),
+            '_dj_bandcamp'           => apollo_get_post_meta($post->ID, '_dj_bandcamp', true),
+            '_dj_spotify'            => apollo_get_post_meta($post->ID, '_dj_spotify', true),
+            '_dj_youtube'            => apollo_get_post_meta($post->ID, '_dj_youtube', true),
+            '_dj_mixcloud'           => apollo_get_post_meta($post->ID, '_dj_mixcloud', true),
+            '_dj_beatport'           => apollo_get_post_meta($post->ID, '_dj_beatport', true),
+            '_dj_resident_advisor'   => apollo_get_post_meta($post->ID, '_dj_resident_advisor', true),
+            '_dj_twitter'            => apollo_get_post_meta($post->ID, '_dj_twitter', true),
+            '_dj_tiktok'             => apollo_get_post_meta($post->ID, '_dj_tiktok', true),
+            '_dj_original_project_1' => apollo_get_post_meta($post->ID, '_dj_original_project_1', true),
+            '_dj_original_project_2' => apollo_get_post_meta($post->ID, '_dj_original_project_2', true),
+            '_dj_original_project_3' => apollo_get_post_meta($post->ID, '_dj_original_project_3', true),
+            '_dj_set_url'            => apollo_get_post_meta($post->ID, '_dj_set_url', true),
+            '_dj_media_kit_url'      => apollo_get_post_meta($post->ID, '_dj_media_kit_url', true),
+            '_dj_rider_url'          => apollo_get_post_meta($post->ID, '_dj_rider_url', true),
+            '_dj_mix_url'            => apollo_get_post_meta($post->ID, '_dj_mix_url', true),
         );
 
         ?>
@@ -136,6 +147,13 @@ class Apollo_Events_Admin_Metaboxes {
                 <div class="apollo-field">
                     <label for="apollo_dj_image"><?php _e('Imagem/Avatar (URL ou Attachment ID)', 'apollo-events-manager'); ?></label>
                     <input type="text" id="apollo_dj_image" name="apollo_dj[_dj_image]" class="widefat" value="<?php echo esc_attr($dj_meta['_dj_image']); ?>" placeholder="<?php esc_attr_e('URL da imagem ou ID de mídia', 'apollo-events-manager'); ?>">
+                    <p class="description"><?php _e('URL completa da imagem ou ID do attachment do WordPress', 'apollo-events-manager'); ?></p>
+                </div>
+
+                <div class="apollo-field">
+                    <label for="apollo_dj_banner"><?php _e('Banner (URL ou Attachment ID)', 'apollo-events-manager'); ?></label>
+                    <input type="text" id="apollo_dj_banner" name="apollo_dj[_dj_banner]" class="widefat" value="<?php echo esc_attr($dj_meta['_dj_banner']); ?>" placeholder="<?php esc_attr_e('URL do banner ou ID de mídia', 'apollo-events-manager'); ?>">
+                    <p class="description"><?php _e('Banner adicional do DJ (usado como fallback se imagem principal não estiver disponível)', 'apollo-events-manager'); ?></p>
                 </div>
 
                 <div class="apollo-field">
@@ -215,21 +233,21 @@ class Apollo_Events_Admin_Metaboxes {
         wp_nonce_field('apollo_local_meta_save', 'apollo_local_meta_nonce');
 
         $local_meta = array(
-            '_local_name'        => get_post_meta($post->ID, '_local_name', true),
-            '_local_description' => get_post_meta($post->ID, '_local_description', true),
-            '_local_address'     => get_post_meta($post->ID, '_local_address', true),
-            '_local_city'        => get_post_meta($post->ID, '_local_city', true),
-            '_local_state'       => get_post_meta($post->ID, '_local_state', true),
-            '_local_latitude'    => get_post_meta($post->ID, '_local_latitude', true),
-            '_local_longitude'   => get_post_meta($post->ID, '_local_longitude', true),
-            '_local_website'     => get_post_meta($post->ID, '_local_website', true),
-            '_local_instagram'   => get_post_meta($post->ID, '_local_instagram', true),
-            '_local_facebook'    => get_post_meta($post->ID, '_local_facebook', true),
+            '_local_name'        => apollo_get_post_meta($post->ID, '_local_name', true),
+            '_local_description' => apollo_get_post_meta($post->ID, '_local_description', true),
+            '_local_address'     => apollo_get_post_meta($post->ID, '_local_address', true),
+            '_local_city'        => apollo_get_post_meta($post->ID, '_local_city', true),
+            '_local_state'       => apollo_get_post_meta($post->ID, '_local_state', true),
+            '_local_latitude'    => apollo_get_post_meta($post->ID, '_local_latitude', true),
+            '_local_longitude'   => apollo_get_post_meta($post->ID, '_local_longitude', true),
+            '_local_website'     => apollo_get_post_meta($post->ID, '_local_website', true),
+            '_local_instagram'   => apollo_get_post_meta($post->ID, '_local_instagram', true),
+            '_local_facebook'    => apollo_get_post_meta($post->ID, '_local_facebook', true),
         );
 
         $local_images = array();
         for ($i = 1; $i <= 5; $i++) {
-            $local_images[$i] = get_post_meta($post->ID, '_local_image_' . $i, true);
+            $local_images[$i] = apollo_get_post_meta($post->ID, '_local_image_' . $i, true);
         }
 
         ?>
@@ -319,11 +337,11 @@ class Apollo_Events_Admin_Metaboxes {
         wp_nonce_field('apollo_event_meta_save', 'apollo_event_meta_nonce');
         
         // Get current values
-        $current_djs = get_post_meta($post->ID, '_event_dj_ids', true);
+        $current_djs = apollo_get_post_meta($post->ID, '_event_dj_ids', true);
         $current_djs = maybe_unserialize($current_djs);
         $current_djs = is_array($current_djs) ? array_map('intval', $current_djs) : array();
 
-        $current_local = get_post_meta($post->ID, '_event_local_ids', true);
+        $current_local = apollo_get_post_meta($post->ID, '_event_local_ids', true);
         if (is_array($current_local)) {
             $current_local = array_values(array_filter(array_map('intval', $current_local)));
         } elseif (!empty($current_local)) {
@@ -332,27 +350,31 @@ class Apollo_Events_Admin_Metaboxes {
             $current_local = array();
         }
 
-    $current_timetable_raw = get_post_meta($post->ID, '_event_timetable', true);
+    $current_timetable_raw = apollo_get_post_meta($post->ID, '_event_timetable', true);
     $current_timetable     = apollo_sanitize_timetable($current_timetable_raw);
     $timetable_json        = !empty($current_timetable) ? wp_json_encode($current_timetable) : '';
         
-        $event_video_url = get_post_meta($post->ID, '_event_video_url', true);
+        $event_video_url = apollo_get_post_meta($post->ID, '_event_video_url', true);
         
         // Get event dates
-        $event_start_date = get_post_meta($post->ID, '_event_start_date', true);
-        $event_end_date = get_post_meta($post->ID, '_event_end_date', true);
-        $event_start_time = get_post_meta($post->ID, '_event_start_time', true);
-        $event_end_time = get_post_meta($post->ID, '_event_end_time', true);
+        $event_start_date = apollo_get_post_meta($post->ID, '_event_start_date', true);
+        $event_end_date = apollo_get_post_meta($post->ID, '_event_end_date', true);
+        $event_start_time = apollo_get_post_meta($post->ID, '_event_start_time', true);
+        $event_end_time = apollo_get_post_meta($post->ID, '_event_end_time', true);
         
         // Get additional event fields
-        $event_title = get_post_meta($post->ID, '_event_title', true);
-        $event_banner = get_post_meta($post->ID, '_event_banner', true);
-        $event_location = get_post_meta($post->ID, '_event_location', true);
-        $event_country = get_post_meta($post->ID, '_event_country', true);
-        $tickets_ext = get_post_meta($post->ID, '_tickets_ext', true);
-        $cupom_ario = get_post_meta($post->ID, '_cupom_ario', true);
-        $promo_images = get_post_meta($post->ID, '_3_imagens_promo', true);
-        $final_image = get_post_meta($post->ID, '_imagem_final', true);
+        $event_title = apollo_get_post_meta($post->ID, '_event_title', true);
+        $event_banner = apollo_get_post_meta($post->ID, '_event_banner', true);
+        $event_location = apollo_get_post_meta($post->ID, '_event_location', true);
+        $event_country = apollo_get_post_meta($post->ID, '_event_country', true);
+        $tickets_ext = apollo_get_post_meta($post->ID, '_tickets_ext', true);
+        $cupom_ario = apollo_get_post_meta($post->ID, '_cupom_ario', true);
+        $promo_images = apollo_get_post_meta($post->ID, '_3_imagens_promo', true);
+        $promo_images = is_array($promo_images) ? $promo_images : (is_string($promo_images) ? maybe_unserialize($promo_images) : array());
+        if (!is_array($promo_images)) {
+            $promo_images = array();
+        }
+        $final_image = apollo_get_post_meta($post->ID, '_imagem_final', true);
         
         ?>
         <div class="apollo-metabox-container">
@@ -408,36 +430,69 @@ class Apollo_Events_Admin_Metaboxes {
             </div>
             
             <!-- ===== DJS SECTION ===== -->
-            <div class="apollo-field-group">
+            <div class="apollo-field-group" data-motion-group="true">
                 <h3><?php _e('DJs e Line-up', 'apollo-events-manager'); ?></h3>
                 
                 <div class="apollo-field">
-                    <label for="apollo_event_djs"><?php _e('DJs:', 'apollo-events-manager'); ?></label>
+                    <label for="apollo_event_djs"><?php _e('DJs (múltipla seleção):', 'apollo-events-manager'); ?></label>
                     <div class="apollo-field-controls">
-                        <select multiple="multiple" name="apollo_event_djs[]" id="apollo_event_djs" class="widefat" size="8">
-                            <?php
-                            $all_djs = get_posts(
-                                array(
-                                    'post_type'      => 'event_dj',
-                                    'posts_per_page' => -1,
-                                    'orderby'        => 'title',
-                                    'order'          => 'ASC',
-                                    'post_status'    => 'publish',
-                                )
-                            );
-                            
-                            foreach ($all_djs as $dj) {
-                                $dj_name   = get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
-                                $is_active = in_array($dj->ID, $current_djs, true)
-                                    ? ' selected="selected"'
-                                    : '';
-
-                                printf(
-                                    '<option value="%d"%s>%s</option>',
-                                    $dj->ID,
-                                    $is_active,
-                                    esc_html($dj_name)
+                        <!-- Enhanced DJ Selector with Search -->
+                        <div class="apollo-enhanced-select" data-motion-select="true">
+                            <div class="apollo-select-search">
+                                <input 
+                                    type="text" 
+                                    id="apollo_dj_search" 
+                                    class="apollo-search-input" 
+                                    placeholder="<?php esc_attr_e('Buscar DJ...', 'apollo-events-manager'); ?>"
+                                    autocomplete="off"
+                                >
+                                <i class="ri-search-line"></i>
+                            </div>
+                            <div class="apollo-select-list" id="apollo_dj_list">
+                                <?php
+                                $all_djs = get_posts(
+                                    array(
+                                        'post_type'      => 'event_dj',
+                                        'posts_per_page' => -1,
+                                        'orderby'        => 'title',
+                                        'order'          => 'ASC',
+                                        'post_status'    => 'publish',
+                                    )
                                 );
+                                
+                                foreach ($all_djs as $dj) {
+                                    $dj_name   = apollo_get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+                                    $is_selected = in_array($dj->ID, $current_djs, true);
+                                    ?>
+                                    <label class="apollo-select-item <?php echo $is_selected ? 'selected' : ''; ?>" data-dj-id="<?php echo $dj->ID; ?>" data-dj-name="<?php echo esc_attr(strtolower($dj_name)); ?>">
+                                        <input 
+                                            type="checkbox" 
+                                            name="apollo_event_djs[]" 
+                                            value="<?php echo $dj->ID; ?>"
+                                            <?php checked($is_selected); ?>
+                                        >
+                                        <span class="apollo-select-item-label"><?php echo esc_html($dj_name); ?></span>
+                                        <?php if ($is_selected): ?>
+                                            <i class="ri-check-line apollo-check-icon"></i>
+                                        <?php endif; ?>
+                                    </label>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                            <div class="apollo-select-footer">
+                                <span class="apollo-selected-count" id="apollo_dj_selected_count">0 selecionados</span>
+                            </div>
+                        </div>
+                        <!-- Hidden select for form submission (backup) -->
+                        <select multiple="multiple" name="apollo_event_djs[]" id="apollo_event_djs" class="widefat" style="display:none;">
+                            <?php
+                            foreach ($all_djs as $dj) {
+                                $dj_name   = apollo_get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+                                $is_active = in_array($dj->ID, $current_djs, true);
+                                if ($is_active) {
+                                    printf('<option value="%d" selected>%s</option>', $dj->ID, esc_html($dj_name));
+                                }
                             }
                             ?>
                         </select>
@@ -446,7 +501,7 @@ class Apollo_Events_Admin_Metaboxes {
                             <?php _e('Adicionar novo DJ', 'apollo-events-manager'); ?>
                         </button>
                         <p class="description">
-                            <?php _e('Segure Ctrl/Cmd para selecionar múltiplos DJs. Use o botão para adicionar um DJ novo ao banco de dados.', 'apollo-events-manager'); ?>
+                            <?php _e('Busque e selecione múltiplos DJs. Use o botão para adicionar um DJ novo ao banco de dados.', 'apollo-events-manager'); ?>
                         </p>
                     </div>
                 </div>
@@ -454,16 +509,22 @@ class Apollo_Events_Admin_Metaboxes {
                 <!-- TIMETABLE DYNAMIC ROWS -->
                 <div class="apollo-field">
                     <label><?php _e('Timetable (Horários):', 'apollo-events-manager'); ?></label>
+                    <p class="description" style="margin-bottom:10px;">
+                        <?php _e('Arraste as linhas para reordenar ou use as setas. A ordem define a sequência de apresentação dos DJs.', 'apollo-events-manager'); ?>
+                    </p>
                     <div id="apollo_timetable_container">
                         <table class="widefat striped" id="apollo_timetable_table" style="display:none;">
                             <thead>
                                 <tr>
-                                    <th width="40%"><?php _e('DJ', 'apollo-events-manager'); ?></th>
-                                    <th width="30%"><?php _e('Começa às', 'apollo-events-manager'); ?></th>
-                                    <th width="30%"><?php _e('Termina às', 'apollo-events-manager'); ?></th>
+                                    <th width="5%"><?php _e('#', 'apollo-events-manager'); ?></th>
+                                    <th width="5%"><?php _e('Ordem', 'apollo-events-manager'); ?></th>
+                                    <th width="35%"><?php _e('DJ', 'apollo-events-manager'); ?></th>
+                                    <th width="25%"><?php _e('Começa às', 'apollo-events-manager'); ?></th>
+                                    <th width="25%"><?php _e('Termina às', 'apollo-events-manager'); ?></th>
+                                    <th width="5%"><?php _e('Ações', 'apollo-events-manager'); ?></th>
                                 </tr>
                             </thead>
-                            <tbody id="apollo_timetable_rows">
+                            <tbody id="apollo_timetable_rows" class="apollo-sortable-timetable">
                                 <!-- Dynamic rows inserted by JS -->
                             </tbody>
                         </table>
@@ -485,35 +546,77 @@ class Apollo_Events_Admin_Metaboxes {
             </div>
             
             <!-- ===== LOCAL SECTION ===== -->
-            <div class="apollo-field-group">
+            <div class="apollo-field-group" data-motion-group="true">
                 <h3><?php _e('Local do Evento', 'apollo-events-manager'); ?></h3>
                 
                 <div class="apollo-field">
-                    <label for="apollo_event_local"><?php _e('Local:', 'apollo-events-manager'); ?></label>
+                    <label for="apollo_event_local"><?php _e('Local (seleção única):', 'apollo-events-manager'); ?></label>
                     <div class="apollo-field-controls">
-                        <select name="apollo_event_local" id="apollo_event_local" class="widefat">
+                        <!-- Enhanced Local Selector with Search -->
+                        <div class="apollo-enhanced-select apollo-single-select" data-motion-select="true">
+                            <div class="apollo-select-search">
+                                <input 
+                                    type="text" 
+                                    id="apollo_local_search" 
+                                    class="apollo-search-input" 
+                                    placeholder="<?php esc_attr_e('Buscar local...', 'apollo-events-manager'); ?>"
+                                    autocomplete="off"
+                                >
+                                <i class="ri-search-line"></i>
+                            </div>
+                            <div class="apollo-select-list apollo-single-list" id="apollo_local_list">
+                                <label class="apollo-select-item <?php echo empty($current_local) ? 'selected' : ''; ?>" data-local-id="0">
+                                    <input 
+                                        type="radio" 
+                                        name="apollo_event_local" 
+                                        value=""
+                                        <?php checked(empty($current_local)); ?>
+                                    >
+                                    <span class="apollo-select-item-label"><?php _e('Nenhum local', 'apollo-events-manager'); ?></span>
+                                </label>
+                                <?php
+                                $all_locals = get_posts(
+                                    array(
+                                        'post_type'      => 'event_local',
+                                        'posts_per_page' => -1,
+                                        'orderby'        => 'title',
+                                        'order'          => 'ASC',
+                                        'post_status'    => 'publish',
+                                    )
+                                );
+                                
+                                foreach ($all_locals as $local) {
+                                    $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                                    $is_selected = in_array($local->ID, $current_local, true);
+                                    ?>
+                                    <label class="apollo-select-item <?php echo $is_selected ? 'selected' : ''; ?>" data-local-id="<?php echo $local->ID; ?>" data-local-name="<?php echo esc_attr(strtolower($local_name)); ?>">
+                                        <input 
+                                            type="radio" 
+                                            name="apollo_event_local" 
+                                            value="<?php echo $local->ID; ?>"
+                                            <?php checked($is_selected); ?>
+                                        >
+                                        <span class="apollo-select-item-label"><?php echo esc_html($local_name); ?></span>
+                                        <?php if ($is_selected): ?>
+                                            <i class="ri-check-line apollo-check-icon"></i>
+                                        <?php endif; ?>
+                                    </label>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        <!-- Hidden select for form submission (backup) -->
+                        <select name="apollo_event_local" id="apollo_event_local" class="widefat" style="display:none;">
                             <option value=""><?php _e('Selecione um local', 'apollo-events-manager'); ?></option>
                             <?php
-                            $all_locals = get_posts(
-                                array(
-                                    'post_type'      => 'event_local',
-                                    'posts_per_page' => -1,
-                                    'orderby'        => 'title',
-                                    'order'          => 'ASC',
-                                    'post_status'    => 'publish',
-                                )
-                            );
-                            
                             foreach ($all_locals as $local) {
-                                $local_name = get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
-                                $is_active  = in_array($local->ID, $current_local, true)
-                                    ? ' selected="selected"'
-                                    : '';
-
+                                $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                                $is_active  = in_array($local->ID, $current_local, true);
                                 printf(
                                     '<option value="%d"%s>%s</option>',
                                     $local->ID,
-                                    $is_active,
+                                    $is_active ? ' selected="selected"' : '',
                                     esc_html($local_name)
                                 );
                             }
@@ -524,7 +627,7 @@ class Apollo_Events_Admin_Metaboxes {
                             <?php _e('Adicionar novo Local', 'apollo-events-manager'); ?>
                         </button>
                         <p class="description">
-                            <?php _e('O local será geocodificado automaticamente ao salvar.', 'apollo-events-manager'); ?>
+                            <?php _e('Busque e selecione um local. O local será geocodificado automaticamente ao salvar.', 'apollo-events-manager'); ?>
                         </p>
                     </div>
                 </div>
@@ -585,18 +688,17 @@ class Apollo_Events_Admin_Metaboxes {
                 </div>
                 
                 <div class="apollo-field">
-                    <label for="apollo_cupom_ario">
-                        <input 
-                            type="checkbox" 
-                            name="apollo_cupom_ario" 
-                            id="apollo_cupom_ario" 
-                            value="1"
-                            <?php checked($cupom_ario, 1); ?>
-                        >
-                        <?php _e('Evento tem cupom Apollo::Rio', 'apollo-events-manager'); ?>
-                    </label>
+                    <label for="apollo_cupom_ario"><?php _e('Cupom Apollo:', 'apollo-events-manager'); ?></label>
+                    <input 
+                        type="text" 
+                        name="apollo_cupom_ario" 
+                        id="apollo_cupom_ario" 
+                        class="widefat" 
+                        placeholder="Ex: APOLLO, APOLLO2025"
+                        value="<?php echo esc_attr($cupom_ario); ?>"
+                    >
                     <p class="description">
-                        <?php _e('Marque se este evento oferece desconto para membros Apollo', 'apollo-events-manager'); ?>
+                        <?php _e('Código do cupom de desconto Apollo (deixe vazio se não houver)', 'apollo-events-manager'); ?>
                     </p>
                 </div>
             </div>
@@ -606,7 +708,7 @@ class Apollo_Events_Admin_Metaboxes {
                 <h3><?php _e('Localização Adicional', 'apollo-events-manager'); ?></h3>
                 
                 <div class="apollo-field">
-                    <label for="apollo_event_location"><?php _e('Location Text (alternativo):', 'apollo-events-manager'); ?></label>
+                    <label for="apollo_event_location"><?php _e('Localização (texto):', 'apollo-events-manager'); ?></label>
                     <input 
                         type="text" 
                         name="apollo_event_location" 
@@ -629,6 +731,72 @@ class Apollo_Events_Admin_Metaboxes {
                         class="widefat" 
                         value="<?php echo esc_attr($event_country ?: 'Brasil'); ?>"
                     >
+                </div>
+            </div>
+            
+            <!-- ===== PROMO IMAGES SECTION ===== -->
+            <div class="apollo-field-group">
+                <h3><?php _e('Imagens Promocionais', 'apollo-events-manager'); ?></h3>
+                
+                <div class="apollo-field">
+                    <label><?php _e('3 Imagens Promo (URLs):', 'apollo-events-manager'); ?></label>
+                    <div id="apollo_promo_images_container" class="apollo-multi-image-input">
+                        <?php
+                        // Ensure we have exactly 3 slots
+                        for ($i = 0; $i < 3; $i++) {
+                            $image_url = isset($promo_images[$i]) ? esc_url($promo_images[$i]) : '';
+                            ?>
+                            <div class="apollo-image-input-row" data-motion-input="true">
+                                <input 
+                                    type="url" 
+                                    name="apollo_3_imagens_promo[]" 
+                                    class="widefat apollo-image-url-input" 
+                                    placeholder="https://..."
+                                    value="<?php echo $image_url; ?>"
+                                >
+                                <button type="button" class="button apollo-upload-image-btn" data-index="<?php echo $i; ?>">
+                                    <span class="dashicons dashicons-upload"></span>
+                                </button>
+                                <?php if (!empty($image_url)): ?>
+                                    <button type="button" class="button apollo-preview-image-btn" data-url="<?php echo esc_attr($image_url); ?>">
+                                        <span class="dashicons dashicons-visibility"></span>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                    <p class="description">
+                        <?php _e('Adicione até 3 URLs de imagens promocionais do evento', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <div class="apollo-field">
+                    <label for="apollo_imagem_final"><?php _e('Imagem Final (URL):', 'apollo-events-manager'); ?></label>
+                    <div class="apollo-field-controls">
+                        <input 
+                            type="url" 
+                            name="apollo_imagem_final" 
+                            id="apollo_imagem_final" 
+                            class="widefat" 
+                            placeholder="https://..."
+                            value="<?php echo esc_url($final_image); ?>"
+                        >
+                        <button type="button" class="button apollo-upload-image-btn" data-target="apollo_imagem_final">
+                            <span class="dashicons dashicons-upload"></span>
+                            <?php _e('Upload', 'apollo-events-manager'); ?>
+                        </button>
+                        <?php if (!empty($final_image)): ?>
+                            <button type="button" class="button apollo-preview-image-btn" data-url="<?php echo esc_attr($final_image); ?>">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php _e('Preview', 'apollo-events-manager'); ?>
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    <p class="description">
+                        <?php _e('Imagem final exibida no final da página do evento', 'apollo-events-manager'); ?>
+                    </p>
                 </div>
             </div>
             
@@ -691,10 +859,17 @@ class Apollo_Events_Admin_Metaboxes {
             return;
         }
 
+        // Debug snapshot to troubleshoot meta not saving in admin.
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $posted_djs   = isset($_POST['apollo_event_djs']) ? wp_unslash($_POST['apollo_event_djs']) : null;
+            $posted_local = isset($_POST['apollo_event_local']) ? wp_unslash($_POST['apollo_event_local']) : null;
+            error_log(sprintf('[Apollo Events] save_metabox_data event_id=%d djs_posted=%s local_posted=%s', $post_id, wp_json_encode($posted_djs), wp_json_encode($posted_local)));
+        }
+
         // Initialize favorites count if not set
-        $favorites_count = get_post_meta($post_id, '_favorites_count', true);
+        $favorites_count = apollo_get_post_meta($post_id, '_favorites_count', true);
         if ($favorites_count === '' || $favorites_count === false) {
-            update_post_meta($post_id, '_favorites_count', 0);
+            apollo_update_post_meta($post_id, '_favorites_count', 0);
         }
 
         // ✅ SAVE DJs - CRITICAL
@@ -706,7 +881,7 @@ class Apollo_Events_Admin_Metaboxes {
         
         if (!empty($djs_selected)) {
             // Normalize to array and save
-            update_post_meta($post_id, '_event_dj_ids', $djs_selected);
+            apollo_update_post_meta($post_id, '_event_dj_ids', $djs_selected);
             
             // Debug log for admins
             if (current_user_can('administrator') && defined('WP_DEBUG') && WP_DEBUG) {
@@ -714,7 +889,7 @@ class Apollo_Events_Admin_Metaboxes {
             }
         } else {
             // Clear if empty
-            delete_post_meta($post_id, '_event_dj_ids');
+            apollo_delete_post_meta($post_id, '_event_dj_ids');
             if (current_user_can('administrator') && defined('WP_DEBUG') && WP_DEBUG) {
                 error_log(sprintf('[Apollo Events] Event %d: Cleared DJ IDs', $post_id));
             }
@@ -724,19 +899,15 @@ class Apollo_Events_Admin_Metaboxes {
         $local_selected = isset($_POST['apollo_event_local']) ? absint($_POST['apollo_event_local']) : 0;
         
         if ($local_selected > 0) {
-            // Save as array (first element) for consistency
-            update_post_meta($post_id, '_event_local_ids', array($local_selected));
-            
-            // Also save legacy single value for backward compatibility
-            update_post_meta($post_id, '_event_local', $local_selected);
+            // Save as single integer (not array) - consistent with database structure
+            apollo_update_post_meta($post_id, '_event_local_ids', $local_selected);
             
             if (current_user_can('administrator') && defined('WP_DEBUG') && WP_DEBUG) {
                 error_log(sprintf('[Apollo Events] Event %d: Saved Local ID: %d', $post_id, $local_selected));
             }
         } else {
             // Clear if empty
-            delete_post_meta($post_id, '_event_local_ids');
-            delete_post_meta($post_id, '_event_local');
+            apollo_delete_post_meta($post_id, '_event_local_ids');
             if (current_user_can('administrator') && defined('WP_DEBUG') && WP_DEBUG) {
                 error_log(sprintf('[Apollo Events] Event %d: Cleared Local ID', $post_id));
             }
@@ -746,42 +917,52 @@ class Apollo_Events_Admin_Metaboxes {
         $timetable_json = isset($_POST['apollo_event_timetable']) ? sanitize_text_field($_POST['apollo_event_timetable']) : '';
         if (!empty($timetable_json)) {
             $timetable = json_decode(stripslashes($timetable_json), true);
-            if (is_array($timetable)) {
-                update_post_meta($post_id, '_event_timetable', $timetable);
+            if (is_array($timetable) && !empty($timetable)) {
+                // Sanitize timetable before saving
+                $clean_timetable = apollo_sanitize_timetable($timetable);
+                if (!empty($clean_timetable)) {
+                    apollo_update_post_meta($post_id, '_event_timetable', $clean_timetable);
+                } else {
+                    // If sanitization removes all entries but we have DJs, save empty array to preserve structure
+                    apollo_update_post_meta($post_id, '_event_timetable', array());
+                }
+            } else {
+                apollo_delete_post_meta($post_id, '_event_timetable');
             }
         } else {
-            delete_post_meta($post_id, '_event_timetable');
+            // Don't delete timetable if empty - might have DJs without times
+            // Only delete if explicitly empty
         }
 
         // Save dates
         if (isset($_POST['apollo_event_start_date'])) {
-            update_post_meta($post_id, '_event_start_date', sanitize_text_field($_POST['apollo_event_start_date']));
+            apollo_update_post_meta($post_id, '_event_start_date', sanitize_text_field($_POST['apollo_event_start_date']));
         }
         if (isset($_POST['apollo_event_end_date'])) {
-            update_post_meta($post_id, '_event_end_date', sanitize_text_field($_POST['apollo_event_end_date']));
+            apollo_update_post_meta($post_id, '_event_end_date', sanitize_text_field($_POST['apollo_event_end_date']));
         }
         if (isset($_POST['apollo_event_start_time'])) {
-            update_post_meta($post_id, '_event_start_time', sanitize_text_field($_POST['apollo_event_start_time']));
+            apollo_update_post_meta($post_id, '_event_start_time', sanitize_text_field($_POST['apollo_event_start_time']));
         }
         if (isset($_POST['apollo_event_end_time'])) {
-            update_post_meta($post_id, '_event_end_time', sanitize_text_field($_POST['apollo_event_end_time']));
+            apollo_update_post_meta($post_id, '_event_end_time', sanitize_text_field($_POST['apollo_event_end_time']));
         }
 
         // Save media
         if (isset($_POST['apollo_event_video_url'])) {
             $video_url = esc_url_raw($_POST['apollo_event_video_url']);
             if (!empty($video_url)) {
-                update_post_meta($post_id, '_event_video_url', $video_url);
+                apollo_update_post_meta($post_id, '_event_video_url', $video_url);
             } else {
-                delete_post_meta($post_id, '_event_video_url');
+                apollo_delete_post_meta($post_id, '_event_video_url');
             }
         }
         if (isset($_POST['apollo_event_banner'])) {
             $banner = esc_url_raw($_POST['apollo_event_banner']);
             if (!empty($banner)) {
-                update_post_meta($post_id, '_event_banner', $banner);
+                apollo_update_post_meta($post_id, '_event_banner', $banner);
             } else {
-                delete_post_meta($post_id, '_event_banner');
+                apollo_delete_post_meta($post_id, '_event_banner');
             }
         }
 
@@ -789,26 +970,84 @@ class Apollo_Events_Admin_Metaboxes {
         if (isset($_POST['apollo_event_location'])) {
             $location = sanitize_text_field($_POST['apollo_event_location']);
             if (!empty($location)) {
-                update_post_meta($post_id, '_event_location', $location);
+                apollo_update_post_meta($post_id, '_event_location', $location);
             } else {
-                delete_post_meta($post_id, '_event_location');
+                apollo_delete_post_meta($post_id, '_event_location');
             }
         }
         if (isset($_POST['apollo_event_country'])) {
-            update_post_meta($post_id, '_event_country', sanitize_text_field($_POST['apollo_event_country']));
+            apollo_update_post_meta($post_id, '_event_country', sanitize_text_field($_POST['apollo_event_country']));
         }
         if (isset($_POST['apollo_tickets_ext'])) {
             $tickets = esc_url_raw($_POST['apollo_tickets_ext']);
             if (!empty($tickets)) {
-                update_post_meta($post_id, '_tickets_ext', $tickets);
+                apollo_update_post_meta($post_id, '_tickets_ext', $tickets);
             } else {
-                delete_post_meta($post_id, '_tickets_ext');
+                apollo_delete_post_meta($post_id, '_tickets_ext');
             }
         }
+        // Save Cupom Apollo (text field)
         if (isset($_POST['apollo_cupom_ario'])) {
-            update_post_meta($post_id, '_cupom_ario', 1);
+            $cupom = sanitize_text_field($_POST['apollo_cupom_ario']);
+            if (!empty($cupom)) {
+                apollo_update_post_meta($post_id, '_cupom_ario', $cupom);
+            } else {
+                apollo_delete_post_meta($post_id, '_cupom_ario');
+            }
+        }
+        
+        // Save 3 Imagens Promo (array of URLs)
+        if (isset($_POST['apollo_3_imagens_promo']) && is_array($_POST['apollo_3_imagens_promo'])) {
+            $promo_images = array();
+            foreach ($_POST['apollo_3_imagens_promo'] as $image_url) {
+                $clean_url = esc_url_raw(trim($image_url));
+                if (!empty($clean_url)) {
+                    $promo_images[] = $clean_url;
+                }
+            }
+            if (!empty($promo_images)) {
+                apollo_update_post_meta($post_id, '_3_imagens_promo', $promo_images);
+            } else {
+                apollo_delete_post_meta($post_id, '_3_imagens_promo');
+            }
         } else {
-            update_post_meta($post_id, '_cupom_ario', 0);
+            apollo_delete_post_meta($post_id, '_3_imagens_promo');
+        }
+        
+        // Save Imagem Final (URL)
+        if (isset($_POST['apollo_imagem_final'])) {
+            $final_image = esc_url_raw($_POST['apollo_imagem_final']);
+            if (!empty($final_image)) {
+                apollo_update_post_meta($post_id, '_imagem_final', $final_image);
+            } else {
+                apollo_delete_post_meta($post_id, '_imagem_final');
+            }
+        }
+        
+        // CRITICAL: Limpar cache após salvar (garante que mudanças apareçam imediatamente)
+        clean_post_cache($post_id);
+        
+        // CRITICAL: Limpar todos os caches relacionados usando função centralizada
+        if (function_exists('apollo_clear_events_cache')) {
+            apollo_clear_events_cache($post_id);
+        } else {
+            // Fallback: limpar transients conhecidos diretamente
+            delete_transient('apollo_events_portal_cache');
+            delete_transient('apollo_events_home_cache');
+            // CRITICAL: Clear both old and new cache keys
+            delete_transient('apollo_upcoming_event_ids_' . date('Ymd'));
+            delete_transient('apollo_all_event_ids_' . date('Ymd'));
+            // Clear cache for all dates (past 7 days)
+            for ($i = 0; $i < 7; $i++) {
+                $date_key = date('Ymd', strtotime("-$i days"));
+                delete_transient('apollo_upcoming_event_ids_' . $date_key);
+                delete_transient('apollo_all_event_ids_' . $date_key);
+            }
+            
+            // Limpar cache do grupo apollo_events
+            if (function_exists('wp_cache_flush_group')) {
+                wp_cache_flush_group('apollo_events');
+            }
         }
     }
 
@@ -838,7 +1077,7 @@ class Apollo_Events_Admin_Metaboxes {
             $value = is_string($value) ? trim($value) : '';
 
             if ($value === '') {
-                delete_post_meta($post_id, $meta_key);
+                apollo_delete_post_meta($post_id, $meta_key);
                 continue;
             }
 
@@ -850,12 +1089,12 @@ class Apollo_Events_Admin_Metaboxes {
                 $clean = sanitize_text_field($value);
             }
 
-            update_post_meta($post_id, $meta_key, $clean);
+            apollo_update_post_meta($post_id, $meta_key, $clean);
         }
 
         // Ensure empty non-submitted fields are cleared
         $expected_meta = array(
-            '_dj_name', '_dj_bio', '_dj_image',
+            '_dj_name', '_dj_bio', '_dj_image', '_dj_banner',
             '_dj_website', '_dj_instagram', '_dj_facebook', '_dj_soundcloud', '_dj_bandcamp', '_dj_spotify', '_dj_youtube', '_dj_mixcloud', '_dj_beatport', '_dj_resident_advisor', '_dj_twitter', '_dj_tiktok',
             '_dj_original_project_1', '_dj_original_project_2', '_dj_original_project_3',
             '_dj_set_url', '_dj_media_kit_url', '_dj_rider_url', '_dj_mix_url',
@@ -863,7 +1102,7 @@ class Apollo_Events_Admin_Metaboxes {
 
         foreach ($expected_meta as $meta_key) {
             if (!array_key_exists($meta_key, $data)) {
-                delete_post_meta($post_id, $meta_key);
+                apollo_delete_post_meta($post_id, $meta_key);
             }
         }
     }
@@ -893,7 +1132,7 @@ class Apollo_Events_Admin_Metaboxes {
             $value = is_string($value) ? trim($value) : '';
 
             if ($value === '') {
-                delete_post_meta($post_id, $meta_key);
+                apollo_delete_post_meta($post_id, $meta_key);
                 continue;
             }
 
@@ -905,7 +1144,7 @@ class Apollo_Events_Admin_Metaboxes {
                 $clean = sanitize_text_field($value);
             }
 
-            update_post_meta($post_id, $meta_key, $clean);
+            apollo_update_post_meta($post_id, $meta_key, $clean);
         }
 
         // Latitude/Longitude legacy mirrors
@@ -913,15 +1152,15 @@ class Apollo_Events_Admin_Metaboxes {
         $lng = isset($data['_local_longitude']) ? trim($data['_local_longitude']) : '';
 
         if ($lat !== '') {
-            update_post_meta($post_id, '_local_lat', sanitize_text_field($lat));
+            apollo_update_post_meta($post_id, '_local_lat', sanitize_text_field($lat));
         } else {
-            delete_post_meta($post_id, '_local_lat');
+            apollo_delete_post_meta($post_id, '_local_lat');
         }
 
         if ($lng !== '') {
-            update_post_meta($post_id, '_local_lng', sanitize_text_field($lng));
+            apollo_update_post_meta($post_id, '_local_lng', sanitize_text_field($lng));
         } else {
-            delete_post_meta($post_id, '_local_lng');
+            apollo_delete_post_meta($post_id, '_local_lng');
         }
 
         // Social fields not posted should be cleared
@@ -932,7 +1171,7 @@ class Apollo_Events_Admin_Metaboxes {
 
         foreach ($expected_local_meta as $meta_key) {
             if (!array_key_exists($meta_key, $data)) {
-                delete_post_meta($post_id, $meta_key);
+                apollo_delete_post_meta($post_id, $meta_key);
             }
         }
 
@@ -941,9 +1180,9 @@ class Apollo_Events_Admin_Metaboxes {
             $key = '_local_image_' . $i;
             $value = isset($image_data[$i]) ? trim((string) $image_data[$i]) : '';
             if ($value === '') {
-                delete_post_meta($post_id, $key);
+                apollo_delete_post_meta($post_id, $key);
             } else {
-                update_post_meta($post_id, $key, sanitize_text_field($value));
+                apollo_update_post_meta($post_id, $key, sanitize_text_field($value));
             }
         }
     }
@@ -976,7 +1215,7 @@ class Apollo_Events_Admin_Metaboxes {
         
         foreach ($existing as $dj) {
             $existing_title = mb_strtolower(trim($dj->post_title), 'UTF-8');
-            $existing_meta = mb_strtolower(trim(get_post_meta($dj->ID, '_dj_name', true)), 'UTF-8');
+            $existing_meta = mb_strtolower(trim(apollo_get_post_meta($dj->ID, '_dj_name', true)), 'UTF-8');
             
             if ($existing_title === $normalized || $existing_meta === $normalized) {
                 wp_send_json_error(sprintf(
@@ -999,7 +1238,7 @@ class Apollo_Events_Admin_Metaboxes {
         }
         
         // Save DJ name meta
-        update_post_meta($new_dj_id, '_dj_name', $name);
+        apollo_update_post_meta($new_dj_id, '_dj_name', $name);
         
         wp_send_json_success(array(
             'id' => $new_dj_id,
@@ -1038,7 +1277,7 @@ class Apollo_Events_Admin_Metaboxes {
         
         foreach ($existing as $local) {
             $existing_title = mb_strtolower(trim($local->post_title), 'UTF-8');
-            $existing_meta = mb_strtolower(trim(get_post_meta($local->ID, '_local_name', true)), 'UTF-8');
+            $existing_meta = mb_strtolower(trim(apollo_get_post_meta($local->ID, '_local_name', true)), 'UTF-8');
             
             if ($existing_title === $normalized || $existing_meta === $normalized) {
                 wp_send_json_error(sprintf(
@@ -1061,9 +1300,9 @@ class Apollo_Events_Admin_Metaboxes {
         }
         
         // Save Local meta
-        update_post_meta($new_local_id, '_local_name', $name);
-        if ($address) update_post_meta($new_local_id, '_local_address', $address);
-        if ($city) update_post_meta($new_local_id, '_local_city', $city);
+        apollo_update_post_meta($new_local_id, '_local_name', $name);
+        if ($address) apollo_update_post_meta($new_local_id, '_local_address', $address);
+        if ($city) apollo_update_post_meta($new_local_id, '_local_city', $city);
         
         // Auto-geocode will trigger on save_post hook
         

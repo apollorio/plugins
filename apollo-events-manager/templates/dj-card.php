@@ -32,10 +32,10 @@ if (!isset($dj_link)) {
     $dj_link = get_permalink($dj_id);
 }
 if (!isset($instagram)) {
-    $instagram = get_post_meta($dj_id, '_dj_instagram', true);
+    $instagram = apollo_get_post_meta($dj_id, '_dj_instagram', true);
 }
 if (!isset($soundcloud)) {
-    $soundcloud = get_post_meta($dj_id, '_dj_soundcloud', true);
+    $soundcloud = apollo_get_post_meta($dj_id, '_dj_soundcloud', true);
 }
 if (!isset($dj_bio)) {
     $dj_bio = get_the_excerpt($dj_id);
@@ -65,8 +65,16 @@ $upcoming_events = new WP_Query(array(
         )
     )
 ));
-$events_count = $upcoming_events->found_posts;
-wp_reset_postdata();
+
+// ✅ Error handling para WP_Query
+$events_count = 0;
+if (is_wp_error($upcoming_events)) {
+    error_log('Apollo: WP_Query error em dj-card: ' . $upcoming_events->get_error_message());
+    // Continuar com count = 0 se houver erro
+} else {
+    $events_count = $upcoming_events->found_posts;
+    wp_reset_postdata();
+}
 
 ?>
 

@@ -33,7 +33,11 @@ class AssetsManager
      */
     private function isApolloRoute(): bool
     {
-        $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+        
+        if (empty($request_uri)) {
+            return false;
+        }
         
         $apollo_routes = [
             '/a/',
@@ -56,9 +60,13 @@ class AssetsManager
 
     /**
      * Enqueue Canvas Mode assets
+     * STRONG FILTERING: Only Apollo plugins assets allowed
      */
     public function enqueueCanvas()
     {
+        // Install strong asset filter BEFORE enqueuing
+        $this->installApolloOnlyFilter();
+
         if (!empty($this->config['enqueue_canvas_css'])) {
             $this->enqueueCanvasCSS();
         }
@@ -70,6 +78,136 @@ class AssetsManager
         // Inject Plausible Analytics if on Apollo routes
         if ($this->isApolloRoute()) {
             $this->injectPlausibleAnalytics();
+        }
+    }
+
+    /**
+     * Install strong filter to allow ONLY Apollo plugins assets
+     */
+    private function installApolloOnlyFilter()
+    {
+        // Filter styles - remove all non-Apollo styles
+        add_action('wp_print_styles', [$this, 'filterApolloOnlyStyles'], 999);
+        
+        // Filter scripts - remove all non-Apollo scripts
+        add_action('wp_print_scripts', [$this, 'filterApolloOnlyScripts'], 999);
+        add_action('wp_print_footer_scripts', [$this, 'filterApolloOnlyScripts'], 999);
+    }
+
+    /**
+     * Filter styles - keep ONLY Apollo plugins
+     */
+    public function filterApolloOnlyStyles()
+    {
+        global $wp_styles;
+        
+        if (!is_object($wp_styles) || !isset($wp_styles->queue)) {
+            return;
+        }
+
+        $allowed_handles = [
+            'apollo-canvas-mode',
+            'apollo-modules',
+            'apollo-feed',
+            'apollo-chat',
+            'apollo-user-profile',
+            'apollo-users-directory',
+            'apollo-hold-to-confirm',
+        ];
+
+        $allowed_patterns = [
+            '/apollo-',
+            'assets.apollo.rio.br',
+            'remixicon',
+        ];
+
+        foreach ($wp_styles->queue as $handle) {
+            $keep = false;
+
+            // Check if handle is in allowed list
+            if (in_array($handle, $allowed_handles)) {
+                $keep = true;
+            }
+
+            // Check if handle starts with apollo-
+            if (strpos($handle, 'apollo-') === 0) {
+                $keep = true;
+            }
+
+            // Check if src contains allowed patterns
+            if (isset($wp_styles->registered[$handle]) && is_object($wp_styles->registered[$handle])) {
+                $src = $wp_styles->registered[$handle]->src ?? '';
+                foreach ($allowed_patterns as $pattern) {
+                    if (strpos($src, $pattern) !== false) {
+                        $keep = true;
+                        break;
+                    }
+                }
+            }
+
+            // Remove if not Apollo
+            if (!$keep) {
+                wp_dequeue_style($handle);
+                wp_deregister_style($handle);
+            }
+        }
+    }
+
+    /**
+     * Filter scripts - keep ONLY Apollo plugins
+     */
+    public function filterApolloOnlyScripts()
+    {
+        global $wp_scripts;
+        
+        if (!is_object($wp_scripts) || !isset($wp_scripts->queue)) {
+            return;
+        }
+
+        $allowed_handles = [
+            'apollo-canvas',
+            'apollo-feed',
+            'apollo-chat',
+            'apollo-user-profile',
+            'apollo-users-directory',
+            'apollo-hold-to-confirm',
+            'motion',
+        ];
+
+        $allowed_patterns = [
+            '/apollo-',
+            'assets.apollo.rio.br',
+        ];
+
+        foreach ($wp_scripts->queue as $handle) {
+            $keep = false;
+
+            // Check if handle is in allowed list
+            if (in_array($handle, $allowed_handles)) {
+                $keep = true;
+            }
+
+            // Check if handle starts with apollo-
+            if (strpos($handle, 'apollo-') === 0) {
+                $keep = true;
+            }
+
+            // Check if src contains allowed patterns
+            if (isset($wp_scripts->registered[$handle]) && is_object($wp_scripts->registered[$handle])) {
+                $src = $wp_scripts->registered[$handle]->src ?? '';
+                foreach ($allowed_patterns as $pattern) {
+                    if (strpos($src, $pattern) !== false) {
+                        $keep = true;
+                        break;
+                    }
+                }
+            }
+
+            // Remove if not Apollo
+            if (!$keep) {
+                wp_dequeue_script($handle);
+                wp_deregister_script($handle);
+            }
         }
     }
 
@@ -137,6 +275,51 @@ class AssetsManager
                 'pluginUrl' => APOLLO_SOCIAL_PLUGIN_URL,
             ]);
         }
+
+        // Enqueue Hold to Confirm system (required for all forms)
+        $this->enqueueHoldToConfirm();
+    }
+
+    /**
+     * Enqueue Hold to Confirm system
+     */
+    private function enqueueHoldToConfirm()
+    {
+        // Enqueue Motion library (required dependency)
+        wp_enqueue_script(
+            'motion',
+            'https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.umd.js',
+            [],
+            null,
+            true
+        );
+
+        // Enqueue Hold to Confirm CSS
+        $css_file = APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/hold-to-confirm.css';
+        $css_path = APOLLO_SOCIAL_PLUGIN_DIR . 'assets/css/hold-to-confirm.css';
+        
+        if (file_exists($css_path)) {
+            wp_enqueue_style(
+                'apollo-hold-to-confirm',
+                $css_file,
+                [],
+                APOLLO_SOCIAL_VERSION
+            );
+        }
+
+        // Enqueue Hold to Confirm JS
+        $js_file = APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/hold-to-confirm.js';
+        $js_path = APOLLO_SOCIAL_PLUGIN_DIR . 'assets/js/hold-to-confirm.js';
+        
+        if (file_exists($js_path)) {
+            wp_enqueue_script(
+                'apollo-hold-to-confirm',
+                $js_file,
+                ['motion'],
+                APOLLO_SOCIAL_VERSION,
+                true
+            );
+        }
     }
 
     /**
@@ -201,15 +384,15 @@ class AssetsManager
         }
 
         $script_config = $analytics_config['script_config'] ?? [];
-        $domain = $script_config['domain'] ?? '';
-        $script_url = $script_config['script_url'] ?? 'https://plausible.io/js/plausible.js';
+        $domain = isset($script_config['domain']) ? sanitize_text_field($script_config['domain']) : '';
+        $script_url = isset($script_config['script_url']) ? esc_url_raw($script_config['script_url']) : 'https://plausible.io/js/plausible.js';
         
-        if (empty($domain)) {
+        if (empty($domain) || !filter_var($script_url, FILTER_VALIDATE_URL)) {
             return;
         }
 
         // Simple script injection without WordPress enqueue system
-        echo '<script defer data-domain="' . \esc_attr($domain) . '" src="' . \esc_url($script_url) . '"></script>' . "\n";
+        echo '<script defer data-domain="' . esc_attr($domain) . '" src="' . esc_url($script_url) . '"></script>' . "\n";
 
         // Add Apollo Analytics helper functions
         $this->addApolloAnalyticsJS();
@@ -223,6 +406,7 @@ class AssetsManager
         $analytics_config = config('analytics');
         $events_config = $analytics_config['events'] ?? [];
         
+        // Generate safe JavaScript code (static, no user input)
         $js_code = "
         <script>
         window.apolloAnalytics = {
@@ -263,7 +447,7 @@ class AssetsManager
             
             trackUnionBadgesToggle: function(action) {
                 this.track('union_badges_toggle', {
-                    action: action // 'on' or 'off'
+                    action: action
                 });
             },
             
@@ -327,13 +511,11 @@ class AssetsManager
         
         // Auto-track page views with additional context
         document.addEventListener('DOMContentLoaded', function() {
-            // Get current route context
             var path = window.location.pathname;
             var apolloRoutes = ['/a/', '/comunidade/', '/nucleo/', '/season/', '/membership', '/uniao/', '/anuncio/'];
             
             for (var i = 0; i < apolloRoutes.length; i++) {
                 if (path.indexOf(apolloRoutes[i]) !== -1) {
-                    // Extract context from URL and track specific events
                     if (path.indexOf('/comunidade/') !== -1) {
                         var slug = path.split('/comunidade/')[1]?.split('/')[0];
                         if (slug) window.apolloAnalytics.trackGroupView('comunidade', slug);
@@ -353,6 +535,7 @@ class AssetsManager
         </script>
         ";
         
+        // Output safe JavaScript (static code, no user input)
         echo $js_code;
     }
 

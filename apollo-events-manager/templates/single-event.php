@@ -7,19 +7,47 @@
 
 // Get event data
 $event_id = get_the_ID();
-$event_title = get_post_meta($event_id, '_event_title', true) ?: get_the_title();
-$event_banner = get_post_meta($event_id, '_event_banner', true);
-$event_video_url = get_post_meta($event_id, '_event_video_url', true);
-$event_start_date = get_post_meta($event_id, '_event_start_date', true);
-$event_end_date = get_post_meta($event_id, '_event_end_date', true);
-$event_start_time = get_post_meta($event_id, '_event_start_time', true);
-$event_end_time = get_post_meta($event_id, '_event_end_time', true);
-$event_description = get_post_meta($event_id, '_event_description', true) ?: get_the_content();
-$event_tickets_ext = get_post_meta($event_id, '_tickets_ext', true);
-$event_cupom_ario = get_post_meta($event_id, '_cupom_ario', true);
-$event_3_imagens_promo = get_post_meta($event_id, '_3_imagens_promo', true);
-$event_timetable = get_post_meta($event_id, '_timetable', true);
-$event_imagem_final = get_post_meta($event_id, '_imagem_final', true);
+$event_title = apollo_get_post_meta($event_id, '_event_title', true) ?: get_the_title();
+$event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
+$event_video_url = apollo_get_post_meta($event_id, '_event_video_url', true);
+$event_start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
+$event_end_date = apollo_get_post_meta($event_id, '_event_end_date', true);
+$event_start_time = apollo_get_post_meta($event_id, '_event_start_time', true);
+$event_end_time = apollo_get_post_meta($event_id, '_event_end_time', true);
+$event_description = apollo_get_post_meta($event_id, '_event_description', true) ?: get_the_content();
+$event_tickets_ext = apollo_get_post_meta($event_id, '_tickets_ext', true);
+$event_cupom_ario = apollo_get_post_meta($event_id, '_cupom_ario', true);
+$event_3_imagens_promo = apollo_get_post_meta($event_id, '_3_imagens_promo', true);
+// ✅ CORRECT: Use _event_timetable with maybe_unserialize()
+$event_timetable_raw = apollo_get_post_meta($event_id, '_event_timetable', true);
+$event_timetable = !empty($event_timetable_raw) ? maybe_unserialize($event_timetable_raw) : array();
+// Fallback to legacy _timetable if empty
+if (empty($event_timetable) || !is_array($event_timetable)) {
+    $legacy_timetable = apollo_get_post_meta($event_id, '_timetable', true);
+    $event_timetable = !empty($legacy_timetable) ? maybe_unserialize($legacy_timetable) : array();
+}
+$event_imagem_final = apollo_get_post_meta($event_id, '_imagem_final', true);
+
+// ✅ CORRECT: Get local ID from _event_local_ids (int)
+$event_local_id = 0;
+// Verificar se função existe antes de usar
+if (function_exists('apollo_get_primary_local_id')) {
+    $event_local_id = apollo_get_primary_local_id($event_id);
+}
+
+if (!$event_local_id) {
+    // Fallback: usar meta key direto
+    $local_ids_meta = apollo_get_post_meta($event_id, '_event_local_ids', true);
+    if (!empty($local_ids_meta)) {
+        $event_local_id = is_array($local_ids_meta) ? (int) reset($local_ids_meta) : (int) $local_ids_meta;
+    }
+    
+    // Fallback legacy
+    if (!$event_local_id) {
+        $legacy = apollo_get_post_meta($event_id, '_event_local', true);
+        $event_local_id = $legacy ? (int) $legacy : 0;
+    }
+}
 
 // Local coordinates with comprehensive fallback
 $local_lat = '';
@@ -27,22 +55,22 @@ $local_lng = '';
 
 // Try local coordinates (multiple meta key variations)
 if (!empty($event_local_id) && is_numeric($event_local_id)) {
-    $local_lat = get_post_meta($event_local_id, '_local_latitude', true);
-    if (empty($local_lat)) $local_lat = get_post_meta($event_local_id, '_local_lat', true);
+    $local_lat = apollo_get_post_meta($event_local_id, '_local_latitude', true);
+    if (empty($local_lat)) $local_lat = apollo_get_post_meta($event_local_id, '_local_lat', true);
 
-    $local_lng = get_post_meta($event_local_id, '_local_longitude', true);
-    if (empty($local_lng)) $local_lng = get_post_meta($event_local_id, '_local_lng', true);
+    $local_lng = apollo_get_post_meta($event_local_id, '_local_longitude', true);
+    if (empty($local_lng)) $local_lng = apollo_get_post_meta($event_local_id, '_local_lng', true);
 }
 
 // Fallback to event coordinates
 if (empty($local_lat)) {
-    $local_lat = get_post_meta($event_id, '_event_latitude', true);
-    if (empty($local_lat)) $local_lat = get_post_meta($event_id, 'geolocation_lat', true);
+    $local_lat = apollo_get_post_meta($event_id, '_event_latitude', true);
+    if (empty($local_lat)) $local_lat = apollo_get_post_meta($event_id, 'geolocation_lat', true);
 }
 
 if (empty($local_lng)) {
-    $local_lng = get_post_meta($event_id, '_event_longitude', true);
-    if (empty($local_lng)) $local_lng = get_post_meta($event_id, 'geolocation_long', true);
+    $local_lng = apollo_get_post_meta($event_id, '_event_longitude', true);
+    if (empty($local_lng)) $local_lng = apollo_get_post_meta($event_id, 'geolocation_long', true);
 }
 
 // Validate coordinates are numeric
@@ -52,6 +80,29 @@ $local_lng = is_numeric($local_lng) ? floatval($local_lng) : 0;
 // Sounds/genres
 $event_sounds = wp_get_post_terms($event_id, 'event_sounds');
 if (is_wp_error($event_sounds)) $event_sounds = [];
+
+// Get categories
+$event_categories = wp_get_post_terms($event_id, 'event_listing_category');
+if (is_wp_error($event_categories)) $event_categories = [];
+
+// Get tags (if taxonomy exists)
+$event_tags = array();
+if (taxonomy_exists('event_listing_tag')) {
+    $event_tags = wp_get_post_terms($event_id, 'event_listing_tag');
+    if (is_wp_error($event_tags)) $event_tags = [];
+}
+
+// Combine all tags: categories first, then sounds, then tags
+$all_event_tags = array();
+if (!empty($event_categories)) {
+    $all_event_tags = array_merge($all_event_tags, $event_categories);
+}
+if (!empty($event_sounds)) {
+    $all_event_tags = array_merge($all_event_tags, $event_sounds);
+}
+if (!empty($event_tags)) {
+    $all_event_tags = array_merge($all_event_tags, $event_tags);
+}
 
 // Date formatting
 $event_day = '';
@@ -73,11 +124,21 @@ if ($event_start_date) {
 }
 
 // Banner/Video - Fallback sequence: event_banner → featured_image → gradient
+// ✅ CORRECT: Banner is URL string, NOT attachment ID
 $event_banner_url = '';
 $use_gradient_fallback = false;
 
 if ($event_banner) {
-    $event_banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
+    // Try as URL first (correct format)
+    if (filter_var($event_banner, FILTER_VALIDATE_URL)) {
+        $event_banner_url = $event_banner;
+    } elseif (is_numeric($event_banner)) {
+        // Fallback: if numeric, treat as attachment ID
+        $event_banner_url = wp_get_attachment_url($event_banner);
+    } else {
+        // Try as string URL even if filter_var fails
+        $event_banner_url = is_string($event_banner) ? $event_banner : '';
+    }
 }
 if (!$event_banner_url && has_post_thumbnail()) {
     $event_banner_url = get_the_post_thumbnail_url($event_id, 'full');
@@ -120,7 +181,7 @@ if (is_array($favorites_snapshot)) {
     $favorite_remaining = isset($favorites_snapshot['remaining']) ? (int) $favorites_snapshot['remaining'] : 0;
     $user_has_favorited = !empty($favorites_snapshot['current_user_has_favorited']);
 } else {
-    $favorites_meta = get_post_meta($event_id, '_favorites_count', true);
+    $favorites_meta = apollo_get_post_meta($event_id, '_favorites_count', true);
     $favorites_count = is_numeric($favorites_meta) ? max(0, (int) $favorites_meta) : 0;
 
     if (is_user_logged_in()) {
@@ -135,6 +196,13 @@ if (is_array($favorites_snapshot)) {
 $lineup_entries = function_exists('apollo_get_event_lineup')
     ? apollo_get_event_lineup($event_id)
     : [];
+
+// Garantir que Tailwind/ShadCN está carregado
+if (function_exists('apollo_shadcn_init')) {
+    apollo_shadcn_init();
+} elseif (class_exists('Apollo_ShadCN_Loader')) {
+    Apollo_ShadCN_Loader::get_instance();
+}
 ?>
 
 <div class="mobile-container">
@@ -155,7 +223,19 @@ $lineup_entries = function_exists('apollo_get_event_lineup')
 
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <span class="event-tag-pill"><i class="ri-megaphone-fill"></i> Novidade</span>
+            <?php if (!empty($all_event_tags)): ?>
+                <?php foreach (array_slice($all_event_tags, 0, 4) as $tag): ?>
+                    <?php if (is_object($tag) && isset($tag->name)): ?>
+                    <span class="event-tag-pill">
+                        <i class="ri-megaphone-fill"></i> <?php echo esc_html($tag->name); ?>
+                    </span>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+            <span class="event-tag-pill">
+                <i class="ri-megaphone-fill"></i> Novidade
+            </span>
+            <?php endif; ?>
             <h1 class="hero-title"><?php echo esc_html($event_title); ?></h1>
             <div class="hero-meta">
                 <div class="hero-meta-item">
@@ -399,10 +479,14 @@ $lineup_entries = function_exists('apollo_get_event_lineup')
                     </div>
                 </a>
 
-                <div class="apollo-coupon-detail">
+                <?php 
+                // Get coupon code - use meta value if exists, otherwise default to "APOLLO"
+                $coupon_code_single = !empty($event_cupom_ario) && is_string($event_cupom_ario) ? strtoupper(trim($event_cupom_ario)) : 'APOLLO';
+                ?>
+                <div class="apollo-coupon-detail" data-coupon-code="<?php echo esc_attr($coupon_code_single); ?>">
                     <i class="ri-coupon-3-line"></i>
-                    <span>Verifique se o cupom <strong>APOLLO</strong> está ativo com desconto</span>
-                    <button class="copy-code-mini" onclick="copyPromoCode()">
+                    <span>Verifique se o cupom <strong><?php echo esc_html($coupon_code_single); ?></strong> está ativo com desconto</span>
+                    <button class="copy-code-mini" onclick="copyPromoCode(this)">
                         <i class="ri-file-copy-fill"></i>
                     </button>
                 </div>
@@ -462,19 +546,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Copy promo code
-    window.copyPromoCode = function() {
-        navigator.clipboard.writeText('APOLLO').then(function() {
-            alert('Código APOLLO copiado!');
-        });
-    };
+    // Copy promo code function is defined in apollo-events-portal.js
+    // No need to redefine here
 });
 </script>
 // Get local images
 $local_images = [];
 if (!empty($event_local_id) && is_numeric($event_local_id)) {
     for ($i = 1; $i <= 5; $i++) {
-        $img = get_post_meta($event_local_id, '_local_image_' . $i, true);
+        $img = apollo_get_post_meta($event_local_id, '_local_image_' . $i, true);
         if ($img) $local_images[] = $img;
     }
 }
@@ -482,6 +562,29 @@ if (!empty($event_local_id) && is_numeric($event_local_id)) {
 // Get sounds/genres
 $sounds = wp_get_post_terms($event_id, 'event_sounds');
 $sounds = is_wp_error($sounds) ? [] : $sounds;
+
+// Get categories
+$event_categories_2 = wp_get_post_terms($event_id, 'event_listing_category');
+if (is_wp_error($event_categories_2)) $event_categories_2 = [];
+
+// Get tags (if taxonomy exists)
+$event_tags_2 = array();
+if (taxonomy_exists('event_listing_tag')) {
+    $event_tags_2 = wp_get_post_terms($event_id, 'event_listing_tag');
+    if (is_wp_error($event_tags_2)) $event_tags_2 = [];
+}
+
+// Combine all tags: categories first, then sounds, then tags
+$all_event_tags_2 = array();
+if (!empty($event_categories_2)) {
+    $all_event_tags_2 = array_merge($all_event_tags_2, $event_categories_2);
+}
+if (!empty($sounds)) {
+    $all_event_tags_2 = array_merge($all_event_tags_2, $sounds);
+}
+if (!empty($event_tags_2)) {
+    $all_event_tags_2 = array_merge($all_event_tags_2, $event_tags_2);
+}
 
 // Format dates
 $day = $month = $year = '';
@@ -501,9 +604,19 @@ if ($start_date) {
 }
 
 // Get banner
+// ✅ CORRECT: Banner is URL string, NOT attachment ID
 $banner_url = '';
 if ($event_banner) {
-    $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
+    // Try as URL first (correct format)
+    if (filter_var($event_banner, FILTER_VALIDATE_URL)) {
+        $banner_url = $event_banner;
+    } elseif (is_numeric($event_banner)) {
+        // Fallback: if numeric, treat as attachment ID
+        $banner_url = wp_get_attachment_url($event_banner);
+    } else {
+        // Try as string URL even if filter_var fails
+        $banner_url = is_string($event_banner) ? $event_banner : '';
+    }
 }
 if (!$banner_url) {
     $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
@@ -544,9 +657,17 @@ if ($video_url) {
         
         <div class="hero-overlay"></div>
         <div class="hero-content">
+            <?php if (!empty($all_event_tags_2)): ?>
+                <?php foreach (array_slice($all_event_tags_2, 0, 4) as $tag): ?>
+                <span class="event-tag-pill">
+                    <i class="ri-megaphone-fill"></i> <?php echo esc_html($tag->name); ?>
+                </span>
+                <?php endforeach; ?>
+            <?php else: ?>
             <span class="event-tag-pill">
                 <i class="ri-megaphone-fill"></i> Novidade
             </span>
+            <?php endif; ?>
             
             <h1 class="hero-title"><?php echo esc_html($event_title); ?></h1>
             
@@ -660,7 +781,7 @@ if ($video_url) {
                 <i class="ri-brain-ai-3-fill"></i> Info
             </h2>
             <div class="info-card">
-                <p class="info-text"><?php echo wpautop($description); ?></p>
+                <p class="info-text"><?php echo wp_kses_post(wpautop($description)); ?></p>
             </div>
             
             <!-- Music Tags Marquee -->
@@ -808,7 +929,7 @@ if ($video_url) {
                     return;
                 }
                 
-                console.log('✅ Leaflet loaded. Coords:', <?php echo $local_lat; ?>, <?php echo $local_lng; ?>);
+                console.log('✅ Leaflet loaded. Coords:', <?php echo esc_js($local_lat); ?>, <?php echo esc_js($local_lng); ?>);
                 
                 var mapEl = document.getElementById('eventMap');
                 if (!mapEl) return;
@@ -888,11 +1009,15 @@ if ($video_url) {
                 </a>
                 <?php endif; ?>
                 
-                <?php if ($cupom_ario) : ?>
-                <div class="apollo-coupon-detail">
+                <?php if ($event_cupom_ario) : ?>
+                <?php 
+                // Get coupon code - use meta value if exists, otherwise default to "APOLLO"
+                $coupon_code_single = !empty($event_cupom_ario) && is_string($event_cupom_ario) ? strtoupper(trim($event_cupom_ario)) : 'APOLLO';
+                ?>
+                <div class="apollo-coupon-detail" data-coupon-code="<?php echo esc_attr($coupon_code_single); ?>">
                     <i class="ri-coupon-3-line"></i>
-                    <span>Verifique se o cupom <strong>APOLLO</strong> está ativo com desconto</span>
-                    <button class="copy-code-mini" onclick="copyPromoCode()">
+                    <span>Verifique se o cupom <strong><?php echo esc_html($coupon_code_single); ?></strong> está ativo com desconto</span>
+                    <button class="copy-code-mini" onclick="copyPromoCode(this)">
                         <i class="ri-file-copy-fill"></i>
                     </button>
                 </div>

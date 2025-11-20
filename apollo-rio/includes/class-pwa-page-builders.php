@@ -63,6 +63,11 @@ class Apollo_PWA_Page_Builders {
         add_filter('template_include', [$this, 'load_template'], 999);
         add_filter('body_class', [$this, 'add_body_classes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_pwa_assets']);
+        
+        // ✅ CANVAS MODE: Block theme interference completely
+        add_action('template_redirect', [$this, 'block_theme_interference'], 1);
+        add_filter('wp_title', [$this, 'remove_page_title'], 999);
+        add_filter('document_title_parts', [$this, 'remove_page_title_parts'], 999);
     }
     
     /**
@@ -160,6 +165,260 @@ class Apollo_PWA_Page_Builders {
         return $classes;
     }
     
+    /**
+     * ✅ CANVAS MODE: Block all theme interference
+     * Only allows CSS/JS/PHP from apollo-social, apollo-events-manager, or apollo-rio
+     */
+    public function block_theme_interference() {
+        global $post;
+        
+        if (!$post) {
+            return;
+        }
+        
+        $template = get_post_meta($post->ID, '_wp_page_template', true);
+        $apollo_templates = apollo_rio_get_templates();
+        
+        if (!array_key_exists($template, $apollo_templates)) {
+            return; // Not an Apollo canvas page
+        }
+        
+        // ✅ CANVAS MODE: Remove theme-specific actions while preserving WordPress core and Apollo plugins
+        // Get current theme
+        $theme = wp_get_theme();
+        $theme_name = $theme->get('Name');
+        $theme_slug = get_stylesheet();
+        
+        // Remove theme actions from wp_head (but keep WordPress core and Apollo plugins)
+        global $wp_filter;
+        $wp_head_callbacks = [];
+        if (isset($wp_filter['wp_head']) && is_object($wp_filter['wp_head'])) {
+            if (isset($wp_filter['wp_head']->callbacks) && is_array($wp_filter['wp_head']->callbacks)) {
+                $wp_head_callbacks = $wp_filter['wp_head']->callbacks;
+            }
+        }
+        if (!empty($wp_head_callbacks)) {
+            foreach ($wp_head_callbacks as $priority => $callbacks) {
+                foreach ($callbacks as $callback) {
+                    $function = $callback['function'] ?? null;
+                    if ($function && is_array($function) && isset($function[0])) {
+                        $class_name = get_class($function[0]);
+                        // Remove if it's from theme (check class name or file path)
+                        if (strpos($class_name, $theme_slug) !== false || 
+                            (is_string($function[0]) && strpos($function[0], $theme_slug) !== false)) {
+                            remove_action('wp_head', $function, $priority);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Remove theme filters from the_content (but keep WordPress core)
+        // Only remove if they modify output significantly
+        remove_all_filters('the_content');
+        // Re-add WordPress core content filters
+        add_filter('the_content', 'wptexturize');
+        add_filter('the_content', 'convert_smilies');
+        add_filter('the_content', 'convert_chars');
+        add_filter('the_content', 'wpautop');
+        add_filter('the_content', 'shortcode_unautop');
+        add_filter('the_content', 'prepend_attachment');
+        
+        // Remove theme filters from wp_title
+        remove_all_filters('wp_title');
+        
+        // Remove theme filters from document_title_parts
+        remove_all_filters('document_title_parts');
+        
+        // Block theme scripts/styles (keep only Apollo plugins)
+        // Use wp_print_styles/wp_print_scripts hooks for late filtering
+        add_action('wp_print_styles', [$this, 'filter_enqueued_assets'], 999);
+        add_action('wp_print_scripts', [$this, 'filter_enqueued_assets'], 999);
+        
+        // Block theme output buffering
+        add_action('get_header', [$this, 'prevent_theme_header'], 1);
+        add_action('get_footer', [$this, 'prevent_theme_footer'], 1);
+        add_action('get_sidebar', [$this, 'prevent_theme_sidebar'], 1);
+        
+        // Remove specific theme hooks that might interfere
+        remove_all_actions('trx_addons_action_before_header');
+        remove_all_actions('trx_addons_action_header');
+        remove_all_actions('trx_addons_action_after_header');
+        remove_all_actions('trx_addons_action_before_page_header');
+        remove_all_actions('trx_addons_action_page_header');
+        remove_all_actions('trx_addons_action_after_page_header');
+    }
+    
+    /**
+     * Filter enqueued assets - only allow Apollo plugins
+     * Runs late to catch all enqueued assets
+     */
+    public function filter_enqueued_assets() {
+        global $wp_styles, $wp_scripts;
+        
+        // List of allowed plugin handles (Apollo plugins only)
+        $allowed_handles = [
+            'apollo-uni-css',
+            'apollo-pwa-templates',
+            'apollo-pwa-detect',
+            'apollo-social',
+            'apollo-events',
+            'apollo-rio',
+            'remixicon',
+        ];
+        
+        // Filter styles - check if wp_styles is initialized
+        if (isset($wp_styles) && is_object($wp_styles) && isset($wp_styles->queue)) {
+            $handles_to_remove = [];
+            
+            foreach ($wp_styles->queue as $handle) {
+                if (!isset($wp_styles->registered[$handle])) {
+                    continue;
+                }
+                
+                $src = '';
+                if (isset($wp_styles->registered[$handle]) && is_object($wp_styles->registered[$handle])) {
+                    $src = $wp_styles->registered[$handle]->src ?? '';
+                }
+                $is_apollo = false;
+                
+                // Check if handle starts with apollo-
+                if (strpos($handle, 'apollo-') === 0) {
+                    $is_apollo = true;
+                }
+                
+                // Check if src contains apollo plugin paths
+                if (strpos($src, '/apollo-') !== false || 
+                    strpos($src, 'assets.apollo.rio.br') !== false ||
+                    strpos($src, 'remixicon') !== false) {
+                    $is_apollo = true;
+                }
+                
+                // Check if in allowed list
+                if (in_array($handle, $allowed_handles)) {
+                    $is_apollo = true;
+                }
+                
+                // Mark for removal if not Apollo
+                if (!$is_apollo) {
+                    $handles_to_remove[] = $handle;
+                }
+            }
+            
+            // Remove non-Apollo styles
+            foreach ($handles_to_remove as $handle) {
+                wp_dequeue_style($handle);
+                wp_deregister_style($handle);
+            }
+        }
+        
+        // Filter scripts - check if wp_scripts is initialized
+        if (isset($wp_scripts) && is_object($wp_scripts) && isset($wp_scripts->queue)) {
+            $handles_to_remove = [];
+            
+            foreach ($wp_scripts->queue as $handle) {
+                if (!isset($wp_scripts->registered[$handle])) {
+                    continue;
+                }
+                
+                $src = '';
+                if (isset($wp_scripts->registered[$handle]) && is_object($wp_scripts->registered[$handle])) {
+                    $src = $wp_scripts->registered[$handle]->src ?? '';
+                }
+                $is_apollo = false;
+                
+                // Check if handle starts with apollo-
+                if (strpos($handle, 'apollo-') === 0) {
+                    $is_apollo = true;
+                }
+                
+                // Check if src contains apollo plugin paths
+                if (strpos($src, '/apollo-') !== false || 
+                    strpos($src, 'assets.apollo.rio.br') !== false) {
+                    $is_apollo = true;
+                }
+                
+                // Check if in allowed list
+                if (in_array($handle, $allowed_handles)) {
+                    $is_apollo = true;
+                }
+                
+                // Mark for removal if not Apollo
+                if (!$is_apollo) {
+                    $handles_to_remove[] = $handle;
+                }
+            }
+            
+            // Remove non-Apollo scripts
+            foreach ($handles_to_remove as $handle) {
+                wp_dequeue_script($handle);
+                wp_deregister_script($handle);
+            }
+        }
+    }
+    
+    /**
+     * Prevent theme header from loading
+     */
+    public function prevent_theme_header($name = null) {
+        return false; // Return false to prevent theme header
+    }
+    
+    /**
+     * Prevent theme footer from loading
+     */
+    public function prevent_theme_footer($name = null) {
+        return false; // Return false to prevent theme footer
+    }
+    
+    /**
+     * Prevent theme sidebar from loading
+     */
+    public function prevent_theme_sidebar($name = null) {
+        return false; // Return false to prevent theme sidebar
+    }
+    
+    /**
+     * Remove page title from wp_title
+     */
+    public function remove_page_title($title) {
+        global $post;
+        
+        if (!$post) {
+            return $title;
+        }
+        
+        $template = get_post_meta($post->ID, '_wp_page_template', true);
+        $apollo_templates = apollo_rio_get_templates();
+        
+        if (array_key_exists($template, $apollo_templates)) {
+            return ''; // Remove title completely
+        }
+        
+        return $title;
+    }
+    
+    /**
+     * Remove page title from document_title_parts
+     */
+    public function remove_page_title_parts($parts) {
+        global $post;
+        
+        if (!$post) {
+            return $parts;
+        }
+        
+        $template = get_post_meta($post->ID, '_wp_page_template', true);
+        $apollo_templates = apollo_rio_get_templates();
+        
+        if (array_key_exists($template, $apollo_templates)) {
+            // Keep only site name, remove page title
+            return ['title' => get_bloginfo('name')];
+        }
+        
+        return $parts;
+    }
+    
     public function enqueue_pwa_assets() {
         global $post;
         
@@ -171,12 +430,12 @@ class Apollo_PWA_Page_Builders {
         $apollo_templates = apollo_rio_get_templates();
         
         if (array_key_exists($template, $apollo_templates)) {
-            // Global Apollo CSS - required for all PWA templates
+            // ✅ MUST: Global Apollo CSS - required for ALL canvas pages
             wp_enqueue_style(
                 'apollo-uni-css',
                 'https://assets.apollo.rio.br/uni.css',
-                [],
-                null // No version for external CDN
+                [], // No dependencies - loads FIRST
+                '2.0.0' // Version for cache busting
             );
             
             wp_enqueue_script(
@@ -198,7 +457,7 @@ class Apollo_PWA_Page_Builders {
                 'template' => $template,
                 'isMobile' => wp_is_mobile(),
                 'ajaxUrl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('apollo_pwa_nonce'),
+                'nonce' => wp_create_nonce('apollo_pwa_' . $template),
                 'androidAppUrl' => get_option('apollo_android_app_url', '#'),
             ]);
         }

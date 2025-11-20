@@ -48,15 +48,15 @@ class HelpMenuAdmin {
         <div class="wrap apollo-help-page">
             <h1>
                 <span class="dashicons dashicons-sos" style="color: #d63638;"></span>
-                <?php _e('Central de Ajuda Apollo', 'apollo-social'); ?>
+                <?php esc_html_e('Central de Ajuda Apollo', 'apollo-social'); ?>
             </h1>
             
             <div class="apollo-help-grid">
                 
                 <!-- Emergência -->
                 <div class="apollo-help-card apollo-help-emergency">
-                    <h2>🚨 <?php _e('Emergência', 'apollo-social'); ?></h2>
-                    <p><?php _e('Algo está quebrado? Precisa de ajuda imediata?', 'apollo-social'); ?></p>
+                    <h2>🚨 <?php esc_html_e('Emergência', 'apollo-social'); ?></h2>
+                    <p><?php esc_html_e('Algo está quebrado? Precisa de ajuda imediata?', 'apollo-social'); ?></p>
                     <ul>
                         <li><strong>Site travado:</strong> <code>Ctrl + Shift + R</code> (limpar cache)</li>
                         <li><strong>Não consigo editar:</strong> Verificar se está logado</li>
@@ -70,8 +70,8 @@ class HelpMenuAdmin {
                 
                 <!-- Documentação -->
                 <div class="apollo-help-card">
-                    <h2>📚 <?php _e('Documentação', 'apollo-social'); ?></h2>
-                    <p><?php _e('Guias e manuais do sistema:', 'apollo-social'); ?></p>
+                    <h2>📚 <?php esc_html_e('Documentação', 'apollo-social'); ?></h2>
+                    <p><?php esc_html_e('Guias e manuais do sistema:', 'apollo-social'); ?></p>
                     <ul>
                         <li><a href="<?php echo admin_url('admin.php?page=apollo-help&doc=tipos-conteudo'); ?>">
                             Tipos de Conteúdo Disponíveis
@@ -90,27 +90,27 @@ class HelpMenuAdmin {
                 
                 <!-- Informações do Sistema -->
                 <div class="apollo-help-card">
-                    <h2>ℹ️ <?php _e('Informações do Sistema', 'apollo-social'); ?></h2>
+                    <h2>ℹ️ <?php esc_html_e('Informações do Sistema', 'apollo-social'); ?></h2>
                     <table class="apollo-help-info-table">
                         <tr>
                             <th>Usuário:</th>
-                            <td><?php echo esc_html($current_user->display_name); ?> (ID: <?php echo $current_user->ID; ?>)</td>
+                            <td><?php echo esc_html($current_user->display_name); ?> (ID: <?php echo esc_html($current_user->ID); ?>)</td>
                         </tr>
                         <tr>
                             <th>Role:</th>
-                            <td><?php echo implode(', ', $current_user->roles); ?></td>
+                            <td><?php echo esc_html(implode(', ', $current_user->roles)); ?></td>
                         </tr>
                         <tr>
                             <th>WordPress:</th>
-                            <td><?php echo get_bloginfo('version'); ?></td>
+                            <td><?php echo esc_html(get_bloginfo('version')); ?></td>
                         </tr>
                         <tr>
                             <th>PHP:</th>
-                            <td><?php echo PHP_VERSION; ?></td>
+                            <td><?php echo esc_html(PHP_VERSION); ?></td>
                         </tr>
                         <tr>
                             <th>Tema:</th>
-                            <td><?php echo wp_get_theme()->get('Name'); ?></td>
+                            <td><?php echo esc_html(wp_get_theme()->get('Name')); ?></td>
                         </tr>
                         <tr>
                             <th>URL do Site:</th>
@@ -121,7 +121,7 @@ class HelpMenuAdmin {
                 
                 <!-- Tipos de Conteúdo -->
                 <div class="apollo-help-card">
-                    <h2>📋 <?php _e('Tipos de Conteúdo Ativos', 'apollo-social'); ?></h2>
+                    <h2>📋 <?php esc_html_e('Tipos de Conteúdo Ativos', 'apollo-social'); ?></h2>
                     <?php 
                     $post_types = get_post_types(['_builtin' => false], 'objects');
                     if (!empty($post_types)) {
@@ -132,7 +132,7 @@ class HelpMenuAdmin {
                             printf(
                                 '<li><strong>%s</strong> <span class="apollo-help-badge">%d</span><br><small>%s</small></li>',
                                 esc_html($post_type->labels->name),
-                                $total,
+                                esc_html($total),
                                 esc_html($post_type->name)
                             );
                         }
@@ -145,7 +145,7 @@ class HelpMenuAdmin {
                 
                 <!-- Ações Rápidas -->
                 <div class="apollo-help-card">
-                    <h2>⚡ <?php _e('Ações Rápidas', 'apollo-social'); ?></h2>
+                    <h2>⚡ <?php esc_html_e('Ações Rápidas', 'apollo-social'); ?></h2>
                     <div class="apollo-help-actions">
                         <a href="<?php echo admin_url('plugins.php'); ?>" class="button">
                             🔌 Gerenciar Plugins
@@ -164,7 +164,7 @@ class HelpMenuAdmin {
                 
                 <!-- Contatos -->
                 <div class="apollo-help-card">
-                    <h2>📞 <?php _e('Contatos de Suporte', 'apollo-social'); ?></h2>
+                    <h2>📞 <?php esc_html_e('Contatos de Suporte', 'apollo-social'); ?></h2>
                     <p><strong>Email Admin:</strong> <a href="mailto:<?php echo esc_attr($admin_email); ?>"><?php echo esc_html($admin_email); ?></a></p>
                     <p><strong>Desenvolvedor:</strong> Entre em contato pelo email acima</p>
                     <p><strong>Horário:</strong> Segunda a Sexta, 9h-18h</p>

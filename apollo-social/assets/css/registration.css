@@ -1,0 +1,150 @@
+/**
+ * Registration Form Styles
+ */
+
+.apollo-registration-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.apollo-registration-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+}
+
+.apollo-registration-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.apollo-registration-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+}
+
+.apollo-registration-header p {
+    color: #6b7280;
+    margin: 0;
+}
+
+.apollo-form-group {
+    margin-bottom: 24px;
+}
+
+.apollo-form-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.apollo-form-group label .required {
+    color: #ef4444;
+}
+
+.apollo-form-group input[type="text"],
+.apollo-form-group input[type="email"],
+.apollo-form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.apollo-form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.apollo-form-group input:invalid:not(:placeholder-shown) {
+    border-color: #ef4444;
+}
+
+.apollo-field-error {
+    display: block;
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 4px;
+    min-height: 16px;
+}
+
+.apollo-checkbox-group label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.apollo-checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.apollo-checkbox-group a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.apollo-form-actions {
+    margin-top: 32px;
+}
+
+.apollo-button {
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apollo-button-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.apollo-form-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.apollo-form-footer a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.apollo-form-footer a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .apollo-registration-card {
+        padding: 24px;
+    }
+
+    .apollo-registration-header h1 {
+        font-size: 24px;
+    }
+}
+

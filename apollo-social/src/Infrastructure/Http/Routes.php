@@ -2,6 +2,7 @@
 namespace Apollo\Infrastructure\Http;
 
 use Apollo\Infrastructure\Rendering\CanvasRenderer;
+use Apollo\Infrastructure\Rendering\CanvasBuilder;
 
 /**
  * Routes manager
@@ -41,7 +42,12 @@ class Routes
         foreach ($this->routes as $route_config) {
             if (isset($route_config['pattern'])) {
                 $query_string = $this->buildQueryString($route_config['query_vars']);
-                add_rewrite_rule($route_config['pattern'], $query_string, 'top');
+                // Use priority from config or default to 'top'
+                // WordPress accepts 'top' or 'bottom' only
+                $priority = isset($route_config['priority']) && in_array($route_config['priority'], ['top', 'bottom']) 
+                    ? $route_config['priority'] 
+                    : 'top';
+                add_rewrite_rule($route_config['pattern'], $query_string, $priority);
             }
         }
     }
@@ -54,6 +60,7 @@ class Routes
         $vars[] = 'apollo_route';
         $vars[] = 'apollo_type';
         $vars[] = 'apollo_param';
+        $vars[] = 'user_id';
         return $vars;
     }
 
@@ -64,6 +71,8 @@ class Routes
     {
         $query_parts = [];
         foreach ($query_vars as $key => $value) {
+            $key = sanitize_key($key);
+            $value = urlencode(sanitize_text_field($value));
             $query_parts[] = $key . '=' . $value;
         }
         return 'index.php?' . implode('&', $query_parts);
@@ -74,9 +83,31 @@ class Routes
      */
     public function handleRequest()
     {
+        // Don't interfere with WordPress core functionality
+        if (is_admin() || wp_doing_ajax() || wp_doing_cron()) {
+            return;
+        }
+        
+        // Don't interfere with feeds RSS (WordPress default feeds)
+        // Only intercept /feed/ if it's explicitly an Apollo route
+        if (is_feed() && !get_query_var('apollo_route')) {
+            return; // WordPress RSS feed, not Apollo route
+        }
+        
+        // Don't interfere with REST API
+        if (defined('REST_REQUEST') && REST_REQUEST) {
+            return;
+        }
+        
+        // Don't interfere with sitemaps
+        if (function_exists('wp_is_sitemap') && wp_is_sitemap()) {
+            return;
+        }
+        
+        // Only process if we have an Apollo route query var
         $apollo_route = get_query_var('apollo_route');
         
-        if (!$apollo_route) {
+        if (empty($apollo_route) || !is_string($apollo_route)) {
             return; // Not our route
         }
 
@@ -89,11 +120,11 @@ class Routes
         // Set current route
         $this->current_route = $route_config;
 
-        // Initialize Canvas Mode
-        $canvas = new CanvasRenderer();
-        $canvas->render($route_config);
+        // Use strong Canvas Builder for robust Canvas Mode
+        $builder = new CanvasBuilder();
+        $builder->build($route_config);
         
-        exit; // Prevent WordPress from continuing normal template loading
+        wp_die('', '', ['response' => 200]); // Prevent WordPress from continuing normal template loading
     }
 
     /**
@@ -123,6 +154,7 @@ class Routes
      */
     public function isPluginRoute()
     {
-        return !empty(get_query_var('apollo_route'));
+        $route = get_query_var('apollo_route');
+        return !empty($route) && is_string($route);
     }
 }

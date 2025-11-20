@@ -20,12 +20,7 @@ apollo_get_header_for_template('pagx_site');
             ?>
             <article id="post-<?php the_ID(); ?>" <?php post_class('apollo-article'); ?>>
                 
-                <?php if (get_the_title()) : ?>
-                    <header class="apollo-entry-header">
-                        <h1 class="apollo-entry-title"><?php the_title(); ?></h1>
-                    </header>
-                <?php endif; ?>
-                
+                <!-- ✅ CANVAS MODE: Title removed - only content -->
                 <div class="apollo-entry-content">
                     <?php the_content(); ?>
                 </div>

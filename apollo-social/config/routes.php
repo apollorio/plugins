@@ -93,4 +93,263 @@ return [
         'handler' => 'Apollo\\Infrastructure\\Rendering\\AdPageRenderer',
         'canvas' => true,
     ],
+
+    // Cena-Rio Canvas Page
+    '/cena/' => [
+        'pattern' => '^cena/?$',
+        'query_vars' => ['apollo_route' => 'cena_rio'],
+        'template' => 'cena-rio/page.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/cena-rio/' => [
+        'pattern' => '^cena-rio/?$',
+        'query_vars' => ['apollo_route' => 'cena_rio'],
+        'template' => 'cena-rio/page.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+
+    // User Dashboard (Painel)
+    '/painel/' => [
+        'pattern' => '^painel/?$',
+        'query_vars' => ['apollo_route' => 'user_dashboard_private'],
+        'template' => 'users/private-profile.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+
+    // Public Profile Alias
+    '/clubber/{userID}' => [
+        'pattern' => '^clubber/([0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'user_dashboard', 'user_id' => '$matches[1]'],
+        'template' => 'users/dashboard.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UserDashboardRenderer',
+        'canvas' => true,
+        'description' => 'Public profile (Clubber alias)',
+    ],
+
+    // Feed (Apollo Social Feed)
+    '/feed/' => [
+        'pattern' => '^feed/?$',
+        'query_vars' => ['apollo_route' => 'feed'],
+        'template' => 'feed/feed.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'priority' => 'bottom',
+        'raw_html' => true,
+    ],
+
+    // Chat
+    '/chat/' => [
+        'pattern' => '^chat/?$',
+        'query_vars' => ['apollo_route' => 'chat'],
+        'template' => 'chat/chat.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+
+    // Chat - Single User
+    '/chat/{userID}' => [
+        'pattern' => '^chat/([0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'chat_user', 'user_id' => '$matches[1]'],
+        'template' => 'chat/chat-single.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\ChatSingleRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-chat' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/chat.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-chat' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/chat.js',
+                    'deps' => ['apollo-canvas'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // User Profile by ID - Customizable Dashboard
+    '/id/{userID}' => [
+        'pattern' => '^id/([0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'user_dashboard', 'user_id' => '$matches[1]'],
+        'template' => 'users/dashboard.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UserDashboardRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/dashboard.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/dashboard-builder.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // Users Directory - /eco/
+    '/eco/' => [
+        'pattern' => '^eco/?$',
+        'query_vars' => ['apollo_route' => 'users_directory'],
+        'template' => 'users/directory.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UsersDirectoryRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-users-directory' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/users-directory.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-users-directory' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/users-directory.js',
+                    'deps' => ['apollo-canvas'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // Users Directory Alternative - /ecoa/
+    '/ecoa/' => [
+        'pattern' => '^ecoa/?$',
+        'query_vars' => ['apollo_route' => 'users_directory'],
+        'template' => 'users/directory.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UsersDirectoryRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-users-directory' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/users-directory.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-users-directory' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/users-directory.js',
+                    'deps' => ['apollo-canvas'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // Cena::rio Page
+    '/cena/' => [
+        'pattern' => '^cena/?$',
+        'query_vars' => ['apollo_route' => 'cena'],
+        'template' => 'cena/cena.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\CenaRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/cena.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/cena.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // Cena::rio Alternative Route
+    '/cena-rio/' => [
+        'pattern' => '^cena-rio/?$',
+        'query_vars' => ['apollo_route' => 'cena'],
+        'template' => 'cena/cena.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\CenaRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/cena.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/cena.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // User Dashboard /painel/
+    '/painel/' => [
+        'pattern' => '^painel/?$',
+        'query_vars' => ['apollo_route' => 'user_dashboard'],
+        'template' => 'users/dashboard.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UserDashboardRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/dashboard.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/dashboard-builder.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
+
+    // Clubber route (alternative to /id/)
+    '/clubber/{userID}' => [
+        'pattern' => '^clubber/([0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'user_dashboard', 'user_id' => '$matches[1]'],
+        'template' => 'users/dashboard.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\UserDashboardRenderer',
+        'canvas' => true,
+        'assets' => [
+            'css' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/dashboard.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-dashboard' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/dashboard-builder.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
+    ],
 ];

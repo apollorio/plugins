@@ -3,6 +3,7 @@ namespace Apollo\Infrastructure\Http\Controllers;
 
 use Apollo\Domain\Entities\GroupEntity;
 use Apollo\Domain\Groups\Policies\GroupPolicy;
+use Apollo\Domain\Groups\Repositories\GroupsRepository;
 
 /**
  * Groups REST Controller
@@ -10,10 +11,12 @@ use Apollo\Domain\Groups\Policies\GroupPolicy;
 class GroupsController extends BaseController
 {
     private $groupPolicy;
+    private $repository;
     
     public function __construct()
     {
         $this->groupPolicy = new GroupPolicy();
+        $this->repository = new GroupsRepository();
     }
     
     /**
@@ -23,21 +26,37 @@ class GroupsController extends BaseController
     {
         $params = $this->sanitizeParams($_GET);
         
-        $type = $params['type'] ?? '';
-        $season = $params['season'] ?? '';
-        $search = $params['search'] ?? '';
+        $filters = [];
+        if (!empty($params['type'])) {
+            $filters['type'] = sanitize_text_field($params['type']);
+        }
+        if (!empty($params['season'])) {
+            $filters['season_slug'] = sanitize_text_field($params['season']);
+        }
+        if (!empty($params['search'])) {
+            $filters['search'] = sanitize_text_field($params['search']);
+        }
+        if (!empty($params['status'])) {
+            $filters['status'] = sanitize_text_field($params['status']);
+        }
+        if (!empty($params['creator_id'])) {
+            $filters['creator_id'] = (int) $params['creator_id'];
+        }
         
-        $groups = $this->getGroupsData($type, $season, $search);
+        // Only show published groups to non-admins
+        if (!current_user_can('manage_options')) {
+            $filters['status'] = 'published';
+        }
+        
+        $groups = $this->repository->findAll($filters);
         
         // Apply view permissions
         $user = $this->getCurrentUser();
         $filtered_groups = [];
         
-        foreach ($groups as $group_data) {
-            $group = new GroupEntity($group_data);
-            
+        foreach ($groups as $group) {
             if ($this->groupPolicy->canView($user, $group)) {
-                $filtered_groups[] = $group_data;
+                $filtered_groups[] = $this->groupToArray($group);
             }
         }
         
@@ -80,20 +99,45 @@ class GroupsController extends BaseController
             $this->validationError('Season slug is required for season type groups');
         }
         
-        // Create group (mock implementation)
+        // Determine initial status based on workflow
+        $workflow = new \Apollo\Infrastructure\Workflows\ContentWorkflow();
+        $context = ['group_type' => $params['type']];
+        $initial_status = $workflow->resolveStatus($user, 'group', $context);
+        
+        // Create group
         $group_data = [
-            'id' => rand(1000, 9999),
-            'title' => $params['title'],
-            'slug' => $this->sanitizeTitle($params['title']),
-            'type' => $params['type'],
-            'season_slug' => $params['season_slug'] ?? null,
-            'description' => $params['description'] ?? '',
-            'status' => 'active',
-            'created_by' => $user->id,
-            'created_at' => date('Y-m-d H:i:s')
+            'title' => sanitize_text_field($params['title']),
+            'type' => sanitize_text_field($params['type']),
+            'season_slug' => !empty($params['season_slug']) ? sanitize_text_field($params['season_slug']) : null,
+            'description' => wp_kses_post($params['description'] ?? ''),
+            'status' => $initial_status,
+            'visibility' => sanitize_text_field($params['visibility'] ?? 'public'),
+            'creator_id' => $user->id
         ];
         
-        $this->success($group_data, 'Group created successfully');
+        $group_id = $this->repository->create($group_data);
+        
+        if (!$group_id) {
+            $this->error('Failed to create group', 500);
+            return;
+        }
+        
+        // If needs moderation, submit to queue
+        if (in_array($initial_status, ['pending', 'pending_review'])) {
+            $moderation = new \Apollo\Application\Groups\Moderation();
+            $moderation->submitForReview($group_id, $user->id, 'group', [
+                'title' => $group_data['title'],
+                'type' => $group_data['type']
+            ]);
+        }
+        
+        $group = $this->repository->findById($group_id);
+        if (!$group) {
+            $this->error('Group created but not found', 500);
+            return;
+        }
+        
+        $this->success($this->groupToArray($group), 'Group created successfully');
     }
     
     /**
@@ -124,8 +168,20 @@ class GroupsController extends BaseController
             $this->permissionError('You cannot join this group');
         }
         
-        // TODO: Implement actual join logic
-        // For now, mock success
+        // Check if already a member
+        if ($this->repository->isMember($group_id, $user->id)) {
+            $this->success(['joined' => true, 'already_member' => true], 'You are already a member of this group');
+            return;
+        }
+        
+        // Add user to group
+        $success = $this->repository->addMember($group_id, $user->id, 'member');
+        
+        if (!$success) {
+            $this->error('Failed to join group', 500);
+            return;
+        }
+        
         $this->success(['joined' => true], 'Successfully joined group');
     }
     
@@ -200,76 +256,32 @@ class GroupsController extends BaseController
     }
     
     /**
-     * Get groups data (mock implementation)
-     */
-    private function getGroupsData(string $type = '', string $season = '', string $search = ''): array
-    {
-        $groups = [
-            [
-                'id' => 1,
-                'title' => 'Desenvolvedores PHP',
-                'slug' => 'desenvolvedores-php',
-                'type' => 'comunidade',
-                'season_slug' => null,
-                'description' => 'Comunidade de desenvolvedores PHP',
-                'members_count' => 150
-            ],
-            [
-                'id' => 2,
-                'title' => 'Core Team',
-                'slug' => 'core-team',
-                'type' => 'nucleo',
-                'season_slug' => null,
-                'description' => 'Núcleo principal de desenvolvimento',
-                'members_count' => 12
-            ],
-            [
-                'id' => 3,
-                'title' => 'Verão 2025',
-                'slug' => 'verao-2025',
-                'type' => 'season',
-                'season_slug' => 'verao-2025',
-                'description' => 'Season de verão 2025',
-                'members_count' => 89
-            ]
-        ];
-        
-        // Apply filters
-        if ($type) {
-            $groups = array_filter($groups, function($group) use ($type) {
-                return $group['type'] === $type;
-            });
-        }
-        
-        if ($season) {
-            $groups = array_filter($groups, function($group) use ($season) {
-                return $group['season_slug'] === $season;
-            });
-        }
-        
-        if ($search) {
-            $groups = array_filter($groups, function($group) use ($search) {
-                return stripos($group['title'], $search) !== false ||
-                       stripos($group['description'], $search) !== false;
-            });
-        }
-        
-        return array_values($groups);
-    }
-    
-    /**
-     * Get group by ID (mock implementation)
+     * Get group by ID
      */
     private function getGroupById(int $id): ?GroupEntity
     {
-        $groups = $this->getGroupsData();
-        
-        foreach ($groups as $group_data) {
-            if ($group_data['id'] === $id) {
-                return new GroupEntity($group_data);
-            }
-        }
-        
-        return null;
+        return $this->repository->findById($id);
+    }
+    
+    /**
+     * Convert GroupEntity to array for API response
+     */
+    private function groupToArray(GroupEntity $group): array
+    {
+        return [
+            'id' => $group->id,
+            'title' => $group->title,
+            'slug' => $group->slug,
+            'description' => $group->description,
+            'type' => $group->type,
+            'status' => $group->status,
+            'visibility' => $group->visibility ?? 'public',
+            'season_slug' => $group->season_slug,
+            'creator_id' => $group->creator_id ?? $group->created_by,
+            'created_at' => $group->created_at,
+            'updated_at' => $group->updated_at ?? null,
+            'published_at' => $group->published_at ?? null,
+            'members_count' => $group->members_count ?? 0
+        ];
     }
 }

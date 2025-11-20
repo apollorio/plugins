@@ -1,6 +1,8 @@
 <?php
 namespace Apollo\Infrastructure\Rendering;
 
+use Apollo\Domain\Groups\Repositories\GroupsRepository;
+
 /**
  * Group Directory Renderer
  *
@@ -8,6 +10,12 @@ namespace Apollo\Infrastructure\Rendering;
  */
 class GroupDirectoryRenderer
 {
+    private GroupsRepository $repository;
+
+    public function __construct()
+    {
+        $this->repository = new GroupsRepository();
+    }
     /**
      * Render group directory page
      */
@@ -50,22 +58,33 @@ class GroupDirectoryRenderer
     }
 
     /**
-     * Get groups data (placeholder)
+     * Get groups data from repository
      */
     private function getGroupsData($type)
     {
-        // Mock data for now
-        $groups = [];
+        $filters = [
+            'type' => $type,
+            'status' => 'published' // Only show published groups
+        ];
+
+        // Allow admins to see all statuses
+        if (current_user_can('manage_options')) {
+            unset($filters['status']);
+        }
+
+        $group_entities = $this->repository->findAll($filters);
         
-        for ($i = 1; $i <= 6; $i++) {
+        $groups = [];
+        foreach ($group_entities as $group) {
             $groups[] = [
-                'id' => $i,
-                'name' => ucfirst($type) . ' ' . $i,
-                'slug' => $type . '-' . $i,
-                'description' => 'Descrição do ' . $type . ' número ' . $i,
-                'members_count' => rand(5, 50),
-                'type' => $type,
-                'url' => '/' . $type . '/' . $type . '-' . $i,
+                'id' => $group->id,
+                'name' => $group->title,
+                'slug' => $group->slug,
+                'description' => $group->description,
+                'members_count' => $group->members_count ?? 0,
+                'type' => $group->type,
+                'url' => '/' . $type . '/' . $group->slug,
+                'created_at' => $group->created_at,
             ];
         }
         
@@ -73,36 +92,95 @@ class GroupDirectoryRenderer
     }
 
     /**
-     * Render group directory content
+     * Render group directory content with ShadCN components
      */
     private function renderGroupDirectory($groups, $group_config)
     {
         ob_start();
         ?>
-        <div class="apollo-group-directory">
-            <div class="directory-header">
-                <h1><?= esc_html($group_config['label_plural']) ?></h1>
-                <p class="directory-description"><?= esc_html($group_config['description']) ?></p>
+        <div class="apollo-group-directory apollo-container" data-motion-page="group-directory">
+            <!-- ShadCN Card Header -->
+            <div class="shadcn-card rounded-lg border bg-card mb-6">
+                <div class="shadcn-card-header">
+                    <h1 class="shadcn-card-title text-3xl font-bold"><?= esc_html($group_config['label_plural']) ?></h1>
+                    <p class="shadcn-card-description text-muted-foreground mt-2"><?= esc_html($group_config['description']) ?></p>
+                </div>
             </div>
             
-            <div class="groups-grid">
-                <?php foreach ($groups as $group): ?>
-                    <div class="group-card">
-                        <h3><a href="<?= esc_attr($group['url']) ?>"><?= esc_html($group['name']) ?></a></h3>
-                        <p class="group-description"><?= esc_html($group['description']) ?></p>
-                        <p class="group-meta">
-                            <span class="members-count"><?= intval($group['members_count']) ?> membros</span>
-                        </p>
-                        <div class="group-actions">
-                            <a href="<?= esc_attr($group['url']) ?>" class="btn btn-primary">Ver Grupo</a>
-                            <!-- TODO: Add join/leave buttons based on user permissions -->
+            <!-- Groups Grid - Mobile-first responsive -->
+            <div class="apollo-groups-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-motion-list="true">
+                <?php foreach ($groups as $index => $group): ?>
+                    <!-- ShadCN Card for each group -->
+                    <div class="apollo-group-card shadcn-card rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow" 
+                         data-motion-item="true" 
+                         data-motion-delay="<?= $index * 50 ?>"
+                         style="opacity: 0; transform: translateY(10px);">
+                        <div class="shadcn-card-header pb-3">
+                            <h3 class="shadcn-card-title text-xl">
+                                <a href="<?= esc_attr($group['url']) ?>" class="hover:text-primary transition-colors">
+                                    <?= esc_html($group['name']) ?>
+                                </a>
+                            </h3>
+                        </div>
+                        <div class="shadcn-card-content">
+                            <p class="text-sm text-muted-foreground mb-4 line-clamp-3">
+                                <?= esc_html($group['description']) ?>
+                            </p>
+                            <div class="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                                <span class="flex items-center gap-1">
+                                    <i class="ri-group-line"></i>
+                                    <?= intval($group['members_count']) ?> membros
+                                </span>
+                                <?php if (!empty($group['created_at'])): ?>
+                                <span class="flex items-center gap-1">
+                                    <i class="ri-calendar-line"></i>
+                                    <?= date_i18n('M Y', strtotime($group['created_at'])) ?>
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="shadcn-card-footer pt-0">
+                            <a href="<?= esc_attr($group['url']) ?>" 
+                               class="shadcn-button shadcn-button-primary w-full">
+                                Ver Grupo
+                                <i class="ri-arrow-right-line ml-2"></i>
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
             
-            <!-- TODO: Add pagination, search, filters -->
+            <?php if (empty($groups)): ?>
+            <div class="shadcn-card rounded-lg border bg-card p-8 text-center">
+                <i class="ri-group-line text-4xl text-muted-foreground mb-4"></i>
+                <p class="text-muted-foreground">Nenhum grupo encontrado.</p>
+            </div>
+            <?php endif; ?>
         </div>
+        
+        <script>
+        // Motion.dev initialization for group cards
+        (function() {
+            if (typeof window.motion !== 'undefined') {
+                const items = document.querySelectorAll('[data-motion-item="true"]');
+                items.forEach(function(item, index) {
+                    const delay = parseInt(item.dataset.motionDelay || 0);
+                    setTimeout(function() {
+                        window.motion.animate(item, {
+                            opacity: [0, 1],
+                            y: [10, 0]
+                        }, {
+                            duration: 0.4,
+                            easing: 'ease-out'
+                        }).then(function() {
+                            item.style.opacity = '1';
+                            item.style.transform = 'translateY(0)';
+                        });
+                    }, delay);
+                });
+            }
+        })();
+        </script>
         <?php
         return ob_get_clean();
     }

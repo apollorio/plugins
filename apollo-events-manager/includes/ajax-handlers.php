@@ -127,7 +127,7 @@ function apollo_ajax_load_event_modal() {
             $dj_display .= ', ' . esc_html(implode(', ', $rest));
         }
         if ($remaining > 0) {
-            $dj_display .= ' <span class="dj-more">+' . $remaining . ' DJs</span>';
+            $dj_display .= ' <span class="dj-more">+' . esc_html($remaining) . ' DJs</span>';
         }
     } else {
         $dj_display = '<span class="dj-fallback">Line-up em breve</span>';
@@ -163,7 +163,7 @@ function apollo_ajax_load_event_modal() {
     ob_start();
     ?>
     <div class="apollo-event-modal-overlay" data-apollo-close></div>
-    <div class="apollo-event-modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title-<?php echo $event_id; ?>">
+    <div class="apollo-event-modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title-<?php echo esc_attr($event_id); ?>">
         
         <button class="apollo-event-modal-close" type="button" data-apollo-close aria-label="Fechar">
             <i class="ri-close-line"></i>
@@ -179,7 +179,7 @@ function apollo_ajax_load_event_modal() {
             </div>
             
             <div class="apollo-event-hero-info">
-                <h1 class="apollo-event-title" id="modal-title-<?php echo $event_id; ?>">
+                <h1 class="apollo-event-title" id="modal-title-<?php echo esc_attr($event_id); ?>">
                     <?php echo esc_html($event->post_title); ?>
                 </h1>
                 <p class="apollo-event-djs">
@@ -199,7 +199,7 @@ function apollo_ajax_load_event_modal() {
         </div>
         
         <div class="apollo-event-body">
-            <?php echo $content; ?>
+            <?php echo wp_kses_post($content); ?>
         </div>
         
     </div>

@@ -26,17 +26,12 @@ if (is_admin()) {
     require_once APOLLO_PATH . 'includes/admin-settings.php';
 }
 
-// Load optional modules
-if (file_exists(APOLLO_PATH . 'modules/pwa-loader.php')) {
-    require_once APOLLO_PATH . 'modules/pwa-loader.php';
-}
-
 // Activation hook
 register_activation_hook(__FILE__, 'apollo_activate');
 function apollo_activate() {
     // Set default options
-    add_option('apollo_android_app_url', 'https://play.google.com/store/apps/details?id=br.rio.apollo');
-    add_option('apollo_pwa_install_page_id', '');
+    add_option('apollo_android_app_url', esc_url_raw('https://play.google.com/store/apps/details?id=br.rio.apollo'));
+    add_option('apollo_pwa_install_page_id', null);
     
     flush_rewrite_rules();
 }

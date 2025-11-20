@@ -55,8 +55,8 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
             
             <!-- Layout Toggle -->
             <button class="layout-toggle" id="wpem-event-toggle-layout" type="button" aria-pressed="true" 
-                    onclick="toggleLayout(this)" title="Events List View">
-                <i class="ri-list-view" aria-hidden="true"></i>
+                    data-layout="list" title="Events List View">
+                <i class="ri-list-check-2" aria-hidden="true"></i>
                 <span class="visually-hidden">Alternar layout</span>
             </button>
         </div>
@@ -94,18 +94,30 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
             ]
         ]);
         
+        // ✅ Error handling para WP_Query
+        if (is_wp_error($events)) {
+            error_log('Apollo: WP_Query error em event-listings-start: ' . $events->get_error_message());
+            echo '<p class="error">Erro ao carregar eventos. Tente novamente.</p>';
+            return;
+        }
+        
+        if (!$events->have_posts()) {
+            echo '<p>Nenhum evento encontrado.</p>';
+            return;
+        }
+        
         if ($events->have_posts()) :
             while ($events->have_posts()) : $events->the_post();
                 $event_id = get_the_ID();
                 
                 // === NORMALIZE START DATE ===
-                $start_date = get_post_meta($event_id, '_event_start_date', true);
+                $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
                 
                 // Fallback: try alternative meta keys if empty
                 if (empty($start_date)) {
-                    $start_date = get_post_meta($event_id, 'event_start_date', true);
+                    $start_date = apollo_get_post_meta($event_id, 'event_start_date', true);
                     if (empty($start_date)) {
-                        $start_date = get_post_meta($event_id, 'start_date', true);
+                        $start_date = apollo_get_post_meta($event_id, 'start_date', true);
                     }
                 }
                 
@@ -125,209 +137,50 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
                     }
                 }
                 
-                // === FORMAT DATE WITH FALLBACKS ===
-                $day = '';
-                $mon = '';
-                
-                // Try helper functions if they exist (for backwards compatibility)
-                if (function_exists('apollo_get_day_from_date')) {
-                    $day = apollo_get_day_from_date($start_date);
-                }
-                if (function_exists('apollo_get_month_str_from_date')) {
-                    $mon = apollo_get_month_str_from_date($start_date);
+                // Check layout preference (grid or list)
+                $layout_mode = 'grid'; // Default
+                if (isset($_COOKIE['apollo_events_layout'])) {
+                    $layout_mode = sanitize_text_field($_COOKIE['apollo_events_layout']);
+                } elseif (function_exists('get_stored_layout')) {
+                    // Try to get from JS localStorage via inline script
+                    $layout_mode = 'grid'; // Fallback
                 }
                 
-                // Defensive fallback using DateTime
-                if (empty($day) || empty($mon)) {
-                    try {
-                        if (!empty($start_date)) {
-                            $dt = new DateTime($start_date);
-                            if (empty($day)) {
-                                $day = $dt->format('d');
-                            }
-                            if (empty($mon)) {
-                                $month_abbr = strtolower($dt->format('M'));
-                                // Map to Portuguese
-                                $month_map = [
-                                    'jan' => 'jan', 'feb' => 'fev', 'mar' => 'mar',
-                                    'apr' => 'abr', 'may' => 'mai', 'jun' => 'jun',
-                                    'jul' => 'jul', 'aug' => 'ago', 'sep' => 'set',
-                                    'oct' => 'out', 'nov' => 'nov', 'dec' => 'dez'
-                                ];
-                                $mon = isset($month_map[$month_abbr]) ? $month_map[$month_abbr] : $month_abbr;
-                            }
-                        }
-                    } catch (Exception $e) {
-                        $day = '';
-                        $mon = '';
-                    }
-                }
-                
-                // === GET DJs ===
-                $djs_names = array();
-                
-                // Try _event_dj_ids first (primary method)
-                $dj_ids_raw = get_post_meta($event_id, '_event_dj_ids', true);
-                if (!empty($dj_ids_raw)) {
-                    $dj_ids = maybe_unserialize($dj_ids_raw);
-                    if (is_array($dj_ids)) {
-                        foreach ($dj_ids as $dj_id) {
-                            $dj_id = intval($dj_id);
-                            $dj_post = get_post($dj_id);
-                            if ($dj_post && $dj_post->post_status === 'publish') {
-                                $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                                if (empty($dj_name)) {
-                                    $dj_name = $dj_post->post_title;
-                                }
-                                if (!empty($dj_name)) {
-                                    $djs_names[] = $dj_name;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Fallback: Try _timetable
-                if (empty($djs_names)) {
-                    $timetable = get_post_meta($event_id, '_timetable', true);
-                    if (!empty($timetable) && is_array($timetable)) {
-                        foreach ($timetable as $slot) {
-                            if (isset($slot['dj']) && !empty($slot['dj'])) {
-                                $dj_id = $slot['dj'];
-                                if (is_numeric($dj_id)) {
-                                    $dj_post = get_post($dj_id);
-                                    if ($dj_post && $dj_post->post_status === 'publish') {
-                                        $dj_name = get_post_meta($dj_id, '_dj_name', true);
-                                        if (empty($dj_name)) {
-                                            $dj_name = $dj_post->post_title;
-                                        }
-                                        if (!empty($dj_name)) {
-                                            $djs_names[] = $dj_name;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Remove duplicates
-                $djs_names = array_unique($djs_names);
-                
-                // === GET LOCAL/VENUE ===
-                $venue_name = '';
-                $venue_city = '';
-                
-                // Try _event_local_ids first (primary method)
-                $local_id = apollo_get_primary_local_id($event_id);
-                if (!$local_id) {
-                    $legacy   = get_post_meta($event_id, '_event_local', true);
-                    $local_id = $legacy ? (int) $legacy : 0;
-                }
-
-                if ($local_id) {
-                    $local_post = get_post($local_id);
-                    if ($local_post && $local_post->post_status === 'publish') {
-                        $venue_name = get_post_meta($local_id, '_local_name', true);
-                        if (empty($venue_name)) {
-                            $venue_name = $local_post->post_title;
-                        }
-                        $venue_city = get_post_meta($local_id, '_local_city', true);
-                    }
-                }
-                
-                // Fallback: direct location meta
-                if (empty($venue_name)) {
-                    $venue_name = get_post_meta($event_id, '_event_location', true);
-                }
-                
-                // === GET OTHER DATA ===
-                $start_time = get_post_meta($event_id, '_event_start_time', true);
-                $tags = wp_get_post_terms($event_id, 'event_sounds');
-                $tags = is_wp_error($tags) ? array() : $tags;
-                $event_type_terms = get_the_terms($event_id, 'event_listing_category');
-                $event_type_terms = is_wp_error($event_type_terms) ? array() : $event_type_terms;
-                $category_slug = !empty($event_type_terms) ? $event_type_terms[0]->slug : 'general';
-                
-                // Format month string for data attribute (same as $mon)
-                $month_str = $mon;
-                ?>
-                
-                <a href="#"
-                   class="event_listing"
-                   data-event-id="<?php echo esc_attr($event_id); ?>"
-                   data-category="<?php echo esc_attr($category_slug); ?>"
-                   data-month-str="<?php echo esc_attr($month_str); ?>"
-                   data-event-title="<?php echo esc_attr(get_the_title()); ?>"
-                   data-event-date="<?php echo esc_attr($start_date); ?>"
-                   data-event-venue="<?php echo esc_attr($venue_name); ?>"
-                   data-event-djs="<?php echo esc_attr(implode(', ', $djs_names)); ?>"
-                   style="display:block;">
+                // Use appropriate template based on layout
+                if ($layout_mode === 'list') {
+                    // List view template
+                    $list_view_path = defined('APOLLO_WPEM_PATH') 
+                        ? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
+                        : plugin_dir_path(__FILE__) . 'event-list-view.php';
                     
-                    <div class="box-date-event">
-                        <span class="date-day"><?php echo esc_html($day); ?></span>
-                        <span class="date-month"><?php echo esc_html($mon); ?></span>
-                    </div>
+                    if (file_exists($list_view_path)) {
+                        $event_object = get_post($event_id);
+                        include $list_view_path;
+                    } else {
+                        // Fallback to card view if list template doesn't exist
+                        $event_card_path = defined('APOLLO_WPEM_PATH') 
+                            ? APOLLO_WPEM_PATH . 'templates/event-card.php'
+                            : plugin_dir_path(__FILE__) . 'event-card.php';
+                        if (file_exists($event_card_path)) {
+                            include $event_card_path;
+                        }
+                    }
+                } else {
+                    // Grid view template (default)
+                    // ✅ CONSOLIDATED: Use event-card.php template instead of duplicated code
+                    // All logic (DJs, Local, Date, Banner) is now centralized in event-card.php
+                    // This eliminates ~200 lines of duplicated code
+                    $event_card_path = defined('APOLLO_WPEM_PATH') 
+                        ? APOLLO_WPEM_PATH . 'templates/event-card.php'
+                        : plugin_dir_path(__FILE__) . 'event-card.php';
                     
-                    <div class="picture">
-                        <?php
-                        $banner_url = '';
-                        $event_banner = get_post_meta($event_id, '_event_banner', true);
-                        if ($event_banner) {
-                            $banner_url = is_numeric($event_banner) ? wp_get_attachment_url($event_banner) : $event_banner;
-                        }
-                        if (!$banner_url && has_post_thumbnail()) {
-                            $banner_url = get_the_post_thumbnail_url($event_id, 'large');
-                        }
-                        if (!$banner_url) {
-                            $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
-                        }
-                        ?>
-                        <img src="<?php echo esc_url($banner_url); ?>" 
-                             alt="<?php echo esc_attr(get_the_title()); ?>" 
-                             loading="lazy">
-                        
-                        <?php if (!empty($tags)): ?>
-                        <div class="event-card-tags">
-                            <?php 
-                            $tag_count = 0;
-                            foreach ($tags as $tag):
-                                if ($tag_count >= 3) break;
-                            ?>
-                                <span><?php echo esc_html($tag->name); ?></span>
-                            <?php 
-                                $tag_count++;
-                            endforeach;
-                            ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="event-line">
-                        <div class="box-info-event">
-                            <h2 class="event-li-title afasta-bmin"><?php the_title(); ?></h2>
-                            
-                            <p class="event-li-meta">
-                                <?php if (!empty($venue_name)): ?>
-                                    <span class="event-li-local">
-                                        <?php echo esc_html($venue_name); ?>
-                                        <?php if (!empty($venue_city)): ?>
-                                            · <?php echo esc_html($venue_city); ?>
-                                        <?php endif; ?>
-                                    </span>
-                                <?php endif; ?>
-                                
-                                <?php if (!empty($djs_names)): ?>
-                                    <span class="event-li-djs">
-                                        <?php echo esc_html(implode(' · ', $djs_names)); ?>
-                                    </span>
-                                <?php endif; ?>
-                            </p>
-                        </div>
-                    </div>
-                </a>
-                
-                <?php
+                    if (file_exists($event_card_path)) {
+                        include $event_card_path;
+                    } else {
+                        // Fallback if event-card.php doesn't exist
+                        echo '<!-- ERROR: event-card.php template not found -->';
+                    }
+                }
             endwhile;
             wp_reset_postdata();
         else:
