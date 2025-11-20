@@ -4070,16 +4070,16 @@ class Apollo_Events_Manager_Plugin {
      */
     public function submit_local_form_shortcode($atts) {
         if (!is_user_logged_in()) {
-            return '<p>' . esc_html__('You must be logged in to submit a venue.', 'apollo-events-manager') . '</p>';
+            return '<p>' . esc_html__('You must be logged in to submit a local.', 'apollo-events-manager') . '</p>';
         }
         
         ob_start();
         echo '<div class="submit-local-form-wrapper glass" style="padding: 30px; border-radius: 12px; max-width: 600px; margin: 0 auto;">';
-        echo '<h2>' . esc_html__('Submit New Venue', 'apollo-events-manager') . '</h2>';
+        echo '<h2>' . esc_html__('Submit New Local', 'apollo-events-manager') . '</h2>';
         echo '<p style="background: var(--bg-secondary, #f8fafc); padding: 15px; border-radius: 6px;">';
-        echo esc_html__('Use the WordPress admin to create venue profiles.', 'apollo-events-manager');
+        echo esc_html__('Use the WordPress admin to create local profiles.', 'apollo-events-manager');
         echo '</p>';
-        echo '<a href="' . admin_url('post-new.php?post_type=event_local') . '" class="button button-primary" style="margin-top: 15px;">' . esc_html__('Create Venue', 'apollo-events-manager') . '</a>';
+        echo '<a href="' . admin_url('post-new.php?post_type=event_local') . '" class="button button-primary" style="margin-top: 15px;">' . esc_html__('Create Local', 'apollo-events-manager') . '</a>';
         echo '</div>';
         return ob_get_clean();
     }
