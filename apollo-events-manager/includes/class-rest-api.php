@@ -290,9 +290,10 @@ class Apollo_Events_REST_API
                 $local = get_post($local_id);
                 if ($local && $local->post_type === 'event_local') {
                     $local_name = get_post_meta($local_id, '_local_name', true);
+                    $local_title = isset($local->post_title) ? $local->post_title : '';
                     $formatted['local'] = [
                         'id' => (int) $local_id,
-                        'name' => sanitize_text_field($local_name ?: ($local->post_title ?? '')),
+                        'name' => sanitize_text_field($local_name ? $local_name : $local_title),
                         'address' => sanitize_text_field(get_post_meta($local_id, '_local_address', true) ?: ''),
                         'city' => sanitize_text_field(get_post_meta($local_id, '_local_city', true) ?: ''),
                         'state' => sanitize_text_field(get_post_meta($local_id, '_local_state', true) ?: ''),
@@ -340,10 +341,12 @@ class Apollo_Events_REST_API
         foreach ($dj_ids as $dj_id) {
             $dj = get_post($dj_id);
             if ($dj && $dj->post_status === 'publish') {
+                $dj_name = get_post_meta($dj->ID, '_dj_name', true);
+                $dj_title = isset($dj->post_title) ? $dj->post_title : '';
                 $djs[] = [
-                    'id' => $dj->ID,
-                    'name' => get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title,
-                    'permalink' => get_permalink($dj->ID),
+                    'id' => (int) $dj->ID,
+                    'name' => sanitize_text_field($dj_name ? $dj_name : $dj_title),
+                    'permalink' => esc_url_raw(get_permalink($dj->ID) ?: ''),
                 ];
             }
         }
@@ -361,14 +364,24 @@ class Apollo_Events_REST_API
             'hide_empty' => false,
         ]);
 
-        $formatted = array_map(function($term) {
-            return [
-                'id' => $term->term_id,
-                'name' => $term->name,
-                'slug' => $term->slug,
-                'count' => $term->count,
-            ];
-        }, $categories);
+        if (is_wp_error($categories)) {
+            $categories = [];
+        }
+
+        $formatted = [];
+        if (is_array($categories) && !empty($categories)) {
+            foreach ($categories as $term) {
+                if (!is_object($term) || !isset($term->term_id)) {
+                    continue;
+                }
+                $formatted[] = [
+                    'id' => (int) $term->term_id,
+                    'name' => sanitize_text_field(isset($term->name) ? $term->name : ''),
+                    'slug' => sanitize_text_field(isset($term->slug) ? $term->slug : ''),
+                    'count' => isset($term->count) ? (int) $term->count : 0,
+                ];
+            }
+        }
 
         return new WP_REST_Response([
             'categories' => $formatted,
