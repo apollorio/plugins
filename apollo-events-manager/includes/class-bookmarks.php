@@ -83,7 +83,7 @@ class Apollo_Events_Bookmarks
     /**
      * Add bookmark
      */
-    public function add_bookmark(int $user_id, int $event_id): bool
+    public function add_bookmark($user_id, $event_id)
     {
         global $wpdb;
         
@@ -131,7 +131,7 @@ class Apollo_Events_Bookmarks
     /**
      * Remove bookmark
      */
-    public function remove_bookmark(int $user_id, int $event_id): bool
+    public function remove_bookmark($user_id, $event_id)
     {
         global $wpdb;
         
@@ -179,7 +179,7 @@ class Apollo_Events_Bookmarks
     /**
      * Check if event is bookmarked by user
      */
-    public function is_bookmarked(int $user_id, int $event_id): bool
+    public function is_bookmarked($user_id, $event_id)
     {
         global $wpdb;
         
@@ -235,7 +235,7 @@ class Apollo_Events_Bookmarks
     /**
      * Get bookmark count for event
      */
-    public function get_bookmark_count(int $event_id): int
+    public function get_bookmark_count($event_id)
     {
         global $wpdb;
         

@@ -224,14 +224,14 @@ class Apollo_Events_REST_API
     {
         $formatted = [
             'id' => (int) $event->ID,
-            'title' => sanitize_text_field($event->post_title ?? ''),
-            'slug' => sanitize_text_field($event->post_name ?? ''),
+            'title' => sanitize_text_field(isset($event->post_title) ? $event->post_title : ''),
+            'slug' => sanitize_text_field(isset($event->post_name) ? $event->post_name : ''),
             'permalink' => esc_url_raw(get_permalink($event->ID) ?: ''),
             'excerpt' => wp_kses_post(get_the_excerpt($event->ID) ?: ''),
-            'content' => $full ? wp_kses_post(apply_filters('the_content', $event->post_content ?: '')) : '',
+            'content' => $full ? wp_kses_post(apply_filters('the_content', isset($event->post_content) ? $event->post_content : '')) : '',
             'date' => [
-                'published' => sanitize_text_field($event->post_date ?? ''),
-                'modified' => sanitize_text_field($event->post_modified ?? ''),
+                'published' => sanitize_text_field(isset($event->post_date) ? $event->post_date : ''),
+                'modified' => sanitize_text_field(isset($event->post_modified) ? $event->post_modified : ''),
             ],
         ];
 
@@ -242,9 +242,9 @@ class Apollo_Events_REST_API
         $banner = get_post_meta($event->ID, '_event_banner', true);
 
         $formatted['event'] = [
-            'start_date' => sanitize_text_field($start_date ?: ''),
-            'end_date' => sanitize_text_field($end_date ?: ''),
-            'location' => sanitize_text_field($location ?: ''),
+            'start_date' => sanitize_text_field($start_date ? $start_date : ''),
+            'end_date' => sanitize_text_field($end_date ? $end_date : ''),
+            'location' => sanitize_text_field($location ? $location : ''),
             'banner' => $banner ? esc_url_raw(wp_get_attachment_image_url($banner, 'large') ?: '') : null,
         ];
 
@@ -253,25 +253,27 @@ class Apollo_Events_REST_API
         if (is_wp_error($categories)) {
             $categories = [];
         }
-        $formatted['categories'] = array_map(function($term) {
-            if (!is_object($term) || !isset($term->term_id)) {
-                return null;
+        $formatted['categories'] = [];
+        if (is_array($categories) && !empty($categories)) {
+            foreach ($categories as $term) {
+                if (!is_object($term) || !isset($term->term_id)) {
+                    continue;
+                }
+                $formatted['categories'][] = [
+                    'id' => (int) $term->term_id,
+                    'name' => sanitize_text_field(isset($term->name) ? $term->name : ''),
+                    'slug' => sanitize_text_field(isset($term->slug) ? $term->slug : ''),
+                ];
             }
-            return [
-                'id' => (int) $term->term_id,
-                'name' => sanitize_text_field($term->name ?? ''),
-                'slug' => sanitize_text_field($term->slug ?? ''),
-            ];
-        }, $categories);
-        $formatted['categories'] = array_filter($formatted['categories']);
+        }
 
         // Author
         $author = get_userdata($event->post_author);
-        if ($author) {
+        if ($author && isset($author->ID)) {
             $formatted['author'] = [
-                'id' => $author->ID,
-                'name' => $author->display_name ?? '',
-                'avatar' => get_avatar_url($author->ID),
+                'id' => (int) $author->ID,
+                'name' => sanitize_text_field(isset($author->display_name) ? $author->display_name : ''),
+                'avatar' => esc_url_raw(get_avatar_url($author->ID) ?: ''),
             ];
         } else {
             $formatted['author'] = [

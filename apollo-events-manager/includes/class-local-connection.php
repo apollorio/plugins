@@ -60,7 +60,7 @@ class Apollo_Local_Connection
      * @param int $event_id Event post ID
      * @return int|false Local ID or false if not found
      */
-    public function get_local_id(int $event_id)
+    public function get_local_id($event_id)
     {
         $event_id = absint($event_id);
         if (!$event_id) {
@@ -109,7 +109,7 @@ class Apollo_Local_Connection
      * @param int $local_id Local post ID
      * @return bool Success
      */
-    public function set_local_id(int $event_id, int $local_id): bool
+    public function set_local_id($event_id, $local_id)
     {
         $event_id = absint($event_id);
         $local_id = absint($local_id);
@@ -147,7 +147,7 @@ class Apollo_Local_Connection
      * @param int $event_id Event post ID
      * @return WP_Post|false Local post object or false
      */
-    public function get_local(int $event_id)
+    public function get_local($event_id)
     {
         $local_id = $this->get_local_id($event_id);
         if (!$local_id) {
@@ -168,7 +168,7 @@ class Apollo_Local_Connection
      * @param int $event_id Event post ID
      * @return bool
      */
-    public function has_local(int $event_id): bool
+    public function has_local($event_id)
     {
         return $this->get_local_id($event_id) !== false;
     }
