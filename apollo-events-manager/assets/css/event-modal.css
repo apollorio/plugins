@@ -175,13 +175,44 @@ body.apollo-modal-open {
     align-items: start;
 }
 
+.event_listings.card-view .event_listing {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.event_listings.list-view {
+    display: block;
+}
+
 .event_listings.list-view .event_listing {
     display: block;
     width: 100%;
     margin-bottom: 20px;
 }
 
-.event_listings.list-view {
+/* Ensure cards have consistent sizing */
+.event_listing {
+    vertical-align: top;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event_listing:hover {
+    transform: translateY(-2px);
+}
+
+/* Picture container consistency */
+.event_listing .picture {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.event_listing .picture img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
     display: block;
 }
 

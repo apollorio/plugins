@@ -2207,8 +2207,16 @@ class Apollo_Events_Manager_Plugin {
     }
     
     public function ajax_get_event_modal() {
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'apollo_portal_nonce')) {
+        // Verify nonce (support both old and new nonce names)
+        $nonce_valid = false;
+        if (isset($_POST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'apollo_portal_nonce')) {
+            $nonce_valid = true;
+        } elseif (isset($_POST['_ajax_nonce'])) {
+            check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
+            $nonce_valid = true;
+        }
+        
+        if (!$nonce_valid) {
             wp_send_json_error(array('message' => 'Nonce inválido'));
             return;
         }

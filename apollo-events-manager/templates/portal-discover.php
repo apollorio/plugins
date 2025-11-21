@@ -357,6 +357,13 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                 
                 if (empty($event_posts)) {
                     echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                    
+                    // Debug info (only for admins in debug mode)
+                    if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG && current_user_can('manage_options')) {
+                        echo '<!-- DEBUG: Cache key: ' . esc_html($cache_key) . ' -->';
+                        echo '<!-- DEBUG: Event IDs from cache: ' . (is_array($event_ids) ? count($event_ids) : 'none') . ' -->';
+                        echo '<!-- DEBUG: Post type registered: ' . (post_type_exists('event_listing') ? 'yes' : 'no') . ' -->';
+                    }
                 }
 
                 if (!empty($event_posts)) {
