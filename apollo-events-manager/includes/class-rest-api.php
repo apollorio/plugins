@@ -196,7 +196,7 @@ class Apollo_Events_REST_API
             'events' => $events,
             'total' => $query->found_posts,
             'pages' => $query->max_num_pages,
-            'current_page' => absint($request['page'] ?? 1),
+            'current_page' => absint(isset($request['page']) ? $request['page'] : 1),
         ], 200);
     }
 
