@@ -9,8 +9,10 @@
 (function($) {
     'use strict';
 
-    // Debug mode
-    const DEBUG = typeof apolloPortalDebug !== 'undefined' && apolloPortalDebug === true;
+    // Debug mode (fallback if not localized)
+    const DEBUG = (typeof apolloPortalDebug !== 'undefined' && apolloPortalDebug === true) || 
+                  (typeof window.apolloPortalDebug !== 'undefined' && window.apolloPortalDebug === true) ||
+                  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
     /**
      * Portal Manager Class
@@ -81,6 +83,19 @@
             
             if (!$modal.length) {
                 if (DEBUG) console.error('Modal container not found');
+                // Create modal container if it doesn't exist
+                $('body').append('<div id="apollo-event-modal" class="apollo-event-modal" aria-hidden="true"></div>');
+                const $newModal = $('#apollo-event-modal');
+                if ($newModal.length) {
+                    return this.openModal(eventId);
+                }
+                return;
+            }
+            
+            // Check if apolloPortalAjax is defined
+            if (typeof apolloPortalAjax === 'undefined') {
+                if (DEBUG) console.error('apolloPortalAjax not defined');
+                alert('Erro: Scripts não carregados corretamente. Recarregue a página.');
                 return;
             }
             
@@ -91,12 +106,12 @@
             
             // AJAX request for event details
             $.ajax({
-                url: apolloPortalAjax.ajaxurl,
+                url: apolloPortalAjax.ajaxurl || ajaxurl || '/wp-admin/admin-ajax.php',
                 type: 'POST',
                 data: {
                     action: 'apollo_get_event_modal',
                     event_id: eventId,
-                    nonce: apolloPortalAjax.nonce
+                    nonce: apolloPortalAjax.nonce || ''
                 },
                 success: function(response) {
                     if (response.success && response.data && response.data.html) {

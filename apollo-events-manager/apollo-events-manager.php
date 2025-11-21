@@ -1199,8 +1199,6 @@ class Apollo_Events_Manager_Plugin {
         wp_enqueue_style(
             'apollo-event-modal-css',
             APOLLO_WPEM_URL . 'assets/css/event-modal.css',
-            array(),
-            APOLLO_WPEM_VERSION,
             array('apollo-shadcn-components'), // Loads before uni.css
             APOLLO_WPEM_VERSION,
             'all'
@@ -1239,7 +1237,7 @@ class Apollo_Events_Manager_Plugin {
             '1.9.4'
         );
 
-        // Portal modal handler (local JS)
+        // Portal modal handler (local JS) - ALWAYS ENQUEUE FOR PORTAL
         wp_enqueue_script(
             'apollo-events-portal',
             APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
@@ -1248,14 +1246,14 @@ class Apollo_Events_Manager_Plugin {
             true
         );
         
-        // Localize script for AJAX
+        // Localize script for AJAX (MUST be after enqueue)
         wp_localize_script('apollo-events-portal', 'apolloPortalAjax', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('apollo_portal_nonce'),
         ));
         
         // Localize debug flag
-        wp_localize_script('apollo-events-portal', 'apolloPortalDebug', APOLLO_PORTAL_DEBUG);
+        wp_localize_script('apollo-events-portal', 'apolloPortalDebug', (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) ? true : false);
 
         // Motion.dev animations for event cards
         wp_enqueue_script(
@@ -2220,13 +2218,24 @@ class Apollo_Events_Manager_Plugin {
             wp_send_json_error(array('message' => 'Nonce inválido'));
             return;
         }
-        // Verificar nonce
-        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
 
-        // Validar ID
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        // Validar ID (support both POST and GET for debugging)
+        $event_id = 0;
+        if (isset($_POST['event_id'])) {
+            $event_id = absint(sanitize_text_field(wp_unslash($_POST['event_id'])));
+        } elseif (isset($_GET['event_id'])) {
+            $event_id = absint(sanitize_text_field(wp_unslash($_GET['event_id'])));
+        }
+        
         if (!$event_id) {
-            wp_send_json_error(array('message' => 'ID do evento inválido'));
+            wp_send_json_error(array(
+                'message' => 'ID do evento inválido',
+                'debug' => array(
+                    'POST' => isset($_POST['event_id']) ? $_POST['event_id'] : 'not set',
+                    'GET' => isset($_GET['event_id']) ? $_GET['event_id'] : 'not set'
+                )
+            ));
+            return;
         }
 
         // Verificar se evento existe

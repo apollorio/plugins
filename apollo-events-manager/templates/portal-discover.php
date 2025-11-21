@@ -360,9 +360,26 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                     
                     // Debug info (only for admins in debug mode)
                     if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG && current_user_can('manage_options')) {
-                        echo '<!-- DEBUG: Cache key: ' . esc_html($cache_key) . ' -->';
-                        echo '<!-- DEBUG: Event IDs from cache: ' . (is_array($event_ids) ? count($event_ids) : 'none') . ' -->';
-                        echo '<!-- DEBUG: Post type registered: ' . (post_type_exists('event_listing') ? 'yes' : 'no') . ' -->';
+                        $debug_info = array(
+                            'cache_key' => $cache_key,
+                            'event_ids_from_cache' => is_array($event_ids) ? count($event_ids) : 'none',
+                            'post_type_exists' => post_type_exists('event_listing') ? 'yes' : 'no',
+                            'event_posts_count' => count($event_posts),
+                            'cache_exists' => $event_ids !== false ? 'yes' : 'no'
+                        );
+                        
+                        // Try direct query to verify events exist
+                        $test_query = new WP_Query(array(
+                            'post_type' => 'event_listing',
+                            'post_status' => 'publish',
+                            'posts_per_page' => 5,
+                            'fields' => 'ids'
+                        ));
+                        $debug_info['direct_query_count'] = $test_query->found_posts;
+                        $debug_info['direct_query_ids'] = $test_query->posts;
+                        wp_reset_postdata();
+                        
+                        echo '<!-- DEBUG INFO: ' . esc_html(json_encode($debug_info, JSON_PRETTY_PRINT)) . ' -->';
                     }
                 }
 
