@@ -1,803 +1,467 @@
 /**
- * Apollo Events Portal - Modal System
- * Lightweight and efficient event modal handler
- * CORRIGIDO: Usa action 'apollo_load_event_modal'
+ * Apollo Events Portal - Main JavaScript
+ * Handles modal, filters, search, and layout toggle
+ * 
+ * @package ApolloEventsManager
+ * @version 1.0.0
  */
-(function() {
+
+(function($) {
     'use strict';
 
-    function copyTextToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            return navigator.clipboard.writeText(text);
-        }
+    // Debug mode
+    const DEBUG = typeof apolloPortalDebug !== 'undefined' && apolloPortalDebug === true;
 
-        return new Promise(function(resolve, reject) {
-            const tempInput = document.createElement('textarea');
-            tempInput.value = text;
-            tempInput.setAttribute('readonly', '');
-            tempInput.style.position = 'absolute';
-            tempInput.style.left = '-9999px';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-
-            try {
-                const successful = document.execCommand('copy');
-                document.body.removeChild(tempInput);
-                if (successful) {
-                    resolve();
-                } else {
-                    reject(new Error('copy_failed'));
-                }
-            } catch (error) {
-                document.body.removeChild(tempInput);
-                reject(error);
-            }
-        });
-    }
-
-    function showTemporaryState(element, className) {
-        if (!element) {
-            return;
-        }
-
-        element.classList.add(className);
-        window.setTimeout(function() {
-            element.classList.remove(className);
-        }, 2000);
-    }
-
-    function resolveCouponCode(sourceElement) {
-        // Try to get code from data attribute first (most reliable)
-        if (sourceElement instanceof Element) {
-            const couponDetail = sourceElement.closest('.apollo-coupon-detail');
-            if (couponDetail && couponDetail.dataset && couponDetail.dataset.couponCode) {
-                return couponDetail.dataset.couponCode;
-            }
-        }
+    /**
+     * Portal Manager Class
+     */
+    const ApolloEventsPortal = {
         
-        // Fallback: try to find coupon detail in context
-        const scope = sourceElement instanceof Element
-            ? sourceElement.closest('.apollo-event-modal-content, .mobile-container')
-            : null;
-        const context = scope || document;
-        const detail = sourceElement instanceof Element && sourceElement.closest('.apollo-coupon-detail')
-            ? sourceElement.closest('.apollo-coupon-detail')
-            : context.querySelector('.apollo-coupon-detail');
-
-        if (detail) {
-            // Try data attribute first
-            if (detail.dataset && detail.dataset.couponCode) {
-                return detail.dataset.couponCode;
-            }
+        /**
+         * Initialize portal functionality
+         */
+        init: function() {
+            this.initModal();
+            this.initFilters();
+            this.initSearch();
+            this.initLayoutToggle();
+            this.initDatePicker();
             
-            // Fallback: get from strong element
-            const strongEl = detail.querySelector('strong');
-            if (strongEl) {
-                const code = strongEl.textContent.trim();
-                if (code !== '') {
-                    return code;
-                }
+            if (DEBUG) {
+                console.log('Apollo Events Portal initialized');
             }
-        }
-        
-        return 'APOLLO';
-    }
+        },
 
-    // Override or define copyPromoCode function
-    window.copyPromoCode = function(buttonElement) {
-        // Use button element if provided, otherwise try activeElement
-        const sourceEl = buttonElement instanceof Element 
-            ? buttonElement 
-            : (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-        
-        const code = resolveCouponCode(sourceEl);
-
-        copyTextToClipboard(code)
-            .then(function() {
-                // Show visual feedback
-                if (sourceEl) {
-                    showTemporaryState(sourceEl, 'copied');
-                    
-                    // Also update icon temporarily
-                    const icon = sourceEl.querySelector('i');
-                    if (icon) {
-                        const originalClass = icon.className;
-                        icon.className = 'ri-check-line';
-                        setTimeout(function() {
-                            icon.className = originalClass;
-                        }, 2000);
-                    }
-                }
-                
-                // Optional: show console log for debugging
-                if (window.console && window.console.log) {
-                    console.log('✅ Código copiado: ' + code);
-                }
-            })
-            .catch(function(error) {
-                if (window.console && window.console.error) {
-                    console.error('❌ Erro ao copiar código:', error);
-                }
-                
-                // Fallback: use execCommand for older browsers
-                try {
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = code;
-                    tempInput.style.position = 'fixed';
-                    tempInput.style.opacity = '0';
-                    tempInput.style.left = '-9999px';
-                    document.body.appendChild(tempInput);
-                    tempInput.focus();
-                    tempInput.select();
-                    const success = document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                    
-                    if (success) {
-                        if (sourceEl) {
-                            showTemporaryState(sourceEl, 'copied');
-                        }
-                        if (window.console && window.console.log) {
-                            console.log('✅ Código copiado (fallback): ' + code);
-                        }
-                    } else {
-                        window.alert('Copie o código: ' + code);
-                    }
-                } catch (fallbackError) {
-                    window.alert('Copie o código: ' + code);
-                }
-            });
-    };
-
-    const AJAX_ACTIONS = {
-        apollo_get_event_modal: true,
-        load_event_single: true,
-        toggle_favorite: true,
-        filter_events: true
-    };
-
-    function registerAjaxPrefilter() {
-        if (typeof jQuery === 'undefined') {
-            return;
-        }
-
-        if (window.__apolloAjaxNoncePrefilterRegistered) {
-            return;
-        }
-        window.__apolloAjaxNoncePrefilterRegistered = true;
-
-        jQuery.ajaxPrefilter(function(options, originalOptions) {
-            const ajaxConfig = window.apollo_events_ajax || {};
-            const nonceValue = ajaxConfig.nonce || '';
-
-            if (!nonceValue) {
-                return;
-            }
-
-            const url = options.url || '';
-            if (url.indexOf('admin-ajax.php') === -1) {
-                return;
-            }
-
-            let actionName = '';
-
-            const maybeApplyNonce = function(params) {
-                actionName = params.get('action') || '';
-                if (!AJAX_ACTIONS[actionName]) {
-                    return false;
-                }
-
-                if (!params.has('_ajax_nonce')) {
-                    params.set('_ajax_nonce', nonceValue);
-                    return true;
-                }
-
-                return false;
-            };
-
-            if (typeof originalOptions.data === 'string' && originalOptions.data.length) {
-                try {
-                    const params = new URLSearchParams(originalOptions.data);
-                    if (maybeApplyNonce(params)) {
-                        const serialized = params.toString();
-                        options.data = serialized;
-                        originalOptions.data = serialized;
-                    }
-                    return;
-                } catch (error) {
-                    // Continue with other fallbacks below.
-                }
-            }
-
-            if (originalOptions.data && typeof originalOptions.data === 'object') {
-                actionName = originalOptions.data.action || '';
-                if (!AJAX_ACTIONS[actionName]) {
-                    return;
-                }
-
-                if (typeof FormData !== 'undefined' && originalOptions.data instanceof FormData) {
-                    if (!originalOptions.data.has('_ajax_nonce')) {
-                        originalOptions.data.append('_ajax_nonce', nonceValue);
-                    }
-                    options.data = originalOptions.data;
-                    return;
-                }
-
-                if (!('_ajax_nonce' in originalOptions.data)) {
-                    originalOptions.data._ajax_nonce = nonceValue;
-                    options.data = originalOptions.data;
-                }
-                return;
-            }
-
-            if (options.data && typeof options.data === 'string') {
-                try {
-                    const params = new URLSearchParams(options.data);
-                    if (maybeApplyNonce(params)) {
-                        options.data = params.toString();
-                    }
-                } catch (error) {
-                    // Ignore invalid data payloads.
-                }
-            }
-
-            if (url.indexOf('action=') !== -1) {
-                try {
-                    const urlObject = new URL(url, window.location.origin);
-                    if (maybeApplyNonce(urlObject.searchParams)) {
-                        options.url = urlObject.pathname + '?' + urlObject.searchParams.toString();
-                    }
-                } catch (error) {
-                    // Ignore malformed URLs.
-                }
-            }
-        });
-    }
-
-    registerAjaxPrefilter();
-
-    if (typeof jQuery === 'undefined') {
-        window.addEventListener('load', registerAjaxPrefilter, { once: true });
-    }
-
-    const MODAL_ID = 'apollo-event-modal';
-    const MODAL_CLASS_OPEN = 'is-open';
-    const LAYOUT_STORAGE_KEY = 'apollo_events_layout';
-    const LAYOUT_CLASS_LIST = 'apollo-layout-list';
-    const LAYOUT_CLASS_GRID = 'apollo-layout-grid';
-    const LOADING_HTML =
-        '<div class="apollo-loading" style="padding:40px;text-align:center;' +
-        'color:#fff;">Carregando...</div>';
-
-    let modal = null;
-    let modalOptions = {};
-    let bodyScrollLocked = false;
-    let scrollPosition = 0;
-    let currentLayoutMode = null;
-    let filterChangeTimer = null;
-
-    function lockBodyScroll() {
-        if (bodyScrollLocked) {
-            return;
-        }
-
-        scrollPosition = window.scrollY || window.pageYOffset || 0;
-        document.documentElement.classList.add('apollo-modal-open');
-        document.body.classList.add('apollo-modal-open');
-        document.body.style.position = 'fixed';
-        document.body.style.top = '-' + scrollPosition + 'px';
-        document.body.style.width = '100%';
-        bodyScrollLocked = true;
-    }
-
-    function unlockBodyScroll() {
-        if (!bodyScrollLocked) {
-            return;
-        }
-
-        document.documentElement.classList.remove('apollo-modal-open');
-        document.body.classList.remove('apollo-modal-open');
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        window.scrollTo(0, scrollPosition);
-        bodyScrollLocked = false;
-    }
-
-    function getStoredLayout() {
-        try {
-            const stored = window.localStorage.getItem(LAYOUT_STORAGE_KEY);
-            return stored === 'grid' ? 'grid' : 'list';
-        } catch (error) {
-            return 'list';
-        }
-    }
-
-    function storeLayout(mode) {
-        try {
-            window.localStorage.setItem(LAYOUT_STORAGE_KEY, mode);
-        } catch (error) {
-            // Storage indisponível, ignorar
-        }
-    }
-
-    function applyLayout(mode) {
-        const normalized = mode === 'grid' ? 'grid' : 'list';
-        const root = document.documentElement;
-        root.classList.remove(LAYOUT_CLASS_LIST, LAYOUT_CLASS_GRID);
-
-        const active = normalized === 'grid' ? LAYOUT_CLASS_GRID : LAYOUT_CLASS_LIST;
-        root.classList.add(active);
-
-        // Apply class to event_listings container for CSS targeting
-        const eventListings = document.querySelector('.event_listings');
-        if (eventListings) {
-            if (normalized === 'list') {
-                eventListings.classList.add('list-view');
-            } else {
-                eventListings.classList.remove('list-view');
-            }
-        }
-
-        const toggle = document.getElementById('wpem-event-toggle-layout');
-        if (toggle) {
-            toggle.dataset.layout = normalized;
-            toggle.setAttribute('aria-pressed', normalized === 'list' ? 'true' : 'false');
-            toggle.classList.toggle('is-grid', normalized === 'grid');
+        /**
+         * Initialize modal functionality
+         */
+        initModal: function() {
+            const self = this;
             
-            // Update icon based on layout
-            const icon = toggle.querySelector('i');
-            if (icon) {
-                if (normalized === 'list') {
-                    icon.className = 'ri-list-check-2';
-                    toggle.setAttribute('title', 'Events List View');
-                } else {
-                    icon.className = 'ri-grid-fill';
-                    toggle.setAttribute('title', 'Events Grid View');
-                }
-            }
-        }
-
-        if (currentLayoutMode !== normalized) {
-            currentLayoutMode = normalized;
-            document.dispatchEvent(
-                new CustomEvent('apollo:layout-changed', {
-                    detail: { layout: normalized }
-                })
-            );
-        }
-    }
-
-    function initLayoutPreference() {
-        const initial = getStoredLayout();
-        applyLayout(initial);
-    }
-
-    function handleLayoutToggle(button) {
-        const current = button && button.dataset.layout === 'grid' ? 'grid' : 'list';
-        const next = current === 'grid' ? 'list' : 'grid';
-        applyLayout(next);
-        storeLayout(next);
-    }
-
-    window.toggleLayout = function(button) {
-        handleLayoutToggle(button);
-    };
-
-    // Initialize layout toggle button event listener
-    function initLayoutToggle() {
-        const toggle = document.getElementById('wpem-event-toggle-layout');
-        if (toggle) {
-            // Remove any existing onclick to avoid conflicts
-            toggle.removeAttribute('onclick');
-            
-            // Add event listener
-            toggle.addEventListener('click', function(e) {
+            // Click handler for event cards
+            $(document).on('click', '.event_listing', function(e) {
                 e.preventDefault();
-                handleLayoutToggle(this);
+                
+                const eventId = $(this).data('event-id');
+                if (!eventId) {
+                    if (DEBUG) console.error('No event-id found on card');
+                    return;
+                }
+                
+                self.openModal(eventId);
             });
             
-            // Initialize layout on page load
-            initLayoutPreference();
-        }
-    }
-
-    // Initialize on DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLayoutToggle);
-    } else {
-        initLayoutToggle();
-    }
-
-    function dispatchFilterChanged(detail) {
-        document.dispatchEvent(
-            new CustomEvent('apollo:filter-changed', {
-                detail: detail || {}
-            })
-        );
-    }
-
-    function scheduleFilterChanged(detail) {
-        if (filterChangeTimer) {
-            clearTimeout(filterChangeTimer);
-        }
-        filterChangeTimer = window.setTimeout(function() {
-            dispatchFilterChanged(detail);
-        }, 150);
-    }
-
-    function initFilterChangeEvents() {
-        const categoryButtons = document.querySelectorAll('.event-category');
-        categoryButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                scheduleFilterChanged({
-                    source: 'category',
-                    slug: button.dataset.slug || ''
-                });
+            // Close modal handlers
+            $(document).on('click', '[data-apollo-close]', function(e) {
+                e.preventDefault();
+                self.closeModal();
             });
-        });
-
-        const datePrev = document.getElementById('datePrev');
-        const dateNext = document.getElementById('dateNext');
-        [datePrev, dateNext].forEach(function(btn) {
-            if (!btn) {
-                return;
-            }
-            btn.addEventListener('click', function() {
-                scheduleFilterChanged({
-                    source: 'date',
-                    direction: btn === datePrev ? 'prev' : 'next'
-                });
-            });
-        });
-
-        const searchForm = document.getElementById('eventSearchForm');
-        if (searchForm) {
-            searchForm.addEventListener('submit', function() {
-                scheduleFilterChanged({ source: 'search' });
-            });
-
-            const searchInput = searchForm.querySelector('input[name="search_keywords"]');
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    scheduleFilterChanged({ source: 'search' });
-                });
-            }
-        }
-    }
-
-    function initModal() {
-        modal = document.getElementById(MODAL_ID);
-        if (!modal) {
-            console.error(
-                'Modal container #apollo-event-modal não encontrado'
-            );
-            return false;
-        }
-        return true;
-    }
-
-    function buildErrorHtml(message) {
-        return (
-            '<div class="apollo-error" style="padding:40px;text-align:center;' +
-            'color:#fff;">' +
-            message +
-            '</div>'
-        );
-    }
-
-    function openModal(html, options) {
-        if (!modal) {
-            return;
-        }
-
-        modalOptions = options || {};
-        modal.innerHTML = html;
-        modal.setAttribute('aria-hidden', 'false');
-        modal.classList.add(MODAL_CLASS_OPEN);
-        lockBodyScroll();
-
-        modal.querySelectorAll('[data-apollo-close]').forEach(function(btn) {
-            btn.addEventListener('click', closeModal);
-        });
-
-        const overlay = modal.querySelector('.apollo-event-modal-overlay');
-        if (overlay) {
-            overlay.addEventListener('click', closeModal);
-        }
-
-        enhanceModalContent();
-
-        document.dispatchEvent(new Event('apollo:favorites:refresh'));
-        document.addEventListener('keydown', handleEscapeKey);
-    }
-
-    function closeModal() {
-        if (!modal) {
-            return;
-        }
-
-        modal.setAttribute('aria-hidden', 'true');
-        modal.classList.remove(MODAL_CLASS_OPEN);
-        modalOptions = {};
-        unlockBodyScroll();
-
-        setTimeout(function() {
-            modal.innerHTML = '';
-        }, 300);
-
-        document.removeEventListener('keydown', handleEscapeKey);
-    }
-
-    function handleEscapeKey(event) {
-        if (event.key === 'Escape' && modal && modal.classList.contains(MODAL_CLASS_OPEN)) {
-            closeModal();
-        }
-    }
-
-    function enhanceModalContent() {
-        if (!modal || !modalOptions || modalOptions.loading) {
-            return;
-        }
-
-        const modalContent = modal.querySelector('.apollo-event-modal-content');
-        if (!modalContent) {
-            return;
-        }
-
-        modalContent.classList.add('apollo-modal-mobile');
-        const container = modalContent.querySelector('.mobile-container');
-        if (container) {
-            container.classList.add('apollo-modal-view');
-        }
-
-        setupShareButton(modalContent);
-        setupRouteButton(modalContent);
-        initializeModalMap(modalContent);
-    }
-
-    function setupShareButton(root) {
-        const shareBtn = root.querySelector('[data-share-button]');
-        if (!shareBtn || shareBtn.dataset.apolloShareReady === '1') {
-            return;
-        }
-
-        shareBtn.dataset.apolloShareReady = '1';
-
-        shareBtn.addEventListener('click', function() {
-            const container = root.querySelector('.mobile-container');
-            const eventUrl = (modalOptions && modalOptions.eventUrl) ||
-                (container ? container.getAttribute('data-apollo-event-url') : '') ||
-                window.location.href;
-            const titleElement = container ? container.querySelector('.hero-title') : null;
-            const eventTitle = titleElement ? titleElement.textContent.trim() : document.title;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: eventTitle || 'Apollo Events',
-                    text: eventTitle || 'Confira este evento na Apollo',
-                    url: eventUrl
-                }).catch(function(error) {
-                    if (error && error.name === 'AbortError') {
-                        return;
-                    }
-
-                    copyTextToClipboard(eventUrl)
-                        .then(function() {
-                            showTemporaryState(shareBtn, 'copied');
-                        })
-                        .catch(function() {
-                            window.prompt('Copie o link do evento:', eventUrl);
-                        });
-                });
-                return;
-            }
-
-            copyTextToClipboard(eventUrl)
-                .then(function() {
-                    showTemporaryState(shareBtn, 'copied');
-                })
-                .catch(function() {
-                    window.prompt('Copie o link do evento:', eventUrl);
-                });
-        });
-    }
-
-    function setupRouteButton(root) {
-        const routeBtn = root.querySelector('#route-btn');
-        if (!routeBtn || routeBtn.dataset.apolloRouteReady === '1') {
-            return;
-        }
-
-        routeBtn.dataset.apolloRouteReady = '1';
-
-        routeBtn.addEventListener('click', function() {
-            const container = root.querySelector('.mobile-container');
-            if (!container) {
-                window.alert('Localização indisponível para este evento.');
-                return;
-            }
-
-            const lat = parseFloat(container.getAttribute('data-local-lat') || '');
-            const lng = parseFloat(container.getAttribute('data-local-lng') || '');
-
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-                window.alert('Localização indisponível para este evento.');
-                return;
-            }
-
-            const originInput = root.querySelector('#origin-input');
-            const origin = originInput ? originInput.value.trim() : '';
-
-            let mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(lat + ',' + lng);
-            if (origin) {
-                mapsUrl += '&origin=' + encodeURIComponent(origin);
-            }
-
-            window.open(mapsUrl, '_blank', 'noopener');
-        });
-    }
-
-    function initializeModalMap(root) {
-        const mapEl = root.querySelector('#eventMap');
-        if (!mapEl || mapEl.dataset.apolloMapInitialized === '1') {
-            return;
-        }
-
-        const lat = parseFloat(mapEl.dataset.lat || mapEl.getAttribute('data-lat') || '');
-        const lng = parseFloat(mapEl.dataset.lng || mapEl.getAttribute('data-lng') || '');
-
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-            return;
-        }
-
-        if (typeof L === 'undefined') {
-            console.warn('Leaflet não está disponível para renderizar o mapa.');
-            return;
-        }
-
-        mapEl.dataset.apolloMapInitialized = '1';
-        mapEl.innerHTML = '';
-
-        const map = L.map(mapEl).setView([lat, lng], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap',
-            maxZoom: 19
-        }).addTo(map);
-
-        const container = root.querySelector('.mobile-container');
-        const localName = container ? container.getAttribute('data-local-name') : '';
-        L.marker([lat, lng]).addTo(map).bindPopup(localName || '');
-    }
-
-    function init() {
-        console.log('Apollo Events Portal: Initializing...');
-        
-        if (!initModal()) {
-            console.error('Apollo Events Portal: Modal initialization failed');
-            return;
-        }
-        
-        console.log('Apollo Events Portal: Modal initialized successfully');
-
-        initLayoutPreference();
-        initFilterChangeEvents();
-
-        // Attach layout toggle button listener
-        const layoutToggleBtn = document.getElementById('wpem-event-toggle-layout');
-        if (layoutToggleBtn) {
-            layoutToggleBtn.addEventListener('click', function() {
-                handleLayoutToggle(this);
-            });
-        }
-
-        if (typeof apollo_events_ajax === 'undefined') {
-            console.error(
-                'apollo_events_ajax não está definido. Verifique wp_localize_script.'
-            );
-            return;
-        }
-
-        const ajaxUrl = apollo_events_ajax.url || apollo_events_ajax.ajax_url;
-        if (!ajaxUrl) {
-            console.error('URL do AJAX não está disponível.');
-            return;
-        }
-
-        const container = document.querySelector('.event_listings');
-        if (!container) {
-            console.warn('.event_listings não encontrado');
-            return;
-        }
-
-        console.log('Apollo Events Portal: Click listener attached to .event_listings');
-
-        container.addEventListener('click', function(event) {
-            const card = event.target.closest('.event_listing');
-            if (!card) {
-                return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
             
-            console.log('Apollo Events Portal: Card clicked, event ID:', card.getAttribute('data-event-id'));
+            // Close on ESC key
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' || e.keyCode === 27) {
+                    self.closeModal();
+                }
+            });
+            
+            // Close on overlay click
+            $(document).on('click', '.apollo-event-modal-overlay', function(e) {
+                if (e.target === this) {
+                    self.closeModal();
+                }
+            });
+        },
 
-            const eventId = card.getAttribute('data-event-id');
-            if (!eventId) {
-                console.warn('Card sem data-event-id');
+        /**
+         * Open modal with event details
+         */
+        openModal: function(eventId) {
+            const self = this;
+            const $modal = $('#apollo-event-modal');
+            
+            if (!$modal.length) {
+                if (DEBUG) console.error('Modal container not found');
                 return;
             }
-
-            const eventUrl = card.getAttribute('href') || card.dataset.eventUrl || '';
-
-            card.classList.add('is-loading');
-            openModal(LOADING_HTML, { loading: true });
-
-            const params = new URLSearchParams({
-                action: 'apollo_get_event_modal',
-                event_id: eventId,
-                _ajax_nonce: apollo_events_ajax.nonce || ''
-            });
-
-            fetch(ajaxUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+            
+            // Show loading state
+            $modal.html('<div class="apollo-modal-loading"><i class="ri-loader-4-line"></i> Carregando...</div>');
+            $modal.attr('aria-hidden', 'false').addClass('open');
+            $('body').addClass('apollo-modal-open');
+            
+            // AJAX request for event details
+            $.ajax({
+                url: apolloPortalAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'apollo_get_event_modal',
+                    event_id: eventId,
+                    nonce: apolloPortalAjax.nonce
                 },
-                body: params
-            })
-                .then(function(response) {
-                    return response.text();
-                })
-                .then(function(text) {
-                    const trimmed = text.trim();
-                    if (trimmed === '-1') {
-                        const nonceError = new Error('nonce_invalid');
-                        nonceError.raw = trimmed;
-                        throw nonceError;
+                success: function(response) {
+                    if (response.success && response.data && response.data.html) {
+                        $modal.html(response.data.html);
+                        self.scrollToTop();
+                        
+                        // Trigger custom event
+                        $(document).trigger('apollo:modal:opened', [eventId]);
+                        
+                        if (DEBUG) console.log('Modal opened for event:', eventId);
+                    } else {
+                        $modal.html('<div class="apollo-modal-error">Erro ao carregar detalhes do evento.</div>');
+                        if (DEBUG) console.error('Modal AJAX error:', response);
                     }
+                },
+                error: function(xhr, status, error) {
+                    $modal.html('<div class="apollo-modal-error">Erro ao carregar evento. Tente novamente.</div>');
+                    if (DEBUG) console.error('Modal AJAX request failed:', error);
+                }
+            });
+        },
 
-                    try {
-                        return JSON.parse(text);
-                    } catch (error) {
-                        const parseError = new Error('invalid_json');
-                        parseError.raw = text;
-                        throw parseError;
+        /**
+         * Close modal
+         */
+        closeModal: function() {
+            const $modal = $('#apollo-event-modal');
+            $modal.attr('aria-hidden', 'true').removeClass('open');
+            $('body').removeClass('apollo-modal-open');
+            $modal.html('');
+            
+            $(document).trigger('apollo:modal:closed');
+            
+            if (DEBUG) console.log('Modal closed');
+        },
+
+        /**
+         * Scroll to top of modal
+         */
+        scrollToTop: function() {
+            const $modalContent = $('.apollo-event-modal-content');
+            if ($modalContent.length) {
+                $modalContent.scrollTop(0);
+            }
+        },
+
+        /**
+         * Initialize category filters
+         */
+        initFilters: function() {
+            const self = this;
+            
+            // Category filter buttons
+            $(document).on('click', '.event-category', function(e) {
+                e.preventDefault();
+                
+                const $button = $(this);
+                const slug = $button.data('slug') || 'all';
+                
+                // Update active state
+                $('.event-category').removeClass('active');
+                $button.addClass('active');
+                
+                // Filter events
+                self.filterEvents('category', slug);
+                
+                if (DEBUG) console.log('Filter by category:', slug);
+            });
+            
+            // Local filter buttons
+            $(document).on('click', '.event-local-filter', function(e) {
+                e.preventDefault();
+                
+                const $button = $(this);
+                const slug = $button.data('slug') || '';
+                
+                // Update active state
+                $('.event-local-filter').removeClass('active');
+                $button.addClass('active');
+                
+                // Filter events
+                self.filterEvents('local', slug);
+                
+                if (DEBUG) console.log('Filter by local:', slug);
+            });
+        },
+
+        /**
+         * Filter events by type and value
+         */
+        filterEvents: function(type, value) {
+            const $events = $('.event_listing');
+            let visibleCount = 0;
+            
+            $events.each(function() {
+                const $event = $(this);
+                let show = true;
+                
+                if (type === 'category') {
+                    const eventCategory = $event.data('category') || 'general';
+                    if (value !== 'all' && eventCategory !== value) {
+                        show = false;
                     }
-                })
-                .then(function(data) {
-                    if (data.success && data.data && data.data.html) {
-                        openModal(data.data.html, { eventUrl: eventUrl });
-                        return;
+                } else if (type === 'local') {
+                    const eventLocal = $event.data('local-slug') || '';
+                    const normalizedEventLocal = eventLocal.toLowerCase().replace(/-/g, '');
+                    const normalizedValue = value.toLowerCase().replace(/-/g, '');
+                    if (normalizedValue && normalizedEventLocal !== normalizedValue) {
+                        show = false;
                     }
+                }
+                
+                if (show) {
+                    $event.show();
+                    visibleCount++;
+                } else {
+                    $event.hide();
+                }
+            });
+            
+            // Show/hide "no events" message
+            const $noEvents = $('.no-events-found');
+            if (visibleCount === 0) {
+                if (!$noEvents.length) {
+                    $('.event_listings').after('<p class="no-events-found">Nenhum evento encontrado com os filtros selecionados.</p>');
+                }
+            } else {
+                $noEvents.remove();
+            }
+        },
 
-                    const message = data && data.data && data.data.message ?
-                        data.data.message :
-                        'Erro ao carregar evento.';
+        /**
+         * Initialize search functionality
+         */
+        initSearch: function() {
+            const self = this;
+            let searchTimeout;
+            
+            $('#eventSearchInput').on('input keyup', function() {
+                const $input = $(this);
+                const query = $input.val().toLowerCase().trim();
+                
+                // Debounce search
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    self.searchEvents(query);
+                }, 300);
+            });
+        },
 
-                    openModal(buildErrorHtml(message), {});
-                    console.error('AJAX error:', data);
-                })
-                .catch(function(error) {
-                    let message = 'Erro de conexão. Tente novamente.';
+        /**
+         * Search events by query
+         */
+        searchEvents: function(query) {
+            const $events = $('.event_listing');
+            let visibleCount = 0;
+            
+            if (!query) {
+                // Show all if search is empty
+                $events.show();
+                $('.no-events-found').remove();
+                return;
+            }
+            
+            $events.each(function() {
+                const $event = $(this);
+                const title = ($event.find('.event-li-title').text() || '').toLowerCase();
+                const djText = ($event.find('.of-dj span').text() || '').toLowerCase();
+                const locationText = ($event.find('.of-location span').text() || '').toLowerCase();
+                
+                const matches = title.indexOf(query) !== -1 ||
+                              djText.indexOf(query) !== -1 ||
+                              locationText.indexOf(query) !== -1;
+                
+                if (matches) {
+                    $event.show();
+                    visibleCount++;
+                } else {
+                    $event.hide();
+                }
+            });
+            
+            // Show/hide "no results" message
+            const $noEvents = $('.no-events-found');
+            if (visibleCount === 0) {
+                if (!$noEvents.length) {
+                    $('.event_listings').after('<p class="no-events-found">Nenhum resultado encontrado para "' + query + '".</p>');
+                } else {
+                    $noEvents.text('Nenhum resultado encontrado para "' + query + '".');
+                }
+            } else {
+                $noEvents.remove();
+            }
+            
+            if (DEBUG) console.log('Search query:', query, '- Results:', visibleCount);
+        },
 
-                    if (error && error.message === 'nonce_invalid') {
-                        message = 'Sessão expirada. Recarregue a página.';
+        /**
+         * Initialize layout toggle
+         */
+        initLayoutToggle: function() {
+            const self = this;
+            const $toggle = $('#wpem-event-toggle-layout');
+            const $listings = $('.event_listings');
+            
+            if (!$toggle.length) return;
+            
+            // Check initial state
+            const initialLayout = $toggle.attr('data-layout') || 'list';
+            if (initialLayout === 'card') {
+                self.setCardLayout();
+            } else {
+                self.setListLayout();
+            }
+            
+            // Toggle handler
+            $toggle.on('click', function(e) {
+                e.preventDefault();
+                
+                const currentLayout = $toggle.attr('data-layout') || 'list';
+                const newLayout = currentLayout === 'list' ? 'card' : 'list';
+                
+                if (newLayout === 'card') {
+                    self.setCardLayout();
+                } else {
+                    self.setListLayout();
+                }
+                
+                if (DEBUG) console.log('Layout toggled to:', newLayout);
+            });
+        },
+
+        /**
+         * Set card layout
+         */
+        setCardLayout: function() {
+            const $toggle = $('#wpem-event-toggle-layout');
+            const $listings = $('.event_listings');
+            
+            $toggle.attr('data-layout', 'card').attr('aria-pressed', 'false');
+            $listings.removeClass('list-view').addClass('card-view');
+            
+            // Update icon if needed
+            const $icon = $toggle.find('i');
+            if ($icon.length) {
+                $icon.removeClass('ri-list-check-2').addClass('ri-building-3-fill');
+            }
+        },
+
+        /**
+         * Set list layout
+         */
+        setListLayout: function() {
+            const $toggle = $('#wpem-event-toggle-layout');
+            const $listings = $('.event_listings');
+            
+            $toggle.attr('data-layout', 'list').attr('aria-pressed', 'true');
+            $listings.removeClass('card-view').addClass('list-view');
+            
+            // Update icon if needed
+            const $icon = $toggle.find('i');
+            if ($icon.length) {
+                $icon.removeClass('ri-building-3-fill').addClass('ri-list-check-2');
+            }
+        },
+
+        /**
+         * Initialize date picker
+         */
+        initDatePicker: function() {
+            const self = this;
+            const $prev = $('#datePrev');
+            const $next = $('#dateNext');
+            const $display = $('#dateDisplay');
+            
+            if (!$prev.length || !$next.length || !$display.length) return;
+            
+            let currentMonth = new Date().getMonth();
+            let currentYear = new Date().getFullYear();
+            
+            // Update display
+            function updateDisplay() {
+                const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                $display.text(monthNames[currentMonth]);
+                self.filterEventsByMonth(currentMonth, currentYear);
+            }
+            
+            // Previous month
+            $prev.on('click', function(e) {
+                e.preventDefault();
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateDisplay();
+            });
+            
+            // Next month
+            $next.on('click', function(e) {
+                e.preventDefault();
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                updateDisplay();
+            });
+            
+            // Initial display
+            updateDisplay();
+        },
+
+        /**
+         * Filter events by month
+         */
+        filterEventsByMonth: function(month, year) {
+            const $events = $('.event_listing');
+            let visibleCount = 0;
+            
+            $events.each(function() {
+                const $event = $(this);
+                const eventDateStr = $event.data('event-start-date') || '';
+                const eventMonthStr = $event.data('month-str') || '';
+                
+                let show = true;
+                
+                if (eventDateStr) {
+                    const eventDate = new Date(eventDateStr);
+                    if (eventDate.getMonth() !== month || eventDate.getFullYear() !== year) {
+                        show = false;
                     }
+                } else if (eventMonthStr) {
+                    const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+                    const targetMonthName = monthNames[month];
+                    if (eventMonthStr.toLowerCase() !== targetMonthName) {
+                        show = false;
+                    }
+                }
+                
+                if (show) {
+                    $event.show();
+                    visibleCount++;
+                } else {
+                    $event.hide();
+                }
+            });
+            
+            // Show/hide "no events" message
+            const $noEvents = $('.no-events-found');
+            if (visibleCount === 0) {
+                if (!$noEvents.length) {
+                    $('.event_listings').after('<p class="no-events-found">Nenhum evento encontrado para este mês.</p>');
+                }
+            } else {
+                $noEvents.remove();
+            }
+            
+            if (DEBUG) console.log('Filter by month:', month, year, '- Results:', visibleCount);
+        }
+    };
 
-                    console.error('AJAX error:', error);
-                    openModal(buildErrorHtml(message), {});
-                })
-                .finally(function() {
-                    card.classList.remove('is-loading');
-                });
-        });
-    }
+    // Initialize when DOM is ready
+    $(document).ready(function() {
+        ApolloEventsPortal.init();
+    });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-
-})();
+})(jQuery);

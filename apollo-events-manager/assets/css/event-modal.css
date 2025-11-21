@@ -1,305 +1,194 @@
-/* Apollo Event Modal Styles */
+/**
+ * Apollo Events Modal Styles
+ * 
+ * @package ApolloEventsManager
+ * @version 1.0.0
+ */
 
-/* Modal wrapper - covers entire screen - NO OVERFLOW RESTRICTION */
-.modal,
-.micromodal-slide,
-.apollo-event-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  pointer-events: none; /* Let clicks pass through to overlay */
+/* Modal Container */
+#apollo-event-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-.modal.is-open,
-.micromodal-slide.is-open,
-.apollo-event-modal.is-open {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 50px;
-  z-index: 9999;
-  pointer-events: auto;
+#apollo-event-modal.open {
+    display: block;
 }
 
-/* Apollo modal: ensure proper stacking context above overlays */
-.apollo-event-modal {
-  inset: 0;
-  z-index: 100001;
-  isolation: isolate;
-}
-
-.apollo-event-modal.is-open {
-  pointer-events: auto;
-  z-index: 100001;
-}
-
-/* Overlay - behind the container - INDEPENDENT z-index */
-.modal__overlay,
+/* Modal Overlay */
 .apollo-event-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: transparent;
-  background: linear-gradient(25deg, #eeeeee40 0%, transparent 100%);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  z-index: 10000;
-  cursor: pointer;
-  pointer-events: auto; /* Overlay catches clicks */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 999998;
+    cursor: pointer;
+    animation: apolloFadeIn 0.3s ease-out;
 }
 
-.apollo-event-modal-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-/* Container - above overlay, NOT position fixed - INDEPENDENT z-index */
-.modal__container,
+/* Modal Content */
 .apollo-event-modal-content {
-  position: relative; /* Changed from fixed */
-  background: var(--bg-main, #fff);
-  border-radius: 12px;
-  width: 90%;
-  max-width: 900px;
-  max-height: 95vh;
-  overflow-y: auto; /* Scroll works here */
-  overflow-x: hidden;
-  z-index: 10001;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  cursor: default;
-  pointer-events: auto; /* Container catches clicks */
-  margin-bottom: 24px;
+    position: relative;
+    max-width: 1200px;
+    width: 90%;
+    margin: 2rem auto;
+    background: var(--apollo-bg, #ffffff);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    z-index: 999999;
+    animation: apolloSlideUp 0.4s ease-out;
+    overflow: hidden;
 }
 
-.apollo-event-modal-content.apollo-modal-mobile {
-  width: min(500px, calc(100vw - 32px));
-  max-width: 500px;
-  padding: 0;
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.apollo-event-modal-content.apollo-modal-mobile .apollo-modal-view {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.apollo-event-modal .mobile-container {
-  position: relative;
-  z-index: 1;
-  padding: 0;
-  max-height: 95vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-html.apollo-modal-open,
-body.apollo-modal-open {
-  overflow: hidden;
-}
-
-.modal__close,
+/* Modal Close Button */
 .apollo-event-modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10002;
-  transition: all 0.2s;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    color: var(--apollo-text, #000000);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000000;
+    transition: all 0.2s ease;
 }
 
-.modal__close:hover,
 .apollo-event-modal-close:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
-.modal__close i,
 .apollo-event-modal-close i {
-  font-size: 1.5rem;
+    font-size: 1.5rem;
 }
 
-/* Modal content area - NO height restriction, let container handle scroll */
-.modal__content {
-  padding: 0;
-  overflow: visible; /* Let parent handle scroll */
+/* Modal Loading State */
+.apollo-modal-loading {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--apollo-text, #666666);
 }
 
-/* Event content inside modal - override any restrictions */
-.modal__container .mobile-container,
-.modal__content .mobile-container {
-  overflow: visible !important;
-  max-height: none !important;
-  height: auto !important;
-  padding: 0 !important;
+.apollo-modal-loading i {
+    font-size: 2rem;
+    animation: apolloSpin 1s linear infinite;
 }
 
-/* Modal Content Sections */
-.apollo-event-hero {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
-  background: var(--bg-card, #f9f9f9);
+/* Modal Error State */
+.apollo-modal-error {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--apollo-error, #ff4444);
 }
 
-.apollo-event-hero-media {
-  position: relative;
-  width: 100%;
+/* Body Lock when Modal Open */
+body.apollo-modal-open {
+    overflow: hidden;
 }
 
-.apollo-event-hero-media img {
-  width: 100%;
-  height: auto;
-  max-height: 400px;
-  object-fit: cover;
-  border-radius: 8px;
+/* Animations */
+@keyframes apolloFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
-.apollo-event-date-chip {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 60px;
+@keyframes apolloSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.apollo-event-date-chip .d {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
+@keyframes apolloSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-.apollo-event-date-chip .m {
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  opacity: 0.9;
+/* Responsive */
+@media (max-width: 768px) {
+    .apollo-event-modal-content {
+        width: 95%;
+        margin: 1rem auto;
+        border-radius: 12px;
+    }
+    
+    .apollo-event-modal-close {
+        top: 0.5rem;
+        right: 0.5rem;
+        width: 36px;
+        height: 36px;
+    }
 }
 
-.apollo-event-hero-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .apollo-event-modal-content {
+        background: var(--apollo-bg-dark, #1a1a1a);
+        color: var(--apollo-text-dark, #ffffff);
+    }
+    
+    .apollo-event-modal-close {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--apollo-text-dark, #ffffff);
+    }
+    
+    .apollo-event-modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
 }
 
-.apollo-event-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-primary, #111);
+/* Layout Toggle Styles */
+.event_listings.card-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    align-items: start;
 }
 
-.apollo-event-djs {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  font-size: 1.125rem;
-  color: var(--text-secondary, #666);
+.event_listings.list-view .event_listing {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-.apollo-event-djs i {
-  font-size: 1.25rem;
+.event_listings.list-view {
+    display: block;
 }
 
-.apollo-event-body {
-  padding: 2rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-primary, #111);
-}
-
-/* Animações Micromodal */
-@keyframes mmfadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes mmfadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes mmslideIn {
-  from { transform: translateY(15%); }
-  to { transform: translateY(0); }
-}
-
-@keyframes mmslideOut {
-  from { transform: translateY(0); }
-  to { transform: translateY(-10%); }
-}
-
-.micromodal-slide {
-  display: none;
-}
-
-.micromodal-slide.is-open {
-  display: block;
-  z-index: 8888;
-}
-
-.micromodal-slide[aria-hidden="false"] .modal__overlay {
-  animation: mmfadeIn 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
-}
-
-.micromodal-slide[aria-hidden="false"] .modal__container {
-  animation: mmslideIn 0.3s cubic-bezier(0, 0, 0.2, 1);
-}
-
-.micromodal-slide[aria-hidden="true"] .modal__overlay {
-  animation: mmfadeOut 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
-}
-
-.micromodal-slide[aria-hidden="true"] .modal__container {
-  animation: mmslideOut 0.3s cubic-bezier(0, 0, 0.2, 1);
-}
-
-.micromodal-slide .modal__container,
-.micromodal-slide .modal__overlay {
-  will-change: transform;
-}
-
-/* Responsivo */
-@media (max-width: 640px) {
-  .modal.is-open,
-  .micromodal-slide.is-open {
-    padding-top: 0 !important;
-    align-items: stretch !important;
-  }
-
-  .modal__container,
-  .apollo-event-modal-content {
-    width: 100% !important;
-    max-width: 100vw !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    margin-bottom: 0 !important;
-  }
-  
-  .modal__content {
-    padding: 0 !important;
-  }
+/* No Events Message */
+.no-events-found {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--apollo-text-muted, #999999);
+    font-size: 1.1rem;
 }

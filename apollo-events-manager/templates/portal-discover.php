@@ -262,8 +262,8 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                     </div>
                     
                     <!-- LAYOUT TOGGLE -->
-                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="true" data-layout="list">
-                        <i class="ri-list-check-2" aria-hidden="true"></i>
+                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="false" data-layout="card">
+                        <i class="ri-building-3-fill" aria-hidden="true"></i>
                         <span class="visually-hidden">Alternar layout</span>
                     </button>
                 </div>
@@ -282,7 +282,7 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
             <p class="afasta-2b"></p>
 
             <!-- EVENT LISTINGS GRID -->
-            <div class="event_listings">
+            <div class="event_listings card-view">
                 <?php
                 // ============================================
                 // PERFORMANCE: Query otimizada com cache
@@ -307,11 +307,16 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                     
                     $query = new WP_Query($query_args);
                     
-                    // ✅ Error handling para WP_Query
+                    // ✅ Error handling para WP_Query + Debug logging
                     if (is_wp_error($query)) {
                         error_log('Apollo: WP_Query error em portal-discover: ' . $query->get_error_message());
                         $event_ids = array();
                     } else {
+                        // Debug logging para verificar resultados da query
+                        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                            error_log('Apollo Portal Debug: Query executada - Found posts: ' . $query->found_posts);
+                            error_log('Apollo Portal Debug: Query args: ' . print_r($query_args, true));
+                        }
                         $collected_ids = array();
                         
                         if ($query->have_posts()) {
@@ -325,6 +330,12 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         }
                         
                         $event_ids = array_values(array_unique(array_filter($collected_ids)));
+                        
+                        // Debug logging
+                        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                            error_log('Apollo Portal Debug: Event IDs coletados: ' . count($event_ids));
+                        }
+                        
                         // CRITICAL: Cache for shorter time to ensure fresh data
                         set_transient($cache_key, $event_ids, 2 * MINUTE_IN_SECONDS);
                     }
@@ -393,6 +404,12 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         // ✅ CORRECT: Use _event_dj_ids with maybe_unserialize()
                         $dj_ids_raw = apollo_get_post_meta($event_id, '_event_dj_ids', true);
                         $dj_ids = apollo_aem_parse_ids($dj_ids_raw);
+                        
+                        // Debug logging para DJs
+                        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                            error_log("Apollo Portal Debug: Event {$event_id} - DJ IDs raw: " . print_r($dj_ids_raw, true));
+                            error_log("Apollo Portal Debug: Event {$event_id} - DJ IDs parsed: " . print_r($dj_ids, true));
+                        }
 
                         if (!empty($dj_ids)) {
                             foreach ($dj_ids as $dj_id) {
@@ -414,6 +431,12 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                             $timetable = apollo_get_post_meta($event_id, '_event_timetable', true);
                             if (!empty($timetable)) {
                                 $timetable = maybe_unserialize($timetable);
+                                
+                                // Debug logging
+                                if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                                    error_log("Apollo Portal Debug: Event {$event_id} - Timetable raw: " . print_r($timetable, true));
+                                }
+                                
                                 if (is_array($timetable)) {
                                     foreach ($timetable as $slot) {
                                         if (empty($slot['dj'])) continue;
@@ -471,6 +494,11 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         // Remover duplicados e valores vazios
                         $djs_names = array_values(array_unique(array_filter($djs_names)));
                         
+                        // Debug logging final para DJs
+                        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                            error_log("Apollo Portal Debug: Event {$event_id} - DJs names final: " . print_r($djs_names, true));
+                        }
+                        
                         // Formatar display de DJs
                         if (!empty($djs_names)) {
                             $max_visible  = 6; // Mostrar até 6 DJs
@@ -500,6 +528,12 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         $local_meta = apollo_get_event_local_ids($event_id);
                         $primary_local_id = !empty($local_meta) && is_array($local_meta) ? (int) $local_meta[0] : 0;
                         $event_local_slug = ''; // Slug do local para filtros
+                        
+                        // Debug logging para Local
+                        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                            error_log("Apollo Portal Debug: Event {$event_id} - Local meta: " . print_r($local_meta, true));
+                            error_log("Apollo Portal Debug: Event {$event_id} - Primary local ID: {$primary_local_id}");
+                        }
 
                         if ($primary_local_id > 0) {
                             $local_post = get_post($primary_local_id);

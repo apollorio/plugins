@@ -35,6 +35,11 @@ if (!defined('APOLLO_DEBUG')) {
     define('APOLLO_DEBUG', false);
 }
 
+// Portal debug mode (enabled when APOLLO_DEBUG is true)
+if (!defined('APOLLO_PORTAL_DEBUG')) {
+    define('APOLLO_PORTAL_DEBUG', (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_DEBUG') && APOLLO_DEBUG));
+}
+
 if (!function_exists('apollo_eve_parse_start_date')) {
     /**
      * Helper function: Parse event start date.
@@ -568,6 +573,10 @@ class Apollo_Events_Manager_Plugin {
         // Modal AJAX handler
         add_action('wp_ajax_apollo_get_event_modal', array($this, 'ajax_get_event_modal'));
         add_action('wp_ajax_nopriv_apollo_get_event_modal', array($this, 'ajax_get_event_modal'));
+        
+        // Clear portal cache when event is published/updated
+        add_action('save_post_event_listing', array($this, 'clear_portal_cache'), 20);
+        add_action('transition_post_status', array($this, 'clear_portal_cache_on_status_change'), 10, 3);
         
         // Moderation AJAX handlers
         add_action('wp_ajax_apollo_mod_approve_event', array($this, 'ajax_mod_approve_event'));
@@ -1190,6 +1199,8 @@ class Apollo_Events_Manager_Plugin {
         wp_enqueue_style(
             'apollo-event-modal-css',
             APOLLO_WPEM_URL . 'assets/css/event-modal.css',
+            array(),
+            APOLLO_WPEM_VERSION,
             array('apollo-shadcn-components'), // Loads before uni.css
             APOLLO_WPEM_VERSION,
             'all'
@@ -1233,9 +1244,18 @@ class Apollo_Events_Manager_Plugin {
             'apollo-events-portal',
             APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
             array('jquery'),
-            '1.0.2',
+            APOLLO_WPEM_VERSION,
             true
         );
+        
+        // Localize script for AJAX
+        wp_localize_script('apollo-events-portal', 'apolloPortalAjax', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('apollo_portal_nonce'),
+        ));
+        
+        // Localize debug flag
+        wp_localize_script('apollo-events-portal', 'apolloPortalDebug', APOLLO_PORTAL_DEBUG);
 
         // Motion.dev animations for event cards
         wp_enqueue_script(
@@ -2187,6 +2207,11 @@ class Apollo_Events_Manager_Plugin {
     }
     
     public function ajax_get_event_modal() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'apollo_portal_nonce')) {
+            wp_send_json_error(array('message' => 'Nonce inválido'));
+            return;
+        }
         // Verificar nonce
         check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
 
@@ -2321,6 +2346,44 @@ class Apollo_Events_Manager_Plugin {
         unset($GLOBALS['apollo_modal_context']);
 
         wp_send_json_success($response);
+    }
+    
+    /**
+     * Clear portal cache when event is saved
+     */
+    public function clear_portal_cache($post_id) {
+        // Skip autosaves and revisions
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+        
+        // Clear today's cache
+        $cache_key = 'apollo_all_event_ids_' . date('Ymd');
+        delete_transient($cache_key);
+        
+        // Clear previous days cache (cleanup)
+        for ($i = 1; $i <= 7; $i++) {
+            $old_date = date('Ymd', strtotime("-{$i} days"));
+            $old_cache_key = 'apollo_all_event_ids_' . $old_date;
+            delete_transient($old_cache_key);
+        }
+        
+        if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+            error_log("Apollo Portal: Cache cleared for event {$post_id}");
+        }
+    }
+    
+    /**
+     * Clear portal cache on status change
+     */
+    public function clear_portal_cache_on_status_change($new_status, $old_status, $post) {
+        if ($post->post_type === 'event_listing') {
+            $this->clear_portal_cache($post->ID);
+        }
     }
 
     /**
