@@ -517,9 +517,10 @@ add_action(
         if (!shortcode_exists('apollo_events')) {
             add_shortcode('apollo_events', 'apollo_events_shortcode_handler');
         }
-
-        if (shortcode_exists('apollo_eventos')) {
-            remove_shortcode('apollo_eventos');
+        
+        // Register apollo_eventos as alias (PT-BR version)
+        if (!shortcode_exists('apollo_eventos')) {
+            add_shortcode('apollo_eventos', 'apollo_events_shortcode_handler');
         }
 
         if (shortcode_exists('eventos')) {
