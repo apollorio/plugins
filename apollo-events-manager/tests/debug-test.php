@@ -185,6 +185,21 @@ if (!defined('ABSPATH')) {
         }
     }
     
+    // CRITICAL: Ensure WordPress is fully initialized before doing anything
+    // Don't manually trigger hooks - let WordPress do it naturally
+    global $wp_rewrite, $wp;
+    
+    // Ensure WordPress core objects are initialized
+    if (!isset($wp_rewrite)) {
+        require_once ABSPATH . WPINC . '/rewrite.php';
+        $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+    }
+    
+    if (!isset($wp)) {
+        require_once ABSPATH . WPINC . '/class-wp.php';
+        $GLOBALS['wp'] = new WP();
+    }
+    
     // Force WordPress to load plugins (if not already loaded)
     if (!did_action('plugins_loaded')) {
         do_action('plugins_loaded');
@@ -198,9 +213,14 @@ if (!defined('ABSPATH')) {
         }
     }
     
-    // CRITICAL: Force init hook to register CPTs, shortcodes, etc.
-    // This must happen AFTER plugin is loaded
+    // CRITICAL: Only trigger init if it hasn't fired yet AND WordPress is ready
+    // Don't manually trigger if WordPress isn't fully initialized
     if (!did_action('init')) {
+        // Ensure rewrite is initialized before init
+        if (!isset($GLOBALS['wp_rewrite'])) {
+            require_once ABSPATH . WPINC . '/rewrite.php';
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+        }
         do_action('init');
     }
     

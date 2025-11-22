@@ -115,6 +115,25 @@ ini_set('display_startup_errors', 1);
         
         <h2>5. Verificando Hooks...</h2>
         <?php
+        // Ensure WordPress core objects are initialized
+        global $wp_rewrite, $wp;
+        
+        if (!isset($wp_rewrite)) {
+            require_once ABSPATH . WPINC . '/rewrite.php';
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+            echo '<p class="success">✅ WP_Rewrite inicializado</p>';
+        } else {
+            echo '<p>ℹ️ WP_Rewrite já existe</p>';
+        }
+        
+        if (!isset($wp)) {
+            require_once ABSPATH . WPINC . '/class-wp.php';
+            $GLOBALS['wp'] = new WP();
+            echo '<p class="success">✅ WP inicializado</p>';
+        } else {
+            echo '<p>ℹ️ WP já existe</p>';
+        }
+        
         if (!did_action('plugins_loaded')) {
             do_action('plugins_loaded');
             echo '<p class="success">✅ Hook plugins_loaded executado</p>';
@@ -123,6 +142,11 @@ ini_set('display_startup_errors', 1);
         }
         
         if (!did_action('init')) {
+            // Ensure rewrite is ready before init
+            if (!isset($GLOBALS['wp_rewrite'])) {
+                require_once ABSPATH . WPINC . '/rewrite.php';
+                $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+            }
             do_action('init');
             echo '<p class="success">✅ Hook init executado</p>';
         } else {
