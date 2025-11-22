@@ -212,39 +212,42 @@ if (!defined('ABSPATH')) {
     // 3. If init hasn't fired, WordPress will fire it automatically when needed
     // 4. We'll register everything manually below instead
     
-    // CRITICAL: Always manually register everything to ensure it's available
-    // This works regardless of whether init has fired or not
+    // CRITICAL: WordPress 6.7.0+ requires translations to load at 'init' or later
+    // We must ensure 'init' has fired before registering CPTs (which use translations)
     
-    // 1. Ensure post types are registered
+    // 1. Ensure init has fired (required for translations in WordPress 6.7+)
+    if (!did_action('init')) {
+        // Initialize WordPress core objects needed for init
+        global $wp_rewrite, $wp;
+        
+        if (!isset($wp_rewrite)) {
+            require_once ABSPATH . WPINC . '/rewrite.php';
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+        }
+        
+        if (!isset($wp)) {
+            require_once ABSPATH . WPINC . '/class-wp.php';
+            $GLOBALS['wp'] = new WP();
+        }
+        
+        // Now it's safe to trigger init
+        do_action('init');
+    }
+    
+    // 2. Now that init has fired, we can safely register post types
     $post_types_file = dirname(dirname(__FILE__)) . '/includes/post-types.php';
     if (file_exists($post_types_file)) {
         require_once $post_types_file;
         if (class_exists('Apollo_Post_Types')) {
-            // Create instance (this registers hooks, but we'll call methods directly too)
+            // Create instance - this will register hooks, but init has already fired
+            // So we also call methods directly to ensure registration
             $post_types_instance = new Apollo_Post_Types();
             
-            // Force registration directly (don't wait for init hook)
-            // These methods can be called directly even if init hasn't fired
             if (method_exists($post_types_instance, 'register_post_types')) {
                 $post_types_instance->register_post_types();
             }
             if (method_exists($post_types_instance, 'register_taxonomies')) {
                 $post_types_instance->register_taxonomies();
-            }
-        }
-    } else {
-        // Try alternative path
-        $post_types_file_alt = dirname(dirname(__FILE__)) . '/apollo-events-manager/includes/post-types.php';
-        if (file_exists($post_types_file_alt)) {
-            require_once $post_types_file_alt;
-            if (class_exists('Apollo_Post_Types')) {
-                $post_types_instance = new Apollo_Post_Types();
-                if (method_exists($post_types_instance, 'register_post_types')) {
-                    $post_types_instance->register_post_types();
-                }
-                if (method_exists($post_types_instance, 'register_taxonomies')) {
-                    $post_types_instance->register_taxonomies();
-                }
             }
         }
     }

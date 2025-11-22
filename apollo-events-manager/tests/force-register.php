@@ -67,8 +67,26 @@ if (!defined('ABSPATH')) {
     }
     echo '<p class="success">✅ Plugin instanciado</p>';
     
-    // 3. Load and register post types
-    echo '<h2>3. Registrando CPTs...</h2>';
+    // 3. Ensure init has fired (required for translations in WordPress 6.7+)
+    echo '<h2>3. Verificando Hook Init...</h2>';
+    if (!did_action('init')) {
+        global $wp_rewrite, $wp;
+        if (!isset($wp_rewrite)) {
+            require_once ABSPATH . WPINC . '/rewrite.php';
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+        }
+        if (!isset($wp)) {
+            require_once ABSPATH . WPINC . '/class-wp.php';
+            $GLOBALS['wp'] = new WP();
+        }
+        do_action('init');
+        echo '<p class="success">✅ Hook init executado</p>';
+    } else {
+        echo '<p class="success">✅ Hook init já foi executado</p>';
+    }
+    
+    // 4. Load and register post types (after init)
+    echo '<h2>4. Registrando CPTs...</h2>';
     $post_types_file = $plugin_dir . '/includes/post-types.php';
     if (file_exists($post_types_file)) {
         require_once $post_types_file;
@@ -84,8 +102,8 @@ if (!defined('ABSPATH')) {
         echo '<p class="error">❌ Arquivo post-types.php não encontrado</p>';
     }
     
-    // 4. Register shortcodes
-    echo '<h2>4. Registrando Shortcodes...</h2>';
+    // 5. Register shortcodes
+    echo '<h2>5. Registrando Shortcodes...</h2>';
     
     // Load shortcode files
     $shortcode_files = [
@@ -110,8 +128,8 @@ if (!defined('ABSPATH')) {
         echo '<p class="success">✅ Shortcode apollo_eventos registrado</p>';
     }
     
-    // 5. Create clubber role
-    echo '<h2>5. Criando Role Clubber...</h2>';
+    // 6. Create clubber role
+    echo '<h2>6. Criando Role Clubber...</h2>';
     if (!get_role('clubber')) {
         add_role('clubber', 'Clubber', ['read' => true, 'upload_files' => true]);
         echo '<p class="success">✅ Role clubber criado</p>';
@@ -119,8 +137,8 @@ if (!defined('ABSPATH')) {
         echo '<p class="success">✅ Role clubber já existe</p>';
     }
     
-    // 6. Verify registration
-    echo '<h2>6. Verificando Registros...</h2>';
+    // 7. Verify registration
+    echo '<h2>7. Verificando Registros...</h2>';
     
     $cpts = ['event_listing', 'event_dj', 'event_local'];
     foreach ($cpts as $cpt) {
