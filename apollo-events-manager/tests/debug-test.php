@@ -14,50 +14,125 @@
  * Ou via browser: /wp-content/plugins/apollo-events-manager/tests/debug-test.php
  */
 
+// Enable error reporting FIRST
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 // Prevent direct access - Load WordPress
 if (!defined('ABSPATH')) {
     // Try to load WordPress from various possible locations
     $wp_load_paths = [
-        __DIR__ . '/../../../../wp-load.php',  // From tests/ directory
+        __DIR__ . '/../../../../wp-load.php',  // From tests/ directory: wp-content/plugins/apollo-events-manager/tests/
         __DIR__ . '/../../../wp-load.php',     // Alternative path
         __DIR__ . '/../../wp-load.php',        // Another alternative
-        dirname(dirname(dirname(dirname(__FILE__)))) . '/wp-load.php', // Absolute
     ];
     
+    // Also try absolute paths based on common WordPress structures
+    $current_file = __FILE__;
+    $plugin_dir = dirname(dirname($current_file)); // apollo-events-manager/
+    $plugins_dir = dirname($plugin_dir); // plugins/
+    $wp_content_dir = dirname($plugins_dir); // wp-content/
+    $wp_root = dirname($wp_content_dir); // WordPress root
+    
+    $wp_load_paths[] = $wp_root . '/wp-load.php';
+    $wp_load_paths[] = $wp_content_dir . '/../wp-load.php';
+    
     $wp_loaded = false;
+    $last_error = '';
+    $loaded_path = '';
+    
     foreach ($wp_load_paths as $path) {
         $real_path = realpath($path);
         if ($real_path && file_exists($real_path)) {
-            require_once $real_path;
-            $wp_loaded = true;
-            break;
+            try {
+                require_once $real_path;
+                if (defined('ABSPATH')) {
+                    $wp_loaded = true;
+                    $loaded_path = $real_path;
+                    break;
+                }
+            } catch (Exception $e) {
+                $last_error = $e->getMessage();
+                continue;
+            } catch (Error $e) {
+                $last_error = $e->getMessage();
+                continue;
+            }
         }
     }
     
     if (!$wp_loaded) {
         // Try to find wp-load.php by going up directories
         $current_dir = __DIR__;
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 6; $i++) {
             $wp_load = $current_dir . '/wp-load.php';
             if (file_exists($wp_load)) {
-                require_once $wp_load;
-                $wp_loaded = true;
-                break;
+                try {
+                    require_once $wp_load;
+                    if (defined('ABSPATH')) {
+                        $wp_loaded = true;
+                        $loaded_path = $wp_load;
+                        break;
+                    }
+                } catch (Exception $e) {
+                    $last_error = $e->getMessage();
+                } catch (Error $e) {
+                    $last_error = $e->getMessage();
+                }
             }
-            $current_dir = dirname($current_dir);
+            $parent_dir = dirname($current_dir);
+            if ($parent_dir === $current_dir) {
+                break; // Reached filesystem root
+            }
+            $current_dir = $parent_dir;
         }
     }
     
-    if (!$wp_loaded) {
+    if (!$wp_loaded || !defined('ABSPATH')) {
+        // Show detailed error information
+        $error_html = '<!DOCTYPE html><html><head><title>WordPress Not Found</title><style>
+            body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #dc3232; }
+            .error { background: #fff3cd; border-left: 4px solid #ffb900; padding: 15px; margin: 20px 0; }
+            .info { background: #e8f4f8; border-left: 4px solid #0073aa; padding: 15px; margin: 20px 0; }
+            code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+            ul { margin: 10px 0; padding-left: 30px; }
+        </style></head><body><div class="container">';
+        $error_html .= '<h1>❌ WordPress não encontrado</h1>';
+        $error_html .= '<div class="error"><strong>Erro:</strong> Não foi possível carregar o WordPress.</div>';
+        $error_html .= '<div class="info"><h3>Informações de Debug:</h3>';
+        $error_html .= '<p><strong>Arquivo atual:</strong> <code>' . htmlspecialchars(__FILE__) . '</code></p>';
+        $error_html .= '<p><strong>Diretório atual:</strong> <code>' . htmlspecialchars(__DIR__) . '</code></p>';
+        $error_html .= '<p><strong>PHP Version:</strong> ' . PHP_VERSION . '</p>';
+        if ($last_error) {
+            $error_html .= '<p><strong>Último erro:</strong> ' . htmlspecialchars($last_error) . '</p>';
+        }
+        $error_html .= '<h3>Caminhos testados:</h3><ul>';
+        foreach ($wp_load_paths as $path) {
+            $exists = file_exists($path) ? '✅' : '❌';
+            $error_html .= '<li>' . $exists . ' <code>' . htmlspecialchars($path) . '</code></li>';
+        }
+        $error_html .= '</ul></div>';
+        $error_html .= '<div class="info"><h3>Solução:</h3>';
+        $error_html .= '<p>Certifique-se de que:</p><ul>';
+        $error_html .= '<li>O WordPress está instalado corretamente</li>';
+        $error_html .= '<li>O arquivo <code>wp-load.php</code> existe na raiz do WordPress</li>';
+        $error_html .= '<li>Este arquivo está sendo acessado via navegador (não CLI)</li>';
+        $error_html .= '<li>As permissões de arquivo estão corretas</li>';
+        $error_html .= '</ul></div></div></body></html>';
+        
         http_response_code(500);
-        die('<!DOCTYPE html><html><head><title>Error</title></head><body><h1>WordPress not found</h1><p>Please ensure WordPress is installed and this file is accessible via web browser.</p><p>Current directory: ' . __DIR__ . '</p></body></html>');
+        die($error_html);
+    }
+    
+    // Ensure WordPress is fully loaded
+    if (!function_exists('get_bloginfo')) {
+        http_response_code(500);
+        die('<!DOCTYPE html><html><head><title>WordPress Not Fully Loaded</title></head><body><h1>Erro: WordPress não foi carregado completamente</h1><p>ABSPATH definido mas funções do WordPress não estão disponíveis.</p></body></html>');
     }
 }
-
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 
 // Xdebug configuration check
 if (function_exists('xdebug_info')) {
