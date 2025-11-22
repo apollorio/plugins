@@ -185,25 +185,9 @@ if (!defined('ABSPATH')) {
         }
     }
     
-    // CRITICAL: Ensure WordPress is fully initialized before doing anything
-    // Don't manually trigger hooks - let WordPress do it naturally
-    global $wp_rewrite, $wp;
-    
-    // Ensure WordPress core objects are initialized
-    if (!isset($wp_rewrite)) {
-        require_once ABSPATH . WPINC . '/rewrite.php';
-        $GLOBALS['wp_rewrite'] = new WP_Rewrite();
-    }
-    
-    if (!isset($wp)) {
-        require_once ABSPATH . WPINC . '/class-wp.php';
-        $GLOBALS['wp'] = new WP();
-    }
-    
-    // Force WordPress to load plugins (if not already loaded)
-    if (!did_action('plugins_loaded')) {
-        do_action('plugins_loaded');
-    }
+    // CRITICAL: Don't manually trigger WordPress hooks
+    // WordPress should handle this automatically via wp-load.php
+    // We just need to ensure the plugin is loaded and registered
     
     // Ensure plugin is initialized
     if (class_exists('Apollo_Events_Manager_Plugin')) {
@@ -213,16 +197,10 @@ if (!defined('ABSPATH')) {
         }
     }
     
-    // CRITICAL: Only trigger init if it hasn't fired yet AND WordPress is ready
-    // Don't manually trigger if WordPress isn't fully initialized
-    if (!did_action('init')) {
-        // Ensure rewrite is initialized before init
-        if (!isset($GLOBALS['wp_rewrite'])) {
-            require_once ABSPATH . WPINC . '/rewrite.php';
-            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
-        }
-        do_action('init');
-    }
+    // Note: We don't manually trigger init here because:
+    // 1. wp-load.php should have already triggered it
+    // 2. Manually triggering can cause errors if WordPress isn't fully initialized
+    // 3. If init hasn't fired, WordPress will fire it automatically when needed
     
     // CRITICAL: If init already fired, manually register everything
     // This ensures CPTs and shortcodes are registered even if init fired before plugin loaded
