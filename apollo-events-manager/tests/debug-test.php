@@ -18,6 +18,38 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
+
+// Set error handler to catch fatal errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    if (error_reporting() === 0) {
+        return false;
+    }
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+
+// Catch fatal errors
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        $error_html = '<!DOCTYPE html><html><head><title>Fatal Error</title><style>
+            body { font-family: Arial, sans-serif; padding: 40px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #dc3232; }
+            .error { background: #fff3cd; border-left: 4px solid #ffb900; padding: 15px; margin: 20px 0; }
+            code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        </style></head><body><div class="container">';
+        $error_html .= '<h1>❌ Erro Fatal Detectado</h1>';
+        $error_html .= '<div class="error">';
+        $error_html .= '<p><strong>Tipo:</strong> ' . $error['type'] . '</p>';
+        $error_html .= '<p><strong>Mensagem:</strong> ' . htmlspecialchars($error['message']) . '</p>';
+        $error_html .= '<p><strong>Arquivo:</strong> <code>' . htmlspecialchars($error['file']) . '</code></p>';
+        $error_html .= '<p><strong>Linha:</strong> ' . $error['line'] . '</p>';
+        $error_html .= '</div></div></body></html>';
+        echo $error_html;
+        exit;
+    }
+});
 
 // Prevent direct access - Load WordPress
 if (!defined('ABSPATH')) {
@@ -138,7 +170,18 @@ if (!defined('ABSPATH')) {
         // Try to load plugin manually
         $plugin_file = dirname(dirname(__FILE__)) . '/apollo-events-manager.php';
         if (file_exists($plugin_file)) {
-            require_once $plugin_file;
+            try {
+                require_once $plugin_file;
+            } catch (Exception $e) {
+                http_response_code(500);
+                die('<!DOCTYPE html><html><head><title>Plugin Load Error</title></head><body><h1>Erro ao carregar plugin</h1><p>' . htmlspecialchars($e->getMessage()) . '</p></body></html>');
+            } catch (Error $e) {
+                http_response_code(500);
+                die('<!DOCTYPE html><html><head><title>Plugin Load Error</title></head><body><h1>Erro fatal ao carregar plugin</h1><p>' . htmlspecialchars($e->getMessage()) . '</p><p>Arquivo: ' . htmlspecialchars($e->getFile()) . '</p><p>Linha: ' . $e->getLine() . '</p></body></html>');
+            }
+        } else {
+            http_response_code(500);
+            die('<!DOCTYPE html><html><head><title>Plugin Not Found</title></head><body><h1>Plugin não encontrado</h1><p>Caminho testado: ' . htmlspecialchars($plugin_file) . '</p></body></html>');
         }
     }
     
