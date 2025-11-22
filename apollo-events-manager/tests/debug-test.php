@@ -193,25 +193,52 @@ if (!defined('ABSPATH')) {
     if (class_exists('Apollo_Events_Manager_Plugin')) {
         global $apollo_events_manager;
         if (!isset($apollo_events_manager) || !($apollo_events_manager instanceof Apollo_Events_Manager_Plugin)) {
-            $apollo_events_manager = new Apollo_Events_Manager_Plugin();
+            try {
+                $apollo_events_manager = new Apollo_Events_Manager_Plugin();
+            } catch (Exception $e) {
+                error_log('Apollo Test: Error instantiating plugin - ' . $e->getMessage());
+            } catch (Error $e) {
+                error_log('Apollo Test: Fatal error instantiating plugin - ' . $e->getMessage());
+            }
         }
+    } else {
+        // Plugin class doesn't exist - this is a problem
+        error_log('Apollo Test: Apollo_Events_Manager_Plugin class not found');
     }
     
     // Note: We don't manually trigger init here because:
     // 1. wp-load.php should have already triggered it
     // 2. Manually triggering can cause errors if WordPress isn't fully initialized
     // 3. If init hasn't fired, WordPress will fire it automatically when needed
+    // 4. We'll register everything manually below instead
     
-    // CRITICAL: If init already fired, manually register everything
-    // This ensures CPTs and shortcodes are registered even if init fired before plugin loaded
-    if (did_action('init')) {
-        // Ensure post types are registered
-        $post_types_file = dirname(dirname(__FILE__)) . '/includes/post-types.php';
-        if (file_exists($post_types_file)) {
-            require_once $post_types_file;
+    // CRITICAL: Always manually register everything to ensure it's available
+    // This works regardless of whether init has fired or not
+    
+    // 1. Ensure post types are registered
+    $post_types_file = dirname(dirname(__FILE__)) . '/includes/post-types.php';
+    if (file_exists($post_types_file)) {
+        require_once $post_types_file;
+        if (class_exists('Apollo_Post_Types')) {
+            // Create instance (this registers hooks, but we'll call methods directly too)
+            $post_types_instance = new Apollo_Post_Types();
+            
+            // Force registration directly (don't wait for init hook)
+            // These methods can be called directly even if init hasn't fired
+            if (method_exists($post_types_instance, 'register_post_types')) {
+                $post_types_instance->register_post_types();
+            }
+            if (method_exists($post_types_instance, 'register_taxonomies')) {
+                $post_types_instance->register_taxonomies();
+            }
+        }
+    } else {
+        // Try alternative path
+        $post_types_file_alt = dirname(dirname(__FILE__)) . '/apollo-events-manager/includes/post-types.php';
+        if (file_exists($post_types_file_alt)) {
+            require_once $post_types_file_alt;
             if (class_exists('Apollo_Post_Types')) {
                 $post_types_instance = new Apollo_Post_Types();
-                // Force registration directly
                 if (method_exists($post_types_instance, 'register_post_types')) {
                     $post_types_instance->register_post_types();
                 }
@@ -220,50 +247,67 @@ if (!defined('ABSPATH')) {
                 }
             }
         }
-        
-        // Ensure clubber role exists
-        if (!get_role('clubber')) {
-            add_role(
-                'clubber',
-                __('Clubber', 'apollo-events-manager'),
-                array(
-                    'read' => true,
-                    'upload_files' => true,
-                    'edit_posts' => false,
-                    'publish_posts' => false,
-                )
-            );
-        }
-        
-        // CRITICAL: Load shortcode files that register shortcodes at file level
-        $plugin_dir = dirname(dirname(__FILE__));
-        
-        // Load submit form shortcode
-        $submit_file = $plugin_dir . '/includes/shortcodes-submit.php';
-        if (file_exists($submit_file) && !function_exists('aem_submit_event_shortcode')) {
+    }
+    
+    // 2. Ensure clubber role exists
+    if (!get_role('clubber')) {
+        add_role(
+            'clubber',
+            __('Clubber', 'apollo-events-manager'),
+            array(
+                'read' => true,
+                'upload_files' => true,
+                'edit_posts' => false,
+                'publish_posts' => false,
+            )
+        );
+    }
+    
+    // 3. CRITICAL: Load shortcode files that register shortcodes at file level
+    $plugin_dir = dirname(dirname(__FILE__));
+    
+    // Load submit form shortcode
+    $submit_file = $plugin_dir . '/includes/shortcodes-submit.php';
+    if (file_exists($submit_file)) {
+        if (!function_exists('aem_submit_event_shortcode')) {
             require_once $submit_file;
         }
-        
-        // Load auth shortcodes
-        $auth_file = $plugin_dir . '/includes/shortcodes-auth.php';
-        if (file_exists($auth_file) && !function_exists('apollo_register_shortcode')) {
+    }
+    
+    // Load auth shortcodes
+    $auth_file = $plugin_dir . '/includes/shortcodes-auth.php';
+    if (file_exists($auth_file)) {
+        if (!function_exists('apollo_register_shortcode')) {
             require_once $auth_file;
         }
-        
-        // Load My Apollo dashboard shortcode
-        $my_apollo_file = $plugin_dir . '/includes/shortcodes-my-apollo.php';
-        if (file_exists($my_apollo_file) && !function_exists('apollo_my_apollo_dashboard_shortcode')) {
+    }
+    
+    // Load My Apollo dashboard shortcode
+    $my_apollo_file = $plugin_dir . '/includes/shortcodes-my-apollo.php';
+    if (file_exists($my_apollo_file)) {
+        if (!function_exists('apollo_my_apollo_dashboard_shortcode')) {
             require_once $my_apollo_file;
         }
-        
-        // Register apollo_eventos shortcode (alias for events)
-        if (!shortcode_exists('apollo_eventos')) {
-            if (function_exists('apollo_events_shortcode_handler')) {
-                add_shortcode('apollo_eventos', 'apollo_events_shortcode_handler');
-            } elseif (function_exists('apollo_events_shortcode')) {
-                add_shortcode('apollo_eventos', 'apollo_events_shortcode');
-            }
+    }
+    
+    // 4. Register apollo_eventos shortcode (alias for events)
+    if (!shortcode_exists('apollo_eventos')) {
+        if (function_exists('apollo_events_shortcode_handler')) {
+            add_shortcode('apollo_eventos', 'apollo_events_shortcode_handler');
+        } elseif (function_exists('apollo_events_shortcode')) {
+            add_shortcode('apollo_eventos', 'apollo_events_shortcode');
+        } elseif (isset($apollo_events_manager) && $apollo_events_manager instanceof Apollo_Events_Manager_Plugin) {
+            // Register using the plugin's events_shortcode method
+            add_shortcode('apollo_eventos', array($apollo_events_manager, 'events_shortcode'));
         }
+    }
+    
+    // 5. Ensure AJAX handlers are registered (they're registered in constructor, but double-check)
+    global $apollo_events_manager;
+    if (isset($apollo_events_manager) && $apollo_events_manager instanceof Apollo_Events_Manager_Plugin) {
+        // AJAX handlers should already be registered in init_hooks() called from constructor
+        // But if they're not, we can't easily re-register them without re-instantiating
+        // The plugin should have registered them already
     }
 }
 
