@@ -239,30 +239,59 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
         <div class="event-manager-shortcode-wrapper discover-events-now-shortcode">
 
             <section class="hero-section">
-                <h1 class="title-page">Experience Tomorrow's Events</h1>
+                <h1 class="title-page">Descubra os Próximos Eventos</h1>
                 <p class="subtitle-page">Um novo <mark>&nbsp;hub digital que conecta cultura,&nbsp;</mark> tecnologia e experiências em tempo real... <mark>&nbsp;O futuro da cultura carioca começa aqui!&nbsp;</mark></p>
             </section>
 
             <!-- FILTERS & SEARCH -->
             <div class="filters-and-search">
-                <div class="menutags event_types">
-                    <button class="menutag event-category active" data-slug="all">
+                <div class="menutags event_types" role="group" aria-label="Filtros de eventos">
+                    <button type="button" class="menutag event-category active" data-slug="all" aria-pressed="true">
                         <span id="xxall" class="xxall" style="opacity: 1;">Todos</span>
                     </button>
-                    <button class="menutag event-category" data-slug="music">House</button>
-                    <button class="menutag event-category" data-slug="art-culture">PsyTrance</button>
-                    <button class="menutag event-category" data-slug="mainstream">Techno</button>
-                    <button class="menutag event-category event-local-filter" data-slug="dedge" data-filter-type="local">D-Edge club</button>
+                    <?php
+                    // Get categories dynamically
+                    $categories = get_terms(array(
+                        'taxonomy' => 'event_listing_category',
+                        'hide_empty' => false,
+                    ));
+                    
+                    if (!is_wp_error($categories) && !empty($categories)) {
+                        foreach ($categories as $category) {
+                            $slug = $category->slug;
+                            $name = $category->name;
+                            echo '<button type="button" class="menutag event-category" data-slug="' . esc_attr($slug) . '" aria-pressed="false">' . esc_html($name) . '</button>';
+                        }
+                    }
+                    ?>
+                    <?php
+                    // Get locals dynamically for filter
+                    $locals = get_posts(array(
+                        'post_type' => 'event_local',
+                        'posts_per_page' => 5,
+                        'post_status' => 'publish',
+                        'orderby' => 'title',
+                        'order' => 'ASC',
+                    ));
+                    
+                    if (!empty($locals)) {
+                        foreach ($locals as $local) {
+                            $local_slug = $local->post_name;
+                            $local_name = get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                            echo '<button type="button" class="menutag event-category event-local-filter" data-slug="' . esc_attr($local_slug) . '" data-filter-type="local" aria-pressed="false">' . esc_html($local_name) . '</button>';
+                        }
+                    }
+                    ?>
                     
                     <!-- DATE CHIP -->
-                    <div class="date-chip" id="eventDatePicker">
+                    <div class="date-chip" id="eventDatePicker" role="group" aria-label="Navegação de mês">
                         <button type="button" class="date-arrow" id="datePrev" aria-label="Mês anterior">‹</button>
                         <span class="date-display" id="dateDisplay" aria-live="polite"><?php echo date_i18n('M'); ?></span>
                         <button type="button" class="date-arrow" id="dateNext" aria-label="Próximo mês">›</button>
                     </div>
                     
                     <!-- LAYOUT TOGGLE -->
-                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Events List View" aria-pressed="false" data-layout="card">
+                    <button type="button" class="layout-toggle" id="wpem-event-toggle-layout" title="Alternar entre visualização em cards e lista" aria-pressed="false" aria-label="Alternar layout" data-layout="card">
                         <i class="ri-building-3-fill" aria-hidden="true"></i>
                         <span class="visually-hidden">Alternar layout</span>
                     </button>
@@ -287,20 +316,39 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                 // ============================================
                 // PERFORMANCE: Query otimizada com cache
                 // CRITICAL FIX: Remove limit, show ALL events
+                // DEBUG: Bypass cache if APOLLO_PORTAL_DEBUG_BYPASS_CACHE is defined
                 // ============================================
+                $bypass_cache = defined('APOLLO_PORTAL_DEBUG_BYPASS_CACHE') && APOLLO_PORTAL_DEBUG_BYPASS_CACHE;
                 $cache_key  = 'apollo_all_event_ids_' . date('Ymd');
-                $event_ids  = get_transient($cache_key);
+                $event_ids  = $bypass_cache ? false : get_transient($cache_key);
                 $event_posts = array();
                 
-                if (false === $event_ids) {
+                if (false === $event_ids || $bypass_cache) {
+                    if ($bypass_cache && defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                        error_log('Apollo Portal Debug: Bypassing cache - running fresh query');
+                    }
                     // CRITICAL: Query ALL published events, no date filter
                     $query_args = array(
-                        'post_type'      => 'event_listing',
-                        'posts_per_page' => -1, // CRITICAL: No limit - get ALL events
-                        'post_status'    => 'publish',
-                        'meta_key'       => '_event_start_date',
-                        'orderby'        => 'meta_value',
-                        'order'          => 'ASC',
+                        'post_type'                => 'event_listing',
+                        'posts_per_page'           => -1, // CRITICAL: No limit - get ALL events
+                        'post_status'              => 'publish',
+                        'meta_key'                 => '_event_start_date',
+                        'orderby'                  => 'meta_value',
+                        'order'                    => 'ASC',
+                        'update_post_meta_cache'    => true,
+                        'update_post_term_cache'    => true,
+                        'no_found_rows'            => true, // Skip pagination count for performance
+                        'meta_query'               => array(
+                            'relation' => 'OR',
+                            array(
+                                'key'     => '_event_start_date',
+                                'compare' => 'EXISTS',
+                            ),
+                            array(
+                                'key'     => '_event_start_date',
+                                'compare' => 'NOT EXISTS',
+                            ),
+                        ),
                         // CRITICAL: Removed date filter to show ALL events
                         // Include events with or without dates
                     );
@@ -315,16 +363,18 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         // Debug logging para verificar resultados da query
                         if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
                             error_log('Apollo Portal Debug: Query executada - Found posts: ' . $query->found_posts);
-                            error_log('Apollo Portal Debug: Query args: ' . print_r($query_args, true));
+                            error_log('Apollo Portal Debug: Query args: ' . wp_json_encode($query_args));
                         }
                         $collected_ids = array();
                         
                         if ($query->have_posts()) {
                             while ($query->have_posts()) {
                                 $query->the_post();
-                                $candidate_id   = get_the_ID();
+                                $candidate_id = get_the_ID();
                                 // CRITICAL: Don't skip events without dates - include them all
-                                $collected_ids[] = absint($candidate_id);
+                                if ($candidate_id > 0) {
+                                    $collected_ids[] = absint($candidate_id);
+                                }
                             }
                             wp_reset_postdata();
                         }
@@ -334,29 +384,52 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                         // Debug logging
                         if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
                             error_log('Apollo Portal Debug: Event IDs coletados: ' . count($event_ids));
+                            if (count($event_ids) > 0) {
+                                error_log('Apollo Portal Debug: Primeiros 5 IDs: ' . implode(', ', array_slice($event_ids, 0, 5)));
+                            }
                         }
                         
-                        // CRITICAL: Cache for shorter time to ensure fresh data
-                        set_transient($cache_key, $event_ids, 2 * MINUTE_IN_SECONDS);
+                        // CRITICAL: Cache for shorter time to ensure fresh data (2 minutes)
+                        // Only cache if not bypassing
+                        if (!$bypass_cache) {
+                            // TTL: 2 minutes for fresh data, but can be increased for production
+                            $cache_ttl = defined('APOLLO_PORTAL_CACHE_TTL') ? absint(APOLLO_PORTAL_CACHE_TTL) : (2 * MINUTE_IN_SECONDS);
+                            set_transient($cache_key, $event_ids, $cache_ttl);
+                        }
+                    }
+                } else {
+                    // Cache hit - log for debugging
+                    if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+                        error_log('Apollo Portal Debug: Cache hit - Event IDs from cache: ' . count($event_ids));
                     }
                 }
                 
                 if (!empty($event_ids)) {
                     $event_posts = get_posts(array(
-                        'post_type'      => 'event_listing',
-                        'post_status'    => 'publish',
-                        'post__in'       => $event_ids,
-                        'orderby'        => 'post__in',
-                        'posts_per_page' => count($event_ids),
+                        'post_type'                => 'event_listing',
+                        'post_status'              => 'publish',
+                        'post__in'                 => $event_ids,
+                        'orderby'                  => 'post__in',
+                        'posts_per_page'           => count($event_ids),
+                        'update_post_meta_cache'    => true,
+                        'update_post_term_cache'    => true,
+                        'no_found_rows'            => true, // Skip pagination count for performance
                     ));
                     
                     if (!empty($event_posts)) {
+                        // Pre-fetch meta cache for all events (prevents N+1 queries)
                         update_meta_cache('post', $event_ids);
+                        // Pre-fetch term cache
+                        $post_ids = wp_list_pluck($event_posts, 'ID');
+                        update_post_term_cache($post_ids, 'event_listing');
                     }
                 }
                 
                 if (empty($event_posts)) {
-                    echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                    echo '<div class="no-events-found" role="alert">
+                        <i class="ri-calendar-event-line" aria-hidden="true"></i>
+                        <p>Nenhum evento encontrado para este filtro. Tente outro estilo ou data.</p>
+                    </div>';
                     
                     // Debug info (only for admins in debug mode)
                     if (defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG && current_user_can('manage_options')) {
@@ -401,7 +474,10 @@ remove_action('wp_footer', 'wp_print_footer_scripts', 20);
                     }
                     
                     if (empty($filtered_events)) {
-                        echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+                        echo '<div class="no-events-found" role="alert">
+                            <i class="ri-calendar-event-line" aria-hidden="true"></i>
+                            <p>Nenhum evento encontrado para este filtro. Tente outro estilo ou data.</p>
+                        </div>';
                     }
 
                     if (!empty($filtered_events)) {
@@ -795,6 +871,7 @@ $footer_content = ob_get_clean();
 // Filtra APENAS scripts Apollo permitidos (baseado na whitelist)
 $allowed_script_patterns = [
     'apollo-events-manager',
+    'apollo-events-portal', // CRITICAL: Portal JS
     'apollo-social',
     'leaflet',
     'jquery', // Apenas se necessário para Apollo AJAX

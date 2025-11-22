@@ -1434,8 +1434,32 @@ function apollo_event_get_location_area( $event_id ) {
 function apollo_event_get_dj_names( $event_id ) {
     $djs_names = array();
     
-    // Tentativa 1: _timetable (same as portal-discover.php)
-    $timetable = get_post_meta( $event_id, '_timetable', true );
+    // Tentativa 1: _event_timetable (canonical key)
+    $timetable = get_post_meta( $event_id, '_event_timetable', true );
+    $timetable = apollo_sanitize_timetable( $timetable );
+    
+    // Tentativa 2: _event_dj_ids (canonical key)
+    if ( empty( $timetable ) ) {
+        $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
+        if ( ! empty( $dj_ids ) && is_array( $dj_ids ) ) {
+            foreach ( $dj_ids as $dj_id ) {
+                $dj_id = absint( $dj_id );
+                if ( ! $dj_id ) continue;
+                
+                $dj_name = get_post_meta( $dj_id, '_dj_name', true );
+                if ( ! $dj_name ) {
+                    $dj_post = get_post( $dj_id );
+                    $dj_name = $dj_post ? $dj_post->post_title : '';
+                }
+                
+                if ( ! empty( $dj_name ) ) {
+                    $djs_names[] = trim( sanitize_text_field( $dj_name ) );
+                }
+            }
+        }
+    }
+    
+    // Process timetable if available
     if ( ! empty( $timetable ) && is_array( $timetable ) ) {
         foreach ( $timetable as $slot ) {
             if ( empty( $slot['dj'] ) ) {
@@ -1460,7 +1484,7 @@ function apollo_event_get_dj_names( $event_id ) {
         }
     }
     
-    // Tentativa 2: _dj_name direto (fallback)
+    // Tentativa 3: _dj_name direto (fallback legacy)
     if ( empty( $djs_names ) ) {
         $dj_meta = get_post_meta( $event_id, '_dj_name', true );
         if ( $dj_meta ) {
@@ -1468,10 +1492,35 @@ function apollo_event_get_dj_names( $event_id ) {
         }
     }
     
-    // Tentativa 3: Buscar relationships (se usa meta _event_djs)
+    // Tentativa 4: Legacy _timetable (fallback para migração)
+    if ( empty( $djs_names ) ) {
+        $legacy_timetable = get_post_meta( $event_id, '_timetable', true );
+        $legacy_timetable = apollo_sanitize_timetable( $legacy_timetable );
+        if ( ! empty( $legacy_timetable ) && is_array( $legacy_timetable ) ) {
+            foreach ( $legacy_timetable as $slot ) {
+                if ( empty( $slot['dj'] ) ) continue;
+                
+                if ( is_numeric( $slot['dj'] ) ) {
+                    $dj_name = get_post_meta( $slot['dj'], '_dj_name', true );
+                    if ( ! $dj_name ) {
+                        $dj_post = get_post( $slot['dj'] );
+                        $dj_name = $dj_post ? $dj_post->post_title : '';
+                    }
+                } else {
+                    $dj_name = (string) $slot['dj'];
+                }
+                
+                if ( ! empty( $dj_name ) ) {
+                    $djs_names[] = trim( sanitize_text_field( $dj_name ) );
+                }
+            }
+        }
+    }
+    
+    // Tentativa 5: Legacy _event_djs (fallback para migração)
     if ( empty( $djs_names ) ) {
         $related_djs = get_post_meta( $event_id, '_event_djs', true );
-        if ( is_array( $related_djs ) ) {
+        if ( ! empty( $related_djs ) && is_array( $related_djs ) ) {
             foreach ( $related_djs as $dj_id ) {
                 $dj_name = get_post_meta( $dj_id, '_dj_name', true );
                 if ( $dj_name ) {

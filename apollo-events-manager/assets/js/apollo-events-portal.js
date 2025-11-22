@@ -40,16 +40,26 @@
         initModal: function() {
             const self = this;
             
-            // Click handler for event cards
+            // Click handler for event cards (use event delegation for dynamically added cards)
             $(document).on('click', '.event_listing', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 
-                const eventId = $(this).data('event-id');
+                const $card = $(this);
+                const eventId = $card.data('event-id') || $card.attr('data-event-id');
+                
                 if (!eventId) {
-                    if (DEBUG) console.error('No event-id found on card');
+                    if (DEBUG) {
+                        console.error('No event-id found on card', {
+                            element: this,
+                            hasDataAttr: $card.attr('data-event-id'),
+                            allDataAttrs: $card.data()
+                        });
+                    }
                     return;
                 }
                 
+                if (DEBUG) console.log('Event card clicked:', eventId);
                 self.openModal(eventId);
             });
             
@@ -81,6 +91,9 @@
             const self = this;
             const $modal = $('#apollo-event-modal');
             
+            // Store the element that triggered the modal (for focus restoration)
+            this.lastFocusedElement = document.activeElement;
+            
             if (!$modal.length) {
                 if (DEBUG) console.error('Modal container not found');
                 // Create modal container if it doesn't exist
@@ -105,31 +118,68 @@
             $('body').addClass('apollo-modal-open');
             
             // AJAX request for event details
+            const ajaxData = {
+                action: 'apollo_get_event_modal',
+                event_id: eventId,
+                nonce: apolloPortalAjax.nonce || ''
+            };
+            
+            if (DEBUG) {
+                console.log('AJAX Request:', {
+                    url: apolloPortalAjax.ajaxurl || ajaxurl || '/wp-admin/admin-ajax.php',
+                    data: ajaxData,
+                    noncePresent: !!apolloPortalAjax.nonce
+                });
+            }
+            
             $.ajax({
                 url: apolloPortalAjax.ajaxurl || ajaxurl || '/wp-admin/admin-ajax.php',
                 type: 'POST',
-                data: {
-                    action: 'apollo_get_event_modal',
-                    event_id: eventId,
-                    nonce: apolloPortalAjax.nonce || ''
-                },
+                data: ajaxData,
+                timeout: 30000, // 30 second timeout
                 success: function(response) {
+                    if (DEBUG) console.log('AJAX Response:', response);
+                    
                     if (response.success && response.data && response.data.html) {
                         $modal.html(response.data.html);
                         self.scrollToTop();
                         
+                        // Focus trap for accessibility
+                        self.trapFocus($modal);
+                        
                         // Trigger custom event
                         $(document).trigger('apollo:modal:opened', [eventId]);
                         
-                        if (DEBUG) console.log('Modal opened for event:', eventId);
+                        if (DEBUG) console.log('Modal opened successfully for event:', eventId);
                     } else {
-                        $modal.html('<div class="apollo-modal-error">Erro ao carregar detalhes do evento.</div>');
+                        const errorMsg = response.data && response.data.message 
+                            ? response.data.message 
+                            : 'Erro ao carregar detalhes do evento.';
+                        $modal.html('<div class="apollo-modal-error">' + errorMsg + '</div>');
                         if (DEBUG) console.error('Modal AJAX error:', response);
                     }
                 },
                 error: function(xhr, status, error) {
-                    $modal.html('<div class="apollo-modal-error">Erro ao carregar evento. Tente novamente.</div>');
-                    if (DEBUG) console.error('Modal AJAX request failed:', error);
+                    let errorMsg = 'Erro ao carregar evento. Tente novamente.';
+                    
+                    if (xhr.status === 0) {
+                        errorMsg = 'Erro de conexão. Verifique sua internet.';
+                    } else if (xhr.status === 403) {
+                        errorMsg = 'Acesso negado. Verifique se está logado.';
+                    } else if (xhr.status === 404) {
+                        errorMsg = 'Evento não encontrado.';
+                    }
+                    
+                    $modal.html('<div class="apollo-modal-error">' + errorMsg + '</div>');
+                    
+                    if (DEBUG) {
+                        console.error('Modal AJAX request failed:', {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            error: error,
+                            responseText: xhr.responseText
+                        });
+                    }
                 }
             });
         },
@@ -139,6 +189,13 @@
          */
         closeModal: function() {
             const $modal = $('#apollo-event-modal');
+            
+            // Restore focus to the element that opened the modal
+            if (this.lastFocusedElement) {
+                this.lastFocusedElement.focus();
+                this.lastFocusedElement = null;
+            }
+            
             $modal.attr('aria-hidden', 'true').removeClass('open');
             $('body').removeClass('apollo-modal-open');
             $modal.html('');
@@ -146,6 +203,47 @@
             $(document).trigger('apollo:modal:closed');
             
             if (DEBUG) console.log('Modal closed');
+        },
+        
+        /**
+         * Trap focus inside modal for accessibility
+         */
+        trapFocus: function($modal) {
+            const focusableElements = $modal.find(
+                'a[href], button:not([disabled]), textarea:not([disabled]), ' +
+                'input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            ).filter(':visible');
+            
+            if (focusableElements.length === 0) {
+                return;
+            }
+            
+            const firstElement = focusableElements.first();
+            const lastElement = focusableElements.last();
+            
+            // Focus first element
+            firstElement.focus();
+            
+            // Trap focus on Tab key
+            $modal.on('keydown', function(e) {
+                if (e.key !== 'Tab' && e.keyCode !== 9) {
+                    return;
+                }
+                
+                if (e.shiftKey) {
+                    // Shift + Tab
+                    if (document.activeElement === firstElement[0]) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else {
+                    // Tab
+                    if (document.activeElement === lastElement[0]) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            });
         },
 
         /**
@@ -171,9 +269,9 @@
                 const $button = $(this);
                 const slug = $button.data('slug') || 'all';
                 
-                // Update active state
-                $('.event-category').removeClass('active');
-                $button.addClass('active');
+                // Update active state and aria-pressed
+                $('.event-category').removeClass('active').attr('aria-pressed', 'false');
+                $button.addClass('active').attr('aria-pressed', 'true');
                 
                 // Filter events
                 self.filterEvents('category', slug);
@@ -188,9 +286,9 @@
                 const $button = $(this);
                 const slug = $button.data('slug') || '';
                 
-                // Update active state
-                $('.event-local-filter').removeClass('active');
-                $button.addClass('active');
+                // Update active state and aria-pressed
+                $('.event-local-filter').removeClass('active').attr('aria-pressed', 'false');
+                $button.addClass('active').attr('aria-pressed', 'true');
                 
                 // Filter events
                 self.filterEvents('local', slug);
@@ -201,8 +299,43 @@
 
         /**
          * Filter events by type and value
+         * Now supports combining multiple filters
          */
         filterEvents: function(type, value) {
+            // Store current filter state
+            if (!this.filterState) {
+                this.filterState = {
+                    category: 'all',
+                    local: '',
+                    month: null,
+                    year: null,
+                    search: ''
+                };
+            }
+            
+            // Update filter state
+            if (type === 'category') {
+                this.filterState.category = value;
+            } else if (type === 'local') {
+                this.filterState.local = value;
+            }
+            
+            // Apply all filters together
+            this.applyAllFilters();
+        },
+        
+        /**
+         * Apply all active filters together
+         */
+        applyAllFilters: function() {
+            const state = this.filterState || {
+                category: 'all',
+                local: '',
+                month: null,
+                year: null,
+                search: ''
+            };
+            
             const $events = $('.event_listing');
             let visibleCount = 0;
             
@@ -210,16 +343,55 @@
                 const $event = $(this);
                 let show = true;
                 
-                if (type === 'category') {
+                // Category filter
+                if (state.category !== 'all') {
                     const eventCategory = $event.data('category') || 'general';
-                    if (value !== 'all' && eventCategory !== value) {
+                    if (eventCategory !== state.category) {
                         show = false;
                     }
-                } else if (type === 'local') {
+                }
+                
+                // Local filter
+                if (show && state.local) {
                     const eventLocal = $event.data('local-slug') || '';
                     const normalizedEventLocal = eventLocal.toLowerCase().replace(/-/g, '');
-                    const normalizedValue = value.toLowerCase().replace(/-/g, '');
-                    if (normalizedValue && normalizedEventLocal !== normalizedValue) {
+                    const normalizedValue = state.local.toLowerCase().replace(/-/g, '');
+                    if (normalizedEventLocal !== normalizedValue) {
+                        show = false;
+                    }
+                }
+                
+                // Month filter
+                if (show && state.month !== null && state.year !== null) {
+                    const eventDateStr = $event.data('event-start-date') || '';
+                    const eventMonthStr = $event.data('month-str') || '';
+                    
+                    if (eventDateStr) {
+                        const eventDate = new Date(eventDateStr);
+                        if (eventDate.getMonth() !== state.month || eventDate.getFullYear() !== state.year) {
+                            show = false;
+                        }
+                    } else if (eventMonthStr) {
+                        const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+                        const targetMonthName = monthNames[state.month];
+                        if (eventMonthStr.toLowerCase() !== targetMonthName) {
+                            show = false;
+                        }
+                    }
+                }
+                
+                // Search filter
+                if (show && state.search) {
+                    const query = state.search.toLowerCase();
+                    const title = ($event.find('.event-li-title, .event-title, h3, h2').first().text() || '').toLowerCase();
+                    const djText = ($event.find('.of-dj span, .dj-names').text() || '').toLowerCase();
+                    const locationText = ($event.find('.of-location span, .location-name').text() || '').toLowerCase();
+                    
+                    const matches = title.indexOf(query) !== -1 ||
+                                  djText.indexOf(query) !== -1 ||
+                                  locationText.indexOf(query) !== -1;
+                    
+                    if (!matches) {
                         show = false;
                     }
                 }
@@ -233,10 +405,24 @@
             });
             
             // Show/hide "no events" message
+            this.updateNoEventsMessage(visibleCount);
+            
+            if (DEBUG) {
+                console.log('Filters applied:', state, '- Visible events:', visibleCount);
+            }
+        },
+        
+        /**
+         * Update "no events" message
+         */
+        updateNoEventsMessage: function(visibleCount) {
             const $noEvents = $('.no-events-found');
             if (visibleCount === 0) {
+                const message = 'Nenhum evento encontrado para este filtro. Tente outro estilo ou data.';
                 if (!$noEvents.length) {
-                    $('.event_listings').after('<p class="no-events-found">Nenhum evento encontrado com os filtros selecionados.</p>');
+                    $('.event_listings').after('<p class="no-events-found" role="alert">' + message + '</p>');
+                } else {
+                    $noEvents.text(message);
                 }
             } else {
                 $noEvents.remove();
@@ -264,49 +450,27 @@
 
         /**
          * Search events by query
+         * Now integrates with other filters
          */
         searchEvents: function(query) {
-            const $events = $('.event_listing');
-            let visibleCount = 0;
-            
-            if (!query) {
-                // Show all if search is empty
-                $events.show();
-                $('.no-events-found').remove();
-                return;
+            // Initialize filter state if needed
+            if (!this.filterState) {
+                this.filterState = {
+                    category: 'all',
+                    local: '',
+                    month: null,
+                    year: null,
+                    search: ''
+                };
             }
             
-            $events.each(function() {
-                const $event = $(this);
-                const title = ($event.find('.event-li-title').text() || '').toLowerCase();
-                const djText = ($event.find('.of-dj span').text() || '').toLowerCase();
-                const locationText = ($event.find('.of-location span').text() || '').toLowerCase();
-                
-                const matches = title.indexOf(query) !== -1 ||
-                              djText.indexOf(query) !== -1 ||
-                              locationText.indexOf(query) !== -1;
-                
-                if (matches) {
-                    $event.show();
-                    visibleCount++;
-                } else {
-                    $event.hide();
-                }
-            });
+            // Update search state
+            this.filterState.search = query || '';
             
-            // Show/hide "no results" message
-            const $noEvents = $('.no-events-found');
-            if (visibleCount === 0) {
-                if (!$noEvents.length) {
-                    $('.event_listings').after('<p class="no-events-found">Nenhum resultado encontrado para "' + query + '".</p>');
-                } else {
-                    $noEvents.text('Nenhum resultado encontrado para "' + query + '".');
-                }
-            } else {
-                $noEvents.remove();
-            }
+            // Apply all filters together
+            this.applyAllFilters();
             
-            if (DEBUG) console.log('Search query:', query, '- Results:', visibleCount);
+            if (DEBUG) console.log('Search query:', query);
         },
 
         /**
@@ -429,48 +593,25 @@
          * Filter events by month
          */
         filterEventsByMonth: function(month, year) {
-            const $events = $('.event_listing');
-            let visibleCount = 0;
-            
-            $events.each(function() {
-                const $event = $(this);
-                const eventDateStr = $event.data('event-start-date') || '';
-                const eventMonthStr = $event.data('month-str') || '';
-                
-                let show = true;
-                
-                if (eventDateStr) {
-                    const eventDate = new Date(eventDateStr);
-                    if (eventDate.getMonth() !== month || eventDate.getFullYear() !== year) {
-                        show = false;
-                    }
-                } else if (eventMonthStr) {
-                    const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-                    const targetMonthName = monthNames[month];
-                    if (eventMonthStr.toLowerCase() !== targetMonthName) {
-                        show = false;
-                    }
-                }
-                
-                if (show) {
-                    $event.show();
-                    visibleCount++;
-                } else {
-                    $event.hide();
-                }
-            });
-            
-            // Show/hide "no events" message
-            const $noEvents = $('.no-events-found');
-            if (visibleCount === 0) {
-                if (!$noEvents.length) {
-                    $('.event_listings').after('<p class="no-events-found">Nenhum evento encontrado para este mês.</p>');
-                }
-            } else {
-                $noEvents.remove();
+            // Initialize filter state if needed
+            if (!this.filterState) {
+                this.filterState = {
+                    category: 'all',
+                    local: '',
+                    month: null,
+                    year: null,
+                    search: ''
+                };
             }
             
-            if (DEBUG) console.log('Filter by month:', month, year, '- Results:', visibleCount);
+            // Update month/year state
+            this.filterState.month = month;
+            this.filterState.year = year;
+            
+            // Apply all filters together
+            this.applyAllFilters();
+            
+            if (DEBUG) console.log('Filter by month:', month, year);
         }
     };
 

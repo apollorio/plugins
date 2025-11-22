@@ -309,7 +309,8 @@ $density_class = $content_density > 5 ? 'high-density' : ($content_density > 3 ?
     <div class="picture">
         <img src="<?php echo esc_url($banner_url); ?>" 
              alt="<?php echo esc_attr($event_title); ?>" 
-             loading="lazy">
+             loading="lazy"
+             decoding="async">
         
         <?php if (!empty($sounds)): ?>
         <div class="event-card-tags">

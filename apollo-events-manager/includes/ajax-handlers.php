@@ -10,38 +10,74 @@ if (!defined('ABSPATH')) {
 
 /**
  * Register AJAX handlers
+ * NOTE: Main handler is in apollo-events-manager.php (ajax_get_event_modal)
+ * This handler is kept for backward compatibility but redirects to main handler
  */
 add_action('wp_ajax_apollo_load_event_modal', 'apollo_ajax_load_event_modal');
 add_action('wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_modal');
 
 /**
- * AJAX Handler: Load event modal content
+ * AJAX Handler: Load event modal content (Legacy - redirects to main handler)
  * Returns complete HTML for the lightbox modal
+ * 
+ * @deprecated Use apollo_get_event_modal action instead
  */
 function apollo_ajax_load_event_modal() {
-    // Verificar nonce
-    check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
+    try {
+        // Verify nonce (standardized)
+        check_ajax_referer('apollo_events_nonce', 'nonce');
 
-    // Validar ID
-    $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
-    if (!$event_id) {
-        wp_send_json_error(array('message' => 'ID inválido'));
-    }
+        // Validate event ID
+        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        if (!$event_id) {
+            wp_send_json_error(array('message' => 'ID inválido'));
+            return;
+        }
 
-    // Verificar se evento existe
-    $event = get_post($event_id);
-    if (!$event || $event->post_type !== 'event_listing') {
-        wp_send_json_error(array('message' => 'Evento não encontrado'));
-    }
+        // Verify event exists
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event_listing') {
+            wp_send_json_error(array('message' => 'Evento não encontrado'));
+            return;
+        }
 
-    // Buscar todos metas
+    // Use canonical meta keys: _event_dj_ids, _event_local_ids, _event_timetable
     $start_date = get_post_meta($event_id, '_event_start_date', true);
     $banner = get_post_meta($event_id, '_event_banner', true);
-    $location = get_post_meta($event_id, '_event_location', true);
+    
+    // Get local using canonical key or connection manager
+    $local_id = 0;
+    if (class_exists('Apollo_Local_Connection')) {
+        $connection = Apollo_Local_Connection::get_instance();
+        $local_id = $connection->get_local_id($event_id);
+    } else {
+        $local_id = get_post_meta($event_id, '_event_local_ids', true);
+        if (is_array($local_id)) {
+            $local_id = !empty($local_id) ? absint($local_id[0]) : 0;
+        } else {
+            $local_id = absint($local_id);
+        }
+    }
+    
+    $location = '';
+    if ($local_id > 0) {
+        $local_post = get_post($local_id);
+        if ($local_post) {
+            $local_name = get_post_meta($local_id, '_local_name', true);
+            $location = $local_name !== '' ? $local_name : $local_post->post_title;
+        }
+    }
+    
+    // Fallback to _event_location if no local found
+    if (empty($location)) {
+        $location = get_post_meta($event_id, '_event_location', true);
+    }
 
+    // Get timetable using canonical key
     $event_timetable = get_post_meta($event_id, '_event_timetable', true);
     $timetable = apollo_sanitize_timetable($event_timetable);
 
+    // Migrate legacy _timetable if canonical is empty
     if (empty($timetable)) {
         $legacy_timetable = get_post_meta($event_id, '_timetable', true);
         $timetable = apollo_sanitize_timetable($legacy_timetable);
@@ -51,13 +87,13 @@ function apollo_ajax_load_event_modal() {
         }
     }
     
-    // Processar data
+    // Process date
     $date_info = apollo_eve_parse_start_date($start_date);
     
-    // Processar DJs (usar mesma lógica do template)
+    // Process DJs using canonical key _event_dj_ids
     $djs_names = array();
     
-    // Tentativa 1: _event_timetable normalizado
+    // Priority 1: _event_timetable (has times)
     if (!empty($timetable)) {
         foreach ($timetable as $slot) {
             $dj_id = isset($slot['dj']) ? intval($slot['dj']) : 0;
@@ -79,6 +115,7 @@ function apollo_ajax_load_event_modal() {
         }
     }
 
+    // Priority 2: _event_dj_ids (canonical key)
     if (empty($djs_names)) {
         $related_djs = get_post_meta($event_id, '_event_dj_ids', true);
         $related_djs = maybe_unserialize($related_djs);
@@ -105,6 +142,7 @@ function apollo_ajax_load_event_modal() {
         }
     }
 
+    // Priority 3: Legacy _dj_name fallback
     if (empty($djs_names)) {
         $dj_fallback = get_post_meta($event_id, '_dj_name', true);
         if ($dj_fallback) {
@@ -112,12 +150,12 @@ function apollo_ajax_load_event_modal() {
         }
     }
     
-    // Remover duplicados e valores vazios
+    // Remove duplicates and empty values
     $djs_names = array_values(array_unique(array_filter($djs_names)));
     
-    // Formatar display
+    // Format display
     if (!empty($djs_names)) {
-        $max_visible = 6; // No modal mostra mais DJs
+        $max_visible = 6; // Show more DJs in modal
         $visible = array_slice($djs_names, 0, $max_visible);
         $remaining = max(count($djs_names) - $max_visible, 0);
         
@@ -133,7 +171,7 @@ function apollo_ajax_load_event_modal() {
         $dj_display = '<span class="dj-fallback">Line-up em breve</span>';
     }
     
-    // Processar localização
+    // Process location
     $event_location = '';
     $event_location_area = '';
     if (!empty($location)) {
@@ -144,7 +182,7 @@ function apollo_ajax_load_event_modal() {
         }
     }
     
-    // Processar banner
+    // Process banner
     $banner_url = '';
     if ($banner) {
         $banner_url = is_numeric($banner) ? wp_get_attachment_url($banner) : $banner;
@@ -156,10 +194,10 @@ function apollo_ajax_load_event_modal() {
         $banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
     }
     
-    // Obter conteúdo do evento
+    // Get event content
     $content = apply_filters('the_content', $event->post_content);
     
-    // Montar HTML do modal
+    // Build modal HTML
     ob_start();
     ?>
     <div class="apollo-event-modal-overlay" data-apollo-close></div>
@@ -207,5 +245,17 @@ function apollo_ajax_load_event_modal() {
     $html = ob_get_clean();
     
     wp_send_json_success(array('html' => $html));
+    
+    } catch (Exception $e) {
+        // Log error in debug mode
+        if (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_PORTAL_DEBUG') && APOLLO_PORTAL_DEBUG) {
+            error_log('Apollo Events: Error in apollo_ajax_load_event_modal - ' . $e->getMessage());
+        }
+        
+        // Return graceful error
+        wp_send_json_error(array(
+            'message' => 'Erro ao carregar evento. Tente novamente mais tarde.'
+        ));
+    }
 }
 

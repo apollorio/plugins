@@ -871,6 +871,11 @@ function apollo_events_get_shortcode_slug($shortcode_tag) {
         'apollo_dj_card' => 'card-dj',
         'apollo_local_card' => 'card-local',
         'apollo_events_filter' => 'filtros-eventos',
+        // New Tailwind shortcodes
+        'apollo_dj_profile' => 'dj-profile',
+        'apollo_user_dashboard' => 'my-apollo',
+        'apollo_social_feed' => 'feed',
+        'apollo_cena_rio' => 'cena-rio',
     ];
     
     return isset($slug_map[$shortcode_tag]) ? $slug_map[$shortcode_tag] : sanitize_title($shortcode_tag);
@@ -1263,6 +1268,42 @@ function apollo_events_get_all_shortcodes() {
                 ],
             ],
             'example' => '[apollo_events_filter style="compact"]',
+            'docs_url' => '',
+        ],
+        // New Tailwind-based shortcodes
+        [
+            'tag' => 'apollo_dj_profile',
+            'description' => 'Exibe o perfil completo de um DJ com player SoundCloud, bio, links de música e redes sociais. Template Tailwind moderno com animações.',
+            'attributes' => [
+                [
+                    'name' => 'dj_id',
+                    'type' => 'integer',
+                    'default' => '0',
+                    'description' => 'ID do DJ (opcional, usa post atual se não fornecido)'
+                ],
+            ],
+            'example' => '[apollo_dj_profile dj_id="92"]',
+            'docs_url' => '',
+        ],
+        [
+            'tag' => 'apollo_user_dashboard',
+            'description' => 'Dashboard privado do usuário logado com perfil, estatísticas, eventos favoritos, métricas e tabs. Requer login.',
+            'attributes' => [],
+            'example' => '[apollo_user_dashboard]',
+            'docs_url' => '',
+        ],
+        [
+            'tag' => 'apollo_social_feed',
+            'description' => 'Feed social de eventos com filtros por tipo (Tudo, Eventos, Comunidades), sidebar com próximos eventos e navegação mobile otimizada.',
+            'attributes' => [],
+            'example' => '[apollo_social_feed]',
+            'docs_url' => '',
+        ],
+        [
+            'tag' => 'apollo_cena_rio',
+            'description' => 'Calendário mensal interativo da cena carioca com eventos marcados por data, navegação entre meses e status (Confirmado/Previsto).',
+            'attributes' => [],
+            'example' => '[apollo_cena_rio]',
             'docs_url' => '',
         ],
     ];
