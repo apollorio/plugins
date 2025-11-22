@@ -14,26 +14,43 @@
  * Ou via browser: /wp-content/plugins/apollo-events-manager/tests/debug-test.php
  */
 
-// Prevent direct access
+// Prevent direct access - Load WordPress
 if (!defined('ABSPATH')) {
-    // Try to load WordPress
+    // Try to load WordPress from various possible locations
     $wp_load_paths = [
-        __DIR__ . '/../../../../wp-load.php',
-        __DIR__ . '/../../../wp-load.php',
-        __DIR__ . '/../../wp-load.php',
+        __DIR__ . '/../../../../wp-load.php',  // From tests/ directory
+        __DIR__ . '/../../../wp-load.php',     // Alternative path
+        __DIR__ . '/../../wp-load.php',        // Another alternative
+        dirname(dirname(dirname(dirname(__FILE__)))) . '/wp-load.php', // Absolute
     ];
     
     $wp_loaded = false;
     foreach ($wp_load_paths as $path) {
-        if (file_exists($path)) {
-            require_once $path;
+        $real_path = realpath($path);
+        if ($real_path && file_exists($real_path)) {
+            require_once $real_path;
             $wp_loaded = true;
             break;
         }
     }
     
     if (!$wp_loaded) {
-        die('WordPress not found. Please run this from WordPress context.');
+        // Try to find wp-load.php by going up directories
+        $current_dir = __DIR__;
+        for ($i = 0; $i < 5; $i++) {
+            $wp_load = $current_dir . '/wp-load.php';
+            if (file_exists($wp_load)) {
+                require_once $wp_load;
+                $wp_loaded = true;
+                break;
+            }
+            $current_dir = dirname($current_dir);
+        }
+    }
+    
+    if (!$wp_loaded) {
+        http_response_code(500);
+        die('<!DOCTYPE html><html><head><title>Error</title></head><body><h1>WordPress not found</h1><p>Please ensure WordPress is installed and this file is accessible via web browser.</p><p>Current directory: ' . __DIR__ . '</p></body></html>');
     }
 }
 
