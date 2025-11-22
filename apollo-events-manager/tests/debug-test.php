@@ -132,6 +132,98 @@ if (!defined('ABSPATH')) {
         http_response_code(500);
         die('<!DOCTYPE html><html><head><title>WordPress Not Fully Loaded</title></head><body><h1>Erro: WordPress não foi carregado completamente</h1><p>ABSPATH definido mas funções do WordPress não estão disponíveis.</p></body></html>');
     }
+    
+    // CRITICAL: Ensure plugin is loaded and initialized
+    if (!class_exists('Apollo_Events_Manager_Plugin')) {
+        // Try to load plugin manually
+        $plugin_file = dirname(dirname(__FILE__)) . '/apollo-events-manager.php';
+        if (file_exists($plugin_file)) {
+            require_once $plugin_file;
+        }
+    }
+    
+    // Force WordPress to load plugins (if not already loaded)
+    if (!did_action('plugins_loaded')) {
+        do_action('plugins_loaded');
+    }
+    
+    // Ensure plugin is initialized
+    if (class_exists('Apollo_Events_Manager_Plugin')) {
+        global $apollo_events_manager;
+        if (!isset($apollo_events_manager) || !($apollo_events_manager instanceof Apollo_Events_Manager_Plugin)) {
+            $apollo_events_manager = new Apollo_Events_Manager_Plugin();
+        }
+    }
+    
+    // CRITICAL: Force init hook to register CPTs, shortcodes, etc.
+    // This must happen AFTER plugin is loaded
+    if (!did_action('init')) {
+        do_action('init');
+    }
+    
+    // CRITICAL: If init already fired, manually register everything
+    // This ensures CPTs and shortcodes are registered even if init fired before plugin loaded
+    if (did_action('init')) {
+        // Ensure post types are registered
+        $post_types_file = dirname(dirname(__FILE__)) . '/includes/post-types.php';
+        if (file_exists($post_types_file)) {
+            require_once $post_types_file;
+            if (class_exists('Apollo_Post_Types')) {
+                $post_types_instance = new Apollo_Post_Types();
+                // Force registration directly
+                if (method_exists($post_types_instance, 'register_post_types')) {
+                    $post_types_instance->register_post_types();
+                }
+                if (method_exists($post_types_instance, 'register_taxonomies')) {
+                    $post_types_instance->register_taxonomies();
+                }
+            }
+        }
+        
+        // Ensure clubber role exists
+        if (!get_role('clubber')) {
+            add_role(
+                'clubber',
+                __('Clubber', 'apollo-events-manager'),
+                array(
+                    'read' => true,
+                    'upload_files' => true,
+                    'edit_posts' => false,
+                    'publish_posts' => false,
+                )
+            );
+        }
+        
+        // CRITICAL: Load shortcode files that register shortcodes at file level
+        $plugin_dir = dirname(dirname(__FILE__));
+        
+        // Load submit form shortcode
+        $submit_file = $plugin_dir . '/includes/shortcodes-submit.php';
+        if (file_exists($submit_file) && !function_exists('aem_submit_event_shortcode')) {
+            require_once $submit_file;
+        }
+        
+        // Load auth shortcodes
+        $auth_file = $plugin_dir . '/includes/shortcodes-auth.php';
+        if (file_exists($auth_file) && !function_exists('apollo_register_shortcode')) {
+            require_once $auth_file;
+        }
+        
+        // Load My Apollo dashboard shortcode
+        $my_apollo_file = $plugin_dir . '/includes/shortcodes-my-apollo.php';
+        if (file_exists($my_apollo_file) && !function_exists('apollo_my_apollo_dashboard_shortcode')) {
+            require_once $my_apollo_file;
+        }
+        
+        // Register apollo_eventos shortcode (alias for events)
+        if (!shortcode_exists('apollo_eventos')) {
+            if (function_exists('apollo_events_shortcode_handler')) {
+                add_shortcode('apollo_eventos', 'apollo_events_shortcode_handler');
+            } elseif (function_exists('apollo_events_shortcode')) {
+                add_shortcode('apollo_eventos', 'apollo_events_shortcode');
+            }
+        }
+    }
 }
 
 // Xdebug configuration check
