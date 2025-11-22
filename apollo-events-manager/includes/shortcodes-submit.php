@@ -89,13 +89,13 @@ function aem_submit_event_shortcode() {
                 
                 // Create event post
                 $post_id = wp_insert_post(array(
-                    'post_type'   => 'event_listing',
+                'post_type'   => 'event_listing',
                     'post_status' => 'pending', // Requires moderation
-                    'post_title'  => $title,
-                    'post_content'=> $content,
-                    'post_author' => get_current_user_id(),
+                'post_title'  => $title,
+                'post_content'=> $content,
+                'post_author' => get_current_user_id(),
                 ));
-                
+
                 if (is_wp_error($post_id)) {
                     throw new Exception($post_id->get_error_message());
                 }
@@ -124,7 +124,7 @@ function aem_submit_event_shortcode() {
                     if (function_exists('apollo_update_post_meta')) {
                         apollo_update_post_meta($post_id, '_event_dj_ids', $dj_ids);
                     } else {
-                        update_post_meta($post_id, '_event_dj_ids', $dj_ids);
+                update_post_meta($post_id, '_event_dj_ids', $dj_ids);
                     }
                 }
                 
@@ -168,7 +168,7 @@ function aem_submit_event_shortcode() {
                     require_once ABSPATH . 'wp-admin/includes/image.php';
                     
                     $upload = wp_handle_upload($_FILES['event_banner'], array('test_form' => false));
-                    
+
                     if (empty($upload['error'])) {
                         $attachment = array(
                             'post_mime_type' => $upload['type'],
@@ -184,12 +184,12 @@ function aem_submit_event_shortcode() {
                         set_post_thumbnail($post_id, $attach_id);
                     }
                 }
-                
+
                 // Clear cache
                 if (function_exists('apollo_clear_events_cache')) {
                     apollo_clear_events_cache($post_id);
                 }
-                
+
                     return '<div class="aem-success glass p-6 rounded-lg text-center bg-green-50 border border-green-200">
                         <h3 class="text-xl font-semibold text-green-800 mb-2">✓ Evento Enviado com Sucesso!</h3>
                         <p class="text-green-700 mb-4">Obrigado! Seu evento está em revisão e será publicado em breve.</p>
@@ -208,7 +208,7 @@ function aem_submit_event_shortcode() {
                     <p class="text-red-700">Erro ao criar evento: ' . esc_html($e->getMessage()) . '</p>
                     <p class="text-sm text-red-600 mt-2">Tente novamente ou entre em contato com o suporte.</p>
                 </div>';
-            }
+    }
         }
     }
 
@@ -389,7 +389,7 @@ function aem_submit_event_shortcode() {
                     <i class="ri-send-plane-line"></i> Enviar Evento para Revisão
                 </button>
             </div>
-        </form>
+    </form>
     </div>
     <?php
     return ob_get_clean();

@@ -8,6 +8,8 @@
 
 if (!defined('ABSPATH')) exit;
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 // Enqueue assets
 wp_enqueue_script('tailwind', 'https://cdn.tailwindcss.com', [], null, true);
 wp_enqueue_style('apollo-uni', 'https://assets.apollo.rio.br/uni.css', [], null);
@@ -36,22 +38,8 @@ foreach ($all_events as $event) {
             $events_by_date[$date_key] = array();
         }
         
-        $local_id = 0;
-        if (function_exists('apollo_get_primary_local_id')) {
-            $local_id = apollo_get_primary_local_id($event->ID);
-        } else {
-            $local_ids_meta = get_post_meta($event->ID, '_event_local_ids', true);
-            if (!empty($local_ids_meta)) {
-                $local_id = is_array($local_ids_meta) ? (int) reset($local_ids_meta) : (int) $local_ids_meta;
-            }
-        }
-        $local_name = '';
-        if ($local_id) {
-            $local_name = get_post_meta($local_id, '_local_name', true);
-            if (empty($local_name)) {
-                $local_name = get_the_title($local_id);
-            }
-        }
+        $local = Apollo_Event_Data_Helper::get_local_data($event->ID);
+        $local_name = $local ? $local['name'] : '';
         
         $events_by_date[$date_key][] = array(
             'id' => $event->ID,

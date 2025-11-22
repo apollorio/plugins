@@ -874,7 +874,6 @@ function apollo_events_get_shortcode_slug($shortcode_tag) {
         // New Tailwind shortcodes
         'apollo_dj_profile' => 'dj-profile',
         'apollo_user_dashboard' => 'my-apollo',
-        'apollo_social_feed' => 'feed',
         'apollo_cena_rio' => 'cena-rio',
     ];
     
@@ -1290,13 +1289,6 @@ function apollo_events_get_all_shortcodes() {
             'description' => 'Dashboard privado do usuário logado com perfil, estatísticas, eventos favoritos, métricas e tabs. Requer login.',
             'attributes' => [],
             'example' => '[apollo_user_dashboard]',
-            'docs_url' => '',
-        ],
-        [
-            'tag' => 'apollo_social_feed',
-            'description' => 'Feed social de eventos com filtros por tipo (Tudo, Eventos, Comunidades), sidebar com próximos eventos e navegação mobile otimizada.',
-            'attributes' => [],
-            'example' => '[apollo_social_feed]',
             'docs_url' => '',
         ],
         [

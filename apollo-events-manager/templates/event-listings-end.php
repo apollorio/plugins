@@ -1,3 +1,8 @@
+<!-- /** 
+* FILE apollo-events-manager/templates/event-listings-end.php
+*
+**/ -->
+    
     </div><!-- .event_listings -->
     
     <!-- Banner Section (Latest Blog Post) -->

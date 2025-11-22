@@ -2,20 +2,20 @@
 
 **GitHub:** https://github.com/apollorio/plugins  
 **Version:** 2.0.0  
-**Last Updated:** 2025-11-03  
+**Last Updated:** 2025-01-15  
 
 ---
 
 ## 📦 PLUGINS NESTE REPOSITÓRIO
 
 ### 🎯 apollo-events-manager (PRINCIPAL)
-**Status:** ✅ Active Development  
-**Version:** 2.0.0  
+**Status:** ✅ Production Ready  
+**Version:** 2.0.0
 
 Sistema completo de gerenciamento de eventos integrado com Apollo.rio.br.
 
-**Funcionalidades:**
-- 🎫 Custom Post Types (Events, DJs, Locais)
+**Funcionalidades Principais:**
+- 🎫 Custom Post Types (Events, DJs, Locals)
 - 🎨 Force load assets de assets.apollo.rio.br
 - 🗺️ Mapas com Leaflet.js + Auto-geocoding
 - ⭐ Sistema de favoritos com animações
@@ -23,38 +23,45 @@ Sistema completo de gerenciamento de eventos integrado com Apollo.rio.br.
 - 📱 Design responsivo
 - 🌙 Dark mode
 - ⚡ AJAX para filtros e lightbox
+- 📊 Analytics e dashboards
+- 🎨 Canvas Mode (isolamento de tema)
 
-**Documentação:** `apollo-events-manager/docs/`
-
----
-
-### 📚 wp-event-manager
-**Status:** ⚠️ Being Replaced  
-**Version:** 3.1.x  
-
-Plugin base que está sendo substituído pelo apollo-events-manager.
-
-**Nota:** Mantido apenas para backward compatibility temporária.
+**Documentação:** Ver `apollo-events-manager/README.md`
 
 ---
 
-### 🔖 wpem-bookmarks
-**Status:** 🔄 Dependency  
-**Version:** 1.x  
+### 📱 apollo-social
+**Status:** ✅ Production Ready  
+**Version:** 2.0.0
 
-Extensão do WP Event Manager para sistema de bookmarks.
+Plugin principal do sistema Apollo que fornece funcionalidades sociais e de Canvas Mode.
 
-**Nota:** Funcionalidade será integrada ao apollo-events-manager.
+**Funcionalidades Principais:**
+- 🎨 Canvas Mode: Sistema de renderização isolada
+- 👥 Sistema de Grupos: Comunidades e núcleos
+- 📄 Sistema de Documentos: Gestão e assinatura digital
+- 📊 Analytics: Integração com Plausible Analytics
+- 🔐 PWA: Funcionalidades de Progressive Web App
+- 🌐 API REST: Endpoints para integração móvel
+- 👤 User Pages: Páginas personalizáveis `/id/{userID}`
+
+**Documentação:** Ver `apollo-social/README.md`
 
 ---
 
-### 🌐 wpem-rest-api
-**Status:** 🔄 Dependency  
-**Version:** 1.x  
+### 🌐 apollo-rio
+**Status:** ✅ Production Ready  
+**Version:** 2.0.0
 
-API REST para WP Event Manager.
+Sistema de templates PWA e Canvas Mode para Apollo::Rio.
 
-**Nota:** Funcionalidade será integrada ao apollo-events-manager.
+**Funcionalidades Principais:**
+- 📱 PWA Detection: Detecção automática de modo PWA
+- 🎨 Page Builders: Templates Site::rio, App::rio, App::rio clean
+- 🚫 Theme Blocking: Previne interferência do tema
+- 📄 Templates PWA: Offline support
+
+**Documentação:** Ver `apollo-rio/README.md`
 
 ---
 
@@ -62,7 +69,7 @@ API REST para WP Event Manager.
 
 ### Abrir Workspace no VSCode/Cursor
 
-**Método 1: Workspace File**
+**Método 1: Workspace File (Recomendado)**
 ```
 Duplo-clique em: apollo-plugins.code-workspace
 ```
@@ -82,7 +89,6 @@ Selecionar: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins
 ```
 plugins/
 ├── .git/                       # Git repository
-├── .copilot-instructions.md    # Copilot context
 ├── apollo-plugins.code-workspace # VSCode workspace
 ├── README.md                   # Este arquivo
 │
@@ -91,18 +97,26 @@ plugins/
 │   ├── includes/
 │   ├── templates/
 │   ├── assets/
-│   └── docs/
+│   └── README.md
 │
-├── wp-event-manager/           # Legacy
-├── wpem-bookmarks/             # Legacy
-└── wpem-rest-api/              # Legacy
+├── apollo-social/              # Plugin social
+│   ├── apollo-social.php
+│   ├── src/
+│   ├── templates/
+│   └── README.md
+│
+└── apollo-rio/                 # Plugin PWA
+    ├── apollo-rio.php
+    ├── includes/
+    ├── templates/
+    └── README.md
 ```
 
 ---
 
 ## 📝 CONVENÇÕES DE CÓDIGO
 
-### PHP (PSR-12)
+### PHP (PSR-12 + WordPress Standards)
 ```php
 // Classes: PascalCase com prefixo
 class Apollo_Events_Manager_Plugin {}
@@ -235,15 +249,14 @@ O apollo-events-manager carrega automaticamente:
 
 ## 📚 DOCUMENTAÇÃO
 
-### Apollo Events Manager
-- [Migration Plan](apollo-events-manager/docs/MIGRATION-PLAN-V2-FINAL.md)
-- [Assets Verification](apollo-events-manager/docs/ASSETS-VERIFICATION-REPORT.md)
-- [Copilot Context](apollo-events-manager/docs/COPILOT-CONTEXT.md)
-- [Quick Start](apollo-events-manager/docs/QUICK-START-MIGRATION.md)
+### Documentação por Plugin
+- **apollo-events-manager:** Ver `apollo-events-manager/README.md`
+- **apollo-social:** Ver `apollo-social/README.md`
+- **apollo-rio:** Ver `apollo-rio/README.md`
 
-### Workspace
-- [Copilot Instructions](.copilot-instructions.md)
-- [Workspace File](apollo-plugins.code-workspace)
+### Guias de Desenvolvimento
+- **DEVELOPMENT.md** - Guia completo de desenvolvimento
+- **DEPLOYMENT.md** - Guia de deploy e produção
 
 ---
 
@@ -265,6 +278,8 @@ O apollo-events-manager carrega automaticamente:
 - ✅ Meta keys corrigidos
 - ✅ Migration validator
 - ✅ Backward compatibility
+- ✅ Canvas Mode
+- ✅ Analytics e dashboards
 
 ### v2.1.0 (PRÓXIMO)
 - [ ] Integrar funcionalidades do wpem-bookmarks
@@ -273,10 +288,10 @@ O apollo-events-manager carrega automaticamente:
 - [ ] Adicionar testes automatizados
 
 ### v3.0.0 (FUTURO)
-- [ ] BuddyPress integration
+- [ ] BuddyPress integration completa
 - [ ] Multi-site support
 - [ ] Advanced analytics
-- [ ] Mobile app API
+- [ ] Mobile app API completa
 
 ---
 
@@ -298,9 +313,7 @@ GPL v2 or later - https://www.gnu.org/licenses/gpl-2.0.html
 ---
 
 **Status:** ✅ Production Ready  
-**Última Atualização:** 2025-11-03  
+**Última Atualização:** 2025-01-15  
 **Próxima Release:** v2.1.0  
 
 🚀 **Happy Coding!**
-
-

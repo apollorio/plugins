@@ -11,6 +11,11 @@
 
 defined('ABSPATH') || exit;
 
+// Load helper at top level for all functions
+if (!class_exists('Apollo_Event_Data_Helper')) {
+    require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
+}
+
 /**
  * Returns registry of Apollo Event placeholders.
  * 
@@ -897,26 +902,12 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             
         // === LOCAL (event_local) FIELDS ===
         case 'local_name':
-            // Use unified connection manager
-            $local_id = 0;
-            if (function_exists('apollo_get_event_local_id')) {
-                $local_id = apollo_get_event_local_id($event_id);
-            } elseif (function_exists('apollo_get_primary_local_id')) {
-                $local_id = apollo_get_primary_local_id($event_id);
+            // Load helper if not already loaded
+            if (!class_exists('Apollo_Event_Data_Helper')) {
+                require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
             }
-
-            if ( empty( $local_id ) ) {
-                return '';
-            }
-            $local_post = get_post( absint( $local_id ) );
-            if ( ! $local_post || $local_post->post_type !== 'event_local' ) {
-                return '';
-            }
-            $local_name = get_post_meta( $local_id, '_local_name', true );
-            if ( empty( $local_name ) ) {
-                $local_name = $local_post->post_title;
-            }
-            return $local_name ? esc_html( $local_name ) : '';
+            $local = Apollo_Event_Data_Helper::get_local_data($event_id);
+            return $local ? esc_html($local['name']) : '';
             
         case 'local_description':
             // Use unified connection manager
@@ -934,51 +925,29 @@ function apollo_event_get_placeholder_value( $placeholder_id, $event_id = null, 
             return $description ? esc_html( $description ) : '';
             
         case 'local_address':
-            // Use unified connection manager
-            $local_id = 0;
-            if (function_exists('apollo_get_event_local_id')) {
-                $local_id = apollo_get_event_local_id($event_id);
-            } elseif (function_exists('apollo_get_primary_local_id')) {
-                $local_id = apollo_get_primary_local_id($event_id);
+            // Load helper if not already loaded
+            if (!class_exists('Apollo_Event_Data_Helper')) {
+                require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
             }
-
-            if ( empty( $local_id ) ) {
-                return '';
-            }
-            $address = get_post_meta( absint( $local_id ), '_local_address', true );
-            return $address ? esc_html( $address ) : '';
+            $local = Apollo_Event_Data_Helper::get_local_data($event_id);
+            return $local ? esc_html($local['address']) : '';
             
         case 'local_city':
-            // Use unified connection manager
-            $local_id = 0;
-            if (function_exists('apollo_get_event_local_id')) {
-                $local_id = apollo_get_event_local_id($event_id);
-            } elseif (function_exists('apollo_get_primary_local_id')) {
-                $local_id = apollo_get_primary_local_id($event_id);
+            // Load helper if not already loaded
+            if (!class_exists('Apollo_Event_Data_Helper')) {
+                require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
             }
-
-            if ( empty( $local_id ) ) {
-                return '';
-            }
-            $city = get_post_meta( absint( $local_id ), '_local_city', true );
-            return $city ? esc_html( $city ) : '';
+            $local = Apollo_Event_Data_Helper::get_local_data($event_id);
+            return $local ? esc_html($local['city']) : '';
             
         case 'local_coordinates':
-            // Use unified connection manager
-            $local_id = 0;
-            if (function_exists('apollo_get_event_local_id')) {
-                $local_id = apollo_get_event_local_id($event_id);
-            } elseif (function_exists('apollo_get_primary_local_id')) {
-                $local_id = apollo_get_primary_local_id($event_id);
+            // Load helper if not already loaded
+            if (!class_exists('Apollo_Event_Data_Helper')) {
+                require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
             }
-
-            if ( empty( $local_id ) ) {
-                return '';
-            }
-            $lat = get_post_meta( absint( $local_id ), '_local_latitude', true );
-            $lng = get_post_meta( absint( $local_id ), '_local_longitude', true );
-            if ( $lat && $lng ) {
-                return esc_html( $lat . ', ' . $lng );
+            $local = Apollo_Event_Data_Helper::get_local_data($event_id);
+            if ($local && $local['lat'] && $local['lng']) {
+                return esc_html($local['lat'] . ', ' . $local['lng']);
             }
             return '';
             
@@ -1426,148 +1395,33 @@ function apollo_event_get_location_area( $event_id ) {
 
 /**
  * Internal helper: Get DJ names from event.
- * Reuses EXACT logic from portal-discover.php: tries _timetable, then _dj_name, then _event_djs.
+ * Uses Apollo_Event_Data_Helper for centralized logic.
  * 
  * @param int $event_id Event post ID
  * @return array Array of DJ names (sanitized)
  */
 function apollo_event_get_dj_names( $event_id ) {
-    $djs_names = array();
-    
-    // Tentativa 1: _event_timetable (canonical key)
-    $timetable = get_post_meta( $event_id, '_event_timetable', true );
-    $timetable = apollo_sanitize_timetable( $timetable );
-    
-    // Tentativa 2: _event_dj_ids (canonical key)
-    if ( empty( $timetable ) ) {
-        $dj_ids = get_post_meta( $event_id, '_event_dj_ids', true );
-        if ( ! empty( $dj_ids ) && is_array( $dj_ids ) ) {
-            foreach ( $dj_ids as $dj_id ) {
-                $dj_id = absint( $dj_id );
-                if ( ! $dj_id ) continue;
-                
-                $dj_name = get_post_meta( $dj_id, '_dj_name', true );
-                if ( ! $dj_name ) {
-                    $dj_post = get_post( $dj_id );
-                    $dj_name = $dj_post ? $dj_post->post_title : '';
-                }
-                
-                if ( ! empty( $dj_name ) ) {
-                    $djs_names[] = trim( sanitize_text_field( $dj_name ) );
-                }
-            }
-        }
+    // Load helper if not already loaded
+    if (!class_exists('Apollo_Event_Data_Helper')) {
+        require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
     }
     
-    // Process timetable if available
-    if ( ! empty( $timetable ) && is_array( $timetable ) ) {
-        foreach ( $timetable as $slot ) {
-            if ( empty( $slot['dj'] ) ) {
-                continue;
-            }
-            
-            if ( is_numeric( $slot['dj'] ) ) {
-                // É um post de DJ
-                $dj_name = get_post_meta( $slot['dj'], '_dj_name', true );
-                if ( ! $dj_name ) {
-                    $dj_post = get_post( $slot['dj'] );
-                    $dj_name = $dj_post ? $dj_post->post_title : '';
-                }
-            } else {
-                // É string direta
-                $dj_name = (string) $slot['dj'];
-            }
-            
-            if ( ! empty( $dj_name ) ) {
-                $djs_names[] = trim( sanitize_text_field( $dj_name ) );
-            }
-        }
-    }
-    
-    // Tentativa 3: _dj_name direto (fallback legacy)
-    if ( empty( $djs_names ) ) {
-        $dj_meta = get_post_meta( $event_id, '_dj_name', true );
-        if ( $dj_meta ) {
-            $djs_names[] = trim( sanitize_text_field( $dj_meta ) );
-        }
-    }
-    
-    // Tentativa 4: Legacy _timetable (fallback para migração)
-    if ( empty( $djs_names ) ) {
-        $legacy_timetable = get_post_meta( $event_id, '_timetable', true );
-        $legacy_timetable = apollo_sanitize_timetable( $legacy_timetable );
-        if ( ! empty( $legacy_timetable ) && is_array( $legacy_timetable ) ) {
-            foreach ( $legacy_timetable as $slot ) {
-                if ( empty( $slot['dj'] ) ) continue;
-                
-                if ( is_numeric( $slot['dj'] ) ) {
-                    $dj_name = get_post_meta( $slot['dj'], '_dj_name', true );
-                    if ( ! $dj_name ) {
-                        $dj_post = get_post( $slot['dj'] );
-                        $dj_name = $dj_post ? $dj_post->post_title : '';
-                    }
-                } else {
-                    $dj_name = (string) $slot['dj'];
-                }
-                
-                if ( ! empty( $dj_name ) ) {
-                    $djs_names[] = trim( sanitize_text_field( $dj_name ) );
-                }
-            }
-        }
-    }
-    
-    // Tentativa 5: Legacy _event_djs (fallback para migração)
-    if ( empty( $djs_names ) ) {
-        $related_djs = get_post_meta( $event_id, '_event_djs', true );
-        if ( ! empty( $related_djs ) && is_array( $related_djs ) ) {
-            foreach ( $related_djs as $dj_id ) {
-                $dj_name = get_post_meta( $dj_id, '_dj_name', true );
-                if ( $dj_name ) {
-                    $djs_names[] = trim( sanitize_text_field( $dj_name ) );
-                }
-            }
-        }
-    }
-    
-    // Remove duplicates and empty values (same as portal-discover.php)
-    $djs_names = array_values( array_unique( array_filter( $djs_names ) ) );
-    
-    return $djs_names;
+    return Apollo_Event_Data_Helper::get_dj_lineup($event_id);
 }
 
 /**
  * Internal helper: Get banner URL from event.
- * Reuses logic from portal-discover.php: tries _event_banner, then featured image, then default.
+ * Uses Apollo_Event_Data_Helper for centralized logic.
  * 
  * @param int $event_id Event post ID
  * @return string Banner URL
  */
 function apollo_event_get_banner_url( $event_id ) {
-    $banner = get_post_meta( $event_id, '_event_banner', true );
-    
-    // Try as URL first
-    if ( ! empty( $banner ) && filter_var( $banner, FILTER_VALIDATE_URL ) ) {
-        return $banner;
+    // Load helper if not already loaded
+    if (!class_exists('Apollo_Event_Data_Helper')) {
+        require_once plugin_dir_path(__FILE__) . 'helpers/event-data-helper.php';
     }
     
-    // Try as attachment ID
-    if ( ! empty( $banner ) && is_numeric( $banner ) ) {
-        $url = wp_get_attachment_url( absint( $banner ) );
-        if ( $url ) {
-            return $url;
-        }
-    }
-    
-    // Fallback to featured image
-    if ( has_post_thumbnail( $event_id ) ) {
-        $url = get_the_post_thumbnail_url( $event_id, 'large' );
-        if ( $url ) {
-            return $url;
-        }
-    }
-    
-    // Final fallback
-    return 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2070';
+    return Apollo_Event_Data_Helper::get_banner_url($event_id);
 }
 

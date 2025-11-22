@@ -44,6 +44,12 @@ class ShortcodeServiceProvider
         wp_enqueue_style('apollo-uni-css');
         wp_enqueue_style('apollo-shadcn-components', 'https://assets.apollo.rio.br/apollo-shadcn-components.css', [], APOLLO_SOCIAL_VERSION);
 
+        // Load event data helper from apollo-events-manager
+        $helper_path = WP_PLUGIN_DIR . '/apollo-events-manager/includes/helpers/event-data-helper.php';
+        if (file_exists($helper_path)) {
+            require_once $helper_path;
+        }
+        
         ob_start();
         ?>
         <div class="apollo-grid apollo-grid--3">
@@ -52,9 +58,16 @@ class ShortcodeServiceProvider
                 $event_id = get_the_ID();
                 $start_date = get_post_meta($event_id, '_event_start_date', true);
                 $start_time = get_post_meta($event_id, '_event_start_time', true);
-                $cover = get_post_meta($event_id, '_event_banner', true);
-                if (!$cover) {
-                    $cover = get_the_post_thumbnail_url($event_id, 'large');
+                
+                // Use helper if available, fallback to direct meta
+                $cover = '';
+                if (class_exists('\Apollo_Event_Data_Helper')) {
+                    $cover = \Apollo_Event_Data_Helper::get_banner_url($event_id);
+                } else {
+                    $cover = get_post_meta($event_id, '_event_banner', true);
+                    if (!$cover) {
+                        $cover = get_the_post_thumbnail_url($event_id, 'large');
+                    }
                 }
                 ?>
                 <article class="apollo-card apollo-card--elevated apollo-card--glass">

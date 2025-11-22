@@ -517,10 +517,9 @@ add_action(
         if (!shortcode_exists('apollo_events')) {
             add_shortcode('apollo_events', 'apollo_events_shortcode_handler');
         }
-        
-        // Register apollo_eventos as alias (PT-BR version)
-        if (!shortcode_exists('apollo_eventos')) {
-            add_shortcode('apollo_eventos', 'apollo_events_shortcode_handler');
+
+        if (shortcode_exists('apollo_eventos')) {
+            remove_shortcode('apollo_eventos');
         }
 
         if (shortcode_exists('eventos')) {
@@ -558,7 +557,8 @@ class Apollo_Events_Manager_Plugin {
      * Initialize hooks
      */
     private function init_hooks() {
-        add_action('plugins_loaded', array($this, 'load_textdomain'));
+        // WordPress 6.7.0+ requires translations to load at 'init' or later
+        add_action('init', array($this, 'load_textdomain'), 1);
         add_action('init', array($this, 'ensure_events_page'));
         add_action('admin_init', array($this, 'init_legacy_migration'), 5); // Run migration early
         add_filter('template_include', array($this, 'canvas_template'), 99);
@@ -581,7 +581,6 @@ class Apollo_Events_Manager_Plugin {
         // New Tailwind-based shortcodes
         add_shortcode('apollo_dj_profile', array($this, 'apollo_dj_profile_shortcode'));
         add_shortcode('apollo_user_dashboard', array($this, 'apollo_user_dashboard_shortcode'));
-        add_shortcode('apollo_social_feed', array($this, 'apollo_social_feed_shortcode'));
         add_shortcode('apollo_cena_rio', array($this, 'apollo_cena_rio_shortcode'));
         
         // AJAX handlers
@@ -2287,54 +2286,32 @@ class Apollo_Events_Manager_Plugin {
                 return;
             }
 
-        // Build local context for template overrides
+        // Load helper if not already loaded
+        if (!class_exists('Apollo_Event_Data_Helper')) {
+            require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+        }
+        
+        // Build local context for template overrides using helper
+        $local = Apollo_Event_Data_Helper::get_local_data($event_id);
         $local_context = array(
-            'local_name' => '',
-            'local_address' => '',
+            'local_name' => $local ? $local['name'] : '',
+            'local_address' => $local ? $local['address'] : '',
             'local_images' => array(),
-            'local_lat' => '',
-            'local_long' => ''
+            'local_lat' => $local ? (string)$local['lat'] : '',
+            'local_long' => $local ? (string)$local['lng'] : ''
         );
-
-        $local_id = function_exists('apollo_get_primary_local_id') ? apollo_get_primary_local_id($event_id) : 0;
-
-        if ($local_id) {
-            $local_post = get_post($local_id);
-            if ($local_post && $local_post->post_status === 'publish') {
-                $local_name_meta = apollo_get_post_meta($local_id, '_local_name', true);
-                $local_context['local_name'] = $local_name_meta !== '' ? $local_name_meta : $local_post->post_title;
-
-                $local_address_meta = apollo_get_post_meta($local_id, '_local_address', true);
-                $local_city = apollo_get_post_meta($local_id, '_local_city', true);
-                $local_state = apollo_get_post_meta($local_id, '_local_state', true);
-
-                if ($local_address_meta !== '') {
-                    $local_context['local_address'] = $local_address_meta;
-                } elseif ($local_city || $local_state) {
-                    $local_context['local_address'] = trim($local_city . ($local_city && $local_state ? ', ' : '') . $local_state);
+        
+        // Get local images if local exists
+        if ($local && $local['id']) {
+            for ($i = 1; $i <= 5; $i++) {
+                $img = apollo_get_post_meta($local['id'], '_local_image_' . $i, true);
+                if (!empty($img)) {
+                    $local_context['local_images'][] = is_numeric($img) ? wp_get_attachment_url($img) : $img;
                 }
-
-                for ($i = 1; $i <= 5; $i++) {
-                    $img = apollo_get_post_meta($local_id, '_local_image_' . $i, true);
-                    if (!empty($img)) {
-                        $local_context['local_images'][] = is_numeric($img) ? wp_get_attachment_url($img) : $img;
-                    }
-                }
-
-                $lat = apollo_get_post_meta($local_id, '_local_latitude', true);
-                if ($lat === '') {
-                    $lat = apollo_get_post_meta($local_id, '_local_lat', true);
-                }
-                $lng = apollo_get_post_meta($local_id, '_local_longitude', true);
-                if ($lng === '') {
-                    $lng = apollo_get_post_meta($local_id, '_local_lng', true);
-                }
-
-                $local_context['local_lat'] = $lat;
-                $local_context['local_long'] = $lng;
             }
         }
 
+        // Fallbacks
         if ($local_context['local_name'] === '') {
             $fallback_location = apollo_get_post_meta($event_id, '_event_location', true);
             if ($fallback_location !== '') {
@@ -3038,46 +3015,6 @@ class Apollo_Events_Manager_Plugin {
         // Run migration on admin_init (only in admin)
         if (is_admin() && current_user_can('manage_options')) {
             $this->migrate_legacy_meta_keys();
-        }$canonical_local = get_post_meta($post_id, '_event_local_ids', true);
-                if ($canonical_local === '' || $canonical_local === false) {
-                    // Migrate only if canonical doesn't exist
-                    $local_id = absint($legacy_local);
-                    if ($local_id > 0) {
-                        if (class_exists('Apollo_Local_Connection')) {
-                            $connection = Apollo_Local_Connection::get_instance();
-                            $connection->set_local_id($post_id, $local_id);
-                        } else {
-                            update_post_meta($post_id, '_event_local_ids', $local_id);
-                        }
-                        $migrated = true;
-                    }
-                }
-            }
-            
-            // Migrate _timetable to _event_timetable
-            $legacy_timetable = get_post_meta($post_id, '_timetable', true);
-            if ($legacy_timetable !== '' && $legacy_timetable !== false) {
-                $canonical_timetable = get_post_meta($post_id, '_event_timetable', true);
-                if ($canonical_timetable === '' || $canonical_timetable === false) {
-                    // Migrate only if canonical doesn't exist
-                    $timetable = apollo_sanitize_timetable($legacy_timetable);
-                    if (!empty($timetable)) {
-                        update_post_meta($post_id, '_event_timetable', $timetable);
-                        $migrated = true;
-                    }
-                }
-            }
-            
-            if ($migrated) {
-                $migrated_count++;
-            }
-        }
-        
-        // Set transient to prevent running again (24 hours)
-        set_transient('apollo_meta_migration_done', true, DAY_IN_SECONDS);
-        
-        if ($migrated_count > 0 && defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf('Apollo: Migrados %d eventos de meta keys legados para canônicos', $migrated_count));
         }
     }
     
@@ -4720,16 +4657,6 @@ echo esc_html( "[apollo_event field=\"dj_set_url\"]\n" );
     }
     
     /**
-     * Social Feed Shortcode
-     * [apollo_social_feed]
-     */
-    public function apollo_social_feed_shortcode($atts) {
-        ob_start();
-        include APOLLO_WPEM_PATH . 'templates/shortcode-social-feed.php';
-        return ob_get_clean();
-    }
-    
-    /**
      * Cena Rio Calendar Shortcode
      * [apollo_cena_rio]
      */
@@ -5035,18 +4962,6 @@ function apollo_events_manager_activate() {
         error_log('✅ Apollo: /mod-eventos/ page already exists (ID: ' . $mod_page->ID . ')');
     }
     
-    // Log activation
-    error_log('✅ Apollo Events Manager 2.0.0 activated successfully');
-}
-
-/**
- * Deactivation hook
- */
-/**
- * Register activation hook to create custom roles
- */
-register_activation_hook(__FILE__, 'apollo_events_manager_activate');
-function apollo_events_manager_activate() {
     // Create 'clubber' role if it doesn't exist
     if (!get_role('clubber')) {
         add_role(
@@ -5061,13 +4976,8 @@ function apollo_events_manager_activate() {
         );
     }
     
-    // Flush rewrite rules
-    flush_rewrite_rules();
-    
     // Log activation
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('✅ Apollo Events Manager 2.0.0 activated');
-    }
+    error_log('✅ Apollo Events Manager 2.0.0 activated successfully');
 }
 
 register_deactivation_hook(__FILE__, 'apollo_events_manager_deactivate');

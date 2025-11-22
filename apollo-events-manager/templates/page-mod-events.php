@@ -6,6 +6,8 @@
 
 if (!defined('ABSPATH')) exit;
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 // Verificar se usuário tem permissão de editor
 if (!current_user_can('edit_posts') && !current_user_can('edit_event_listings')) {
     wp_die(__('Você não tem permissão para acessar esta página.', 'apollo-events-manager'));
@@ -144,34 +146,16 @@ $draft_events = get_posts(array(
                 $event_start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
                 $event_start_time = apollo_get_post_meta($event_id, '_event_start_time', true);
                 $event_location = apollo_get_post_meta($event_id, '_event_location', true);
-                $event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
-                $local_id = apollo_get_post_meta($event_id, '_event_local_ids', true);
-                $local_name = '';
-                
-                if ($local_id) {
-                    $local_post = get_post($local_id);
-                    if ($local_post) {
-                        $local_name = apollo_get_post_meta($local_id, '_local_name', true) ?: $local_post->post_title;
-                    }
-                }
+                $event_banner = Apollo_Event_Data_Helper::get_banner_url($event_id);
+                $local = Apollo_Event_Data_Helper::get_local_data($event_id);
+                $local_name = $local ? $local['name'] : '';
                 
                 if (empty($local_name) && !empty($event_location)) {
                     $local_name = $event_location;
                 }
                 
                 // Get DJs
-                $dj_ids = apollo_get_post_meta($event_id, '_event_dj_ids', true);
-                $dj_ids = maybe_unserialize($dj_ids);
-                $dj_names = array();
-                if (is_array($dj_ids) && !empty($dj_ids)) {
-                    foreach ($dj_ids as $dj_id) {
-                        $dj_post = get_post($dj_id);
-                        if ($dj_post) {
-                            $dj_name = apollo_get_post_meta($dj_id, '_dj_name', true) ?: $dj_post->post_title;
-                            $dj_names[] = $dj_name;
-                        }
-                    }
-                }
+                $dj_names = Apollo_Event_Data_Helper::get_dj_lineup($event_id);
                 
                 // Format date
                 $formatted_date = '';

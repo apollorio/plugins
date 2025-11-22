@@ -1,18 +1,62 @@
-# Apollo Social Core
+# Apollo Social Core v2.0.0
 
 Plugin principal do sistema Apollo que fornece funcionalidades sociais e de Canvas Mode para o WordPress.
 
-## Funcionalidades
+---
 
-- **Canvas Mode**: Sistema de renderização isolada que remove assets do tema para experiência focada
-- **Sistema de Grupos**: Comunidades e núcleos com gestão de membros
-- **Sistema de Eventos**: Criação e gestão de eventos integrados
-- **Sistema de Anúncios**: Marketplace de anúncios classificados
-- **Analytics**: Integração com Plausible Analytics para tracking de engajamento
-- **PWA**: Funcionalidades de Progressive Web App
-- **API REST**: Endpoints para integração com aplicativos móveis
+## 🚀 Features
 
-## Canvas Mode
+### Canvas Mode
+- **Theme-Independent Rendering**: Removes ALL theme assets
+- **Isolated Experience**: Only Apollo assets load
+- **Automatic Activation**: Activates on specific Apollo routes
+
+### Sistema de Grupos
+- **Comunidades**: Comunidades e núcleos com gestão de membros
+- **Moderation**: Sistema de moderação (approve/reject)
+- **Group Policies**: Políticas de acesso configuráveis
+
+### Sistema de Eventos
+- **Integration**: Criação e gestão de eventos integrados
+- **REST API**: Endpoints para integração com aplicativos móveis
+
+### Sistema de Documentos
+- **Document Management**: Gestão completa de documentos
+- **Digital Signatures**: Integração com GOV.BR (stub)
+
+### Analytics
+- **Plausible Integration**: Tracking de engajamento respeitando privacidade
+- **Custom Events**: Eventos customizados para grupos, eventos, anúncios
+- **Dashboard**: Dashboard compartilhado opcional
+
+### PWA
+- **Progressive Web App**: Funcionalidades de PWA
+- **Service Worker**: Suporte offline
+
+### User Pages
+- **Customizable Profiles**: Páginas personalizáveis `/id/{userID}`
+- **Auto-creation**: Criação automática ao registrar
+- **Drag-and-Drop Editor**: Editor com widgets
+
+---
+
+## 📦 Installation
+
+1. Upload to `/wp-content/plugins/apollo-social/`
+2. Activate plugin through WordPress admin
+3. Configure features in WP Admin → Apollo
+
+---
+
+## 🔧 Requirements
+
+- WordPress: 5.0+
+- PHP: 7.4+
+- Rewrite rules habilitadas
+
+---
+
+## 🎨 Canvas Mode
 
 O Canvas Mode é um sistema de renderização que:
 - Remove todos os assets do tema ativo
@@ -20,7 +64,7 @@ O Canvas Mode é um sistema de renderização que:
 - Fornece interface limpa e focada
 - Ativa automaticamente em rotas específicas do Apollo
 
-### Rotas que ativam Canvas Mode:
+### Rotas que Ativam Canvas Mode:
 - `/a/*` - Páginas gerais do Apollo
 - `/comunidade/*` - Páginas de comunidades
 - `/nucleo/*` - Páginas de núcleos
@@ -28,33 +72,27 @@ O Canvas Mode é um sistema de renderização que:
 - `/membership` - Página de associação
 - `/uniao/*` - Páginas da união
 - `/anuncio/*` - Páginas de anúncios
+- `/feed/` - Feed social
+- `/chat/` - Chat
+- `/id/{userID}` - Perfis de usuário
+- `/eco/` e `/ecoa/` - Diretório de usuários
 
-## Sistema de Analytics
+---
 
-O Apollo Social Core inclui integração completa com Plausible Analytics para tracking de engajamento respeitando a privacidade dos usuários.
+## 📊 Analytics
 
 ### Configuração do Plausible
 
 1. **Acesse o painel administrativo**: WP Admin → Apollo → Analytics
-
 2. **Configure suas credenciais**:
    - **Domain**: Seu domínio no Plausible (ex: `meusite.com`)
    - **API Key**: Chave da API do Plausible (opcional, para dashboard)
    - **Site ID**: ID do site no Plausible (opcional, para dashboard)
-
 3. **Ative o tracking**: Marque "Ativar Analytics" e salve
-
-### Dashboard Compartilhado (Opcional)
-
-Para exibir o dashboard do Plausible dentro do WordPress:
-
-1. No Plausible.io, acesse: Site Settings → Visibility → Make stats public
-2. Copie o link público gerado
-3. No WordPress: Apollo → Analytics → cole o link em "Dashboard URL"
 
 ### Eventos Customizados
 
-O sistema rastreia automaticamente os seguintes eventos:
+O sistema rastreia automaticamente:
 
 #### Grupos e Comunidades
 - `group_view` - Visualização de página de grupo
@@ -77,30 +115,7 @@ O sistema rastreia automaticamente os seguintes eventos:
 - `page_view` - Visualização de página (automático)
 - `membership_view` - Visualização da página de associação
 
-### Configuração Avançada
-
-Edite `config/analytics.php` para configurações avançadas:
-
-```php
-// Personalizar eventos
-'events' => [
-    'custom_event' => [
-        'enabled' => true,
-        'description' => 'Meu evento customizado'
-    ]
-],
-
-// Configurações de privacidade
-'privacy' => [
-    'respect_dnt' => true,        // Respeitar Do Not Track
-    'exclude_ips' => ['127.0.0.1'], // IPs excluídos
-    'hash_mode' => false          // Modo hash para IPs
-]
-```
-
 ### Tracking Manual
-
-Para adicionar tracking customizado em templates:
 
 ```php
 // No PHP (server-side)
@@ -124,19 +139,9 @@ O sistema respeita:
 - **IP Anonymization**: IPs são anonimizados por padrão
 - **Opt-out**: Usuários podem desativar via configuração do navegador
 
-## Instalação
+---
 
-1. Faça upload do plugin para `/wp-content/plugins/apollo-social/`
-2. Ative o plugin através do menu 'Plugins' no WordPress
-3. Configure as funcionalidades em WP Admin → Apollo
-
-## Requisitos
-
-- WordPress 5.0+
-- PHP 7.4+
-- Rewrite rules habilitadas
-
-## Desenvolvimento
+## 🏗️ Architecture
 
 ### Estrutura de Arquivos
 
@@ -145,12 +150,22 @@ apollo-social/
 ├── src/
 │   ├── Core/              # Classes principais
 │   ├── Infrastructure/    # Serviços e providers
-│   ├── UI/               # Templates e componentes
-│   └── Plugin.php        # Classe principal
-├── config/               # Arquivos de configuração
-├── assets/              # CSS, JS, imagens
-├── templates/           # Templates do WordPress
-└── public/             # Assets públicos
+│   ├── Domain/            # Entidades de domínio
+│   ├── Application/       # Casos de uso
+│   ├── Modules/           # Módulos funcionais
+│   │   ├── Builder/       # Page builder (SiteOrigin optional)
+│   │   ├── Documents/     # Sistema de documentos
+│   │   ├── UserPages/     # Páginas de usuário
+│   │   └── Signatures/    # Assinaturas digitais
+│   └── Plugin.php         # Classe principal
+├── config/                # Arquivos de configuração
+│   ├── analytics.php      # Configuração de analytics
+│   ├── canvas.php         # Configuração de canvas mode
+│   ├── routes.php         # Rotas do sistema
+│   └── ui.php             # Configuração de UI
+├── assets/                # CSS, JS, imagens
+├── templates/             # Templates do WordPress
+└── public/               # Assets públicos
 ```
 
 ### Service Providers
@@ -166,24 +181,121 @@ $providers = [
 ];
 ```
 
-### Hooks Disponíveis
+---
 
+## 🔧 Hooks Disponíveis
+
+### Canvas Mode
 ```php
-// Canvas Mode
 do_action('apollo_canvas_init');
 do_action('apollo_canvas_head');
 do_action('apollo_canvas_footer');
+```
 
-// Analytics
+### Analytics
+```php
 do_action('apollo_analytics_init');
 apply_filters('apollo_analytics_events', $events);
 apply_filters('apollo_analytics_config', $config);
 ```
 
-## Suporte
+### Groups
+```php
+do_action('apollo_group_created', $group_id);
+do_action('apollo_group_joined', $group_id, $user_id);
+do_action('apollo_group_left', $group_id, $user_id);
+```
 
-Para suporte e documentação adicional, acesse o painel administrativo em WP Admin → Apollo.
+---
 
-## Licença
+## 📚 Rotas Implementadas
 
-Este plugin é licenciado sob GPL v2 ou posterior.
+### Canvas Routes
+- `/feed/` - Feed Social Apollo
+- `/chat/` - Lista de Conversas
+- `/chat/{userID}` - Chat com Usuário Específico
+- `/id/{userID}` - Perfil de Usuário por ID
+- `/eco/` e `/ecoa/` - Diretório de Usuários
+- `/comunidade/` - Diretório de comunidades
+- `/nucleo/` - Diretório de núcleos
+- `/season/` - Diretório de seasons
+
+### User Pages
+- `/id/{userID}` - Perfil público personalizável
+- Auto-criação ao registrar usuário
+- Editor drag-and-drop com widgets
+
+---
+
+## 🔒 Security
+
+- Sanitização de inputs (`sanitize_text_field`, `esc_html`, `esc_url`)
+- Escape de outputs (`esc_html`, `esc_url`, `wp_kses_post`)
+- Nonces em endpoints AJAX
+- Capability checks
+- Validação de tipos e permissões
+- Proteção contra directory traversal
+
+---
+
+## 🐛 Debug
+
+### Enable Debug Mode
+```php
+// wp-config.php
+define('APOLLO_DEBUG', true);
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+```
+
+### Logging
+```php
+if (APOLLO_DEBUG) {
+    error_log('✅ Success');
+    error_log('❌ Error: ' . $error_message);
+}
+```
+
+---
+
+## 📝 Status de Funcionalidades
+
+### ✅ Implementado
+- Canvas Mode completo
+- Sistema de grupos (básico)
+- User Pages (`/id/{userID}`)
+- Analytics (Plausible)
+- PWA support
+- REST API endpoints
+
+### ⚠️ Parcialmente Implementado
+- Sistema de grupos (interface admin incompleta)
+- Chat (módulo existe mas não funcional)
+- Documentos (gestão básica)
+
+### ❌ Não Implementado
+- Feed social completo (posts sociais)
+- Sistema de notificações
+- Mensagens diretas funcionais
+
+**Nota:** O sistema está focado em EVENTOS e perfis de usuário, não em rede social tradicional.
+
+---
+
+## 📚 Documentation
+
+- **Canvas Builder:** Ver `CANVAS-BUILDER-README.md`
+- **Status Rede Social:** Ver `STATUS-REDE-SOCIAL.md`
+- **Main README:** Ver `../README.md`
+
+---
+
+## 📝 License
+
+GPL v2 or later
+
+---
+
+**Version:** 2.0.0  
+**Last Updated:** 2025-01-15  
+**Status:** ✅ Production Ready

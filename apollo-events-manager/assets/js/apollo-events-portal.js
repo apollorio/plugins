@@ -462,7 +462,7 @@
                     year: null,
                     search: ''
                 };
-            }
+                }
             
             // Update search state
             this.filterState.search = query || '';

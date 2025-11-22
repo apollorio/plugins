@@ -75,3 +75,5 @@ http://localhost:10004/wp-content/plugins/apollo-events-manager/tests/debug-test
 **Status:** ✅ Correções aplicadas e commitadas  
 **Commits:** 2 commits de correção
 
+
+

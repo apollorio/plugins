@@ -13,58 +13,25 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 // Get event data (same as event-card.php)
 $event_id = $event_object instanceof WP_Post ? $event_object->ID : get_the_ID();
 
-// Get event data
+// Get event data via helper
 $event_title = apollo_get_post_meta($event_id, '_event_title', true) ?: get_the_title();
-$start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
-$event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
+$date_info = Apollo_Event_Data_Helper::parse_event_date(
+    apollo_get_post_meta($event_id, '_event_start_date', true)
+);
+$local = Apollo_Event_Data_Helper::get_local_data($event_id);
 
 // Parse date
-$day = '';
-$month_str = '';
-$iso_date = '';
-if ($start_date) {
-    $timestamp = strtotime($start_date);
-    $day = date('d', $timestamp);
-    $month_num = date('M', $timestamp);
-    $iso_date = date('Y-m-d', $timestamp);
-    
-    $month_map = [
-        'Jan' => 'Jan', 'Feb' => 'Fev', 'Mar' => 'Mar',
-        'Apr' => 'Abr', 'May' => 'Mai', 'Jun' => 'Jun',
-        'Jul' => 'Jul', 'Aug' => 'Ago', 'Sep' => 'Set',
-        'Oct' => 'Out', 'Nov' => 'Nov', 'Dec' => 'Dez'
-    ];
-    $month_str = $month_map[$month_num] ?? $month_num;
-}
+$day = $date_info['day'] ?? '';
+$month_str = $date_info['month_pt'] ?? '';
+$iso_date = $date_info['iso_date'] ?? '';
 
-// Get local
-$local_id = function_exists('apollo_get_primary_local_id') 
-    ? apollo_get_primary_local_id($event_id) 
-    : 0;
-
-if (!$local_id) {
-    $local_ids_meta = apollo_get_post_meta($event_id, '_event_local_ids', true);
-    if (!empty($local_ids_meta)) {
-        $local_id = is_array($local_ids_meta) ? (int) reset($local_ids_meta) : (int) $local_ids_meta;
-    }
-    if (!$local_id) {
-        $legacy = apollo_get_post_meta($event_id, '_event_local', true);
-        $local_id = $legacy ? (int) $legacy : 0;
-    }
-}
-
-$local_name = '';
-if ($local_id) {
-    $local_post = get_post($local_id);
-    if ($local_post && $local_post->post_status === 'publish') {
-        $temp_name = apollo_get_post_meta($local_id, '_local_name', true);
-        $local_name = !empty($temp_name) ? $temp_name : $local_post->post_title;
-    }
-}
-
+// Get local name
+$local_name = $local ? $local['name'] : '';
 if (empty($local_name)) {
     $local_name = apollo_get_post_meta($event_id, '_event_location', true);
 }
@@ -74,13 +41,7 @@ $categories = wp_get_post_terms($event_id, 'event_listing_category');
 $category_slug = !empty($categories) && !is_wp_error($categories) ? $categories[0]->slug : '';
 
 // Get local slug
-$local_slug = '';
-if ($local_id) {
-    $local_post = get_post($local_id);
-    if ($local_post) {
-        $local_slug = $local_post->post_name ?: sanitize_title($local_name);
-    }
-}
+$local_slug = $local ? $local['slug'] : '';
 if (empty($local_slug) && !empty($local_name)) {
     $local_slug = sanitize_title($local_name);
 }

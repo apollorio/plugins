@@ -13,6 +13,8 @@
 
 defined('ABSPATH') || exit;
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 get_header();
 
 $local_id = get_the_ID();
@@ -424,7 +426,7 @@ if (function_exists('apollo_shadcn_enqueue')) {
                     $event_title = apollo_get_post_meta($event_id, '_event_title', true) ?: $event->post_title;
                     $event_start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
                     $event_start_time = apollo_get_post_meta($event_id, '_event_start_time', true);
-                    $event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
+                    $event_banner = Apollo_Event_Data_Helper::get_banner_url($event_id);
                     $event_permalink = get_permalink($event_id);
                 ?>
                     <div class="local-event-card">

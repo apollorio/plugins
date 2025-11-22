@@ -78,3 +78,5 @@ Verifique os logs do servidor PHP para erros fatais.
 
 **Última Atualização:** <?php echo date('d/m/Y'); ?>
 
+
+

@@ -10,6 +10,8 @@
 
 defined('ABSPATH') || exit;
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 // Security: only editors and above
 if (!current_user_can('edit_others_posts')) {
     wp_die(__('Você não tem permissão para acessar esta página.', 'apollo-events-manager'));
@@ -72,7 +74,7 @@ $draft_events = new WP_Query(array(
                     <?php while ($pending_events->have_posts()): $pending_events->the_post(); 
                         $event_id = get_the_ID();
                         $event_title = get_the_title();
-                        $event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
+                        $event_banner = Apollo_Event_Data_Helper::get_banner_url($event_id);
                         $event_start = apollo_get_post_meta($event_id, '_event_start_date', true);
                         $author = get_the_author();
                     ?>
@@ -126,7 +128,7 @@ $draft_events = new WP_Query(array(
                     <?php while ($draft_events->have_posts()): $draft_events->the_post(); 
                         $event_id = get_the_ID();
                         $event_title = get_the_title();
-                        $event_banner = apollo_get_post_meta($event_id, '_event_banner', true);
+                        $event_banner = Apollo_Event_Data_Helper::get_banner_url($event_id);
                         $author = get_the_author();
                     ?>
                     <div class="event-mod-card bg-card border rounded-lg overflow-hidden shadow-sm">

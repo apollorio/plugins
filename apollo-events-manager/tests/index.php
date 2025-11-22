@@ -146,25 +146,16 @@ if (!defined('ABSPATH')) {
         <h1>🧪 Apollo Events Manager - Test Suite</h1>
         <p class="subtitle">Escolha um teste para executar:</p>
         
+        <div class="info-box" style="background: #fff3cd; border-left-color: #ffb900;">
+            <h3>⚠️ Aviso de Manutenção</h3>
+            <p>Alguns testes foram temporariamente desabilitados para permitir o deployment em produção. Apenas o Database Test está disponível no momento.</p>
+        </div>
+        
         <div class="test-grid">
-            <a href="debug-test.php" class="test-card">
-                <h2>1. Debug Test</h2>
-                <p>Teste completo de todas as funcionalidades do plugin: CPTs, shortcodes, meta keys, AJAX handlers, templates e assets.</p>
-                <div class="url">debug-test.php</div>
-                <span class="status-badge available">✅ Disponível</span>
-            </a>
-            
             <a href="db-test.php" class="test-card">
-                <h2>2. Database Test</h2>
+                <h2>Database Test</h2>
                 <p>Teste de conexão e estrutura do banco de dados MySQL. Verifica tabelas, CPTs, meta keys canônicas e legadas.</p>
                 <div class="url">db-test.php</div>
-                <span class="status-badge available">✅ Disponível</span>
-            </a>
-            
-            <a href="page-verification.php" class="test-card">
-                <h2>3. Page Verification</h2>
-                <p>Verificação de páginas criadas, shortcodes e seus outputs, páginas de CPTs e arquivos de template.</p>
-                <div class="url">page-verification.php</div>
                 <span class="status-badge available">✅ Disponível</span>
             </a>
         </div>
@@ -179,4 +170,6 @@ if (!defined('ABSPATH')) {
     </div>
 </body>
 </html>
+
+
 

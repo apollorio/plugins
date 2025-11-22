@@ -8,6 +8,8 @@
 
 if (!defined('ABSPATH')) exit;
 
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+
 // Get current user data
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
@@ -219,22 +221,8 @@ wp_localize_script('apollo-base', 'apolloProfileAjax', array(
                   <?php if (!empty($favorite_events)): ?>
                     <?php foreach ($favorite_events as $event): 
                       $event_date = get_post_meta($event->ID, '_event_start_date', true);
-                      $local_id = 0;
-                      if (function_exists('apollo_get_primary_local_id')) {
-                          $local_id = apollo_get_primary_local_id($event->ID);
-                      } else {
-                          $local_ids_meta = get_post_meta($event->ID, '_event_local_ids', true);
-                          if (!empty($local_ids_meta)) {
-                              $local_id = is_array($local_ids_meta) ? (int) reset($local_ids_meta) : (int) $local_ids_meta;
-                          }
-                      }
-                      $local_name = '';
-                      if ($local_id) {
-                          $local_name = get_post_meta($local_id, '_local_name', true);
-                          if (empty($local_name)) {
-                              $local_name = get_the_title($local_id);
-                          }
-                      }
+                      $local = Apollo_Event_Data_Helper::get_local_data($event->ID);
+                      $local_name = $local ? $local['name'] : '';
                     ?>
                     <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
                       <div class="flex items-start justify-between gap-2">
