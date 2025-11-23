@@ -275,7 +275,7 @@
         },
 
         /**
-         * Handle load more button
+         * P0-5: Handle load more button (REST API)
          */
         bindLoadMore: function() {
             $('#apollo-feed-load-more').on('click', function() {
@@ -287,13 +287,63 @@
                 const $btn = $(this);
                 $btn.prop('disabled', true).text('Carregando...');
 
-                // TODO: Implementar carregamento via REST API
-                // Por enquanto, apenas simular
-                setTimeout(function() {
-                    $btn.prop('disabled', false).text('Carregar mais');
-                    FeedManager.loading = false;
-                }, 1000);
+                // Load more posts via REST API
+                $.ajax({
+                    url: FeedManager.restUrl + '/feed',
+                    method: 'GET',
+                    data: {
+                        page: FeedManager.currentPage,
+                        per_page: 20,
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', window.apolloFeedData?.nonce || '');
+                    },
+                    success: function(response) {
+                        if (response.success && response.data.posts.length > 0) {
+                            // Append new posts to feed
+                            FeedManager.appendPosts(response.data.posts);
+                            $btn.prop('disabled', false).text('Carregar mais');
+                        } else {
+                            // No more posts
+                            $btn.text('Não há mais posts').prop('disabled', true);
+                        }
+                    },
+                    error: function() {
+                        alert('Erro ao carregar mais posts.');
+                        $btn.prop('disabled', false).text('Carregar mais');
+                    },
+                    complete: function() {
+                        FeedManager.loading = false;
+                    }
+                });
             });
+        },
+
+        /**
+         * P0-5: Append posts to feed
+         */
+        appendPosts: function(posts) {
+            const $feedContainer = $('[data-tab-panel="feed-all"]');
+            
+            posts.forEach(function(post) {
+                const postHtml = FeedManager.renderPost(post);
+                $feedContainer.append(postHtml);
+            });
+
+            // Re-bind event handlers for new posts
+            FeedManager.bindLikeButtons();
+            FeedManager.bindCommentButtons();
+            FeedManager.bindShareButtons();
+            FeedManager.bindFavoriteButtons();
+        },
+
+        /**
+         * P0-5: Render single post HTML
+         */
+        renderPost: function(post) {
+            // This would generate HTML for a post
+            // For now, return placeholder
+            return '<div class="apollo-feed-card">Post HTML here</div>';
         },
 
         /**

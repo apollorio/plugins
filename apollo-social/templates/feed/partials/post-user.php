@@ -46,6 +46,41 @@ $data = $post['data'] ?? [];
                  class="w-full h-auto" />
           </div>
         <?php endif; ?>
+
+        <?php 
+        // P0-5: Render Spotify/SoundCloud embeds
+        if (!empty($data['media_embeds'])): 
+            if (!empty($data['media_embeds']['spotify'])): 
+                foreach ($data['media_embeds']['spotify'] as $spotify): ?>
+                    <div class="mt-4 rounded-xl overflow-hidden">
+                        <?php 
+                        if (class_exists('\Apollo\Helpers\MediaEmbedHelper')) {
+                            echo \Apollo\Helpers\MediaEmbedHelper::renderSpotifyEmbed(
+                                $spotify['id'], 
+                                $spotify['type'],
+                                ['width' => '100%', 'height' => $spotify['type'] === 'track' ? '152' : '352']
+                            );
+                        }
+                        ?>
+                    </div>
+                <?php endforeach; 
+            endif; 
+            if (!empty($data['media_embeds']['soundcloud'])): 
+                foreach ($data['media_embeds']['soundcloud'] as $soundcloud): ?>
+                    <div class="mt-4 rounded-xl overflow-hidden">
+                        <?php 
+                        if (class_exists('\Apollo\Helpers\MediaEmbedHelper')) {
+                            echo \Apollo\Helpers\MediaEmbedHelper::renderSoundCloudEmbed(
+                                $soundcloud['url'],
+                                ['width' => '100%', 'height' => '166']
+                            );
+                        }
+                        ?>
+                    </div>
+                <?php endforeach; 
+            endif; 
+        endif; 
+        ?>
       </div>
     </div>
   </div>

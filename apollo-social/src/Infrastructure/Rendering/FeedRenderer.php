@@ -118,6 +118,7 @@ class FeedRenderer
 
     /**
      * Formatar post de usuário
+     * P0-5: Inclui detecção de Spotify/SoundCloud
      */
     private function formatUserPost($post)
     {
@@ -126,10 +127,21 @@ class FeedRenderer
         $comment_count = get_comments_number($post->ID);
         $user_liked = $this->current_user_id ? $this->userLiked('apollo_social_post', $post->ID) : false;
 
+        $content = $post->post_content;
+        
+        // P0-5: Detectar URLs de Spotify/SoundCloud
+        $media_embeds = [];
+        if (class_exists('\Apollo\Helpers\MediaEmbedHelper')) {
+            $detected_media = \Apollo\Helpers\MediaEmbedHelper::detectMediaUrls($content);
+            if (!empty($detected_media['spotify']) || !empty($detected_media['soundcloud'])) {
+                $media_embeds = $detected_media;
+            }
+        }
+
         return [
             'id' => $post->ID,
             'title' => get_the_title($post->ID),
-            'content' => apply_filters('the_content', $post->post_content),
+            'content' => apply_filters('the_content', $content),
             'excerpt' => get_the_excerpt($post->ID),
             'author' => [
                 'id' => $author_id,
@@ -142,6 +154,7 @@ class FeedRenderer
             'like_count' => $like_count,
             'comment_count' => $comment_count,
             'user_liked' => $user_liked,
+            'media_embeds' => $media_embeds, // P0-5: Spotify/SoundCloud embeds
         ];
     }
 

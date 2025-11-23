@@ -227,6 +227,18 @@ class Plugin
         $favorites_endpoint = new \Apollo\API\Endpoints\FavoritesEndpoint();
         $favorites_endpoint->register();
 
+        // P0-5: Register Feed endpoint
+        $feed_endpoint = new \Apollo\API\Endpoints\FeedEndpoint();
+        $feed_endpoint->register();
+
+        // P0-7: Register DJ/Local endpoints
+        $dj_local_endpoint = new \Apollo\API\Endpoints\DJLocalEndpoint();
+        $dj_local_endpoint->register();
+
+        // P0-7: Register Groups endpoint
+        $groups_endpoint = new \Apollo\API\Endpoints\GroupsEndpoint();
+        $groups_endpoint->register();
+
         // Register User Page Auto-Create hook
         $user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();
         $user_page_auto_create->register();
