@@ -23,6 +23,7 @@ class Schema
         $this->createAnalyticsTable();
         $this->createSignatureRequestsTable();
         $this->createOnboardingProgressTable();
+        $this->createLikesTable(); // FASE 2: Tabela de curtidas
         $this->updateSchemaVersion();
     }
 
@@ -264,6 +265,33 @@ class Schema
             KEY user_idx (user_id),
             KEY status_idx (status),
             KEY completed_idx (completed_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * FASE 2: Create likes table
+     */
+    private function createLikesTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_likes';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            content_type varchar(50) NOT NULL,
+            content_id bigint(20) unsigned NOT NULL,
+            user_id bigint(20) unsigned NOT NULL,
+            liked_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY content_user_idx (content_type, content_id, user_id),
+            KEY content_idx (content_type, content_id),
+            KEY user_idx (user_id),
+            KEY liked_at_idx (liked_at)
         ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

@@ -9,10 +9,14 @@
 
 if (!defined('ABSPATH')) exit;
 
+// FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder
 $posts = $view['data']['posts'] ?? [];
 $current_user = $view['data']['current_user'] ?? [];
+
 $ajax_url = admin_url('admin-ajax.php');
-$nonce = wp_create_nonce('apollo_feed');
+$rest_url = rest_url('apollo/v1');
+$nonce = wp_create_nonce('wp_rest');
+$comment_nonce = wp_create_nonce('apollo_comment_nonce');
 ?>
 
 <div class="apollo-feed-root aprioEXP-body h-full" id="apollo-feed-root" style="background: var(--bg-surface);">
@@ -112,58 +116,34 @@ $nonce = wp_create_nonce('apollo_feed');
               <p class="text-[15px] text-slate-800 text-center">Nenhum post ainda. Seja o primeiro a compartilhar!</p>
             </article>
           <?php else: ?>
-            <?php foreach ($posts as $post): ?>
-              <article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-all apollo-feed-card" data-feed-card>
-                <div class="p-5">
-                  <div class="flex gap-3">
-                    <div class="h-11 w-11 rounded-full overflow-hidden shrink-0 ring-2 ring-orange-100">
-                      <img src="<?php echo esc_url($post['author']['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($post['author']['name'] ?? ''); ?>" class="h-full w-full object-cover" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center justify-between">
-                        <div>
-                          <h3 class="font-semibold text-[15px] text-slate-900"><?php echo esc_html($post['author']['name'] ?? ''); ?></h3>
-                          <p class="text-[13px] text-slate-500">@<?php echo esc_html($post['author']['name'] ?? ''); ?> · <?php echo esc_html(human_time_diff(strtotime($post['date'] ?? 'now'), current_time('timestamp')) . ' atrás'); ?></p>
-                        </div>
-                        <button class="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100">
-                          <i class="ri-more-2-line text-slate-400"></i>
-                        </button>
-                      </div>
-                      
-                      <p class="mt-3 text-[15px] text-slate-800 leading-relaxed">
-                        <?php echo wp_kses_post($post['content'] ?? $post['excerpt'] ?? ''); ?>
-                      </p>
-
-                      <?php if (!empty($post['thumbnail'])): ?>
-                        <div class="mt-4 rounded-xl overflow-hidden">
-                          <img src="<?php echo esc_url($post['thumbnail']); ?>" alt="<?php echo esc_attr($post['title'] ?? ''); ?>" class="w-full h-auto" />
-                        </div>
-                      <?php endif; ?>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-                  <button class="flex items-center gap-2 text-slate-600 hover:text-orange-600 transition-colors group apollo-feed-like-btn" data-post-id="<?php echo esc_attr($post['id'] ?? 0); ?>">
-                    <i class="ri-heart-3-line text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[14px] font-medium apollo-like-count">0</span>
-                  </button>
-                  <button class="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors group">
-                    <i class="ri-chat-3-line text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[14px] font-medium">0</span>
-                  </button>
-                  <button class="flex items-center gap-2 text-slate-600 hover:text-green-600 transition-colors group">
-                    <i class="ri-share-forward-line text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[14px] font-medium">0</span>
-                  </button>
-                  <button class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
-                    <i class="ri-bookmark-line text-xl"></i>
-                  </button>
-                </div>
-              </article>
+            <?php foreach ($posts as $post_item): ?>
+              <?php
+              // FASE 2: Usar partials baseado no tipo
+              $post_type = $post_item['type'] ?? 'user_post';
+              $post_data = $post_item;
+              
+              if ($post_type === 'event') {
+                include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
+              } elseif ($post_type === 'ad') {
+                // TODO: Criar partial para anúncios
+                include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+              } elseif ($post_type === 'news') {
+                // TODO: Criar partial para notícias
+                include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+              } else {
+                // Post de usuário (padrão)
+                include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+              }
+              ?>
             <?php endforeach; ?>
           <?php endif; ?>
+          
+          <!-- Load More Button -->
+          <div class="text-center py-4">
+            <button id="apollo-feed-load-more" class="px-6 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
+              Carregar mais
+            </button>
+          </div>
         </div>
 
         <!-- TAB: EVENTOS -->
@@ -326,7 +306,9 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 window.apolloFeedData = {
     ajaxUrl: <?php echo json_encode($ajax_url); ?>,
+    restUrl: <?php echo json_encode($rest_url); ?>,
     nonce: <?php echo json_encode($nonce); ?>,
+    commentNonce: <?php echo json_encode($comment_nonce); ?>,
     currentUserId: <?php echo absint($current_user['id'] ?? 0); ?>,
     posts: <?php echo json_encode($posts); ?>
 };

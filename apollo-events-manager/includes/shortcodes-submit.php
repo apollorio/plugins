@@ -27,7 +27,27 @@ function aem_submit_event_shortcode() {
         if (empty($_POST['apollo_event_timetable']) && !empty($_POST['event_djs']) && is_array($_POST['event_djs'])) {
             $auto_timetable = array();
             $dj_ids = array_filter(array_map('absint', $_POST['event_djs']));
-            $start_time_obj = !empty($_POST['event_start_time']) ? new DateTime($_POST['event_start_time']) : new DateTime('20:00');
+            // Bug fix: DateTime precisa de data completa ou usar createFromFormat para apenas hora
+            if (!empty($_POST['event_start_time'])) {
+                $start_time = sanitize_text_field($_POST['event_start_time']);
+                // Se start_time já tem data completa, usar diretamente
+                if (strpos($start_time, ' ') !== false) {
+                    $start_time_obj = new DateTime($start_time);
+                } else {
+                    // Se é apenas hora, criar com data de hoje
+                    $start_time_obj = DateTime::createFromFormat('H:i', $start_time);
+                    if (!$start_time_obj) {
+                        $start_time_obj = DateTime::createFromFormat('H:i:s', $start_time);
+                    }
+                    if (!$start_time_obj) {
+                        // Fallback: usar hora padrão 20:00
+                        $start_time_obj = DateTime::createFromFormat('H:i', '20:00');
+                    }
+                }
+            } else {
+                // Hora padrão: 20:00
+                $start_time_obj = DateTime::createFromFormat('H:i', '20:00');
+            }
             
             foreach ($dj_ids as $index => $dj_id) {
                 $slot_time = clone $start_time_obj;
@@ -395,4 +415,6 @@ function aem_submit_event_shortcode() {
     return ob_get_clean();
 }
 
+// FASE 2: Shortcode legado mantido para backward compatibility
+// O shortcode oficial agora é [apollo_event_submit] registrado na classe principal
 add_shortcode('submit_event_form', 'aem_submit_event_shortcode');

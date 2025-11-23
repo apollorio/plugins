@@ -322,6 +322,232 @@ class Apollo_Event_Data_Helper {
             'valid' => $valid
         ];
     }
+    
+    /**
+     * Get events query with strict validation and proper ordering
+     * FASE 1: Listagem confiável e pronta para deploy
+     * 
+     * @param array $args Additional query arguments
+     * @return WP_Query Query object with validated events
+     */
+    public static function get_events_query($args = []) {
+        $defaults = [
+            'post_type' => 'event_listing',
+            'post_status' => 'publish', // SEMPRE apenas publicados (excluir drafts, privados, etc)
+            'posts_per_page' => -1,
+            'meta_key' => '_event_start_date',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+            'update_post_meta_cache' => true,
+            'update_post_term_cache' => true,
+            'no_found_rows' => true,
+            'meta_query' => [
+                [
+                    'key' => '_event_start_date',
+                    'compare' => 'EXISTS'
+                ]
+            ]
+        ];
+        
+        $args = wp_parse_args($args, $defaults);
+        
+        // Garantir que apenas eventos publicados sejam retornados
+        if (!isset($args['post_status']) || $args['post_status'] !== 'publish') {
+            $args['post_status'] = 'publish';
+        }
+        
+        // Ordenação: meta _event_start_date primeiro, fallback para post_date
+        if (!isset($args['orderby']) || $args['orderby'] !== 'meta_value') {
+            $args['orderby'] = 'meta_value';
+            $args['meta_key'] = '_event_start_date';
+        }
+        
+        // Se não tiver meta de data, ordenar por post_date
+        $query = new WP_Query($args);
+        
+        if (is_wp_error($query)) {
+            error_log('Apollo Events: WP_Query error - ' . $query->get_error_message());
+            return new WP_Query(['post__in' => [0]]); // Retorna query vazia
+        }
+        
+        return $query;
+    }
+    
+    /**
+     * Get cached event IDs list
+     * FASE 1: Cache seguro com transient
+     * 
+     * @param bool $future_only Only future events
+     * @param int $cache_ttl Cache TTL in seconds
+     * @return array Array of event post IDs
+     */
+    public static function get_cached_event_ids($future_only = true, $cache_ttl = null) {
+        $cache_key = 'aem_events_transient_list' . ($future_only ? '_future' : '_all');
+        $bypass_cache = defined('APOLLO_PORTAL_DEBUG_BYPASS_CACHE') && APOLLO_PORTAL_DEBUG_BYPASS_CACHE;
+        
+        if ($bypass_cache) {
+            $event_ids = false;
+        } else {
+            $event_ids = get_transient($cache_key);
+        }
+        
+        if (false === $event_ids) {
+            $query_args = [
+                'post_type' => 'event_listing',
+                'post_status' => 'publish',
+                'posts_per_page' => -1,
+                'meta_key' => '_event_start_date',
+                'orderby' => 'meta_value',
+                'order' => 'ASC',
+                'fields' => 'ids', // Apenas IDs para performance
+                'update_post_meta_cache' => false,
+                'update_post_term_cache' => false,
+                'no_found_rows' => true
+            ];
+            
+            if ($future_only) {
+                $query_args['meta_query'] = [
+                    [
+                        'key' => '_event_start_date',
+                        'value' => date('Y-m-d'),
+                        'compare' => '>=',
+                        'type' => 'DATE'
+                    ]
+                ];
+            }
+            
+            $query = new WP_Query($query_args);
+            
+            if (is_wp_error($query)) {
+                error_log('Apollo Events: Cache query error - ' . $query->get_error_message());
+                $event_ids = [];
+            } else {
+                $event_ids = array_map('absint', $query->posts);
+                
+                // Fallback: se não tiver meta de data, ordenar por post_date
+                if (empty($event_ids)) {
+                    $fallback_query = new WP_Query([
+                        'post_type' => 'event_listing',
+                        'post_status' => 'publish',
+                        'posts_per_page' => -1,
+                        'orderby' => 'date',
+                        'order' => 'ASC',
+                        'fields' => 'ids',
+                        'no_found_rows' => true
+                    ]);
+                    
+                    if (!is_wp_error($fallback_query)) {
+                        $event_ids = array_map('absint', $fallback_query->posts);
+                    }
+                }
+            }
+            
+            // Salvar no cache
+            if ($cache_ttl === null) {
+                $cache_ttl = defined('APOLLO_PORTAL_CACHE_TTL') ? absint(APOLLO_PORTAL_CACHE_TTL) : (2 * MINUTE_IN_SECONDS);
+            }
+            
+            set_transient($cache_key, $event_ids, $cache_ttl);
+        }
+        
+        return is_array($event_ids) ? $event_ids : [];
+    }
+    
+    /**
+     * Flush events cache
+     * FASE 1: Limpar cache quando eventos são salvos
+     */
+    public static function flush_events_cache() {
+        delete_transient('aem_events_transient_list_future');
+        delete_transient('aem_events_transient_list_all');
+        delete_transient('apollo_all_event_ids_' . date('Ymd'));
+        
+        // Limpar cache do WordPress também
+        wp_cache_delete('apollo_events', 'apollo_events');
+    }
+    
+    /**
+     * FASE 3: Filtrar eventos por período
+     * 
+     * @param array $event_ids Array of event IDs
+     * @param string $period 'today', 'weekend', 'next7days', 'all'
+     * @return array Filtered event IDs
+     */
+    public static function filter_events_by_period($event_ids, $period = 'all') {
+        if (empty($event_ids) || $period === 'all') {
+            return $event_ids;
+        }
+        
+        $today = date('Y-m-d');
+        $filtered = [];
+        
+        foreach ($event_ids as $event_id) {
+            $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
+            if (!$start_date) {
+                continue;
+            }
+            
+            $event_date = date('Y-m-d', strtotime($start_date));
+            
+            switch ($period) {
+                case 'today':
+                    if ($event_date === $today) {
+                        $filtered[] = $event_id;
+                    }
+                    break;
+                    
+                case 'weekend':
+                    // Próxima sexta a domingo
+                    $today_timestamp = strtotime($today);
+                    $today_day = date('w', $today_timestamp);
+                    
+                    // Se hoje é sexta, sábado ou domingo, incluir eventos deste fim de semana
+                    if ($today_day >= 5) {
+                        $friday = date('Y-m-d', strtotime('this friday', $today_timestamp));
+                        $sunday = date('Y-m-d', strtotime('this sunday', $today_timestamp));
+                    } else {
+                        // Se não, pegar próximo fim de semana
+                        $friday = date('Y-m-d', strtotime('next friday', $today_timestamp));
+                        $sunday = date('Y-m-d', strtotime('next sunday', $today_timestamp));
+                    }
+                    
+                    if ($event_date >= $friday && $event_date <= $sunday) {
+                        $filtered[] = $event_id;
+                    }
+                    break;
+                    
+                case 'next7days':
+                    $next_week = date('Y-m-d', strtotime('+7 days'));
+                    if ($event_date >= $today && $event_date <= $next_week) {
+                        $filtered[] = $event_id;
+                    }
+                    break;
+            }
+        }
+        
+        return $filtered;
+    }
+    
+    /**
+     * FASE 3: Obter eventos recomendados (featured)
+     * 
+     * @param array $event_ids Array of event IDs
+     * @return array Featured event IDs
+     */
+    public static function get_featured_events($event_ids) {
+        if (empty($event_ids)) {
+            return [];
+        }
+        
+        $featured = [];
+        foreach ($event_ids as $event_id) {
+            if (apollo_get_post_meta($event_id, '_event_featured', true) === '1') {
+                $featured[] = $event_id;
+            }
+        }
+        
+        return $featured;
+    }
 }
 
 // Register as available globally
@@ -333,4 +559,110 @@ if (!function_exists('apollo_get_event_data')) {
             'banner' => Apollo_Event_Data_Helper::get_banner_url($event_id),
         ]);
     }
+}
+
+// FASE 2: Verificar se usuário pode editar evento (autor ou co-autor)
+if (!function_exists('apollo_can_user_edit_event')) {
+    /**
+     * FASE 2: Verificar se usuário pode editar evento
+     * 
+     * @param int $event_id ID do evento
+     * @param int $user_id ID do usuário (opcional, usa current_user se não fornecido)
+     * @return bool True se usuário pode editar
+     */
+    function apollo_can_user_edit_event($event_id, $user_id = null) {
+        if (!$user_id) {
+            $user_id = get_current_user_id();
+        }
+        
+        if (!$user_id) {
+            return false;
+        }
+        
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event_listing') {
+            return false;
+        }
+        
+        // Administradores e editores sempre podem editar
+        $user = get_user_by('ID', $user_id);
+        if ($user && (user_can($user_id, 'edit_others_posts') || user_can($user_id, 'administrator'))) {
+            return true;
+        }
+        
+        // Verificar se é autor
+        if ($event->post_author == $user_id) {
+            return true;
+        }
+        
+        // Verificar se é co-autor
+        $co_authors = apollo_get_post_meta($event_id, '_event_co_authors', true);
+        $co_authors = is_array($co_authors) ? array_map('absint', $co_authors) : [];
+        
+        if (in_array($user_id, $co_authors, true)) {
+            return true;
+        }
+        
+        return false;
+    }
+}
+
+// FASE 2: Filtro WordPress para permitir que co-autores editem eventos
+add_filter('user_has_cap', function($allcaps, $cap, $args) {
+    // Bug fix: $cap é o array de capabilities do usuário, não a capability sendo verificada
+    // A capability sendo verificada está em $args[0]
+    if (!isset($args[0]) || $args[0] !== 'edit_post') {
+        return $allcaps;
+    }
+    
+    // $args[1] contém o post_id quando verificando edit_post
+    $post_id = isset($args[1]) ? absint($args[1]) : 0;
+    if (!$post_id) {
+        return $allcaps;
+    }
+    
+    $post = get_post($post_id);
+    if (!$post || $post->post_type !== 'event_listing') {
+        return $allcaps;
+    }
+    
+    // $args[2] contém o user_id quando especificado, senão usar current user
+    $user_id = isset($args[2]) ? absint($args[2]) : get_current_user_id();
+    
+    // Se usuário pode editar (autor ou co-autor), permitir
+    if (apollo_can_user_edit_event($post_id, $user_id)) {
+        $allcaps['edit_post'] = true;
+    }
+    
+    return $allcaps;
+}, 10, 3);
+
+// FASE 1: Hook para limpar cache quando eventos são salvos
+if (!function_exists('aem_flush_events_cache')) {
+    function aem_flush_events_cache($post_id, $post, $update) {
+        // Ignorar autosaves e revisions
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+        
+        // Apenas para eventos
+        if ($post->post_type !== 'event_listing') {
+            return;
+        }
+        
+        // Limpar cache
+        Apollo_Event_Data_Helper::flush_events_cache();
+    }
+    
+    add_action('save_post_event_listing', 'aem_flush_events_cache', 10, 3);
+    add_action('delete_post', function($post_id) {
+        $post = get_post($post_id);
+        if ($post && $post->post_type === 'event_listing') {
+            Apollo_Event_Data_Helper::flush_events_cache();
+        }
+    });
 }

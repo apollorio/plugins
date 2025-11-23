@@ -12,6 +12,7 @@ class OutputGuards
 
     /**
      * Install output guards
+     * FASE 1: Reforçado para garantir isolamento completo do tema
      */
     public function install()
     {
@@ -19,10 +20,13 @@ class OutputGuards
             return;
         }
 
-        // Remove theme actions that might interfere
+        // FASE 1: Remover ações do tema que podem interferir
         $this->removeThemeActions();
 
-        // Block theme assets if configured
+        // FASE 1: Bloquear assets do tema completamente (método robusto)
+        $this->blockThemeAssetsCompletely();
+
+        // FASE 1: Também usar método configurável para compatibilidade
         $this->blockThemeAssets();
 
         $this->installed = true;

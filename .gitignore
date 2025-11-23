@@ -1,0 +1,5 @@
+﻿
+# Windows special files
+nul
+NUL
+*.nul

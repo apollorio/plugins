@@ -39,6 +39,7 @@ class AssetsManager
             return false;
         }
         
+        // FASE 1: Lista completa de rotas Apollo (incluindo documentos)
         $apollo_routes = [
             '/a/',
             '/comunidade/',
@@ -46,7 +47,22 @@ class AssetsManager
             '/season/',
             '/membership',
             '/uniao/',
-            '/anuncio/'
+            '/anuncio/',
+            '/feed/',
+            '/chat/',
+            '/painel/',
+            '/cena/',
+            '/cena-rio/',
+            '/eco/',
+            '/ecoa/',
+            '/id/',
+            '/clubber/',
+            // FASE 1: Rotas de documentos
+            '/doc/',
+            '/pla/',
+            '/sign/',
+            '/documentos/',
+            '/enviar/',
         ];
         
         foreach ($apollo_routes as $route) {

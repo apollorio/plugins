@@ -583,6 +583,16 @@ class Apollo_Events_Manager_Plugin {
         add_shortcode('apollo_user_dashboard', array($this, 'apollo_user_dashboard_shortcode'));
         add_shortcode('apollo_cena_rio', array($this, 'apollo_cena_rio_shortcode'));
         
+        // FASE 2: Shortcode oficial de submissão de eventos
+        add_shortcode('apollo_event_submit', array($this, 'render_submit_form'));
+        
+        // FASE 4: Industry Overview Dashboard
+        add_shortcode('apollo_event_user_overview', array($this, 'industry_overview_shortcode'));
+        
+        // Aliases para backward compatibility (chamam o mesmo gateway)
+        add_shortcode('submit_event_form', array($this, 'render_submit_form'));
+        add_shortcode('apollo_eventos', array($this, 'render_submit_form'));
+        
         // AJAX handlers
         add_action('wp_ajax_filter_events', array($this, 'ajax_filter_events'));
         add_action('wp_ajax_nopriv_filter_events', array($this, 'ajax_filter_events'));
@@ -650,6 +660,19 @@ class Apollo_Events_Manager_Plugin {
         } else {
             apollo_log_missing_file($data_migration_file);
         }
+        
+        // FASE 4: Load event stats class
+        $stats_file = APOLLO_WPEM_PATH . 'includes/class-event-stats.php';
+        if (file_exists($stats_file)) {
+            require_once $stats_file;
+        }
+        
+        // FASE 4: Register view tracking hooks
+        add_action('wp', array($this, 'track_event_view'));
+        
+        // FASE 4: Register click_out AJAX handler
+        add_action('wp_ajax_apollo_record_click_out', array('Apollo_Event_Stats', 'ajax_record_click_out'));
+        add_action('wp_ajax_nopriv_apollo_record_click_out', array('Apollo_Event_Stats', 'ajax_record_click_out'));
         
         // Load admin metaboxes
         if (is_admin()) {
@@ -2165,9 +2188,16 @@ class Apollo_Events_Manager_Plugin {
         $current_count = apollo_get_post_meta($event_id, '_favorites_count', true);
         $current_count = $current_count ? intval($current_count) : 0;
         
-        // For now, just increment/decrement based on request
-        // TODO: Implement proper user-based favorites tracking
+        // FASE 4: Registrar ação na tabela de stats
         $action = sanitize_text_field($_POST['action_type'] ?? 'add');
+        
+        if (class_exists('Apollo_Event_Stats')) {
+            if ($action === 'add') {
+                Apollo_Event_Stats::record_action($event_id, 'favorite', get_current_user_id());
+            } else {
+                Apollo_Event_Stats::record_action($event_id, 'unfavorite', get_current_user_id());
+            }
+        }
         
         if ($action === 'add') {
             $new_count = $current_count + 1;
@@ -2416,7 +2446,12 @@ class Apollo_Events_Manager_Plugin {
             return;
         }
         
-        // Clear today's cache
+        // FASE 1: Limpar cache do helper centralizado primeiro
+        if (class_exists('Apollo_Event_Data_Helper')) {
+            Apollo_Event_Data_Helper::flush_events_cache();
+        }
+        
+        // Clear today's cache (backward compatibility)
         $cache_key = 'apollo_all_event_ids_' . date('Ymd');
         delete_transient($cache_key);
         
@@ -4059,6 +4094,628 @@ class Apollo_Events_Manager_Plugin {
     }
     
     /**
+     * FASE 2: Render event submission form
+     * Shortcode oficial: [apollo_event_submit]
+     * Gateway único para submissão de eventos
+     */
+    public function render_submit_form($atts = []) {
+        // Carregar helper se necessário
+        if (!class_exists('Apollo_Event_Data_Helper')) {
+            require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+        }
+        
+        // FASE 2: Verificar se usuário está logado
+        if (!is_user_logged_in()) {
+            $login_url = wp_login_url(get_permalink());
+            $register_url = wp_registration_url();
+            return '<div class="aem-auth-required glass p-6 rounded-lg text-center">
+                <h3 class="text-xl font-semibold mb-4">' . esc_html__('Login Necessário', 'apollo-events-manager') . '</h3>
+                <p class="mb-4">' . esc_html__('Você precisa estar logado para enviar um evento.', 'apollo-events-manager') . '</p>
+                <div class="flex gap-4 justify-center">
+                    <a href="' . esc_url($login_url) . '" class="btn btn-primary">' . esc_html__('Entrar', 'apollo-events-manager') . '</a>
+                    <a href="' . esc_url($register_url) . '" class="btn btn-secondary">' . esc_html__('Criar Conta', 'apollo-events-manager') . '</a>
+                </div>
+            </div>';
+        }
+        
+        // FASE 2: Verificar capabilities
+        $current_user_id = get_current_user_id();
+        if (!$current_user_id || !current_user_can('edit_posts')) {
+            return '<div class="aem-error glass p-4 rounded-lg bg-red-50 border border-red-200">
+                <p class="text-red-700">' . esc_html__('Você não tem permissão para criar eventos.', 'apollo-events-manager') . '</p>
+            </div>';
+        }
+        
+        // FASE 2: Processar submissão do formulário
+        $event_id = isset($_GET['edit']) ? absint($_GET['edit']) : 0;
+        $is_edit = $event_id > 0;
+        
+        // FASE 2: Validar permissões de edição usando helper
+        if ($is_edit) {
+            $event = get_post($event_id);
+            if (!$event || $event->post_type !== 'event_listing') {
+                return '<div class="aem-error glass p-4 rounded-lg bg-red-50 border border-red-200">
+                    <p class="text-red-700">' . esc_html__('Evento não encontrado.', 'apollo-events-manager') . '</p>
+                </div>';
+            }
+            
+            // FASE 2: Usar função helper para verificar permissões
+            if (!function_exists('apollo_can_user_edit_event')) {
+                require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+            }
+            
+            if (!apollo_can_user_edit_event($event_id, $current_user_id)) {
+                return '<div class="aem-error glass p-4 rounded-lg bg-red-50 border border-red-200">
+                    <p class="text-red-700">' . esc_html__('Você não tem permissão para editar este evento.', 'apollo-events-manager') . '</p>
+                </div>';
+            }
+        }
+        
+        // Processar formulário se foi submetido
+        if (!empty($_POST['aem_submit']) && isset($_POST['apollo_submit_event_nonce']) && wp_verify_nonce($_POST['apollo_submit_event_nonce'], 'apollo_submit_event')) {
+            return $this->process_event_submission($event_id);
+        }
+        
+        // Renderizar formulário
+        return $this->render_submit_form_html($event_id);
+    }
+    
+    /**
+     * FASE 2: Processar submissão do formulário
+     * Validação rigorosa e sanitização
+     */
+    private function process_event_submission($event_id = 0) {
+        $current_user_id = get_current_user_id();
+        $errors = [];
+        
+        // FASE 2: Sanitizar e validar campos obrigatórios
+        $title = isset($_POST['post_title']) ? sanitize_text_field(wp_unslash($_POST['post_title'])) : '';
+        $content = isset($_POST['post_content']) ? wp_kses_post(wp_unslash($_POST['post_content'])) : '';
+        $start_date = isset($_POST['event_start_date']) ? sanitize_text_field(wp_unslash($_POST['event_start_date'])) : '';
+        $start_time = isset($_POST['event_start_time']) ? sanitize_text_field(wp_unslash($_POST['event_start_time'])) : '';
+        $end_date = isset($_POST['event_end_date']) ? sanitize_text_field(wp_unslash($_POST['event_end_date'])) : '';
+        $end_time = isset($_POST['event_end_time']) ? sanitize_text_field(wp_unslash($_POST['event_end_time'])) : '';
+        $local_id = isset($_POST['event_local']) ? absint($_POST['event_local']) : 0;
+        $dj_ids = isset($_POST['event_djs']) && is_array($_POST['event_djs']) ? array_map('absint', $_POST['event_djs']) : [];
+        $sounds = isset($_POST['event_sounds']) && is_array($_POST['event_sounds']) ? array_map('sanitize_text_field', $_POST['event_sounds']) : [];
+        
+        // FASE 2: Campos de links (sanitizados como URL)
+        $links = [
+            'instagram' => isset($_POST['event_link_instagram']) ? esc_url_raw(wp_unslash($_POST['event_link_instagram'])) : '',
+            'ra' => isset($_POST['event_link_ra']) ? esc_url_raw(wp_unslash($_POST['event_link_ra'])) : '',
+            'sympla' => isset($_POST['event_link_sympla']) ? esc_url_raw(wp_unslash($_POST['event_link_sympla'])) : '',
+            'shotgun' => isset($_POST['event_link_shotgun']) ? esc_url_raw(wp_unslash($_POST['event_link_shotgun'])) : '',
+        ];
+        
+        // FASE 2: Co-autores (sanitizados)
+        $co_authors = isset($_POST['event_co_authors']) && is_array($_POST['event_co_authors']) ? array_map('absint', $_POST['event_co_authors']) : [];
+        
+        // Validações
+        if (empty($title)) {
+            $errors[] = __('Título do evento é obrigatório.', 'apollo-events-manager');
+        }
+        
+        if (empty($start_date)) {
+            $errors[] = __('Data de início é obrigatória.', 'apollo-events-manager');
+        }
+        
+        if (empty($local_id)) {
+            $errors[] = __('Local é obrigatório.', 'apollo-events-manager');
+        }
+        
+        if (!empty($errors)) {
+            $error_html = '<div class="aem-error glass p-4 rounded-lg mb-4 bg-red-50 border border-red-200">
+                <h4 class="font-semibold text-red-800 mb-2">' . esc_html__('Erros encontrados:', 'apollo-events-manager') . '</h4>
+                <ul class="list-disc list-inside text-red-700">';
+            foreach ($errors as $error) {
+                $error_html .= '<li>' . esc_html($error) . '</li>';
+            }
+            $error_html .= '</ul></div>';
+            
+            // Retornar formulário com erros
+            return $error_html . $this->render_submit_form_html($event_id);
+        }
+        
+        try {
+            // Combinar data e hora
+            $start_datetime = $start_date;
+            if (!empty($start_time)) {
+                $start_datetime .= ' ' . $start_time . ':00';
+            } else {
+                $start_datetime .= ' 20:00:00';
+            }
+            
+            // Criar ou atualizar evento
+            $post_data = [
+                'post_type' => 'event_listing',
+                'post_status' => 'pending', // FASE 2: Sempre requer moderação
+                'post_title' => $title,
+                'post_content' => $content,
+                'post_author' => $current_user_id,
+            ];
+            
+            if ($event_id > 0) {
+                $post_data['ID'] = $event_id;
+                $post_id = wp_update_post($post_data, true);
+            } else {
+                $post_id = wp_insert_post($post_data, true);
+            }
+            
+            if (is_wp_error($post_id)) {
+                throw new Exception($post_id->get_error_message());
+            }
+            
+            // FASE 2: Salvar meta keys usando apollo_update_post_meta
+            apollo_update_post_meta($post_id, '_event_start_date', $start_datetime);
+            if (!empty($start_time)) {
+                apollo_update_post_meta($post_id, '_event_start_time', $start_time);
+            }
+            
+            if (!empty($end_date)) {
+                $end_datetime = $end_date;
+                if (!empty($end_time)) {
+                    $end_datetime .= ' ' . $end_time . ':00';
+                }
+                apollo_update_post_meta($post_id, '_event_end_date', $end_datetime);
+                if (!empty($end_time)) {
+                    apollo_update_post_meta($post_id, '_event_end_time', $end_time);
+                }
+            }
+            
+            // Local
+            if ($local_id > 0) {
+                if (class_exists('Apollo_Local_Connection')) {
+                    $connection = Apollo_Local_Connection::get_instance();
+                    $connection->set_local_id($post_id, $local_id);
+                } else {
+                    apollo_update_post_meta($post_id, '_event_local_ids', $local_id);
+                }
+            }
+            
+            // DJs
+            if (!empty($dj_ids)) {
+                apollo_update_post_meta($post_id, '_event_dj_ids', $dj_ids);
+            }
+            
+            // FASE 2: Co-autores
+            if (!empty($co_authors)) {
+                apollo_update_post_meta($post_id, '_event_co_authors', $co_authors);
+            }
+            
+            // FASE 2: Links
+            foreach ($links as $key => $url) {
+                if (!empty($url)) {
+                    apollo_update_post_meta($post_id, '_event_link_' . $key, $url);
+                }
+            }
+            
+            // FASE 2: Estilos de som (taxonomia)
+            if (!empty($sounds)) {
+                wp_set_object_terms($post_id, $sounds, 'event_sounds', false);
+            }
+            
+            // Timetable (auto-gerado se não fornecido)
+            if (empty($_POST['apollo_event_timetable']) && !empty($dj_ids)) {
+                $auto_timetable = [];
+                // Bug fix: DateTime precisa de data completa ou usar createFromFormat para apenas hora
+                if (!empty($start_time)) {
+                    // Se start_time já tem data completa, usar diretamente
+                    if (strpos($start_time, ' ') !== false) {
+                        $start_time_obj = new DateTime($start_time);
+                    } else {
+                        // Se é apenas hora, criar com data de hoje
+                        $start_time_obj = DateTime::createFromFormat('H:i', $start_time);
+                        if (!$start_time_obj) {
+                            $start_time_obj = DateTime::createFromFormat('H:i:s', $start_time);
+                        }
+                        if (!$start_time_obj) {
+                            // Fallback: usar hora padrão 20:00
+                            $start_time_obj = DateTime::createFromFormat('H:i', '20:00');
+                        }
+                    }
+                } else {
+                    // Hora padrão: 20:00
+                    $start_time_obj = DateTime::createFromFormat('H:i', '20:00');
+                }
+                
+                foreach ($dj_ids as $index => $dj_id) {
+                    $slot_time = clone $start_time_obj;
+                    $slot_time->modify('+' . ($index * 60) . ' minutes');
+                    
+                    $auto_timetable[] = [
+                        'dj' => $dj_id,
+                        'from' => $slot_time->format('H:i'),
+                        'to' => $slot_time->modify('+60 minutes')->format('H:i')
+                    ];
+                }
+                
+                if (!empty($auto_timetable)) {
+                    apollo_update_post_meta($post_id, '_event_timetable', $auto_timetable);
+                }
+            } elseif (!empty($_POST['apollo_event_timetable'])) {
+                $timetable_json = sanitize_text_field(wp_unslash($_POST['apollo_event_timetable']));
+                $timetable = json_decode(stripslashes($timetable_json), true);
+                if (is_array($timetable) && function_exists('apollo_sanitize_timetable')) {
+                    $clean_timetable = apollo_sanitize_timetable($timetable);
+                    if (!empty($clean_timetable)) {
+                        apollo_update_post_meta($post_id, '_event_timetable', $clean_timetable);
+                    }
+                }
+            }
+            
+            // Marcar como submissão frontend
+            apollo_update_post_meta($post_id, '_apollo_frontend_submission', '1');
+            apollo_update_post_meta($post_id, '_apollo_submission_date', current_time('mysql'));
+            
+            // FASE 1: Limpar cache
+            if (class_exists('Apollo_Event_Data_Helper')) {
+                Apollo_Event_Data_Helper::flush_events_cache();
+            }
+            
+            $success_message = $event_id > 0 
+                ? __('Evento atualizado com sucesso! Está em revisão e será publicado em breve.', 'apollo-events-manager')
+                : __('Evento enviado com sucesso! Obrigado! Seu evento está em revisão e será publicado em breve.', 'apollo-events-manager');
+            
+            return '<div class="aem-success glass p-6 rounded-lg text-center bg-green-50 border border-green-200">
+                <h3 class="text-xl font-semibold text-green-800 mb-2">✓ ' . esc_html__('Sucesso!', 'apollo-events-manager') . '</h3>
+                <p class="text-green-700 mb-4">' . esc_html($success_message) . '</p>
+                <a href="' . esc_url(get_permalink()) . '" class="btn btn-primary">' . esc_html__('Enviar Outro Evento', 'apollo-events-manager') . '</a>
+            </div>';
+            
+        } catch (Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Apollo Events: Error in submit form - ' . $e->getMessage());
+            }
+            
+            $error_html = '<div class="aem-error glass p-4 rounded-lg mb-4 bg-red-50 border border-red-200">
+                <p class="text-red-700">' . esc_html__('Erro ao criar evento:', 'apollo-events-manager') . ' ' . esc_html($e->getMessage()) . '</p>
+                <p class="text-sm text-red-600 mt-2">' . esc_html__('Tente novamente ou entre em contato com o suporte.', 'apollo-events-manager') . '</p>
+            </div>';
+            
+            return $error_html . $this->render_submit_form_html($event_id);
+        }
+    }
+    
+    /**
+     * FASE 2: Renderizar HTML do formulário
+     * Campos mínimos conforme especificação
+     */
+    private function render_submit_form_html($event_id = 0) {
+        $is_edit = $event_id > 0;
+        $event = $is_edit ? get_post($event_id) : null;
+        
+        // Carregar dados existentes se editando
+        $title = $is_edit ? $event->post_title : (isset($_POST['post_title']) ? sanitize_text_field($_POST['post_title']) : '');
+        $content = $is_edit ? $event->post_content : (isset($_POST['post_content']) ? wp_kses_post($_POST['post_content']) : '');
+        $start_date = $is_edit ? apollo_get_post_meta($event_id, '_event_start_date', true) : (isset($_POST['event_start_date']) ? sanitize_text_field($_POST['event_start_date']) : '');
+        $start_time = $is_edit ? apollo_get_post_meta($event_id, '_event_start_time', true) : (isset($_POST['event_start_time']) ? sanitize_text_field($_POST['event_start_time']) : '20:00');
+        $end_date = $is_edit ? apollo_get_post_meta($event_id, '_event_end_date', true) : (isset($_POST['event_end_date']) ? sanitize_text_field($_POST['event_end_date']) : '');
+        $end_time = $is_edit ? apollo_get_post_meta($event_id, '_event_end_time', true) : (isset($_POST['event_end_time']) ? sanitize_text_field($_POST['event_end_time']) : '');
+        $local_id = $is_edit ? apollo_get_post_meta($event_id, '_event_local_ids', true) : (isset($_POST['event_local']) ? absint($_POST['event_local']) : 0);
+        $dj_ids = $is_edit ? apollo_get_post_meta($event_id, '_event_dj_ids', true) : (isset($_POST['event_djs']) ? array_map('absint', $_POST['event_djs']) : []);
+        $dj_ids = is_array($dj_ids) ? $dj_ids : [];
+        $co_authors = $is_edit ? apollo_get_post_meta($event_id, '_event_co_authors', true) : (isset($_POST['event_co_authors']) ? array_map('absint', $_POST['event_co_authors']) : []);
+        $co_authors = is_array($co_authors) ? $co_authors : [];
+        
+        // Links
+        $links = [
+            'instagram' => $is_edit ? apollo_get_post_meta($event_id, '_event_link_instagram', true) : (isset($_POST['event_link_instagram']) ? esc_url_raw($_POST['event_link_instagram']) : ''),
+            'ra' => $is_edit ? apollo_get_post_meta($event_id, '_event_link_ra', true) : (isset($_POST['event_link_ra']) ? esc_url_raw($_POST['event_link_ra']) : ''),
+            'sympla' => $is_edit ? apollo_get_post_meta($event_id, '_event_link_sympla', true) : (isset($_POST['event_link_sympla']) ? esc_url_raw($_POST['event_link_sympla']) : ''),
+            'shotgun' => $is_edit ? apollo_get_post_meta($event_id, '_event_link_shotgun', true) : (isset($_POST['event_link_shotgun']) ? esc_url_raw($_POST['event_link_shotgun']) : ''),
+        ];
+        
+        // Estilos de som (taxonomia)
+        $sounds_terms = $is_edit ? wp_get_post_terms($event_id, 'event_sounds', ['fields' => 'slugs']) : (isset($_POST['event_sounds']) ? array_map('sanitize_text_field', $_POST['event_sounds']) : []);
+        
+        // Buscar DJs e Locais para dropdowns
+        $all_djs = get_posts([
+            'post_type' => 'event_dj',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'post_status' => 'publish',
+        ]);
+        
+        $all_locals = get_posts([
+            'post_type' => 'event_local',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'post_status' => 'publish',
+        ]);
+        
+        // Buscar usuários para co-autores
+        $all_users = get_users([
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+            'number' => 500, // Limitar para performance
+        ]);
+        
+        // Buscar termos de estilos de som
+        $all_sounds = get_terms([
+            'taxonomy' => 'event_sounds',
+            'hide_empty' => false,
+        ]);
+        $all_sounds = is_wp_error($all_sounds) ? [] : $all_sounds;
+        
+        ob_start();
+        ?>
+        <div class="aem-submit-form-wrapper glass p-6 rounded-lg max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold mb-6"><?php echo $is_edit ? esc_html__('Editar Evento', 'apollo-events-manager') : esc_html__('Enviar Novo Evento', 'apollo-events-manager'); ?></h2>
+            
+            <form class="aem-submit-form space-y-6" method="post" enctype="multipart/form-data">
+                <?php wp_nonce_field('apollo_submit_event', 'apollo_submit_event_nonce'); ?>
+                <?php if ($is_edit): ?>
+                    <input type="hidden" name="event_id" value="<?php echo esc_attr($event_id); ?>">
+                <?php endif; ?>
+                
+                <!-- Título -->
+                <div>
+                    <label for="post_title" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('Título do Evento', 'apollo-events-manager'); ?> <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="post_title" 
+                        name="post_title" 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+                        required
+                        value="<?php echo esc_attr($title); ?>"
+                    >
+                </div>
+                
+                <!-- Descrição -->
+                <div>
+                    <label for="post_content" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('Descrição do Evento', 'apollo-events-manager'); ?>
+                    </label>
+                    <textarea 
+                        id="post_content" 
+                        name="post_content" 
+                        rows="6" 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        placeholder="<?php esc_attr_e('Descreva o evento, line-up, informações importantes...', 'apollo-events-manager'); ?>"
+                    ><?php echo esc_textarea($content); ?></textarea>
+                </div>
+                
+                <!-- Data e Hora -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="event_start_date" class="block text-sm font-medium mb-2">
+                            <?php esc_html_e('Data de Início', 'apollo-events-manager'); ?> <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="event_start_date" 
+                            name="event_start_date" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+                            required
+                            value="<?php echo esc_attr($start_date); ?>"
+                        >
+                    </div>
+                    <div>
+                        <label for="event_start_time" class="block text-sm font-medium mb-2">
+                            <?php esc_html_e('Hora de Início', 'apollo-events-manager'); ?>
+                        </label>
+                        <input 
+                            type="time" 
+                            id="event_start_time" 
+                            name="event_start_time" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            value="<?php echo esc_attr($start_time); ?>"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Data e Hora de Término (Opcional) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="event_end_date" class="block text-sm font-medium mb-2">
+                            <?php esc_html_e('Data de Término', 'apollo-events-manager'); ?> <span class="text-gray-500 text-xs">(<?php esc_html_e('Opcional', 'apollo-events-manager'); ?>)</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="event_end_date" 
+                            name="event_end_date" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            value="<?php echo esc_attr($end_date); ?>"
+                        >
+                    </div>
+                    <div>
+                        <label for="event_end_time" class="block text-sm font-medium mb-2">
+                            <?php esc_html_e('Hora de Término', 'apollo-events-manager'); ?> <span class="text-gray-500 text-xs">(<?php esc_html_e('Opcional', 'apollo-events-manager'); ?>)</span>
+                        </label>
+                        <input 
+                            type="time" 
+                            id="event_end_time" 
+                            name="event_end_time" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            value="<?php echo esc_attr($end_time); ?>"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Local -->
+                <div>
+                    <label for="event_local" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('Local', 'apollo-events-manager'); ?> <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                        id="event_local" 
+                        name="event_local" 
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+                        required
+                    >
+                        <option value=""><?php esc_html_e('Selecione um local', 'apollo-events-manager'); ?></option>
+                        <?php
+                        foreach ($all_locals as $local) {
+                            $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+                            $selected = ($local_id == $local->ID) ? 'selected' : '';
+                            echo '<option value="' . esc_attr($local->ID) . '" ' . $selected . '>' . esc_html($local_name) . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                
+                <!-- DJs -->
+                <div>
+                    <label for="event_djs" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('DJs', 'apollo-events-manager'); ?> <span class="text-gray-500 text-xs">(<?php esc_html_e('Selecione múltiplos', 'apollo-events-manager'); ?>)</span>
+                    </label>
+                    <select 
+                        multiple 
+                        id="event_djs" 
+                        name="event_djs[]" 
+                        size="8"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                        <?php
+                        foreach ($all_djs as $dj) {
+                            $dj_name = apollo_get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+                            $selected = in_array($dj->ID, $dj_ids) ? 'selected' : '';
+                            echo '<option value="' . esc_attr($dj->ID) . '" ' . $selected . '>' . esc_html($dj_name) . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <p class="mt-2 text-sm text-gray-600">
+                        <i class="ri-information-line"></i> <?php esc_html_e('Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos DJs', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <!-- FASE 2: Estilos de Som -->
+                <div>
+                    <label for="event_sounds" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('Estilos de Som / Cena', 'apollo-events-manager'); ?>
+                    </label>
+                    <select 
+                        multiple 
+                        id="event_sounds" 
+                        name="event_sounds[]" 
+                        size="5"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                        <?php
+                        foreach ($all_sounds as $sound) {
+                            $selected = in_array($sound->slug, $sounds_terms) ? 'selected' : '';
+                            echo '<option value="' . esc_attr($sound->slug) . '" ' . $selected . '>' . esc_html($sound->name) . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <p class="mt-2 text-sm text-gray-600">
+                        <i class="ri-information-line"></i> <?php esc_html_e('Selecione os estilos musicais do evento', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <!-- FASE 2: Links Principais -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="event_link_instagram" class="block text-sm font-medium mb-2">
+                            <i class="ri-instagram-line"></i> <?php esc_html_e('Instagram', 'apollo-events-manager'); ?>
+                        </label>
+                        <input 
+                            type="url" 
+                            id="event_link_instagram" 
+                            name="event_link_instagram" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="https://instagram.com/..."
+                            value="<?php echo esc_attr($links['instagram']); ?>"
+                        >
+                    </div>
+                    <div>
+                        <label for="event_link_ra" class="block text-sm font-medium mb-2">
+                            <i class="ri-global-line"></i> <?php esc_html_e('Resident Advisor', 'apollo-events-manager'); ?>
+                        </label>
+                        <input 
+                            type="url" 
+                            id="event_link_ra" 
+                            name="event_link_ra" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="https://ra.co/..."
+                            value="<?php echo esc_attr($links['ra']); ?>"
+                        >
+                    </div>
+                    <div>
+                        <label for="event_link_sympla" class="block text-sm font-medium mb-2">
+                            <i class="ri-ticket-line"></i> <?php esc_html_e('Sympla', 'apollo-events-manager'); ?>
+                        </label>
+                        <input 
+                            type="url" 
+                            id="event_link_sympla" 
+                            name="event_link_sympla" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="https://sympla.com.br/..."
+                            value="<?php echo esc_attr($links['sympla']); ?>"
+                        >
+                    </div>
+                    <div>
+                        <label for="event_link_shotgun" class="block text-sm font-medium mb-2">
+                            <i class="ri-ticket-line"></i> <?php esc_html_e('Shotgun', 'apollo-events-manager'); ?>
+                        </label>
+                        <input 
+                            type="url" 
+                            id="event_link_shotgun" 
+                            name="event_link_shotgun" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="https://shotgun.live/..."
+                            value="<?php echo esc_attr($links['shotgun']); ?>"
+                        >
+                    </div>
+                </div>
+                
+                <!-- FASE 2: Co-autores -->
+                <div>
+                    <label for="event_co_authors" class="block text-sm font-medium mb-2">
+                        <?php esc_html_e('Colaboradores / Co-autores', 'apollo-events-manager'); ?> <span class="text-gray-500 text-xs">(<?php esc_html_e('Opcional', 'apollo-events-manager'); ?>)</span>
+                    </label>
+                    <select 
+                        multiple 
+                        id="event_co_authors" 
+                        name="event_co_authors[]" 
+                        size="6"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                        <?php
+                        foreach ($all_users as $user) {
+                            $selected = in_array($user->ID, $co_authors) ? 'selected' : '';
+                            echo '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . esc_html($user->display_name . ' (' . $user->user_email . ')') . '</option>';
+                        }
+                        ?>
+                    </select>
+                    <p class="mt-2 text-sm text-gray-600">
+                        <i class="ri-information-line"></i> <?php esc_html_e('Selecione usuários que podem editar este evento', 'apollo-events-manager'); ?>
+                    </p>
+                </div>
+                
+                <!-- Timetable (Hidden - populated by JS if needed) -->
+                <input 
+                    type="hidden" 
+                    id="apollo_event_timetable" 
+                    name="apollo_event_timetable" 
+                    value=""
+                >
+                <p class="text-sm text-gray-600">
+                    <i class="ri-information-line"></i> <?php esc_html_e('A programação (line-up) será criada automaticamente com base nos DJs selecionados.', 'apollo-events-manager'); ?>
+                </p>
+                
+                <!-- Submit Button -->
+                <div class="flex justify-end gap-4">
+                    <button 
+                        type="submit" 
+                        name="aem_submit" 
+                        value="1" 
+                        class="btn btn-primary px-6 py-3"
+                    >
+                        <i class="ri-send-plane-line"></i> <?php echo $is_edit ? esc_html__('Atualizar Evento', 'apollo-events-manager') : esc_html__('Enviar Evento para Revisão', 'apollo-events-manager'); ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    
+    /**
      * Shortcode: [event_locals] - Lista de Locais
      */
     public function event_locals_shortcode($atts) {
@@ -4356,6 +5013,49 @@ class Apollo_Events_Manager_Plugin {
         echo '</p>';
         echo '<a href="' . admin_url('post-new.php?post_type=event_local') . '" class="button button-primary" style="margin-top: 15px;">' . esc_html__('Create Local', 'apollo-events-manager') . '</a>';
         echo '</div>';
+        return ob_get_clean();
+    }
+    
+    /**
+     * FASE 4: Track event view
+     */
+    public function track_event_view() {
+        if (!is_singular('event_listing')) {
+            return;
+        }
+        
+        if (!class_exists('Apollo_Event_Stats')) {
+            return;
+        }
+        
+        $event_id = get_the_ID();
+        if (!$event_id) {
+            return;
+        }
+        
+        // Registrar view (com limite automático de spam)
+        Apollo_Event_Stats::record_action($event_id, 'view');
+    }
+    
+    /**
+     * FASE 4: Shortcode Industry Overview Dashboard
+     */
+    public function industry_overview_shortcode($atts) {
+        if (!is_user_logged_in()) {
+            return '<div class="apollo-auth-required"><p>' . esc_html__('Você precisa estar logado para ver seu Industry Overview.', 'apollo-events-manager') . '</p></div>';
+        }
+        
+        if (!class_exists('Apollo_Event_Stats')) {
+            return '<div class="apollo-error"><p>' . esc_html__('Sistema de estatísticas não disponível.', 'apollo-events-manager') . '</p></div>';
+        }
+        
+        $user_id = get_current_user_id();
+        $stats = Apollo_Event_Stats::get_user_stats($user_id);
+        $sounds_interactions = Apollo_Event_Stats::get_sounds_interactions($user_id);
+        $top_locals = Apollo_Event_Stats::get_top_locals($user_id, 5);
+        
+        ob_start();
+        include APOLLO_WPEM_PATH . 'templates/industry-overview.php';
         return ob_get_clean();
     }
 
@@ -4806,6 +5506,15 @@ function apollo_events_manager_activate() {
         }
     } else {
         apollo_log_missing_file($post_types_file);
+    }
+    
+    // FASE 4: Create stats table
+    $stats_file = plugin_dir_path(__FILE__) . 'includes/class-event-stats.php';
+    if (file_exists($stats_file)) {
+        require_once $stats_file;
+        if (class_exists('Apollo_Event_Stats')) {
+            Apollo_Event_Stats::create_table();
+        }
     }
     
     // Register analytics capability

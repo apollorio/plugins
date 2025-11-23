@@ -414,7 +414,9 @@ if (!$is_modal): ?>
             <div class="tickets-grid">
                 <?php if ($event_data['tickets_url']): ?>
                 <a href="<?php echo esc_url($event_data['tickets_url']); ?>?ref=apollo.rio.br" 
-                   class="ticket-card" target="_blank" rel="noopener noreferrer">
+                   class="ticket-card apollo-click-out-track" 
+                   data-event-id="<?php echo esc_attr($event_id); ?>"
+                   target="_blank" rel="noopener noreferrer">
                     <div class="ticket-icon"><i class="ri-ticket-line"></i></div>
                     <div class="ticket-info">
                         <h3 class="ticket-name"><?php esc_html_e('Ingressos', 'apollo-events-manager'); ?></h3>

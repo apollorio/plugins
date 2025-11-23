@@ -1,0 +1,69 @@
+/**
+ * FASE 2: Feed CSS
+ * Estilos específicos para o feed social
+ */
+
+.apollo-feed-root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.apollo-feed-card {
+    transition: all 0.2s ease;
+}
+
+.apollo-feed-card:hover {
+    transform: translateY(-2px);
+}
+
+.apollo-comments-section {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+.apollo-share-dropdown {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.apollo-event-card {
+    border-left: 3px solid var(--orange-600, #ea580c);
+}
+
+.apollo-like-count,
+.apollo-comment-count {
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+/* Responsividade mobile */
+@media (max-width: 768px) {
+    .apollo-feed-card {
+        border-radius: 1rem;
+    }
+    
+    .apollo-comments-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+

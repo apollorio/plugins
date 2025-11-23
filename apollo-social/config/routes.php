@@ -137,10 +137,27 @@ return [
         'pattern' => '^feed/?$',
         'query_vars' => ['apollo_route' => 'feed'],
         'template' => 'feed/feed.php',
-        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\FeedRenderer', // FASE 2: Usar FeedRenderer
         'canvas' => true,
         'priority' => 'bottom',
         'raw_html' => true,
+        'assets' => [ // FASE 2: Assets específicos do feed
+            'css' => [
+                'apollo-feed-css' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/feed.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-feed-js' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/feed.js',
+                    'deps' => ['jquery', 'apollo-canvas'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                    'in_footer' => true,
+                ],
+            ],
+        ],
     ],
 
     // Chat
@@ -351,5 +368,55 @@ return [
                 ],
             ],
         ],
+    ],
+
+    // FASE 1: Documentos Routes (Canvas Mode)
+    '/doc/new' => [
+        'pattern' => '^doc/new/?$',
+        'query_vars' => ['apollo_route' => 'doc_new'],
+        'template' => 'documents/editor.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/doc/{file_id}' => [
+        'pattern' => '^doc/([a-zA-Z0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'doc_edit', 'file_id' => '$matches[1]'],
+        'template' => 'documents/editor.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/pla/new' => [
+        'pattern' => '^pla/new/?$',
+        'query_vars' => ['apollo_route' => 'pla_new'],
+        'template' => 'documents/spreadsheet-editor.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/pla/{file_id}' => [
+        'pattern' => '^pla/([a-zA-Z0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'pla_edit', 'file_id' => '$matches[1]'],
+        'template' => 'documents/spreadsheet-editor.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/sign' => [
+        'pattern' => '^sign/?$',
+        'query_vars' => ['apollo_route' => 'sign_list'],
+        'template' => 'documents/sign-list.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
+    ],
+    '/sign/{token}' => [
+        'pattern' => '^sign/([a-zA-Z0-9]+)/?$',
+        'query_vars' => ['apollo_route' => 'sign_document', 'signature_token' => '$matches[1]'],
+        'template' => 'documents/sign-document.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'canvas' => true,
+        'raw_html' => true,
     ],
 ];

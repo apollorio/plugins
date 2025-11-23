@@ -76,114 +76,79 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
     <!-- Event Listings Container -->
     <div class="event_listings">
         <?php
-        // Query events (future events only)
-        $events = new WP_Query([
-            'post_type' => 'event_listing',
-            'posts_per_page' => -1,
-            'post_status' => 'publish',
-            'meta_key' => '_event_start_date',
-            'orderby' => 'meta_value',
-            'order' => 'ASC',
-            'meta_query' => [
-                [
-                    'key' => '_event_start_date',
-                    'value' => date('Y-m-d'),
-                    'compare' => '>=',
-                    'type' => 'DATE'
-                ]
-            ]
-        ]);
+        // FASE 1: Query centralizada com validações rigorosas
+        require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
         
-        // ✅ Error handling para WP_Query
-        if (is_wp_error($events)) {
-            error_log('Apollo: WP_Query error em event-listings-start: ' . $events->get_error_message());
-            echo '<p class="error">Erro ao carregar eventos. Tente novamente.</p>';
-            return;
-        }
+        $event_ids = Apollo_Event_Data_Helper::get_cached_event_ids(true);
         
-        if (!$events->have_posts()) {
-            echo '<p>Nenhum evento encontrado.</p>';
-            return;
-        }
-        
-        if ($events->have_posts()) :
-            while ($events->have_posts()) : $events->the_post();
-                $event_id = get_the_ID();
-                
-                // === NORMALIZE START DATE ===
-                $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
-                
-                // Fallback: try alternative meta keys if empty
-                if (empty($start_date)) {
-                    $start_date = apollo_get_post_meta($event_id, 'event_start_date', true);
-                    if (empty($start_date)) {
-                        $start_date = apollo_get_post_meta($event_id, 'start_date', true);
+        if (empty($event_ids)) {
+            echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+        } else {
+            // Carregar posts completos mantendo ordem do cache
+            $events = get_posts([
+                'post_type' => 'event_listing',
+                'post_status' => 'publish', // SEMPRE apenas publicados
+                'post__in' => $event_ids,
+                'orderby' => 'post__in', // Manter ordem do cache (já ordenada por data)
+                'posts_per_page' => count($event_ids),
+                'update_post_meta_cache' => true,
+                'update_post_term_cache' => true,
+                'no_found_rows' => true
+            ]);
+            
+            if (!empty($events)) :
+                foreach ($events as $post) :
+                    setup_postdata($post);
+                    $event_id = $post->ID;
+                    
+                    // FASE 1: Resetar variáveis para garantir desacoplamento completo
+                    $start_date = null;
+                    $date_info = null;
+                    
+                    // Buscar data SEMPRE da meta correta (nunca usar post_date)
+                    $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
+                    $date_info = Apollo_Event_Data_Helper::parse_event_date($start_date);
+                    
+                    // Check layout preference (grid or list)
+                    $layout_mode = 'grid'; // Default
+                    if (isset($_COOKIE['apollo_events_layout'])) {
+                        $layout_mode = sanitize_text_field($_COOKIE['apollo_events_layout']);
                     }
-                }
-                
-                // Ensure Y-m-d format
-                if (!empty($start_date)) {
-                    try {
-                        $dt_test = DateTime::createFromFormat('Y-m-d', $start_date);
-                        if (!$dt_test) {
-                            // Try other formats
-                            $dt_test = DateTime::createFromFormat('d/m/Y', $start_date);
-                            if ($dt_test) {
-                                $start_date = $dt_test->format('Y-m-d');
+                    
+                    // Use appropriate template based on layout
+                    if ($layout_mode === 'list') {
+                        // List view template
+                        $list_view_path = defined('APOLLO_WPEM_PATH') 
+                            ? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
+                            : plugin_dir_path(__FILE__) . 'event-list-view.php';
+                        
+                        if (file_exists($list_view_path)) {
+                            include $list_view_path;
+                        } else {
+                            // Fallback to card view if list template doesn't exist
+                            $event_card_path = defined('APOLLO_WPEM_PATH') 
+                                ? APOLLO_WPEM_PATH . 'templates/event-card.php'
+                                : plugin_dir_path(__FILE__) . 'event-card.php';
+                            if (file_exists($event_card_path)) {
+                                include $event_card_path;
                             }
                         }
-                    } catch (Exception $e) {
-                        // Keep original if parsing fails
-                    }
-                }
-                
-                // Check layout preference (grid or list)
-                $layout_mode = 'grid'; // Default
-                if (isset($_COOKIE['apollo_events_layout'])) {
-                    $layout_mode = sanitize_text_field($_COOKIE['apollo_events_layout']);
-                } elseif (function_exists('get_stored_layout')) {
-                    // Try to get from JS localStorage via inline script
-                    $layout_mode = 'grid'; // Fallback
-                }
-                
-                // Use appropriate template based on layout
-                if ($layout_mode === 'list') {
-                    // List view template
-                    $list_view_path = defined('APOLLO_WPEM_PATH') 
-                        ? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
-                        : plugin_dir_path(__FILE__) . 'event-list-view.php';
-                    
-                    if (file_exists($list_view_path)) {
-                        $event_object = get_post($event_id);
-                        include $list_view_path;
                     } else {
-                        // Fallback to card view if list template doesn't exist
+                        // Grid view template (default)
                         $event_card_path = defined('APOLLO_WPEM_PATH') 
                             ? APOLLO_WPEM_PATH . 'templates/event-card.php'
                             : plugin_dir_path(__FILE__) . 'event-card.php';
+                        
                         if (file_exists($event_card_path)) {
                             include $event_card_path;
+                        } else {
+                            echo '<!-- ERROR: event-card.php template not found -->';
                         }
                     }
-                } else {
-                    // Grid view template (default)
-                    // ✅ CONSOLIDATED: Use event-card.php template instead of duplicated code
-                    // All logic (DJs, Local, Date, Banner) is now centralized in event-card.php
-                    // This eliminates ~200 lines of duplicated code
-                    $event_card_path = defined('APOLLO_WPEM_PATH') 
-                        ? APOLLO_WPEM_PATH . 'templates/event-card.php'
-                        : plugin_dir_path(__FILE__) . 'event-card.php';
-                    
-                    if (file_exists($event_card_path)) {
-                        include $event_card_path;
-                    } else {
-                        // Fallback if event-card.php doesn't exist
-                        echo '<!-- ERROR: event-card.php template not found -->';
-                    }
-                }
-            endwhile;
-            wp_reset_postdata();
-        else:
-            echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
-        endif;
+                endforeach;
+                wp_reset_postdata();
+            else:
+                echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+            endif;
+        }
         ?>

@@ -53,6 +53,16 @@ class Apollo_Events_Admin_Metaboxes {
             'normal',
             'high'
         );
+        
+        // FASE 2: Metabox de Colaboradores/Co-autores
+        add_meta_box(
+            'apollo_event_coauthors',
+            __('Colaboradores / Co-autores', 'apollo-events-manager'),
+            array($this, 'render_coauthors_metabox'),
+            'event_listing',
+            'side',
+            'default'
+        );
     }
     
     /**
@@ -884,6 +894,16 @@ class Apollo_Events_Admin_Metaboxes {
             apollo_update_post_meta($post_id, '_favorites_count', 0);
         }
 
+        // FASE 2: Salvar co-autores
+        if (isset($_POST['apollo_event_co_authors']) && is_array($_POST['apollo_event_co_authors'])) {
+            $co_authors = array_map('absint', $_POST['apollo_event_co_authors']);
+            $co_authors = array_filter($co_authors); // Remove zeros
+            apollo_update_post_meta($post_id, '_event_co_authors', $co_authors);
+        } else {
+            // Se não foi enviado, limpar co-autores
+            apollo_update_post_meta($post_id, '_event_co_authors', []);
+        }
+        
         // ✅ SAVE DJs - CRITICAL
         $djs_selected = isset($_POST['apollo_event_djs']) && is_array($_POST['apollo_event_djs']) 
             ? array_map('absint', $_POST['apollo_event_djs']) 
@@ -1330,6 +1350,69 @@ class Apollo_Events_Admin_Metaboxes {
             'name' => $name,
             'slug' => get_post($new_local_id)->post_name
         ));
+    }
+    
+    /**
+     * FASE 2: Render metabox de Colaboradores/Co-autores
+     */
+    public function render_coauthors_metabox($post) {
+        wp_nonce_field('apollo_event_meta_save', 'apollo_event_meta_nonce');
+        
+        $co_authors = apollo_get_post_meta($post->ID, '_event_co_authors', true);
+        $co_authors = is_array($co_authors) ? array_map('absint', $co_authors) : [];
+        
+        // Buscar todos os usuários (limitado para performance)
+        $all_users = get_users([
+            'orderby' => 'display_name',
+            'order' => 'ASC',
+            'number' => 500,
+        ]);
+        
+        ?>
+        <div class="apollo-coauthors-metabox">
+            <p class="description" style="margin-bottom: 15px;">
+                <?php esc_html_e('Selecione usuários que podem visualizar e editar este evento.', 'apollo-events-manager'); ?>
+            </p>
+            
+            <select 
+                multiple 
+                name="apollo_event_co_authors[]" 
+                id="apollo_event_co_authors" 
+                class="widefat" 
+                size="8"
+                style="width: 100%;"
+            >
+                <?php
+                foreach ($all_users as $user) {
+                    $selected = in_array($user->ID, $co_authors) ? 'selected' : '';
+                    $display = $user->display_name . ' (' . $user->user_email . ')';
+                    echo '<option value="' . esc_attr($user->ID) . '" ' . $selected . '>' . esc_html($display) . '</option>';
+                }
+                ?>
+            </select>
+            
+            <p class="description" style="margin-top: 10px;">
+                <i class="ri-information-line"></i> 
+                <?php esc_html_e('Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos usuários.', 'apollo-events-manager'); ?>
+            </p>
+            
+            <?php if (!empty($co_authors)): ?>
+                <div style="margin-top: 15px; padding: 10px; background: #f0f0f1; border-radius: 4px;">
+                    <strong><?php esc_html_e('Co-autores atuais:', 'apollo-events-manager'); ?></strong>
+                    <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                        <?php
+                        foreach ($co_authors as $user_id) {
+                            $user = get_user_by('ID', $user_id);
+                            if ($user) {
+                                echo '<li>' . esc_html($user->display_name) . '</li>';
+                            }
+                        }
+                        ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 }
 
