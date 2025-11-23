@@ -87,6 +87,22 @@ class WidgetRegistry
             'min_size' => ['w' => 4, 'h' => 4],
             'max_size' => ['w' => 12, 'h' => 8],
         ]);
+
+        // P0-8: Register playlist widget
+        $this->registerWidget('playlist', [
+            'name' => 'Playlist',
+            'icon' => 'music-2-line',
+            'category' => 'media',
+            'default_size' => ['w' => 6, 'h' => 6],
+            'min_size' => ['w' => 4, 'h' => 4],
+            'max_size' => ['w' => 12, 'h' => 10],
+            'configurable' => true,
+            'config_fields' => [
+                'title' => ['type' => 'text', 'label' => 'Título', 'default' => 'Playlist'],
+                'spotify_url' => ['type' => 'url', 'label' => 'URL do Spotify', 'placeholder' => 'https://open.spotify.com/playlist/...'],
+                'soundcloud_url' => ['type' => 'url', 'label' => 'URL do SoundCloud', 'placeholder' => 'https://soundcloud.com/...'],
+            ],
+        ]);
     }
 
     /**
