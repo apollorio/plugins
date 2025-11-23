@@ -142,12 +142,19 @@ $nonce = wp_create_nonce('apollo_dashboard');
                                     <i class="ri-heart-3-line text-[13px]"></i>
                                     <span><?php echo esc_html($tabs['events']['title'] ?? 'Eventos favoritos'); ?></span>
                                 </button>
-                                <!-- 2. Meus números -->
+                                <!-- 2. Meus eventos -->
+                                <?php if (isset($tabs['my_events'])): ?>
+                                <button class="aprioEXP-tab-btn" type="button" data-tab-target="my_events" role="tab" aria-selected="false">
+                                    <i class="ri-calendar-event-line text-[13px]"></i>
+                                    <span><?php echo esc_html($tabs['my_events']['title'] ?? 'Meus eventos'); ?></span>
+                                </button>
+                                <?php endif; ?>
+                                <!-- 3. Meus números -->
                                 <button class="aprioEXP-tab-btn" type="button" data-tab-target="metrics" role="tab" aria-selected="false">
                                     <i class="ri-bar-chart-2-line text-[13px]"></i>
                                     <span><?php echo esc_html($tabs['metrics']['title'] ?? 'Meus números'); ?></span>
                                 </button>
-                                <!-- 3. Núcleo (privado) -->
+                                <!-- 4. Núcleo (privado) -->
                                 <button class="aprioEXP-tab-btn" type="button" data-tab-target="nucleo" role="tab" aria-selected="false">
                                     <i class="ri-lock-2-line text-[13px]"></i>
                                     <span><?php echo esc_html($tabs['nucleo']['title'] ?? 'Núcleo (privado)'); ?></span>
@@ -216,10 +223,85 @@ $nonce = wp_create_nonce('apollo_dashboard');
                                 </div>
                             </div>
 
+                            <!-- TAB: Meus eventos -->
+                            <?php if (isset($tabs['my_events'])): ?>
+                            <div data-tab-panel="my_events" role="tabpanel" class="hidden space-y-3">
+                                <div class="flex flex-col md:flex-row md:items-center gap-3">
+                                    <div class="flex-1">
+                                        <h2 class="text-sm font-semibold">Meus eventos</h2>
+                                        <p class="text-[12px] text-slate-600">
+                                            Eventos que você criou ou é co-autor.
+                                        </p>
+                                    </div>
+                                    <a href="/enviar/" class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 text-[11px] font-medium text-white">
+                                        <i class="ri-add-line text-xs"></i>
+                                        <span>Criar novo evento</span>
+                                    </a>
+                                </div>
+                                <div class="grid gap-3 md:grid-cols-2 text-[12px]">
+                                    <?php if (empty($tabs['my_events']['data'])): ?>
+                                        <div class="col-span-full text-center py-8 text-slate-400">
+                                            Nenhum evento criado ainda
+                                        </div>
+                                    <?php else: ?>
+                                        <?php foreach ($tabs['my_events']['data'] as $event): ?>
+                                            <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
+                                                <div class="flex items-start justify-between gap-2">
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <h3 class="text-sm font-semibold"><?php echo esc_html($event['title'] ?? 'Evento'); ?></h3>
+                                                            <?php if ($event['status'] !== 'publish'): ?>
+                                                                <span class="aprioEXP-badge-private">
+                                                                    <?php echo esc_html(ucfirst($event['status'])); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                        <p class="text-[11px] text-slate-600"><?php echo esc_html($event['date'] ?? ''); ?></p>
+                                                        <?php if ($event['is_coauthor']): ?>
+                                                            <p class="text-[10px] text-slate-500 mt-1">Co-autor</p>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+                                                    <a href="<?php echo esc_url($event['permalink'] ?? '#'); ?>" class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100">
+                                                        <i class="ri-external-link-line text-xs"></i>
+                                                        <span>Ver evento</span>
+                                                    </a>
+                                                </div>
+                                            </article>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+
                             <!-- TAB: Meus números -->
                             <div data-tab-panel="metrics" role="tabpanel" class="hidden space-y-3">
-                                <div class="flex items-center justify-center h-32 text-slate-400 text-sm">
-                                    <p>Dados de performance sendo calculados...</p>
+                                <div class="grid gap-3 md:grid-cols-3 text-[12px]">
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['posts'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Posts</div>
+                                    </div>
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['events'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Eventos</div>
+                                    </div>
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['favorites'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Favoritos</div>
+                                    </div>
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['comments'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Comentários</div>
+                                    </div>
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['likes_given'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Curtidas</div>
+                                    </div>
+                                    <div class="aprioEXP-card-shell p-4 text-center">
+                                        <div class="text-2xl font-bold text-slate-900"><?php echo esc_html($tabs['metrics']['data']['communities'] ?? 0); ?></div>
+                                        <div class="text-[11px] text-slate-600 mt-1">Comunidades</div>
+                                    </div>
                                 </div>
                             </div>
 
