@@ -239,6 +239,10 @@ class Plugin
         $groups_endpoint = new \Apollo\API\Endpoints\GroupsEndpoint();
         $groups_endpoint->register();
 
+        // P0-10: Register CENA RIO Event endpoint
+        $cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
+        $cena_rio_endpoint->register();
+
         // Register User Page Auto-Create hook
         $user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();
         $user_page_auto_create->register();

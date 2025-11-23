@@ -98,18 +98,48 @@ return [
     '/cena/' => [
         'pattern' => '^cena/?$',
         'query_vars' => ['apollo_route' => 'cena_rio'],
-        'template' => 'cena-rio/page.php',
-        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'template' => 'cena/cena.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\CenaRioRenderer',
         'canvas' => true,
-        'raw_html' => true,
+        'assets' => [
+            'css' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/cena.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/cena.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
     ],
     '/cena-rio/' => [
         'pattern' => '^cena-rio/?$',
         'query_vars' => ['apollo_route' => 'cena_rio'],
-        'template' => 'cena-rio/page.php',
-        'handler' => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+        'template' => 'cena/cena.php',
+        'handler' => 'Apollo\\Infrastructure\\Rendering\\CenaRioRenderer',
         'canvas' => true,
-        'raw_html' => true,
+        'assets' => [
+            'css' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/cena.css',
+                    'deps' => ['apollo-canvas-mode'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+            'js' => [
+                'apollo-cena' => [
+                    'src' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/cena.js',
+                    'deps' => ['apollo-canvas', 'motion'],
+                    'version' => APOLLO_SOCIAL_VERSION,
+                ],
+            ],
+        ],
     ],
 
     // User Dashboard (Painel)
