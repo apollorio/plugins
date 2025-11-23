@@ -223,6 +223,10 @@ class Plugin
         $comments_endpoint = new \Apollo\API\Endpoints\CommentsEndpoint();
         $comments_endpoint->register();
 
+        // P0-6: Register Favorites endpoint
+        $favorites_endpoint = new \Apollo\API\Endpoints\FavoritesEndpoint();
+        $favorites_endpoint->register();
+
         // Register User Page Auto-Create hook
         $user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();
         $user_page_auto_create->register();

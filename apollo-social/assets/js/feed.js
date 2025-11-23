@@ -215,52 +215,62 @@
         },
 
         /**
-         * Handle favorite button clicks (for events)
+         * P0-6: Handle favorite button clicks (unified REST API)
          */
         bindFavoriteButtons: function() {
             $(document).on('click', '.apollo-feed-favorite-btn', function(e) {
                 e.preventDefault();
                 const $btn = $(this);
                 const eventId = $btn.data('event-id');
+                const contentType = $btn.data('content-type') || 'event_listing';
 
                 if (!eventId) return;
 
-                // Use Apollo Events Manager function if available
-                if (typeof window.apolloToggleFavorite === 'function') {
-                    window.apolloToggleFavorite(eventId, function(favorited) {
-                        const $icon = $btn.find('i');
-                        if (favorited) {
-                            $icon.removeClass('ri-star-line').addClass('ri-star-fill');
-                            $btn.addClass('text-yellow-600');
-                        } else {
-                            $icon.removeClass('ri-star-fill').addClass('ri-star-line');
-                            $btn.removeClass('text-yellow-600');
-                        }
-                    });
-                } else {
-                    // Fallback: AJAX call
-                    $.ajax({
-                        url: window.apolloFeedData?.ajaxUrl || '/wp-admin/admin-ajax.php',
-                        method: 'POST',
-                        data: {
-                            action: 'apollo_toggle_favorite',
-                            event_id: eventId,
-                            nonce: window.apolloFeedData?.nonce || '',
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                const $icon = $btn.find('i');
-                                if (response.data.favorited) {
-                                    $icon.removeClass('ri-star-line').addClass('ri-star-fill');
-                                    $btn.addClass('text-yellow-600');
-                                } else {
-                                    $icon.removeClass('ri-star-fill').addClass('ri-star-line');
-                                    $btn.removeClass('text-yellow-600');
-                                }
+                // Disable button during request
+                $btn.prop('disabled', true);
+
+                $.ajax({
+                    url: FeedManager.restUrl + '/favorites',
+                    method: 'POST',
+                    data: {
+                        content_id: eventId,
+                        content_type: contentType,
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-WP-Nonce', window.apolloFeedData?.nonce || '');
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            const favorited = response.favorited;
+                            const $icon = $btn.find('i');
+                            
+                            // Update icon
+                            if (favorited) {
+                                $icon.removeClass('ri-star-line').addClass('ri-star-fill');
+                                $btn.addClass('text-yellow-600');
+                                $btn.data('favorited', 'true');
+                            } else {
+                                $icon.removeClass('ri-star-fill').addClass('ri-star-line');
+                                $btn.removeClass('text-yellow-600');
+                                $btn.data('favorited', 'false');
+                            }
+
+                            // Animation
+                            if (window.Motion && window.Motion.animate) {
+                                window.Motion.animate($icon[0], 
+                                    { scale: [1, 1.3, 1], rotate: [0, -15, 15, 0] },
+                                    { duration: 0.5, easing: 'ease-in-out' }
+                                );
                             }
                         }
-                    });
-                }
+                    },
+                    error: function() {
+                        alert('Erro ao salvar favorito. Tente novamente.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
             });
         },
 

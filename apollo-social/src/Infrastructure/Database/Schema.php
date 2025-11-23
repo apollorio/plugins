@@ -12,10 +12,17 @@ class Schema
     private string $version = '1.0.0';
 
     /**
-     * Install all Apollo tables
+     * P0-3: Install all Apollo tables with migration safety
      */
     public function install(): void
     {
+        // Check if already installed at current version
+        $current_version = $this->getSchemaVersion();
+        if (version_compare($current_version, $this->version, '>=')) {
+            // Already at or above target version, skip
+            return;
+        }
+
         $this->createGroupsTable();
         $this->createGroupMembersTable();
         $this->createWorkflowLogTable();
@@ -24,6 +31,8 @@ class Schema
         $this->createSignatureRequestsTable();
         $this->createOnboardingProgressTable();
         $this->createLikesTable(); // FASE 2: Tabela de curtidas
+        
+        // P0-3: Update schema version after successful installation
         $this->updateSchemaVersion();
     }
 

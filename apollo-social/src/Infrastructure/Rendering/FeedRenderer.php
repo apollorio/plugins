@@ -337,18 +337,27 @@ class FeedRenderer
     /**
      * Verificar se usuário favoritou evento
      */
+    /**
+     * P0-6: Check if user favorited event (unified favorites system)
+     */
     private function userFavoritedEvent($event_id)
     {
         if (!$this->current_user_id) {
             return false;
         }
 
-        $favorites = get_user_meta($this->current_user_id, '_apollo_favorite_events', true);
-        if (!is_array($favorites)) {
+        // Use unified favorites system
+        $user_favorites = get_user_meta($this->current_user_id, 'apollo_favorites', true);
+        if (!is_array($user_favorites)) {
             return false;
         }
 
-        return in_array($event_id, $favorites);
+        // Check event_listing favorites
+        if (isset($user_favorites['event_listing']) && is_array($user_favorites['event_listing'])) {
+            return in_array($event_id, $user_favorites['event_listing'], true);
+        }
+
+        return false;
     }
 }
 

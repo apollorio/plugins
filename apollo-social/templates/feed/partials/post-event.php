@@ -95,6 +95,7 @@ $data = $post['data'] ?? [];
     </button>
     <button class="flex items-center gap-2 text-slate-600 hover:text-yellow-600 transition-colors apollo-feed-favorite-btn" 
             data-event-id="<?php echo esc_attr($data['id'] ?? 0); ?>"
+            data-content-type="event_listing"
             data-favorited="<?php echo $data['user_favorited'] ? 'true' : 'false'; ?>">
       <i class="ri-star-<?php echo $data['user_favorited'] ? 'fill' : 'line'; ?> text-xl"></i>
       <span class="text-[14px] font-medium">Salvar</span>
