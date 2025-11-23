@@ -5492,52 +5492,70 @@ function apollo_em_get_events_page() {
 }
 
 /**
- * Activation hook
+ * P0-1: Improved activation hook with idempotency checks
  */
 register_activation_hook(__FILE__, 'apollo_events_manager_activate');
 function apollo_events_manager_activate() {
-    // CRITICAL: Create pages with CANVAS template for independent display
-    // Register CPTs and flush rewrite rules
-    $post_types_file = plugin_dir_path(__FILE__) . 'includes/post-types.php';
-    if (file_exists($post_types_file)) {
-        require_once $post_types_file;
-        if (class_exists('Apollo_Post_Types')) {
-            Apollo_Post_Types::flush_rewrite_rules_on_activation();
+    // Check if already activated recently (prevent double runs)
+    $activation_key = 'apollo_events_manager_activation_' . APOLLO_WPEM_VERSION;
+    $last_activation = get_option($activation_key, false);
+    
+    // If activated in last 5 minutes, skip (might be double-click or refresh)
+    if ($last_activation && (time() - $last_activation) < 300) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('✅ Apollo Events Manager: Activation skipped (already activated recently)');
         }
-    } else {
-        apollo_log_missing_file($post_types_file);
+        return;
     }
     
-    // FASE 4: Create stats table
-    $stats_file = plugin_dir_path(__FILE__) . 'includes/class-event-stats.php';
-    if (file_exists($stats_file)) {
-        require_once $stats_file;
-        if (class_exists('Apollo_Event_Stats')) {
-            Apollo_Event_Stats::create_table();
+    // Mark activation start
+    update_option($activation_key, time());
+    
+    try {
+        // CRITICAL: Create pages with CANVAS template for independent display
+        // Register CPTs and flush rewrite rules
+        $post_types_file = plugin_dir_path(__FILE__) . 'includes/post-types.php';
+        if (file_exists($post_types_file)) {
+            require_once $post_types_file;
+            if (class_exists('Apollo_Post_Types')) {
+                Apollo_Post_Types::flush_rewrite_rules_on_activation();
+            }
+        } else {
+            apollo_log_missing_file($post_types_file);
         }
-    }
-    
-    // Register analytics capability
-    $roles = array('administrator', 'editor');
-    foreach ($roles as $role_name) {
-        $role = get_role($role_name);
-        if ($role && !$role->has_cap('view_apollo_event_stats')) {
-            $role->add_cap('view_apollo_event_stats');
+        
+        // FASE 4: Create stats table (idempotent - checks existence)
+        $stats_file = plugin_dir_path(__FILE__) . 'includes/class-event-stats.php';
+        if (file_exists($stats_file)) {
+            require_once $stats_file;
+            if (class_exists('Apollo_Event_Stats')) {
+                Apollo_Event_Stats::create_table();
+            }
         }
-    }
-    
-    // Handle events page creation/restoration
-    $events_page = apollo_em_get_events_page();
-    
-    if ($events_page && 'trash' === $events_page->post_status) {
-        // Restore from trash
-        wp_update_post([
-            'ID'          => $events_page->ID,
-            'post_status' => 'publish',
-        ]);
-        error_log('✅ Apollo: Restored /eventos/ page from trash (ID: ' . $events_page->ID . ')');
-    } elseif (!$events_page) {
-        // ✅ Verificar se existe página com mesmo slug em qualquer status (incluindo lixeira)
+        
+        // Register analytics capability (idempotent - checks before adding)
+        $roles = array('administrator', 'editor');
+        foreach ($roles as $role_name) {
+            $role = get_role($role_name);
+            if ($role && !$role->has_cap('view_apollo_event_stats')) {
+                $role->add_cap('view_apollo_event_stats');
+            }
+        }
+        
+        // Handle events page creation/restoration (idempotent - checks existence)
+        $events_page = apollo_em_get_events_page();
+        
+        if ($events_page && 'trash' === $events_page->post_status) {
+            // Restore from trash
+            wp_update_post([
+                'ID'          => $events_page->ID,
+                'post_status' => 'publish',
+            ]);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('✅ Apollo: Restored /eventos/ page from trash (ID: ' . $events_page->ID . ')');
+            }
+        } elseif (!$events_page) {
+            // ✅ Verificar se existe página com mesmo slug em qualquer status (incluindo lixeira)
         // Buscar diretamente no banco para garantir que não há duplicatas
         global $wpdb;
         $existing_page = $wpdb->get_var($wpdb->prepare(
@@ -5685,8 +5703,19 @@ function apollo_events_manager_activate() {
         );
     }
     
-    // Log activation
-    error_log('✅ Apollo Events Manager 2.0.0 activated successfully');
+        // Mark activation complete
+        update_option('apollo_events_manager_activated_version', APOLLO_WPEM_VERSION);
+        
+        // Log activation (only in debug mode)
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('✅ Apollo Events Manager ' . APOLLO_WPEM_VERSION . ' activated successfully');
+        }
+    } catch (\Exception $e) {
+        // Log error but don't break activation
+        error_log('❌ Apollo Events Manager: Activation error - ' . $e->getMessage());
+        // Still mark as activated to prevent retry loops
+        update_option($activation_key, time());
+    }
 }
 
 register_deactivation_hook(__FILE__, 'apollo_events_manager_deactivate');

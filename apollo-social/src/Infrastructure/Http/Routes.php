@@ -117,14 +117,16 @@ class Routes
             return;
         }
 
-        // Set current route
+        // Set current route (before building so getCurrentRoute() works)
         $this->current_route = $route_config;
 
-        // Use strong Canvas Builder for robust Canvas Mode
+        // P0-4: Use strong Canvas Builder for robust Canvas Mode
+        // This will render complete HTML and exit, preventing theme template loading
         $builder = new CanvasBuilder();
         $builder->build($route_config);
         
-        wp_die('', '', ['response' => 200]); // Prevent WordPress from continuing normal template loading
+        // If builder didn't exit, ensure we stop WordPress template loading
+        wp_die('', '', ['response' => 200]);
     }
 
     /**

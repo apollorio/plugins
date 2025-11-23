@@ -1,0 +1,11 @@
+# P0-2: Security - Deny direct access to test scripts via web
+# These scripts should only be run via WP-CLI or authenticated admin requests
+
+<FilesMatch "\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Allow access only if APOLLO_DEBUG is enabled (handled in PHP)
+# This .htaccess provides an extra layer of protection
+

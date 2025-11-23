@@ -260,11 +260,26 @@ class Plugin
     }
 
     /**
-     * Handle plugin requests and Canvas Mode
+     * P0-4: Handle plugin requests and Canvas Mode with template_redirect
+     * This ensures Canvas Mode pages are rendered before theme template selection
      */
     public function handlePluginRequests()
     {
+        // Check if this is an Apollo Canvas route
         $routes = new Routes();
+        $current_route = $routes->getCurrentRoute();
+        
+        // If route is already matched and is Canvas, prevent theme template
+        if ($current_route && !empty($current_route['canvas'])) {
+            // P0-4: Force Canvas Mode - prevent theme template loading
+            add_filter('template_include', function($template) {
+                // Return empty string to prevent theme template
+                // CanvasBuilder will handle full rendering via wp_die()
+                return '';
+            }, 999);
+        }
+        
+        // Handle the route (will call wp_die() if Canvas route matched)
         $routes->handleRequest();
     }
 }

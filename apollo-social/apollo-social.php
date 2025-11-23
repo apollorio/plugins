@@ -63,48 +63,69 @@ add_action('plugins_loaded', function() {
     }
 }, 5);
 
-// Flush rewrite rules on activation
+// P0-1: Improved activation hook with idempotency checks
 register_activation_hook(__FILE__, function() {
-    // ✅ Verificar se rewrite rules já foram flushadas recentemente (últimos 5 minutos)
-    $last_flush = get_transient('apollo_social_rewrite_rules_last_flush');
-    if ($last_flush && (time() - $last_flush) < 300) {
-        // Já foi flushado recentemente, pular
-        error_log('✅ Apollo Social: Rewrite rules já foram flushadas recentemente, pulando...');
+    // Check if already activated recently (prevent double runs)
+    $activation_key = 'apollo_social_activation_' . APOLLO_SOCIAL_VERSION;
+    $last_activation = get_option($activation_key, false);
+    
+    // If activated in last 5 minutes, skip (might be double-click or refresh)
+    if ($last_activation && (time() - $last_activation) < 300) {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('✅ Apollo Social: Activation skipped (already activated recently)');
+        }
         return;
     }
     
-    // Create database tables
-    $schema = new \Apollo\Infrastructure\Database\Schema();
-    $schema->install();
-    $schema->updateGroupsTable();
+    // Mark activation start
+    update_option($activation_key, time());
     
-    // Create default groups (COMUNIDADES and PROJECT TEAM)
-    $default_groups = new \Apollo\Domain\Groups\DefaultGroups();
-    $default_groups->createDefaults();
-    
-    // Register routes first
-    $routes = new \Apollo\Infrastructure\Http\Routes();
-    $routes->register();
-    
-    // Load user-pages CPT and rewrite
-    $user_pages_cpt = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-cpt.php';
-    if (file_exists($user_pages_cpt)) {
-        require_once $user_pages_cpt;
-        Apollo_User_Page_CPT::register();
+    try {
+        // Create database tables (idempotent - uses dbDelta)
+        $schema = new \Apollo\Infrastructure\Database\Schema();
+        $schema->install();
+        $schema->updateGroupsTable();
+        
+        // Create default groups (idempotent - checks existence)
+        $default_groups = new \Apollo\Domain\Groups\DefaultGroups();
+        $default_groups->createDefaults();
+        
+        // Register routes
+        $routes = new \Apollo\Infrastructure\Http\Routes();
+        $routes->register();
+        
+        // Load user-pages CPT and rewrite
+        $user_pages_cpt = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-cpt.php';
+        if (file_exists($user_pages_cpt)) {
+            require_once $user_pages_cpt;
+            if (class_exists('Apollo_User_Page_CPT')) {
+                Apollo_User_Page_CPT::register();
+            }
+        }
+        
+        $user_pages_rewrite = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-rewrite.php';
+        if (file_exists($user_pages_rewrite)) {
+            require_once $user_pages_rewrite;
+            if (class_exists('Apollo_User_Page_Rewrite')) {
+                Apollo_User_Page_Rewrite::add_rewrite();
+            }
+        }
+        
+        // Flush rewrite rules (only once per version)
+        flush_rewrite_rules(false); // false = soft flush (faster)
+        
+        // Mark activation complete
+        update_option('apollo_social_activated_version', APOLLO_SOCIAL_VERSION);
+        
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('✅ Apollo Social: Activation completed successfully (v' . APOLLO_SOCIAL_VERSION . ')');
+        }
+    } catch (\Exception $e) {
+        // Log error but don't break activation
+        error_log('❌ Apollo Social: Activation error - ' . $e->getMessage());
+        // Still mark as activated to prevent retry loops
+        update_option($activation_key, time());
     }
-    
-    $user_pages_rewrite = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-rewrite.php';
-    if (file_exists($user_pages_rewrite)) {
-        require_once $user_pages_rewrite;
-        Apollo_User_Page_Rewrite::add_rewrite();
-    }
-    
-    // Flush rewrite rules
-    flush_rewrite_rules();
-    
-    // Marcar timestamp do flush
-    set_transient('apollo_social_rewrite_rules_last_flush', time(), 600); // 10 minutos
-    error_log('✅ Apollo Social: Rewrite rules flushadas com sucesso');
 });
 
 // Clean up on deactivation
