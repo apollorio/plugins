@@ -1,0 +1,163 @@
+Quick rules to enforce before anyone touches the site
+Only edit files under: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core\
+
+Never edit core WP files (/wp-admin/, /wp-includes/, root WP files).
+
+Work on a feature branch and open PRs against apollo-core only.
+
+Keep OUTDATED-* folders as archive; do not load or activate them in the local site.
+
+After debugging, rotate any shared DB credentials and remove temporary access.
+
+Message template to send to collaborators (copy/paste)
+Código
+Hi team — I need help debugging Apollo Core on my LocalWP site.
+
+Environment (Local machine):
+- Site URL: http://localhost:10004
+- WP path: C:\Users\rafae\Local Sites\1212\app\public
+- Plugin to debug: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core
+
+Database (local MySQL):
+- Host: localhost
+- Port: 10005
+- DB name: local
+- DB user: root
+- DB pass: root
+
+Important rules:
+1. Edit only files under: wp-content\plugins\apollo-core\ — do NOT edit any files under wp-admin or wp-includes.
+2. OUTDATED-* folders are archives only; do not activate or modify them.
+3. Use a feature branch for any code changes and open a PR. Tag me (rafael) for review.
+4. After debugging, rotate DB credentials and remove any temporary access.
+
+What I need you to check:
+- Activation flow and constructor: pages created, CPTs registered.
+- Canvas pages: ensure they render with uni.css only (no theme CSS).
+- REST endpoints under /wp-json/apollo/v1 and permission callbacks.
+- Any public debug scripts (debug-text.php, db-test.php) — secure or move them.
+- If you change anything, provide a short patch (git diff) and steps to reproduce.
+
+Commands you can run locally (PowerShell or Local site shell):
+- List plugin files: `ls "C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core" -Recurse`
+- PHP lint: `php -l path\to\file.php`
+- WP-CLI (from WP root): `wp plugin list --path="C:\Users\rafae\Local Sites\1212\app\public"`
+- Check option: `wp option get apollo_mod_settings --path="C:\Users\rafae\Local Sites\1212\app\public"`
+
+Please reply with the exact commands you ran and any diffs or logs. Thanks.
+Step‑by‑step collaborator checklist (what they should run and report back)
+Open Local site shell (preferred) or use PowerShell with WP‑CLI on PATH.
+
+Confirm environment:
+
+PowerShell:
+
+powershell
+$WP_ROOT = "C:\Users\rafae\Local Sites\1212\app\public"
+Get-ChildItem -Path "$WP_ROOT\wp-content\plugins\apollo-core" -Recurse | Select-Object FullName
+Bash (if using Local shell):
+
+bash
+WP_ROOT="/path/to/site/public"
+ls -la "$WP_ROOT/wp-content/plugins/apollo-core"
+Check plugin activation and roles:
+
+WP‑CLI:
+
+bash
+wp plugin is-active apollo-core --path="C:\Users\rafae\Local Sites\1212\app\public" || wp plugin activate apollo-core --path="C:\Users\rafae\Local Sites\1212\app\public"
+wp role list --path="C:\Users\rafae\Local Sites\1212\app\public"
+wp option get apollo_mod_settings --path="C:\Users\rafae\Local Sites\1212\app\public"
+Report: whether apollo role exists and apollo_mod_settings option is present.
+
+Verify Canvas pages:
+
+In WP admin (only view): check pages created by plugin (look for _apollo_canvas meta).
+
+Or via WP‑CLI:
+
+bash
+wp post list --post_type=page --path="C:\Users\rafae\Local Sites\1212\app\public" --format=csv --fields=ID,post_title,post_name
+Report: page slugs and whether meta _apollo_canvas exists.
+
+Test REST endpoints (from Local shell or Postman):
+
+Example:
+
+bash
+curl -i -X GET "http://localhost:10004/wp-json/apollo/v1/feed"
+If endpoint requires auth, use WP‑CLI to create a test token or use cookie auth from browser.
+
+Report: HTTP status, response body, any permission errors.
+
+Search for exposed debug scripts:
+
+PowerShell:
+
+powershell
+Get-ChildItem -Recurse -Filter "*debug*.php" | Select-Object FullName
+Bash:
+
+bash
+rg "debug-text|db-test|debug-test" || true
+If any found in webroot, immediately secure them (see quick fix below).
+
+PHP lint and logs:
+
+Lint changed files:
+
+bash
+php -l wp-content/plugins/apollo-core/includes/somefile.php
+Check wp-content/debug.log for errors (if WP_DEBUG_LOG enabled).
+
+If making changes:
+
+Create a feature branch: git checkout -b fix/apollo-issue-123
+
+Commit only under wp-content/plugins/apollo-core/
+
+Provide git diff and a short PR description.
+
+Quick fixes they can apply immediately (if they find issues)
+Secure public debug scripts (top of file):
+
+php
+if (!defined('WPINC') || !defined('APOLLO_DEBUG') || !APOLLO_DEBUG || !current_user_can('manage_options')) {
+  http_response_code(403);
+  exit('Forbidden');
+}
+Make activation idempotent (in apollo-core main file):
+
+php
+if (get_option('apollo_core_activated_v1')) {
+  return;
+}
+// ... setup roles, tables, options ...
+update_option('apollo_core_activated_v1', time());
+Enforce plugin-only edits: add a DEVELOPMENT.md in apollo-core with the rule and a pre-commit hook that warns if files outside apollo-core are staged.
+
+Security & cleanup after debugging
+Rotate DB credentials after collaborators finish testing. Do not leave root:root accessible.
+
+Remove any temporary accounts or tokens created for debugging.
+
+Move any fixed debug scripts into tests/ or tools/ and ensure they require CLI or admin capability.
+
+Tag the final commit and create the zip from apollo-core only for production.
+
+Acceptance checklist for you to confirm when they report back
+[ ] They ran the commands and returned outputs (roles, options, REST responses).
+
+[ ] No public debug scripts remain accessible.
+
+[ ] All changes are limited to wp-content/plugins/apollo-core/ and committed on a feature branch.
+
+[ ] They provided git diff and a PR for review.
+
+[ ] DB credentials rotated and temporary access revoked.
+
+If you want, I can now:
+
+Produce a short DEVELOPMENT.md file to drop into apollo-core that enforces the “only edit plugin” rule and includes the PowerShell and WP‑CLI commands above, or
+
+Generate a pre-commit Git hook script that prevents commits touching files outside apollo-core.
