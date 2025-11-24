@@ -69,7 +69,7 @@ class Plugin
         }
         
         // FASE 1: Verificar versão da opção para upgrades futuros
-        
+
         // Pages to create
         $pages = [
             'feed' => [
@@ -146,7 +146,7 @@ class Plugin
                     // Mark as Apollo Canvas page
                     update_post_meta($page_id, '_apollo_canvas_page', true);
                     if (isset($page_data['template'])) {
-                        update_post_meta($page_id, '_apollo_canvas_template', $page_data['template']);
+                    update_post_meta($page_id, '_apollo_canvas_template', $page_data['template']);
                     }
                     $created_count++;
                 }
@@ -156,7 +156,7 @@ class Plugin
         // FASE 1: Atualizar versão apenas se houve mudanças ou upgrade necessário
         if ($pages_version !== $current_version || $created_count > 0) {
             update_option('apollo_social_canvas_pages_version', $current_version);
-            update_option('apollo_social_canvas_pages_created', true);
+        update_option('apollo_social_canvas_pages_created', true);
             
             // Log para debug
             if (defined('WP_DEBUG') && WP_DEBUG) {

@@ -96,6 +96,22 @@ $is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
                 </div>
             <?php endif; ?>
             
+            <!-- P0-6: Favorite Button -->
+            <?php
+            $current_user_id = get_current_user_id();
+            $user_favorites = $current_user_id ? get_user_meta($current_user_id, 'apollo_favorites', true) : [];
+            $is_favorited = is_array($user_favorites) && isset($user_favorites['event_listing']) && in_array($id, $user_favorites['event_listing'], true);
+            $favorites_count = max(0, (int) apollo_get_post_meta($id, '_favorites_count', true));
+            ?>
+            <button class="apollo-event-card__favorite" 
+                    data-apollo-favorite 
+                    data-event-id="<?php echo esc_attr($id); ?>"
+                    data-favorited="<?php echo $is_favorited ? 'true' : 'false'; ?>"
+                    aria-label="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>"
+                    title="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>">
+                <i class="<?php echo $is_favorited ? 'ri-heart-fill' : 'ri-heart-line'; ?>"></i>
+            </button>
+            
             <!-- Sound Tags -->
             <?php if (!empty($tags)): ?>
                 <div class="apollo-event-card__tags">

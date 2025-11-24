@@ -78,7 +78,13 @@ if (is_array($fav_snapshot)) {
         'count'     => max(0, (int) apollo_get_post_meta($event_id, '_favorites_count', true)),
         'avatars'   => [],
         'remaining' => 0,
-        'user_has'  => is_user_logged_in() ? in_array($event_id, (array) get_user_meta(get_current_user_id(), 'apollo_favorites', true)) : false
+        'user_has'  => is_user_logged_in() ? (function() use ($event_id) {
+            $user_favorites = get_user_meta(get_current_user_id(), 'apollo_favorites', true);
+            if (!is_array($user_favorites) || !isset($user_favorites['event_listing'])) {
+                return false;
+            }
+            return in_array($event_id, $user_favorites['event_listing'], true);
+        })() : false
     ];
 }
 
@@ -116,12 +122,13 @@ if (!$is_modal): ?>
         
         <div class="hero-overlay"></div>
         
-        <!-- FAVORITE ROCKET BUTTON -->
+        <!-- P0-6: FAVORITE ROCKET BUTTON (Unified REST API) -->
         <button class="event-favorite-rocket" 
                 data-apollo-favorite 
                 data-event-id="<?php echo esc_attr($event_id); ?>"
-                data-favorited="<?php echo $event_data['favorites']['user_has'] ? '1' : '0'; ?>"
-                aria-label="<?php esc_attr_e('Marcar como interessado', 'apollo-events-manager'); ?>">
+                data-favorited="<?php echo $event_data['favorites']['user_has'] ? 'true' : 'false'; ?>"
+                aria-label="<?php esc_attr_e('Marcar como interessado', 'apollo-events-manager'); ?>"
+                title="<?php echo esc_attr($event_data['favorites']['user_has'] ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>">
             <i class="<?php echo $event_data['favorites']['user_has'] ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
         </button>
         
@@ -182,8 +189,10 @@ if (!$is_modal): ?>
                 <span class="quick-action-label"><?php esc_html_e('ROUTE', 'apollo-events-manager'); ?></span>
             </a>
             <a href="#" class="quick-action apollo-favorite-trigger"
-               data-apollo-favorite data-event-id="<?php echo esc_attr($event_id); ?>"
-               data-favorited="<?php echo $event_data['favorites']['user_has'] ? '1' : '0'; ?>">
+               data-apollo-favorite 
+               data-event-id="<?php echo esc_attr($event_id); ?>"
+               data-favorited="<?php echo $event_data['favorites']['user_has'] ? 'true' : 'false'; ?>"
+               aria-label="<?php echo esc_attr($event_data['favorites']['user_has'] ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>">
                 <div class="quick-action-icon">
                     <i class="<?php echo $event_data['favorites']['user_has'] ? 'ri-rocket-fill' : 'ri-rocket-line'; ?>"></i>
                 </div>

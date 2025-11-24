@@ -903,7 +903,7 @@ class Apollo_Events_Admin_Metaboxes {
             // Se não foi enviado, limpar co-autores
             apollo_update_post_meta($post_id, '_event_co_authors', []);
         }
-        
+
         // ✅ SAVE DJs - CRITICAL
         $djs_selected = isset($_POST['apollo_event_djs']) && is_array($_POST['apollo_event_djs']) 
             ? array_map('absint', $_POST['apollo_event_djs']) 

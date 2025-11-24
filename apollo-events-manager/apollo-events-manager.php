@@ -1428,8 +1428,28 @@ class Apollo_Events_Manager_Plugin {
             );
         }
 
-        // Favorites script (for portal pages)
+        // P0-6: Unified favorites system (REST API) - for portal pages
         if (!$is_single_event) {
+            wp_enqueue_style(
+                'apollo-event-favorites',
+                APOLLO_WPEM_URL . 'assets/css/apollo-event-favorites.css',
+                array(),
+                APOLLO_WPEM_VERSION
+            );
+            wp_enqueue_script(
+                'apollo-event-favorites',
+                APOLLO_WPEM_URL . 'assets/js/apollo-event-favorites.js',
+                array('apollo-events-portal'),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+            wp_localize_script('apollo-event-favorites', 'apolloEventsData', array(
+                'restUrl' => rest_url('apollo/v1'),
+                'nonce' => wp_create_nonce('wp_rest'),
+                'currentUserId' => get_current_user_id(),
+            ));
+            
+            // Legacy favorites script (keep for backward compatibility)
             wp_enqueue_script(
                 'apollo-events-favorites',
                 APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
@@ -1462,6 +1482,27 @@ class Apollo_Events_Manager_Plugin {
                 true
             );
 
+            // P0-6: Unified favorites system (REST API) - for single event pages
+            wp_enqueue_style(
+                'apollo-event-favorites',
+                APOLLO_WPEM_URL . 'assets/css/apollo-event-favorites.css',
+                array(),
+                APOLLO_WPEM_VERSION
+            );
+            wp_enqueue_script(
+                'apollo-event-favorites',
+                APOLLO_WPEM_URL . 'assets/js/apollo-event-favorites.js',
+                array('apollo-event-page-js'),
+                APOLLO_WPEM_VERSION,
+                true
+            );
+            wp_localize_script('apollo-event-favorites', 'apolloEventsData', array(
+                'restUrl' => rest_url('apollo/v1'),
+                'nonce' => wp_create_nonce('wp_rest'),
+                'currentUserId' => get_current_user_id(),
+            ));
+            
+            // Legacy favorites script (keep for backward compatibility)
             wp_enqueue_script(
                 'apollo-events-favorites',
                 APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
@@ -1593,7 +1634,8 @@ class Apollo_Events_Manager_Plugin {
             'apollo-image-modal',
             'apollo-motion-gallery',
             'apollo-motion-local-page',
-            'apollo-events-favorites',
+            'apollo-event-favorites', // P0-6: Unified favorites system
+            'apollo-events-favorites', // Legacy favorites
             'admin-bar', // Keep admin bar for logged-in users
             'hoverIntent' // Keep for admin bar
         );

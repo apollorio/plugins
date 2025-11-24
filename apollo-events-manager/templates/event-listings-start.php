@@ -86,7 +86,7 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
         } else {
             // Carregar posts completos mantendo ordem do cache
             $events = get_posts([
-                'post_type' => 'event_listing',
+            'post_type' => 'event_listing',
                 'post_status' => 'publish', // SEMPRE apenas publicados
                 'post__in' => $event_ids,
                 'orderby' => 'post__in', // Manter ordem do cache (já ordenada por data)
@@ -106,49 +106,49 @@ $sounds_terms = is_wp_error($sounds_terms) ? [] : $sounds_terms;
                     $date_info = null;
                     
                     // Buscar data SEMPRE da meta correta (nunca usar post_date)
-                    $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
+                $start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
                     $date_info = Apollo_Event_Data_Helper::parse_event_date($start_date);
+                
+                // Check layout preference (grid or list)
+                $layout_mode = 'grid'; // Default
+                if (isset($_COOKIE['apollo_events_layout'])) {
+                    $layout_mode = sanitize_text_field($_COOKIE['apollo_events_layout']);
+                }
+                
+                // Use appropriate template based on layout
+                if ($layout_mode === 'list') {
+                    // List view template
+                    $list_view_path = defined('APOLLO_WPEM_PATH') 
+                        ? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
+                        : plugin_dir_path(__FILE__) . 'event-list-view.php';
                     
-                    // Check layout preference (grid or list)
-                    $layout_mode = 'grid'; // Default
-                    if (isset($_COOKIE['apollo_events_layout'])) {
-                        $layout_mode = sanitize_text_field($_COOKIE['apollo_events_layout']);
-                    }
-                    
-                    // Use appropriate template based on layout
-                    if ($layout_mode === 'list') {
-                        // List view template
-                        $list_view_path = defined('APOLLO_WPEM_PATH') 
-                            ? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
-                            : plugin_dir_path(__FILE__) . 'event-list-view.php';
-                        
-                        if (file_exists($list_view_path)) {
-                            include $list_view_path;
-                        } else {
-                            // Fallback to card view if list template doesn't exist
-                            $event_card_path = defined('APOLLO_WPEM_PATH') 
-                                ? APOLLO_WPEM_PATH . 'templates/event-card.php'
-                                : plugin_dir_path(__FILE__) . 'event-card.php';
-                            if (file_exists($event_card_path)) {
-                                include $event_card_path;
-                            }
-                        }
+                    if (file_exists($list_view_path)) {
+                        include $list_view_path;
                     } else {
-                        // Grid view template (default)
+                        // Fallback to card view if list template doesn't exist
                         $event_card_path = defined('APOLLO_WPEM_PATH') 
                             ? APOLLO_WPEM_PATH . 'templates/event-card.php'
                             : plugin_dir_path(__FILE__) . 'event-card.php';
-                        
                         if (file_exists($event_card_path)) {
                             include $event_card_path;
-                        } else {
-                            echo '<!-- ERROR: event-card.php template not found -->';
                         }
                     }
+                } else {
+                    // Grid view template (default)
+                    $event_card_path = defined('APOLLO_WPEM_PATH') 
+                        ? APOLLO_WPEM_PATH . 'templates/event-card.php'
+                        : plugin_dir_path(__FILE__) . 'event-card.php';
+                    
+                    if (file_exists($event_card_path)) {
+                        include $event_card_path;
+                    } else {
+                        echo '<!-- ERROR: event-card.php template not found -->';
+                    }
+                }
                 endforeach;
-                wp_reset_postdata();
-            else:
-                echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
-            endif;
+            wp_reset_postdata();
+        else:
+            echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
+        endif;
         }
         ?>
