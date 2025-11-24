@@ -250,7 +250,7 @@ class OutputGuards
     }
     
     /**
-     * Remove theme hooks and actions completely
+     * P0-4: Remove theme hooks and actions completely
      */
     private function removeThemeHooksCompletely(): void
     {
@@ -262,6 +262,69 @@ class OutputGuards
         // Remove theme customization hooks that might interfere
         remove_action('wp_head', 'print_emoji_detection_script', 7);
         remove_action('wp_print_styles', 'print_emoji_styles');
+        
+        // P0-4: Remove all theme-specific wp_head hooks
+        global $wp_filter;
+        $theme_slug = get_stylesheet();
+        
+        if (isset($wp_filter['wp_head']) && is_object($wp_filter['wp_head'])) {
+            $callbacks = $wp_filter['wp_head']->callbacks ?? [];
+            foreach ($callbacks as $priority => $hooks) {
+                foreach ($hooks as $hook_id => $hook) {
+                    $function = $hook['function'] ?? null;
+                    if ($function) {
+                        // Remove theme-specific hooks
+                        if (is_array($function) && isset($function[0])) {
+                            $class_name = get_class($function[0]);
+                            if (strpos($class_name, $theme_slug) !== false) {
+                                remove_action('wp_head', $function, $priority);
+                            }
+                        } elseif (is_string($function) && function_exists($function)) {
+                            // Check if function is theme-specific by reflection
+                            try {
+                                $reflection = new \ReflectionFunction($function);
+                                $file = $reflection->getFileName();
+                                if (strpos($file, get_template_directory()) !== false || 
+                                    strpos($file, get_stylesheet_directory()) !== false) {
+                                    remove_action('wp_head', $function, $priority);
+                                }
+                            } catch (\ReflectionException $e) {
+                                // Skip if reflection fails
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // P0-4: Remove all theme-specific wp_footer hooks
+        if (isset($wp_filter['wp_footer']) && is_object($wp_filter['wp_footer'])) {
+            $callbacks = $wp_filter['wp_footer']->callbacks ?? [];
+            foreach ($callbacks as $priority => $hooks) {
+                foreach ($hooks as $hook_id => $hook) {
+                    $function = $hook['function'] ?? null;
+                    if ($function) {
+                        if (is_array($function) && isset($function[0])) {
+                            $class_name = get_class($function[0]);
+                            if (strpos($class_name, $theme_slug) !== false) {
+                                remove_action('wp_footer', $function, $priority);
+                            }
+                        } elseif (is_string($function) && function_exists($function)) {
+                            try {
+                                $reflection = new \ReflectionFunction($function);
+                                $file = $reflection->getFileName();
+                                if (strpos($file, get_template_directory()) !== false || 
+                                    strpos($file, get_stylesheet_directory()) !== false) {
+                                    remove_action('wp_footer', $function, $priority);
+                                }
+                            } catch (\ReflectionException $e) {
+                                // Skip if reflection fails
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /**

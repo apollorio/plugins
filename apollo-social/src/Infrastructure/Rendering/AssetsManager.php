@@ -122,6 +122,7 @@ class AssetsManager
         }
 
         $allowed_handles = [
+            'apollo-uni-css', // P0-4: uni.css from assets.apollo.rio.br
             'apollo-canvas-mode',
             'apollo-modules',
             'apollo-feed',
@@ -129,12 +130,17 @@ class AssetsManager
             'apollo-user-profile',
             'apollo-users-directory',
             'apollo-hold-to-confirm',
+            'apollo-dashboard',
+            'apollo-cena',
+            'apollo-feed-css',
         ];
 
         $allowed_patterns = [
             '/apollo-',
             'assets.apollo.rio.br',
             'remixicon',
+            'cdn.jsdelivr.net/npm/motion', // Motion.dev library
+            'cdn.tailwindcss.com', // Tailwind CDN (if used)
         ];
 
         foreach ($wp_styles->queue as $handle) {
@@ -193,6 +199,8 @@ class AssetsManager
         $allowed_patterns = [
             '/apollo-',
             'assets.apollo.rio.br',
+            'cdn.jsdelivr.net/npm/motion', // Motion.dev library
+            'unpkg.com/@motionone', // Motion.dev alternative CDN
         ];
 
         foreach ($wp_scripts->queue as $handle) {
@@ -228,10 +236,19 @@ class AssetsManager
     }
 
     /**
-     * Enqueue Canvas CSS
+     * P0-4: Enqueue Canvas CSS - Load uni.css from assets.apollo.rio.br
      */
     private function enqueueCanvasCSS()
     {
+        // P0-4: Load uni.css from CDN (SHADCN + TAILWIND + MOTION DEV + REMIXICON)
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            null // No version for CDN
+        );
+
+        // Also load local canvas-mode.css for Apollo-specific overrides
         $css_file = APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/canvas-mode.css';
         $css_path = APOLLO_SOCIAL_PLUGIN_DIR . 'assets/css/canvas-mode.css';
         
@@ -239,15 +256,26 @@ class AssetsManager
             wp_enqueue_style(
                 'apollo-canvas-mode',
                 $css_file,
-                [],
+                ['apollo-uni-css'], // Depend on uni.css
                 APOLLO_SOCIAL_VERSION
             );
             
-            // Add inline styles to override theme
+            // Add inline styles to override theme completely
             $inline_css = '
-                body.apollo-canvas {
+                body.apollo-canvas-mode {
                     margin: 0 !important;
                     padding: 0 !important;
+                    background: #fafafa !important;
+                    font-family: system-ui, -apple-system, sans-serif !important;
+                }
+                /* Hide all theme elements */
+                body.apollo-canvas-mode > *:not(.apollo-header):not(.apollo-canvas-main):not(.apollo-footer):not(script):not(style) {
+                    display: none !important;
+                }
+                body.apollo-canvas-mode .apollo-header,
+                body.apollo-canvas-mode .apollo-canvas-main,
+                body.apollo-canvas-mode .apollo-footer {
+                    display: block !important;
                 }
             ';
             wp_add_inline_style('apollo-canvas-mode', $inline_css);
@@ -261,7 +289,7 @@ class AssetsManager
             wp_enqueue_style(
                 'apollo-modules',
                 $modules_css,
-                ['apollo-canvas'],
+                ['apollo-canvas-mode'],
                 APOLLO_SOCIAL_VERSION
             );
         }

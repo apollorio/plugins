@@ -63,9 +63,15 @@ if (!$is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active']):
     <link rel="preconnect" href="https://assets.apollo.rio.br">
     
     <?php
-    // WordPress head (but filtered to remove theme stuff)
+    // P0-4: WordPress head - OutputGuards already removed theme hooks
+    // Only essential WordPress and Apollo assets will be output
     wp_head();
     ?>
+    
+    <!-- P0-4: Force uni.css if not already loaded -->
+    <?php if (!wp_style_is('apollo-uni-css', 'enqueued')): ?>
+    <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
+    <?php endif; ?>
     
     <!-- Apollo Canvas Mode Styles -->
     <style>
@@ -76,14 +82,27 @@ if (!$is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active']):
             background: #fafafa !important;
         }
         
-        /* Hide theme elements */
+        /* P0-4: Hide ALL theme elements completely */
         body.apollo-canvas-mode header:not(.apollo-header),
         body.apollo-canvas-mode footer:not(.apollo-footer),
         body.apollo-canvas-mode .site-header,
         body.apollo-canvas-mode .site-footer,
         body.apollo-canvas-mode nav:not(.apollo-nav),
-        body.apollo-canvas-mode .wp-block-navigation {
+        body.apollo-canvas-mode .wp-block-navigation,
+        body.apollo-canvas-mode .site-main:not(.apollo-canvas-main),
+        body.apollo-canvas-mode .content-area:not(.apollo-canvas-main),
+        body.apollo-canvas-mode .main-content:not(.apollo-canvas-main),
+        body.apollo-canvas-mode .entry-content:not(.apollo-canvas-main),
+        body.apollo-canvas-mode .sidebar,
+        body.apollo-canvas-mode .widget-area {
             display: none !important;
+        }
+        
+        /* P0-4: Ensure only Apollo content is visible */
+        body.apollo-canvas-mode .apollo-header,
+        body.apollo-canvas-mode .apollo-canvas-main,
+        body.apollo-canvas-mode .apollo-footer {
+            display: block !important;
         }
         
         /* PWA Instructions */

@@ -79,7 +79,7 @@ class Routes
     }
 
     /**
-     * Handle current request
+     * P0-4: Handle current request with strong Canvas Mode enforcement
      */
     public function handleRequest()
     {
@@ -115,6 +115,52 @@ class Routes
         $route_config = $this->findRouteConfig($apollo_route);
         if (!$route_config) {
             return;
+        }
+
+        // P0-4: If this is a Canvas route, enforce Canvas Mode BEFORE building
+        if (!empty($route_config['canvas'])) {
+            // Force template_redirect to prevent theme template loading
+            add_filter('template_include', function($template) {
+                // Return empty string to completely prevent theme template
+                return '';
+            }, 999);
+            
+            // Remove all theme actions from wp_head and wp_footer
+            add_action('template_redirect', function() {
+                // This runs early enough to remove theme hooks
+                global $wp_filter;
+                $theme_slug = get_stylesheet();
+                
+                // Remove theme hooks from wp_head
+                if (isset($wp_filter['wp_head'])) {
+                    foreach ($wp_filter['wp_head']->callbacks as $priority => $hooks) {
+                        foreach ($hooks as $hook_id => $hook) {
+                            $function = $hook['function'] ?? null;
+                            if ($function && is_array($function) && isset($function[0])) {
+                                $class_name = get_class($function[0]);
+                                if (strpos($class_name, $theme_slug) !== false) {
+                                    remove_action('wp_head', $function, $priority);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Remove theme hooks from wp_footer
+                if (isset($wp_filter['wp_footer'])) {
+                    foreach ($wp_filter['wp_footer']->callbacks as $priority => $hooks) {
+                        foreach ($hooks as $hook_id => $hook) {
+                            $function = $hook['function'] ?? null;
+                            if ($function && is_array($function) && isset($function[0])) {
+                                $class_name = get_class($function[0]);
+                                if (strpos($class_name, $theme_slug) !== false) {
+                                    remove_action('wp_footer', $function, $priority);
+                                }
+                            }
+                        }
+                    }
+                }
+            }, 1);
         }
 
         // Set current route (before building so getCurrentRoute() works)
