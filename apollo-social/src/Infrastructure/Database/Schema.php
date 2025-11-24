@@ -31,6 +31,7 @@ class Schema
         $this->createSignatureRequestsTable();
         $this->createOnboardingProgressTable();
         $this->createLikesTable(); // FASE 2: Tabela de curtidas
+        $this->createDocumentsTable(); // P0-9: Tabela de documentos
         
         // P0-3: Update schema version after successful installation
         $this->updateSchemaVersion();
@@ -384,6 +385,40 @@ class Schema
             KEY token_idx (token),
             KEY status_idx (status),
             KEY expires_idx (expires_at)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * P0-9: Create documents table
+     */
+    private function createDocumentsTable(): void
+    {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'apollo_documents';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            file_id varchar(100) NOT NULL UNIQUE,
+            user_id bigint(20) unsigned NOT NULL,
+            title varchar(255) NOT NULL,
+            type enum('document', 'spreadsheet') NOT NULL DEFAULT 'document',
+            content longtext,
+            status enum('draft', 'published', 'archived') NOT NULL DEFAULT 'draft',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime NULL ON UPDATE CURRENT_TIMESTAMP,
+            metadata longtext,
+            PRIMARY KEY (id),
+            UNIQUE KEY file_id_idx (file_id),
+            KEY user_idx (user_id),
+            KEY type_idx (type),
+            KEY status_idx (status),
+            KEY created_idx (created_at)
         ) $charset_collate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

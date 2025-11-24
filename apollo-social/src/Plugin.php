@@ -243,6 +243,10 @@ class Plugin
         $cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
         $cena_rio_endpoint->register();
 
+        // P0-9: Register Documents endpoint
+        $documents_endpoint = new \Apollo\API\Endpoints\DocumentsEndpoint();
+        $documents_endpoint->register();
+
         // Register User Page Auto-Create hook
         $user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();
         $user_page_auto_create->register();
