@@ -33,15 +33,34 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/roles.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/db-schema.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-moderation.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/auth-filters.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/memberships.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-membership.php';
+
+// Load forms system.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/schema-manager.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/render.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/rest.php';
+
+// Load quiz system.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/quiz-defaults.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/schema-manager.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/attempts.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/rest.php';
 
 // Load admin pages.
 if ( is_admin() ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderation-page.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/forms-admin.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderate-users-membership.php';
 }
+
+// Load public display.
+require_once APOLLO_CORE_PLUGIN_DIR . 'public/display-membership.php';
 
 // Load WP-CLI commands.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'wp-cli/commands.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'wp-cli/memberships.php';
 }
 
 // Require autoloader.
