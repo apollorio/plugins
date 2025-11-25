@@ -77,6 +77,11 @@ $autoloader->register();
 // Require main class.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-core.php';
 
+// Mark core as bootstrapped for child plugins dependency check.
+if ( ! defined( 'APOLLO_CORE_BOOTSTRAPPED' ) ) {
+	define( 'APOLLO_CORE_BOOTSTRAPPED', true );
+}
+
 // Register activation hook.
 register_activation_hook( __FILE__, array( 'Apollo_Core', 'activate' ) );
 

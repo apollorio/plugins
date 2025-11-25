@@ -324,8 +324,9 @@ function apollo_migrate_quiz_schema(): void {
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'apollo_quiz_attempts';
 	
-	// Check if table exists.
-	$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) === $table_name;
+	// Check if table exists using prepare for safety.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table_name ) ) === $table_name;
 	
 	if ( ! $table_exists ) {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
