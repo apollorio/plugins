@@ -1171,7 +1171,7 @@ R.gradientModal.classList.remove('hidden');
 R.closeGradient.addEventListener('click', () =>
 R.gradientModal.classList.add('hidden')
 );
-R.downloadBtn.addEventListener('click', async () => {
+R.downloadBtn.addEventListener('click', () => {
     // Deselect active object to hide selection borders
     canvas.discardActiveObject();
     canvas.renderAll();
@@ -1181,83 +1181,55 @@ R.downloadBtn.addEventListener('click', async () => {
     const originalIcon = R.downloadBtn.innerHTML;
     R.downloadBtn.innerHTML = '<i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i>';
     
-    // Store original background for transparent export
+    // Store original background
     const originalBg = canvas.backgroundColor;
     
     try {
         // If transparent PNG mode is enabled, temporarily remove background
         if (transparentBgEnabled) {
             canvas.setBackgroundColor(null, canvas.renderAll.bind(canvas));
-            // Use fabric.js native export for true transparency
+        }
+        
+        // Wait for canvas to fully render
+        setTimeout(() => {
+            // Use fabric.js native toDataURL - this ALWAYS captures all canvas content
             const dataURL = canvas.toDataURL({
                 format: 'png',
                 quality: 1,
-                multiplier: 6 // 4K quality
+                multiplier: 6, // 6x scale for 4K+ quality
+                enableRetinaScaling: true
             });
+            
+            // Create download link
             const link = document.createElement('a');
             link.href = dataURL;
-            link.download = `apollo-transparent-4k-${Date.now()}.png`;
+            link.download = transparentBgEnabled 
+                ? `apollo-transparent-4k-${Date.now()}.png` 
+                : `apollo-4k-${Date.now()}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            // Restore original background
-            canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
-        } else {
-            // Use html2canvas to capture entire canvas wrapper with all UI effects
-            // scale: 6 gives ~4K resolution for typical canvas sizes
-            const captureElement = R.canvasWrapper;
             
-            const html2canvasOptions = {
-                scale: 6,                    // 6x scale for 4K quality
-                useCORS: true,               // Allow cross-origin images
-                allowTaint: true,            // Allow tainted canvas
-                backgroundColor: null,       // Preserve transparency
-                logging: false,              // Disable console logs
-                imageTimeout: 15000,         // Longer timeout for external images
-                removeContainer: true,       // Clean up cloned container
-                foreignObjectRendering: true // Better text rendering
-            };
+            // Restore original background if it was changed
+            if (transparentBgEnabled && originalBg) {
+                canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
+            }
             
-            const canvasCapture = await html2canvas(captureElement, html2canvasOptions);
-            
-            // Convert to high-quality PNG blob
-            canvasCapture.toBlob((blob) => {
-                if (blob) {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `apollo-4k-${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }
-            }, 'image/png', 1.0);
-        }
+            // Restore button state
+            R.downloadBtn.innerHTML = originalIcon;
+            R.downloadBtn.disabled = false;
+        }, 100);
         
     } catch (error) {
         console.error('Export failed:', error);
         // Restore original background if needed
-        if (transparentBgEnabled) {
+        if (transparentBgEnabled && originalBg) {
             canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
         }
-        
-        // Fallback to fabric.js native export
-        const dataURL = canvas.toDataURL({
-            format: 'png',
-            quality: 1,
-            multiplier: 4
-        });
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = `apollo-design-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } finally {
-        // Restore button state
-        R.downloadBtn.disabled = false;
+        // Restore button state on error
         R.downloadBtn.innerHTML = originalIcon;
+        R.downloadBtn.disabled = false;
+        alert('Erro ao exportar imagem. Tente novamente.');
     }
 });
 document.addEventListener('click', (e) => {
@@ -1366,6 +1338,7 @@ if (e.ctrlKey && e.key === 'v') {
 </script>
 
 <script>
+    
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('SW registrador:', reg))
