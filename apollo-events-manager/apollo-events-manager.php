@@ -44,6 +44,49 @@ if (!defined('APOLLO_PORTAL_DEBUG')) {
     define('APOLLO_PORTAL_DEBUG', (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_DEBUG') && APOLLO_DEBUG));
 }
 
+/**
+ * Check if Apollo Core dependency is met
+ * 
+ * @return bool True if Apollo Core is active and available
+ */
+function apollo_events_dependency_ok() {
+    // Check if function exists (WordPress loaded)
+    if (function_exists('is_plugin_active')) {
+        // Check if apollo-core is active
+        if (!is_plugin_active('apollo-core/apollo-core.php')) {
+            return false;
+        }
+    }
+    
+    // Check if Apollo Core is bootstrapped
+    if (!class_exists('Apollo_Core') && !defined('APOLLO_CORE_BOOTSTRAPPED')) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Display admin notice when Apollo Core is missing
+ */
+function apollo_events_missing_core_notice() {
+    ?>
+    <div class="notice notice-error is-dismissible">
+        <p>
+            <strong><?php esc_html_e('Apollo Events Manager', 'apollo-events-manager'); ?></strong>: 
+            <?php esc_html_e('O plugin "Apollo Core" não está ativo. Por favor, ative o plugin "apollo-core" para usar o Apollo Events Manager.', 'apollo-events-manager'); ?>
+        </p>
+    </div>
+    <?php
+}
+
+// Early dependency check - prevent fatal errors if core is missing
+if (!apollo_events_dependency_ok()) {
+    add_action('admin_notices', 'apollo_events_missing_core_notice');
+    // Don't load the rest of the plugin
+    return;
+}
+
 if (!function_exists('apollo_eve_parse_start_date')) {
     /**
      * Helper function: Parse event start date.
@@ -5538,6 +5581,24 @@ function apollo_em_get_events_page() {
  */
 register_activation_hook(__FILE__, 'apollo_events_manager_activate');
 function apollo_events_manager_activate() {
+    // Check Apollo Core dependency first
+    if (!function_exists('apollo_events_dependency_ok') || !apollo_events_dependency_ok()) {
+        // Deactivate this plugin
+        if (function_exists('deactivate_plugins')) {
+            deactivate_plugins(plugin_basename(__FILE__));
+        }
+        
+        // Show error message
+        wp_die(
+            '<h1>' . esc_html__('Plugin Activation Failed', 'apollo-events-manager') . '</h1>' .
+            '<p>' . esc_html__('Apollo Events Manager requires Apollo Core to be active.', 'apollo-events-manager') . '</p>' .
+            '<p>' . esc_html__('Please activate the "Apollo Core" plugin first, then activate Apollo Events Manager.', 'apollo-events-manager') . '</p>',
+            esc_html__('Dependency Error', 'apollo-events-manager'),
+            array('back_link' => true)
+        );
+        return;
+    }
+    
     // Check if already activated recently (prevent double runs)
     $activation_key = 'apollo_events_manager_activation_' . APOLLO_WPEM_VERSION;
     $last_activation = get_option($activation_key, false);

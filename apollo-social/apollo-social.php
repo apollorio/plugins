@@ -19,6 +19,49 @@ define('APOLLO_SOCIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('APOLLO_SOCIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('APOLLO_SOCIAL_VERSION', '0.0.1');
 
+/**
+ * Check if Apollo Core dependency is met
+ * 
+ * @return bool True if Apollo Core is active and available
+ */
+function apollo_social_dependency_ok() {
+    // Check if function exists (WordPress loaded)
+    if (function_exists('is_plugin_active')) {
+        // Check if apollo-core is active
+        if (!is_plugin_active('apollo-core/apollo-core.php')) {
+            return false;
+        }
+    }
+    
+    // Check if Apollo Core is bootstrapped
+    if (!class_exists('Apollo_Core') && !defined('APOLLO_CORE_BOOTSTRAPPED')) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Display admin notice when Apollo Core is missing
+ */
+function apollo_social_missing_core_notice() {
+    ?>
+    <div class="notice notice-error is-dismissible">
+        <p>
+            <strong><?php esc_html_e('Apollo Social Core', 'apollo-social'); ?></strong>: 
+            <?php esc_html_e('O plugin "Apollo Core" não está ativo. Por favor, ative o plugin "apollo-core" para usar o Apollo Social Core.', 'apollo-social'); ?>
+        </p>
+    </div>
+    <?php
+}
+
+// Early dependency check - prevent fatal errors if core is missing
+if (!apollo_social_dependency_ok()) {
+    add_action('admin_notices', 'apollo_social_missing_core_notice');
+    // Don't load the rest of the plugin
+    return;
+}
+
 // Autoload classes (PSR-4)
 spl_autoload_register(function ($class) {
     $prefix = 'Apollo\\';
@@ -65,6 +108,24 @@ add_action('plugins_loaded', function() {
 
 // P0-1: Improved activation hook with idempotency checks
 register_activation_hook(__FILE__, function() {
+    // Check Apollo Core dependency first
+    if (!function_exists('apollo_social_dependency_ok') || !apollo_social_dependency_ok()) {
+        // Deactivate this plugin
+        if (function_exists('deactivate_plugins')) {
+            deactivate_plugins(plugin_basename(__FILE__));
+        }
+        
+        // Show error message
+        wp_die(
+            '<h1>' . esc_html__('Plugin Activation Failed', 'apollo-social') . '</h1>' .
+            '<p>' . esc_html__('Apollo Social Core requires Apollo Core to be active.', 'apollo-social') . '</p>' .
+            '<p>' . esc_html__('Please activate the "Apollo Core" plugin first, then activate Apollo Social Core.', 'apollo-social') . '</p>',
+            esc_html__('Dependency Error', 'apollo-social'),
+            array('back_link' => true)
+        );
+        return;
+    }
+    
     // Check if already activated recently (prevent double runs)
     $activation_key = 'apollo_social_activation_' . APOLLO_SOCIAL_VERSION;
     $last_activation = get_option($activation_key, false);
