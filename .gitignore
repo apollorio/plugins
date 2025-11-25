@@ -1,5 +1,71 @@
-﻿
-# Windows special files
-nul
-NUL
-*.nul
+﻿# WordPress Core
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/backup-db/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+wp-content/blogs.dir/
+wp-content/upgrade/
+
+# Plugin Development - Unnecessary Files
+*.zip
+*.backup*
+*OLD*
+*OUTDATED-*
+*DEPRECATED*
+.git-commit-message.txt
+*-test.php
+*-demo.php
+*-example.php
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+package-lock.json
+
+# PHP
+vendor/
+composer.lock
+*.log
+.phpunit.result.cache
+
+# Testing
+phpunit.xml
+tests/_output/*
+tests/_support/_generated
+
+# Build & Distribution
+dist/
+build/
+*.map
+.cache/
+
+# Temporary & Local
+tmp/
+temp/
+*.tmp
+.env
+.env.local
+debug.log
+error_log
+
+# Apollo Specific
+*/debug-text.php
+*/db-test.php
+*-LOCAL.php
+*-TEMP.php
