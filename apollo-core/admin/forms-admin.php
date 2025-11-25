@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Forms Admin UI
  *
@@ -178,10 +180,11 @@ function apollo_render_forms_admin_page() {
 	<!-- Add/Edit Field Modal -->
 	<div id="apollo-field-modal" class="apollo-modal" style="display: none;">
 		<div class="apollo-modal-content">
-			<span class="apollo-modal-close">&times;</span>
-			<h2 id="apollo-modal-title"><?php esc_html_e( 'Add Field', 'apollo-core' ); ?></h2>
-			<form id="apollo-field-form">
-				<table class="form-table">
+		<span class="apollo-modal-close">&times;</span>
+		<h2 id="apollo-modal-title"><?php esc_html_e( 'Add Field', 'apollo-core' ); ?></h2>
+		<form id="apollo-field-form">
+			<?php wp_nonce_field( 'apollo_forms_admin', 'apollo_forms_nonce' ); ?>
+			<table class="form-table">
 					<tr>
 						<th><label for="field-key"><?php esc_html_e( 'Field Key', 'apollo-core' ); ?></label></th>
 						<td>

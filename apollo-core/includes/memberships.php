@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Membership Management
  *
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array Default memberships array
  */
-function apollo_get_default_memberships() {
+function apollo_get_default_memberships(): array {
 	return array(
 		'nao-verificado' => array(
 			'label'          => __( 'Não Verificado', 'apollo-core' ),
@@ -67,11 +69,22 @@ function apollo_get_default_memberships() {
  *
  * @return array Memberships array
  */
-function apollo_get_memberships() {
+function apollo_get_memberships(): array {
+	// Try cache first
+	$cached = apollo_cache_get_memberships();
+	if ( false !== $cached ) {
+		return $cached;
+	}
+	
 	$custom      = get_option( 'apollo_memberships', array() );
 	$defaults    = apollo_get_default_memberships();
 	
-	return wp_parse_args( $custom, $defaults );
+	$memberships = wp_parse_args( $custom, $defaults );
+	
+	// Cache the result
+	apollo_cache_memberships( $memberships );
+	
+	return $memberships;
 }
 
 /**
@@ -80,7 +93,7 @@ function apollo_get_memberships() {
  * @param array $memberships Memberships array to save.
  * @return bool True on success, false on failure.
  */
-function apollo_save_memberships( $memberships ) {
+function apollo_save_memberships( array $memberships ): bool {
 	// Validate structure.
 	if ( ! is_array( $memberships ) ) {
 		return false;
@@ -125,6 +138,9 @@ function apollo_save_memberships( $memberships ) {
 		$new_version     = implode( '.', $version_parts );
 		
 		update_option( 'apollo_memberships_version', $new_version );
+		
+		// Invalidate cache
+		apollo_cache_flush_group( 'apollo_memberships' );
 	}
 
 	return $result;
@@ -136,7 +152,7 @@ function apollo_save_memberships( $memberships ) {
  * @param int $user_id User ID.
  * @return string Membership slug or 'nao-verificado' if not set.
  */
-function apollo_get_user_membership( $user_id ) {
+function apollo_get_user_membership( int $user_id ): string {
 	$membership = get_user_meta( $user_id, '_apollo_membership', true );
 	
 	// Default to nao-verificado if not set.
@@ -161,7 +177,7 @@ function apollo_get_user_membership( $user_id ) {
  * @param int|null    $actor_id        ID of user performing the action (for logging).
  * @return bool True on success, false on failure.
  */
-function apollo_set_user_membership( $user_id, $membership_slug, $actor_id = null ) {
+function apollo_set_user_membership( int $user_id, string $membership_slug, ?int $actor_id = null ): bool {
 	// Validate user exists.
 	$user = get_userdata( $user_id );
 	if ( ! $user ) {

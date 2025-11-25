@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Default Quiz Questions
  *
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array Default questions
  */
-function apollo_get_default_quiz_questions() {
+function apollo_get_default_quiz_questions(): array {
 	return array(
 		'q1' => array(
 			'id'             => 'q1',
@@ -110,7 +112,7 @@ function apollo_get_default_quiz_questions() {
  *
  * @return bool True if seeded, false if already exists
  */
-function apollo_seed_default_quiz_questions() {
+function apollo_seed_default_quiz_questions(): void {
 	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
 	
 	// Check if new_user schema already has questions.

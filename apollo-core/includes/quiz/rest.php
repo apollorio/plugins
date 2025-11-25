@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Quiz REST API
  *
@@ -117,12 +119,13 @@ function apollo_rest_quiz_attempt_permission() {
  * @return WP_REST_Response Response object.
  */
 function apollo_rest_quiz_attempt( $request ) {
-	$question_id = $request->get_param( 'question_id' );
-	$answers     = $request->get_param( 'answers' );
-	$form_type   = $request->get_param( 'form_type' );
-	
-	// Sanitize answers array.
-	$answers = array_map( 'sanitize_text_field', $answers );
+	try {
+		$question_id = $request->get_param( 'question_id' );
+		$answers     = $request->get_param( 'answers' );
+		$form_type   = $request->get_param( 'form_type' );
+		
+		// Sanitize answers array.
+		$answers = array_map( 'sanitize_text_field', $answers );
 	
 	// Rate limit check.
 	$ip = $_SERVER['REMOTE_ADDR'] ?? '';
@@ -189,16 +192,37 @@ function apollo_rest_quiz_attempt( $request ) {
 		}
 	}
 	
-	return new WP_REST_Response(
-		array(
-			'success'      => true,
-			'passed'       => $passed,
-			'explanation'  => $passed ? '' : ( $question['explanation'] ?? '' ),
-			'attempt_count' => $user_id > 0 ? apollo_get_attempt_count( $user_id, $question_id ) : 0,
-			'max_retries'  => $question['max_retries'] ?? 5,
-		),
-		200
-	);
+		return new WP_REST_Response(
+			array(
+				'success'      => true,
+				'passed'       => $passed,
+				'explanation'  => $passed ? '' : ( $question['explanation'] ?? '' ),
+				'attempt_count' => $user_id > 0 ? apollo_get_attempt_count( $user_id, $question_id ) : 0,
+				'max_retries'  => $question['max_retries'] ?? 5,
+			),
+			200
+		);
+	} catch ( Exception $e ) {
+		// Log the error with context
+		error_log( sprintf( 
+			'[Apollo Core] Quiz attempt error - Question: %s, Form: %s, Message: %s, File: %s:%d', 
+			$question_id ?? 'unknown',
+			$form_type ?? 'unknown',
+			$e->getMessage(), 
+			basename( $e->getFile() ),
+			$e->getLine()
+		) );
+		
+		// Return user-friendly error
+		return new WP_Error(
+			'quiz_attempt_failed',
+			__( 'Quiz attempt failed. Please try again or contact support if the problem persists.', 'apollo-core' ),
+			array( 
+				'status' => 500,
+				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
+			)
+		);
+	}
 }
 
 /**

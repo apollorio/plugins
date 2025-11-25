@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Default Quiz Questions Tests
  *

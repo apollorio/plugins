@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Plugin Name: Apollo Core
  * Plugin URI: https://apollo.rio.br
@@ -28,9 +30,11 @@ define( 'APOLLO_CORE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'APOLLO_CORE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Load helper functions.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/caching.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/settings-defaults.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/roles.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/db-schema.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-rate-limiting.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-moderation.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/auth-filters.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/memberships.php';

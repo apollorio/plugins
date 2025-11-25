@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Forms REST API
  *
@@ -135,42 +137,63 @@ function apollo_rest_submit_form( $request ) {
 		);
 	}
 
-	// Process form based on type.
-	switch ( $form_type ) {
-		case 'new_user':
-			$result = apollo_process_new_user_form( $data );
-			break;
+	// Process form based on type with error handling.
+	try {
+		switch ( $form_type ) {
+			case 'new_user':
+				$result = apollo_process_new_user_form( $data );
+				break;
 
-		case 'cpt_event':
-		case 'cpt_local':
-		case 'cpt_dj':
-			$result = apollo_process_cpt_form( $form_type, $data );
-			break;
+			case 'cpt_event':
+			case 'cpt_local':
+			case 'cpt_dj':
+				$result = apollo_process_cpt_form( $form_type, $data );
+				break;
 
-		default:
-			$result = new WP_Error( 'unsupported_form', __( 'Form type not supported yet.', 'apollo-core' ) );
-			break;
-	}
+			default:
+				$result = new WP_Error( 'unsupported_form', __( 'Form type not supported yet.', 'apollo-core' ) );
+				break;
+		}
 
-	// Return result.
-	if ( is_wp_error( $result ) ) {
+		// Return result.
+		if ( is_wp_error( $result ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => $result->get_error_message(),
+				),
+				400
+			);
+		}
+
 		return new WP_REST_Response(
 			array(
-				'success' => false,
-				'message' => $result->get_error_message(),
+				'success' => true,
+				'message' => __( 'Form submitted successfully.', 'apollo-core' ),
+				'data'    => $result,
 			),
-			400
+			200
+		);
+	} catch ( Exception $e ) {
+		// Log the error with context
+		error_log( sprintf( 
+			'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d', 
+			$form_type,
+			$e->getMessage(), 
+			basename( $e->getFile() ),
+			$e->getLine()
+		) );
+		
+		// Return user-friendly error
+		return new WP_Error(
+			'form_submission_failed',
+			__( 'Form submission failed. Please try again or contact support if the problem persists.', 'apollo-core' ),
+			array( 
+				'status' => 500,
+				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
+			)
 		);
 	}
-
-	return new WP_REST_Response(
-		array(
-			'success' => true,
-			'message' => __( 'Form submitted successfully.', 'apollo-core' ),
-			'data'    => $result,
-		),
-		200
-	);
 }
 
 /**

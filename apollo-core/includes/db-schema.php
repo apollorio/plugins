@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Database Schema
  *
@@ -12,8 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Create Apollo Core database tables
+ *
+ * @return void
  */
-function apollo_create_db_tables() {
+function apollo_create_db_tables(): void {
 	global $wpdb;
 
 	$charset_collate = $wpdb->get_charset_collate();
@@ -50,7 +54,7 @@ function apollo_create_db_tables() {
  * @param array  $details     Additional details as associative array.
  * @return int|false Insert ID on success, false on failure.
  */
-function apollo_mod_log_action( $actor_id, $action, $target_type, $target_id, $details = array() ) {
+function apollo_mod_log_action( int $actor_id, string $action, string $target_type, int $target_id, array $details = array() ) {
 	// Check if audit log is enabled.
 	$settings = apollo_get_mod_settings();
 	if ( empty( $settings['audit_log_enabled'] ) ) {
@@ -90,7 +94,7 @@ function apollo_mod_log_action( $actor_id, $action, $target_type, $target_id, $d
  * @param array $args Query arguments.
  * @return array Array of log entries.
  */
-function apollo_get_mod_log( $args = array() ) {
+function apollo_get_mod_log( array $args = array() ): array {
 	global $wpdb;
 	$table = $wpdb->prefix . 'apollo_mod_log';
 
@@ -159,7 +163,7 @@ function apollo_get_mod_log( $args = array() ) {
  * @param int $days Delete entries older than this many days.
  * @return int|false Number of deleted rows or false on failure.
  */
-function apollo_cleanup_mod_log( $days = 90 ) {
+function apollo_cleanup_mod_log( int $days = 90 ) {
 	global $wpdb;
 	$table = $wpdb->prefix . 'apollo_mod_log';
 

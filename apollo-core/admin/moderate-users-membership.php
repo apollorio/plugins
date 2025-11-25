@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Membership Management Admin UI
  *
@@ -104,10 +106,11 @@ function apollo_render_membership_types_manager() {
 	<div id="apollo-membership-modal" style="display: none;">
 		<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100000; display: flex; align-items: center; justify-content: center;">
 			<div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-				<h2 id="apollo-membership-modal-title"><?php esc_html_e( 'Add Membership Type', 'apollo-core' ); ?></h2>
-				<form id="apollo-membership-form">
-					<input type="hidden" id="membership-action" value="create">
-					<input type="hidden" id="membership-original-slug" value="">
+			<h2 id="apollo-membership-modal-title"><?php esc_html_e( 'Add Membership Type', 'apollo-core' ); ?></h2>
+			<form id="apollo-membership-form">
+				<?php wp_nonce_field( 'apollo_membership_admin', 'apollo_membership_nonce' ); ?>
+				<input type="hidden" id="membership-action" value="create">
+				<input type="hidden" id="membership-original-slug" value="">
 					
 					<p>
 						<label for="membership-slug"><strong><?php esc_html_e( 'Slug', 'apollo-core' ); ?></strong> <span style="color: red;">*</span></label><br>
@@ -150,11 +153,12 @@ function apollo_render_membership_types_manager() {
 	<div id="apollo-import-modal" style="display: none;">
 		<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100000; display: flex; align-items: center; justify-content: center;">
 			<div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-				<h2><?php esc_html_e( 'Import Memberships', 'apollo-core' ); ?></h2>
-				<form id="apollo-import-form">
-					<p>
-						<label for="import-json"><strong><?php esc_html_e( 'Paste JSON Data', 'apollo-core' ); ?></strong></label><br>
-						<textarea id="import-json" rows="12" class="widefat" placeholder='{"version": "1.0.0", "memberships": {...}}' required></textarea>
+			<h2><?php esc_html_e( 'Import Memberships', 'apollo-core' ); ?></h2>
+			<form id="apollo-import-form">
+				<?php wp_nonce_field( 'apollo_membership_import', 'apollo_import_nonce' ); ?>
+				<p>
+					<label for="import-json"><strong><?php esc_html_e( 'Paste JSON Data', 'apollo-core' ); ?></strong></label><br>
+					<textarea id="import-json" rows="12" class="widefat" placeholder='{"version": "1.0.0", "memberships": {...}}' required></textarea>
 					</p>
 
 					<div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Moderation Settings Defaults
  *
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array Default settings array
  */
-function apollo_get_default_mod_settings() {
+function apollo_get_default_mod_settings(): array {
 	return array(
 		'mods'              => array(),
 		'enabled_caps'      => array(
@@ -37,7 +39,7 @@ function apollo_get_default_mod_settings() {
  *
  * @return array Settings array
  */
-function apollo_get_mod_settings() {
+function apollo_get_mod_settings(): array {
 	$settings = get_option( 'apollo_mod_settings', array() );
 	return wp_parse_args( $settings, apollo_get_default_mod_settings() );
 }

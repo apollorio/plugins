@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Quiz Schema Manager
  *
@@ -19,7 +21,7 @@ define( 'APOLLO_INSTA_INFO_OPTION', 'apollo_insta_info' );
  *
  * @return array Default quiz schemas
  */
-function apollo_get_default_quiz_schemas() {
+function apollo_get_default_quiz_schemas(): array {
 	return array(
 		'new_user' => array(
 			'enabled'   => false,
@@ -35,15 +37,27 @@ function apollo_get_default_quiz_schemas() {
  * @param string $form_type Form type.
  * @return array Quiz schema
  */
-function apollo_get_quiz_schema( $form_type ) {
+function apollo_get_quiz_schema( string $form_type ): array {
+	// Try cache first
+	$cached = apollo_cache_get_quiz_schema( $form_type );
+	if ( false !== $cached ) {
+		return $cached;
+	}
+	
 	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
 	$defaults = apollo_get_default_quiz_schemas();
 	
+	$schema = array();
 	if ( isset( $schemas[ $form_type ] ) ) {
-		return wp_parse_args( $schemas[ $form_type ], $defaults[ $form_type ] ?? array() );
+		$schema = wp_parse_args( $schemas[ $form_type ], $defaults[ $form_type ] ?? array() );
+	} else {
+		$schema = $defaults[ $form_type ] ?? array();
 	}
 	
-	return $defaults[ $form_type ] ?? array();
+	// Cache the result
+	apollo_cache_quiz_schema( $form_type, $schema );
+	
+	return $schema;
 }
 
 /**
@@ -84,6 +98,9 @@ function apollo_save_quiz_schema( $form_type, $schema ) {
 		$parts = explode( '.', $version );
 		$parts[2] = isset( $parts[2] ) ? (int) $parts[2] + 1 : 1;
 		update_option( APOLLO_QUIZ_VERSION_OPTION, implode( '.', $parts ) );
+		
+		// Invalidate cache for this form type
+		apollo_cache_flush_group( 'apollo_quiz' );
 	}
 	
 	return $result;
@@ -95,7 +112,7 @@ function apollo_save_quiz_schema( $form_type, $schema ) {
  * @param string $form_type Form type.
  * @return array Active questions
  */
-function apollo_get_active_quiz_questions( $form_type ) {
+function apollo_get_active_quiz_questions( string $form_type ): array {
 	$schema = apollo_get_quiz_schema( $form_type );
 	
 	if ( empty( $schema['enabled'] ) || empty( $schema['questions'] ) ) {
@@ -197,7 +214,7 @@ function apollo_delete_quiz_question( $form_type, $id ) {
  * @param bool   $enabled   Enable or disable.
  * @return bool True on success
  */
-function apollo_set_quiz_enabled( $form_type, $enabled ) {
+function apollo_set_quiz_enabled( string $form_type, bool $enabled ): bool {
 	$schema = apollo_get_quiz_schema( $form_type );
 	$schema['enabled'] = (bool) $enabled;
 	
@@ -210,7 +227,7 @@ function apollo_set_quiz_enabled( $form_type, $enabled ) {
  * @param string $form_type Form type.
  * @return array Info content
  */
-function apollo_get_insta_info( $form_type ) {
+function apollo_get_insta_info( string $form_type ): array {
 	$info = get_option( APOLLO_INSTA_INFO_OPTION, array() );
 	
 	$defaults = array(
@@ -299,7 +316,7 @@ function apollo_init_quiz_schemas() {
 /**
  * Migrate quiz schema (idempotent)
  */
-function apollo_migrate_quiz_schema() {
+function apollo_migrate_quiz_schema(): void {
 	// Ensure options exist.
 	apollo_init_quiz_schemas();
 	

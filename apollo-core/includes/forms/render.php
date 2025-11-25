@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Form Renderer
  *
@@ -108,21 +110,33 @@ function apollo_render_field( $field, $values = array() ) {
 				<?php
 				break;
 
-			case 'select':
-				// TODO: Add options support in schema.
-				?>
-				<select 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
-					class="apollo-input apollo-select"
-					<?php echo esc_attr( $required_attr ); ?>
-				>
-					<option value=""><?php esc_html_e( 'Select...', 'apollo-core' ); ?></option>
-				</select>
-				<?php
-				break;
+		case 'select':
+			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+			?>
+			<select 
+				id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
+				name="<?php echo esc_attr( $field['key'] ); ?>" 
+				class="apollo-input apollo-select"
+				<?php echo esc_attr( $required_attr ); ?>
+			>
+				<option value=""><?php esc_html_e( 'Select...', 'apollo-core' ); ?></option>
+				<?php foreach ( $options as $option_value => $option_label ) : ?>
+					<option 
+						value="<?php echo esc_attr( $option_value ); ?>"
+						<?php selected( $value, $option_value ); ?>
+					>
+						<?php echo esc_html( $option_label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<?php
+			break;
 
-			case 'checkbox':
+		case 'checkbox':
+			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+			
+			if ( empty( $options ) ) {
+				// Single checkbox
 				?>
 				<label class="apollo-checkbox-label">
 					<input 
@@ -137,9 +151,50 @@ function apollo_render_field( $field, $values = array() ) {
 					<span><?php echo esc_html( $field['label'] ); ?></span>
 				</label>
 				<?php
-				break;
+			} else {
+				// Multiple checkboxes
+				$selected_values = is_array( $value ) ? $value : ( ! empty( $value ) ? explode( ',', $value ) : array() );
+				?>
+				<div class="apollo-checkbox-group">
+					<?php foreach ( $options as $option_value => $option_label ) : ?>
+						<label class="apollo-checkbox-label">
+							<input 
+								type="checkbox" 
+								name="<?php echo esc_attr( $field['key'] ); ?>[]" 
+								class="apollo-checkbox"
+								value="<?php echo esc_attr( $option_value ); ?>"
+								<?php checked( in_array( $option_value, $selected_values, true ) ); ?>
+							>
+							<span><?php echo esc_html( $option_label ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+				<?php
+			}
+			break;
 
-			case 'instagram':
+			case 'radio':
+			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+			?>
+			<div class="apollo-radio-group">
+				<?php foreach ( $options as $option_value => $option_label ) : ?>
+					<label class="apollo-radio-label">
+						<input 
+							type="radio" 
+							name="<?php echo esc_attr( $field['key'] ); ?>" 
+							class="apollo-radio"
+							value="<?php echo esc_attr( $option_value ); ?>"
+							<?php checked( $value, $option_value ); ?>
+							<?php echo esc_attr( $required_attr ); ?>
+						>
+						<span><?php echo esc_html( $option_label ); ?></span>
+					</label>
+				<?php endforeach; ?>
+			</div>
+			<?php
+			break;
+
+		case 'instagram':
 				?>
 				<div class="apollo-instagram-field">
 					<span class="apollo-instagram-prefix">@</span>

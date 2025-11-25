@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Membership REST API
  *
@@ -241,38 +243,53 @@ function apollo_rest_get_memberships( $request ) {
  * @return WP_REST_Response Response object.
  */
 function apollo_rest_set_membership( $request ) {
-	$user_id         = $request->get_param( 'user_id' );
-	$membership_slug = $request->get_param( 'membership_slug' );
+	try {
+		$user_id         = $request->get_param( 'user_id' );
+		$membership_slug = $request->get_param( 'membership_slug' );
 
-	// Get current user for logging.
-	$actor_id = get_current_user_id();
+		// Get current user for logging.
+		$actor_id = get_current_user_id();
 
-	// Set membership.
-	$result = apollo_set_user_membership( $user_id, $membership_slug, $actor_id );
+		// Set membership.
+		$result = apollo_set_user_membership( $user_id, $membership_slug, $actor_id );
 
-	if ( ! $result ) {
+		if ( ! $result ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'Failed to update membership', 'apollo-core' ),
+				),
+				400
+			);
+		}
+
+		$user             = get_userdata( $user_id );
+		$membership_data  = apollo_get_membership_data( $membership_slug );
+
 		return new WP_REST_Response(
 			array(
-				'success' => false,
-				'message' => __( 'Failed to update membership', 'apollo-core' ),
+				'success'    => true,
+				'message'    => __( 'Membership updated successfully', 'apollo-core' ),
+				'user_id'    => $user_id,
+				'user_name'  => $user->display_name,
+				'membership' => $membership_data,
 			),
-			400
+			200
+		);
+	} catch ( Exception $e ) {
+		error_log( sprintf( 
+			'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s', 
+			$user_id ?? 0,
+			$membership_slug ?? 'unknown',
+			$e->getMessage()
+		) );
+		
+		return new WP_Error(
+			'membership_update_failed',
+			__( 'Failed to update membership. Please try again.', 'apollo-core' ),
+			array( 'status' => 500, 'debug_info' => WP_DEBUG ? $e->getMessage() : null )
 		);
 	}
-
-	$user             = get_userdata( $user_id );
-	$membership_data  = apollo_get_membership_data( $membership_slug );
-
-	return new WP_REST_Response(
-		array(
-			'success'    => true,
-			'message'    => __( 'Membership updated successfully', 'apollo-core' ),
-			'user_id'    => $user_id,
-			'user_name'  => $user->display_name,
-			'membership' => $membership_data,
-		),
-		200
-	);
 }
 
 /**

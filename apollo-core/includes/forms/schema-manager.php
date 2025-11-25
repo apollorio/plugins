@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - Form Schema Manager
  *
@@ -19,15 +21,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $form_type Form type: new_user, cpt_event, cpt_local, cpt_dj.
  * @return array Form schema with fields.
  */
-function apollo_get_form_schema( $form_type ) {
+function apollo_get_form_schema( string $form_type ): array {
+	// Try cache first
+	$cached = apollo_cache_get_form_schema( $form_type );
+	if ( false !== $cached ) {
+		return $cached;
+	}
+	
 	$schemas = get_option( 'apollo_form_schemas', array() );
 
 	// If schema doesn't exist, return default.
+	$schema = array();
 	if ( ! isset( $schemas[ $form_type ] ) ) {
-		return apollo_get_default_form_schema( $form_type );
+		$schema = apollo_get_default_form_schema( $form_type );
+	} else {
+		$schema = $schemas[ $form_type ];
 	}
+	
+	// Cache the result
+	apollo_cache_form_schema( $form_type, $schema );
 
-	return $schemas[ $form_type ];
+	return $schema;
 }
 
 /**
@@ -37,7 +51,7 @@ function apollo_get_form_schema( $form_type ) {
  * @param array  $schema    Schema array with fields.
  * @return bool True on success, false on failure.
  */
-function apollo_save_form_schema( $form_type, $schema ) {
+function apollo_save_form_schema( string $form_type, array $schema ): bool {
 	// Validate schema structure.
 	if ( ! apollo_validate_form_schema( $schema ) ) {
 		return false;
@@ -55,6 +69,9 @@ function apollo_save_form_schema( $form_type, $schema ) {
 	// Log schema change for audit.
 	if ( $result ) {
 		apollo_log_schema_change( $form_type, $schema );
+		
+		// Invalidate cache for all forms
+		apollo_cache_flush_group( 'apollo_forms' );
 	}
 
 	return $result;
@@ -274,7 +291,7 @@ add_action( 'admin_init', 'apollo_init_form_schemas' );
 /**
  * Migrate form schemas (idempotent)
  */
-function apollo_migrate_form_schema() {
+function apollo_migrate_form_schema(): void {
 	$current_version = get_option( 'apollo_form_schema_version', '0.0.0' );
 
 	// Version 1.0.0 migration - initial setup.
@@ -380,7 +397,7 @@ function apollo_validate_field_value( $value, $field_schema ) {
  * @param int    $exclude_user_id User ID to exclude from check.
  * @return bool True if unique, false if already exists.
  */
-function apollo_is_instagram_id_unique( $instagram_id, $exclude_user_id = 0 ) {
+function apollo_is_instagram_id_unique( string $instagram_id, int $exclude_user_id = 0 ): bool {
 	$users = get_users(
 		array(
 			'meta_key'   => '_apollo_instagram_id',

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Apollo Core - REST API Moderation Endpoints
  *
@@ -128,18 +130,19 @@ function apollo_rest_can_moderate() {
  * @return WP_REST_Response|WP_Error
  */
 function apollo_rest_approve_content( $request ) {
-	$post_id = $request->get_param( 'post_id' );
-	$note    = $request->get_param( 'note' );
+	try {
+		$post_id = $request->get_param( 'post_id' );
+		$note    = $request->get_param( 'note' );
 
-	// Verify post exists.
-	$post = get_post( $post_id );
-	if ( ! $post ) {
-		return new WP_Error(
-			'post_not_found',
-			__( 'Post not found.', 'apollo-core' ),
-			array( 'status' => 404 )
-		);
-	}
+		// Verify post exists.
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Post not found.', 'apollo-core' ),
+				array( 'status' => 404 )
+			);
+		}
 
 	// Check if post is draft.
 	if ( ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
@@ -189,19 +192,32 @@ function apollo_rest_approve_content( $request ) {
 	// Get updated post.
 	$updated_post = get_post( $post_id );
 
-	return new WP_REST_Response(
-		array(
-			'success' => true,
-			'message' => __( 'Content approved and published successfully.', 'apollo-core' ),
-			'post'    => array(
-				'id'     => $updated_post->ID,
-				'title'  => $updated_post->post_title,
-				'status' => $updated_post->post_status,
-				'link'   => get_permalink( $updated_post->ID ),
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Content approved and published successfully.', 'apollo-core' ),
+				'post'    => array(
+					'id'     => $updated_post->ID,
+					'title'  => $updated_post->post_title,
+					'status' => $updated_post->post_status,
+					'link'   => get_permalink( $updated_post->ID ),
+				),
 			),
-		),
-		200
-	);
+			200
+		);
+	} catch ( Exception $e ) {
+		error_log( sprintf( 
+			'[Apollo Core] Content approval error - Post: %d, Message: %s', 
+			$post_id ?? 0,
+			$e->getMessage()
+		) );
+		
+		return new WP_Error(
+			'approval_failed',
+			__( 'Failed to approve content. Please try again.', 'apollo-core' ),
+			array( 'status' => 500, 'debug_info' => WP_DEBUG ? $e->getMessage() : null )
+		);
+	}
 }
 
 /**
