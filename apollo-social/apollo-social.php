@@ -1,13 +1,21 @@
 <?php
 /**
  * Plugin Name: Apollo Social Core
- * Plugin URI:  https://example.org/plugins/apollo-social-core
- * Description: Esqueleto do plugin Apollo Social Core. Contém rotas, Canvas Mode, providers e stubs para integrações.
- * Version:     0.0.1
- * Author:      Apollo
+ * Plugin URI:  https://apollo.rio.br/plugins/apollo-social-core
+ * Description: Apollo Social Core - Sistema social completo com perfis, feed, grupos e comunidades. Canvas Mode, rotas dinâmicas e integrações.
+ * Version:     1.0.0
+ * Author:      Apollo::Rio Team
+ * Author URI:  https://apollo.rio.br
  * Text Domain: apollo-social
  * Domain Path: /languages
- * License: MIT
+ * License:     GPL-2.0-or-later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 6.0
+ * Tested up to: 6.8
+ * Requires PHP: 8.1
+ * 
+ * @package Apollo_Social
+ * @version 1.0.0
  */
 
 if (!defined('ABSPATH')) {

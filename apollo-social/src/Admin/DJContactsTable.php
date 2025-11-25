@@ -76,7 +76,7 @@ class DJContactsTable
     {
         $defaults = [
             'title' => __('DJ Contacts', 'apollo-social'),
-            'contacts' => $this->getSampleContacts()
+            'contacts' => $this->getDJContacts()
         ];
 
         $args = wp_parse_args($args, $defaults);
@@ -86,48 +86,96 @@ class DJContactsTable
     }
 
     /**
-     * Get sample contacts data (replace with real data source)
+     * Get DJ contacts from database (CPT event_dj)
+     * 
+     * @return array Array of DJ contact data
      */
-    private function getSampleContacts(): array
+    private function getDJContacts(): array
     {
-        return [
-            [
-                'name' => 'Robert Fox',
-                'role' => 'DJ/Producer',
-                'email' => 'robert.fox@example.com',
-                'phone' => '202-555-0152',
-                'score' => 7,
-                'platform' => 'SoundCloud',
-                'avatar' => 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80',
-                'profile_url' => '#',
-                'message_url' => '#',
-                'platform_url' => '#'
+        $contacts = [];
+        
+        // Query DJs from custom post type
+        $djs = get_posts([
+            'post_type'      => 'event_dj',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => 'title',
+            'order'          => 'ASC'
+        ]);
+        
+        foreach ($djs as $dj) {
+            // Get DJ meta
+            $email      = get_post_meta($dj->ID, '_dj_email', true);
+            $phone      = get_post_meta($dj->ID, '_dj_phone', true);
+            $soundcloud = get_post_meta($dj->ID, '_dj_soundcloud', true);
+            $instagram  = get_post_meta($dj->ID, '_dj_instagram', true);
+            $facebook   = get_post_meta($dj->ID, '_dj_facebook', true);
+            
+            // Determine platform
+            $platform     = 'Website';
+            $platform_url = get_permalink($dj->ID);
+            
+            if ($soundcloud) {
+                $platform     = 'SoundCloud';
+                $platform_url = $soundcloud;
+            } elseif ($instagram) {
+                $platform     = 'Instagram';
+                $platform_url = 'https://instagram.com/' . ltrim($instagram, '@');
+            } elseif ($facebook) {
+                $platform     = 'Facebook';
+                $platform_url = $facebook;
+            }
+            
+            // Get avatar (featured image or default)
+            $avatar = get_the_post_thumbnail_url($dj->ID, 'thumbnail');
+            if (!$avatar) {
+                $avatar = 'https://ui-avatars.com/api/?name=' . urlencode($dj->post_title) . '&size=256&background=6366f1&color=fff';
+            }
+            
+            // Calculate engagement score (based on events count)
+            $events_count = $this->getDJEventsCount($dj->ID);
+            $score        = min(10, ceil($events_count / 5)); // 1 point per 5 events, max 10
+            
+            $contacts[] = [
+                'name'         => $dj->post_title,
+                'role'         => __('DJ/Producer', 'apollo-social'),
+                'email'        => $email ?: __('No email', 'apollo-social'),
+                'phone'        => $phone ?: __('No phone', 'apollo-social'),
+                'score'        => $score,
+                'platform'     => $platform,
+                'avatar'       => $avatar,
+                'profile_url'  => get_permalink($dj->ID),
+                'message_url'  => $email ? 'mailto:' . $email : '#',
+                'platform_url' => $platform_url
+            ];
+        }
+        
+        return $contacts;
+    }
+    
+    /**
+     * Get count of events a DJ has participated in
+     * 
+     * @param int $dj_id DJ post ID
+     * @return int Number of events
+     */
+    private function getDJEventsCount(int $dj_id): int
+    {
+        $events = get_posts([
+            'post_type'      => 'event_listing',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'meta_query'     => [
+                [
+                    'key'     => '_event_dj_ids',
+                    'value'   => sprintf(':"%d";', $dj_id),
+                    'compare' => 'LIKE'
+                ]
             ],
-            [
-                'name' => 'Darlene Robertson',
-                'role' => 'Event Promoter',
-                'email' => 'darlene@example.com',
-                'phone' => '224-567-2662',
-                'score' => 5,
-                'platform' => 'Instagram',
-                'avatar' => 'https://images.unsplash.com/photo-1610271340738-726e199f0258?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80',
-                'profile_url' => '#',
-                'message_url' => '#',
-                'platform_url' => '#'
-            ],
-            [
-                'name' => 'Theresa Webb',
-                'role' => 'Club Manager',
-                'email' => 'theresa@example.com',
-                'phone' => '401-505-6800',
-                'score' => 2,
-                'platform' => 'Facebook',
-                'avatar' => 'https://images.unsplash.com/photo-1610878722345-79c5eaf6a48c?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80',
-                'profile_url' => '#',
-                'message_url' => '#',
-                'platform_url' => '#'
-            ]
-        ];
+            'fields'         => 'ids'
+        ]);
+        
+        return count($events);
     }
 
     /**
