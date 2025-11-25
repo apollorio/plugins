@@ -315,6 +315,7 @@ function apollo_render_users_tab() {
 					<th><?php esc_html_e( 'Name', 'apollo-core' ); ?></th>
 					<th><?php esc_html_e( 'Email', 'apollo-core' ); ?></th>
 					<th><?php esc_html_e( 'Role', 'apollo-core' ); ?></th>
+					<th><?php esc_html_e( 'Membership', 'apollo-core' ); ?></th>
 					<th><?php esc_html_e( 'Status', 'apollo-core' ); ?></th>
 					<th><?php esc_html_e( 'Actions', 'apollo-core' ); ?></th>
 				</tr>
@@ -335,6 +336,7 @@ function apollo_render_users_tab() {
 						<td><?php echo esc_html( $user->display_name ); ?></td>
 						<td><?php echo esc_html( $user->user_email ); ?></td>
 						<td><?php echo esc_html( implode( ', ', $user->roles ) ); ?></td>
+						<td><?php apollo_render_user_membership_selector( $user ); ?></td>
 						<td><?php echo wp_kses_post( $status_text ); ?></td>
 						<td>
 							<?php if ( current_user_can( 'suspend_users' ) && ! in_array( 'administrator', $user->roles, true ) ) : ?>
@@ -352,6 +354,8 @@ function apollo_render_users_tab() {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+
+		<?php apollo_render_membership_types_manager(); ?>
 	</div>
 	<?php
 }

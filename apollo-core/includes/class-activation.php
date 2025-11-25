@@ -37,6 +37,12 @@ class Apollo_Core_Activation {
 		// Create database tables.
 		self::create_tables();
 
+		// Initialize memberships.
+		self::init_memberships();
+
+		// Initialize quiz system.
+		self::init_quiz();
+
 		// Flush rewrite rules.
 		flush_rewrite_rules();
 
@@ -147,7 +153,7 @@ class Apollo_Core_Activation {
 			'auto_approve_posts'    => false,
 			'require_moderation'    => array( 'event_listing', 'apollo_social_post' ),
 			'mod_roles'             => array( 'apollo', 'editor', 'administrator' ),
-			'enable_audit_log'      => true,
+			'audit_log_enabled'     => true,
 			'canvas_mode_enabled'   => true,
 			'migration_completed'   => false,
 		);
@@ -184,6 +190,35 @@ class Apollo_Core_Activation {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+	}
+
+	/**
+	 * Initialize membership system
+	 */
+	private static function init_memberships() {
+		// Check if memberships.php is loaded.
+		if ( ! function_exists( 'apollo_init_memberships_option' ) ) {
+			return;
+		}
+
+		// Create memberships option.
+		apollo_init_memberships_option();
+
+		// Assign default membership to existing users.
+		apollo_assign_default_memberships();
+	}
+
+	/**
+	 * Initialize quiz system
+	 */
+	private static function init_quiz() {
+		// Check if quiz schema-manager.php is loaded.
+		if ( ! function_exists( 'apollo_migrate_quiz_schema' ) ) {
+			return;
+		}
+
+		// Run quiz migration (creates table and options).
+		apollo_migrate_quiz_schema();
 	}
 }
 
