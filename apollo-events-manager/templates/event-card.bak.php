@@ -75,7 +75,7 @@ $is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
                      loading="lazy" 
                      decoding="async">
             <?php else: ?>
-                <div class="apollo-event-card__placeholder" data-tooltip="Banner do evento - imagem principal">
+                <div class="apollo-event-card__placeholder">
                     <i class="ri-calendar-event-line"></i>
                 </div>
             <?php endif; ?>
@@ -85,11 +85,6 @@ $is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
                 <div class="apollo-event-card__date-badge">
                     <span class="apollo-event-card__date-day"><?php echo esc_html($date_info['day']); ?></span>
                     <span class="apollo-event-card__date-month"><?php echo esc_html($date_info['month_pt'] ?? ''); ?></span>
-                </div>
-            <?php else: ?>
-                <div class="apollo-event-card__date-badge" data-tooltip="Data do evento">
-                    <span class="apollo-event-card__date-day">--</span>
-                    <span class="apollo-event-card__date-month">???</span>
                 </div>
             <?php endif; ?>
             
@@ -137,11 +132,6 @@ $is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
                     <i class="ri-sound-module-fill" aria-hidden="true"></i>
                     <span><?php echo wp_kses_post(Apollo_Event_Data_Helper::format_dj_display($djs)); ?></span>
                 </div>
-            <?php else: ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--dj" data-tooltip="Line-up do evento">
-                    <i class="ri-sound-module-fill" aria-hidden="true"></i>
-                    <span style="opacity:0.5;">Line-up a confirmar</span>
-                </div>
             <?php endif; ?>
             
             <!-- Local -->
@@ -152,11 +142,6 @@ $is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
                     <?php if (!empty($local['region'])): ?>
                         <span class="apollo-event-card__location-area"><?php echo esc_html($local['region']); ?></span>
                     <?php endif; ?>
-                </div>
-            <?php else: ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--location" data-tooltip="Local do evento">
-                    <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-                    <span class="apollo-event-card__location-name" style="opacity:0.5;">Local a confirmar</span>
                 </div>
             <?php endif; ?>
         </div>

@@ -73,7 +73,6 @@ remove_action('wp_print_styles', 'print_emoji_styles');
     <meta name="format-detection" content="telephone=no">
     <title>Discover Events - Apollo::rio</title>
     <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-    <link href="https://assets.apollo.rio.br/base.css?ver=<?php echo date('Y-m'); ?>" rel="stylesheet">
     <link href="https://assets.apollo.rio.br/uni.css?ver=<?php echo date('Y-m'); ?>" rel="stylesheet">
     <?php wp_head(); ?>
 </head>
