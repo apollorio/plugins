@@ -7,14 +7,27 @@ namespace Composer\Autoload;
 class ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036
 {
     public static $prefixLengthsPsr4 = array (
+        'n' => 
+        array (
+            'nadar\\quill\\' => 12,
+        ),
         'A' => 
         array (
             'Apollo\\' => 7,
+            'ApolloSocial\\' => 13,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'nadar\\quill\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nadar/quill-delta-parser/src',
+        ),
         'Apollo\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
+        'ApolloSocial\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),

@@ -5,8 +5,11 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Apollo\\": "src/"
+      "Apollo\\": "src/",
+      "ApolloSocial\\": "src/"
     }
   },
-  "require": {}
+  "require": {
+    "nadar/quill-delta-parser": "^3.0"
+  }
 }

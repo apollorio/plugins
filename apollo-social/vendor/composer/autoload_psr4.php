@@ -6,5 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'nadar\\quill\\' => array($vendorDir . '/nadar/quill-delta-parser/src'),
     'Apollo\\' => array($baseDir . '/src'),
+    'ApolloSocial\\' => array($baseDir . '/src'),
 );

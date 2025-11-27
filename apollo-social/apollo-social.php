@@ -23,15 +23,18 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Composer Autoloader - DocuSeal e-signature integration
+ * Composer Autoloader - DocuSeal e-signature integration & Delta Parser
  * 
- * Loads docuseal-php library for DocuSeal e-signature API integration.
+ * Loads:
+ * - docuseal-php library for DocuSeal e-signature API integration
+ * - nadar/quill-delta-parser for Delta to HTML conversion
  * 
  * - vendor/autoload.php is optional in local/dev environments
- * - Required in production if e-signature features are needed
- * - Install via: composer require docusealco/docuseal-php
+ * - Required in production if e-signature or document features are needed
+ * - Install via: composer require docusealco/docuseal-php nadar/quill-delta-parser
  * 
  * @see https://github.com/docusealco/docuseal-php
+ * @see https://github.com/nadar/quill-delta-parser
  */
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -144,6 +147,12 @@ add_action('plugins_loaded', function() {
     $doc_save = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/DocumentSaveHandler.php';
     if (file_exists($doc_save)) {
         require_once $doc_save;
+    }
+    
+    // Load Delta Helper Functions (apollo_delta_to_html, etc.)
+    $delta_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/delta-helpers.php';
+    if (file_exists($delta_helpers)) {
+        require_once $delta_helpers;
     }
 }, 5);
 
