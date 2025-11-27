@@ -1,7 +1,13 @@
 <?php
 /**
- * Template: Editor de Documentos/Planilhas
+ * Template: Editor de Documentos/Planilhas (Quill Integration)
  * Usado por /doc/new, /doc/{id}, /pla/new, /pla/{id}
+ * 
+ * This template integrates Quill.js rich text editor with custom image upload.
+ * Images are uploaded to WordPress Media Library via AJAX for security.
+ *
+ * @package ApolloSocial
+ * @since   1.1.0
  */
 
 $type_label = $type === 'documento' ? 'Documento' : 'Planilha';
@@ -9,6 +15,9 @@ $icon = $type === 'documento' ? '📄' : '📊';
 $is_new = $mode === 'new';
 $doc_title = $is_new ? "Novo {$type_label}" : ($document['title'] ?? '');
 $doc_content = $is_new ? '' : ($document['content'] ?? '');
+
+// Generate nonce for secure image uploads
+$upload_nonce = wp_create_nonce('apollo_editor_image_upload');
 
 get_header();
 ?>
@@ -348,9 +357,32 @@ get_header();
             <div class="editor-page">
                 
                 <?php if ($type === 'documento'): ?>
-                <textarea class="editor-content" 
-                          id="document-content" 
-                          placeholder="Comece a escrever seu documento..."><?php echo esc_textarea($doc_content); ?></textarea>
+                <!-- 
+                    Quill Editor Container
+                    
+                    The data-apollo-quill attribute triggers automatic initialization
+                    via quill-editor.js. The hidden input stores the content for form
+                    submission and auto-save functionality.
+                    
+                    Image uploads are handled by our custom image handler which:
+                    1. Opens a file picker when the image button is clicked
+                    2. Validates file type (JPEG, PNG, GIF, WebP) and size (max 5MB)
+                    3. Uploads to WordPress Media Library via AJAX
+                    4. Shows progress feedback during upload
+                    5. Inserts the returned URL into the editor on success
+                    
+                    Security: All uploads require a valid nonce and upload_files capability.
+                -->
+                <div id="quill-container" 
+                     class="apollo-quill-container"
+                     data-apollo-quill="true"
+                     data-placeholder="Comece a escrever seu documento..."
+                     data-hidden-input="#document-content">
+                </div>
+                <input type="hidden" 
+                       id="document-content" 
+                       name="document_content"
+                       value="<?php echo esc_attr($doc_content); ?>">
                 <?php endif; ?>
                 
                 <?php if ($type === 'planilha'): ?>
@@ -561,5 +593,100 @@ get_header();
     });
 })();
 </script>
+
+<?php if ($type === 'documento'): ?>
+<!--
+    Quill Editor Dependencies & Configuration
+    
+    We load Quill from CDN for simplicity, but in production you might
+    want to bundle it locally for better performance and offline support.
+    
+    The apolloQuillConfig object provides:
+    - ajaxUrl: WordPress AJAX endpoint for image uploads
+    - uploadAction: The AJAX action name registered in ImageUploadHandler.php
+    - nonce: Security token that expires after a session (CSRF protection)
+    - maxFileSize: Maximum upload size in bytes (matches server config)
+    - allowedTypes: Whitelisted MIME types for security
+    - i18n: Localized strings for user feedback messages
+-->
+
+<!-- Quill CSS from CDN -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+
+<!-- Quill JS from CDN -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+<!-- Apollo Quill Configuration -->
+<script>
+/**
+ * Configuration object for Apollo Quill Editor.
+ * Injected from PHP with server-generated nonce for security.
+ */
+window.apolloQuillConfig = {
+    // WordPress AJAX endpoint (admin-ajax.php)
+    ajaxUrl: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+    
+    // AJAX action name - must match ImageUploadHandler::ACTION
+    uploadAction: 'apollo_upload_editor_image',
+    
+    // Security nonce - generated per session, validated server-side
+    // This prevents CSRF attacks where a malicious site tricks a user
+    // into uploading files without their knowledge.
+    nonce: '<?php echo esc_js($upload_nonce); ?>',
+    
+    // Maximum file size (5 MB) - should match server php.ini settings
+    // Larger files will be rejected client-side before upload attempt.
+    maxFileSize: <?php echo intval(wp_max_upload_size()); ?>,
+    
+    // Allowed MIME types - whitelist approach for security
+    // Only these types will be accepted, preventing potentially
+    // dangerous files like PHP or SVG with embedded scripts.
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    
+    // Localized strings for user feedback
+    // These can be translated via WordPress i18n system.
+    i18n: {
+        uploading: '<?php echo esc_js(__('Enviando imagem...', 'apollo-social')); ?>',
+        uploadSuccess: '<?php echo esc_js(__('Imagem inserida com sucesso!', 'apollo-social')); ?>',
+        uploadError: '<?php echo esc_js(__('Erro ao enviar imagem. Tente novamente.', 'apollo-social')); ?>',
+        invalidType: '<?php echo esc_js(__('Tipo de arquivo não permitido. Use JPEG, PNG, GIF ou WebP.', 'apollo-social')); ?>',
+        fileTooLarge: '<?php echo esc_js(__('Arquivo muito grande. Máximo: 5 MB.', 'apollo-social')); ?>',
+        selectImage: '<?php echo esc_js(__('Selecionar imagem', 'apollo-social')); ?>',
+        networkError: '<?php echo esc_js(__('Erro de rede. Verifique sua conexão.', 'apollo-social')); ?>',
+        serverError: '<?php echo esc_js(__('Erro no servidor. Tente novamente mais tarde.', 'apollo-social')); ?>',
+        permissionDenied: '<?php echo esc_js(__('Você não tem permissão para enviar imagens.', 'apollo-social')); ?>'
+    }
+};
+</script>
+
+<!-- Apollo Quill Editor with Custom Image Handler -->
+<script src="<?php echo esc_url(APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/quill-editor.js'); ?>"></script>
+
+<script>
+/**
+ * Integration: Connect Quill editor with the existing auto-save system.
+ * 
+ * When Quill is initialized, we need to update our save logic to use
+ * the Quill content instead of the old textarea.
+ */
+document.addEventListener('apolloQuillReady', function(event) {
+    const quill = event.detail.quill;
+    const hiddenInput = document.getElementById('document-content');
+    
+    // Update the auto-save function to use Quill's content
+    if (window.markDirty && quill) {
+        quill.on('text-change', function() {
+            // Sync content to hidden input for save
+            if (hiddenInput) {
+                hiddenInput.value = quill.root.innerHTML;
+            }
+            window.markDirty();
+        });
+    }
+    
+    console.log('[Apollo Editor] Quill integration complete');
+});
+</script>
+<?php endif; ?>
 
 <?php get_footer(); ?>

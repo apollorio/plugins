@@ -21,7 +21,7 @@ class EsignSettingsAdmin
      * Option names
      */
     const OPTION_ENABLE = 'apollo_esign_enable';
-    const OPTION_API_KEY = 'apollo_esign_api_key';
+    const OPTION_API_KEY = 'qnhujcGg4JwMgpM6K99Ds2yRyK3B8aeMmpYK5rZSRKx';
     const OPTION_API_BASE_URL = 'apollo_esign_api_base_url';
 
     /**

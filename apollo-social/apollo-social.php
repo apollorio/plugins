@@ -133,6 +133,12 @@ add_action('plugins_loaded', function() {
             require_once $esign_settings;
         }
     }
+    
+    // Load AJAX Image Upload Handler for Quill Editor
+    $image_upload = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/ImageUploadHandler.php';
+    if (file_exists($image_upload)) {
+        require_once $image_upload;
+    }
 }, 5);
 
 // P0-1: Improved activation hook with idempotency checks
