@@ -154,6 +154,12 @@ add_action('plugins_loaded', function() {
     if (file_exists($delta_helpers)) {
         require_once $delta_helpers;
     }
+    
+    // Load Luckysheet Helper Functions (apollo_spreadsheet_to_luckysheet, etc.)
+    $luckysheet_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/luckysheet-helpers.php';
+    if (file_exists($luckysheet_helpers)) {
+        require_once $luckysheet_helpers;
+    }
 }, 5);
 
 // P0-1: Improved activation hook with idempotency checks
