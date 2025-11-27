@@ -22,6 +22,21 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+/**
+ * Composer Autoloader - DocuSeal e-signature integration
+ * 
+ * Loads docuseal-php library for DocuSeal e-signature API integration.
+ * 
+ * - vendor/autoload.php is optional in local/dev environments
+ * - Required in production if e-signature features are needed
+ * - Install via: composer require docusealco/docuseal-php
+ * 
+ * @see https://github.com/docusealco/docuseal-php
+ */
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 // Define plugin constants
 define('APOLLO_SOCIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('APOLLO_SOCIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -110,6 +125,12 @@ add_action('plugins_loaded', function() {
         $help_menu = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/HelpMenuAdmin.php';
         if (file_exists($help_menu)) {
             require_once $help_menu;
+        }
+        
+        // Load E-signature Settings Admin
+        $esign_settings = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EsignSettingsAdmin.php';
+        if (file_exists($esign_settings)) {
+            require_once $esign_settings;
         }
     }
 }, 5);
