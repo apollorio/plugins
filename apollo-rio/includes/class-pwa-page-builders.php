@@ -202,10 +202,16 @@ class Apollo_PWA_Page_Builders {
                 foreach ($callbacks as $callback) {
                     $function = $callback['function'] ?? null;
                     if ($function && is_array($function) && isset($function[0])) {
-                        $class_name = get_class($function[0]);
+                        // Check if $function[0] is an object or string
+                        if (is_object($function[0])) {
+                            $class_name = get_class($function[0]);
+                        } elseif (is_string($function[0])) {
+                            $class_name = $function[0];
+                        } else {
+                            continue;
+                        }
                         // Remove if it's from theme (check class name or file path)
-                        if (strpos($class_name, $theme_slug) !== false || 
-                            (is_string($function[0]) && strpos($function[0], $theme_slug) !== false)) {
+                        if (strpos($class_name, $theme_slug) !== false) {
                             remove_action('wp_head', $function, $priority);
                         }
                     }
@@ -216,13 +222,17 @@ class Apollo_PWA_Page_Builders {
         // Remove theme filters from the_content (but keep WordPress core)
         // Only remove if they modify output significantly
         remove_all_filters('the_content');
-        // Re-add WordPress core content filters
+        // Re-add WordPress core content filters (CRITICAL: include do_shortcode!)
+        add_filter('the_content', 'do_blocks', 9);
         add_filter('the_content', 'wptexturize');
-        add_filter('the_content', 'convert_smilies');
-        add_filter('the_content', 'convert_chars');
+        add_filter('the_content', 'convert_smilies', 20);
         add_filter('the_content', 'wpautop');
         add_filter('the_content', 'shortcode_unautop');
         add_filter('the_content', 'prepend_attachment');
+        add_filter('the_content', 'wp_filter_content_tags', 12);
+        add_filter('the_content', 'wp_replace_insecure_home_url');
+        // ✅ CRITICAL: Re-add do_shortcode - this was missing and broke [apollo_events]!
+        add_filter('the_content', 'do_shortcode', 11);
         
         // Remove theme filters from wp_title
         remove_all_filters('wp_title');
