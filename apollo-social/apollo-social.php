@@ -139,6 +139,12 @@ add_action('plugins_loaded', function() {
     if (file_exists($image_upload)) {
         require_once $image_upload;
     }
+    
+    // Load AJAX Document Save Handler for Quill Editor (Delta autosave)
+    $doc_save = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/DocumentSaveHandler.php';
+    if (file_exists($doc_save)) {
+        require_once $doc_save;
+    }
 }, 5);
 
 // P0-1: Improved activation hook with idempotency checks

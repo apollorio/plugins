@@ -3,21 +3,48 @@
  * Template: Editor de Documentos/Planilhas (Quill Integration)
  * Usado por /doc/new, /doc/{id}, /pla/new, /pla/{id}
  * 
- * This template integrates Quill.js rich text editor with custom image upload.
- * Images are uploaded to WordPress Media Library via AJAX for security.
+ * This template integrates Quill.js rich text editor with:
+ *   - Custom image upload to WordPress Media Library
+ *   - Delta-based autosave for structured content persistence
+ *   - Content recovery from stored Delta JSON
+ *
+ * Delta Format:
+ *   Quill uses Delta format internally - a JSON structure describing
+ *   content as operations (insert, delete, retain). We store this
+ *   format in post meta for accurate content preservation.
  *
  * @package ApolloSocial
  * @since   1.1.0
  */
 
-$type_label = $type === 'documento' ? 'Documento' : 'Planilha';
-$icon = $type === 'documento' ? '📄' : '📊';
-$is_new = $mode === 'new';
-$doc_title = $is_new ? "Novo {$type_label}" : ($document['title'] ?? '');
-$doc_content = $is_new ? '' : ($document['content'] ?? '');
+// Use the DocumentSaveHandler for accessing stored content
+use ApolloSocial\Ajax\DocumentSaveHandler;
 
-// Generate nonce for secure image uploads
-$upload_nonce = wp_create_nonce('apollo_editor_image_upload');
+$type_label = $type === 'documento' ? 'Documento' : 'Planilha';
+$icon       = $type === 'documento' ? '📄' : '📊';
+$is_new     = $mode === 'new';
+
+// Document ID: for existing documents, get from route/query
+$document_id = $is_new ? 0 : ( $document['id'] ?? 0 );
+
+// Get document data
+$doc_title   = $is_new ? '' : ( $document['title'] ?? '' );
+$doc_content = $is_new ? '' : ( $document['content'] ?? '' );
+
+// Get Delta JSON from post meta if editing existing document
+// Delta is the preferred format for Quill - preserves exact formatting
+$doc_delta = '';
+if ( ! $is_new && $document_id > 0 ) {
+    // Try to get Delta from post meta
+    $stored_delta = get_post_meta( $document_id, '_apollo_document_delta', true );
+    if ( $stored_delta ) {
+        $doc_delta = $stored_delta;
+    }
+}
+
+// Generate nonce for secure AJAX operations (image upload + document save)
+// This nonce is used by both ImageUploadHandler and DocumentSaveHandler
+$upload_nonce = wp_create_nonce( 'apollo_editor_image_upload' );
 
 get_header();
 ?>
@@ -602,12 +629,16 @@ get_header();
     want to bundle it locally for better performance and offline support.
     
     The apolloQuillConfig object provides:
-    - ajaxUrl: WordPress AJAX endpoint for image uploads
-    - uploadAction: The AJAX action name registered in ImageUploadHandler.php
-    - nonce: Security token that expires after a session (CSRF protection)
-    - maxFileSize: Maximum upload size in bytes (matches server config)
-    - allowedTypes: Whitelisted MIME types for security
-    - i18n: Localized strings for user feedback messages
+    - ajaxUrl: WordPress AJAX endpoint for AJAX operations
+    - uploadAction: AJAX action for image upload
+    - saveAction: AJAX action for document save (Delta autosave)
+    - nonce: Security token for CSRF protection
+    - documentId: ID of document being edited (null for new)
+    - autosaveInterval: Debounce interval for autosave (ms)
+    - initialDelta: Delta JSON for existing document content
+    - maxFileSize: Maximum upload size in bytes
+    - allowedTypes: Whitelisted MIME types for images
+    - i18n: Localized strings for UI feedback
 -->
 
 <!-- Quill CSS from CDN -->
@@ -616,61 +647,112 @@ get_header();
 <!-- Quill JS from CDN -->
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
-<!-- Apollo Quill Configuration -->
+<!-- Apollo Quill Configuration with Delta Autosave -->
 <script>
 /**
  * Configuration object for Apollo Quill Editor.
- * Injected from PHP with server-generated nonce for security.
+ *
+ * This config enables:
+ *   1. Image upload to WordPress Media Library
+ *   2. Delta-based autosave for content persistence
+ *   3. Content recovery from stored Delta JSON
+ *
+ * Security: All operations require valid nonce and user capabilities.
+ * The nonce is generated per session and validated server-side.
  */
 window.apolloQuillConfig = {
-    // WordPress AJAX endpoint (admin-ajax.php)
-    ajaxUrl: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+    // ===== AJAX Endpoints =====
     
-    // AJAX action name - must match ImageUploadHandler::ACTION
+    // WordPress AJAX endpoint (admin-ajax.php)
+    ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
+    
+    // AJAX action for image uploads (ImageUploadHandler.php)
     uploadAction: 'apollo_upload_editor_image',
     
-    // Security nonce - generated per session, validated server-side
-    // This prevents CSRF attacks where a malicious site tricks a user
-    // into uploading files without their knowledge.
-    nonce: '<?php echo esc_js($upload_nonce); ?>',
+    // AJAX action for document save (DocumentSaveHandler.php)
+    saveAction: 'apollo_save_document',
     
-    // Maximum file size (5 MB) - should match server php.ini settings
-    // Larger files will be rejected client-side before upload attempt.
-    maxFileSize: <?php echo intval(wp_max_upload_size()); ?>,
+    // ===== Security =====
     
-    // Allowed MIME types - whitelist approach for security
-    // Only these types will be accepted, preventing potentially
-    // dangerous files like PHP or SVG with embedded scripts.
+    // Security nonce - validated by both handlers
+    // Prevents CSRF attacks and ensures user is authenticated
+    nonce: '<?php echo esc_js( $upload_nonce ); ?>',
+    
+    // ===== Document Context =====
+    
+    // Document ID: null for new documents, ID for existing
+    // Used by autosave to know whether to create or update
+    documentId: <?php echo $document_id ? intval( $document_id ) : 'null'; ?>,
+    
+    // ===== Autosave Configuration =====
+    
+    // Debounce interval: wait this long after last change before saving
+    // 3000ms = 3 seconds - balances responsiveness with server load
+    autosaveInterval: 3000,
+    
+    // ===== Initial Content (Delta Format) =====
+    
+    // Delta JSON for existing documents
+    // This is the preferred format - preserves exact formatting
+    // For new documents, this is null
+    <?php if ( ! empty( $doc_delta ) ) : ?>
+    initialDelta: <?php echo $doc_delta; // Already JSON, no escaping needed ?>,
+    <?php else : ?>
+    initialDelta: null,
+    <?php endif; ?>
+    
+    // ===== Image Upload Configuration =====
+    
+    // Maximum file size (bytes) - matches server php.ini
+    maxFileSize: <?php echo intval( wp_max_upload_size() ); ?>,
+    
+    // Allowed MIME types - whitelist for security
     allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
     
-    // Localized strings for user feedback
-    // These can be translated via WordPress i18n system.
+    // ===== Localized Strings (i18n) =====
+    
     i18n: {
-        uploading: '<?php echo esc_js(__('Enviando imagem...', 'apollo-social')); ?>',
-        uploadSuccess: '<?php echo esc_js(__('Imagem inserida com sucesso!', 'apollo-social')); ?>',
-        uploadError: '<?php echo esc_js(__('Erro ao enviar imagem. Tente novamente.', 'apollo-social')); ?>',
-        invalidType: '<?php echo esc_js(__('Tipo de arquivo não permitido. Use JPEG, PNG, GIF ou WebP.', 'apollo-social')); ?>',
-        fileTooLarge: '<?php echo esc_js(__('Arquivo muito grande. Máximo: 5 MB.', 'apollo-social')); ?>',
-        selectImage: '<?php echo esc_js(__('Selecionar imagem', 'apollo-social')); ?>',
-        networkError: '<?php echo esc_js(__('Erro de rede. Verifique sua conexão.', 'apollo-social')); ?>',
-        serverError: '<?php echo esc_js(__('Erro no servidor. Tente novamente mais tarde.', 'apollo-social')); ?>',
-        permissionDenied: '<?php echo esc_js(__('Você não tem permissão para enviar imagens.', 'apollo-social')); ?>'
+        // Image upload messages
+        uploading: '<?php echo esc_js( __( 'Enviando imagem...', 'apollo-social' ) ); ?>',
+        uploadSuccess: '<?php echo esc_js( __( 'Imagem inserida!', 'apollo-social' ) ); ?>',
+        uploadError: '<?php echo esc_js( __( 'Erro ao enviar imagem.', 'apollo-social' ) ); ?>',
+        invalidType: '<?php echo esc_js( __( 'Tipo não permitido. Use JPEG, PNG, GIF ou WebP.', 'apollo-social' ) ); ?>',
+        fileTooLarge: '<?php echo esc_js( __( 'Arquivo muito grande. Máximo: 5 MB.', 'apollo-social' ) ); ?>',
+        selectImage: '<?php echo esc_js( __( 'Selecionar imagem', 'apollo-social' ) ); ?>',
+        
+        // Network/server messages
+        networkError: '<?php echo esc_js( __( 'Erro de rede. Verifique sua conexão.', 'apollo-social' ) ); ?>',
+        serverError: '<?php echo esc_js( __( 'Erro no servidor. Tente novamente.', 'apollo-social' ) ); ?>',
+        permissionDenied: '<?php echo esc_js( __( 'Sem permissão para esta ação.', 'apollo-social' ) ); ?>',
+        
+        // Autosave messages
+        saving: '<?php echo esc_js( __( 'Salvando...', 'apollo-social' ) ); ?>',
+        saved: '<?php echo esc_js( __( 'Salvo', 'apollo-social' ) ); ?>',
+        saveError: '<?php echo esc_js( __( 'Erro ao salvar', 'apollo-social' ) ); ?>',
+        unsavedChanges: '<?php echo esc_js( __( 'Você tem alterações não salvas. Deseja sair?', 'apollo-social' ) ); ?>'
     }
 };
 </script>
 
-<!-- Apollo Quill Editor with Custom Image Handler -->
-<script src="<?php echo esc_url(APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/quill-editor.js'); ?>"></script>
+<!-- Apollo Quill Editor with Image Upload & Delta Autosave -->
+<script src="<?php echo esc_url( APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/quill-editor.js' ); ?>"></script>
 
 <script>
 /**
- * Integration: Connect Quill editor with the existing auto-save system.
- * 
- * When Quill is initialized, we need to update our save logic to use
- * the Quill content instead of the old textarea.
+ * Integration: Handle Quill ready event.
+ *
+ * When Quill initializes, we receive:
+ *   - quill: The Quill instance
+ *   - autosaveManager: The AutosaveManager instance
+ *   - saveStatus: The save status UI controller
+ *
+ * This event fires after:
+ *   1. Quill is created with toolbar
+ *   2. Initial content is loaded (from Delta or HTML fallback)
+ *   3. Autosave is wired up
  */
 document.addEventListener('apolloQuillReady', function(event) {
-    const quill = event.detail.quill;
+    const { quill, autosaveManager, saveStatus } = event.detail;
     const hiddenInput = document.getElementById('document-content');
     
     // Update the auto-save function to use Quill's content

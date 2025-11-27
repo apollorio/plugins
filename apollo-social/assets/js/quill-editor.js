@@ -1,25 +1,48 @@
 /**
  * Apollo Social – Quill Rich Text Editor with Custom Image Upload Handler
+ * and Delta-based Autosave System
  *
  * This module initializes a Quill editor for the Apollo Social document editor
- * and integrates a custom image upload flow that:
- *   1. Opens a native file picker when the image button is clicked.
- *   2. Validates file type (JPEG, PNG, GIF, WebP) and size (max 5 MB).
- *   3. Uploads the selected file to WordPress via AJAX (admin-ajax.php).
- *   4. Displays upload progress feedback to the user.
- *   5. On success, inserts the returned image URL into the editor.
- *   6. On failure, shows a localized error message.
+ * and integrates:
+ *   1. Custom image upload flow with validation and progress feedback.
+ *   2. Delta-based autosave system for structured content persistence.
+ *   3. Content recovery and initialization from stored Delta JSON.
+ *
+ * Delta Format Explained:
+ *   Quill uses a "Delta" format internally to represent document content.
+ *   Delta is a JSON structure that describes content as a series of operations:
+ *   - insert: Add text, embeds (images), or formatting
+ *   - retain: Keep existing content unchanged
+ *   - delete: Remove content
+ *
+ *   Example Delta:
+ *   {
+ *     "ops": [
+ *       { "insert": "Hello " },
+ *       { "insert": "World", "attributes": { "bold": true } },
+ *       { "insert": "\n" }
+ *     ]
+ *   }
+ *
+ *   Why Delta instead of HTML?
+ *   - Preserves exact formatting intent (no browser HTML quirks)
+ *   - Easier to diff and merge changes
+ *   - Enables collaborative editing features
+ *   - More compact than HTML for storage
+ *   - Safer: No risk of XSS from malformed HTML
  *
  * Security considerations implemented:
  *   - Nonce verification on all AJAX requests (wp_nonce).
  *   - Server-side validation of file type, size, and user capability.
  *   - Client-side pre-validation to give immediate feedback before upload.
- *   - Sanitized file names on the server (handled by WordPress media library).
+ *   - Delta JSON is validated and sanitized server-side before storage.
+ *   - User permission checks (edit_posts capability) for save operations.
  *
  * Architectural intent:
  *   - This editor is part of the Apollo Documents System (/doc/, /pla/).
  *   - It replaces the plain <textarea> with a full WYSIWYG experience.
  *   - Images are stored in the WordPress Media Library for consistency.
+ *   - Document content is stored as Delta JSON in post meta or custom table.
  *   - The module is dependency-injected with configuration via apolloQuillConfig.
  *
  * @package ApolloSocial
@@ -36,17 +59,25 @@
      * apolloQuillConfig is injected by PHP via wp_localize_script and contains:
      *   - ajaxUrl: WordPress AJAX endpoint (admin-ajax.php)
      *   - uploadAction: AJAX action name for image upload
+     *   - saveAction: AJAX action name for document save
      *   - nonce: Security nonce for verification
+     *   - documentId: ID of the document being edited (null for new docs)
      *   - maxFileSize: Maximum allowed file size in bytes (default 5MB)
      *   - allowedTypes: Array of allowed MIME types
+     *   - autosaveInterval: Interval between autosaves in milliseconds
+     *   - initialDelta: Delta JSON to load on initialization (for existing docs)
      *   - i18n: Localized strings for user messages
      */
     const config = window.apolloQuillConfig || {
         ajaxUrl: '/wp-admin/admin-ajax.php',
         uploadAction: 'apollo_upload_editor_image',
+        saveAction: 'apollo_save_document',
         nonce: '',
+        documentId: null,
         maxFileSize: 5 * 1024 * 1024, // 5 MB
         allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+        autosaveInterval: 3000, // 3 seconds after last change
+        initialDelta: null,
         i18n: {
             uploading: 'Enviando imagem...',
             uploadSuccess: 'Imagem inserida com sucesso!',
@@ -56,7 +87,12 @@
             selectImage: 'Selecionar imagem',
             networkError: 'Erro de rede. Verifique sua conexão.',
             serverError: 'Erro no servidor. Tente novamente mais tarde.',
-            permissionDenied: 'Você não tem permissão para enviar imagens.'
+            permissionDenied: 'Você não tem permissão para enviar imagens.',
+            // Autosave messages
+            saving: 'Salvando...',
+            saved: 'Salvo',
+            saveError: 'Erro ao salvar',
+            unsavedChanges: 'Você tem alterações não salvas. Deseja sair mesmo assim?'
         }
     };
 
@@ -400,6 +436,445 @@
     }
 
     /* =========================================================================
+     * AUTOSAVE SYSTEM (DELTA FORMAT)
+     * =========================================================================
+     * This section implements automatic saving of Quill editor content using
+     * the Delta format. Delta is Quill's native format for representing content
+     * as a series of operations, which is more reliable than HTML for storage.
+     *
+     * How Autosave Works:
+     *   1. User types/edits content in the editor
+     *   2. On each change, we start/reset a debounce timer
+     *   3. After the debounce period (default 3 seconds), we save
+     *   4. Content is sent as Delta JSON to the server via AJAX
+     *   5. Server validates, sanitizes, and stores the Delta
+     *   6. UI shows feedback: "Salvando..." → "Salvo" or "Erro"
+     *
+     * Why Debounce?
+     *   - Prevents excessive server requests while user is actively typing
+     *   - Only saves after user pauses for the configured interval
+     *   - Reduces server load and database writes
+     *   - Better UX: user doesn't see constant "Saving" flicker
+     */
+
+    /**
+     * AutosaveManager class handles all autosave functionality.
+     *
+     * This is implemented as a class to encapsulate state (dirty flag, timers,
+     * last saved content) and provide a clean API for the Quill instance.
+     *
+     * @class
+     */
+    class AutosaveManager {
+        /**
+         * Create an AutosaveManager instance.
+         *
+         * @param {Quill} quill - The Quill editor instance to manage.
+         * @param {Object} options - Configuration options.
+         * @param {string} options.documentId - ID of the document being edited.
+         * @param {number} options.interval - Debounce interval in milliseconds.
+         * @param {function} options.onSaveStart - Callback when save starts.
+         * @param {function} options.onSaveSuccess - Callback on successful save.
+         * @param {function} options.onSaveError - Callback on save error.
+         */
+        constructor(quill, options = {}) {
+            // Store reference to Quill instance
+            this.quill = quill;
+
+            // Document ID: required for saving to the correct record
+            // For new documents, this will be null until first save
+            this.documentId = options.documentId || config.documentId || null;
+
+            // Debounce interval: how long to wait after last change before saving
+            // Default: 3 seconds (3000ms)
+            this.interval = options.interval || config.autosaveInterval || 3000;
+
+            // Callbacks for save lifecycle events
+            this.onSaveStart = options.onSaveStart || (() => {});
+            this.onSaveSuccess = options.onSaveSuccess || (() => {});
+            this.onSaveError = options.onSaveError || (() => {});
+
+            // State tracking
+            this.isDirty = false;           // Has content changed since last save?
+            this.isSaving = false;          // Is a save operation in progress?
+            this.saveTimer = null;          // Reference to debounce timer
+            this.lastSavedDelta = null;     // Delta from last successful save
+
+            // Bind methods to preserve 'this' context
+            this.handleChange = this.handleChange.bind(this);
+            this.save = this.save.bind(this);
+            this.forceSave = this.forceSave.bind(this);
+
+            // Initialize: attach change listener to Quill
+            this.attachListeners();
+
+            // Store initial content as "last saved" to prevent unnecessary first save
+            this.lastSavedDelta = JSON.stringify(quill.getContents());
+
+            console.log('[Apollo Autosave] Manager initialized', {
+                documentId: this.documentId,
+                interval: this.interval
+            });
+        }
+
+        /**
+         * Attach event listeners to the Quill instance.
+         *
+         * We listen to 'text-change' events which fire whenever the content changes.
+         * This includes typing, formatting, inserting images, etc.
+         */
+        attachListeners() {
+            // 'text-change' fires on any content modification
+            // Parameters: delta (change), oldDelta (previous state), source ('user' or 'api')
+            this.quill.on('text-change', this.handleChange);
+
+            // Also handle beforeunload to warn about unsaved changes
+            window.addEventListener('beforeunload', (e) => {
+                if (this.isDirty && !this.isSaving) {
+                    // Standard way to show "unsaved changes" dialog
+                    e.preventDefault();
+                    e.returnValue = config.i18n.unsavedChanges;
+                    return config.i18n.unsavedChanges;
+                }
+            });
+        }
+
+        /**
+         * Handle text-change events from Quill.
+         *
+         * This method is called every time the editor content changes.
+         * It sets the dirty flag and schedules an autosave.
+         *
+         * @param {Delta} delta - The change that was applied.
+         * @param {Delta} oldDelta - The previous document state.
+         * @param {string} source - 'user' for user actions, 'api' for programmatic changes.
+         */
+        handleChange(delta, oldDelta, source) {
+            // Only autosave user changes, not programmatic ones
+            // This prevents saving when we load initial content
+            if (source !== 'user') {
+                return;
+            }
+
+            // Mark document as having unsaved changes
+            this.isDirty = true;
+
+            // Clear any existing timer (debounce reset)
+            if (this.saveTimer) {
+                clearTimeout(this.saveTimer);
+            }
+
+            // Schedule a new save after the debounce interval
+            // If user keeps typing, this keeps getting pushed back
+            this.saveTimer = setTimeout(() => {
+                this.save();
+            }, this.interval);
+        }
+
+        /**
+         * Save the current editor content to the server.
+         *
+         * This is the main save method, called after the debounce timer fires.
+         * It extracts the Delta, sends it to the server, and handles the response.
+         *
+         * @returns {Promise<Object>} Resolves with save response or rejects with error.
+         */
+        async save() {
+            // Skip if nothing has changed or already saving
+            if (!this.isDirty || this.isSaving) {
+                return;
+            }
+
+            // Get current content as Delta
+            const currentDelta = this.quill.getContents();
+            const deltaJson = JSON.stringify(currentDelta);
+
+            // Skip if content hasn't actually changed (deep comparison)
+            if (deltaJson === this.lastSavedDelta) {
+                this.isDirty = false;
+                return;
+            }
+
+            // Mark as saving
+            this.isSaving = true;
+            this.onSaveStart();
+
+            try {
+                // Send Delta to server via AJAX
+                const response = await this.sendToServer(deltaJson);
+
+                // Update tracking state
+                this.lastSavedDelta = deltaJson;
+                this.isDirty = false;
+                this.isSaving = false;
+
+                // If this was a new document, store the returned ID
+                if (response.documentId && !this.documentId) {
+                    this.documentId = response.documentId;
+                    // Update URL without reload if supported
+                    if (window.history && response.editUrl) {
+                        window.history.replaceState({}, '', response.editUrl);
+                    }
+                }
+
+                // Notify success
+                this.onSaveSuccess(response);
+
+                console.log('[Apollo Autosave] Save successful', {
+                    documentId: this.documentId,
+                    contentLength: deltaJson.length
+                });
+
+                return response;
+
+            } catch (error) {
+                // Save failed
+                this.isSaving = false;
+                this.onSaveError(error);
+
+                console.error('[Apollo Autosave] Save failed:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * Force an immediate save, bypassing the debounce timer.
+         *
+         * Use this for explicit "Save" button clicks or before navigation.
+         *
+         * @returns {Promise<Object>} Resolves with save response.
+         */
+        async forceSave() {
+            // Clear any pending debounced save
+            if (this.saveTimer) {
+                clearTimeout(this.saveTimer);
+                this.saveTimer = null;
+            }
+
+            // Force dirty flag if there's any content
+            if (this.quill.getLength() > 1) {
+                this.isDirty = true;
+            }
+
+            return this.save();
+        }
+
+        /**
+         * Send the Delta JSON to the WordPress server via AJAX.
+         *
+         * This method constructs the AJAX request with proper security
+         * (nonce) and sends the Delta to be stored.
+         *
+         * @param {string} deltaJson - The Delta content as JSON string.
+         * @returns {Promise<Object>} Server response with documentId, etc.
+         */
+        sendToServer(deltaJson) {
+            return new Promise((resolve, reject) => {
+                // Get title if available (for new documents)
+                const titleInput = document.getElementById('document-title');
+                const title = titleInput ? titleInput.value : '';
+
+                // Construct form data for the AJAX request
+                const formData = new FormData();
+                formData.append('action', config.saveAction);
+                formData.append('nonce', config.nonce);
+                formData.append('document_id', this.documentId || '');
+                formData.append('title', title);
+                formData.append('delta', deltaJson);
+
+                // Also send HTML version for display/preview purposes
+                // This is generated from the Delta for convenience
+                formData.append('html', this.quill.root.innerHTML);
+
+                // Use fetch API for cleaner async handling
+                fetch(config.ajaxUrl, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin' // Include cookies for authentication
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        resolve(data.data);
+                    } else {
+                        reject(new Error(data.data?.message || config.i18n.saveError));
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        }
+
+        /**
+         * Check if there are unsaved changes.
+         *
+         * @returns {boolean} True if there are unsaved changes.
+         */
+        hasUnsavedChanges() {
+            return this.isDirty;
+        }
+
+        /**
+         * Destroy the autosave manager.
+         *
+         * Call this when removing the editor to clean up listeners and timers.
+         */
+        destroy() {
+            if (this.saveTimer) {
+                clearTimeout(this.saveTimer);
+            }
+            this.quill.off('text-change', this.handleChange);
+            console.log('[Apollo Autosave] Manager destroyed');
+        }
+    }
+
+    /**
+     * Load saved Delta content into the editor.
+     *
+     * This function is called during initialization to restore previously
+     * saved content. It safely parses the Delta JSON and loads it into Quill.
+     *
+     * @param {Quill} quill - The Quill editor instance.
+     * @param {string|Object} deltaData - Delta as JSON string or object.
+     * @returns {boolean} True if content was loaded successfully.
+     */
+    function loadDeltaContent(quill, deltaData) {
+        if (!deltaData) {
+            return false;
+        }
+
+        try {
+            // Parse if string, use directly if object
+            const delta = typeof deltaData === 'string' 
+                ? JSON.parse(deltaData) 
+                : deltaData;
+
+            // Validate basic Delta structure
+            if (!delta || !Array.isArray(delta.ops)) {
+                console.warn('[Apollo Quill] Invalid Delta structure:', delta);
+                return false;
+            }
+
+            // Load the Delta into Quill
+            // setContents() replaces all content with the provided Delta
+            quill.setContents(delta, 'api');
+
+            console.log('[Apollo Quill] Delta content loaded', {
+                opsCount: delta.ops.length
+            });
+
+            return true;
+
+        } catch (error) {
+            console.error('[Apollo Quill] Failed to parse Delta:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Create save status UI component.
+     *
+     * This creates or finds the status indicator element that shows
+     * "Salvando...", "Salvo", or error messages.
+     *
+     * @param {HTMLElement} container - Parent container for the status.
+     * @returns {Object} Status controller with update methods.
+     */
+    function createSaveStatusUI(container) {
+        // Find or create status element
+        let statusEl = document.getElementById('apollo-save-status');
+        if (!statusEl) {
+            statusEl = document.createElement('span');
+            statusEl.id = 'apollo-save-status';
+            statusEl.className = 'apollo-save-status';
+            statusEl.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            `;
+
+            // Try to insert after title input, or in header actions
+            const titleSection = document.querySelector('.editor-title-section');
+            const actionsSection = document.querySelector('.editor-actions');
+            if (titleSection) {
+                titleSection.appendChild(statusEl);
+            } else if (actionsSection) {
+                actionsSection.insertBefore(statusEl, actionsSection.firstChild);
+            } else if (container.parentElement) {
+                container.parentElement.insertBefore(statusEl, container);
+            }
+        }
+
+        // Define status states with styling
+        const states = {
+            idle: {
+                text: '',
+                bg: 'transparent',
+                color: '#718096',
+                icon: ''
+            },
+            saving: {
+                text: config.i18n.saving,
+                bg: '#fef3c7',
+                color: '#92400e',
+                icon: '⏳'
+            },
+            saved: {
+                text: config.i18n.saved,
+                bg: '#d1fae5',
+                color: '#065f46',
+                icon: '✓'
+            },
+            error: {
+                text: config.i18n.saveError,
+                bg: '#fee2e2',
+                color: '#991b1b',
+                icon: '✕'
+            }
+        };
+
+        // Return controller object
+        return {
+            element: statusEl,
+
+            /**
+             * Update the status display.
+             * @param {string} state - One of: 'idle', 'saving', 'saved', 'error'
+             * @param {string} customText - Optional custom message.
+             */
+            update(state, customText = null) {
+                const s = states[state] || states.idle;
+                statusEl.innerHTML = s.icon 
+                    ? `<span>${s.icon}</span><span>${customText || s.text}</span>`
+                    : customText || s.text;
+                statusEl.style.backgroundColor = s.bg;
+                statusEl.style.color = s.color;
+                statusEl.style.display = s.text || customText ? 'inline-flex' : 'none';
+            },
+
+            /**
+             * Show "saved" and then fade to idle after delay.
+             * @param {number} delay - Milliseconds before hiding.
+             */
+            showSavedThenHide(delay = 2000) {
+                this.update('saved');
+                setTimeout(() => this.update('idle'), delay);
+            }
+        };
+    }
+
+    /* =========================================================================
      * QUILL INITIALIZATION
      * =========================================================================
      * Main initialization function that sets up Quill with our custom configuration.
@@ -490,23 +965,93 @@
 
         if (hiddenInput) {
             // Sync Quill content to hidden input on every change
+            // This keeps the hidden input updated for form submission fallback
             quill.on('text-change', () => {
                 hiddenInput.value = quill.root.innerHTML;
             });
+        }
 
-            // Load initial content from hidden input
-            if (hiddenInput.value) {
-                quill.clipboard.dangerouslyPasteHTML(hiddenInput.value);
+        // Step 7: Load initial content
+        // Priority: Delta JSON > Hidden input HTML > Empty
+        // Delta is preferred because it preserves exact formatting intent
+        let contentLoaded = false;
+
+        // Try loading from Delta first (passed via config or data attribute)
+        const initialDelta = options.initialDelta || config.initialDelta;
+        if (initialDelta) {
+            contentLoaded = loadDeltaContent(quill, initialDelta);
+            if (contentLoaded) {
+                console.log('[Apollo Quill] Loaded content from Delta');
             }
         }
 
-        // Step 7: Dispatch custom event for integration with other scripts
+        // Fallback: load from hidden input HTML
+        if (!contentLoaded && hiddenInput && hiddenInput.value) {
+            quill.clipboard.dangerouslyPasteHTML(hiddenInput.value);
+            console.log('[Apollo Quill] Loaded content from HTML fallback');
+        }
+
+        // Step 8: Initialize autosave system
+        // Create save status UI and autosave manager
+        const saveStatus = createSaveStatusUI(containerEl);
+        
+        const autosaveManager = new AutosaveManager(quill, {
+            documentId: options.documentId || config.documentId,
+            interval: options.autosaveInterval || config.autosaveInterval,
+            
+            // Callback: Save started
+            onSaveStart: () => {
+                saveStatus.update('saving');
+            },
+            
+            // Callback: Save successful
+            onSaveSuccess: (response) => {
+                saveStatus.showSavedThenHide(2000);
+                
+                // Dispatch event for external integrations
+                document.dispatchEvent(new CustomEvent('apolloDocumentSaved', {
+                    detail: {
+                        documentId: response.documentId,
+                        quill: quill
+                    }
+                }));
+            },
+            
+            // Callback: Save failed
+            onSaveError: (error) => {
+                saveStatus.update('error', error.message);
+                showNotification(error.message || config.i18n.saveError, 'error', 5000);
+            }
+        });
+
+        // Attach autosave manager to quill for external access
+        quill.autosaveManager = autosaveManager;
+
+        // Step 9: Wire up manual save button (if exists)
+        const saveBtn = document.getElementById('save-btn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    await autosaveManager.forceSave();
+                } catch (error) {
+                    console.error('[Apollo Quill] Manual save failed:', error);
+                }
+            });
+        }
+
+        // Step 10: Dispatch custom event for integration with other scripts
         const initEvent = new CustomEvent('apolloQuillReady', {
-            detail: { quill, container: containerEl }
+            detail: { 
+                quill, 
+                container: containerEl,
+                autosaveManager,
+                saveStatus
+            }
         });
         document.dispatchEvent(initEvent);
 
-        console.log('[Apollo Quill] Editor initialized successfully');
+        console.log('[Apollo Quill] Editor initialized successfully with autosave');
         return quill;
     }
 
@@ -610,7 +1155,11 @@
             const options = {
                 placeholder: container.dataset.placeholder,
                 hiddenInput: container.dataset.hiddenInput,
-                theme: container.dataset.theme || 'snow'
+                theme: container.dataset.theme || 'snow',
+                documentId: container.dataset.documentId,
+                initialDelta: container.dataset.delta 
+                    ? JSON.parse(container.dataset.delta) 
+                    : null
             };
 
             initApolloQuill(container, options);
@@ -624,9 +1173,22 @@
      */
 
     window.ApolloQuill = {
+        // Core initialization
         init: initApolloQuill,
+        
+        // Image upload functionality
         uploadImage: uploadImage,
+        
+        // Notification system
         showNotification: showNotification,
+        
+        // Delta content management
+        loadDelta: loadDeltaContent,
+        
+        // Autosave manager class (for advanced usage)
+        AutosaveManager: AutosaveManager,
+        
+        // Configuration
         config: config
     };
 
