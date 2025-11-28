@@ -69,19 +69,64 @@ for ($i = 6; $i >= 0; $i--) {
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+<!-- Tooltip Styles -->
+<style>
+.cena-rio-dashboard-content [data-tooltip] {
+    position: relative;
+}
+
+.cena-rio-dashboard-content [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: hsl(var(--popover, 0 0% 100%));
+    color: hsl(var(--popover-foreground, 240 10% 3.9%));
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius, 0.5rem);
+    font-size: 0.75rem;
+    white-space: normal;
+    max-width: 280px;
+    text-align: center;
+    line-height: 1.4;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border: 1px solid hsl(var(--border, 240 5.9% 90%));
+    pointer-events: none;
+}
+
+.cena-rio-dashboard-content [data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: hsl(var(--border, 240 5.9% 90%));
+    z-index: 51;
+}
+
+.cena-rio-dashboard-content .stat-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+</style>
+
 <div class="cena-rio-dashboard-content" style="display: flex; flex-direction: column; gap: 1.5rem;">
     
     <!-- Stats Cards Grid - ShadCN New York Style -->
     <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
         
         <!-- Documentos Card -->
-        <div class="stat-card" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden;">
+        <div class="stat-card" data-tooltip="<?php echo esc_attr__('Documentos do Cena::Rio incluindo contratos, riders técnicos e materiais promocionais', 'apollo-social'); ?>" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; position: relative; overflow: hidden; cursor: help; transition: all 0.2s ease;">
             <div style="display: flex; align-items: flex-start; justify-content: space-between;">
                 <div>
                     <p style="font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground));">Documentos</p>
                     <p style="font-size: 2rem; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; margin-top: 0.25rem;">
                         <?php echo esc_html($docs_count); ?>
                     </p>
+                    <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem;">Contratos, riders e materiais</p>
                     <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">
                         <?php if ($trend_up): ?>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(142 76% 36%)" stroke-width="2">
@@ -118,13 +163,14 @@ for ($i = 6; $i >= 0; $i--) {
         </div>
         
         <!-- Planos de Evento Card -->
-        <div class="stat-card" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem;">
+        <div class="stat-card" data-tooltip="<?php echo esc_attr__('Planos de evento ativos incluindo cronogramas, briefings e especificações técnicas', 'apollo-social'); ?>" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; cursor: help; transition: all 0.2s ease;">
             <div style="display: flex; align-items: flex-start; justify-content: space-between;">
                 <div>
                     <p style="font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground));">Planos de Evento</p>
                     <p style="font-size: 2rem; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; margin-top: 0.25rem;">
                         <?php echo esc_html($event_plans_count); ?>
                     </p>
+                    <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem;">Cronogramas e briefings</p>
                     <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">
                         <span style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Ativos e em desenvolvimento</span>
                     </div>
@@ -141,13 +187,14 @@ for ($i = 6; $i >= 0; $i--) {
         </div>
         
         <!-- Mensagens Card -->
-        <div class="stat-card" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem;">
+        <div class="stat-card" data-tooltip="<?php echo esc_attr__('Mensagens diretas e notificações de colaboradores e produtores', 'apollo-social'); ?>" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; cursor: help; transition: all 0.2s ease;">
             <div style="display: flex; align-items: flex-start; justify-content: space-between;">
                 <div>
                     <p style="font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground));">Mensagens</p>
                     <p style="font-size: 2rem; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; margin-top: 0.25rem;">
                         <?php echo esc_html($messages_count); ?>
                     </p>
+                    <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem;">Notificações e DMs</p>
                     <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">
                         <?php if ($messages_count > 0): ?>
                             <span style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--primary));">Não lidas</span>
@@ -165,13 +212,14 @@ for ($i = 6; $i >= 0; $i--) {
         </div>
         
         <!-- Atividade Card -->
-        <div class="stat-card" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem;">
+        <div class="stat-card" data-tooltip="<?php echo esc_attr__('Total de ações realizadas nos últimos 7 dias: documentos criados, editados, compartilhados', 'apollo-social'); ?>" style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 1.5rem; cursor: help; transition: all 0.2s ease;">
             <div style="display: flex; align-items: flex-start; justify-content: space-between;">
                 <div>
                     <p style="font-size: 0.875rem; font-weight: 500; color: hsl(var(--muted-foreground));">Atividade (7 dias)</p>
                     <p style="font-size: 2rem; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; margin-top: 0.25rem;">
                         <?php echo array_sum($activity_by_day); ?>
                     </p>
+                    <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem;">Criações e edições</p>
                     <div style="display: flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">
                         <span style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Ações realizadas</span>
                     </div>
@@ -357,7 +405,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'hsl(240 10% 3.9%)',
+                        titleColor: 'hsl(0 0% 98%)',
+                        bodyColor: 'hsl(0 0% 98%)',
+                        borderColor: 'hsl(240 3.7% 15.9%)',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return `${context.parsed.y} ações realizadas`;
+                            },
+                            afterLabel: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed.y / total) * 100).toFixed(1) : 0;
+                                return `${percentage}% do total semanal`;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
@@ -406,7 +478,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'hsl(240 10% 3.9%)',
+                        titleColor: 'hsl(0 0% 98%)',
+                        bodyColor: 'hsl(0 0% 98%)',
+                        borderColor: 'hsl(240 3.7% 15.9%)',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        padding: 12,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${value} documentos (${percentage}%)`;
+                            }
+                        }
+                    }
                 }
             }
         });

@@ -24,6 +24,7 @@ function apollo_events_render_stat_cards($stats = array()) {
             'trend_label' => __('vs mês anterior', 'apollo-events-manager'),
             'icon' => 'calendar',
             'color' => 'primary',
+            'tooltip' => __('Número total de eventos que você criou', 'apollo-events-manager'),
         ),
         array(
             'title' => __('Visualizações', 'apollo-events-manager'),
@@ -32,6 +33,7 @@ function apollo_events_render_stat_cards($stats = array()) {
             'trend_label' => __('vs mês anterior', 'apollo-events-manager'),
             'icon' => 'eye',
             'color' => 'purple',
+            'tooltip' => __('Total de vezes que seus eventos foram vistos (modal + página)', 'apollo-events-manager'),
         ),
         array(
             'title' => __('Cliques em Modal', 'apollo-events-manager'),
@@ -40,6 +42,7 @@ function apollo_events_render_stat_cards($stats = array()) {
             'trend_label' => __('vs mês anterior', 'apollo-events-manager'),
             'icon' => 'popup',
             'color' => 'green',
+            'tooltip' => __('Visualizações via popup/modal nos cards de eventos', 'apollo-events-manager'),
         ),
         array(
             'title' => __('Visualizações de Página', 'apollo-events-manager'),
@@ -48,6 +51,7 @@ function apollo_events_render_stat_cards($stats = array()) {
             'trend_label' => __('vs mês anterior', 'apollo-events-manager'),
             'icon' => 'page',
             'color' => 'orange',
+            'tooltip' => __('Visitas diretas na página completa do evento', 'apollo-events-manager'),
         ),
     );
     
@@ -76,8 +80,9 @@ function apollo_events_render_stat_cards($stats = array()) {
             $icon = isset($icons[$stat['icon']]) ? $icons[$stat['icon']] : $icons['calendar'];
             $color = isset($colors[$stat['color']]) ? $colors[$stat['color']] : $colors['primary'];
             $trend_up = $stat['trend'] >= 0;
+            $tooltip = isset($stat['tooltip']) ? $stat['tooltip'] : '';
         ?>
-        <div class="stat-card">
+        <div class="stat-card"<?php echo !empty($tooltip) ? ' data-tooltip="' . esc_attr($tooltip) . '"' : ''; ?>>
             <div class="stat-card-header">
                 <span class="stat-card-title"><?php echo esc_html($stat['title']); ?></span>
                 <div class="stat-card-icon" style="background: <?php echo $color; ?>1a; color: <?php echo $color; ?>;">
@@ -87,6 +92,9 @@ function apollo_events_render_stat_cards($stats = array()) {
             <div class="stat-card-value">
                 <?php echo number_format($stat['value'], 0, ',', '.'); ?>
             </div>
+            <?php if (isset($stat['description'])): ?>
+            <p class="stat-card-description"><?php echo esc_html($stat['description']); ?></p>
+            <?php endif; ?>
             <?php if (isset($stat['trend'])): ?>
             <div class="stat-card-trend <?php echo $trend_up ? 'trend-up' : 'trend-down'; ?>">
                 <?php if ($trend_up): ?>
@@ -274,6 +282,27 @@ function apollo_events_render_chart($args = array()) {
                     plugins: {
                         legend: {
                             display: <?php echo !empty($args['data']['datasets']) && count($args['data']['datasets']) > 1 ? 'true' : 'false'; ?>
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'hsl(240 10% 3.9%)',
+                            titleColor: 'hsl(0 0% 98%)',
+                            bodyColor: 'hsl(0 0% 98%)',
+                            borderColor: 'hsl(240 3.7% 15.9%)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y || context.parsed;
+                                    return `${label}: ${value.toLocaleString('pt-BR')}`;
+                                }
+                            }
                         }
                     },
                     scales: {

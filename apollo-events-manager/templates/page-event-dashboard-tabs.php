@@ -202,6 +202,14 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
         border: 1px solid hsl(var(--border));
         border-radius: var(--radius);
         padding: 1.5rem;
+        position: relative;
+        cursor: help;
+        transition: all 0.2s ease;
+    }
+    
+    .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
     }
     
     .stat-card-header {
@@ -233,6 +241,12 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
         margin-top: 0.25rem;
     }
     
+    .stat-card-description {
+        font-size: 0.75rem;
+        color: hsl(var(--muted-foreground));
+        margin: 0.25rem 0 0;
+    }
+    
     .stat-card-trend {
         display: flex;
         align-items: center;
@@ -243,6 +257,43 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
     
     .trend-up { color: hsl(var(--status-published)); }
     .trend-down { color: hsl(var(--destructive)); }
+    
+    /* Tooltip styles */
+    [data-tooltip] {
+        position: relative;
+    }
+    
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: hsl(var(--popover));
+        color: hsl(var(--popover-foreground));
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius);
+        font-size: 0.75rem;
+        white-space: normal;
+        max-width: 280px;
+        text-align: center;
+        line-height: 1.4;
+        z-index: 50;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 1px solid hsl(var(--border));
+        pointer-events: none;
+    }
+    
+    [data-tooltip]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: hsl(var(--border));
+        z-index: 51;
+    }
     
     /* Cards */
     .card {
@@ -484,7 +535,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
     <div class="tab-panel active" data-panel="overview">
         <!-- Stats Cards -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" data-tooltip="<?php echo esc_attr__('Total de eventos que você criou como organizador/produtor na plataforma Apollo Events', 'apollo-events-manager'); ?>">
                 <div class="stat-card-header">
                     <span class="stat-card-title"><?php echo esc_html__('Meus Eventos', 'apollo-events-manager'); ?></span>
                     <div class="stat-card-icon" style="background: hsl(var(--primary) / 0.1); color: hsl(var(--primary));">
@@ -494,6 +545,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                     </div>
                 </div>
                 <div class="stat-card-value"><?php echo esc_html($user_events_count); ?></div>
+                <p class="stat-card-description"><?php echo esc_html__('Eventos criados por você', 'apollo-events-manager'); ?></p>
                 <div class="stat-card-trend trend-up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     <span>+12%</span>
@@ -501,7 +553,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                 </div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" data-tooltip="<?php echo esc_attr__('Soma de todas as visualizações (modal + página) de seus eventos', 'apollo-events-manager'); ?>">
                 <div class="stat-card-header">
                     <span class="stat-card-title"><?php echo esc_html__('Visualizações', 'apollo-events-manager'); ?></span>
                     <div class="stat-card-icon" style="background: hsl(262 83% 58% / 0.1); color: hsl(262 83% 58%);">
@@ -511,6 +563,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                     </div>
                 </div>
                 <div class="stat-card-value"><?php echo number_format($total_user_views, 0, ',', '.'); ?></div>
+                <p class="stat-card-description"><?php echo esc_html__('Modal + Página combinados', 'apollo-events-manager'); ?></p>
                 <div class="stat-card-trend trend-up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     <span>+8.5%</span>
@@ -518,7 +571,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                 </div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" data-tooltip="<?php echo esc_attr__('Eventos salvos na lista de favoritos, marcados como Ir ou Talvez', 'apollo-events-manager'); ?>">
                 <div class="stat-card-header">
                     <span class="stat-card-title"><?php echo esc_html__('Favoritos', 'apollo-events-manager'); ?></span>
                     <div class="stat-card-icon" style="background: hsl(0 84% 60% / 0.1); color: hsl(0 84% 60%);">
@@ -528,6 +581,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                     </div>
                 </div>
                 <div class="stat-card-value"><?php echo esc_html($favorites_count); ?></div>
+                <p class="stat-card-description"><?php echo esc_html__('Eventos na sua lista', 'apollo-events-manager'); ?></p>
                 <div class="stat-card-trend trend-up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     <span>+5</span>
@@ -535,7 +589,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                 </div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" data-tooltip="<?php echo esc_attr__('Proporção de usuários que interagiram com seus eventos (modal views / total views)', 'apollo-events-manager'); ?>">
                 <div class="stat-card-header">
                     <span class="stat-card-title"><?php echo esc_html__('Engajamento', 'apollo-events-manager'); ?></span>
                     <div class="stat-card-icon" style="background: hsl(var(--status-published) / 0.1); color: hsl(var(--status-published));">
@@ -545,6 +599,7 @@ $engagement_rate = $total_user_views > 0 ? round(($popup_views / $total_user_vie
                     </div>
                 </div>
                 <div class="stat-card-value"><?php echo $engagement_rate; ?>%</div>
+                <p class="stat-card-description"><?php echo esc_html__('Taxa de interação', 'apollo-events-manager'); ?></p>
                 <div class="stat-card-trend trend-up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     <span>+2.1%</span>
@@ -828,7 +883,35 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'hsl(240 10% 3.9%)',
+                        titleColor: 'hsl(0 0% 98%)',
+                        bodyColor: 'hsl(0 0% 98%)',
+                        borderColor: 'hsl(240 3.7% 15.9%)',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label + ', <?php echo date_i18n('F Y'); ?>';
+                            },
+                            label: function(context) {
+                                return `${context.parsed.y.toLocaleString('pt-BR')} visualizações`;
+                            },
+                            afterLabel: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const avg = total / context.dataset.data.length;
+                                const diff = context.parsed.y - avg;
+                                const sign = diff >= 0 ? '+' : '';
+                                return `${sign}${diff.toFixed(0)} vs média diária`;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: { display: false }, border: { display: false } },
                     y: { beginAtZero: true, grid: { color: 'hsl(240 5.9% 90%)' }, border: { display: false } }
@@ -855,7 +938,33 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'hsl(240 10% 3.9%)',
+                        titleColor: 'hsl(0 0% 98%)',
+                        bodyColor: 'hsl(0 0% 98%)',
+                        borderColor: 'hsl(240 3.7% 15.9%)',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return `${context.parsed.y.toLocaleString('pt-BR')} visualizações`;
+                            },
+                            afterLabel: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed.y / total) * 100).toFixed(1) : 0;
+                                return `${percentage}% do total semanal`;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: { grid: { display: false }, border: { display: false } },
                     y: { beginAtZero: true, grid: { color: 'hsl(240 5.9% 90%)' }, border: { display: false } }
@@ -888,7 +997,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '65%',
-                plugins: { legend: { display: false } }
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'hsl(240 10% 3.9%)',
+                        titleColor: 'hsl(0 0% 98%)',
+                        bodyColor: 'hsl(0 0% 98%)',
+                        borderColor: 'hsl(240 3.7% 15.9%)',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        padding: 12,
+                        callbacks: {
+                            title: function(context) {
+                                return 'Tipo: ' + context[0].label;
+                            },
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${value.toLocaleString('pt-BR')} visualizações (${percentage}%)`;
+                            },
+                            afterLabel: function(context) {
+                                const tips = {
+                                    'Modal': 'Visualizações via popup/modal',
+                                    'Página': 'Visualizações na página do evento'
+                                };
+                                return tips[context.label] || '';
+                            }
+                        }
+                    }
+                }
             }
         });
         

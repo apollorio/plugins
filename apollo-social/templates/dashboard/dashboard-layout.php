@@ -293,6 +293,120 @@ function apollo_dashboard_head() {
             @container main (min-width: 1024px) {
                 .\@5xl\/main\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
             }
+            
+            /* Custom Tooltips */
+            [data-tooltip] {
+                position: relative;
+                cursor: help;
+            }
+            
+            [data-tooltip]::before,
+            [data-tooltip]::after {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s ease;
+                pointer-events: none;
+                z-index: 100;
+            }
+            
+            [data-tooltip]::before {
+                content: attr(data-tooltip);
+                bottom: calc(100% + 8px);
+                padding: 8px 12px;
+                background: hsl(240 10% 3.9%);
+                color: hsl(0 0% 98%);
+                font-size: 0.75rem;
+                font-weight: 500;
+                line-height: 1.4;
+                white-space: nowrap;
+                border-radius: 6px;
+                border: 1px solid hsl(240 3.7% 15.9%);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            [data-tooltip]::after {
+                content: '';
+                bottom: calc(100% + 4px);
+                border: 4px solid transparent;
+                border-top-color: hsl(240 10% 3.9%);
+            }
+            
+            [data-tooltip]:hover::before,
+            [data-tooltip]:hover::after {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            /* Tooltip positions */
+            [data-tooltip-position="bottom"]::before {
+                bottom: auto;
+                top: calc(100% + 8px);
+            }
+            
+            [data-tooltip-position="bottom"]::after {
+                bottom: auto;
+                top: calc(100% + 4px);
+                border-top-color: transparent;
+                border-bottom-color: hsl(240 10% 3.9%);
+            }
+            
+            [data-tooltip-position="left"]::before {
+                left: auto;
+                right: calc(100% + 8px);
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            [data-tooltip-position="left"]::after {
+                left: auto;
+                right: calc(100% + 4px);
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+                border-top-color: transparent;
+                border-left-color: hsl(240 10% 3.9%);
+            }
+            
+            [data-tooltip-position="right"]::before {
+                left: calc(100% + 8px);
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            [data-tooltip-position="right"]::after {
+                left: calc(100% + 4px);
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%);
+                border-top-color: transparent;
+                border-right-color: hsl(240 10% 3.9%);
+            }
+            
+            /* Multiline tooltip */
+            [data-tooltip-multiline]::before {
+                white-space: pre-wrap;
+                max-width: 280px;
+                text-align: left;
+            }
+            
+            /* Stat card info icons */
+            .stat-info-icon {
+                width: 16px;
+                height: 16px;
+                color: hsl(var(--muted-foreground));
+                cursor: help;
+                opacity: 0.6;
+                transition: opacity 0.15s ease;
+            }
+            
+            .stat-info-icon:hover {
+                opacity: 1;
+            }
         </style>
     </head>
     <body class="h-full antialiased">

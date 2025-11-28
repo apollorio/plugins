@@ -408,7 +408,33 @@ function apollo_events_render_dashboard_content() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'hsl(240 10% 3.9%)',
+                            titleColor: 'hsl(0 0% 98%)',
+                            bodyColor: 'hsl(0 0% 98%)',
+                            borderColor: 'hsl(240 3.7% 15.9%)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label + ', <?php echo date_i18n('F Y'); ?>';
+                                },
+                                label: function(context) {
+                                    return `${context.parsed.y.toLocaleString('pt-BR')} visualizações`;
+                                },
+                                afterLabel: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const avg = total / context.dataset.data.length;
+                                    const diff = context.parsed.y - avg;
+                                    const sign = diff >= 0 ? '+' : '';
+                                    return `${sign}${diff.toFixed(0)} vs média diária`;
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: {
@@ -465,7 +491,36 @@ function apollo_events_render_dashboard_content() {
                     maintainAspectRatio: false,
                     cutout: '65%',
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'hsl(240 10% 3.9%)',
+                            titleColor: 'hsl(0 0% 98%)',
+                            bodyColor: 'hsl(0 0% 98%)',
+                            borderColor: 'hsl(240 3.7% 15.9%)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    return 'Status: ' + context[0].label;
+                                },
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${value} eventos (${percentage}%)`;
+                                },
+                                afterLabel: function(context) {
+                                    const statusTips = {
+                                        'Publicado': 'Eventos visíveis para o público',
+                                        'Pendente': 'Aguardando aprovação',
+                                        'Rascunho': 'Ainda não publicados'
+                                    };
+                                    return statusTips[context.label] || '';
+                                }
+                            }
+                        }
                     }
                 }
             });
