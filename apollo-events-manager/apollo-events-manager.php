@@ -717,6 +717,9 @@ class Apollo_Events_Manager_Plugin {
         add_action('wp_ajax_apollo_record_click_out', array('Apollo_Event_Stats', 'ajax_record_click_out'));
         add_action('wp_ajax_nopriv_apollo_record_click_out', array('Apollo_Event_Stats', 'ajax_record_click_out'));
         
+        // Register event comment (Registros) AJAX handler
+        add_action('wp_ajax_apollo_submit_event_comment', array($this, 'ajax_submit_event_comment'));
+        
         // Load admin metaboxes
         if (is_admin()) {
             $admin_file = APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php';
@@ -2213,6 +2216,78 @@ class Apollo_Events_Manager_Plugin {
         <?php
         
         return ob_get_clean();
+    }
+    
+    /**
+     * AJAX handler for submitting event comments (Registros)
+     */
+    public function ajax_submit_event_comment() {
+        // Require login
+        if (!is_user_logged_in()) {
+            wp_send_json_error(array(
+                'message' => __('Faça login para deixar um registro.', 'apollo-events-manager')
+            ), 401);
+            return;
+        }
+        
+        // Verify nonce
+        if (!wp_verify_nonce($_POST['apollo_comment_nonce'] ?? '', 'apollo_event_comment')) {
+            wp_send_json_error(array(
+                'message' => __('Sessão expirada. Recarregue a página.', 'apollo-events-manager')
+            ), 403);
+            return;
+        }
+        
+        $event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : 0;
+        $content = isset($_POST['registro_content']) ? sanitize_textarea_field($_POST['registro_content']) : '';
+        
+        if ($event_id <= 0) {
+            wp_send_json_error(array('message' => __('Evento inválido.', 'apollo-events-manager')));
+            return;
+        }
+        
+        if (empty($content) || strlen($content) < 3) {
+            wp_send_json_error(array('message' => __('O registro precisa ter pelo menos 3 caracteres.', 'apollo-events-manager')));
+            return;
+        }
+        
+        if (strlen($content) > 500) {
+            wp_send_json_error(array('message' => __('O registro não pode exceder 500 caracteres.', 'apollo-events-manager')));
+            return;
+        }
+        
+        // Verify event exists
+        $event = get_post($event_id);
+        if (!$event || $event->post_type !== 'event_listing') {
+            wp_send_json_error(array('message' => __('Evento não encontrado.', 'apollo-events-manager')));
+            return;
+        }
+        
+        // Get current user
+        $user = wp_get_current_user();
+        
+        // Insert comment
+        $comment_data = array(
+            'comment_post_ID' => $event_id,
+            'comment_author' => $user->display_name,
+            'comment_author_email' => $user->user_email,
+            'comment_author_url' => $user->user_url,
+            'comment_content' => $content,
+            'comment_type' => 'comment',
+            'comment_approved' => 1, // Auto-approve for logged-in users
+            'user_id' => $user->ID
+        );
+        
+        $comment_id = wp_insert_comment($comment_data);
+        
+        if ($comment_id) {
+            wp_send_json_success(array(
+                'message' => __('Registro enviado com sucesso!', 'apollo-events-manager'),
+                'comment_id' => $comment_id
+            ));
+        } else {
+            wp_send_json_error(array('message' => __('Erro ao enviar o registro. Tente novamente.', 'apollo-events-manager')));
+        }
     }
     
     /**

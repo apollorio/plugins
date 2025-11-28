@@ -20,8 +20,7 @@ if (!defined('ABSPATH')) exit;
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#FFFFF">
     
-    <link rel="manifest" href="<?php echo esc_url(home_url('/manifest.json')); ?>">
-    <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+    <!-- PWA Manifest - served from apollo-social plugin -->
     <?php wp_head(); ?>
 </head>
 

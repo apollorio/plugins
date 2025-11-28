@@ -1,0 +1,51 @@
+<!--
+  @component: status-badge
+  @description: Badge de status para eventos e conteúdo
+  @variants: expected, confirmed, published, pending, rejected
+  
+  PHP Usage Example:
+  <?php echo Apollo_Design_Library::render_status_badge( 'confirmed' ); ?>
+  
+  or manually:
+  <?php
+  $status = 'confirmed';
+  $badges = [
+    'expected'  => ['icon' => 'ri-radar-fill', 'label' => 'Esperado', 'color' => '#f97316', 'bg' => 'rgba(249,115,22,0.1)'],
+    'confirmed' => ['icon' => 'ri-check-double-line', 'label' => 'Confirmado', 'color' => '#10b981', 'bg' => 'rgba(16,185,129,0.1)'],
+    'published' => ['icon' => 'ri-global-line', 'label' => 'Público', 'color' => '#3b82f6', 'bg' => 'rgba(59,130,246,0.1)'],
+    'pending'   => ['icon' => 'ri-time-line', 'label' => 'Pendente', 'color' => '#eab308', 'bg' => 'rgba(234,179,8,0.1)'],
+    'rejected'  => ['icon' => 'ri-close-circle-line', 'label' => 'Rejeitado', 'color' => '#ef4444', 'bg' => 'rgba(239,68,68,0.1)'],
+  ];
+  $badge = $badges[$status] ?? $badges['pending'];
+  ?>
+  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:<?php echo $badge['bg']; ?>;color:<?php echo $badge['color']; ?>;font-size:12px;font-weight:700">
+    <i class="<?php echo esc_attr($badge['icon']); ?>"></i>
+    <?php echo esc_html($badge['label']); ?>
+  </span>
+-->
+
+<!-- @variant:expected -->
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(249,115,22,0.1);color:#f97316;font-size:12px;font-weight:700">
+  <i class="ri-radar-fill"></i> Esperado
+</span>
+
+<!-- @variant:confirmed -->
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(16,185,129,0.1);color:#10b981;font-size:12px;font-weight:700">
+  <i class="ri-check-double-line"></i> Confirmado
+</span>
+
+<!-- @variant:published -->
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(59,130,246,0.1);color:#3b82f6;font-size:12px;font-weight:700">
+  <i class="ri-global-line"></i> Público
+</span>
+
+<!-- @variant:pending -->
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(234,179,8,0.1);color:#eab308;font-size:12px;font-weight:700">
+  <i class="ri-time-line"></i> Pendente
+</span>
+
+<!-- @variant:rejected -->
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(239,68,68,0.1);color:#ef4444;font-size:12px;font-weight:700">
+  <i class="ri-close-circle-line"></i> Rejeitado
+</span>
+

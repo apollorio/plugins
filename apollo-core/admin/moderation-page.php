@@ -15,10 +15,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Register moderation admin menu
  */
-function apollo_register_moderation_menu() {
+function apollo_register_moderation_menu(): void {
+	// Get pending count for badge
+	$pending_count = 0;
+	if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
+		$pending_count = Apollo_Moderation_Queue_Unified::get_pending_count();
+	}
+
+	// Build menu title with badge if there are pending items
+	$menu_title = __( 'Moderation', 'apollo-core' );
+	if ( $pending_count > 0 ) {
+		$menu_title = sprintf(
+			/* translators: %1$s: Menu title, %2$d: pending count, %3$d: pending count for badge */
+			'%1$s <span class="awaiting-mod count-%2$d"><span class="pending-count">%3$d</span></span>',
+			esc_html__( 'Moderation', 'apollo-core' ),
+			$pending_count,
+			$pending_count
+		);
+	}
+
 	add_menu_page(
 		__( 'Apollo Moderation', 'apollo-core' ),
-		__( 'Moderation', 'apollo-core' ),
+		$menu_title,
 		'view_moderation_queue',
 		'apollo-moderation',
 		'apollo_render_moderation_page',
@@ -202,89 +220,191 @@ function apollo_render_settings_tab() {
 /**
  * Render Tab 2: Moderation Queue
  */
-function apollo_render_queue_tab() {
+function apollo_render_queue_tab(): void {
 	if ( ! current_user_can( 'view_moderation_queue' ) ) {
 		wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
 	}
 
-	// Get enabled content types.
-	$settings = apollo_get_mod_settings();
+	// Use unified queue if available
 	$enabled_types = array();
-
-	foreach ( $settings['enabled_caps'] as $cap => $enabled ) {
-		if ( $enabled ) {
-			$post_type = apollo_capability_to_post_type( $cap );
-			if ( $post_type ) {
-				$enabled_types[] = $post_type;
+	if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
+		$enabled_types = Apollo_Moderation_Queue_Unified::get_moderation_cpts();
+	} else {
+		// Fallback to legacy method
+		$settings = apollo_get_mod_settings();
+		foreach ( $settings['enabled_caps'] as $cap => $enabled ) {
+			if ( $enabled ) {
+				$post_type = apollo_capability_to_post_type( $cap );
+				if ( $post_type ) {
+					$enabled_types[] = $post_type;
+				}
 			}
 		}
 	}
 
 	if ( empty( $enabled_types ) ) {
-		$enabled_types = array( 'post' );
+		$enabled_types = array( 'event_listing', 'post' );
 	}
 
-	// Query draft posts.
+	// Query ALL pending/draft posts
 	$query = new WP_Query(
 		array(
 			'post_type'      => $enabled_types,
 			'post_status'    => array( 'draft', 'pending' ),
-			'posts_per_page' => 50,
+			'posts_per_page' => 100,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 		)
 	);
 
+	// Get counts by source
+	$cena_rio_count = 0;
+	$other_count    = 0;
+	foreach ( $query->posts as $post ) {
+		$source = get_post_meta( $post->ID, '_apollo_source', true );
+		if ( 'cena-rio' === $source ) {
+			$cena_rio_count++;
+		} else {
+			$other_count++;
+		}
+	}
+
+	// Get filter from URL
+	$current_filter = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : 'all';
+
 	?>
 	<div id="apollo-moderation-queue">
 		<h2><?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Review and approve pending content.', 'apollo-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Review and approve pending content from all sources.', 'apollo-core' ); ?></p>
+
+		<!-- Source filter tabs -->
+		<div class="apollo-queue-source-filter" style="margin: 16px 0; display: flex; gap: 8px;">
+			<a href="?page=apollo-moderation&tab=queue&source=all" 
+			   class="button <?php echo 'all' === $current_filter ? 'button-primary' : ''; ?>">
+				<?php echo esc_html( sprintf( __( 'Todos (%d)', 'apollo-core' ), $query->found_posts ) ); ?>
+			</a>
+			<a href="?page=apollo-moderation&tab=queue&source=cena-rio" 
+			   class="button <?php echo 'cena-rio' === $current_filter ? 'button-primary' : ''; ?>"
+			   style="<?php echo $cena_rio_count > 0 ? 'background: #f97316; border-color: #f97316; color: #fff;' : ''; ?>">
+				<span class="dashicons dashicons-calendar-alt" style="margin-top: 3px;"></span>
+				<?php echo esc_html( sprintf( __( 'CENA-RIO (%d)', 'apollo-core' ), $cena_rio_count ) ); ?>
+			</a>
+			<a href="?page=apollo-moderation&tab=queue&source=other" 
+			   class="button <?php echo 'other' === $current_filter ? 'button-primary' : ''; ?>">
+				<?php echo esc_html( sprintf( __( 'Outros (%d)', 'apollo-core' ), $other_count ) ); ?>
+			</a>
+		</div>
 
 		<table class="wp-list-table widefat fixed striped">
 			<thead>
 				<tr>
-					<th><?php esc_html_e( 'Thumbnail', 'apollo-core' ); ?></th>
+					<th style="width: 60px;"><?php esc_html_e( 'Thumbnail', 'apollo-core' ); ?></th>
 					<th><?php esc_html_e( 'Title', 'apollo-core' ); ?></th>
-					<th><?php esc_html_e( 'Type', 'apollo-core' ); ?></th>
-					<th><?php esc_html_e( 'Author', 'apollo-core' ); ?></th>
-					<th><?php esc_html_e( 'Date', 'apollo-core' ); ?></th>
-					<th><?php esc_html_e( 'Actions', 'apollo-core' ); ?></th>
+					<th style="width: 100px;"><?php esc_html_e( 'Type', 'apollo-core' ); ?></th>
+					<th style="width: 80px;"><?php esc_html_e( 'Source', 'apollo-core' ); ?></th>
+					<th style="width: 120px;"><?php esc_html_e( 'Author', 'apollo-core' ); ?></th>
+					<th style="width: 120px;"><?php esc_html_e( 'Date', 'apollo-core' ); ?></th>
+					<th style="width: 180px;"><?php esc_html_e( 'Actions', 'apollo-core' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
-				<?php if ( $query->have_posts() ) : ?>
-					<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-						<tr data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
+				<?php 
+				$has_items = false;
+				if ( $query->have_posts() ) : 
+					while ( $query->have_posts() ) : $query->the_post();
+						$post_id = get_the_ID();
+						$source  = get_post_meta( $post_id, '_apollo_source', true );
+						$is_cena = 'cena-rio' === $source;
+
+						// Apply source filter
+						if ( 'cena-rio' === $current_filter && ! $is_cena ) {
+							continue;
+						}
+						if ( 'other' === $current_filter && $is_cena ) {
+							continue;
+						}
+
+						$has_items = true;
+						$row_style = $is_cena ? 'border-left: 4px solid #f97316; background: #fff7ed;' : '';
+						
+						// Get post type label
+						$post_type = get_post_type();
+						$type_labels = array(
+							'event_listing'      => __( 'Evento', 'apollo-core' ),
+							'event_local'        => __( 'Local', 'apollo-core' ),
+							'event_dj'           => __( 'DJ', 'apollo-core' ),
+							'apollo_social_post' => __( 'Post', 'apollo-core' ),
+							'post'               => __( 'Post', 'apollo-core' ),
+						);
+						$type_label = $type_labels[ $post_type ] ?? $post_type;
+						?>
+						<tr data-post-id="<?php echo esc_attr( $post_id ); ?>" style="<?php echo esc_attr( $row_style ); ?>">
 							<td>
 								<?php if ( has_post_thumbnail() ) : ?>
-									<?php the_post_thumbnail( 'thumbnail' ); ?>
+									<?php the_post_thumbnail( array( 50, 50 ), array( 'style' => 'border-radius: 4px;' ) ); ?>
 								<?php else : ?>
-									—
+									<span class="dashicons dashicons-format-image" style="font-size: 30px; color: #ccc;"></span>
 								<?php endif; ?>
 							</td>
 							<td>
 								<strong><a href="<?php echo esc_url( get_edit_post_link() ); ?>" target="_blank"><?php the_title(); ?></a></strong>
+								<?php if ( $is_cena ) : ?>
+									<br><small style="color: #f97316;">via Cena::Rio</small>
+								<?php endif; ?>
 							</td>
-							<td><?php echo esc_html( get_post_type() ); ?></td>
-							<td><?php the_author(); ?></td>
-							<td><?php echo esc_html( get_the_date() ); ?></td>
 							<td>
-								<button class="button apollo-approve-btn" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
-									<?php esc_html_e( 'Approve', 'apollo-core' ); ?>
+								<span class="post-type-badge" style="display: inline-block; padding: 2px 8px; background: #e5e7eb; border-radius: 4px; font-size: 12px;">
+									<?php echo esc_html( $type_label ); ?>
+								</span>
+							</td>
+							<td>
+								<?php if ( $is_cena ) : ?>
+									<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f97316; color: #fff; border-radius: 4px; font-size: 11px; font-weight: 600;">
+										<span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px;"></span>
+										CENA
+									</span>
+								<?php else : ?>
+									<span style="color: #6b7280; font-size: 12px;">WP</span>
+								<?php endif; ?>
+							</td>
+							<td><?php the_author(); ?></td>
+							<td>
+								<span title="<?php echo esc_attr( get_the_date( 'Y-m-d H:i:s' ) ); ?>">
+									<?php echo esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ); ?> <?php esc_html_e( 'atrás', 'apollo-core' ); ?>
+								</span>
+							</td>
+							<td>
+								<button class="button button-primary apollo-approve-btn" data-post-id="<?php echo esc_attr( $post_id ); ?>">
+									<span class="dashicons dashicons-yes" style="margin-top: 3px;"></span>
+									<?php esc_html_e( 'Aprovar', 'apollo-core' ); ?>
+								</button>
+								<button class="button apollo-reject-btn" data-post-id="<?php echo esc_attr( $post_id ); ?>" style="color: #dc2626;">
+									<span class="dashicons dashicons-no" style="margin-top: 3px;"></span>
 								</button>
 							</td>
 						</tr>
 					<?php endwhile; ?>
 					<?php wp_reset_postdata(); ?>
-				<?php else : ?>
+				<?php endif; ?>
+				<?php if ( ! $has_items ) : ?>
 					<tr>
-						<td colspan="6" style="text-align: center;">
-							<?php esc_html_e( 'No items in queue.', 'apollo-core' ); ?>
+						<td colspan="7" style="text-align: center; padding: 40px;">
+							<span class="dashicons dashicons-yes-alt" style="font-size: 48px; color: #10b981; display: block; margin-bottom: 12px;"></span>
+							<strong><?php esc_html_e( 'Nenhum item pendente!', 'apollo-core' ); ?></strong>
+							<p style="color: #6b7280; margin: 8px 0 0 0;">
+								<?php esc_html_e( 'Todos os conteúdos foram moderados.', 'apollo-core' ); ?>
+							</p>
 						</td>
 					</tr>
 				<?php endif; ?>
 			</tbody>
 		</table>
+
+		<style>
+			.apollo-moderation-queue tr:hover { background: #f9fafb !important; }
+			.apollo-approve-btn:hover { background: #059669 !important; border-color: #059669 !important; }
+			.apollo-reject-btn:hover { background: #fef2f2 !important; border-color: #dc2626 !important; }
+		</style>
 	</div>
 	<?php
 }

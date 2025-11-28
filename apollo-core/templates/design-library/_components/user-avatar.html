@@ -1,0 +1,105 @@
+<!--
+  @component: user-avatar
+  @description: Avatar do usuário em diferentes tamanhos
+  @variants: small (24px), medium (32px), large (40px), xlarge (56px)
+  
+  @placeholders:
+    {{user.id}}      - ID do usuário
+    {{user.name}}    - Nome completo
+    {{user.handle}}  - @username
+    {{user.avatar}}  - URL do avatar
+    {{user.initials}} - Iniciais (fallback)
+    {{user.verified}} - Se é verificado (boolean)
+    
+  PHP Usage Example:
+  <?php
+  $user = wp_get_current_user();
+  $avatar_url = get_avatar_url( $user->ID, ['size' => 40] );
+  $initials = strtoupper( substr( $user->display_name, 0, 2 ) );
+  ?>
+  <div class="avatar avatar-medium">
+    <?php if ( $avatar_url ) : ?>
+      <img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $user->display_name ); ?>" />
+    <?php else : ?>
+      <span class="avatar-initials"><?php echo esc_html( $initials ); ?></span>
+    <?php endif; ?>
+  </div>
+-->
+
+<!-- @variant:small (24px) -->
+<div class="h-6 w-6 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+  <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+</div>
+
+<!-- @variant:medium (32px) - default -->
+<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+  <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+</div>
+
+<!-- @variant:large (40px) -->
+<div class="h-10 w-10 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+  <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+</div>
+
+<!-- @variant:xlarge (56px) -->
+<div class="h-14 w-14 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+  <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+</div>
+
+<!-- @variant:with-initials-fallback (medium) -->
+<div class="h-8 w-8 rounded-full overflow-hidden bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+  {{#if user.avatar}}
+    <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+  {{else}}
+    {{user.initials}}
+  {{/if}}
+</div>
+
+<!-- @variant:with-verified-badge -->
+<div class="flex items-center gap-1">
+  <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
+    <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+  </div>
+  {{#if user.verified}}
+  <i class="ri-verified-badge-fill text-orange-500 text-[12px]"></i>
+  {{/if}}
+</div>
+
+<!-- @variant:with-ring (for hover/focus states) -->
+<button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all">
+  <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full rounded-full object-cover" />
+</button>
+
+<!-- @variant:with-status (online/offline) -->
+<div class="relative">
+  <div class="h-10 w-10 rounded-full overflow-hidden bg-slate-100">
+    <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full object-cover" />
+  </div>
+  <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500"></span>
+</div>
+
+<!-- @variant:group (stacked avatars) -->
+<div class="flex -space-x-2">
+  {{#each users}}
+  <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100 border-2 border-white">
+    <img src="{{avatar}}" alt="{{name}}" class="h-full w-full object-cover" />
+  </div>
+  {{/each}}
+  {{#if extra_count}}
+  <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 border-2 border-white">
+    +{{extra_count}}
+  </div>
+  {{/if}}
+</div>
+
+<!-- DiceBear fallback URL pattern -->
+<!--
+  Para gerar avatares aleatórios consistentes:
+  https://api.dicebear.com/7.x/avataaars/svg?seed={{user.handle}}&backgroundColor=e5e7eb
+  
+  Alternativas:
+  - identicon: https://api.dicebear.com/7.x/identicon/svg?seed={{user.id}}
+  - initials: https://api.dicebear.com/7.x/initials/svg?seed={{user.name}}
+  - shapes: https://api.dicebear.com/7.x/shapes/svg?seed={{user.id}}
+-->
+

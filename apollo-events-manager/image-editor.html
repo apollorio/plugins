@@ -40,9 +40,9 @@ body{background:#0b0d10;color:#0b0d10;font:400 15px/1.35 system-ui,-apple-system
       <div class="title" id="title">Instalar na Tela Inicial</div>
       <p class="msg" id="msg">Para melhor experiência, instale como app.</p>
       <div class="row">
-        <button id="btnInstall" class="btn hidden">Instalar agora</button>
+        <button id="btnInstall" class="hidden btn">Instalar agora</button>
       </div>
-      <div id="ios" class="steps hidden">
+      <div id="ios" class="hidden steps">
         <ol style="margin:0 0 0 18px">
           <li>Abrir Compartilhar no Safari</li>
           <li>Adicionar à Tela de Início</li>
@@ -94,7 +94,7 @@ matchMedia('(display-mode: standalone)').addEventListener?.('change',ev=>{if(ev.
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,viewport-fit=cover" />
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Plano.px"><meta name="theme-color" content="#f5f9f7"><link rel="apple-touch-icon" href="https://assets.apollo.rio.br/plano.webp"><link rel="mask-icon" href="/assets.apollo.rio.br/plano.webp" color="#f5f9f7">
 <link rel="manifest" href="manifest.json"><title>Apollo Creative Studio</title>
@@ -196,13 +196,17 @@ canvas { border-radius:20px; }
 .panel-content{ padding:12px; display:flex; flex-direction:column; gap:10px; }
 .panel-btn{ padding:12px; background:#f5f5f5; border:none; border-radius:10px;corner-shape:squircle; cursor:pointer; display:flex; align-items:center; gap:10px; transition:.2s; font-size:14px; color:#333; }
 .panel-btn:hover{ background:#e9e9e9cc; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);}
-.element-controls{ position:fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform:none; left:20px; background:rgba(255,255,255,.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius:25px; padding:8px 12px; display:flex; align-items:center; gap:8px; box-shadow: 0 4px 20px rgba(0,0,0,.12); z-index:180; transition: all .25s ease; opacity:0; pointer-events:none; max-width: calc(100vw - 40px); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.element-controls{ position:fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform:none; left:20px; background:rgba(255,255,255,.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius:25px; padding:8px 12px; display:flex; align-items:center; gap:8px; box-shadow: 0 4px 20px rgba(0,0,0,.12); z-index:180; transition: all .25s ease; opacity:0; pointer-events:none; max-width: calc(100vw - 40px); overflow:hidden; }
 .element-controls.active{ opacity:1; pointer-events:auto; }
 .control-group{ display:flex; gap:8px; }
 .font-control, .box-control{ display:none; }
 .element-controls.text-active .font-control{ display:flex; }
+.element-controls.text-active .box-control{ display:none !important; } /* Hide border radius for TEXT */
 .element-controls.box-active .box-control{ display:flex; }
-.color-picker-circle{ width:36px; height:36px; border-radius:50%; border:2px solid rgba(255,255,255,.6); overflow:hidden; position:relative; cursor:pointer; }
+.element-controls.box-active .font-control{ display:none !important; } /* Hide font controls for IMAGE/SHAPE */
+.element-controls.image-active .box-control{ display:flex; }
+.element-controls.image-active .font-control{ display:none !important; } /* Hide font controls for IMAGE */
+.color-picker-circle{ width:36px; height:36px; min-width:36px; min-height:36px; aspect-ratio:1/1; border-radius:50%; border:2px solid rgba(255,255,255,.6); overflow:hidden; position:relative; cursor:pointer; flex-shrink:0; }
 .color-picker-circle input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
 .control-popup{ position:fixed; background:rgba(255,255,255,0);  z-index:300; display:none; left:73px; backdrop-filter: blur(13px); -webkit-backdrop-filter: blur(13px); }
 .control-popup.active{ display:block;transform:translateY(-44px) translatex(-159px)!important;}
@@ -224,7 +228,8 @@ canvas { border-radius:20px; }
     i { font-size:17px; }
     .side-btn{ font-size:15px; width:36px; height:36px; touch-action: manipulation; } 
     .control-popup.active{ display:block;transform:translateY(-44px) translatex(-100px)!important;} 
-    .element-controls{gap:4px!important;left:5px!important;bottom: calc(12px + env(safe-area-inset-bottom, 0px))!important; right:5px!important; justify-content:center; flex-wrap:nowrap; padding:6px 10px!important;} 
+    .element-controls{gap:4px!important;left:5px!important;bottom: calc(12px + env(safe-area-inset-bottom, 0px))!important; right:5px!important; justify-content:center; flex-wrap:nowrap; padding:6px 10px!important; overflow:hidden!important;} 
+    .color-picker-circle{ width:32px!important; height:32px!important; min-width:32px!important; min-height:32px!important; aspect-ratio:1/1!important; flex-shrink:0!important; }
     .slide-panel{ left:53px!important; }
     #layer-up-btn{position:absolute; transform:translateY(-50%); left:48px;top:22%;}
     #layer-down-btn{position:absolute; transform:translateY(-50%); left:48px;top:80%;}
@@ -289,7 +294,7 @@ canvas { border-radius:20px; }
 <input type="color" class="color-picker-input" id="bg-color" value="#f9a748" />&nbsp;
 </div>&nbsp;
 <div class="toggle-wrapper" title="Fundo Transparente">
-<span style="font-size:10px;">PNG</span>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="188.975 81.068 90 90" width="16" height="16" style="vertical-align:middle;"><defs><mask id="half-mask"><rect width="100" height="100" fill="white" x="183.975" y="76.068"/><rect x="183.975" y="76.068" width="50" height="100" fill="black"/></mask></defs><circle cx="233.975" cy="126.068" r="45" fill="none" stroke="currentColor" stroke-width="10" stroke-dasharray="10,10" transform="matrix(1,0,0,1,0,0)"/><circle cx="233.975" cy="126.068" r="45" fill="currentColor" mask="url(#half-mask)" transform="matrix(0.886,0,0,0.84,24.485,20.389)"/></svg>
 <div class="toggle-switch" id="transparent-bg-toggle"></div>
 </div>&nbsp;
 <button class="" id="download-btn" title="Download">
@@ -327,6 +332,8 @@ canvas { border-radius:20px; }
 </div>
 <div class="control-group box-control">
 <button class="side-btn" id="elem-border-btn" title="Borda"><i class="ri-rounded-corner"></i></button>
+<button class="side-btn" id="remove-bg-btn" title="Remover fundo da imagem"><i class="ri-eraser-fill"></i></button>
+<button class="side-btn" id="restore-bg-btn" title="Restaurar fundo da imagem"><i class="ri-arrow-go-back-line"></i></button>
 </div>
 <div class="control-group">
 <button class="side-btn" id="layer-up-btn" title="Acima"><i class="ri-arrow-up-s-line"></i></button>
@@ -339,72 +346,60 @@ canvas { border-radius:20px; }
 </div>
 </div>
 <div class="control-popup" id="border-popup">
-<label>Raio: <span id="border-value">0</span>px</label><br/>
+<label>Borda <span id="border-value">0</span>x</label><br/>
 <input type="range" id="border-slider" min="0" max="200" value="0">
 </div>
 <div class="control-popup" id="opacity-popup">
-<label>Transparência: <span id="opacity-value">100</span>%</label><br/>
+<label>Transparência <span id="opacity-value">100</span>%</label><br/>
 <input type="range" id="opacity-slider" min="0" max="100" value="100">
 </div>
 <div class="control-popup" id="blur-popup">
-<label>Desfoque: <span id="blur-value">0</span>px</label><br/>
+<label>Desfoque <span id="blur-value">0</span>x</label><br/>
 <input type="range" id="blur-slider" min="0" max="30" value="0">
 </div>
 <div class="control-popup" id="fontsize-popup">
-<label>Tamanho: <span id="fontsize-value">24</span>px</label><br/>
+<label>Tamanho <span id="fontsize-value">24</span>x</label><br/>
 <input type="range" id="fontsize-slider" min="10" max="150" value="24">
 </div>
 <div class="control-popup" id="blend-popup">
 <select id="blend-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg h-fit w-fit p-2.5">
-<option value="normal">Normal</option>
-<option value="multiply">Múltiplo</option>
+<option value="normal">Simples</option>
+<option value="multiply">Múltiplicar</option>
 <option value="screen">Tela</option>
 <option value="overlay">Sobrepor</option>
 <option value="darken">Escurecer</option>
 <option value="lighten">Iluminar</option>
-<option value="color-dodge">LolDodge</option>
+<option value="color-dodge">Lodge</option>
 <option value="color-burn">Queimar</option>
 <option value="hard-light">Luz Forte</option>
 <option value="soft-light">Luz Fraca</option>
-<option value="difference">Oposto</option>
-<option value="exclusion">Inverter</option>
+<option value="difference">Oposto*</option>
+<option value="exclusion">Inverter*</option>
 </select>
 </div>
 <div class="control-popup" id="font-popup">
 <select id="font-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg h-fit w-fit p-2.5"></select>
 </div>
 <div class="control-popup" id="texttype-popup">
-<div class="text-type-selector">
-<button class="text-type-btn" data-type="h1" data-size="48">H1</button>
-<button class="text-type-btn" data-type="h2" data-size="36">H2</button>
-<button class="text-type-btn" data-type="h3" data-size="28">H3</button>
-<button class="text-type-btn" data-type="h4" data-size="24">H4</button>
-<button class="text-type-btn" data-type="h5" data-size="20">H5</button>
-<button class="text-type-btn" data-type="h6" data-size="16">H6</button>
-<button class="text-type-btn" data-type="p" data-size="14">P</button>
+<div class="text-type-selector" style="flex-direction:column;min-width:140px;">
+<button class="text-type-btn" data-type="h1" data-size="48" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:18px;">Título</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="h2" data-size="36" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:16px;">Sub-título</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="h3" data-size="28" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:14px;">Tópico</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="h4" data-size="24" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:13px;">Sub-tópico</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="h5" data-size="20" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:12px;">Inferior</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="h6" data-size="16" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:11px;">Sub-inferior</span><span style="font-size:11px;opacity:.7;"></span></button>
+<button class="text-type-btn" data-type="p" data-size="14" style="display:flex;align-items:center;gap:8px;width:100%;"><span style="font-size:11px;">Parágrafo</span><span style="font-size:11px;opacity:.7;">Parágrafo</span></button>
 </div>
 </div>
-<div class="control-popup" id="fontweight-popup">
-<select id="fontweight-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg h-fit w-fit p-2.5">
-<option value="100">Thin (100)</option>
-<option value="200">Extra Light (200)</option>
-<option value="300">Light (300)</option>
-<option value="400">Normal (400)</option>
-<option value="500">Medium (500)</option>
-<option value="600">Semi Bold (600)</option>
-<option value="700">Bold (700)</option>
-<option value="800">Extra Bold (800)</option>
-<option value="900">Black (900)</option>
-</select>
-</div>
-<div class="modal hidden" id="gradient-modal">
+<!-- fontweight agora é click +100 loop, sem popup -->
+<div class="hidden modal" id="gradient-modal">
 <div class="modal-content">
 <button class="modal-close" id="close-gradient">×</button>
 <h3 class="text-lg font-bold"><i class="ri-pantone-fill"></i> Escolha um Degradê</h3>
 <div class="item-grid" id="gradient-grid"></div>
 </div>
 </div>
-<div class="modal hidden" id="templates-modal">
+<div class="hidden modal" id="templates-modal">
 <div class="modal-content">
 <button class="modal-close" id="close-templates">×</button>
 <h3 class="text-lg font-bold"><i class="ri-stack-fill"></i> Escolha um Modelo</h3>
@@ -583,8 +578,6 @@ fontSelect: document.getElementById('font-select'),
 elemTexttypeBtn: document.getElementById('elem-texttype-btn'),
 texttypePopup: document.getElementById('texttype-popup'),
 elemFontweightBtn: document.getElementById('elem-fontweight-btn'),
-fontweightPopup: document.getElementById('fontweight-popup'),
-fontweightSelect: document.getElementById('fontweight-select'),
 elemFontsizeBtn: document.getElementById('elem-fontsize-btn'),
 fontsizePopup: document.getElementById('fontsize-popup'),
 fontsizeSlider: document.getElementById('fontsize-slider'),
@@ -593,7 +586,9 @@ alignBtn: document.getElementById('align-btn'),
 layerUpBtn: document.getElementById('layer-up-btn'),
 layerDownBtn: document.getElementById('layer-down-btn'),
 bgColor: document.getElementById('bg-color'),
-transparentBgToggle: document.getElementById('transparent-bg-toggle')
+transparentBgToggle: document.getElementById('transparent-bg-toggle'),
+removeBgBtn: document.getElementById('remove-bg-btn'),
+restoreBgBtn: document.getElementById('restore-bg-btn')
 };
 canvas.on('selection:created', updateControls);
 canvas.on('selection:updated', updateControls);
@@ -618,16 +613,19 @@ R.elementControls.classList.add('active');
 const isText = obj.type === 'i-text' || obj.type === 'textbox';
 const isImage = obj.type === 'image';
 const isShape = obj.type === 'rect' || obj.type === 'circle';
+// Remove all type classes first
+R.elementControls.classList.remove('text-active', 'box-active', 'image-active');
 if (isText) {
 R.elementControls.classList.add('text-active');
-R.elementControls.classList.remove('box-active');
 R.elemColorInput.value = obj.fill || '#000000';
 R.fontsizeSlider.value = obj.fontSize || 24;
 R.fontsizeValue.textContent = obj.fontSize || 24;
 const fontIndex = FontManager.fontRegistry.findIndex(f => f.fontFamily === obj.fontFamily);
 R.fontSelect.value = fontIndex >= 0 ? fontIndex : 0;
+} else if (isImage) {
+R.elementControls.classList.add('image-active');
+R.elemColorInput.value = '#ffffff';
 } else {
-R.elementControls.classList.remove('text-active');
 R.elementControls.classList.add('box-active');
 R.elemColorInput.value = obj.fill || '#ffffff';
 R.borderSlider.value = obj.rx || 0;
@@ -641,11 +639,11 @@ R.blendSelect.value = obj.customBlendMode || 'normal';
 R.elemColorCircle.style.background = R.elemColorInput.value;
 }
 function hideControls() {
-R.elementControls.classList.remove('active', 'text-active', 'box-active');
+R.elementControls.classList.remove('active', 'text-active', 'box-active', 'image-active');
 closeAllPopups();
 }
 function closeAllPopups() {
-[R.borderPopup, R.opacityPopup, R.blurPopup, R.blendPopup, R.fontPopup, R.fontsizePopup, R.texttypePopup, R.fontweightPopup].forEach(p => p && p.classList.remove('active'));
+[R.borderPopup, R.opacityPopup, R.blurPopup, R.blendPopup, R.fontPopup, R.fontsizePopup, R.texttypePopup].forEach(p => p && p.classList.remove('active'));
 }
 function togglePopup(popup, btn) {
 const was = popup.classList.contains('active');
@@ -694,6 +692,7 @@ reader.onload = (ev) => {
 fabric.Image.fromURL(ev.target.result, (img) => {
 img.scaleToWidth(150);
 img.set({ left: 60, top: 200 });
+img._originalSrc = ev.target.result; // SAVE ORIGINAL
 canvas.add(img);
 canvas.setActiveObject(img);
 canvas.renderAll();
@@ -818,11 +817,14 @@ closeAllPopups();
 });
 });
 
-// Font weight selector
-R.fontweightSelect.addEventListener('change', (e) => {
+// Font weight - click +100 loop (100-900, then back to 100)
+R.elemFontweightBtn.addEventListener('click', () => {
 const obj = canvas.getActiveObject();
 if (obj && (obj.type === 'i-text' || obj.type === 'textbox')) {
-obj.set('fontWeight', parseInt(e.target.value));
+let currentWeight = parseInt(obj.fontWeight) || 400;
+let newWeight = currentWeight + 100;
+if (newWeight > 900) newWeight = 100; // Loop back to 100
+obj.set('fontWeight', newWeight);
 canvas.renderAll();
 }
 });
@@ -866,6 +868,141 @@ canvas.sendBackwards(obj);
 canvas.renderAll();
 }
 });
+
+// === BACKGROUND-REMOVAL MODE (NO AI, MULTIPLE CLICKS) ===
+let bgRemoveMode = false;
+let bgRemoveTolerance = 40;
+
+if (R.removeBgBtn) {
+R.removeBgBtn.addEventListener('click', () => {
+  const obj = canvas.getActiveObject();
+  if (!obj || obj.type !== 'image') {
+    alert('Selecione uma imagem primeiro para remover o fundo.');
+    return;
+  }
+  bgRemoveMode = !bgRemoveMode;
+  canvas.defaultCursor = bgRemoveMode ? 'crosshair' : 'default';
+  R.removeBgBtn.style.background = bgRemoveMode ? '#ff8c00' : '';
+  R.removeBgBtn.style.color = bgRemoveMode ? '#fff' : '';
+
+  if (bgRemoveMode) {
+    alert('Toque ou clique nas áreas do FUNDO da imagem que você quer remover.\nVocê pode clicar em várias áreas.\nClique novamente no botão de borracha para sair do modo.');
+  }
+});
+}
+
+if (R.restoreBgBtn) {
+R.restoreBgBtn.addEventListener('click', () => {
+  const obj = canvas.getActiveObject();
+  if (!obj || obj.type !== 'image') return;
+  if (!obj._originalSrc) {
+    alert('Não há fundo original salvo para esta imagem.');
+    return;
+  }
+
+  const old = obj;
+  fabric.Image.fromURL(obj._originalSrc, (origImg) => {
+    origImg.set({
+      left: old.left,
+      top: old.top,
+      scaleX: old.scaleX,
+      scaleY: old.scaleY,
+      angle: old.angle,
+      originX: old.originX,
+      originY: old.originY
+    });
+    origImg._originalSrc = obj._originalSrc;
+    canvas.remove(old);
+    canvas.add(origImg);
+    canvas.setActiveObject(origImg);
+    canvas.renderAll();
+  });
+});
+}
+
+canvas.on('mouse:down', function (opt) {
+  if (!bgRemoveMode) return;
+
+  const img = canvas.getActiveObject();
+  if (!img || img.type !== 'image') {
+    bgRemoveMode = false;
+    canvas.defaultCursor = 'default';
+    R.removeBgBtn.style.background = '';
+    R.removeBgBtn.style.color = '';
+    return;
+  }
+
+  const pointer = canvas.getPointer(opt.e);
+  const transform = img.calcTransformMatrix();
+  const inv = fabric.util.invertTransform(transform);
+  const pt = fabric.util.transformPoint(
+    new fabric.Point(pointer.x, pointer.y),
+    inv
+  );
+
+  const x = Math.floor(pt.x);
+  const y = Math.floor(pt.y);
+
+  if (x < 0 || y < 0 || x >= img.width || y >= img.height) {
+    return;
+  }
+
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = img.width;
+  tempCanvas.height = img.height;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.drawImage(img._element, 0, 0);
+
+  const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+  const data = imageData.data;
+
+  const idx = (y * img.width + x) * 4;
+  const sr = data[idx];
+  const sg = data[idx + 1];
+  const sb = data[idx + 2];
+
+  const tolerance = bgRemoveTolerance;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    const dist = Math.sqrt(
+      (r - sr) ** 2 +
+      (g - sg) ** 2 +
+      (b - sb) ** 2
+    );
+
+    if (dist < tolerance) {
+      data[i + 3] = 0;
+    }
+  }
+
+  tempCtx.putImageData(imageData, 0, 0);
+
+  const newSrc = tempCanvas.toDataURL('image/png');
+
+  fabric.Image.fromURL(newSrc, (newImg) => {
+    newImg.set({
+      left: img.left,
+      top: img.top,
+      scaleX: img.scaleX,
+      scaleY: img.scaleY,
+      angle: img.angle,
+      originX: img.originX,
+      originY: img.originY
+    });
+    newImg._originalSrc = img._originalSrc || img._element.src;
+
+    canvas.remove(img);
+    canvas.add(newImg);
+    canvas.setActiveObject(newImg);
+    canvas.renderAll();
+  });
+});
+// === END BACKGROUND-REMOVAL ===
+
 R.elemBorderBtn.onclick = (e) => togglePopup(R.borderPopup, e.currentTarget);
 R.elemOpacityBtn.onclick = (e) => togglePopup(R.opacityPopup, e.currentTarget);
 R.elemBlurBtn.onclick = (e) => togglePopup(R.blurPopup, e.currentTarget);
@@ -873,7 +1010,6 @@ R.elemBlendBtn.onclick = (e) => togglePopup(R.blendPopup, e.currentTarget);
 R.elemFontBtn.onclick = (e) => togglePopup(R.fontPopup, e.currentTarget);
 R.elemFontsizeBtn.onclick = (e) => togglePopup(R.fontsizePopup, e.currentTarget);
 R.elemTexttypeBtn.onclick = (e) => togglePopup(R.texttypePopup, e.currentTarget);
-R.elemFontweightBtn.onclick = (e) => togglePopup(R.fontweightPopup, e.currentTarget);
 R.buildBtn.addEventListener('click', () => {
 closeAllPopups();
 R.buildPanel.classList.toggle('active');
@@ -896,6 +1032,7 @@ R.canvasWrapper.addEventListener('drop', (e) => {
       left: e.offsetX - 40,
       top: e.offsetY - 40
     });
+    img._originalSrc = imageUrl; // SAVE ORIGINAL
     canvas.add(img);
     canvas.renderAll();
   });
@@ -934,7 +1071,8 @@ R.canvasWrapper.addEventListener('touchend', function(e) {
             left: offsetX - 40,
             top: offsetY - 40
         });
-    
+        img._originalSrc = imageUrl; // SAVE ORIGINAL
+        canvas.add(img);
         canvas.renderAll();
     });
 });

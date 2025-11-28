@@ -133,17 +133,19 @@ class Apollo_Moderation_Roles {
 	/**
 	 * Get enabled content types for moderation queue
 	 *
+	 * Auto-includes all CPTs with pending posts for visibility.
+	 *
 	 * @return array
 	 */
-	public static function get_enabled_content_types() {
+	public static function get_enabled_content_types(): array {
 		$settings = get_option( 'apollo_mod_settings', array() );
 		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : array();
 
 		$types = array();
 
-		if ( ! empty( $enabled['publish_events'] ) ) {
-			$types[] = 'event_listing';
-		}
+		// Always include event_listing (core CPT for events/CENA-RIO)
+		$types[] = 'event_listing';
+
 		if ( ! empty( $enabled['publish_locals'] ) ) {
 			$types[] = 'event_local';
 		}
@@ -163,7 +165,35 @@ class Apollo_Moderation_Roles {
 			$types[] = 'apollo_social_post';
 		}
 
-		return $types;
+		// Auto-detect CPTs with pending posts (ensures nothing is missed)
+		$types = self::auto_include_pending_cpts( $types );
+
+		return array_unique( $types );
+	}
+
+	/**
+	 * Auto-include any CPT that has pending posts
+	 *
+	 * @param array $types Existing types.
+	 * @return array Updated types.
+	 */
+	private static function auto_include_pending_cpts( array $types ): array {
+		global $wpdb;
+
+		// Get all CPTs that have pending/draft posts
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$cpts_with_pending = $wpdb->get_col(
+			"SELECT DISTINCT post_type FROM {$wpdb->posts} 
+			 WHERE post_status IN ('pending', 'draft') 
+			 AND post_title != '' 
+			 AND post_type NOT IN ('revision', 'attachment', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_global_styles', 'wp_navigation')"
+		);
+
+		if ( $cpts_with_pending ) {
+			$types = array_merge( $types, $cpts_with_pending );
+		}
+
+		return array_unique( $types );
 	}
 }
 

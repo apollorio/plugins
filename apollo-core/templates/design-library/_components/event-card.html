@@ -1,0 +1,144 @@
+<!--
+  @component: event-card
+  @description: Card de evento para listagens
+  @variants: row (horizontal), minimal, full
+  
+  @placeholders:
+    {{event.id}}         - ID do evento
+    {{event.title}}      - Título
+    {{event.date}}       - Data (YYYY-MM-DD)
+    {{event.date_short}} - Data curta (MM-DD)
+    {{event.time}}       - Horário
+    {{event.venue}}      - Local
+    {{event.status}}     - expected|confirmed|published
+    {{event.author_id}}  - ID do autor
+    
+  PHP Usage Example:
+  <?php foreach ( $events as $event ) : ?>
+    <?php
+    $status_class = match( get_post_meta( $event->ID, '_apollo_cena_status', true ) ) {
+      'expected'  => 'expected',
+      'confirmed' => 'confirmed',
+      default     => 'publish' === $event->post_status ? 'published' : 'expected',
+    };
+    ?>
+    <article class="event-card <?php echo esc_attr( $status_class ); ?>" data-id="<?php echo esc_attr( $event->ID ); ?>">
+      <div class="event-info">
+        <div class="event-title"><?php echo esc_html( $event->post_title ); ?></div>
+        <div class="event-meta">
+          <span style="font-weight:600;color:var(--accent-strong)">
+            <?php echo esc_html( substr( get_post_meta( $event->ID, '_event_start_date', true ), 5 ) ); ?>
+          </span>
+          · <i class="ri-time-line"></i> <?php echo esc_html( get_post_meta( $event->ID, '_event_start_time', true ) ); ?>
+          · <i class="ri-map-pin-line"></i> <?php echo esc_html( get_post_meta( $event->ID, '_event_venue_name', true ) ); ?>
+        </div>
+      </div>
+      <div class="event-controls">
+        <!-- status badge here -->
+        <div class="event-actions">
+          <!-- action buttons here -->
+        </div>
+      </div>
+    </article>
+  <?php endforeach; ?>
+-->
+
+<!-- @variant:row (default - horizontal layout) -->
+<article class="event-card {{event.status}}" data-id="{{event.id}}">
+  <div class="event-info">
+    <div class="event-title">{{event.title}}</div>
+    <div class="event-meta">
+      <span style="font-weight:600;color:var(--accent-strong)">{{event.date_short}}</span>
+      · <i class="ri-time-line"></i> {{event.time}}
+      · <i class="ri-map-pin-line"></i> {{event.venue}}
+    </div>
+  </div>
+  <div class="event-controls">
+    <!-- @include:status-badge -->
+    <div class="event-actions">
+      <button class="btn small ghost" onclick="editEvent({{event.id}})"><i class="ri-edit-line"></i></button>
+      <button class="btn small ghost" onclick="deleteEvent({{event.id}})"><i class="ri-delete-bin-line"></i></button>
+    </div>
+  </div>
+</article>
+
+<!-- @variant:minimal (compact for lists) -->
+<div class="event-item-minimal flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
+  <div class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900">
+    <span class="text-[9px] uppercase font-bold">{{event.day_label}}</span>
+    <span class="text-[13px] font-bold">{{event.day_num}}</span>
+  </div>
+  <div class="min-w-0 flex-1">
+    <div class="text-[12px] font-bold truncate">{{event.title}}</div>
+    <div class="text-[10px] text-slate-500">{{event.friends_going}} amigos vão</div>
+  </div>
+</div>
+
+<!-- @variant:full (with image and description) -->
+<article class="event-card-full bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+  <div class="aspect-video bg-slate-100 relative">
+    <img src="{{event.image}}" alt="{{event.title}}" class="w-full h-full object-cover" />
+    <div class="absolute top-3 left-3">
+      <!-- @include:status-badge -->
+    </div>
+  </div>
+  <div class="p-4">
+    <h3 class="font-bold text-lg text-slate-900">{{event.title}}</h3>
+    <p class="text-sm text-slate-600 mt-1">{{event.description}}</p>
+    <div class="flex items-center gap-4 mt-3 text-sm text-slate-500">
+      <span class="flex items-center gap-1">
+        <i class="ri-calendar-line"></i> {{event.date}}
+      </span>
+      <span class="flex items-center gap-1">
+        <i class="ri-time-line"></i> {{event.time}}
+      </span>
+      <span class="flex items-center gap-1">
+        <i class="ri-map-pin-line"></i> {{event.venue}}
+      </span>
+    </div>
+  </div>
+</article>
+
+<!-- @styles -->
+<style>
+  .event-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e6eef6);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 30px rgba(15,23,42,0.06);
+    transition: transform .12s ease, box-shadow .12s ease;
+    gap: 16px;
+  }
+  
+  .event-card.expected { border-left: 4px solid var(--accent, #f97316); }
+  .event-card.confirmed { border-left: 4px solid var(--confirmed, #10b981); }
+  .event-card.published { border-left: 4px solid var(--published, #3b82f6); }
+  
+  .event-info { flex: 1; min-width: 0; }
+  .event-controls { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .event-title { font-weight: 700; font-size: 16px; color: #0f172a; }
+  .event-meta { font-size: 14px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+  .event-actions { display: flex; gap: 8px; align-items: center; }
+  
+  @media (max-width: 640px) {
+    .event-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .event-card .event-controls {
+      width: 100%;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f1f5f9;
+    }
+  }
+</style>
+

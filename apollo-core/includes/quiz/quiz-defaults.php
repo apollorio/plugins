@@ -112,7 +112,7 @@ function apollo_get_default_quiz_questions(): array {
  *
  * @return bool True if seeded, false if already exists
  */
-function apollo_seed_default_quiz_questions(): void {
+function apollo_seed_default_quiz_questions(): bool {
 	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
 	
 	// Check if new_user schema already has questions.

@@ -144,15 +144,15 @@ wp_localize_script('apollo-base', 'apolloProfileAjax', array(
               <!-- STATS SECTION -->
               <div class="aprioEXP-stats-section">
                 <div class="aprioEXP-cards-container">
-                  <div class="aprioEXP-stat-card">
+                  <div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Número de eventos que você criou como organizador/produtor', 'apollo-events-manager'); ?>">
                     <span class="aprioEXP-card-numbers-title">Producer</span>
                     <span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($events_created); ?></span>
                   </div>
-                  <div class="aprioEXP-stat-card">
+                  <div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Eventos marcados como Ir, Talvez ou salvos para acompanhar', 'apollo-events-manager'); ?>">
                     <span class="aprioEXP-card-numbers-title">Favoritado</span>
                     <span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($favorites_count); ?></span>
                   </div>
-                  <div class="aprioEXP-stat-card">
+                  <div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Eventos onde você é co-autor/colaborador', 'apollo-events-manager'); ?>">
                     <span class="aprioEXP-card-numbers-title">Co-autor</span>
                     <span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($coauthored_count); ?></span>
                   </div>
@@ -258,15 +258,15 @@ wp_localize_script('apollo-base', 'apolloProfileAjax', array(
                   <div class="aprioEXP-card-shell p-4">
                     <h3 class="text-sm font-semibold mb-2">Estatísticas</h3>
                     <div class="space-y-2 text-[12px]">
-                      <div class="flex justify-between">
+                      <div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Total de eventos que você organizou/produziu na plataforma', 'apollo-events-manager'); ?>">
                         <span>Eventos criados</span>
                         <strong><?php echo esc_html($events_created); ?></strong>
                       </div>
-                      <div class="flex justify-between">
+                      <div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Eventos salvos como Ir, Talvez ou favoritos', 'apollo-events-manager'); ?>">
                         <span>Eventos favoritados</span>
                         <strong><?php echo esc_html($favorites_count); ?></strong>
                       </div>
-                      <div class="flex justify-between">
+                      <div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Eventos onde você colaborou como co-autor', 'apollo-events-manager'); ?>">
                         <span>Co-autorado</span>
                         <strong><?php echo esc_html($coauthored_count); ?></strong>
                       </div>
@@ -333,4 +333,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+
+<style>
+/* Tooltip styles for dashboard elements */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    pointer-events: none;
+    max-width: 250px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.4;
+}
+
+[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1e293b;
+    z-index: 51;
+}
+
+.aprioEXP-stat-card[data-tooltip]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
 

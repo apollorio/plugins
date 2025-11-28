@@ -54,7 +54,7 @@ function apollo_create_db_tables(): void {
  * @param array  $details     Additional details as associative array.
  * @return int|false Insert ID on success, false on failure.
  */
-function apollo_mod_log_action( int $actor_id, string $action, string $target_type, int $target_id, array $details = array() ) {
+function apollo_mod_log_action( int $actor_id, string $action, string $target_type, int $target_id, array $details = array() ): int|false {
 	// Check if audit log is enabled.
 	$settings = apollo_get_mod_settings();
 	if ( empty( $settings['audit_log_enabled'] ) ) {
@@ -163,7 +163,7 @@ function apollo_get_mod_log( array $args = array() ): array {
  * @param int $days Delete entries older than this many days.
  * @return int|false Number of deleted rows or false on failure.
  */
-function apollo_cleanup_mod_log( int $days = 90 ) {
+function apollo_cleanup_mod_log( int $days = 90 ): int|false {
 	global $wpdb;
 	$table = $wpdb->prefix . 'apollo_mod_log';
 

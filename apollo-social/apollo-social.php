@@ -22,6 +22,24 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+/**
+ * Composer Autoloader - DocuSeal e-signature integration & Delta Parser
+ * 
+ * Loads:
+ * - docuseal-php library for DocuSeal e-signature API integration
+ * - nadar/quill-delta-parser for Delta to HTML conversion
+ * 
+ * - vendor/autoload.php is optional in local/dev environments
+ * - Required in production if e-signature or document features are needed
+ * - Install via: composer require docusealco/docuseal-php nadar/quill-delta-parser
+ * 
+ * @see https://github.com/docusealco/docuseal-php
+ * @see https://github.com/nadar/quill-delta-parser
+ */
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 // Define plugin constants
 define('APOLLO_SOCIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('APOLLO_SOCIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -111,6 +129,47 @@ add_action('plugins_loaded', function() {
         if (file_exists($help_menu)) {
             require_once $help_menu;
         }
+        
+        // Load E-signature Settings Admin
+        $esign_settings = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EsignSettingsAdmin.php';
+        if (file_exists($esign_settings)) {
+            require_once $esign_settings;
+        }
+    }
+    
+    // Load AJAX Image Upload Handler for Quill Editor
+    $image_upload = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/ImageUploadHandler.php';
+    if (file_exists($image_upload)) {
+        require_once $image_upload;
+    }
+    
+    // Load AJAX Document Save Handler for Quill Editor (Delta autosave)
+    $doc_save = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/DocumentSaveHandler.php';
+    if (file_exists($doc_save)) {
+        require_once $doc_save;
+    }
+    
+    // Load AJAX PDF Export Handler for document-to-PDF conversion
+    $pdf_export = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/PdfExportHandler.php';
+    if (file_exists($pdf_export)) {
+        require_once $pdf_export;
+    }
+    
+    // Load Delta Helper Functions (apollo_delta_to_html, etc.)
+    $delta_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/delta-helpers.php';
+    if (file_exists($delta_helpers)) {
+        require_once $delta_helpers;
+    }
+    
+    // Load Luckysheet Helper Functions (apollo_spreadsheet_to_luckysheet, etc.)
+    $luckysheet_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/luckysheet-helpers.php';
+    if (file_exists($luckysheet_helpers)) {
+        require_once $luckysheet_helpers;
+    }
+    
+    // Initialize Documents Module (Libraries, Signatures, Audit)
+    if (class_exists('\Apollo\Modules\Documents\DocumentsModule')) {
+        \Apollo\Modules\Documents\DocumentsModule::init();
     }
 }, 5);
 
@@ -201,3 +260,102 @@ register_activation_hook(__FILE__, function() {
 register_deactivation_hook(__FILE__, function() {
     flush_rewrite_rules();
 });
+
+/**
+ * AJAX Handler: Submit Depoimento (Testimonial)
+ * STRICT MODE: Required for user-page-view.php testimonials form
+ */
+add_action('wp_ajax_apollo_submit_depoimento', 'apollo_social_handle_depoimento_submit');
+function apollo_social_handle_depoimento_submit() {
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'apollo_depoimento_nonce')) {
+        wp_send_json_error(['message' => 'Nonce inválido.'], 403);
+        return;
+    }
+    
+    // Check user is logged in
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Você precisa estar logado.'], 401);
+        return;
+    }
+    
+    // Validate input
+    $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
+    
+    if (!$post_id) {
+        wp_send_json_error(['message' => 'ID do post inválido.'], 400);
+        return;
+    }
+    
+    if (empty($content) || strlen($content) < 5) {
+        wp_send_json_error(['message' => 'O depoimento deve ter pelo menos 5 caracteres.'], 400);
+        return;
+    }
+    
+    if (strlen($content) > 1000) {
+        wp_send_json_error(['message' => 'O depoimento não pode exceder 1000 caracteres.'], 400);
+        return;
+    }
+    
+    // Check post exists and is a user_page
+    $post = get_post($post_id);
+    if (!$post || $post->post_type !== 'user_page') {
+        wp_send_json_error(['message' => 'Página de usuário não encontrada.'], 404);
+        return;
+    }
+    
+    // Check user is not commenting on own page
+    $page_owner_id = $post->post_author;
+    $current_user_id = get_current_user_id();
+    
+    if ($page_owner_id === $current_user_id) {
+        wp_send_json_error(['message' => 'Você não pode deixar depoimento na sua própria página.'], 400);
+        return;
+    }
+    
+    // Rate limiting: max 3 depoimentos per user per day
+    $today_key = 'apollo_depoimentos_' . date('Y-m-d') . '_' . $current_user_id;
+    $today_count = (int) get_transient($today_key);
+    
+    if ($today_count >= 3) {
+        wp_send_json_error(['message' => 'Limite diário de depoimentos atingido (3 por dia).'], 429);
+        return;
+    }
+    
+    // Get current user data
+    $current_user = wp_get_current_user();
+    
+    // Insert comment
+    $comment_data = [
+        'comment_post_ID' => $post_id,
+        'comment_author' => $current_user->display_name,
+        'comment_author_email' => $current_user->user_email,
+        'comment_author_url' => $current_user->user_url ?: '',
+        'comment_content' => $content,
+        'comment_type' => 'comment',
+        'comment_parent' => 0,
+        'user_id' => $current_user_id,
+        'comment_date' => current_time('mysql'),
+        'comment_date_gmt' => current_time('mysql', true),
+        'comment_approved' => 1, // Auto-approve for logged-in users
+    ];
+    
+    $comment_id = wp_insert_comment($comment_data);
+    
+    if (!$comment_id) {
+        wp_send_json_error(['message' => 'Erro ao salvar depoimento.'], 500);
+        return;
+    }
+    
+    // Increment daily counter
+    set_transient($today_key, $today_count + 1, DAY_IN_SECONDS);
+    
+    // Log for audit
+    update_user_meta($current_user_id, '_last_depoimento_time', time());
+    
+    wp_send_json_success([
+        'message' => 'Depoimento publicado com sucesso!',
+        'comment_id' => $comment_id
+    ]);
+}

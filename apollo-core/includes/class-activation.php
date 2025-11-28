@@ -45,6 +45,9 @@ class Apollo_Core_Activation {
 		// Initialize quiz system.
 		self::init_quiz();
 
+		// Setup CENA-RIO roles and capabilities.
+		self::init_cena_rio();
+
 		// Flush rewrite rules.
 		flush_rewrite_rules();
 
@@ -213,7 +216,7 @@ class Apollo_Core_Activation {
 	/**
 	 * Initialize quiz system
 	 */
-	private static function init_quiz() {
+	private static function init_quiz(): void {
 		// Check if quiz schema-manager.php is loaded.
 		if ( ! function_exists( 'apollo_migrate_quiz_schema' ) ) {
 			return;
@@ -221,6 +224,19 @@ class Apollo_Core_Activation {
 
 		// Run quiz migration (creates table and options).
 		apollo_migrate_quiz_schema();
+	}
+
+	/**
+	 * Initialize CENA-RIO system
+	 */
+	private static function init_cena_rio(): void {
+		// Check if CENA-RIO roles class is loaded.
+		if ( ! class_exists( 'Apollo_Cena_Rio_Roles' ) ) {
+			return;
+		}
+
+		// Setup roles and capabilities.
+		Apollo_Cena_Rio_Roles::activate();
 	}
 }
 

@@ -52,7 +52,10 @@ $comment_nonce = wp_create_nonce('apollo_comment_nonce');
 
   <!-- Main Content -->
   <main class="flex-1 flex justify-center px-4 md:px-6 py-8">
-    <div class="w-full max-w-2xl">
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6">
+      
+      <!-- LEFT COLUMN: FEED STREAM -->
+      <div class="space-y-4">
       
       <!-- Composer -->
       <section class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4 mb-6">
@@ -168,6 +171,137 @@ $comment_nonce = wp_create_nonce('apollo_comment_nonce');
         </div>
       </div>
     </div>
+      </div><!-- /LEFT COLUMN -->
+    
+      <!-- RIGHT COLUMN: SIDEBAR (Sticky) - STRICT MODE DESIGN SPEC -->
+    <aside class="hidden lg:block space-y-4">
+      
+      <!-- Calendar Widget: Próximos 7 dias -->
+      <div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500">Próximos 7 dias</h2>
+          <a href="<?php echo esc_url(home_url('/eventos/')); ?>" class="text-[11px] text-neutral-600 hover:underline">Ver agenda</a>
+        </div>
+        <div class="space-y-2" id="sidebar-upcoming-events">
+          <?php
+          // SIDEBAR: Fetch próximos eventos
+          $upcoming_args = [
+              'post_type' => 'event_listing',
+              'post_status' => 'publish',
+              'posts_per_page' => 4,
+              'meta_key' => '_event_start_date',
+              'orderby' => 'meta_value',
+              'order' => 'ASC',
+              'meta_query' => [
+                  [
+                      'key' => '_event_start_date',
+                      'value' => date('Y-m-d'),
+                      'compare' => '>=',
+                      'type' => 'DATE'
+                  ]
+              ]
+          ];
+          $upcoming_events = get_posts($upcoming_args);
+          
+          if (!empty($upcoming_events)):
+              foreach ($upcoming_events as $event):
+                  $event_date = get_post_meta($event->ID, '_event_start_date', true);
+                  $date_obj = $event_date ? DateTime::createFromFormat('Y-m-d', $event_date) : null;
+                  $day = $date_obj ? $date_obj->format('d') : '--';
+                  $day_name = $date_obj ? strtoupper(substr(['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'][$date_obj->format('w')], 0, 3)) : '???';
+                  
+                  // Contar favoritos como "amigos vão"
+                  $favorites_count = max(0, (int) get_post_meta($event->ID, '_favorites_count', true));
+          ?>
+          <a href="<?php echo esc_url(get_permalink($event->ID)); ?>" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg transition-colors group">
+            <div class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900 group-hover:border-slate-400 transition-colors">
+              <span class="text-[9px] uppercase font-bold"><?php echo esc_html($day_name); ?></span>
+              <span class="text-[13px] font-bold"><?php echo esc_html($day); ?></span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[12px] font-bold truncate"><?php echo esc_html($event->post_title); ?></div>
+              <?php if ($favorites_count > 0): ?>
+              <div class="text-[10px] text-slate-500"><?php echo esc_html($favorites_count); ?> pessoas vão</div>
+              <?php else: ?>
+              <div class="text-[10px] text-slate-500" data-tooltip="Seja o primeiro a demonstrar interesse!">Seja o primeiro!</div>
+              <?php endif; ?>
+            </div>
+          </a>
+          <?php 
+              endforeach;
+          else:
+          ?>
+          <div class="text-center py-4 text-slate-400" data-tooltip="Eventos nos próximos 7 dias aparecerão aqui">
+            <i class="ri-calendar-event-line text-2xl opacity-50"></i>
+            <p class="text-[11px] mt-1">Nenhum evento nos próximos dias</p>
+          </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Trending Communities -->
+      <div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4">
+        <h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">Comunidades em alta</h2>
+        <div class="space-y-3" id="sidebar-communities">
+          <?php
+          // SIDEBAR: Fetch grupos/comunidades
+          $groups_args = [
+              'post_type' => 'apollo_group',
+              'post_status' => 'publish',
+              'posts_per_page' => 4,
+              'orderby' => 'meta_value_num',
+              'meta_key' => '_group_members_count',
+              'order' => 'DESC'
+          ];
+          $groups = get_posts($groups_args);
+          
+          if (!empty($groups)):
+              $colors = [
+                  ['bg' => 'bg-purple-100', 'text' => 'text-purple-600'],
+                  ['bg' => 'bg-pink-100', 'text' => 'text-pink-600'],
+                  ['bg' => 'bg-blue-100', 'text' => 'text-blue-600'],
+                  ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600']
+              ];
+              $i = 0;
+              foreach ($groups as $group):
+                  $color = $colors[$i % count($colors)];
+                  $members = (int) get_post_meta($group->ID, '_group_members_count', true);
+                  $activity = get_post_meta($group->ID, '_group_activity_label', true) ?: 'Ativo';
+          ?>
+          <div class="flex items-center gap-3">
+            <div class="h-8 w-8 rounded <?php echo esc_attr($color['bg'] . ' ' . $color['text']); ?> flex items-center justify-center">
+              <i class="ri-group-line"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-bold truncate"><?php echo esc_html($group->post_title); ?></div>
+              <div class="text-[10px] text-slate-500"><?php echo esc_html($activity); ?></div>
+            </div>
+            <a href="<?php echo esc_url(get_permalink($group->ID)); ?>" class="text-[11px] font-semibold text-neutral-600 hover:text-neutral-900">Entrar</a>
+          </div>
+          <?php 
+                  $i++;
+              endforeach;
+          else:
+          ?>
+          <div class="text-center py-4 text-slate-400" data-tooltip="Comunidades ativas aparecerão aqui">
+            <i class="ri-team-line text-2xl opacity-50"></i>
+            <p class="text-[11px] mt-1">Nenhuma comunidade ativa</p>
+          </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="flex flex-wrap gap-2 text-[10px] text-slate-400 px-2">
+        <a href="<?php echo esc_url(home_url('/privacidade/')); ?>" class="hover:underline">Privacidade</a>
+        <span>·</span>
+        <a href="<?php echo esc_url(home_url('/termos/')); ?>" class="hover:underline">Termos</a>
+        <span>·</span>
+        <a href="<?php echo esc_url(home_url('/business/')); ?>" class="hover:underline">Apollo Business</a>
+        <span>·</span>
+        <span>© <?php echo date('Y'); ?> Apollo Rio</span>
+      </div>
+    </aside>
   </main>
 </div>
 
