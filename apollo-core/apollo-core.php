@@ -51,6 +51,18 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/schema-manager.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/attempts.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/rest.php';
 
+// Load unified moderation queue (auto-detects ALL pending posts).
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-moderation-queue-unified.php';
+
+// Load CENA-RIO system (order matters - submissions/moderation depend on Roles).
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-roles.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-canvas.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-submissions.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-moderation.php';
+
+// Design Library (internal reference for AI assistant)
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-design-library.php';
+
 // Load admin pages.
 if ( is_admin() ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderation-page.php';

@@ -149,6 +149,12 @@ add_action('plugins_loaded', function() {
         require_once $doc_save;
     }
     
+    // Load AJAX PDF Export Handler for document-to-PDF conversion
+    $pdf_export = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/PdfExportHandler.php';
+    if (file_exists($pdf_export)) {
+        require_once $pdf_export;
+    }
+    
     // Load Delta Helper Functions (apollo_delta_to_html, etc.)
     $delta_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/delta-helpers.php';
     if (file_exists($delta_helpers)) {
@@ -159,6 +165,11 @@ add_action('plugins_loaded', function() {
     $luckysheet_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/luckysheet-helpers.php';
     if (file_exists($luckysheet_helpers)) {
         require_once $luckysheet_helpers;
+    }
+    
+    // Initialize Documents Module (Libraries, Signatures, Audit)
+    if (class_exists('\Apollo\Modules\Documents\DocumentsModule')) {
+        \Apollo\Modules\Documents\DocumentsModule::init();
     }
 }, 5);
 

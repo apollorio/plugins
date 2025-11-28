@@ -103,7 +103,7 @@
  * @author     Apollo Team
  */
 
-namespace ApolloSocial\Converters;
+namespace Apollo\Converters;
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {

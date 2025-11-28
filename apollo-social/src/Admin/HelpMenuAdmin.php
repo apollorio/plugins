@@ -9,7 +9,7 @@
  * @since 1.0.0
  */
 
-namespace ApolloSocial\Admin;
+namespace Apollo\Admin;
 
 class HelpMenuAdmin {
     

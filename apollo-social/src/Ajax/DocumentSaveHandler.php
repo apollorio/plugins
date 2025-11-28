@@ -29,7 +29,7 @@
  * @author     Apollo Team
  */
 
-namespace ApolloSocial\Ajax;
+namespace Apollo\Ajax;
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
