@@ -13,6 +13,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get sanitized client IP address
+ *
+ * @since 3.0.1 Added for security - prevents IP spoofing and log injection
+ * @return string Sanitized IP address or '0.0.0.0' if unavailable
+ */
+function apollo_get_client_ip(): string {
+	$ip = '0.0.0.0';
+	
+	// Check various headers in order of trust
+	$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+	
+	foreach ( $ip_keys as $key ) {
+		if ( ! empty( $_SERVER[ $key ] ) ) {
+			$raw_ip = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
+			
+			// Handle comma-separated list (X-Forwarded-For)
+			if ( strpos( $raw_ip, ',' ) !== false ) {
+				$raw_ip = trim( explode( ',', $raw_ip )[0] );
+			}
+			
+			// Validate IP format
+			if ( filter_var( $raw_ip, FILTER_VALIDATE_IP ) ) {
+				$ip = $raw_ip;
+				break;
+			}
+		}
+	}
+	
+	return $ip;
+}
+
+/**
  * Check rate limit for REST endpoint
  *
  * @param WP_REST_Request $request Request object.
@@ -21,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 	$endpoint = $request->get_route();
 	$user_id  = get_current_user_id();
-	$ip       = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+	$ip       = apollo_get_client_ip();
 	
 	// Different limits for different endpoint types
 	$limits = array(
@@ -132,7 +164,7 @@ function apollo_rest_add_rate_limit_headers( WP_HTTP_Response $result, WP_REST_S
 	}
 	
 	$user_id  = get_current_user_id();
-	$ip       = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+	$ip       = apollo_get_client_ip();
 	$key      = 'apollo_rate_limit_' . md5( $route . '_' . $user_id . '_' . $ip );
 	$attempts = (int) get_transient( $key );
 	
@@ -160,7 +192,7 @@ function apollo_get_rate_limit_status( string $endpoint, int $user_id = 0 ): arr
 		$user_id = get_current_user_id();
 	}
 	
-	$ip       = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+	$ip       = apollo_get_client_ip();
 	$key      = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );
 	$attempts = (int) get_transient( $key );
 	$limit    = 100; // Default
@@ -194,7 +226,7 @@ function apollo_clear_rate_limit( string $endpoint, int $user_id = 0, string $ip
 	}
 	
 	if ( empty( $ip ) ) {
-		$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+		$ip = apollo_get_client_ip();
 	}
 	
 	$key = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );

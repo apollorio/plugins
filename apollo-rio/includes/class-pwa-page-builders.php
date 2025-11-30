@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Apollo PWA Page Builders - Main Class
  * 
@@ -6,6 +7,9 @@
  * - Global API for template registration (apollo_rio_add_template)
  * - Robust template loading with theme override support
  * - WordPress version compatibility (accepts only 2 args in filters)
+ * 
+ * @package Apollo_Rio
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) exit;
@@ -497,17 +501,19 @@ class Apollo_PWA_Page_Builders {
 }
 
 /**
- * Register Apollo PWA templates during plugin bootstrap
+ * Register Apollo PWA templates during init hook
  * 
- * Blank Slate pattern: Register templates early so they appear in template selector.
- * This runs during plugins_loaded to ensure templates are available before admin loads.
+ * IMPORTANT: Translations must be loaded at 'init' or later (WP 6.7+).
+ * Moving from plugins_loaded to init fixes the translation timing notice.
+ * 
+ * @since 1.0.1 Moved from plugins_loaded to init for WP 6.7+ compatibility
  */
-function apollo_rio_register_templates() {
+function apollo_rio_register_templates(): void {
     apollo_rio_add_template('pagx_site.php', __('Site::rio', 'apollo-rio'));
     apollo_rio_add_template('pagx_app.php', __('App::rio', 'apollo-rio'));
     apollo_rio_add_template('pagx_appclean.php', __('App::rio clean', 'apollo-rio'));
 }
-add_action('plugins_loaded', 'apollo_rio_register_templates', 5); // Priority 5: early registration
+add_action('init', 'apollo_rio_register_templates', 1); // Priority 1: early in init, after translations loaded
 
 /**
  * Initialize Apollo PWA Page Builders

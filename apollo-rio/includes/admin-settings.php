@@ -1,6 +1,10 @@
 <?php
+declare(strict_types=1);
 /**
  * Admin Settings for Apollo PWA
+ * 
+ * @package Apollo_Rio
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) exit;

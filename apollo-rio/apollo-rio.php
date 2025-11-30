@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Plugin Name: Apollo::Rio - PWA Page Builders
  * Description: Three PWA-aware page builders with strict device detection
@@ -6,6 +7,9 @@
  * Author: Apollo Rio Team
  * License: GPL v3
  * Text Domain: apollo-rio
+ * Requires PHP: 8.1
+ * 
+ * @package Apollo_Rio
  */
 
 if (!defined('ABSPATH')) exit;

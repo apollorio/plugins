@@ -1,6 +1,10 @@
 <?php
+declare(strict_types=1);
 /**
  * Apollo Template Helper Functions
+ * 
+ * @package Apollo_Rio
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) exit;
