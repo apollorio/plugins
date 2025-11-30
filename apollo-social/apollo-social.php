@@ -149,6 +149,18 @@ add_action('plugins_loaded', function() {
         }
     }
     
+    // Load Apollo Email Bridge (integrates with newsletter & email-templates plugins)
+    $email_bridge = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/ApolloEmailBridge.php';
+    if (file_exists($email_bridge)) {
+        require_once $email_bridge;
+    }
+    
+    // Load User Dashboard Ajustes Section
+    $ajustes_section = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Dashboard/UserAjustesSection.php';
+    if (file_exists($ajustes_section)) {
+        require_once $ajustes_section;
+    }
+    
     // Load AJAX Image Upload Handler for Quill Editor
     $image_upload = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/ImageUploadHandler.php';
     if (file_exists($image_upload)) {
