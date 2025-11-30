@@ -82,7 +82,7 @@ class CulturaRioIdentity
             'code' => 'l',
             'locked' => false,
             'membership_level' => 'business',
-            'remark' => '*Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; material gráfico / filmagens; gravadora / estúdio de música; cursos de DJ; bar consignado; entre diversos outros.',
+            'remark' => '*Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; materiao gráfico / filmagens; gravadora / stúdio de música; cursos de DJ; bar consignado; entre diversos outros.',
         ],
         'government' => [
             'label' => 'Government',

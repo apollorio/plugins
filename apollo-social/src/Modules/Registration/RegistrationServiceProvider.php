@@ -202,11 +202,10 @@ class RegistrationServiceProvider
             <!-- CULTURA::RIO Identity Section (MANDATORY) -->
             <div class="apollo-cultura-identity-section" style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; color: #fff;">
                 <h3 style="margin-top: 0; color: #00d4ff; font-size: 1.3em;">
-                    Na Cultura::rio eu me identifico como... <span class="required" style="color: #ff6b6b;">*</span>
+                    Na Cultura::rio eu me identifico como.. <span class="required" style="color: #ff6b6b;">*</span>
                 </h3>
-                <p style="color: #a0a0a0; font-size: 0.9em; margin-bottom: 20px;">
-                    Nesse universo Cultural Digital que você entra agora como parte, de BETA LAB testes APOLLO::RIO, 
-                    quais são as facilidades e funcionalidades que você quer ter acesso?
+                <p style="color: #e0e0e0; font-size: 0.95em; margin-bottom: 20px; line-height: 1.6;">
+                    Nesse universo Cultural Digital que você entra agora como parte, de BETA LAB testes APOLLO::RIO, quais são as facilidades e funcionalidades que você quer ter acesso?
                 </p>
                 
                 <div class="apollo-identity-options" style="display: flex; flex-direction: column; gap: 10px;">
