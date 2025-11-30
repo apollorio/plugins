@@ -39,6 +39,8 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/roles.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/db-schema.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-rate-limiting.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-moderation.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-api-response.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-email-security-log.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/auth-filters.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/memberships.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-membership.php';

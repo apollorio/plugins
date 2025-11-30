@@ -998,44 +998,211 @@ class EmailHubAdmin
      */
     public static function renderLogsPage(): void
     {
-        $logs = get_option('apollo_email_logs', []);
-        $logs = array_slice(array_reverse($logs), 0, 100); // Last 100
+        // Filters
+        $filter_type = sanitize_key($_GET['type'] ?? '');
+        $filter_severity = sanitize_key($_GET['severity'] ?? '');
+        $filter_template = sanitize_key($_GET['template'] ?? '');
+        $page = max(1, intval($_GET['paged'] ?? 1));
+        $per_page = 50;
+
+        // Use EmailSecurityLog if available
+        if (class_exists('\Apollo\Security\EmailSecurityLog')) {
+            $result = \Apollo\Security\EmailSecurityLog::getLogs([
+                'type' => $filter_type,
+                'severity' => $filter_severity,
+                'template' => $filter_template,
+                'page' => $page,
+                'per_page' => $per_page,
+            ]);
+            $logs = $result['items'];
+            $total = $result['total'];
+            $total_pages = $result['pages'];
+            
+            $stats = \Apollo\Security\EmailSecurityLog::getStats('today');
+        } else {
+            // Fallback to wp_options
+            $all_logs = get_option('apollo_email_logs', []);
+            $logs = array_slice(array_reverse($all_logs), 0, $per_page);
+            $total = count($all_logs);
+            $total_pages = 1;
+            $stats = ['total_sent' => 0, 'total_failed' => 0, 'total_blocked' => 0, 'total_suspicious' => 0];
+        }
         ?>
         <div class="wrap apollo-email-hub">
-            <h1>📊 Logs de Email</h1>
+            <h1>📊 Logs de Email - Security Dashboard</h1>
             
-            <div class="logs-stats">
-                <div class="stat">Total: <?php echo count($logs); ?></div>
+            <!-- Stats Cards -->
+            <div class="logs-stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin:20px 0;">
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;text-align:center;border-left:4px solid #46b450;">
+                    <div style="font-size:28px;font-weight:700;color:#46b450;"><?php echo esc_html($stats['total_sent']); ?></div>
+                    <div style="color:#666;">✅ Enviados Hoje</div>
+                </div>
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;text-align:center;border-left:4px solid #dc3232;">
+                    <div style="font-size:28px;font-weight:700;color:#dc3232;"><?php echo esc_html($stats['total_failed']); ?></div>
+                    <div style="color:#666;">❌ Falhas Hoje</div>
+                </div>
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;text-align:center;border-left:4px solid #f0ad4e;">
+                    <div style="font-size:28px;font-weight:700;color:#f0ad4e;"><?php echo esc_html($stats['total_blocked'] ?? 0); ?></div>
+                    <div style="color:#666;">🚫 Bloqueados</div>
+                </div>
+                <div class="stat-card" style="background:#fff;padding:20px;border-radius:8px;text-align:center;border-left:4px solid #9b59b6;">
+                    <div style="font-size:28px;font-weight:700;color:#9b59b6;"><?php echo esc_html($stats['total_suspicious'] ?? 0); ?></div>
+                    <div style="color:#666;">⚠️ Suspeitos</div>
+                </div>
             </div>
 
+            <!-- Filters -->
+            <div class="logs-filters" style="background:#fff;padding:15px;border-radius:8px;margin-bottom:20px;">
+                <form method="get" style="display:flex;gap:15px;flex-wrap:wrap;align-items:center;">
+                    <input type="hidden" name="page" value="apollo-email-logs">
+                    
+                    <label style="display:flex;align-items:center;gap:5px;">
+                        <span style="color:#666;">Tipo:</span>
+                        <select name="type" onchange="this.form.submit()">
+                            <option value="">Todos</option>
+                            <option value="sent" <?php selected($filter_type, 'sent'); ?>>✅ Enviados</option>
+                            <option value="failed" <?php selected($filter_type, 'failed'); ?>>❌ Falhas</option>
+                            <option value="blocked" <?php selected($filter_type, 'blocked'); ?>>🚫 Bloqueados</option>
+                            <option value="suspicious" <?php selected($filter_type, 'suspicious'); ?>>⚠️ Suspeitos</option>
+                            <option value="rate_limited" <?php selected($filter_type, 'rate_limited'); ?>>⏱️ Rate Limited</option>
+                        </select>
+                    </label>
+                    
+                    <label style="display:flex;align-items:center;gap:5px;">
+                        <span style="color:#666;">Severidade:</span>
+                        <select name="severity" onchange="this.form.submit()">
+                            <option value="">Todas</option>
+                            <option value="info" <?php selected($filter_severity, 'info'); ?>>ℹ️ Info</option>
+                            <option value="warning" <?php selected($filter_severity, 'warning'); ?>>⚠️ Warning</option>
+                            <option value="error" <?php selected($filter_severity, 'error'); ?>>❌ Error</option>
+                            <option value="critical" <?php selected($filter_severity, 'critical'); ?>>🚨 Critical</option>
+                        </select>
+                    </label>
+
+                    <?php if ($filter_type || $filter_severity || $filter_template): ?>
+                        <a href="<?php echo admin_url('admin.php?page=apollo-email-logs'); ?>" class="button">Limpar Filtros</a>
+                    <?php endif; ?>
+
+                    <span style="margin-left:auto;color:#888;">
+                        Total: <strong><?php echo esc_html($total); ?></strong> registros
+                    </span>
+                </form>
+            </div>
+
+            <!-- Logs Table -->
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th style="width:160px;">Data/Hora</th>
+                        <th style="width:150px;">Data/Hora</th>
+                        <th style="width:80px;">Tipo</th>
+                        <th style="width:80px;">Severidade</th>
                         <th style="width:200px;">Destinatário</th>
-                        <th style="width:150px;">Template</th>
+                        <th style="width:120px;">Template</th>
                         <th>Assunto</th>
-                        <th style="width:80px;">Status</th>
+                        <th style="width:120px;">IP</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($logs)): ?>
-                        <tr><td colspan="5" style="text-align:center;">Nenhum log encontrado.</td></tr>
-                    <?php else: foreach ($logs as $log): ?>
+                        <tr><td colspan="7" style="text-align:center;padding:30px;">
+                            <span style="font-size:48px;">📭</span><br><br>
+                            Nenhum log encontrado com os filtros atuais.
+                        </td></tr>
+                    <?php else: foreach ($logs as $log): 
+                        $type_icons = [
+                            'sent' => '✅',
+                            'failed' => '❌',
+                            'blocked' => '🚫',
+                            'suspicious' => '⚠️',
+                            'rate_limited' => '⏱️',
+                            'template_updated' => '📝',
+                            'test_sent' => '🧪',
+                        ];
+                        $severity_colors = [
+                            'info' => '#0073aa',
+                            'warning' => '#f0ad4e',
+                            'error' => '#dc3232',
+                            'critical' => '#8b0000',
+                        ];
+                        $type = $log['type'] ?? 'sent';
+                        $severity = $log['severity'] ?? 'info';
+                    ?>
                         <tr>
-                            <td><?php echo esc_html(date_i18n('d/m/Y H:i', $log['timestamp'])); ?></td>
-                            <td><?php echo esc_html($log['to']); ?></td>
-                            <td><code><?php echo esc_html($log['template']); ?></code></td>
-                            <td><?php echo esc_html($log['subject']); ?></td>
                             <td>
-                                <span class="status-badge status-<?php echo esc_attr($log['status']); ?>">
-                                    <?php echo $log['status'] === 'sent' ? '✅' : '❌'; ?>
+                                <span title="<?php echo esc_attr($log['created_at'] ?? ''); ?>">
+                                    <?php echo esc_html(isset($log['created_at']) ? date_i18n('d/m/Y H:i', strtotime($log['created_at'])) : date_i18n('d/m/Y H:i', $log['timestamp'] ?? time())); ?>
                                 </span>
+                            </td>
+                            <td>
+                                <span title="<?php echo esc_attr(ucfirst($type)); ?>">
+                                    <?php echo $type_icons[$type] ?? '📧'; ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span style="color:<?php echo esc_attr($severity_colors[$severity] ?? '#666'); ?>;font-weight:600;">
+                                    <?php echo esc_html(ucfirst($severity)); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <code style="font-size:12px;"><?php echo esc_html($log['recipient_email'] ?? $log['to'] ?? ''); ?></code>
+                            </td>
+                            <td>
+                                <?php if (!empty($log['template_key'] ?? $log['template'])): ?>
+                                    <code style="font-size:11px;background:#f0f0f1;padding:2px 6px;border-radius:3px;">
+                                        <?php echo esc_html($log['template_key'] ?? $log['template']); ?>
+                                    </code>
+                                <?php else: ?>
+                                    <span style="color:#999;">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php echo esc_html(substr($log['subject'] ?? '', 0, 50)); ?>
+                                <?php if (strlen($log['subject'] ?? '') > 50): ?>...<?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($log['ip_address'])): ?>
+                                    <code style="font-size:11px;"><?php echo esc_html($log['ip_address']); ?></code>
+                                <?php else: ?>
+                                    <span style="color:#999;">-</span>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; endif; ?>
                 </tbody>
             </table>
+
+            <!-- Pagination -->
+            <?php if ($total_pages > 1): ?>
+                <div class="tablenav bottom">
+                    <div class="tablenav-pages">
+                        <span class="displaying-num"><?php echo esc_html($total); ?> itens</span>
+                        <span class="pagination-links">
+                            <?php if ($page > 1): ?>
+                                <a class="prev-page button" href="<?php echo esc_url(add_query_arg('paged', $page - 1)); ?>">‹</a>
+                            <?php endif; ?>
+                            <span class="paging-input">
+                                <span class="current-page"><?php echo esc_html($page); ?></span>
+                                de
+                                <span class="total-pages"><?php echo esc_html($total_pages); ?></span>
+                            </span>
+                            <?php if ($page < $total_pages): ?>
+                                <a class="next-page button" href="<?php echo esc_url(add_query_arg('paged', $page + 1)); ?>">›</a>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Security Notice -->
+            <div class="security-notice" style="margin-top:30px;padding:20px;background:#f0f6fc;border-left:4px solid #0073aa;border-radius:4px;">
+                <h3 style="margin:0 0 10px;">🔒 Segurança do Sistema de Emails</h3>
+                <ul style="margin:0;padding-left:20px;">
+                    <li><strong>Rate Limiting:</strong> Máximo 50 emails/hora por usuário</li>
+                    <li><strong>Detecção de Anomalias:</strong> Alertas para atividade suspeita</li>
+                    <li><strong>Logs Completos:</strong> IP, User Agent, timestamps para auditoria</li>
+                    <li><strong>Retenção:</strong> Logs mantidos por 90 dias (máx. 10.000 registros)</li>
+                </ul>
+            </div>
         </div>
         <?php
     }

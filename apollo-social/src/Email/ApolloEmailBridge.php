@@ -82,12 +82,7 @@ class ApolloEmailBridge
             'admin_name' => $admin ? $admin->display_name : 'Apollo Team',
         ]);
 
-        $this->sendEmail($user->user_email, $subject, $body);
-
-        // Log
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("[Apollo Email] Sent membership_approved to user {$user_id}");
-        }
+        $this->sendEmail($user->user_email, $subject, $body, 'membership_approved');
     }
 
     /**
@@ -109,7 +104,7 @@ class ApolloEmailBridge
             'rejection_reason' => $reason ?: 'Não especificado',
         ]);
 
-        $this->sendEmail($user->user_email, $subject, $body);
+        $this->sendEmail($user->user_email, $subject, $body, 'membership_rejected');
     }
 
     /**
@@ -127,7 +122,7 @@ class ApolloEmailBridge
         $subject = $this->replacePlaceholders($template['subject'], $user_id);
         $body = $this->replacePlaceholders($template['body'], $user_id);
 
-        $this->sendEmail($user->user_email, $subject, $body);
+        $this->sendEmail($user->user_email, $subject, $body, 'welcome');
 
         // If user requested memberships beyond clubber, send pending notification
         $identities = $data['cultura_identity'] ?? [];
@@ -138,7 +133,7 @@ class ApolloEmailBridge
             $subject = $this->replacePlaceholders($template['subject'], $user_id);
             $body = $this->replacePlaceholders($template['body'], $user_id);
             
-            $this->sendEmail($user->user_email, $subject, $body);
+            $this->sendEmail($user->user_email, $subject, $body, 'membership_pending');
         }
     }
 
@@ -337,12 +332,24 @@ Equipe Apollo::Rio',
     /**
      * Send email using Email Templates plugin if available, otherwise wp_mail
      */
-    public function sendEmail(string $to, string $subject, string $body): bool
+    public function sendEmail(string $to, string $subject, string $body, string $template_key = ''): bool
     {
+        // Check rate limiting via security log
+        if (class_exists('\Apollo\Security\EmailSecurityLog')) {
+            if (\Apollo\Security\EmailSecurityLog::isRateLimited(get_current_user_id())) {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log("[Apollo Email] Rate limited for user " . get_current_user_id());
+                }
+                return false;
+            }
+        }
+
         // Use Email Templates plugin wrapper if available
         if (class_exists('Mailtpl')) {
             // The plugin will automatically wrap the content in template
-            return wp_mail($to, $subject, $body);
+            $result = wp_mail($to, $subject, $body);
+            $this->logEmailResult($to, $subject, $template_key, $result);
+            return $result;
         }
 
         // Fallback: wrap in simple HTML template
@@ -353,7 +360,23 @@ Equipe Apollo::Rio',
             'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>',
         ];
 
-        return wp_mail($to, $subject, $html, $headers);
+        $result = wp_mail($to, $subject, $html, $headers);
+        $this->logEmailResult($to, $subject, $template_key, $result);
+        return $result;
+    }
+
+    /**
+     * Log email result to security log
+     */
+    private function logEmailResult(string $to, string $subject, string $template_key, bool $success): void
+    {
+        if (class_exists('\Apollo\Security\EmailSecurityLog')) {
+            if ($success) {
+                \Apollo\Security\EmailSecurityLog::logEmailSent($to, $subject, $template_key);
+            } else {
+                \Apollo\Security\EmailSecurityLog::logEmailFailed($to, $subject, 'wp_mail returned false', $template_key);
+            }
+        }
     }
 
     /**
