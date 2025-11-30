@@ -149,6 +149,12 @@ add_action('plugins_loaded', function() {
         }
     }
     
+    // Load Apollo Email Hub Admin (unified email management)
+    $email_hub = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EmailHubAdmin.php';
+    if (file_exists($email_hub)) {
+        require_once $email_hub;
+    }
+    
     // Load Apollo Email Bridge (integrates with newsletter & email-templates plugins)
     $email_bridge = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/ApolloEmailBridge.php';
     if (file_exists($email_bridge)) {
