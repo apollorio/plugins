@@ -202,7 +202,11 @@ $tagline = get_user_meta($user_id, '_apollo_tagline', true);
  * Get all meta keys organized by post type
  * 
  * @return array Meta keys organized by post type
+ * 
+ * NOTE: This function may also be defined in admin-apollo-hub.php
+ * Using function_exists() to prevent redeclaration errors
  */
+if (!function_exists('apollo_events_get_all_metakeys')) {
 function apollo_events_get_all_metakeys() {
     return [
         'event_listing' => [
@@ -587,4 +591,5 @@ function apollo_events_get_user_metakeys() {
         ],
     ];
 }
+} // End if (!function_exists('apollo_events_get_all_metakeys'))
 

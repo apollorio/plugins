@@ -417,4 +417,8 @@ function aem_submit_event_shortcode() {
 
 // FASE 2: Shortcode legado mantido para backward compatibility
 // O shortcode oficial agora é [apollo_event_submit] registrado na classe principal
-add_shortcode('submit_event_form', 'aem_submit_event_shortcode');
+// NOTE: This shortcode may be registered by Apollo_Events_Shortcodes class
+// Check before registering to avoid conflicts
+if (!shortcode_exists('submit_event_form')) {
+    add_shortcode('submit_event_form', 'aem_submit_event_shortcode');
+}

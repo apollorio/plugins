@@ -1,19 +1,19 @@
 {
-  "name": "Apollo::rio",
+  "name": "Apollo::Rio",
   "short_name": "Apollo",
-  "description": "Apollo::rio, a plataforma difital da cultura e música eletrônica do Rio de Janeiro.",
+  "description": "Apollo::Rio, a plataforma digital da cultura e música eletrônica do Rio de Janeiro.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ff6425",
+  "theme_color": "#000000",
   "icons": [
     {
-      "src": "https://assets.apollo.rio.br/icon/app-192.png",
+      "src": "http://assets.apollo.rio.br/img/logo-v2/app-512.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://assets.apollo.rio.br/icon/app-512.png",
+      "src": "http://assets.apollo.rio.br/img/logo-v2/app-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

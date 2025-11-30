@@ -28,10 +28,15 @@
 
 namespace Apollo\Ajax;
 
+use Apollo\Security\UploadSecurityScanner;
+
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// Load security scanner
+require_once dirname(__DIR__) . '/Security/UploadSecurityScanner.php';
 
 /**
  * Class ImageUploadHandler
@@ -219,6 +224,22 @@ class ImageUploadHandler {
                 400
             );
             return;
+        }
+
+        // Step 6.5: Security scan for malicious content (virus/malware protection)
+        // This checks for PHP code injection, hidden executables, and other threats.
+        if ( class_exists( '\Apollo\Security\UploadSecurityScanner' ) ) {
+            $scan_result = UploadSecurityScanner::scan( $file['tmp_name'], 'image' );
+            if ( ! $scan_result['safe'] ) {
+                wp_send_json_error(
+                    array(
+                        'message' => $scan_result['message'],
+                        'code'    => $scan_result['code'],
+                    ),
+                    403
+                );
+                return;
+            }
         }
 
         // Step 7: Handle the upload using WordPress functions

@@ -13,9 +13,14 @@ if (!function_exists('apollo_ajax_handle_toggle_favorite')) {
             );
         }
 
-        check_ajax_referer('apollo_events_nonce', '_ajax_nonce');
+        // Verify nonce
+        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'apollo_events_nonce')) {
+            wp_send_json_error(array('message' => __('Nonce inválido.', 'apollo-events-manager')), 403);
+            return;
+        }
 
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        // Sanitize input
+        $event_id = isset($_POST['event_id']) ? absint(wp_unslash($_POST['event_id'])) : 0;
         if (!$event_id) {
             wp_send_json_error(array('message' => __('Evento inválido.', 'apollo-events-manager')), 400);
         }

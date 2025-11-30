@@ -30,7 +30,7 @@ class MembershipsController extends BaseController
         foreach ($unions as $union_data) {
             $union = new UnionEntity($union_data);
             
-            if ($this->membershipPolicy->canViewUnion($user, $union)) {
+            if ($this->membershipPolicy->canViewUnion($union, $user)) {
                 $filtered_unions[] = $union_data;
             }
         }

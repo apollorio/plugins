@@ -1,14 +1,12 @@
 <?php
 /**
  * Apollo Template Helper Functions
- * FIXED: iOS PWA detection compatible
  */
 
 if (!defined('ABSPATH')) exit;
 
 /**
  * Check if request is from PWA
- * FIXED: Now properly detects iOS standalone mode
  */
 function apollo_is_pwa() {
     $is_pwa = false;
@@ -25,7 +23,7 @@ function apollo_is_pwa() {
         $is_pwa = true;
     }
     
-    // 3. CRITICAL FIX: Check User-Agent for iOS standalone indicators
+    // 3. Check User-Agent for iOS standalone indicators
     if (isset($_SERVER['HTTP_USER_AGENT'])) {
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         

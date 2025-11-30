@@ -1,0 +1,149 @@
+<!--
+  Component: sidebar-social-desktop-S0
+  Type: S0 (First design variant)
+  Description: Desktop sidebar for Apollo Social pages
+  Used in: Feed, Communities, Groups, Docs, Profile pages
+  
+  IMPORTANT: All elements MUST have data-tooltip for accessibility and UX
+  NOTE: NO followers/friends count displayed - Apollo is against ego/status culture
+  Use inline-user-mention-U0 for user profile display in sidebar footer
+  
+  Placeholders:
+  - {{user_avatar}} - Current user avatar URL
+  - {{user_name}} - Current user display name
+  - {{user_handle}} - Current user @handle (display with @)
+  - {{user_badges}} - Array of membership badges
+  - {{user_nucleos}} - Array of núcleo memberships
+  - {{logout_url}} - WordPress logout URL
+  - {{home_url}} - Site home URL
+  - {{current_page}} - Current page slug for aria-current
+-->
+
+<aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl" data-component="sidebar-social-desktop" data-type="S0">
+  
+  <!-- Logo / Top -->
+  <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
+    <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white" data-tooltip="Apollo::Rio">
+      <i class="ri-command-fill text-lg"></i>
+    </div>
+    <div class="flex flex-col leading-tight">
+      <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.18em]">Apollo</span>
+      <span class="text-[15px] font-extrabold text-slate-900">Social</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="aprio-sidebar-nav flex-1 px-4 pt-4 pb-2 overflow-y-auto no-scrollbar text-[13px]">
+    <div class="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navegação</div>
+
+    <a href="{{home_url}}/feed/" data-tooltip="Ver feed" data-nav="feed">
+      <i class="ri-home-5-line"></i>
+      <span>Feed</span>
+    </a>
+
+    <a href="{{home_url}}/eventos/" data-tooltip="Ver agenda de eventos" data-nav="eventos">
+      <i class="ri-calendar-event-line"></i>
+      <span>Agenda</span>
+    </a>
+
+    <a href="{{home_url}}/comunidades/" data-tooltip="Ver comunidades" data-nav="comunidades">
+      <i class="ri-group-line"></i>
+      <span>Comunidades</span>
+    </a>
+
+    <a href="{{home_url}}/nucleos/" data-tooltip="Ver núcleos" data-nav="nucleos">
+      <i class="ri-layout-5-line"></i>
+      <span>Núcleos</span>
+    </a>
+
+    <a href="{{home_url}}/classificados/" data-tooltip="Ver classificados" data-nav="classificados">
+      <i class="ri-ticket-line"></i>
+      <span>Classificados</span>
+    </a>
+
+    <a href="{{home_url}}/docs/" data-tooltip="Documentos e contratos" data-nav="docs">
+      <i class="ri-file-list-3-line"></i>
+      <span>Docs & Contratos</span>
+    </a>
+
+    <a href="{{home_url}}/perfil/" data-tooltip="Ver perfil" data-nav="perfil">
+      <i class="ri-user-3-line"></i>
+      <span>Perfil</span>
+    </a>
+
+    <div class="mt-4 px-1 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Configurações</div>
+    
+    <a href="{{home_url}}/ajustes/" data-tooltip="Configurações" data-nav="ajustes">
+      <i class="ri-settings-3-line"></i>
+      <span>Ajustes</span>
+    </a>
+  </nav>
+
+  <!-- User / Footer -->
+  <div class="border-t border-slate-100 px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
+        <img src="{{user_avatar}}" class="h-full w-full object-cover" alt="{{user_name}}" data-tooltip="{{user_name}}">
+      </div>
+      <div class="flex flex-col leading-tight">
+        <span class="text-[12px] font-semibold text-slate-900">{{user_name}}</span>
+        <span class="text-[10px] text-slate-500">@{{user_handle}}</span>
+      </div>
+      <a href="{{logout_url}}" class="ml-auto text-slate-400 hover:text-slate-700" data-tooltip="Sair">
+        <i class="ri-logout-box-r-line text-lg"></i>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<style>
+/* Sidebar Navigation Styles */
+.aprio-sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.1rem;
+  border-radius: 10px;
+  border-left: 2px solid transparent;
+  font-size: 13px;
+  color: #64748b;
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.aprio-sidebar-nav a i {
+  font-size: 18px;
+}
+
+.aprio-sidebar-nav a:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-left-color: #e5e7eb;
+}
+
+.aprio-sidebar-nav a[aria-current="page"] {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-left-color: #0f172a;
+  font-weight: 600;
+}
+
+/* Dark mode support */
+body.dark-mode .aprio-sidebar-nav a {
+  color: #94a3b8;
+}
+
+body.dark-mode .aprio-sidebar-nav a:hover {
+  background-color: #020617;
+  border-left-color: #1f2937;
+  color: #e5e7eb;
+}
+
+body.dark-mode .aprio-sidebar-nav a[aria-current="page"] {
+  background-color: #020617;
+  border-left-color: #f97316;
+  color: #f9fafb;
+}
+</style>
+

@@ -12,8 +12,6 @@
 
 if (!defined('ABSPATH')) exit;
 
-$should_show_content = apollo_should_show_content('pagx_app');
-
 // Get full header
 apollo_get_header_for_template('pagx_app');
 ?>
@@ -21,7 +19,7 @@ apollo_get_header_for_template('pagx_app');
 <div id="apollo-main" class="apollo-content-wrapper pagx-app">
     <div class="apollo-container">
         
-        <?php if ($should_show_content) : ?>
+        <?php if (function_exists('apollo_should_show_content') && apollo_should_show_content('pagx_app')) : ?>
             <!-- REGULAR CONTENT -->
             <?php
             while (have_posts()) : the_post();
@@ -46,7 +44,13 @@ apollo_get_header_for_template('pagx_app');
             
         <?php else : ?>
             <!-- PWA INSTALL PAGE -->
-            <?php apollo_render_pwa_install_page(); ?>
+            <?php 
+            if (function_exists('apollo_render_pwa_install_page')) {
+                apollo_render_pwa_install_page();
+            } else {
+                echo '<p>' . esc_html__('Instale o app para acessar este conteúdo.', 'apollo-rio') . '</p>';
+            }
+            ?>
             
         <?php endif; ?>
         

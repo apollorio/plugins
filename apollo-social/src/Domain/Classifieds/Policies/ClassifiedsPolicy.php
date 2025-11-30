@@ -79,8 +79,11 @@ class ClassifiedsPolicy
     
     /**
      * Can user view classified ad?
+     * 
+     * @param AdEntity $ad The classified ad to check
+     * @param User|null $user The user (optional, null for guests)
      */
-    public function canView(?User $user = null, AdEntity $ad): bool
+    public function canView(AdEntity $ad, ?User $user = null): bool
     {
         // Most classifieds are public
         if ($ad->status === 'active') {

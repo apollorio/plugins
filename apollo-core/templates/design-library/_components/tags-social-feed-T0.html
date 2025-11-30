@@ -1,0 +1,103 @@
+<!--
+  Component: tags-social-feed-T0
+  Type: T0 (First design variant)
+  Description: Filter tags for social feed
+  Used in: Feed page, Activity streams
+  
+  IMPORTANT: All elements MUST have data-tooltip for accessibility and UX
+  NOTE: NO followers/friends count in feed - Apollo is against ego/status culture
+  
+  Placeholders:
+  - {{active_tab}} - Currently active tab ID
+-->
+
+<div class="flex items-center gap-2 mb-6 overflow-x-auto pb-2" role="tablist" data-component="tags-social-feed" data-type="T0">
+  
+  <button class="menutag" data-tab-target="feed-all" data-active="true" role="tab" data-tooltip="Ver todos os posts">
+    Tudo
+  </button>
+  
+  <button class="menutag" data-tab-target="feed-events" role="tab" data-tooltip="Filtrar por eventos">
+    Eventos
+  </button>
+  
+  <button class="menutag" data-tab-target="feed-communities" role="tab" data-tooltip="Filtrar por comunidades">
+    Comunidades
+  </button>
+  
+  <button class="menutag" data-tab-target="feed-system" role="tab" data-tooltip="Avisos do sistema">
+    Sistema
+  </button>
+  
+</div>
+
+<style>
+/* Menu Tags - Feed Filter */
+.menutag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.menutag:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.menutag[data-active="true"],
+.menutag.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: white;
+}
+
+/* Dark Mode */
+body.dark-mode .menutag {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .menutag:hover {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .menutag[data-active="true"],
+body.dark-mode .menutag.active {
+  background: #f97316;
+  border-color: #f97316;
+  color: white;
+}
+</style>
+
+<script>
+// Tab switching logic
+document.querySelectorAll('[role="tab"]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Update active states
+    document.querySelectorAll('[role="tab"]').forEach(t => {
+      t.setAttribute('data-active', 'false');
+    });
+    tab.setAttribute('data-active', 'true');
+    
+    // Show/hide panels
+    const targetId = tab.getAttribute('data-tab-target');
+    document.querySelectorAll('[data-tab-panel]').forEach(panel => {
+      panel.classList.toggle('hidden', panel.getAttribute('data-tab-panel') !== targetId);
+    });
+  });
+});
+</script>
+

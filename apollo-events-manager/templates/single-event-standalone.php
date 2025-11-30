@@ -26,7 +26,7 @@ $event_id = isset($event_id) ? $event_id : get_the_ID();
 
 // Get data helper
 if (!class_exists('Apollo_Event_Data_Helper')) {
-    require_once APOLLO_EVENTS_MANAGER_PATH . 'includes/class-apollo-event-data-helper.php';
+    require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
 }
 $event_data = Apollo_Event_Data_Helper::get_event_data($event_id);
 
@@ -454,8 +454,16 @@ if (!$is_modal):
                             m.remove();
                         }
                         
-                        var m = L.map('eventMap', {zoomControl: true, scrollWheelZoom: true})
-                            .setView([lat, lng], 15);
+                        var m = L.map('eventMap', {
+                            zoomControl: false, 
+                            scrollWheelZoom: false,
+                            dragging: false,
+                            touchZoom: false,
+                            doubleClickZoom: false,
+                            boxZoom: false,
+                            keyboard: false,
+                            attributionControl: false
+                        }).setView([lat, lng], 15);
                         
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
                             {maxZoom: 19, attribution: '© OpenStreetMap'}).addTo(m);

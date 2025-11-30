@@ -11,8 +11,11 @@ class MembershipPolicy
 {
     /**
      * Can user view union content?
+     * 
+     * @param UnionEntity $union The union to check
+     * @param User|null $user The user (optional, null for guests)
      */
-    public function canViewUnion(?User $user = null, UnionEntity $union): bool
+    public function canViewUnion(UnionEntity $union, ?User $user = null): bool
     {
         // Uniões são públicas por padrão
         return true;

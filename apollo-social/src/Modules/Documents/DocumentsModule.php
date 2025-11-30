@@ -44,7 +44,14 @@ class DocumentsModule
         self::$initialized = true;
         
         // Register activation hook
-        register_activation_hook(APOLLO_SOCIAL_PLUGIN_FILE, [self::class, 'activate']);
+        // Use global constant with backslash prefix to access from namespace
+        if (defined('\APOLLO_SOCIAL_PLUGIN_FILE')) {
+            $plugin_file = \APOLLO_SOCIAL_PLUGIN_FILE;
+        } else {
+            // Fallback: calculate path to main plugin file
+            $plugin_file = dirname(dirname(dirname(__DIR__))) . '/apollo-social.php';
+        }
+        register_activation_hook($plugin_file, [self::class, 'activate']);
         
         // Initialize on plugins loaded
         add_action('plugins_loaded', [self::class, 'setup']);

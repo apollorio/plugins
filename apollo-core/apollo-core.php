@@ -5,11 +5,11 @@ declare(strict_types=1);
  * Plugin Name: Apollo Core
  * Plugin URI: https://apollo.rio.br
  * Description: Core plugin for Apollo ecosystem - unifies Events Manager and Social features
- * Version: 3.0.0
+ * Version: 1.0.0
  * Author: Apollo Team
  * Author URI: https://apollo.rio.br
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License: GPL-2.0-or-later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain: apollo-core
  * Domain Path: /languages
  * Requires at least: 6.0
@@ -23,11 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'APOLLO_CORE_VERSION', '3.0.0' );
+define( 'APOLLO_CORE_VERSION', '1.0.0' );
 define( 'APOLLO_CORE_PLUGIN_FILE', __FILE__ );
 define( 'APOLLO_CORE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'APOLLO_CORE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'APOLLO_CORE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+// Load Integration Bridge FIRST - provides shared utilities for all Apollo plugins.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/integration-bridge.php';
 
 // Load helper functions.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/caching.php';
@@ -68,6 +71,7 @@ if ( is_admin() ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderation-page.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/forms-admin.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderate-users-membership.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/migration-page.php';
 }
 
 // Load public display.

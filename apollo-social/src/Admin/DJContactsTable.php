@@ -86,7 +86,7 @@ class DJContactsTable
     }
 
     /**
-     * Get DJ contacts from database (CPT event_dj)
+     * Get DJ contacts from database (CPT event_dj from Apollo Events Manager)
      * 
      * @return array Array of DJ contact data
      */
@@ -94,7 +94,19 @@ class DJContactsTable
     {
         $contacts = [];
         
-        // Query DJs from custom post type
+        // Use Events Manager Integration helper
+        if (!class_exists('\Apollo\Infrastructure\Integration\EventsManagerIntegration')) {
+            $integration_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Infrastructure/Integration/EventsManagerIntegration.php';
+            if (file_exists($integration_file)) {
+                require_once $integration_file;
+            }
+        }
+        
+        // Query DJs from Events Manager CPT (read-only integration)
+        if (!post_type_exists('event_dj')) {
+            return []; // Events Manager not active
+        }
+        
         $djs = get_posts([
             'post_type'      => 'event_dj',
             'post_status'    => 'publish',

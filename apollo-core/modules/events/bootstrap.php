@@ -48,39 +48,10 @@ class Apollo_Events_Module {
 			)
 		);
 
-		// Register event_dj CPT.
-		register_post_type(
-			'event_dj',
-			array(
-				'labels'              => array(
-					'name'          => __( 'DJs', 'apollo-core' ),
-					'singular_name' => __( 'DJ', 'apollo-core' ),
-				),
-				'public'              => true,
-				'show_in_rest'        => true,
-				'capability_type'     => 'post',
-				'supports'            => array( 'title', 'editor', 'thumbnail', 'author' ),
-				'menu_icon'           => 'dashicons-microphone',
-				'rewrite'             => array( 'slug' => 'djs' ),
-			)
-		);
-
-		// Register event_local CPT.
-		register_post_type(
-			'event_local',
-			array(
-				'labels'              => array(
-					'name'          => __( 'Venues', 'apollo-core' ),
-					'singular_name' => __( 'Venue', 'apollo-core' ),
-				),
-				'public'              => true,
-				'show_in_rest'        => true,
-				'capability_type'     => 'post',
-				'supports'            => array( 'title', 'editor', 'thumbnail', 'author' ),
-				'menu_icon'           => 'dashicons-location',
-				'rewrite'             => array( 'slug' => 'venues' ),
-			)
-		);
+		// NOTE: event_dj and event_local CPTs are registered by Apollo Events Manager plugin
+		// Do NOT register them here to avoid conflicts and duplication
+		// These CPTs belong exclusively to apollo-events-manager/includes/post-types.php
+		// Core only provides moderation/forms support for these CPTs when Events Manager is active
 	}
 
 	/**

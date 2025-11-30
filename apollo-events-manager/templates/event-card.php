@@ -1,426 +1,186 @@
 <?php
 /**
- * FASE 3: Event Card Template
- * Mobile-first responsive design with Apollo design tokens
+ * Event Card Template
+ * DESIGN LIBRARY: Matches approved HTML from 'events discover event-card.md'
+ * Uses uni.css classes for consistent styling
  * 
- * Variables available:
- * - $id (event ID)
- * - $date_info (from Apollo_Event_Data_Helper::parse_event_date)
- * - $local (from Apollo_Event_Data_Helper::get_local_data)
- * - $djs (from Apollo_Event_Data_Helper::get_dj_lineup)
- * - $banner (from Apollo_Event_Data_Helper::get_banner_url)
- * - $post (WP_Post object)
- * - $cat_slug
- * - $tags (array of term objects)
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ * 
+ * Expected variables:
+ * @var WP_Post $event - The event post object
+ * @var array $args - Optional arguments passed to template
  */
 
-if (!defined('ABSPATH')) exit;
+declare(strict_types=1);
 
-// FASE 3: Garantir que variáveis estão definidas
-// Bug fix: Priorizar $post->ID se disponível (quando vem de get_posts), senão usar get_the_ID()
-if (!isset($id)) {
-    if (isset($post) && is_object($post) && isset($post->ID)) {
-        $id = $post->ID;
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Get event data with fallbacks
+$event_id = $event->ID ?? get_the_ID();
+$event_title = get_the_title($event_id);
+$event_permalink = get_permalink($event_id);
+
+// Meta keys - Apollo Events Manager standard
+$event_date = get_post_meta($event_id, '_event_start_date', true);
+$event_time = get_post_meta($event_id, '_event_start_time', true);
+$event_venue = get_post_meta($event_id, '_event_venue', true);
+$event_location = get_post_meta($event_id, '_event_location', true);
+$event_image = get_post_meta($event_id, '_event_banner', true);
+$event_genres = get_post_meta($event_id, '_event_genres', true);
+$event_dj_names = get_post_meta($event_id, '_event_dj_names', true);
+$favorites_count = (int) get_post_meta($event_id, '_favorites_count', true);
+
+// Fallback to featured image if no banner
+if (!$event_image) {
+    $event_image = get_the_post_thumbnail_url($event_id, 'medium_large');
+}
+if (!$event_image) {
+    $event_image = 'https://assets.apollo.rio.br/img/placeholder-event.jpg';
+}
+
+// Format date components
+$date_obj = null;
+$day = '--';
+$month = '---';
+$day_name = '';
+
+if ($event_date) {
+    $date_obj = DateTime::createFromFormat('Y-m-d', $event_date);
+    if ($date_obj) {
+        $day = $date_obj->format('d');
+        $month_names = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+        $month = $month_names[(int)$date_obj->format('n') - 1];
+        $day_names = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+        $day_name = $day_names[(int)$date_obj->format('w')];
+    }
+}
+
+// Format time
+$formatted_time = '';
+if ($event_time) {
+    $time_obj = DateTime::createFromFormat('H:i', $event_time);
+    if (!$time_obj) {
+        $time_obj = DateTime::createFromFormat('H:i:s', $event_time);
+    }
+    if ($time_obj) {
+        $formatted_time = $time_obj->format('H\hi');
     } else {
-        $id = get_the_ID();
+        $formatted_time = esc_html($event_time);
     }
 }
-if (!isset($post)) {
-    $post = get_post($id);
-}
-if (!isset($date_info)) {
-    require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
-    $date_info = Apollo_Event_Data_Helper::parse_event_date(
-        apollo_get_post_meta($id, '_event_start_date', true)
-    );
-}
-if (!isset($local)) {
-    $local = Apollo_Event_Data_Helper::get_local_data($id);
-}
-if (!isset($djs)) {
-    $djs = Apollo_Event_Data_Helper::get_dj_lineup($id);
-}
-if (!isset($banner)) {
-    $banner = Apollo_Event_Data_Helper::get_banner_url($id);
-}
-if (!isset($tags)) {
-    $tags = wp_get_post_terms($id, 'event_sounds');
-    $tags = is_wp_error($tags) ? [] : $tags;
-}
-if (!isset($cat_slug)) {
-    $cats = wp_get_post_terms($id, 'event_listing_category');
-    $cat_slug = !is_wp_error($cats) && $cats ? $cats[0]->slug : 'general';
+
+// Parse genres into array
+$genres_array = [];
+if ($event_genres) {
+    if (is_array($event_genres)) {
+        $genres_array = $event_genres;
+    } else {
+        $genres_array = array_map('trim', explode(',', $event_genres));
+    }
 }
 
-// FASE 3: Verificar se é evento recomendado
-$is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
+// Parse DJ names
+$dj_display = '';
+if ($event_dj_names) {
+    if (is_array($event_dj_names)) {
+        $dj_display = implode(', ', array_slice($event_dj_names, 0, 3));
+        if (count($event_dj_names) > 3) {
+            $dj_display .= ' +' . (count($event_dj_names) - 3);
+        }
+    } else {
+        $dj_display = $event_dj_names;
+    }
+}
+
+// Location display
+$location_display = $event_venue ?: $event_location;
+if (!$location_display) {
+    $location_display = 'Local a confirmar';
+}
 ?>
-
-<article class="apollo-event-card" 
-         data-event-id="<?php echo esc_attr($id); ?>"
-         data-category="<?php echo esc_attr($cat_slug); ?>"
-         data-local-slug="<?php echo esc_attr($local ? $local['slug'] : ''); ?>"
-         data-month-str="<?php echo esc_attr($date_info['month_pt'] ?? ''); ?>"
-         data-event-start-date="<?php echo esc_attr($date_info['iso_date'] ?? ''); ?>"
-         <?php if ($is_featured): ?>data-featured="true"<?php endif; ?>>
-    
-    <a href="<?php echo esc_url(get_permalink($id)); ?>" class="apollo-event-card__link" aria-label="<?php echo esc_attr($post->post_title); ?>">
+<article 
+    class="event_listing" 
+    data-event-id="<?php echo esc_attr($event_id); ?>"
+    data-tooltip="<?php echo esc_attr(sprintf(__('Evento: %s', 'apollo-events-manager'), $event_title)); ?>"
+>
+    <!-- Event Image -->
+    <div class="picture" data-tooltip="<?php esc_attr_e('Imagem do evento', 'apollo-events-manager'); ?>">
+        <a href="<?php echo esc_url($event_permalink); ?>" class="event-card-link">
+            <img 
+                src="<?php echo esc_url($event_image); ?>" 
+                alt="<?php echo esc_attr($event_title); ?>"
+                loading="lazy"
+                data-tooltip="<?php echo esc_attr($event_title); ?>"
+            />
+        </a>
         
-        <!-- FASE 3: Card Image with Date Badge -->
-        <div class="apollo-event-card__media">
-            <?php if ($banner): ?>
-                <img src="<?php echo esc_url($banner); ?>" 
-                     alt="<?php echo esc_attr($post->post_title); ?>" 
-                     class="apollo-event-card__image"
-                     loading="lazy" 
-                     decoding="async">
-            <?php else: ?>
-                <div class="apollo-event-card__placeholder" data-tooltip="Banner do evento - imagem principal">
-                    <i class="ri-calendar-event-line"></i>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Date Badge -->
-            <?php if (!empty($date_info['day'])): ?>
-                <div class="apollo-event-card__date-badge">
-                    <span class="apollo-event-card__date-day"><?php echo esc_html($date_info['day']); ?></span>
-                    <span class="apollo-event-card__date-month"><?php echo esc_html($date_info['month_pt'] ?? ''); ?></span>
-                </div>
-            <?php else: ?>
-                <div class="apollo-event-card__date-badge" data-tooltip="Data do evento">
-                    <span class="apollo-event-card__date-day">--</span>
-                    <span class="apollo-event-card__date-month">???</span>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Featured Badge -->
-            <?php if ($is_featured): ?>
-                <div class="apollo-event-card__featured-badge">
-                    <i class="ri-star-fill"></i>
-                    <span>Recomendado</span>
-                </div>
-            <?php endif; ?>
-            
-            <!-- P0-6: Favorite Button -->
-            <?php
-            $current_user_id = get_current_user_id();
-            $user_favorites = $current_user_id ? get_user_meta($current_user_id, 'apollo_favorites', true) : [];
-            $is_favorited = is_array($user_favorites) && isset($user_favorites['event_listing']) && in_array($id, $user_favorites['event_listing'], true);
-            $favorites_count = max(0, (int) apollo_get_post_meta($id, '_favorites_count', true));
-            ?>
-            <button class="apollo-event-card__favorite" 
-                    data-apollo-favorite 
-                    data-event-id="<?php echo esc_attr($id); ?>"
-                    data-favorited="<?php echo $is_favorited ? 'true' : 'false'; ?>"
-                    aria-label="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>"
-                    title="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>">
-                <i class="<?php echo $is_favorited ? 'ri-heart-fill' : 'ri-heart-line'; ?>"></i>
-            </button>
-            
-            <!-- Sound Tags -->
-            <?php if (!empty($tags)): ?>
-                <div class="apollo-event-card__tags">
-                    <?php foreach (array_slice($tags, 0, 3) as $tag): ?>
-                        <span class="apollo-event-card__tag"><?php echo esc_html($tag->name); ?></span>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+        <!-- Date Badge Overlay -->
+        <div class="box-date-event" data-tooltip="<?php echo esc_attr(sprintf(__('Data: %s de %s', 'apollo-events-manager'), $day, $month)); ?>">
+            <span class="date-day" data-tooltip="<?php esc_attr_e('Dia do evento', 'apollo-events-manager'); ?>"><?php echo esc_html($day); ?></span>
+            <span class="date-month" data-tooltip="<?php esc_attr_e('Mês do evento', 'apollo-events-manager'); ?>"><?php echo esc_html($month); ?></span>
         </div>
         
-        <!-- FASE 3: Card Content -->
-        <div class="apollo-event-card__content">
-            <h3 class="apollo-event-card__title"><?php echo esc_html($post->post_title); ?></h3>
-            
-            <!-- DJ Lineup -->
-            <?php if (!empty($djs)): ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--dj">
-                    <i class="ri-sound-module-fill" aria-hidden="true"></i>
-                    <span><?php echo wp_kses_post(Apollo_Event_Data_Helper::format_dj_display($djs)); ?></span>
-                </div>
-            <?php else: ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--dj" data-tooltip="Line-up do evento">
-                    <i class="ri-sound-module-fill" aria-hidden="true"></i>
-                    <span style="opacity:0.5;">Line-up a confirmar</span>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Local -->
-            <?php if ($local && !empty($local['name'])): ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--location">
-                    <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-                    <span class="apollo-event-card__location-name"><?php echo esc_html($local['name']); ?></span>
-                    <?php if (!empty($local['region'])): ?>
-                        <span class="apollo-event-card__location-area"><?php echo esc_html($local['region']); ?></span>
-                    <?php endif; ?>
-                </div>
-            <?php else: ?>
-                <div class="apollo-event-card__detail apollo-event-card__detail--location" data-tooltip="Local do evento">
-                    <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-                    <span class="apollo-event-card__location-name" style="opacity:0.5;">Local a confirmar</span>
-                </div>
-            <?php endif; ?>
-        </div>
-        
-        <!-- FASE 3: Card Footer (Hover indicator) -->
-        <div class="apollo-event-card__footer">
-            <span class="apollo-event-card__cta">
-                Ver detalhes
-                <i class="ri-arrow-right-line"></i>
+        <!-- Genre Tags -->
+        <?php if (!empty($genres_array)): ?>
+        <div class="event-card-tags" data-tooltip="<?php esc_attr_e('Gêneros musicais', 'apollo-events-manager'); ?>">
+            <?php foreach (array_slice($genres_array, 0, 2) as $genre): ?>
+            <span class="event-tag" data-tooltip="<?php echo esc_attr(sprintf(__('Filtrar por %s', 'apollo-events-manager'), $genre)); ?>">
+                <?php echo esc_html($genre); ?>
             </span>
+            <?php endforeach; ?>
         </div>
-    </a>
+        <?php endif; ?>
+        
+        <!-- Favorites Count Badge -->
+        <?php if ($favorites_count > 0): ?>
+        <div class="event-favorites-badge" data-tooltip="<?php echo esc_attr(sprintf(__('%d pessoas interessadas', 'apollo-events-manager'), $favorites_count)); ?>">
+            <i class="ri-heart-3-fill"></i>
+            <span><?php echo esc_html($favorites_count); ?></span>
+        </div>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Event Info Lines -->
+    <div class="event-line event-line-title" data-tooltip="<?php esc_attr_e('Título do evento', 'apollo-events-manager'); ?>">
+        <a href="<?php echo esc_url($event_permalink); ?>" class="event-li-title">
+            <?php echo esc_html($event_title); ?>
+        </a>
+    </div>
+    
+    <!-- DJs Line -->
+    <?php if ($dj_display): ?>
+    <div class="event-line" data-tooltip="<?php esc_attr_e('DJs confirmados', 'apollo-events-manager'); ?>">
+        <span class="event-li-detail of-dj">
+            <i class="ri-disc-line"></i>
+            <span data-tooltip="<?php echo esc_attr(sprintf(__('Line-up: %s', 'apollo-events-manager'), $dj_display)); ?>">
+                <?php echo esc_html($dj_display); ?>
+            </span>
+        </span>
+    </div>
+    <?php endif; ?>
+    
+    <!-- Location Line -->
+    <div class="event-line" data-tooltip="<?php esc_attr_e('Local do evento', 'apollo-events-manager'); ?>">
+        <span class="event-li-detail of-location">
+            <i class="ri-map-pin-line"></i>
+            <span data-tooltip="<?php echo esc_attr(sprintf(__('Local: %s', 'apollo-events-manager'), $location_display)); ?>">
+                <?php echo esc_html($location_display); ?>
+            </span>
+        </span>
+    </div>
+    
+    <!-- Time Line -->
+    <?php if ($formatted_time): ?>
+    <div class="event-line" data-tooltip="<?php esc_attr_e('Horário do evento', 'apollo-events-manager'); ?>">
+        <span class="event-li-detail of-time">
+            <i class="ri-time-line"></i>
+            <span data-tooltip="<?php echo esc_attr(sprintf(__('Início: %s', 'apollo-events-manager'), $formatted_time)); ?>">
+                <?php echo esc_html($day_name ? $day_name . ' · ' . $formatted_time : $formatted_time); ?>
+            </span>
+        </span>
+    </div>
+    <?php endif; ?>
 </article>
-
-<style>
-/* FASE 3: Design Tokens Apollo */
-:root {
-    --apollo-font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --apollo-text-size: 1rem;
-    --apollo-text-regular: 400;
-    --apollo-text-small: 0.875rem;
-    --apollo-radius-card: 0.75rem;
-    --apollo-radius-main: 0.5rem;
-    --apollo-transition-main: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --apollo-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-    --apollo-shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-    --apollo-color-primary: hsl(var(--primary, 222.2 47.4% 11.2%));
-    --apollo-color-text: hsl(var(--foreground, 222.2 84% 4.9%));
-    --apollo-color-text-muted: hsl(var(--muted-foreground, 215.4 16.3% 46.9%));
-    --apollo-color-border: hsl(var(--border, 214.3 31.8% 91.4%));
-    --apollo-color-card: hsl(var(--card, 0 0% 100%));
-}
-
-/* FASE 3: Event Card - Mobile First */
-.apollo-event-card {
-    width: 100%;
-    background: var(--apollo-color-card);
-    border: 1px solid var(--apollo-color-border);
-    border-radius: var(--apollo-radius-card);
-    overflow: hidden;
-    transition: var(--apollo-transition-main);
-    box-shadow: var(--apollo-shadow-card);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-.apollo-event-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--apollo-shadow-card-hover);
-    border-color: var(--apollo-color-primary);
-}
-
-.apollo-event-card__link {
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    color: inherit;
-    height: 100%;
-}
-
-/* Media Section */
-.apollo-event-card__media {
-    position: relative;
-    width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
-    overflow: hidden;
-    background: hsl(var(--muted, 210 40% 96.1%));
-}
-
-.apollo-event-card__image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.apollo-event-card:hover .apollo-event-card__image {
-    transform: scale(1.05);
-}
-
-.apollo-event-card__placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--apollo-color-text-muted);
-    font-size: 3rem;
-}
-
-/* Date Badge */
-.apollo-event-card__date-badge {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    border-radius: var(--apollo-radius-main);
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 3rem;
-    z-index: 2;
-}
-
-.apollo-event-card__date-day {
-    font-size: 1.25rem;
-    font-weight: 700;
-    line-height: 1.2;
-    display: block;
-}
-
-.apollo-event-card__date-month {
-    font-size: var(--apollo-text-small);
-    text-transform: uppercase;
-    opacity: 0.9;
-    display: block;
-}
-
-/* Featured Badge */
-.apollo-event-card__featured-badge {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    color: #fff;
-    border-radius: var(--apollo-radius-main);
-    padding: 0.375rem 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: var(--apollo-text-small);
-    font-weight: 600;
-    z-index: 2;
-    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-}
-
-.apollo-event-card__featured-badge i {
-    font-size: 0.875rem;
-}
-
-/* Tags */
-.apollo-event-card__tags {
-    position: absolute;
-    bottom: 0.75rem;
-    left: 0.75rem;
-    right: 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    z-index: 2;
-}
-
-.apollo-event-card__tag {
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    padding: 0.25rem 0.5rem;
-    border-radius: calc(var(--apollo-radius-main) / 2);
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-/* Content Section */
-.apollo-event-card__content {
-    padding: 1rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.apollo-event-card__title {
-    font-family: var(--apollo-font-primary);
-    font-size: var(--apollo-text-size);
-    font-weight: 600;
-    line-height: 1.4;
-    margin: 0;
-    color: var(--apollo-color-text);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.apollo-event-card__detail {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    font-size: var(--apollo-text-small);
-    color: var(--apollo-color-text-muted);
-    line-height: 1.5;
-}
-
-.apollo-event-card__detail i {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-    font-size: 1rem;
-}
-
-.apollo-event-card__detail span {
-    flex: 1;
-}
-
-.apollo-event-card__location-area {
-    opacity: 0.7;
-    margin-left: 0.25rem;
-}
-
-/* Footer */
-.apollo-event-card__footer {
-    padding: 0.75rem 1rem;
-    border-top: 1px solid var(--apollo-color-border);
-    background: hsl(var(--muted, 210 40% 96.1%) / 0.5);
-}
-
-.apollo-event-card__cta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: var(--apollo-text-small);
-    font-weight: 500;
-    color: var(--apollo-color-primary);
-    transition: var(--apollo-transition-main);
-}
-
-.apollo-event-card__cta i {
-    transition: transform 0.3s ease;
-}
-
-.apollo-event-card:hover .apollo-event-card__cta i {
-    transform: translateX(4px);
-}
-
-/* FASE 3: Responsividade - Tablet (768px+) */
-@media (min-width: 768px) {
-    .apollo-event-card {
-        /* Cards em 2 colunas no tablet */
-    }
-}
-
-/* FASE 3: Responsividade - Desktop (1024px+) */
-@media (min-width: 1024px) {
-    .apollo-event-card {
-        /* Cards em 3 colunas no desktop */
-    }
-}
-
-/* Dark Mode Support */
-.dark .apollo-event-card {
-    --apollo-color-card: hsl(var(--card, 222.2 84% 4.9%));
-    --apollo-color-text: hsl(var(--foreground, 210 40% 98%));
-    --apollo-color-text-muted: hsl(var(--muted-foreground, 215 20.2% 65.1%));
-    --apollo-color-border: hsl(var(--border, 217.2 32.6% 17.5%));
-}
-</style>
-
-

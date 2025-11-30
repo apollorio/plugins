@@ -11,7 +11,6 @@
  * License:     GPL-2.0-or-later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 6.0
- * Tested up to: 6.8
  * Requires PHP: 8.1
  * 
  * @package Apollo_Social
@@ -41,9 +40,10 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 // Define plugin constants
+define('APOLLO_SOCIAL_PLUGIN_FILE', __FILE__);
 define('APOLLO_SOCIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('APOLLO_SOCIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('APOLLO_SOCIAL_VERSION', '0.0.1');
+define('APOLLO_SOCIAL_VERSION', '1.0.0');
 
 /**
  * Check if Apollo Core dependency is met
@@ -135,6 +135,12 @@ add_action('plugins_loaded', function() {
         if (file_exists($esign_settings)) {
             require_once $esign_settings;
         }
+        
+        // Load Admin Hub Page (central documentation and settings)
+        $admin_hub = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/AdminHubPage.php';
+        if (file_exists($admin_hub)) {
+            require_once $admin_hub;
+        }
     }
     
     // Load AJAX Image Upload Handler for Quill Editor
@@ -171,6 +177,15 @@ add_action('plugins_loaded', function() {
     if (class_exists('\Apollo\Modules\Documents\DocumentsModule')) {
         \Apollo\Modules\Documents\DocumentsModule::init();
     }
+    
+    // Register with Apollo Core Integration Bridge when ready
+    add_action('apollo_core_ready', function() {
+        /**
+         * Apollo Social is now connected to Core ecosystem
+         * Core provides: shared utilities, template system, canvas mode, notifications
+         */
+        do_action('apollo_social_connected');
+    });
 }, 5);
 
 // P0-1: Improved activation hook with idempotency checks

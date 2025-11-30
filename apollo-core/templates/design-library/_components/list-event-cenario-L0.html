@@ -1,0 +1,245 @@
+<!--
+  Component: list-event-cenario-L0
+  Type: L0 (First design variant - Compact list)
+  Description: Event list item for Cena Rio calendar view
+  Used in: Cena Rio monthly calendar, Events listing
+  Access: Only for 'author' or 'cena-rio' user roles, admin allowed
+  
+  IMPORTANT: All elements MUST have data-tooltip for accessibility and UX
+  
+  Placeholders:
+  - {{event_id}} - Event post ID
+  - {{event_title}} - Event title
+  - {{event_permalink}} - Event URL
+  - {{event_day}} - Day number
+  - {{event_month}} - Month abbr
+  - {{event_time}} - Start time
+  - {{event_venue}} - Venue name
+  - {{event_status}} - confirmed/predicted/expected
+  - {{event_genres}} - Main genre
+  
+  Status colors:
+  - confirmed: green border
+  - predicted: blue border
+  - expected: orange border
+-->
+
+<article 
+  class="event-list-item" 
+  data-event-id="{{event_id}}"
+  data-status="{{event_status}}"
+  data-component="list-event-cenario"
+  data-type="L0"
+  data-tooltip="{{event_title}}"
+>
+  <!-- Date Column -->
+  <div class="event-list-date" data-tooltip="{{event_day}} de {{event_month}}">
+    <span class="list-date-day">{{event_day}}</span>
+    <span class="list-date-month">{{event_month}}</span>
+  </div>
+  
+  <!-- Info Column -->
+  <div class="event-list-info">
+    <a href="{{event_permalink}}" class="event-list-title" data-tooltip="Ver evento">
+      {{event_title}}
+    </a>
+    <div class="event-list-meta">
+      <span class="event-list-venue" data-tooltip="Local">
+        <i class="ri-map-pin-line"></i>
+        {{event_venue}}
+      </span>
+      <span class="event-list-time" data-tooltip="Horário">
+        <i class="ri-time-line"></i>
+        {{event_time}}
+      </span>
+    </div>
+  </div>
+  
+  <!-- Status/Genre Column -->
+  <div class="event-list-status">
+    <span class="event-list-genre" data-tooltip="Gênero musical">
+      {{event_genres}}
+    </span>
+    <span class="event-list-badge event-list-badge--{{event_status}}" data-tooltip="Status do evento">
+      {{event_status}}
+    </span>
+  </div>
+  
+  <!-- Action Column -->
+  <div class="event-list-action">
+    <a href="{{event_permalink}}" class="event-list-btn" data-tooltip="Ver detalhes">
+      <i class="ri-arrow-right-line"></i>
+    </a>
+  </div>
+</article>
+
+<style>
+/* Event List Item - Type L0 */
+.event-list-item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-card, #fff);
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  transition: all 0.2s ease;
+}
+
+.event-list-item:hover {
+  border-color: var(--border-hover, #cbd5e1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.event-list-item[data-status="predicted"] {
+  border-left: 3px solid #3b82f6;
+}
+
+.event-list-item[data-status="confirmed"] {
+  border-left: 3px solid #f97316;
+}
+
+/* Date Column */
+.event-list-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.list-date-day {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.list-date-month {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* Info Column */
+.event-list-info {
+  min-width: 0;
+}
+
+.event-list-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.event-list-title:hover {
+  color: #f97316;
+}
+
+.event-list-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.event-list-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-list-meta i {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Status Column */
+.event-list-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.event-list-genre {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  padding: 2px 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.event-list-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.event-list-badge--confirmed {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.event-list-badge--predicted {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Action Column */
+.event-list-action {
+  display: flex;
+  align-items: center;
+}
+
+.event-list-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.event-list-btn:hover {
+  background: #0f172a;
+  color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .event-list-item {
+    grid-template-columns: 50px 1fr auto;
+    gap: 12px;
+  }
+  
+  .event-list-status {
+    display: none;
+  }
+  
+  .event-list-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+</style>
+

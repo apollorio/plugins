@@ -963,7 +963,11 @@ add_action('wp_ajax_apollo_create_canvas_page', 'apollo_events_ajax_create_canva
  * Get all registered shortcodes
  * 
  * @return array List of shortcodes with metadata
+ * 
+ * NOTE: This function is also defined in admin-apollo-hub.php
+ * Using function_exists() to prevent redeclaration errors
  */
+if (!function_exists('apollo_events_get_all_shortcodes')) {
 function apollo_events_get_all_shortcodes() {
     return [
         [
@@ -1300,4 +1304,5 @@ function apollo_events_get_all_shortcodes() {
         ],
     ];
 }
+} // End if (!function_exists())
 

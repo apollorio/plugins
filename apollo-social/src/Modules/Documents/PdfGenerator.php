@@ -315,10 +315,17 @@ HTML;
         // Check if mPDF is available
         if (!class_exists('Mpdf\\Mpdf')) {
             // Try autoloading from common locations
+            // Use global constant with backslash prefix to access from namespace
+            if (defined('\APOLLO_SOCIAL_PLUGIN_FILE')) {
+                $plugin_file = \APOLLO_SOCIAL_PLUGIN_FILE;
+            } else {
+                // Fallback: calculate path to main plugin file
+                $plugin_file = dirname(dirname(dirname(__DIR__))) . '/apollo-social.php';
+            }
             $autoload_paths = [
                 ABSPATH . 'vendor/autoload.php',
                 WP_CONTENT_DIR . '/vendor/autoload.php',
-                dirname(APOLLO_SOCIAL_PLUGIN_FILE) . '/vendor/autoload.php',
+                dirname($plugin_file) . '/vendor/autoload.php',
             ];
             
             foreach ($autoload_paths as $path) {

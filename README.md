@@ -2,7 +2,7 @@
 
 **GitHub:** https://github.com/apollorio/plugins  
 **Version:** 2.0.0  
-**Last Updated:** 2025-01-15  
+**Last Updated:** 2025-11-30  
 
 ---
 
@@ -280,12 +280,13 @@ O apollo-events-manager carrega automaticamente:
 - ✅ Backward compatibility
 - ✅ Canvas Mode
 - ✅ Analytics e dashboards
-
-### v2.1.0 (PRÓXIMO)
-- [ ] Integrar funcionalidades do wpem-bookmarks
-- [ ] Integrar funcionalidades do wpem-rest-api
-- [ ] Remover dependência do wp-event-manager
-- [ ] Adicionar testes automatizados
+- ✅ Integrar funcionalidades do wpem-bookmarks (Favorites module)
+- ✅ Integrar funcionalidades do wpem-rest-api (REST API routes)
+- ✅ Remover dependência do wp-event-manager (Standalone)
+- ✅ Adicionar testes automatizados (PHPUnit)
+- ✅ Admin Hub pages com documentação completa
+- ✅ Security scanner para uploads
+- ✅ OSM maps sem controles de zoom
 
 ### v3.0.0 (FUTURO)
 - [ ] BuddyPress integration completa
@@ -313,7 +314,7 @@ GPL v2 or later - https://www.gnu.org/licenses/gpl-2.0.html
 ---
 
 **Status:** ✅ Production Ready  
-**Última Atualização:** 2025-01-15  
-**Próxima Release:** v2.1.0  
+**Última Atualização:** 2025-11-30  
+**Próxima Release:** v3.0.0  
 
 🚀 **Happy Coding!**

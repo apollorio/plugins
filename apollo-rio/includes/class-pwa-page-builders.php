@@ -64,7 +64,10 @@ class Apollo_PWA_Page_Builders {
         add_filter('body_class', [$this, 'add_body_classes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_pwa_assets']);
         
-        // ✅ CANVAS MODE: Block theme interference completely
+        // Enqueue manifest.json in <head> for App::rio pages
+        add_action('wp_head', [$this, 'enqueue_manifest'], 1);
+        
+        // Block theme interference completely
         add_action('template_redirect', [$this, 'block_theme_interference'], 1);
         add_filter('wp_title', [$this, 'remove_page_title'], 999);
         add_filter('document_title_parts', [$this, 'remove_page_title_parts'], 999);
@@ -166,7 +169,7 @@ class Apollo_PWA_Page_Builders {
     }
     
     /**
-     * ✅ CANVAS MODE: Block all theme interference
+     * Block all theme interference
      * Only allows CSS/JS/PHP from apollo-social, apollo-events-manager, or apollo-rio
      */
     public function block_theme_interference() {
@@ -183,7 +186,7 @@ class Apollo_PWA_Page_Builders {
             return; // Not an Apollo canvas page
         }
         
-        // ✅ CANVAS MODE: Remove theme-specific actions while preserving WordPress core and Apollo plugins
+        // Remove theme-specific actions while preserving WordPress core and Apollo plugins
         // Get current theme
         $theme = wp_get_theme();
         $theme_name = $theme->get('Name');
@@ -222,7 +225,7 @@ class Apollo_PWA_Page_Builders {
         // Remove theme filters from the_content (but keep WordPress core)
         // Only remove if they modify output significantly
         remove_all_filters('the_content');
-        // Re-add WordPress core content filters (CRITICAL: include do_shortcode!)
+        // Re-add WordPress core content filters (include do_shortcode)
         add_filter('the_content', 'do_blocks', 9);
         add_filter('the_content', 'wptexturize');
         add_filter('the_content', 'convert_smilies', 20);
@@ -231,7 +234,6 @@ class Apollo_PWA_Page_Builders {
         add_filter('the_content', 'prepend_attachment');
         add_filter('the_content', 'wp_filter_content_tags', 12);
         add_filter('the_content', 'wp_replace_insecure_home_url');
-        // ✅ CRITICAL: Re-add do_shortcode - this was missing and broke [apollo_events]!
         add_filter('the_content', 'do_shortcode', 11);
         
         // Remove theme filters from wp_title
@@ -429,6 +431,26 @@ class Apollo_PWA_Page_Builders {
         return $parts;
     }
     
+    /**
+     * Enqueue manifest.json link in <head> for App::rio pages
+     */
+    public function enqueue_manifest() {
+        global $post;
+        
+        if (!$post) {
+            return;
+        }
+        
+        $template = get_post_meta($post->ID, '_wp_page_template', true);
+        $apollo_templates = apollo_rio_get_templates();
+        
+        // Only enqueue manifest for App::rio pages (pagx_app, pagx_appclean)
+        if (array_key_exists($template, $apollo_templates) && in_array($template, ['pagx_app.php', 'pagx_appclean.php'])) {
+            $manifest_url = plugins_url('manifest.json', dirname(__FILE__));
+            echo '<link rel="manifest" href="' . esc_url($manifest_url) . '">' . "\n";
+        }
+    }
+    
     public function enqueue_pwa_assets() {
         global $post;
         
@@ -440,7 +462,7 @@ class Apollo_PWA_Page_Builders {
         $apollo_templates = apollo_rio_get_templates();
         
         if (array_key_exists($template, $apollo_templates)) {
-            // ✅ MUST: Global Apollo CSS - required for ALL canvas pages
+            // Global Apollo CSS - required for ALL canvas pages
             wp_enqueue_style(
                 'apollo-uni-css',
                 'https://assets.apollo.rio.br/uni.css',
@@ -452,7 +474,7 @@ class Apollo_PWA_Page_Builders {
                 'apollo-pwa-detect',
                 plugins_url('assets/js/pwa-detect.js', dirname(__FILE__)),
                 [],
-                '1.0.0',
+                defined('APOLLO_VERSION') ? APOLLO_VERSION : '1.0.0',
                 true
             );
             
@@ -460,7 +482,7 @@ class Apollo_PWA_Page_Builders {
                 'apollo-pwa-templates',
                 plugins_url('assets/css/pwa-templates.css', dirname(__FILE__)),
                 ['apollo-uni-css'], // Depend on global CSS
-                '1.0.0'
+                defined('APOLLO_VERSION') ? APOLLO_VERSION : '1.0.0'
             );
             
             wp_localize_script('apollo-pwa-detect', 'apolloPWA', [

@@ -216,8 +216,14 @@
                                         // Check if map already initialized
                                         if (!mapEl._leaflet_id) {
                                             var map = L.map('eventMap', {
-                                                zoomControl: true,
-                                                scrollWheelZoom: true
+                                                zoomControl: false,
+                                                scrollWheelZoom: false,
+                                                dragging: false,
+                                                touchZoom: false,
+                                                doubleClickZoom: false,
+                                                boxZoom: false,
+                                                keyboard: false,
+                                                attributionControl: false
                                             }).setView([lat, lng], 15);
                                             
                                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

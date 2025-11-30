@@ -44,8 +44,25 @@ class RegistrationServiceProvider
         ?>
         <div class="apollo-registration-fields" style="margin-top: 20px;">
             
-            <!-- CPF Field (Mandatory) -->
+            <!-- Document Type Selector -->
             <p>
+                <label for="apollo_doc_type">
+                    Tipo de Documento <span class="required">*</span>
+                </label>
+                <select 
+                    name="apollo_doc_type" 
+                    id="apollo_doc_type" 
+                    class="input" 
+                    required
+                >
+                    <option value="cpf" <?php selected(isset($_POST['apollo_doc_type']) ? $_POST['apollo_doc_type'] : 'cpf', 'cpf'); ?>>CPF (Brasileiro)</option>
+                    <option value="passport" <?php selected(isset($_POST['apollo_doc_type']) ? $_POST['apollo_doc_type'] : '', 'passport'); ?>>Passaporte (Estrangeiro)</option>
+                </select>
+                <span class="description">Selecione o tipo de documento de identificação</span>
+            </p>
+            
+            <!-- CPF Field (Mandatory for Brazilians) -->
+            <p id="cpf-field-wrapper">
                 <label for="apollo_cpf">
                     CPF <span class="required">*</span>
                 </label>
@@ -57,10 +74,49 @@ class RegistrationServiceProvider
                     value="<?php echo isset($_POST['apollo_cpf']) ? esc_attr($_POST['apollo_cpf']) : ''; ?>" 
                     placeholder="000.000.000-00"
                     maxlength="14"
-                    required
                     autocomplete="off"
                 />
                 <span class="description">Digite seu CPF completo</span>
+            </p>
+            
+            <!-- Passport Field (For foreigners) -->
+            <p id="passport-field-wrapper" style="display: none;">
+                <label for="apollo_passport">
+                    Número do Passaporte <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="apollo_passport" 
+                    id="apollo_passport" 
+                    class="input apollo-passport-input" 
+                    value="<?php echo isset($_POST['apollo_passport']) ? esc_attr($_POST['apollo_passport']) : ''; ?>" 
+                    placeholder="Ex: AB123456"
+                    maxlength="20"
+                    autocomplete="off"
+                />
+                <span class="description">Digite o número do seu passaporte</span>
+                <span class="description" style="color: #f97316; font-weight: 600; display: block; margin-top: 8px;">
+                    ⚠️ Atenção: Usuários com passaporte NÃO poderão assinar documentos digitais. 
+                    Assinatura digital requer CPF válido (lei brasileira).
+                </span>
+            </p>
+            
+            <!-- Passport Country -->
+            <p id="passport-country-wrapper" style="display: none;">
+                <label for="apollo_passport_country">
+                    País de Emissão <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="apollo_passport_country" 
+                    id="apollo_passport_country" 
+                    class="input" 
+                    value="<?php echo isset($_POST['apollo_passport_country']) ? esc_attr($_POST['apollo_passport_country']) : ''; ?>" 
+                    placeholder="Ex: Estados Unidos"
+                    maxlength="100"
+                    autocomplete="country-name"
+                />
+                <span class="description">País que emitiu seu passaporte</span>
             </p>
             
             <!-- SOUNDS Field (Mandatory) -->
@@ -141,9 +197,44 @@ class RegistrationServiceProvider
         </div>
         
         <script>
-        // CPF Mask
+        // Document Type Toggle + CPF Mask
         document.addEventListener('DOMContentLoaded', function() {
+            const docTypeSelect = document.getElementById('apollo_doc_type');
+            const cpfWrapper = document.getElementById('cpf-field-wrapper');
             const cpfInput = document.getElementById('apollo_cpf');
+            const passportWrapper = document.getElementById('passport-field-wrapper');
+            const passportInput = document.getElementById('apollo_passport');
+            const passportCountryWrapper = document.getElementById('passport-country-wrapper');
+            const passportCountryInput = document.getElementById('apollo_passport_country');
+            
+            // Toggle fields based on document type
+            function toggleDocFields() {
+                const docType = docTypeSelect.value;
+                
+                if (docType === 'cpf') {
+                    cpfWrapper.style.display = 'block';
+                    cpfInput.required = true;
+                    passportWrapper.style.display = 'none';
+                    passportInput.required = false;
+                    passportCountryWrapper.style.display = 'none';
+                    passportCountryInput.required = false;
+                } else {
+                    cpfWrapper.style.display = 'none';
+                    cpfInput.required = false;
+                    passportWrapper.style.display = 'block';
+                    passportInput.required = true;
+                    passportCountryWrapper.style.display = 'block';
+                    passportCountryInput.required = true;
+                }
+            }
+            
+            if (docTypeSelect) {
+                docTypeSelect.addEventListener('change', toggleDocFields);
+                // Initialize on load
+                toggleDocFields();
+            }
+            
+            // CPF Mask
             if (cpfInput) {
                 cpfInput.addEventListener('input', function(e) {
                     let value = e.target.value.replace(/\D/g, '');
@@ -153,6 +244,13 @@ class RegistrationServiceProvider
                         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
                         e.target.value = value;
                     }
+                });
+            }
+            
+            // Passport uppercase
+            if (passportInput) {
+                passportInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.toUpperCase();
                 });
             }
         });
@@ -165,24 +263,56 @@ class RegistrationServiceProvider
      */
     public function validateRegistrationFields(\WP_Error $errors, string $sanitized_user_login, string $user_email): \WP_Error
     {
-        // Validate CPF
-        if (empty($_POST['apollo_cpf'])) {
-            $errors->add('apollo_cpf_empty', '<strong>Erro:</strong> CPF é obrigatório.');
-        } else {
-            $cpf = CPFValidator::sanitize($_POST['apollo_cpf']);
-            if (!CPFValidator::validate($cpf)) {
-                $errors->add('apollo_cpf_invalid', '<strong>Erro:</strong> CPF inválido. Verifique os dígitos.');
+        // Get document type
+        $doc_type = isset($_POST['apollo_doc_type']) ? sanitize_text_field($_POST['apollo_doc_type']) : 'cpf';
+        
+        if ($doc_type === 'cpf') {
+            // Validate CPF
+            if (empty($_POST['apollo_cpf'])) {
+                $errors->add('apollo_cpf_empty', '<strong>Erro:</strong> CPF é obrigatório.');
             } else {
-                // Check if CPF already exists
-                $existing_user = get_users([
-                    'meta_key' => 'apollo_cpf',
-                    'meta_value' => $cpf,
-                    'number' => 1
-                ]);
-                if (!empty($existing_user)) {
-                    $errors->add('apollo_cpf_exists', '<strong>Erro:</strong> Este CPF já está cadastrado.');
+                $cpf = CPFValidator::sanitize($_POST['apollo_cpf']);
+                if (!CPFValidator::validate($cpf)) {
+                    $errors->add('apollo_cpf_invalid', '<strong>Erro:</strong> CPF inválido. Verifique os dígitos.');
+                } else {
+                    // Check if CPF already exists
+                    $existing_user = get_users([
+                        'meta_key' => 'apollo_cpf',
+                        'meta_value' => $cpf,
+                        'number' => 1
+                    ]);
+                    if (!empty($existing_user)) {
+                        $errors->add('apollo_cpf_exists', '<strong>Erro:</strong> Este CPF já está cadastrado.');
+                    }
                 }
             }
+        } elseif ($doc_type === 'passport') {
+            // Validate Passport
+            if (empty($_POST['apollo_passport'])) {
+                $errors->add('apollo_passport_empty', '<strong>Erro:</strong> Número do passaporte é obrigatório.');
+            } else {
+                $passport = sanitize_text_field($_POST['apollo_passport']);
+                if (strlen($passport) < 5 || strlen($passport) > 20) {
+                    $errors->add('apollo_passport_invalid', '<strong>Erro:</strong> Número do passaporte inválido (5-20 caracteres).');
+                } else {
+                    // Check if passport already exists
+                    $existing_user = get_users([
+                        'meta_key' => 'apollo_passport',
+                        'meta_value' => $passport,
+                        'number' => 1
+                    ]);
+                    if (!empty($existing_user)) {
+                        $errors->add('apollo_passport_exists', '<strong>Erro:</strong> Este passaporte já está cadastrado.');
+                    }
+                }
+            }
+            
+            // Validate Passport Country
+            if (empty($_POST['apollo_passport_country'])) {
+                $errors->add('apollo_passport_country_empty', '<strong>Erro:</strong> País de emissão é obrigatório.');
+            }
+        } else {
+            $errors->add('apollo_doc_type_invalid', '<strong>Erro:</strong> Tipo de documento inválido.');
         }
         
         // Validate SOUNDS
@@ -220,11 +350,34 @@ class RegistrationServiceProvider
      */
     public function saveRegistrationFields(int $user_id): void
     {
-        // Save CPF
-        if (!empty($_POST['apollo_cpf'])) {
-            $cpf = CPFValidator::sanitize($_POST['apollo_cpf']);
-            update_user_meta($user_id, 'apollo_cpf', $cpf);
-            update_user_meta($user_id, 'apollo_cpf_formatted', CPFValidator::format($cpf));
+        // Get document type
+        $doc_type = isset($_POST['apollo_doc_type']) ? sanitize_text_field($_POST['apollo_doc_type']) : 'cpf';
+        update_user_meta($user_id, 'apollo_doc_type', $doc_type);
+        
+        if ($doc_type === 'cpf') {
+            // Save CPF
+            if (!empty($_POST['apollo_cpf'])) {
+                $cpf = CPFValidator::sanitize($_POST['apollo_cpf']);
+                update_user_meta($user_id, 'apollo_cpf', $cpf);
+                update_user_meta($user_id, 'apollo_cpf_formatted', CPFValidator::format($cpf));
+                // Clear passport fields if any
+                delete_user_meta($user_id, 'apollo_passport');
+                delete_user_meta($user_id, 'apollo_passport_country');
+            }
+            // Mark as eligible for document signing
+            update_user_meta($user_id, 'apollo_can_sign_documents', true);
+        } elseif ($doc_type === 'passport') {
+            // Save Passport
+            if (!empty($_POST['apollo_passport'])) {
+                $passport = strtoupper(sanitize_text_field($_POST['apollo_passport']));
+                update_user_meta($user_id, 'apollo_passport', $passport);
+                update_user_meta($user_id, 'apollo_passport_country', sanitize_text_field($_POST['apollo_passport_country']));
+                // Clear CPF fields if any
+                delete_user_meta($user_id, 'apollo_cpf');
+                delete_user_meta($user_id, 'apollo_cpf_formatted');
+            }
+            // Mark as NOT eligible for document signing (passport users can't sign)
+            update_user_meta($user_id, 'apollo_can_sign_documents', false);
         }
         
         // Save SOUNDS

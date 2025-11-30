@@ -17,8 +17,8 @@ function apollo_add_admin_menu() {
 add_action('admin_menu', 'apollo_add_admin_menu');
 
 function apollo_settings_init() {
+    // Register settings with sanitization callbacks
     register_setting('apollo_settings', 'apollo_android_app_url', 'apollo_sanitize_android_app_url');
-    register_setting('apollo_settings', 'apollo_pwa_install_page_id');
     
     add_settings_section(
         'apollo_settings_section',
@@ -72,41 +72,74 @@ function apollo_settings_page() {
         
         <hr>
         
-        <h2><?php esc_html_e('Page Builder Guide', 'apollo-rio'); ?></h2>
-        <table class="widefat">
+        <h2><?php esc_html_e('Como Associar Templates PWA às Páginas', 'apollo-rio'); ?></h2>
+        <div class="card" style="max-width: 800px; margin-top: 20px;">
+            <ol style="line-height: 1.8;">
+                <li>
+                    <strong><?php esc_html_e('Edite a página desejada:', 'apollo-rio'); ?></strong>
+                    <?php esc_html_e('Vá para Páginas → Todas as Páginas e clique em "Editar" na página que deseja configurar.', 'apollo-rio'); ?>
+                </li>
+                <li>
+                    <strong><?php esc_html_e('Selecione o template:', 'apollo-rio'); ?></strong>
+                    <?php esc_html_e('Na coluna lateral direita, encontre o metabox "Atributos da Página" → "Template".', 'apollo-rio'); ?>
+                </li>
+                <li>
+                    <strong><?php esc_html_e('Escolha um dos templates disponíveis:', 'apollo-rio'); ?></strong>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><strong>Site::rio</strong> - <?php esc_html_e('Página pública, sempre mostra conteúdo', 'apollo-rio'); ?></li>
+                        <li><strong>App::rio</strong> - <?php esc_html_e('Página do app com header completo', 'apollo-rio'); ?></li>
+                        <li><strong>App::rio clean</strong> - <?php esc_html_e('Página do app sem navegação (minimal)', 'apollo-rio'); ?></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong><?php esc_html_e('Salve a página:', 'apollo-rio'); ?></strong>
+                    <?php esc_html_e('Clique em "Atualizar" para salvar as alterações.', 'apollo-rio'); ?>
+                </li>
+            </ol>
+        </div>
+        
+        <h2><?php esc_html_e('Guia de Templates PWA', 'apollo-rio'); ?></h2>
+        <table class="widefat" style="margin-top: 20px;">
             <thead>
                 <tr>
-                    <th><?php esc_html_e('Template', 'apollo-rio'); ?></th>
-                    <th><?php esc_html_e('Header/Footer', 'apollo-rio'); ?></th>
-                    <th><?php esc_html_e('Desktop', 'apollo-rio'); ?></th>
-                    <th><?php esc_html_e('Mobile Browser', 'apollo-rio'); ?></th>
-                    <th><?php esc_html_e('Mobile PWA', 'apollo-rio'); ?></th>
+                    <th style="padding: 12px;"><?php esc_html_e('Template', 'apollo-rio'); ?></th>
+                    <th style="padding: 12px;"><?php esc_html_e('Header/Footer', 'apollo-rio'); ?></th>
+                    <th style="padding: 12px;"><?php esc_html_e('Desktop', 'apollo-rio'); ?></th>
+                    <th style="padding: 12px;"><?php esc_html_e('Mobile Browser', 'apollo-rio'); ?></th>
+                    <th style="padding: 12px;"><?php esc_html_e('Mobile PWA', 'apollo-rio'); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td><strong>Site::rio</strong></td>
-                    <td>Full (with nav)</td>
-                    <td>✅ Content</td>
-                    <td>✅ Content</td>
-                    <td>✅ Content</td>
+                    <td><?php esc_html_e('Full (with nav)', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
                 </tr>
                 <tr>
                     <td><strong>App::rio</strong></td>
-                    <td>Full (with nav)</td>
-                    <td>✅ Content</td>
-                    <td>⚠️ Install Page</td>
-                    <td>✅ Content</td>
+                    <td><?php esc_html_e('Full (with nav)', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
+                    <td>⚠️ <?php esc_html_e('Install Page', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
                 </tr>
                 <tr>
                     <td><strong>App::rio clean</strong></td>
-                    <td>Minimal (no nav)</td>
-                    <td>✅ Content</td>
-                    <td>⚠️ Install Page</td>
-                    <td>✅ Content</td>
+                    <td><?php esc_html_e('Minimal (no nav)', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
+                    <td>⚠️ <?php esc_html_e('Install Page', 'apollo-rio'); ?></td>
+                    <td>✅ <?php esc_html_e('Content', 'apollo-rio'); ?></td>
                 </tr>
             </tbody>
         </table>
+        
+        <div class="notice notice-info" style="margin-top: 20px;">
+            <p>
+                <strong><?php esc_html_e('Nota:', 'apollo-rio'); ?></strong>
+                <?php esc_html_e('Os templates "App::rio" e "App::rio clean" mostram uma página de instalação do PWA quando acessados via navegador mobile. Quando instalado como PWA, o conteúdo é exibido normalmente.', 'apollo-rio'); ?>
+            </p>
+        </div>
     </div>
     <?php
 }

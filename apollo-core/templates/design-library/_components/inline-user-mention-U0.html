@@ -1,0 +1,317 @@
+<!--
+  Component: inline-user-mention-U0
+  Type: U0 (First design variant)
+  Description: Standardized user mention display with avatar, badges, verified icon
+  Used in: Feed posts, comments, group members, document authors, etc.
+  
+  Placeholders:
+  - {{user_id}} - User ID
+  - {{user_avatar}} - Avatar URL
+  - {{user_name}} - Display name
+  - {{user_handle}} - @username
+  - {{user_badges}} - Array of membership badges
+  - {{user_nucleos}} - Array of núcleo memberships
+  - {{user_verified}} - Boolean: is verified
+  - {{time_ago}} - Time since action (optional)
+  - {{show_nucleos}} - Boolean: show núcleo list
+  
+  IMPORTANT: NO followers/friends count - Apollo is against ego/status culture
+-->
+
+<div class="apollo-user-mention" data-component="inline-user-mention" data-type="U0" data-user-id="{{user_id}}">
+  
+  <!-- Avatar -->
+  <a href="{{user_profile_url}}" class="user-avatar-link" data-tooltip="Ver perfil de {{user_name}}">
+    <img src="{{user_avatar}}" alt="{{user_name}}" class="user-avatar-img" loading="lazy">
+  </a>
+  
+  <!-- User Info -->
+  <div class="user-info-block">
+    <!-- First Row: Name, Handle, Badges, Verified, Time -->
+    <div class="user-primary-row">
+      <a href="{{user_profile_url}}" class="user-name" data-tooltip="{{user_name}}">{{user_name}}</a>
+      <span class="user-handle" data-tooltip="Username">@{{user_handle}}</span>
+      
+      <!-- Membership Badges -->
+      <span class="user-badges" data-tooltip="Assinaturas e funções">
+        <template data-loop="{{user_badges}}">
+          <span class="badge badge-{{badge_type}}" data-tooltip="{{badge_tooltip}}">{{badge_label}}</span>
+        </template>
+      </span>
+      
+      <!-- Verified Icon (if verified) -->
+      <template data-if="{{user_verified}}">
+        <span class="verified-icon" aria-label="Verificado" data-tooltip="Conta verificada">
+          <i class="ri-verified-badge-fill"></i>
+        </span>
+      </template>
+      
+      <!-- Time Ago (optional) -->
+      <template data-if="{{time_ago}}">
+        <span class="time-ago" data-tooltip="Publicado há {{time_ago}}">{{time_ago}}</span>
+      </template>
+    </div>
+    
+    <!-- Second Row: Núcleos (if show_nucleos) -->
+    <template data-if="{{show_nucleos}}">
+      <div class="user-nucleos-row" data-tooltip="Núcleos que participa">
+        <template data-loop="{{user_nucleos}}">
+          <a href="{{nucleo_url}}" class="nucleo-link" data-tooltip="{{nucleo_name}}">
+            <img src="{{nucleo_avatar}}" alt="" class="nucleo-mini-avatar">
+            {{nucleo_name}}
+          </a>
+          <span class="nucleo-separator">·</span>
+        </template>
+      </div>
+    </template>
+  </div>
+  
+</div>
+
+<style>
+/* ===== User Mention Component - U0 ===== */
+.apollo-user-mention {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Avatar */
+.user-avatar-link {
+  flex-shrink: 0;
+}
+
+.user-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.user-avatar-link:hover .user-avatar-img {
+  border-color: #f97316;
+}
+
+/* User Info Block */
+.user-info-block {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Primary Row */
+.user-primary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Name */
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #0f172a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.user-name:hover {
+  color: #f97316;
+}
+
+/* Handle */
+.user-handle {
+  opacity: 0.5;
+  font-weight: 400;
+  font-size: 12.5px;
+  color: inherit;
+  margin: 0 5px;
+}
+
+/* Badges Container */
+.user-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+/* Badge Base */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 18px;
+  letter-spacing: 1px;
+  border: 1px solid transparent;
+  padding: 1px 4px;
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+/* Badge Variants */
+.badge-apollo {
+  background: #f97316;
+  border-radius: 5px;
+  font-size: 7px;
+  padding: 0.5px 3px;
+}
+
+.badge-apollo:hover {
+  background: #ea580c;
+}
+
+.badge-dj {
+  background: #2563eb;
+}
+
+.badge-dj:hover {
+  background: #3b82f6;
+}
+
+.badge-producer {
+  background: #2563eb;
+}
+
+.badge-producer:hover {
+  background: #3b82f6;
+}
+
+.badge-cena-rio {
+  background: #7c3aed;
+}
+
+.badge-cena-rio:hover {
+  background: #8b5cf6;
+}
+
+.badge-promoter {
+  background: #059669;
+}
+
+.badge-promoter:hover {
+  background: #10b981;
+}
+
+.badge-venue {
+  background: #dc2626;
+}
+
+.badge-venue:hover {
+  background: #ef4444;
+}
+
+.badge-artist {
+  background: #0891b2;
+}
+
+.badge-artist:hover {
+  background: #06b6d4;
+}
+
+/* Verified Icon - Gradient Effect */
+.verified-icon {
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1;
+  background-image: linear-gradient(to right, 
+    #FFD700, /* Gold */
+    #FFA07A, /* Light Salmon */
+    #FF6347  /* Tomato */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.verified-icon i {
+  font-size: 14px;
+}
+
+/* Time Ago */
+.time-ago {
+  opacity: 0.5;
+  font-weight: 400;
+  font-size: 11px;
+  margin-left: 10px;
+}
+
+/* Núcleos Row */
+.user-nucleos-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.nucleo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0.5;
+  font-weight: 400;
+  font-size: 10.5px;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.nucleo-link:hover {
+  opacity: 0.8;
+}
+
+.nucleo-mini-avatar {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nucleo-separator {
+  opacity: 0.5;
+  font-weight: 400;
+  font-size: 11px;
+  margin: 0 1px;
+}
+
+.nucleo-separator:last-child {
+  display: none;
+}
+
+/* Dark Mode */
+body.dark-mode .user-name {
+  color: #f1f5f9;
+}
+
+body.dark-mode .user-name:hover {
+  color: #f97316;
+}
+
+/* Compact Variant (for comments, small spaces) */
+.apollo-user-mention.compact .user-avatar-img {
+  width: 32px;
+  height: 32px;
+}
+
+.apollo-user-mention.compact .user-name {
+  font-size: 13px;
+}
+
+.apollo-user-mention.compact .user-handle {
+  font-size: 11px;
+}
+
+.apollo-user-mention.compact .badge {
+  font-size: 7px;
+  padding: 0px 3px;
+}
+</style>
+

@@ -367,7 +367,16 @@ if (function_exists('apollo_shadcn_enqueue')) {
             console.log('✅ Leaflet loaded. Initializing map with coords:', lat, lng);
             
             try {
-                var map = L.map('localMap').setView([lat, lng], 15);
+                var map = L.map('localMap', {
+                zoomControl: false, 
+                scrollWheelZoom: false,
+                dragging: false,
+                touchZoom: false,
+                doubleClickZoom: false,
+                boxZoom: false,
+                keyboard: false,
+                attributionControl: false
+            }).setView([lat, lng], 15);
                 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,

@@ -55,7 +55,7 @@ class GroupsController extends BaseController
         $filtered_groups = [];
         
         foreach ($groups as $group) {
-            if ($this->groupPolicy->canView($user, $group)) {
+            if ($this->groupPolicy->canView($group, $user)) {
                 $filtered_groups[] = $this->groupToArray($group);
             }
         }

@@ -19,37 +19,17 @@ class Apollo_Moderation_Audit_Log {
 	 * Initialize
 	 */
 	public static function init() {
-		// Hook into activation to create table.
-		add_action( 'apollo_core_activated', array( __CLASS__, 'create_table' ) );
+		// Ensure audit log schema exists immediately when the module loads.
+		self::create_table();
 	}
 
 	/**
 	 * Create audit log table
 	 */
 	public static function create_table() {
-		global $wpdb;
-		$table_name      = $wpdb->prefix . 'apollo_mod_log';
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$sql = "CREATE TABLE $table_name (
-			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			actor_id bigint(20) unsigned NOT NULL,
-			actor_role varchar(50) NOT NULL,
-			action varchar(50) NOT NULL,
-			target_type varchar(50) NOT NULL,
-			target_id bigint(20) unsigned NOT NULL,
-			details longtext,
-			created_at datetime DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (id),
-			KEY actor_id_idx (actor_id),
-			KEY action_idx (action),
-			KEY target_type_idx (target_type),
-			KEY target_id_idx (target_id),
-			KEY created_at_idx (created_at)
-		) $charset_collate;";
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql );
+		if ( function_exists( 'apollo_create_db_tables' ) ) {
+			apollo_create_db_tables();
+		}
 	}
 
 	/**

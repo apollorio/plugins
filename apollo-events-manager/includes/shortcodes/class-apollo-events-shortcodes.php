@@ -27,9 +27,16 @@ class Apollo_Events_Shortcodes {
         add_action('wp', array($this, 'shortcode_action_handler'));
         
         // Event shortcodes
-        add_shortcode('submit_event_form', array($this, 'submit_event_form'));
+        // NOTE: 'events' is registered in apollo-events-manager.php (main shortcode)
+        // NOTE: 'submit_event_form' may be registered elsewhere - check before registering
+        if (!shortcode_exists('submit_event_form')) {
+            add_shortcode('submit_event_form', array($this, 'submit_event_form'));
+        }
         add_shortcode('event_dashboard', array($this, 'event_dashboard'));
-        add_shortcode('events', array($this, 'output_events'));
+        // 'events' shortcode is registered in main plugin file - do not register here
+        // if (!shortcode_exists('events')) {
+        //     add_shortcode('events', array($this, 'output_events'));
+        // }
         add_shortcode('event', array($this, 'output_event'));
         add_shortcode('event_summary', array($this, 'output_event_summary'));
         add_shortcode('past_events', array($this, 'output_past_events'));
@@ -399,8 +406,15 @@ class Apollo_Events_Shortcodes {
                     apollo_record_event_view(get_the_ID());
                 }
                 
-                // Use event card template
-                include APOLLO_WPEM_PATH . 'templates/event-card.php';
+                // Use event card template (with placeholder/tooltip support)
+                $card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+                if (file_exists($card_template)) {
+                    include $card_template;
+                } else {
+                    echo '<div class="apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de card não encontrado', 'apollo-events-manager') . '">';
+                    echo '<span class="apollo-placeholder">' . esc_html__('Card de evento não disponível', 'apollo-events-manager') . '</span>';
+                    echo '</div>';
+                }
             endwhile;
             echo '</div>';
             
@@ -414,9 +428,9 @@ class Apollo_Events_Shortcodes {
                 echo '</div>';
             endif;
         else:
-            echo '<p class="apollo-alert apollo-alert-info">' . 
-                 esc_html__('No events found.', 'apollo-events-manager') . 
-                 '</p>';
+            echo '<div class="apollo-alert apollo-alert-info" data-tooltip="' . esc_attr__('Nenhum evento encontrado com os filtros aplicados', 'apollo-events-manager') . '">';
+            echo '<span class="apollo-placeholder">' . esc_html__('Nenhum evento encontrado.', 'apollo-events-manager') . '</span>';
+            echo '</div>';
         endif;
         
         wp_reset_postdata();
@@ -455,8 +469,15 @@ class Apollo_Events_Shortcodes {
         $post = $event;
         setup_postdata($post);
         
-        // Use single event template
-        include APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
+        // Use single event template (with placeholder/tooltip support)
+        $single_template = APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
+        if (file_exists($single_template)) {
+            include $single_template;
+        } else {
+            echo '<div class="apollo-alert apollo-alert-danger" data-tooltip="' . esc_attr__('Template de evento não encontrado', 'apollo-events-manager') . '">';
+            echo '<span class="apollo-placeholder">' . esc_html__('Template de evento não disponível', 'apollo-events-manager') . '</span>';
+            echo '</div>';
+        }
         
         wp_reset_postdata();
         return ob_get_clean();
@@ -662,7 +683,15 @@ class Apollo_Events_Shortcodes {
         if ($events->have_posts()):
             echo '<div class="apollo-past-events">';
             while ($events->have_posts()): $events->the_post();
-                include APOLLO_WPEM_PATH . 'templates/event-card.php';
+                // Use event card template (with placeholder/tooltip support)
+                $card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+                if (file_exists($card_template)) {
+                    include $card_template;
+                } else {
+                    echo '<div class="apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de card não encontrado', 'apollo-events-manager') . '">';
+                    echo '<span class="apollo-placeholder">' . esc_html__('Card de evento não disponível', 'apollo-events-manager') . '</span>';
+                    echo '</div>';
+                }
             endwhile;
             echo '</div>';
         else:
@@ -721,7 +750,15 @@ class Apollo_Events_Shortcodes {
                     apollo_record_event_view(get_the_ID());
                 }
                 
-                include APOLLO_WPEM_PATH . 'templates/event-card.php';
+                // Use event card template (with placeholder/tooltip support)
+                $card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+                if (file_exists($card_template)) {
+                    include $card_template;
+                } else {
+                    echo '<div class="apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de card não encontrado', 'apollo-events-manager') . '">';
+                    echo '<span class="apollo-placeholder">' . esc_html__('Card de evento não disponível', 'apollo-events-manager') . '</span>';
+                    echo '</div>';
+                }
             endwhile;
             echo '</div>';
         else:
@@ -791,7 +828,15 @@ class Apollo_Events_Shortcodes {
             echo '<div class="apollo-related-events">';
             echo '<h3>' . esc_html__('Related Events', 'apollo-events-manager') . '</h3>';
             while ($events->have_posts()): $events->the_post();
-                include APOLLO_WPEM_PATH . 'templates/event-card.php';
+                // Use event card template (with placeholder/tooltip support)
+                $card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+                if (file_exists($card_template)) {
+                    include $card_template;
+                } else {
+                    echo '<div class="apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de card não encontrado', 'apollo-events-manager') . '">';
+                    echo '<span class="apollo-placeholder">' . esc_html__('Card de evento não disponível', 'apollo-events-manager') . '</span>';
+                    echo '</div>';
+                }
             endwhile;
             echo '</div>';
         endif;
@@ -908,11 +953,12 @@ class Apollo_Events_Shortcodes {
                 $instagram = get_post_meta($dj_id, '_dj_instagram', true);
                 $soundcloud = get_post_meta($dj_id, '_dj_soundcloud', true);
                 
-                // Include DJ card template
-                if (file_exists(APOLLO_WPEM_PATH . 'templates/dj-card.php')) {
-                    include APOLLO_WPEM_PATH . 'templates/dj-card.php';
+                // Include DJ card template (with placeholder/tooltip support)
+                $dj_card_template = APOLLO_WPEM_PATH . 'templates/dj-card.php';
+                if (file_exists($dj_card_template)) {
+                    include $dj_card_template;
                 } else {
-                    // Fallback basic card
+                    // Fallback basic card with tooltip
                     ?>
                     <div class="apollo-dj-card">
                         <?php if ($dj_photo): ?>
@@ -973,28 +1019,31 @@ class Apollo_Events_Shortcodes {
         $dj_id = $atts['id'] ? absint($atts['id']) : (is_singular('event_dj') ? get_the_ID() : 0);
         
         if (!$dj_id) {
-            return '<p class="apollo-alert apollo-alert-danger">' . 
-                   esc_html__('DJ ID is required.', 'apollo-events-manager') . 
-                   '</p>';
+            return '<div class="apollo-alert apollo-alert-danger" data-tooltip="' . esc_attr__('ID do DJ é obrigatório', 'apollo-events-manager') . '">' . 
+                   '<span class="apollo-placeholder">' . esc_html__('ID do DJ é obrigatório.', 'apollo-events-manager') . '</span>' .
+                   '</div>';
         }
         
         $dj = get_post($dj_id);
         if (!$dj || $dj->post_type !== 'event_dj') {
-            return '<p class="apollo-alert apollo-alert-danger">' . 
-                   esc_html__('DJ not found.', 'apollo-events-manager') . 
-                   '</p>';
+            return '<div class="apollo-alert apollo-alert-danger" data-tooltip="' . esc_attr__('DJ não encontrado ou tipo inválido', 'apollo-events-manager') . '">' . 
+                   '<span class="apollo-placeholder">' . esc_html__('DJ não encontrado.', 'apollo-events-manager') . '</span>' .
+                   '</div>';
         }
         
         ob_start();
         
-        // Include single DJ template
-        if (file_exists(APOLLO_WPEM_PATH . 'templates/single-event_dj.php')) {
-            include APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+        // Include single DJ template (with placeholder/tooltip support)
+        $dj_template = APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+        if (file_exists($dj_template)) {
+            include $dj_template;
         } else {
-            echo '<div class="apollo-single-dj">';
+            echo '<div class="apollo-single-dj apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de DJ não encontrado', 'apollo-events-manager') . '">';
             echo '<h2>' . esc_html($dj->post_title) . '</h2>';
             if ($atts['show_bio']) {
                 echo '<div class="dj-bio">' . wp_kses_post($dj->post_content) . '</div>';
+            } else {
+                echo '<span class="apollo-placeholder">' . esc_html__('Biografia não disponível', 'apollo-events-manager') . '</span>';
             }
             echo '</div>';
         }
@@ -1122,11 +1171,12 @@ class Apollo_Events_Shortcodes {
                     }
                 }
                 
-                // Include local card template
-                if (file_exists(APOLLO_WPEM_PATH . 'templates/local-card.php')) {
-                    include APOLLO_WPEM_PATH . 'templates/local-card.php';
+                // Include local card template (with placeholder/tooltip support)
+                $local_card_template = APOLLO_WPEM_PATH . 'templates/local-card.php';
+                if (file_exists($local_card_template)) {
+                    include $local_card_template;
                 } else {
-                    // Fallback basic card
+                    // Fallback basic card with tooltip
                     ?>
                     <div class="apollo-local-card">
                         <?php if ($local_photo): ?>
@@ -1192,28 +1242,31 @@ class Apollo_Events_Shortcodes {
         $local_id = $atts['id'] ? absint($atts['id']) : (is_singular('event_local') ? get_the_ID() : 0);
         
         if (!$local_id) {
-            return '<p class="apollo-alert apollo-alert-danger">' . 
-                   esc_html__('Venue ID is required.', 'apollo-events-manager') . 
-                   '</p>';
+            return '<div class="apollo-alert apollo-alert-danger" data-tooltip="' . esc_attr__('ID do local é obrigatório', 'apollo-events-manager') . '">' . 
+                   '<span class="apollo-placeholder">' . esc_html__('ID do local é obrigatório.', 'apollo-events-manager') . '</span>' .
+                   '</div>';
         }
         
         $local = get_post($local_id);
         if (!$local || $local->post_type !== 'event_local') {
-            return '<p class="apollo-alert apollo-alert-danger">' . 
-                   esc_html__('Venue not found.', 'apollo-events-manager') . 
-                   '</p>';
+            return '<div class="apollo-alert apollo-alert-danger" data-tooltip="' . esc_attr__('Local não encontrado ou tipo inválido', 'apollo-events-manager') . '">' . 
+                   '<span class="apollo-placeholder">' . esc_html__('Local não encontrado.', 'apollo-events-manager') . '</span>' .
+                   '</div>';
         }
         
         ob_start();
         
-        // Include single local template
-        if (file_exists(APOLLO_WPEM_PATH . 'templates/single-event_local.php')) {
-            include APOLLO_WPEM_PATH . 'templates/single-event_local.php';
+        // Include single local template (with placeholder/tooltip support)
+        $local_template = APOLLO_WPEM_PATH . 'templates/single-event_local.php';
+        if (file_exists($local_template)) {
+            include $local_template;
         } else {
-            echo '<div class="apollo-single-local">';
+            echo '<div class="apollo-single-local apollo-alert apollo-alert-warning" data-tooltip="' . esc_attr__('Template de local não encontrado', 'apollo-events-manager') . '">';
             echo '<h2>' . esc_html($local->post_title) . '</h2>';
             if ($atts['show_description']) {
                 echo '<div class="local-description">' . wp_kses_post($local->post_content) . '</div>';
+            } else {
+                echo '<span class="apollo-placeholder">' . esc_html__('Descrição não disponível', 'apollo-events-manager') . '</span>';
             }
             echo '</div>';
         }

@@ -3,7 +3,7 @@
  * Plugin Name: Apollo Events Manager
  * Plugin URI: https://apollo.rio.br
  * Description: Modern event management with Motion.dev, ShadCN, Tailwind. Canvas mode, Statistics, Line Graphs.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Author: Apollo::Rio Team
  * Author URI: https://apollo.rio.br
  * License: GPL-2.0-or-later
@@ -11,16 +11,7 @@
  * Text Domain: apollo-events-manager
  * Domain Path: /languages
  * Requires at least: 6.0
- * Tested up to: 6.8
  * Requires PHP: 8.1
- * 
- * Release: 15/01/2025
- * Status: Production Ready ✅
- * Tasks: 144/144 (100%)
- * Templates Tailwind: 4/4 Integrated ✅
- * Shortcodes: All Registered ✅
- * Security: Verified ✅
- * Performance: Optimized ✅
  */
 
 // Prevent direct access
@@ -29,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define constants
-define('APOLLO_WPEM_VERSION', '0.1.0');
+define('APOLLO_WPEM_VERSION', '1.0.0');
 // APOLLO_AEM_VERSION removido - usar apenas APOLLO_WPEM_VERSION
 define('APOLLO_WPEM_PATH', plugin_dir_path(__FILE__));
 define('APOLLO_WPEM_URL', plugin_dir_url(__FILE__));
@@ -42,6 +33,23 @@ if (!defined('APOLLO_DEBUG')) {
 // Portal debug mode (enabled when APOLLO_DEBUG is true)
 if (!defined('APOLLO_PORTAL_DEBUG')) {
     define('APOLLO_PORTAL_DEBUG', (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_DEBUG') && APOLLO_DEBUG));
+}
+
+/**
+ * Fallback function for logging missing files
+ * Safe fallback when Apollo Core is not active
+ * 
+ * @param string $path Path to the missing file
+ * @return void
+ */
+if (!function_exists('apollo_log_missing_file')) {
+    function apollo_log_missing_file($path) {
+        // Only log if WP_DEBUG is enabled
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Apollo Events: missing include: ' . esc_html($path));
+        }
+        // Never throw fatal error - just log silently
+    }
 }
 
 /**
@@ -80,11 +88,12 @@ function apollo_events_missing_core_notice() {
     <?php
 }
 
-// Early dependency check - prevent fatal errors if core is missing
+// Early dependency check - show notice but don't block plugin loading
+// This allows the plugin to activate even if Core loads after
 if (!apollo_events_dependency_ok()) {
     add_action('admin_notices', 'apollo_events_missing_core_notice');
-    // Don't load the rest of the plugin
-    return;
+    // Continue loading - plugin will work in limited mode
+    // Core can be activated later and plugin will function normally
 }
 
 if (!function_exists('apollo_eve_parse_start_date')) {
@@ -439,6 +448,12 @@ if (file_exists($admin_statistics_menu_file)) {
     apollo_log_missing_file($admin_statistics_menu_file);
 }
 
+// Load Admin Apollo Hub (Documentation & Settings)
+$admin_hub_file = plugin_dir_path(__FILE__) . 'includes/admin-apollo-hub.php';
+if (file_exists($admin_hub_file)) {
+    require_once $admin_hub_file;
+}
+
 // Load Context Menu class
 $context_menu_file = plugin_dir_path(__FILE__) . 'includes/class-context-menu.php';
 if (file_exists($context_menu_file)) {
@@ -600,6 +615,9 @@ class Apollo_Events_Manager_Plugin {
      * Initialize hooks
      */
     private function init_hooks() {
+        // Register with Apollo Core Integration Bridge when ready
+        add_action('apollo_core_ready', array($this, 'on_core_ready'));
+        
         // WordPress 6.7.0+ requires translations to load at 'init' or later
         add_action('init', array($this, 'load_textdomain'), 1);
         add_action('init', array($this, 'ensure_events_page'));
@@ -607,19 +625,13 @@ class Apollo_Events_Manager_Plugin {
         add_filter('template_include', array($this, 'canvas_template'), 99);
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
         
-        // Shortcodes
+        // NOTE: Most shortcodes are registered by Apollo_Events_Shortcodes class
+        // See: includes/shortcodes/class-apollo-events-shortcodes.php
+        // Only plugin-specific shortcodes are registered here
+        
+        // Plugin-specific shortcodes (not in class)
         add_shortcode('apollo_event', array($this, 'apollo_event_shortcode'));
         add_shortcode('apollo_event_user_overview', array($this, 'apollo_event_user_overview_shortcode'));
-
-        // Additional shortcodes
-        add_shortcode('event', array($this, 'event_single_shortcode')); // NEW: Full event content for lightbox
-        add_shortcode('event_djs', array($this, 'event_djs_shortcode'));
-        add_shortcode('event_locals', array($this, 'event_locals_shortcode'));
-        add_shortcode('event_summary', array($this, 'event_summary_shortcode'));
-        add_shortcode('local_dashboard', array($this, 'local_dashboard_shortcode'));
-        add_shortcode('past_events', array($this, 'past_events_shortcode'));
-        add_shortcode('single_event_dj', array($this, 'single_event_dj_shortcode'));
-        add_shortcode('single_event_local', array($this, 'single_event_local_shortcode'));
         
         // New Tailwind-based shortcodes
         add_shortcode('apollo_dj_profile', array($this, 'apollo_dj_profile_shortcode'));
@@ -629,11 +641,12 @@ class Apollo_Events_Manager_Plugin {
         // FASE 2: Shortcode oficial de submissão de eventos
         add_shortcode('apollo_event_submit', array($this, 'render_submit_form'));
         
-        // FASE 4: Industry Overview Dashboard
-        add_shortcode('apollo_event_user_overview', array($this, 'industry_overview_shortcode'));
-        
-        // Aliases para backward compatibility (chamam o mesmo gateway)
-        add_shortcode('submit_event_form', array($this, 'render_submit_form'));
+        // Aliases para backward compatibility
+        // NOTE: submit_event_form is registered by Apollo_Events_Shortcodes class
+        // This is kept for backward compatibility only
+        if (!shortcode_exists('submit_event_form')) {
+            add_shortcode('submit_event_form', array($this, 'render_submit_form'));
+        }
         add_shortcode('apollo_eventos', array($this, 'render_submit_form'));
         
         // AJAX handlers
@@ -771,11 +784,7 @@ class Apollo_Events_Manager_Plugin {
      * Prevents fatal errors if WPEM is accidentally reactivated
      */
     public function wpem_compatibility_notice($templates) {
-        // Removed WP_Event_Manager dependency check - Apollo Events Manager is now standalone
-        // Legacy compatibility mode disabled
-        if (false && class_exists('WP_Event_Manager')) {
-            error_log('⚠️ WPEM hook called but Apollo is independent now. Consider deactivating WP Event Manager.');
-        }
+        // Apollo Events Manager is now standalone - no WP Event Manager dependency
         return $templates;
     }
     
@@ -880,6 +889,29 @@ class Apollo_Events_Manager_Plugin {
             error_log("✅ Auto-geocoded local {$post_id}: {$data[0]['lat']}, {$data[0]['lon']}");
         } else {
             error_log("⚠️ No coordinates found for local {$post_id}: {$query}");
+        }
+    }
+
+    /**
+     * Called when Apollo Core Integration Bridge is ready
+     * Sets up cross-plugin integrations
+     */
+    public function on_core_ready() {
+        /**
+         * Apollo Events Manager is now connected to Core ecosystem
+         * Core provides: shared utilities, template system, canvas mode, notifications
+         * 
+         * Use Core utilities:
+         * - apollo_get_asset_url() for unified assets
+         * - apollo_get_template() for template hierarchy
+         * - apollo_add_notification() for user notifications
+         * - apollo_is_canvas_mode() for canvas detection
+         */
+        do_action('apollo_events_connected');
+        
+        // Log connection in debug mode
+        if (function_exists('apollo_is_debug_mode') && apollo_is_debug_mode()) {
+            error_log('Apollo Events Manager connected to Core ecosystem');
         }
     }
 
@@ -1776,6 +1808,9 @@ class Apollo_Events_Manager_Plugin {
             $events = get_posts(array(
                 'post_type' => $event_post_type,
                 'posts_per_page' => 50, // Limit to prevent performance issues
+                'no_found_rows' => true, // Skip pagination count for better performance
+                'update_post_meta_cache' => true, // Cache meta for better performance
+                'update_post_term_cache' => false, // Skip term cache if not needed
                 'meta_query' => array(
                     array(
                         'key' => '_event_start_date',
@@ -1913,6 +1948,17 @@ class Apollo_Events_Manager_Plugin {
             );
         }
 
+        // Optimize query for performance
+        if (!isset($args['no_found_rows'])) {
+            $args['no_found_rows'] = true;
+        }
+        if (!isset($args['update_post_meta_cache'])) {
+            $args['update_post_meta_cache'] = true;
+        }
+        if (!isset($args['update_post_term_cache'])) {
+            $args['update_post_term_cache'] = false; // Skip if not needed
+        }
+
         $events = get_posts($args);
 
         ob_start();
@@ -1991,6 +2037,9 @@ class Apollo_Events_Manager_Plugin {
             'post_type' => $event_post_type,
             'posts_per_page' => -1,
             'post_status' => 'publish',
+            'no_found_rows' => true, // Skip pagination count for better performance
+            'update_post_meta_cache' => true, // Cache meta for better performance
+            'update_post_term_cache' => false, // Skip term cache if not needed
             'meta_query' => array(
                 array(
                     'key' => '_event_start_date',
@@ -2381,17 +2430,23 @@ class Apollo_Events_Manager_Plugin {
      * AJAX: Approve event (moderation)
      */
     public function ajax_mod_approve_event() {
-        check_ajax_referer('apollo_mod_events', 'apollo_mod_nonce');
-        
-        if (!current_user_can('edit_posts') && !current_user_can('edit_event_listings')) {
-            wp_send_json_error(__('Você não tem permissão para aprovar eventos.', 'apollo-events-manager'));
+        // Verify nonce
+        if (!isset($_POST['apollo_mod_nonce']) || !wp_verify_nonce($_POST['apollo_mod_nonce'], 'apollo_mod_events')) {
+            wp_send_json_error(__('Nonce inválido.', 'apollo-events-manager'), 403);
             return;
         }
         
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        // Check capabilities for moderation
+        if (!current_user_can('edit_posts') && !current_user_can('edit_event_listings')) {
+            wp_send_json_error(__('Você não tem permissão para aprovar eventos.', 'apollo-events-manager'), 403);
+            return;
+        }
+        
+        // Sanitize input
+        $event_id = isset($_POST['event_id']) ? absint(wp_unslash($_POST['event_id'])) : 0;
         
         if (!$event_id) {
-            wp_send_json_error(__('ID do evento inválido.', 'apollo-events-manager'));
+            wp_send_json_error(__('ID do evento inválido.', 'apollo-events-manager'), 400);
             return;
         }
         
@@ -2421,17 +2476,23 @@ class Apollo_Events_Manager_Plugin {
      * AJAX: Reject event (moderation)
      */
     public function ajax_mod_reject_event() {
-        check_ajax_referer('apollo_mod_events', 'apollo_mod_nonce');
-        
-        if (!current_user_can('edit_posts') && !current_user_can('edit_event_listings')) {
-            wp_send_json_error(__('Você não tem permissão para rejeitar eventos.', 'apollo-events-manager'));
+        // Verify nonce
+        if (!isset($_POST['apollo_mod_nonce']) || !wp_verify_nonce($_POST['apollo_mod_nonce'], 'apollo_mod_events')) {
+            wp_send_json_error(__('Nonce inválido.', 'apollo-events-manager'), 403);
             return;
         }
         
-        $event_id = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+        // Check capabilities for moderation
+        if (!current_user_can('edit_posts') && !current_user_can('edit_event_listings')) {
+            wp_send_json_error(__('Você não tem permissão para rejeitar eventos.', 'apollo-events-manager'), 403);
+            return;
+        }
+        
+        // Sanitize input
+        $event_id = isset($_POST['event_id']) ? absint(wp_unslash($_POST['event_id'])) : 0;
         
         if (!$event_id) {
-            wp_send_json_error(__('ID do evento inválido.', 'apollo-events-manager'));
+            wp_send_json_error(__('ID do evento inválido.', 'apollo-events-manager'), 400);
             return;
         }
         
@@ -5656,22 +5717,26 @@ function apollo_em_get_events_page() {
  */
 register_activation_hook(__FILE__, 'apollo_events_manager_activate');
 function apollo_events_manager_activate() {
-    // Check Apollo Core dependency first
-    if (!function_exists('apollo_events_dependency_ok') || !apollo_events_dependency_ok()) {
-        // Deactivate this plugin
-        if (function_exists('deactivate_plugins')) {
-            deactivate_plugins(plugin_basename(__FILE__));
-        }
-        
-        // Show error message
-        wp_die(
-            '<h1>' . esc_html__('Plugin Activation Failed', 'apollo-events-manager') . '</h1>' .
-            '<p>' . esc_html__('Apollo Events Manager requires Apollo Core to be active.', 'apollo-events-manager') . '</p>' .
-            '<p>' . esc_html__('Please activate the "Apollo Core" plugin first, then activate Apollo Events Manager.', 'apollo-events-manager') . '</p>',
-            esc_html__('Dependency Error', 'apollo-events-manager'),
-            array('back_link' => true)
-        );
-        return;
+    // During activation, WordPress may not have all plugins loaded yet
+    // So we check dependency more leniently and just warn instead of blocking
+    
+    // Load WordPress functions if not available
+    if (!function_exists('is_plugin_active')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    
+    // Check if Apollo Core is active (lenient check during activation)
+    $core_active = false;
+    if (function_exists('is_plugin_active')) {
+        $core_active = is_plugin_active('apollo-core/apollo-core.php');
+    }
+    
+    // If Core is not active, set a flag but don't block activation
+    // The plugin will show admin notice instead
+    if (!$core_active) {
+        update_option('apollo_events_manager_missing_core', true);
+    } else {
+        delete_option('apollo_events_manager_missing_core');
     }
     
     // Check if already activated recently (prevent double runs)
@@ -5690,16 +5755,44 @@ function apollo_events_manager_activate() {
     update_option($activation_key, time());
     
     try {
+        // Define flag to prevent auto-instantiation during activation
+        if (!defined('APOLLO_EVENTS_MANAGER_ACTIVATING')) {
+            define('APOLLO_EVENTS_MANAGER_ACTIVATING', true);
+        }
+        
         // CRITICAL: Create pages with CANVAS template for independent display
         // Register CPTs and flush rewrite rules
         $post_types_file = plugin_dir_path(__FILE__) . 'includes/post-types.php';
         if (file_exists($post_types_file)) {
+            // Load file - auto-instantiation is prevented by flag
             require_once $post_types_file;
+            
+            // Check if class exists after loading
             if (class_exists('Apollo_Post_Types')) {
+                // Call static method - this registers CPTs and flushes rules
                 Apollo_Post_Types::flush_rewrite_rules_on_activation();
+            } else {
+                // Fallback: manually register CPTs if class doesn't exist
+                // This should not happen, but provides safety
+                if (function_exists('register_post_type')) {
+                    // Create temporary instance to register CPTs
+                    $temp_instance = new Apollo_Post_Types();
+                    // Trigger registration
+                    $temp_instance->register_post_types();
+                    $temp_instance->register_taxonomies();
+                    // Flush rules
+                    flush_rewrite_rules(false);
+                }
             }
         } else {
-            apollo_log_missing_file($post_types_file);
+            // File missing - log but don't fail activation
+            if (function_exists('apollo_log_missing_file')) {
+                apollo_log_missing_file($post_types_file);
+            }
+            // Still flush rules to prevent 404 errors
+            if (function_exists('flush_rewrite_rules')) {
+                flush_rewrite_rules(false);
+            }
         }
         
         // FASE 4: Create stats table (idempotent - checks existence)

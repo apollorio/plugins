@@ -80,13 +80,13 @@ remove_action('wp_print_styles', 'print_emoji_styles');
 <body class="apollo-canvas-mode">
 
 <!-- FIXED HEADER -->
-<header class="site-header">
+<header class="site-header" data-tooltip="<?php esc_attr_e('Cabeçalho Apollo', 'apollo-events-manager'); ?>">
     <div class="menu-h-apollo-blur"></div>
-    <a href="<?php echo home_url('/'); ?>" class="menu-apollo-logo"></a>
-    <nav class="main-nav">
-        <a class="a-hover off"><span id="agoraH"><?php echo esc_html(apollo_get_placeholder('APOLLO_PLACEHOLDER_CURRENT_TIME')); ?></span> RJ</a>
-        <a href="<?php echo home_url('/eventos/'); ?>" class="ario-eve" title="Portal de Eventos">
-            Eventos<i class="ri-arrow-right-up-line"></i>
+    <a href="<?php echo esc_url(home_url('/')); ?>" class="menu-apollo-logo" data-tooltip="<?php esc_attr_e('Ir para início', 'apollo-events-manager'); ?>"></a>
+    <nav class="main-nav" data-tooltip="<?php esc_attr_e('Menu de navegação principal', 'apollo-events-manager'); ?>">
+        <a class="a-hover off" data-tooltip="<?php esc_attr_e('Horário atual no Rio de Janeiro', 'apollo-events-manager'); ?>"><span id="agoraH"><?php echo esc_html(function_exists('apollo_get_placeholder') ? apollo_get_placeholder('APOLLO_PLACEHOLDER_CURRENT_TIME') : date('H:i')); ?></span> RJ</a>
+        <a href="<?php echo esc_url(home_url('/eventos/')); ?>" class="ario-eve" title="<?php esc_attr_e('Portal de Eventos', 'apollo-events-manager'); ?>" data-tooltip="<?php esc_attr_e('Acessar portal de eventos', 'apollo-events-manager'); ?>">
+            <?php esc_html_e('Eventos', 'apollo-events-manager'); ?><i class="ri-arrow-right-up-line"></i>
         </a>
         <div class="menu-h-lista">
             <?php if (is_user_logged_in()):
@@ -116,15 +116,15 @@ remove_action('wp_print_styles', 'print_emoji_styles');
 <main class="main-container">
     <div class="event-manager-shortcode-wrapper discover-events-now-shortcode">
         <!-- HERO -->
-        <section class="hero-section">
-            <h1 class="title-page">Descubra os Próximos Eventos</h1>
-            <p class="subtitle-page">Um novo <mark>hub digital que conecta cultura,</mark> tecnologia e experiências em tempo real... <mark>O futuro da cultura carioca começa aqui!</mark></p>
+        <section class="hero-section" data-tooltip="<?php esc_attr_e('Seção principal', 'apollo-events-manager'); ?>">
+            <h1 class="title-page" data-tooltip="<?php esc_attr_e('Título da página', 'apollo-events-manager'); ?>"><?php esc_html_e('Descubra os Próximos Eventos', 'apollo-events-manager'); ?></h1>
+            <p class="subtitle-page" data-tooltip="<?php esc_attr_e('Descrição do portal', 'apollo-events-manager'); ?>"><?php esc_html_e('Um novo', 'apollo-events-manager'); ?> <mark><?php esc_html_e('hub digital que conecta cultura,', 'apollo-events-manager'); ?></mark> <?php esc_html_e('tecnologia e experiências em tempo real...', 'apollo-events-manager'); ?> <mark><?php esc_html_e('O futuro da cultura carioca começa aqui!', 'apollo-events-manager'); ?></mark></p>
         </section>
 
         <!-- FASE 3: FILTERS -->
-        <div class="filters-and-search">
+        <div class="filters-and-search" data-tooltip="<?php esc_attr_e('Filtros e busca de eventos', 'apollo-events-manager'); ?>">
             <!-- FASE 3: Filtros por Período -->
-            <div class="apollo-period-filters" role="group" aria-label="Filtros por período">
+            <div class="apollo-period-filters" role="group" aria-label="<?php esc_attr_e('Filtros por período', 'apollo-events-manager'); ?>" data-tooltip="<?php esc_attr_e('Filtrar eventos por período', 'apollo-events-manager'); ?>">
                 <?php
                 $period = isset($_GET['period']) ? sanitize_text_field($_GET['period']) : 'all';
                 $periods = [
@@ -201,12 +201,12 @@ remove_action('wp_print_styles', 'print_emoji_styles');
         </div>
 
         <!-- SEARCH -->
-        <div class="controls-bar" id="apollo-controls-bar">
-            <form class="box-search" role="search" id="eventSearchForm">
-                <label for="eventSearchInput" class="visually-hidden">Procurar</label>
+        <div class="controls-bar" id="apollo-controls-bar" data-tooltip="<?php esc_attr_e('Barra de controles', 'apollo-events-manager'); ?>">
+            <form class="box-search" role="search" id="eventSearchForm" data-tooltip="<?php esc_attr_e('Buscar eventos', 'apollo-events-manager'); ?>">
+                <label for="eventSearchInput" class="visually-hidden"><?php esc_html_e('Procurar', 'apollo-events-manager'); ?></label>
                 <i class="ri-search-line"></i>
                 <input type="text" name="search_keywords" id="eventSearchInput" 
-                       placeholder="" inputmode="search" autocomplete="off">
+                       placeholder="<?php esc_attr_e('Buscar eventos...', 'apollo-events-manager'); ?>" inputmode="search" autocomplete="off" data-tooltip="<?php esc_attr_e('Digite para buscar eventos', 'apollo-events-manager'); ?>">
                 <input type="hidden" name="post_type" value="event_listing">
             </form>
         </div>

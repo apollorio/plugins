@@ -170,31 +170,9 @@ class Apollo_Core_Activation {
 	 * Create database tables
 	 */
 	private static function create_tables() {
-		global $wpdb;
-		$charset_collate = $wpdb->get_charset_collate();
-
-		// Table: apollo_mod_log.
-		$table_name = $wpdb->prefix . 'apollo_mod_log';
-		$sql        = "CREATE TABLE $table_name (
-			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-			action varchar(50) NOT NULL,
-			content_type varchar(50) NOT NULL,
-			content_id bigint(20) unsigned NOT NULL,
-			user_id bigint(20) unsigned NOT NULL,
-			old_status varchar(20) DEFAULT NULL,
-			new_status varchar(20) DEFAULT NULL,
-			notes text,
-			created_at datetime DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (id),
-			KEY action_idx (action),
-			KEY content_type_idx (content_type),
-			KEY content_id_idx (content_id),
-			KEY user_id_idx (user_id),
-			KEY created_at_idx (created_at)
-		) $charset_collate;";
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql );
+		if ( function_exists( 'apollo_create_db_tables' ) ) {
+			apollo_create_db_tables();
+		}
 	}
 
 	/**

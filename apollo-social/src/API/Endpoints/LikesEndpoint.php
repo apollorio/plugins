@@ -29,12 +29,58 @@ class LikesEndpoint
             'methods' => 'POST',
             'callback' => [$this, 'toggleLike'],
             'permission_callback' => [$this, 'checkPermission'],
+            'args' => [
+                'content_type' => [
+                    'required' => true,
+                    'type' => 'string',
+                    'description' => __('Content type.', 'apollo-social'),
+                    'sanitize_callback' => function($param) {
+                        return sanitize_text_field(wp_unslash($param));
+                    },
+                    'validate_callback' => function($param) {
+                        $allowed_types = ['apollo_social_post', 'event_listing', 'post', 'apollo_ad'];
+                        return in_array($param, $allowed_types, true);
+                    },
+                ],
+                'content_id' => [
+                    'required' => true,
+                    'type' => 'integer',
+                    'description' => __('Content ID.', 'apollo-social'),
+                    'sanitize_callback' => 'absint',
+                    'validate_callback' => function($param) {
+                        return absint($param) > 0;
+                    },
+                ],
+            ],
         ]);
 
         register_rest_route('apollo/v1', '/like/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)', [
             'methods' => 'GET',
             'callback' => [$this, 'getLikeStatus'],
             'permission_callback' => '__return_true', // Público, mas retorna false se não logado
+            'args' => [
+                'content_type' => [
+                    'required' => true,
+                    'type' => 'string',
+                    'description' => __('Content type.', 'apollo-social'),
+                    'sanitize_callback' => function($param) {
+                        return sanitize_text_field(wp_unslash($param));
+                    },
+                    'validate_callback' => function($param) {
+                        $allowed_types = ['apollo_social_post', 'event_listing', 'post', 'apollo_ad'];
+                        return in_array($param, $allowed_types, true);
+                    },
+                ],
+                'content_id' => [
+                    'required' => true,
+                    'type' => 'integer',
+                    'description' => __('Content ID.', 'apollo-social'),
+                    'sanitize_callback' => 'absint',
+                    'validate_callback' => function($param) {
+                        return absint($param) > 0;
+                    },
+                ],
+            ],
         ]);
     }
 
@@ -43,7 +89,12 @@ class LikesEndpoint
      */
     public function checkPermission(): bool
     {
-        return is_user_logged_in();
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        
+        // Require basic read capability
+        return current_user_can('read');
     }
 
     /**
@@ -51,7 +102,8 @@ class LikesEndpoint
      */
     public function toggleLike(\WP_REST_Request $request)
     {
-        $content_type = sanitize_text_field($request->get_param('content_type'));
+        // Parameters are already sanitized and validated by REST API args callbacks
+        $content_type = $request->get_param('content_type');
         $content_id = absint($request->get_param('content_id'));
         $user_id = get_current_user_id();
 
@@ -59,16 +111,6 @@ class LikesEndpoint
             return new \WP_Error(
                 'invalid_params',
                 __('Parâmetros inválidos.', 'apollo-social'),
-                ['status' => 400]
-            );
-        }
-
-        // Validar content_type
-        $allowed_types = ['apollo_social_post', 'event_listing', 'post', 'apollo_ad'];
-        if (!in_array($content_type, $allowed_types)) {
-            return new \WP_Error(
-                'invalid_content_type',
-                __('Tipo de conteúdo inválido.', 'apollo-social'),
                 ['status' => 400]
             );
         }
@@ -143,7 +185,8 @@ class LikesEndpoint
      */
     public function getLikeStatus(\WP_REST_Request $request)
     {
-        $content_type = sanitize_text_field($request->get_param('content_type'));
+        // Parameters are already sanitized and validated by REST API args callbacks
+        $content_type = $request->get_param('content_type');
         $content_id = absint($request->get_param('content_id'));
         $user_id = get_current_user_id();
 

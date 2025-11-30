@@ -39,7 +39,7 @@ class ClassifiedsController extends BaseController
         foreach ($classifieds as $ad_data) {
             $ad = new AdEntity($ad_data);
             
-            if ($this->classifiedsPolicy->canView($user, $ad)) {
+            if ($this->classifiedsPolicy->canView($ad, $user)) {
                 $filtered_ads[] = $ad_data;
             }
         }

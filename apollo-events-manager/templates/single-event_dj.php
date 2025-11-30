@@ -199,13 +199,17 @@ $dj_data_js = [
             <!-- HEADER -->
             <header class="dj-header">
                 <div class="dj-header-left">
-                    <span>Apollo::rio · DJ Roster</span>
-                    <strong id="dj-header-name"><?php echo esc_html(strtoupper($dj_name)); ?></strong>
+                    <span data-tooltip="<?php echo esc_attr__('Sistema Apollo Roster', 'apollo-events-manager'); ?>">Apollo::rio · DJ Roster</span>
+                    <strong id="dj-header-name" data-tooltip="<?php echo esc_attr__('Nome do DJ em destaque', 'apollo-events-manager'); ?>"><?php echo esc_html(strtoupper($dj_name)); ?></strong>
                 </div>
                 <?php if ($dj_media_kit_url): ?>
-                <a href="<?php echo esc_url($dj_media_kit_url); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener">
+                <a href="<?php echo esc_url($dj_media_kit_url); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener" data-tooltip="<?php echo esc_attr__('Baixar media kit completo', 'apollo-events-manager'); ?>">
                     <i class="ri-clipboard-line"></i>Media kit
                 </a>
+                <?php else: ?>
+                <span class="dj-placeholder dj-pill-link" data-tooltip="<?php echo esc_attr__('Adicione URL do media kit no admin', 'apollo-events-manager'); ?>">
+                    <i class="ri-clipboard-line"></i>Media kit
+                </span>
                 <?php endif; ?>
             </header>
 
@@ -255,7 +259,7 @@ $dj_data_js = [
                             <div class="vinyl-rings"></div>
 
                             <div class="vinyl-label">
-                                <div class="vinyl-label-text" id="vinylLabelText">
+                                <div class="vinyl-label-text" id="vinylLabelText" data-tooltip="<?php echo esc_attr__('Nome do DJ no vinil', 'apollo-events-manager'); ?>">
                                     <?php echo implode('<br>', explode(' ', esc_html(strtoupper($dj_name)))); ?>
                                 </div>
                             </div>
@@ -271,18 +275,18 @@ $dj_data_js = [
                     </div>
                 </main>
 
-                <p class="now-playing">
+                <p class="now-playing" data-tooltip="<?php echo esc_attr__('Plataforma de streaming do set', 'apollo-events-manager'); ?>">
                     Set de referência em destaque no <strong>SoundCloud</strong>.
                 </p>
 
-                <iframe id="scPlayer" scrolling="no" frameborder="no" allow="autoplay" src="" style="display:none;"></iframe>
+                <iframe id="scPlayer" scrolling="no" frameborder="no" allow="autoplay" src="" style="display:none;" data-tooltip="<?php echo esc_attr__('Player SoundCloud embutido', 'apollo-events-manager'); ?>"></iframe>
 
                 <div class="player-cta-row">
-                    <button class="btn-player-main" id="vinylToggle" type="button">
+                    <button class="btn-player-main" id="vinylToggle" type="button" data-tooltip="<?php echo esc_attr__('Controle de reprodução do set', 'apollo-events-manager'); ?>">
                         <i class="ri-play-fill" id="vinylIcon"></i>
                         <span>Play / Pause set</span>
                     </button>
-                    <p class="player-note">
+                    <p class="player-note" data-tooltip="<?php echo esc_attr__('Informações para bookers', 'apollo-events-manager'); ?>">
                         Contato e condições completas no media kit e rider técnico.
                     </p>
                 </div>
@@ -371,8 +375,8 @@ $dj_data_js = [
 
             <!-- FOOTER -->
             <footer class="dj-footer">
-                <span>Apollo::rio<br>Roster preview</span>
-                <span>Para bookers,<br>selos e clubes</span>
+                <span data-tooltip="<?php echo esc_attr__('Sistema Apollo Roster', 'apollo-events-manager'); ?>">Apollo::rio<br>Roster preview</span>
+                <span data-tooltip="<?php echo esc_attr__('Público-alvo desta página', 'apollo-events-manager'); ?>">Para bookers,<br>selos e clubes</span>
             </footer>
             
         </div>
@@ -380,16 +384,20 @@ $dj_data_js = [
 </section>
 
 <!-- BIO MODAL -->
-<div class="dj-bio-modal-backdrop" id="bioBackdrop" data-open="false">
+<div class="dj-bio-modal-backdrop" id="bioBackdrop" data-open="false" data-tooltip="<?php echo esc_attr__('Modal de biografia completa', 'apollo-events-manager'); ?>">
     <div class="dj-bio-modal">
         <div class="dj-bio-modal-header">
-            <h3 id="dj-bio-modal-title">Bio completa · <?php echo esc_html($dj_name); ?></h3>
-            <button type="button" class="dj-bio-modal-close" id="bioClose">
+            <h3 id="dj-bio-modal-title" data-tooltip="<?php echo esc_attr__('Título do modal', 'apollo-events-manager'); ?>">Bio completa · <?php echo esc_html($dj_name); ?></h3>
+            <button type="button" class="dj-bio-modal-close" id="bioClose" data-tooltip="<?php echo esc_attr__('Fechar modal', 'apollo-events-manager'); ?>">
                 <i class="ri-close-line"></i>
             </button>
         </div>
-        <div class="dj-bio-modal-body" id="bio-full">
-            <?php echo wp_kses_post(wpautop($dj_bio)); ?>
+        <div class="dj-bio-modal-body" id="bio-full" data-tooltip="<?php echo esc_attr__('Conteúdo completo da biografia', 'apollo-events-manager'); ?>">
+            <?php if (!empty($dj_bio)): ?>
+                <?php echo wp_kses_post(wpautop($dj_bio)); ?>
+            <?php else: ?>
+                <p class="dj-placeholder"><?php echo esc_html__('Biografia completa não cadastrada. Adicione no painel de administração.', 'apollo-events-manager'); ?></p>
+            <?php endif; ?>
         </div>
     </div>
 </div>

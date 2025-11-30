@@ -18,8 +18,11 @@ class GroupPolicy
     
     /**
      * Can user view group content?
+     * 
+     * @param GroupEntity $group The group to check
+     * @param User|null $user The user (optional, null for guests)
      */
-    public function canView(?User $user = null, GroupEntity $group): bool
+    public function canView(GroupEntity $group, ?User $user = null): bool
     {
         $type_config = $this->getTypeConfig($group->type);
         

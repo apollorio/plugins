@@ -67,20 +67,30 @@ class GroupsRepository
         }
 
         $where_clause = implode(' AND ', $where);
-        $order_by = $filters['order_by'] ?? 'created_at DESC';
-        $limit = !empty($filters['limit']) ? (int) $filters['limit'] : 100;
-        $offset = !empty($filters['offset']) ? (int) $filters['offset'] : 0;
 
-        $sql = "SELECT * FROM {$this->table_name} WHERE {$where_clause} ORDER BY {$order_by} LIMIT %d OFFSET %d";
+        $allowed_order_columns = ['created_at', 'updated_at', 'title', 'status'];
+        $order_column = $filters['order_by'] ?? 'created_at';
+        $order_direction = strtoupper( $filters['order_dir'] ?? 'DESC' );
+
+        if ( ! in_array( $order_column, $allowed_order_columns, true ) ) {
+            $order_column = 'created_at';
+        }
+
+        if ( ! in_array( $order_direction, [ 'ASC', 'DESC' ], true ) ) {
+            $order_direction = 'DESC';
+        }
+
+        $order_clause = sprintf( '%s %s', $order_column, $order_direction );
+
+        $limit = isset( $filters['limit'] ) ? max( 1, min( (int) $filters['limit'], 500 ) ) : 100;
+        $offset = isset( $filters['offset'] ) ? max( 0, (int) $filters['offset'] ) : 0;
+
+        $sql = "SELECT * FROM {$this->table_name} WHERE {$where_clause} ORDER BY {$order_clause} LIMIT %d OFFSET %d";
         $params[] = $limit;
         $params[] = $offset;
 
-        if (!empty($params)) {
-            $prepared = $wpdb->prepare($sql, $params);
-            $results = $wpdb->get_results($prepared, ARRAY_A);
-        } else {
-            $results = $wpdb->get_results($sql, ARRAY_A);
-        }
+        $prepared = $wpdb->prepare( $sql, $params );
+        $results = $wpdb->get_results( $prepared, ARRAY_A );
 
         $groups = [];
         foreach ($results as $row) {

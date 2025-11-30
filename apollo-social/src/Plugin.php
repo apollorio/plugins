@@ -87,16 +87,13 @@ class Plugin
                 'slug' => 'painel',
                 'template' => 'users/dashboard.php',
             ],
-            'cena' => [
-                'title' => 'Cena::rio',
-                'slug' => 'cena',
-                'template' => 'cena/cena.php',
-            ],
             'cena-rio' => [
                 'title' => 'Cena::rio',
                 'slug' => 'cena-rio',
                 'template' => 'cena/cena.php',
             ],
+            // Note: '/cena' route is handled by Routes.php for backward compatibility
+            // Both /cena and /cena-rio point to the same template, but only one page is created
             // FASE 1: Páginas faltantes
             'documentos' => [
                 'title' => 'Documentos',
@@ -107,7 +104,8 @@ class Plugin
                 'title' => 'Enviar Conteúdo',
                 'slug' => 'enviar',
                 'template' => 'users/submit-content.php',
-                'content' => '[apollo_event_submit]', // Shortcode para formulário de eventos
+                // Only add event submit shortcode if Apollo Events Manager is active
+                'content' => (shortcode_exists('apollo_event_submit')) ? '[apollo_event_submit]' : '<!-- Apollo Canvas Page -->',
             ],
         ];
 
@@ -202,6 +200,12 @@ class Plugin
             new \Apollo\Infrastructure\Providers\AnalyticsServiceProvider(),
         ];
         
+        // Load Events Manager Integration (read-only access to event_dj and event_local CPTs)
+        $integration_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Infrastructure/Integration/EventsManagerIntegration.php';
+        if (file_exists($integration_file)) {
+            require_once $integration_file;
+        }
+        
         // FASE 1: Carregar DocumentsRoutes se módulo de documentos existir
         $documents_routes_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Modules/Documents/DocumentsRoutes.php';
         if (file_exists($documents_routes_file)) {
@@ -211,41 +215,49 @@ class Plugin
             }
         }
 
-        // Register Widgets API endpoints
-        $widgets_endpoints = new \Apollo\API\Endpoints\WidgetsEndpoints();
-        $widgets_endpoints->register();
+        // CRITICAL: All REST API endpoints MUST be registered on rest_api_init hook
+        // WordPress 5.1+ requires this - registering during plugins_loaded causes fatal errors
+        add_action('rest_api_init', function() {
+            // Register Widgets API endpoints
+            $widgets_endpoints = new \Apollo\API\Endpoints\WidgetsEndpoints();
+            $widgets_endpoints->register();
 
-        // FASE 2: Register Likes endpoint
-        $likes_endpoint = new \Apollo\API\Endpoints\LikesEndpoint();
-        $likes_endpoint->register();
+            // FASE 2: Register Likes endpoint
+            $likes_endpoint = new \Apollo\API\Endpoints\LikesEndpoint();
+            $likes_endpoint->register();
 
-        // FASE 2: Register Comments endpoint
-        $comments_endpoint = new \Apollo\API\Endpoints\CommentsEndpoint();
-        $comments_endpoint->register();
+            // FASE 2: Register Comments endpoint
+            $comments_endpoint = new \Apollo\API\Endpoints\CommentsEndpoint();
+            $comments_endpoint->register();
 
-        // P0-6: Register Favorites endpoint
-        $favorites_endpoint = new \Apollo\API\Endpoints\FavoritesEndpoint();
-        $favorites_endpoint->register();
+            // P0-6: Register Favorites endpoint
+            $favorites_endpoint = new \Apollo\API\Endpoints\FavoritesEndpoint();
+            $favorites_endpoint->register();
 
-        // P0-5: Register Feed endpoint
-        $feed_endpoint = new \Apollo\API\Endpoints\FeedEndpoint();
-        $feed_endpoint->register();
+            // P0-5: Register Feed endpoint
+            $feed_endpoint = new \Apollo\API\Endpoints\FeedEndpoint();
+            $feed_endpoint->register();
 
-        // P0-7: Register DJ/Local endpoints
-        $dj_local_endpoint = new \Apollo\API\Endpoints\DJLocalEndpoint();
-        $dj_local_endpoint->register();
+            // P0-7: Register Groups endpoint
+            $groups_endpoint = new \Apollo\API\Endpoints\GroupsEndpoint();
+            $groups_endpoint->register();
 
-        // P0-7: Register Groups endpoint
-        $groups_endpoint = new \Apollo\API\Endpoints\GroupsEndpoint();
-        $groups_endpoint->register();
+            // P0-10: Register CENA RIO Event endpoint
+            $cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
+            $cena_rio_endpoint->register();
 
-        // P0-10: Register CENA RIO Event endpoint
-        $cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
-        $cena_rio_endpoint->register();
+            // P0-9: Register Documents endpoint (if class exists)
+            if (class_exists('\Apollo\API\Endpoints\DocumentsEndpoint')) {
+                $documents_endpoint = new \Apollo\API\Endpoints\DocumentsEndpoint();
+                $documents_endpoint->register();
+            }
 
-        // P0-9: Register Documents endpoint
-        $documents_endpoint = new \Apollo\API\Endpoints\DocumentsEndpoint();
-        $documents_endpoint->register();
+            // Register Onboarding endpoints via APIRegister
+            if (class_exists('\Apollo\API\APIRegister')) {
+                $api_register = new \Apollo\API\APIRegister();
+                $api_register->registerRoutes();
+            }
+        });
 
         // Register User Page Auto-Create hook
         $user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();

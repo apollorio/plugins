@@ -285,8 +285,12 @@ function apollo_render_public_event_form($atts = array()) {
 /**
  * Process public event submission
  * 
+ * NOTE: This function may also be defined in admin-shortcodes-page.php
+ * Using function_exists() to prevent redeclaration errors
+ * 
  * @return bool|WP_Error True on success, WP_Error on failure
  */
+if (!function_exists('apollo_process_public_event_submission')) {
 function apollo_process_public_event_submission()
 {
     if (empty($_POST['day_start']) || empty($_POST['event_name']) || empty($_POST['local_write'])) {
@@ -434,6 +438,7 @@ function apollo_process_public_event_submission()
     
     return true;
 }
+} // End if (!function_exists('apollo_process_public_event_submission'))
 
 // Register shortcode
 add_shortcode('apollo_public_event_form', 'apollo_render_public_event_form');

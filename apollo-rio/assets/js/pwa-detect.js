@@ -102,15 +102,6 @@
         window.apolloPWA = window.apolloPWA || {};
         window.apolloPWA.isPWA = isPWA;
         window.apolloPWA.detected = isPWAMode;
-        
-        // Log para debug
-        if (typeof console !== 'undefined' && console.log) {
-            console.log('Apollo PWA Detection:', {
-                isPWA: isPWAMode,
-                standalone: window.navigator.standalone,
-                displayMode: window.matchMedia('(display-mode: standalone)').matches
-            });
-        }
     }
     
     // Executa imediatamente (antes do DOM)

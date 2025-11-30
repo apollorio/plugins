@@ -468,7 +468,10 @@ class Apollo_Post_Types {
     }
 }
 
-// Initialize
-new Apollo_Post_Types();
+// Initialize only if not called during activation hook
+// During activation, we call flush_rewrite_rules_on_activation() directly
+if (!defined('APOLLO_EVENTS_MANAGER_ACTIVATING')) {
+    new Apollo_Post_Types();
+}
 
 
