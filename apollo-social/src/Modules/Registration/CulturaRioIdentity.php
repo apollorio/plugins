@@ -78,11 +78,10 @@ class CulturaRioIdentity
             'membership_level' => 'cultural_producer',
         ],
         'business' => [
-            'label' => 'Business Person*',
+            'label' => 'Business Person',
             'code' => 'l',
             'locked' => false,
             'membership_level' => 'business',
-            'remark' => '*Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; materiao gráfico / filmagens; gravadora / stúdio de música; cursos de DJ; bar consignado; entre diversos outros.',
         ],
         'government' => [
             'label' => 'Government',
@@ -97,11 +96,10 @@ class CulturaRioIdentity
             'membership_level' => 'promoter',
         ],
         'visual_artist' => [
-            'label' => 'Visual Artist**',
+            'label' => 'Visual Artist',
             'code' => 'p',
             'locked' => false,
             'membership_level' => 'visual_artist',
-            'remark' => '**Designer; Photographer; Artistas Plásticos; Video Motion; entre diversos outros.',
         ],
     ];
 
@@ -116,19 +114,16 @@ class CulturaRioIdentity
     }
 
     /**
-     * Get remarks for identities that have them
+     * Get remarks for identities (static content)
      * 
      * @return array
      */
     public static function getRemarks(): array
     {
-        $remarks = [];
-        foreach (self::$identities as $key => $identity) {
-            if (!empty($identity['remark'])) {
-                $remarks[$key] = $identity['remark'];
-            }
-        }
-        return $remarks;
+        return [
+            'business' => 'Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; materiao gráfico / filmagens; gravadora / stúdio de música; cursos de DJ; bar consignado; entre diversos outros.',
+            'visual_artist' => 'Designer; Photographer; Artistas Plásticos; Video Motion; entre diversos outros.',
+        ];
     }
 
     /**

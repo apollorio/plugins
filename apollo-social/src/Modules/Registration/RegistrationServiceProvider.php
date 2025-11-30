@@ -211,7 +211,6 @@ class RegistrationServiceProvider
                 <div class="apollo-identity-options" style="display: flex; flex-direction: column; gap: 10px;">
                     <?php
                     $identities = CulturaRioIdentity::getIdentities();
-                    $remarks = CulturaRioIdentity::getRemarks();
                     $selected_identities = isset($_POST['apollo_cultura_identity']) ? (array) $_POST['apollo_cultura_identity'] : ['clubber'];
                     
                     foreach ($identities as $key => $identity):
@@ -235,19 +234,25 @@ class RegistrationServiceProvider
                             <?php endif; ?>
                             <span style="<?php echo $label_style; ?>">
                                 <strong><?php echo esc_html($identity['code']); ?>.</strong>
-                                <?php echo esc_html(str_replace(['*', '**'], '', $identity['label'])); ?>
+                                <?php echo esc_html($identity['label']); ?>
                                 <?php if ($is_locked): ?>
                                     <span style="color: #ff6b6b; font-size: 0.8em;"> [sempre ativo]</span>
                                 <?php endif; ?>
                             </span>
                         </label>
-                        
-                        <?php if (isset($remarks[$key])): ?>
-                            <p style="margin: 0 0 10px 30px; font-size: 0.8em; color: #888; font-style: italic;">
-                                <?php echo esc_html($remarks[$key]); ?>
-                            </p>
-                        <?php endif; ?>
                     <?php endforeach; ?>
+                </div>
+                
+                <!-- Remarks Section -->
+                <div class="apollo-cultura-remarks" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 0.85em; color: #a0a0a0; line-height: 1.6;">
+                    <p style="margin: 0 0 10px 0;">
+                        <span class="culturario-desired_remark" style="color: #00d4ff; font-weight: 600;">Business Person</span>: 
+                        Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; materiao gráfico / filmagens; gravadora / stúdio de música; cursos de DJ; bar consignado; entre diversos outros.
+                    </p>
+                    <p style="margin: 0;">
+                        <span class="culturario-desired_remark" style="color: #00d4ff; font-weight: 600;">Visual Artist</span>: 
+                        Designer; Photographer; Artistas Plásticos; Video Motion; entre diversos outros.
+                    </p>
                 </div>
                 
                 <p style="margin-top: 15px; font-size: 0.85em; color: #888; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
