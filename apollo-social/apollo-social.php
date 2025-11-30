@@ -141,6 +141,12 @@ add_action('plugins_loaded', function() {
         if (file_exists($admin_hub)) {
             require_once $admin_hub;
         }
+        
+        // Load Cultura::Rio Admin (membership management - admin only)
+        $cultura_admin = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/CulturaRioAdmin.php';
+        if (file_exists($cultura_admin)) {
+            require_once $cultura_admin;
+        }
     }
     
     // Load AJAX Image Upload Handler for Quill Editor

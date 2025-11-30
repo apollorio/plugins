@@ -1,13 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace Apollo\Modules\Registration;
 
 use Apollo\Helpers\CPFValidator;
 use Apollo\Modules\Registration\RegistrationRoutes;
+use Apollo\Modules\Registration\CulturaRioIdentity;
 
 /**
  * Registration Service Provider
- * Handles strict registration with CPF, SOUNDS, and QUIZZ requirements
+ * Handles strict registration with CPF, SOUNDS, QUIZZ, and Cultura::Rio identity
+ * 
+ * @package Apollo_Social
+ * @since 1.0.0
  */
 class RegistrationServiceProvider
 {
@@ -194,6 +199,65 @@ class RegistrationServiceProvider
                 ?>
             </div>
             
+            <!-- CULTURA::RIO Identity Section (MANDATORY) -->
+            <div class="apollo-cultura-identity-section" style="margin-top: 25px; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; color: #fff;">
+                <h3 style="margin-top: 0; color: #00d4ff; font-size: 1.3em;">
+                    Na Cultura::rio eu me identifico como... <span class="required" style="color: #ff6b6b;">*</span>
+                </h3>
+                <p style="color: #a0a0a0; font-size: 0.9em; margin-bottom: 20px;">
+                    Nesse universo Cultural Digital que você entra agora como parte, de BETA LAB testes APOLLO::RIO, 
+                    quais são as facilidades e funcionalidades que você quer ter acesso?
+                </p>
+                
+                <div class="apollo-identity-options" style="display: flex; flex-direction: column; gap: 10px;">
+                    <?php
+                    $identities = CulturaRioIdentity::getIdentities();
+                    $remarks = CulturaRioIdentity::getRemarks();
+                    $selected_identities = isset($_POST['apollo_cultura_identity']) ? (array) $_POST['apollo_cultura_identity'] : ['clubber'];
+                    
+                    foreach ($identities as $key => $identity):
+                        $is_locked = $identity['locked'] ?? false;
+                        $is_checked = in_array($key, $selected_identities, true) || $is_locked;
+                        $disabled = $is_locked ? 'disabled' : '';
+                        $label_style = $is_locked ? 'font-weight: 600; color: #00d4ff;' : 'color: #e0e0e0;';
+                    ?>
+                        <label style="display: flex; align-items: flex-start; gap: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; cursor: <?php echo $is_locked ? 'not-allowed' : 'pointer'; ?>;">
+                            <input 
+                                type="checkbox" 
+                                name="apollo_cultura_identity[]" 
+                                value="<?php echo esc_attr($key); ?>"
+                                <?php checked($is_checked); ?>
+                                <?php echo $disabled; ?>
+                                style="margin-top: 3px; accent-color: #00d4ff;"
+                            />
+                            <?php if ($is_locked): ?>
+                                <!-- Hidden input to ensure locked value is submitted -->
+                                <input type="hidden" name="apollo_cultura_identity[]" value="<?php echo esc_attr($key); ?>" />
+                            <?php endif; ?>
+                            <span style="<?php echo $label_style; ?>">
+                                <strong><?php echo esc_html($identity['code']); ?>.</strong>
+                                <?php echo esc_html(str_replace(['*', '**'], '', $identity['label'])); ?>
+                                <?php if ($is_locked): ?>
+                                    <span style="color: #ff6b6b; font-size: 0.8em;"> [sempre ativo]</span>
+                                <?php endif; ?>
+                            </span>
+                        </label>
+                        
+                        <?php if (isset($remarks[$key])): ?>
+                            <p style="margin: 0 0 10px 30px; font-size: 0.8em; color: #888; font-style: italic;">
+                                <?php echo esc_html($remarks[$key]); ?>
+                            </p>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                
+                <p style="margin-top: 15px; font-size: 0.85em; color: #888; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <strong style="color: #ff6b6b;">Importante:</strong> 
+                    Seleções além de "Clubber" requerem aprovação de administrador para acesso às funcionalidades específicas.
+                    Você receberá notificação quando sua solicitação for analisada.
+                </p>
+            </div>
+            
         </div>
         
         <script>
@@ -342,6 +406,27 @@ class RegistrationServiceProvider
             }
         }
         
+        // Validate Cultura::Rio Identity (must include at least clubber)
+        if (empty($_POST['apollo_cultura_identity']) || !is_array($_POST['apollo_cultura_identity'])) {
+            $errors->add('apollo_cultura_identity_empty', '<strong>Erro:</strong> Selecione sua identificação na Cultura::Rio.');
+        } else {
+            $identities = array_map('sanitize_key', $_POST['apollo_cultura_identity']);
+            $valid_keys = array_keys(CulturaRioIdentity::getIdentities());
+            
+            // Ensure clubber is always included
+            if (!in_array('clubber', $identities, true)) {
+                $identities[] = 'clubber';
+            }
+            
+            // Validate all selections
+            foreach ($identities as $identity) {
+                if (!in_array($identity, $valid_keys, true)) {
+                    $errors->add('apollo_cultura_identity_invalid', '<strong>Erro:</strong> Identificação cultural inválida selecionada.');
+                    break;
+                }
+            }
+        }
+        
         return $errors;
     }
     
@@ -402,9 +487,25 @@ class RegistrationServiceProvider
             update_user_meta($user_id, 'apollo_quizz_completed_date', current_time('mysql'));
         }
         
+        // Save Cultura::Rio Identity
+        if (!empty($_POST['apollo_cultura_identity']) && is_array($_POST['apollo_cultura_identity'])) {
+            $identities = array_map('sanitize_key', $_POST['apollo_cultura_identity']);
+            CulturaRioIdentity::saveUserIdentity($user_id, $identities);
+        } else {
+            // Default to clubber only
+            CulturaRioIdentity::saveUserIdentity($user_id, ['clubber']);
+        }
+        
         // Mark registration as complete
         update_user_meta($user_id, 'apollo_registration_complete', true);
         update_user_meta($user_id, 'apollo_registration_date', current_time('mysql'));
+        
+        // Fire action for other integrations
+        do_action('apollo_user_registration_complete', $user_id, [
+            'doc_type' => $doc_type,
+            'sounds' => $_POST['apollo_sounds'] ?? [],
+            'cultura_identity' => $_POST['apollo_cultura_identity'] ?? ['clubber'],
+        ]);
     }
     
     /**
