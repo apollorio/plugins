@@ -11,168 +11,219 @@ use WP_Error;
 /**
  * REST API Routes Registration
  */
-class RestRoutes
-{
-    public function __construct()
-    {
-        add_action('rest_api_init', [$this, 'registerRoutes']);
-    }
+class RestRoutes {
 
-    /**
-     * Register all REST API routes
-     */
-    public function registerRoutes(): void
-    {
-        // Groups routes
-        register_rest_route('apollo/v1', '/groups', [
-            'methods' => 'GET',
-            'callback' => [new GroupsController(), 'index'],
-            'permission_callback' => '__return_true'
-        ]);
+	public function __construct() {
+		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+	}
 
-        register_rest_route('apollo/v1', '/groups', [
-            'methods' => 'POST',
-            'callback' => [new GroupsController(), 'create'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+	/**
+	 * Register all REST API routes
+	 */
+	public function registerRoutes(): void {
+		// Groups routes
+		register_rest_route(
+			'apollo/v1',
+			'/groups',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new GroupsController(), 'index' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/join', [
-            'methods' => 'POST',
-            'callback' => [new GroupsController(), 'join'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/groups',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GroupsController(), 'create' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/invite', [
-            'methods' => 'POST',
-            'callback' => [new GroupsController(), 'invite'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/groups/(?P<id>\d+)/join',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GroupsController(), 'join' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/approve-invite', [
-            'methods' => 'POST',
-            'callback' => [new GroupsController(), 'approveInvite'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/groups/(?P<id>\d+)/invite',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GroupsController(), 'invite' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-        // Unions routes
-        register_rest_route('apollo/v1', '/unions', [
-            'methods' => 'GET',
-            'callback' => [new MembershipsController(), 'index'],
-            'permission_callback' => '__return_true'
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/groups/(?P<id>\d+)/approve-invite',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GroupsController(), 'approveInvite' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-        register_rest_route('apollo/v1', '/unions/(?P<id>\d+)/toggle-badges', [
-            'methods' => 'POST',
-            'callback' => [new MembershipsController(), 'toggleBadges'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+		// Unions routes
+		register_rest_route(
+			'apollo/v1',
+			'/unions',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new MembershipsController(), 'index' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 
-        // Classifieds routes (WPAdverts integration)
-        register_rest_route('apollo/v1', '/classifieds', [
-            'methods' => 'GET',
-            'callback' => [$this, 'restGetClassifieds'],
-            'permission_callback' => '__return_true'
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/unions/(?P<id>\d+)/toggle-badges',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new MembershipsController(), 'toggleBadges' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-        register_rest_route('apollo/v1', '/classifieds/(?P<id>\d+)', [
-            'methods' => 'GET',
-            'callback' => [$this, 'restGetClassified'],
-            'permission_callback' => '__return_true'
-        ]);
+		// Classifieds routes (WPAdverts integration)
+		register_rest_route(
+			'apollo/v1',
+			'/classifieds',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'restGetClassifieds' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 
-        // Keep existing ClassifiedsController for backward compatibility
-        register_rest_route('apollo/v1', '/classifieds', [
-            'methods' => 'POST',
-            'callback' => [new ClassifiedsController(), 'create'],
-            'permission_callback' => [ $this, 'requireLoggedIn' ]
-        ]);
+		register_rest_route(
+			'apollo/v1',
+			'/classifieds/(?P<id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'restGetClassified' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 
-        // Users routes
-        register_rest_route('apollo/v1', '/users/(?P<id>[a-zA-Z0-9_-]+)', [
-            'methods' => 'GET',
-            'callback' => [new UsersController(), 'show'],
-            'permission_callback' => '__return_true'
-        ]);
-    }
+		// Keep existing ClassifiedsController for backward compatibility
+		register_rest_route(
+			'apollo/v1',
+			'/classifieds',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new ClassifiedsController(), 'create' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
 
-    /**
-     * REST: Get classifieds list (WPAdverts)
-     */
-    public function restGetClassifieds(\WP_REST_Request $request): \WP_REST_Response
-    {
-        $per_page = intval($request->get_param('per_page')) ?: 10;
-        $page = intval($request->get_param('page')) ?: 1;
-        $search = sanitize_text_field($request->get_param('search') ?: '');
+		// Users routes
+		register_rest_route(
+			'apollo/v1',
+			'/users/(?P<id>[a-zA-Z0-9_-]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new UsersController(), 'show' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
 
-        $args = [
-            'posts_per_page' => $per_page,
-            'paged' => $page,
-        ];
+	/**
+	 * REST: Get classifieds list (WPAdverts)
+	 */
+	public function restGetClassifieds( \WP_REST_Request $request ): \WP_REST_Response {
+		$per_page = intval( $request->get_param( 'per_page' ) ) ?: 10;
+		$page     = intval( $request->get_param( 'page' ) ) ?: 1;
+		$search   = sanitize_text_field( $request->get_param( 'search' ) ?: '' );
 
-        if ($search) {
-            $args['s'] = $search;
-        }
+		$args = array(
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
+		);
 
-        $result = WPAdvertsAdapter::listAds($args);
+		if ( $search ) {
+			$args['s'] = $search;
+		}
 
-        return new \WP_REST_Response([
-            'success' => true,
-            'data' => $result
-        ], 200);
-    }
+		$result = WPAdvertsAdapter::listAds( $args );
 
-    /**
-     * REST: Get single classified (WPAdverts)
-     */
-    public function restGetClassified(\WP_REST_Request $request): \WP_REST_Response
-    {
-        $id = intval($request->get_param('id'));
+		return new \WP_REST_Response(
+			array(
+				'success' => true,
+				'data'    => $result,
+			),
+			200
+		);
+	}
 
-        if (!$id) {
-            return new \WP_REST_Response([
-                'success' => false,
-                'message' => 'Invalid ad ID'
-            ], 400);
-        }
+	/**
+	 * REST: Get single classified (WPAdverts)
+	 */
+	public function restGetClassified( \WP_REST_Request $request ): \WP_REST_Response {
+		$id = intval( $request->get_param( 'id' ) );
 
-        $ad = WPAdvertsAdapter::getAd($id);
+		if ( ! $id ) {
+			return new \WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Invalid ad ID',
+				),
+				400
+			);
+		}
 
-        if (!$ad) {
-            return new \WP_REST_Response([
-                'success' => false,
-                'message' => 'Ad not found'
-            ], 404);
-        }
+		$ad = WPAdvertsAdapter::getAd( $id );
 
-        return new \WP_REST_Response([
-            'success' => true,
-            'data' => $ad
-        ], 200);
-    }
+		if ( ! $ad ) {
+			return new \WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => 'Ad not found',
+				),
+				404
+			);
+		}
 
-    /**
-     * Require login for sensitive routes
-     */
-    private function requireLoggedIn(\WP_REST_Request $request): bool|WP_Error
-    {
-        $nonce = $request->get_header( 'X-WP-Nonce' );
+		return new \WP_REST_Response(
+			array(
+				'success' => true,
+				'data'    => $ad,
+			),
+			200
+		);
+	}
 
-        if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
-            return new WP_Error(
-                'rest_invalid_nonce',
-                __( 'Invalid or missing WP REST nonce.', 'apollo-social' ),
-                array( 'status' => 403 )
-            );
-        }
+	/**
+	 * Require login for sensitive routes
+	 */
+	private function requireLoggedIn( \WP_REST_Request $request ): bool|WP_Error {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
 
-        if ( ! is_user_logged_in() ) {
-            return new WP_Error(
-                'rest_not_logged_in',
-                __( 'You must be logged in to access this endpoint.', 'apollo-social' ),
-                array( 'status' => 401 )
-            );
-        }
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error(
+				'rest_invalid_nonce',
+				__( 'Invalid or missing WP REST nonce.', 'apollo-social' ),
+				array( 'status' => 403 )
+			);
+		}
 
-        return true;
-    }
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_not_logged_in',
+				__( 'You must be logged in to access this endpoint.', 'apollo-social' ),
+				array( 'status' => 401 )
+			);
+		}
+
+		return true;
+	}
 }

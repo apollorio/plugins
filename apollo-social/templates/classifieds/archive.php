@@ -1,270 +1,388 @@
 <?php
 /**
  * Classifieds Archive Template - /anuncios/
- * STRICT MODE: 100% design conformance with uni.css + aprioEXP components
- * Forced tooltips on ALL placeholders
- * 
+ * STRICT MODE: 100% UNI.CSS conformance
+ *
  * @package Apollo_Social
- * @version 1.0.0
+ * @version 2.0.0
+ * @uses UNI.CSS v5.2.0 - Classifieds components
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 // Query classifieds
-$paged = get_query_var('paged') ? get_query_var('paged') : 1;
-$category_filter = isset($_GET['cat']) ? sanitize_text_field($_GET['cat']) : '';
-$condition_filter = isset($_GET['condition']) ? sanitize_text_field($_GET['condition']) : '';
-$search_query = isset($_GET['q']) ? sanitize_text_field($_GET['q']) : '';
+$paged           = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
+$category_filter = isset( $_GET['cat'] ) ? sanitize_text_field( $_GET['cat'] ) : '';
+$search_query    = isset( $_GET['q'] ) ? sanitize_text_field( $_GET['q'] ) : '';
+$sort_by         = isset( $_GET['sort'] ) ? sanitize_text_field( $_GET['sort'] ) : 'recent';
 
-$args = [
-    'post_type' => 'apollo_classified',
-    'post_status' => 'publish',
-    'posts_per_page' => 12,
-    'paged' => $paged,
-    'orderby' => 'date',
-    'order' => 'DESC',
-];
+$args = array(
+	'post_type'      => 'apollo_classified',
+	'post_status'    => 'publish',
+	'posts_per_page' => 12,
+	'paged'          => $paged,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
+);
 
 // Apply filters
-$meta_query = [];
+$meta_query = array();
 
-if ($category_filter) {
-    $meta_query[] = [
-        'key' => '_classified_category',
-        'value' => $category_filter,
-        'compare' => '='
-    ];
+if ( $category_filter ) {
+	$meta_query[] = array(
+		'key'     => '_classified_category',
+		'value'   => $category_filter,
+		'compare' => '=',
+	);
 }
 
-if ($condition_filter) {
-    $meta_query[] = [
-        'key' => '_classified_condition',
-        'value' => $condition_filter,
-        'compare' => '='
-    ];
+if ( ! empty( $meta_query ) ) {
+	$args['meta_query'] = $meta_query;
 }
 
-if (!empty($meta_query)) {
-    $args['meta_query'] = $meta_query;
+if ( $search_query ) {
+	$args['s'] = $search_query;
 }
 
-if ($search_query) {
-    $args['s'] = $search_query;
+// Sort options
+if ( $sort_by === 'price-low' ) {
+	$args['meta_key'] = '_classified_price';
+	$args['orderby']  = 'meta_value_num';
+	$args['order']    = 'ASC';
+} elseif ( $sort_by === 'price-high' ) {
+	$args['meta_key'] = '_classified_price';
+	$args['orderby']  = 'meta_value_num';
+	$args['order']    = 'DESC';
 }
 
-$classifieds = new WP_Query($args);
+$classifieds = new WP_Query( $args );
 
-// Categories for filter
-$categories = [
-    'tickets' => 'Ingressos',
-    'equipment' => 'Equipamentos',
-    'services' => 'Serviços',
-    'other' => 'Outros'
-];
+// Categories configuration
+$categories = array(
+	'tickets'   => array(
+		'label' => 'Ingressos',
+		'icon'  => 'ri-ticket-2-line',
+		'badge' => '',
+	),
+	'bedroom'   => array(
+		'label' => 'Quartos',
+		'icon'  => 'ri-home-heart-line',
+		'badge' => 'ap-badge-bedroom',
+	),
+	'equipment' => array(
+		'label' => 'Equipamentos',
+		'icon'  => 'ri-sound-module-line',
+		'badge' => 'ap-badge-equipment',
+	),
+	'services'  => array(
+		'label' => 'Serviços',
+		'icon'  => 'ri-service-line',
+		'badge' => 'ap-badge-service',
+	),
+);
 
-// Conditions for filter
-$conditions = [
-    'new' => 'Novo',
-    'like_new' => 'Seminovo',
-    'used' => 'Usado'
-];
-
-// Enqueue assets
-wp_enqueue_style('apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0');
-wp_enqueue_style('apollo-base-css', 'https://assets.apollo.rio.br/base.css', [], '2.0.0');
-wp_enqueue_style('remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0');
-wp_enqueue_script('tailwindcss', 'https://cdn.tailwindcss.com', [], null, true);
+// Enqueue UNI.CSS assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+} else {
+	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '5.2.0' );
+	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', array(), '4.2.0', true );
+}
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
 
 get_header();
 ?>
 
-<!-- STRICT MODE: Classifieds Archive -->
-<div id="apollo-classifieds-root" class="mobile-container min-h-screen bg-slate-50">
+<body class="ap-classifieds-body">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200/50 px-4 py-3">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <a href="<?php echo esc_url(home_url('/feed/')); ?>" class="h-9 w-9 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600" data-tooltip="Voltar ao feed">
-            <i class="ri-arrow-left-line text-xl"></i>
-          </a>
-          <h1 class="text-lg font-bold text-slate-900">Classificados</h1>
-        </div>
-        <a href="<?php echo esc_url(home_url('/anunciar/')); ?>" class="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white text-sm font-medium rounded-full hover:bg-slate-800" data-tooltip="Publicar novo anúncio">
-          <i class="ri-add-line"></i>
-          Anunciar
-        </a>
-      </div>
-      
-      <!-- Search Bar -->
-      <form method="get" class="mt-3">
-        <div class="relative">
-          <input 
-            type="text" 
-            name="q" 
-            value="<?php echo esc_attr($search_query); ?>"
-            placeholder="Buscar anúncios..."
-            class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-0 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:bg-white"
-            data-tooltip="Digite para buscar anúncios"
-          />
-          <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        </div>
-      </form>
-    </div>
-  </header>
-
-  <!-- Filters -->
-  <div class="sticky top-[105px] z-40 bg-white border-b border-slate-100 px-4 py-2 overflow-x-auto">
-    <div class="flex gap-2 max-w-6xl mx-auto">
-      <a href="<?php echo esc_url(remove_query_arg(['cat', 'condition'])); ?>" 
-         class="shrink-0 px-3 py-1.5 text-xs font-medium rounded-full <?php echo (!$category_filter && !$condition_filter) ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'; ?>"
-         data-tooltip="Mostrar todos os anúncios">
-        Todos
-      </a>
-      <?php foreach ($categories as $key => $label): ?>
-      <a href="<?php echo esc_url(add_query_arg('cat', $key)); ?>" 
-         class="shrink-0 px-3 py-1.5 text-xs font-medium rounded-full <?php echo ($category_filter === $key) ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'; ?>"
-         data-tooltip="Filtrar por <?php echo esc_attr($label); ?>">
-        <?php echo esc_html($label); ?>
-      </a>
-      <?php endforeach; ?>
-    </div>
-  </div>
-
-  <!-- Classifieds Grid -->
-  <main class="px-4 py-6">
-    <div class="max-w-6xl mx-auto">
-      
-      <?php if ($classifieds->have_posts()): ?>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        
-        <?php while ($classifieds->have_posts()): $classifieds->the_post(); 
-          $price = get_post_meta(get_the_ID(), '_classified_price', true);
-          $condition = get_post_meta(get_the_ID(), '_classified_condition', true);
-          $location = get_post_meta(get_the_ID(), '_classified_location', true);
-          $price_display = $price ? 'R$ ' . number_format((float)$price, 2, ',', '.') : 'Consulte';
-          $thumb = get_the_post_thumbnail_url(get_the_ID(), 'medium');
-        ?>
-        <a href="<?php the_permalink(); ?>" class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-shadow group">
-          <!-- Image -->
-          <div class="aspect-square relative overflow-hidden bg-slate-100">
-            <?php if ($thumb): ?>
-            <img 
-              src="<?php echo esc_url($thumb); ?>" 
-              alt="<?php echo esc_attr(get_the_title()); ?>"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              data-tooltip="<?php echo esc_attr(get_the_title()); ?>"
-            />
-            <?php else: ?>
-            <div class="w-full h-full flex items-center justify-center" data-tooltip="Sem imagem">
-              <i class="ri-image-line text-3xl text-slate-300"></i>
-            </div>
-            <?php endif; ?>
-            
-            <?php if ($condition === 'new'): ?>
-            <span class="absolute top-2 left-2 px-2 py-0.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full" data-tooltip="Item novo">NOVO</span>
-            <?php endif; ?>
-          </div>
-          
-          <!-- Info -->
-          <div class="p-3">
-            <span class="text-sm font-bold text-emerald-600" data-tooltip="Preço"><?php echo esc_html($price_display); ?></span>
-            <h3 class="text-xs font-medium text-slate-900 mt-0.5 line-clamp-2"><?php the_title(); ?></h3>
-            <?php if ($location): ?>
-            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1" data-tooltip="Localização">
-              <i class="ri-map-pin-line"></i>
-              <?php echo esc_html($location); ?>
-            </p>
-            <?php endif; ?>
-          </div>
-        </a>
-        <?php endwhile; ?>
-        
-      </div>
-      
-      <!-- Pagination -->
-      <?php if ($classifieds->max_num_pages > 1): ?>
-      <div class="flex justify-center gap-2 mt-8">
-        <?php
-        echo paginate_links([
-            'total' => $classifieds->max_num_pages,
-            'current' => $paged,
-            'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
-            'next_text' => '<i class="ri-arrow-right-s-line"></i>',
-            'before_page_number' => '<span class="px-3 py-1.5 rounded-lg hover:bg-slate-100">',
-            'after_page_number' => '</span>'
-        ]);
-        ?>
-      </div>
-      <?php endif; ?>
-      
-      <?php wp_reset_postdata(); ?>
-      
-      <?php else: ?>
-      
-      <!-- Empty State -->
-      <div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-8 text-center">
-        <i class="ri-megaphone-line text-5xl text-slate-300 mb-3"></i>
-        <h2 class="text-lg font-bold text-slate-900 mb-1" data-tooltip="Nenhum resultado encontrado">Nenhum anúncio encontrado</h2>
-        <p class="text-sm text-slate-500 mb-4">
-          <?php if ($search_query): ?>
-          Não encontramos anúncios para "<?php echo esc_html($search_query); ?>".
-          <?php else: ?>
-          Seja o primeiro a anunciar!
-          <?php endif; ?>
-        </p>
-        <a href="<?php echo esc_url(home_url('/anunciar/')); ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-full hover:bg-slate-800" data-tooltip="Criar um novo anúncio">
-          <i class="ri-add-line"></i>
-          Publicar Anúncio
-        </a>
-      </div>
-      
-      <?php endif; ?>
-      
-    </div>
-  </main>
-
+<!-- Currency Float Widget -->
+<div class="ap-currency-float" id="currencyWidget">
+	<div class="ap-currency-float-inner">
+	<div class="ap-currency-rate">
+		<span class="ap-currency-flag">🇺🇸</span>
+		<span class="ap-currency-value" id="usdValue">1.00</span>
+		<span class="ap-currency-code">USD</span>
+		<i class="ri-arrow-right-line"></i>
+		<span class="ap-currency-flag">🇧🇷</span>
+		<span class="ap-currency-value ap-currency-value-highlight" id="brlValue">5.80</span>
+		<span class="ap-currency-code">BRL</span>
+	</div>
+	<button class="ap-currency-toggle" id="currencyToggle" data-ap-tooltip="Abrir conversor">
+		<i class="ri-exchange-dollar-line"></i>
+	</button>
+	</div>
+  
+	<div class="ap-currency-panel" id="currencyPanel">
+	<div class="ap-currency-panel-header">
+		<h4><i class="ri-exchange-funds-line"></i> Conversor USD ↔ BRL</h4>
+		<button class="ap-currency-close" id="currencyClose"><i class="ri-close-line"></i></button>
+	</div>
+	<div class="ap-currency-panel-body">
+		<div class="ap-currency-input-group">
+		<label>USD (Dólar)</label>
+		<input type="number" id="inputUSD" value="1" min="0" step="0.01">
+		</div>
+		<button class="ap-currency-swap" id="currencySwap" data-ap-tooltip="Inverter">
+		<i class="ri-arrow-up-down-line"></i>
+		</button>
+		<div class="ap-currency-input-group">
+		<label>BRL (Real)</label>
+		<input type="number" id="inputBRL" value="5.80" min="0" step="0.01">
+		</div>
+	</div>
+	<div class="ap-currency-panel-footer">
+		<span class="ap-currency-update" id="currencyUpdate"><i class="ri-time-line"></i> Atualizado agora</span>
+		<span class="ap-currency-source">Via ExchangeRate API</span>
+	</div>
+	</div>
 </div>
 
-<!-- Tooltip CSS -->
-<style>
-[data-tooltip] {
-  position: relative;
-}
-[data-tooltip]:hover::before,
-[data-tooltip]:focus::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 6px 10px;
-  background: rgba(15, 23, 42, 0.95);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 6px;
-  white-space: nowrap;
-  z-index: 9999;
-  pointer-events: none;
-  animation: tooltipFade 0.2s ease;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@keyframes tooltipFade {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>
+<div class="ap-classifieds">
+	<!-- Header -->
+	<header class="ap-classifieds-header">
+	<div class="ap-classifieds-brand">
+		<div class="ap-brand-icon">
+		<i class="ri-price-tag-3-fill"></i>
+		</div>
+		<div class="ap-brand-text">
+		<h1 class="ap-brand-title">Classificado<span class="ap-brand-accent">::</span>rio</h1>
+		<p class="ap-brand-subtitle">Marketplace da Comunidade Apollo</p>
+		</div>
+	</div>
+	
+	<!-- Safety Banner -->
+	<div class="ap-safety-banner">
+		<div class="ap-safety-icon"><i class="ri-shield-check-line"></i></div>
+		<div class="ap-safety-text">
+		Apollo::rio facilita conexões e pontes, mas <mark>não vendemos</mark> e 
+		<mark>nem nos responsabilizamos</mark> por negociações e contato 
+		<mark>de nenhuma transação iniciada aqui</mark>!
+		</div>
+		<a href="https://dicas.apollo.rio.br" target="_blank" class="ap-safety-link" data-ap-tooltip="Dicas de segurança">
+		<i class="ri-external-link-line"></i> Dicas
+		</a>
+	</div>
+	</header>
+
+	<!-- Filters -->
+	<div class="ap-classifieds-filters">
+	<!-- Search -->
+	<div class="ap-classifieds-search">
+		<form method="get" class="ap-search-form ap-search-lg">
+		<i class="ri-search-line"></i>
+		<input type="text" name="q" id="advertSearch" class="ap-search-input" 
+				value="<?php echo esc_attr( $search_query ); ?>"
+				placeholder="Buscar ingressos, quartos, equipamentos..."
+				data-ap-tooltip="Digite para buscar anúncios">
+		<?php if ( $category_filter ) : ?>
+		<input type="hidden" name="cat" value="<?php echo esc_attr( $category_filter ); ?>">
+		<?php endif; ?>
+		</form>
+	</div>
+
+	<!-- Category Pills -->
+	<div class="ap-filter-tabs ap-filter-tabs-pills">
+		<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>" 
+		class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>"
+		data-filter="all"
+		data-ap-tooltip="Mostrar todos os anúncios">
+		<i class="ri-apps-line"></i> Todos
+		</a>
+		<?php foreach ( $categories as $key => $cat ) : ?>
+		<a href="<?php echo esc_url( add_query_arg( 'cat', $key ) ); ?>" 
+		class="ap-tab-pill <?php echo $category_filter === $key ? 'active' : ''; ?>"
+		data-filter="<?php echo esc_attr( $key ); ?>"
+		data-ap-tooltip="Filtrar por <?php echo esc_attr( $cat['label'] ); ?>">
+		<i class="<?php echo esc_attr( $cat['icon'] ); ?>"></i> <?php echo esc_html( $cat['label'] ); ?>
+		</a>
+		<?php endforeach; ?>
+	</div>
+
+	<!-- Sort & View Options -->
+	<div class="ap-classifieds-options">
+		<select class="ap-select-mini" id="advertSort" onchange="location.href=this.value">
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'recent' ) ); ?>" <?php selected( $sort_by, 'recent' ); ?>>Mais Recentes</option>
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-low' ) ); ?>" <?php selected( $sort_by, 'price-low' ); ?>>Menor Preço</option>
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-high' ) ); ?>" <?php selected( $sort_by, 'price-high' ); ?>>Maior Preço</option>
+		</select>
+		<div class="ap-view-toggle">
+		<button class="ap-btn-icon-sm active" data-view="grid" data-ap-tooltip="Visualização em grade">
+			<i class="ri-grid-fill"></i>
+		</button>
+		<button class="ap-btn-icon-sm" data-view="list" data-ap-tooltip="Visualização em lista">
+			<i class="ri-list-check"></i>
+		</button>
+		</div>
+	</div>
+	</div>
+
+	<!-- Adverts Grid -->
+	<main class="ap-adverts-grid" id="advertsGrid">
+	<?php if ( $classifieds->have_posts() ) : ?>
+		<?php
+		while ( $classifieds->have_posts() ) :
+			$classifieds->the_post();
+			$classified_id   = get_the_ID();
+			$author_id       = get_post_field( 'post_author', $classified_id );
+			$author          = get_userdata( $author_id );
+			$author_name     = $author ? $author->display_name : 'Anunciante';
+			$author_initials = strtoupper( substr( $author_name, 0, 2 ) );
+
+			$price       = get_post_meta( $classified_id, '_classified_price', true );
+			$category    = get_post_meta( $classified_id, '_classified_category', true ) ?: 'other';
+			$location    = get_post_meta( $classified_id, '_classified_location', true );
+			$event_title = get_post_meta( $classified_id, '_classified_event_title', true );
+			$event_date  = get_post_meta( $classified_id, '_classified_event_date', true );
+			$event_venue = get_post_meta( $classified_id, '_classified_event_venue', true );
+			$quantity    = get_post_meta( $classified_id, '_classified_quantity', true ) ?: '1';
+
+			$price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
+			$thumb         = get_the_post_thumbnail_url( $classified_id, 'medium' );
+
+			// Category config
+			$cat_config = $categories[ $category ] ?? array(
+				'label' => 'Outro',
+				'icon'  => 'ri-price-tag-line',
+				'badge' => '',
+			);
+
+			// Price unit based on category
+			$price_units = array(
+				'tickets'   => '/unid',
+				'bedroom'   => '/mês',
+				'equipment' => '/dia',
+				'services'  => '/evento',
+			);
+			$price_unit  = $price_units[ $category ] ?? '';
+
+			// Quantity labels
+			$quantity_icons = array(
+				'tickets'   => 'ri-ticket-line',
+				'bedroom'   => 'ri-door-open-line',
+				'equipment' => 'ri-box-3-line',
+				'services'  => 'ri-briefcase-line',
+			);
+			$quantity_icon  = $quantity_icons[ $category ] ?? 'ri-price-tag-line';
+
+			// Avatar gradient colors by category
+			$avatar_colors   = array(
+				'tickets'   => '#6366f1, #8b5cf6',
+				'bedroom'   => '#ec4899, #f472b6',
+				'equipment' => '#22c55e, #4ade80',
+				'services'  => '#3b82f6, #60a5fa',
+			);
+			$avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
+			?>
+	   
+		<a href="<?php the_permalink(); ?>" class="ap-advert-card" data-category="<?php echo esc_attr( $category ); ?>" data-price="<?php echo esc_attr( $price ); ?>">
+		<div class="ap-advert-body">
+			<div class="ap-advert-top">
+			<div class="ap-advert-author">
+				<div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, <?php echo esc_attr( $avatar_gradient ); ?>);">
+				<span><?php echo esc_html( $author_initials ); ?></span>
+				</div>
+				<div class="ap-advert-author-info">
+				<span class="ap-advert-label">Anúncio de</span>
+				<span class="ap-advert-author-name"><?php echo esc_html( $author_name ); ?></span>
+				</div>
+			</div>
+			<div class="ap-advert-event">
+				<div class="ap-advert-event-info">
+				<?php if ( $category === 'tickets' && $event_title ) : ?>
+				<span class="ap-advert-event-title"><?php echo esc_html( $event_title ); ?></span>
+				<span class="ap-advert-event-meta"><?php echo esc_html( $event_date . ' @ ' . $event_venue ); ?></span>
+				<?php else : ?>
+				<span class="ap-advert-event-title"><?php the_title(); ?></span>
+				<span class="ap-advert-event-meta"><?php echo esc_html( $location ?: 'Rio de Janeiro' ); ?></span>
+				<?php endif; ?>
+				</div>
+			</div>
+			</div>
+		   
+			<div class="ap-advert-image">
+			<?php if ( $thumb ) : ?>
+			<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>">
+			<?php else : ?>
+			<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--ap-bg-muted);">
+				<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size:48px;color:var(--ap-text-muted);"></i>
+			</div>
+			<?php endif; ?>
+			<span class="ap-advert-category-badge <?php echo esc_attr( $cat_config['badge'] ); ?>">
+				<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>"></i> <?php echo esc_html( $cat_config['label'] ); ?>
+			</span>
+			</div>
+		</div>
+		
+		<div class="ap-advert-info">
+			<div class="ap-advert-quantity">
+			<i class="<?php echo esc_attr( $quantity_icon ); ?>"></i>
+			<span><b><?php echo esc_html( $quantity ); ?>x</b> <?php echo esc_html( $cat_config['label'] ); ?></span>
+			</div>
+			<div class="ap-advert-price">
+			<span class="ap-price-currency">R$</span>
+			<span class="ap-price-value"><?php echo esc_html( $price_display ); ?></span>
+			<span class="ap-price-unit"><?php echo esc_html( $price_unit ); ?></span>
+			</div>
+		</div>
+		
+		<div class="ap-advert-footer">
+			<button type="button" class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor" onclick="event.preventDefault(); window.location='<?php echo esc_url( home_url( '/id/' . ( $author ? $author->user_login : '' ) ) ); ?>'">
+			<i class="ri-user-search-line"></i> Investigar
+			</button>
+			<button type="button" class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa" onclick="event.preventDefault(); apolloChat.open(<?php echo esc_attr( $author_id ); ?>);">
+			<i class="ri-chat-3-line"></i> Chat
+			</button>
+		</div>
+		</a>
+	   
+		<?php endwhile; ?>
+	<?php else : ?>
+	   
+		<!-- Empty State -->
+		<div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px;">
+		<i class="ri-megaphone-line" style="font-size: 64px; color: var(--ap-text-muted);"></i>
+		<h2 class="ap-heading-2" style="margin-top: 16px;">Nenhum anúncio encontrado</h2>
+		<p class="ap-text-secondary" style="margin: 8px 0 24px;">
+			<?php if ( $search_query ) : ?>
+			Não encontramos anúncios para "<?php echo esc_html( $search_query ); ?>".
+			<?php else : ?>
+			Seja o primeiro a anunciar!
+			<?php endif; ?>
+		</p>
+		<a href="<?php echo esc_url( home_url( '/anunciar/' ) ); ?>" class="ap-btn ap-btn-primary">
+			<i class="ri-add-circle-line"></i> Publicar Anúncio
+		</a>
+		</div>
+	   
+	<?php endif; ?>
+	<?php wp_reset_postdata(); ?>
+	</main>
+
+	<!-- Footer -->
+	<?php if ( $classifieds->max_num_pages > 1 || $classifieds->found_posts > 0 ) : ?>
+	<footer class="ap-classifieds-footer">
+		<?php if ( $classifieds->max_num_pages > 1 ) : ?>
+	<div class="ap-pagination">
+			<?php
+			echo paginate_links(
+				array(
+					'total'     => $classifieds->max_num_pages,
+					'current'   => $paged,
+					'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
+					'next_text' => '<i class="ri-arrow-right-s-line"></i>',
+				)
+			);
+			?>
+	</div>
+	<?php endif; ?>
+	
+	<a href="<?php echo esc_url( home_url( '/anunciar/' ) ); ?>" class="ap-btn ap-btn-primary">
+		<i class="ri-add-circle-line"></i> Criar Anúncio
+	</a>
+	</footer>
+	<?php endif; ?>
+</div>
 
 <?php get_footer(); ?>

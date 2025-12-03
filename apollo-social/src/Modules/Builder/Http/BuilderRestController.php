@@ -1,106 +1,565 @@
 <?php
+/**
+ * REST Controller for Apollo Builder.
+ *
+ * Handles layout, background, sticker, and asset endpoints.
+ *
+ * @package Apollo\Modules\Builder\Http
+ * @since   1.0.0
+ */
 
 namespace Apollo\Modules\Builder\Http;
 
+use Apollo\Modules\Builder\Assets\BackgroundRegistry;
+use Apollo\Modules\Builder\Assets\StickerRegistry;
 use Apollo\Modules\Builder\LayoutRepository;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Response;
 
-class BuilderRestController
-{
-    private LayoutRepository $repository;
+/**
+ * REST API controller for the Builder module.
+ */
+class BuilderRestController {
 
-    public function __construct(LayoutRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+	/**
+	 * Layout repository instance.
+	 *
+	 * @var LayoutRepository
+	 */
+	private LayoutRepository $repository;
 
-    public function register(): void
-    {
-        add_action('rest_api_init', [$this, 'registerRoutes']);
-    }
+	/**
+	 * REST namespace.
+	 *
+	 * @var string
+	 */
+	private const NAMESPACE = 'apollo-social/v1';
 
-    public function registerRoutes(): void
-    {
-        register_rest_route('apollo-social/v1', '/builder/layout', [
-            [
-                'methods' => 'GET',
-                'callback' => [$this, 'show'],
-                'permission_callback' => [$this, 'canAccess'],
-                'args' => [
-                    'user_id' => [
-                        'type' => 'integer',
-                        'required' => false,
-                    ],
-                ],
-            ],
-            [
-                'methods' => 'POST',
-                'callback' => [$this, 'store'],
-                'permission_callback' => [$this, 'canAccess'],
-                'args' => [
-                    'layout' => [
-                        'required' => true,
-                    ],
-                    'user_id' => [
-                        'type' => 'integer',
-                        'required' => false,
-                    ],
-                ],
-            ],
-        ]);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param LayoutRepository $repository Layout repository instance.
+	 */
+	public function __construct( LayoutRepository $repository ) {
+		$this->repository = $repository;
+	}
 
-    public function show(WP_REST_Request $request)
-    {
-        $userId = $this->resolveUserId($request);
+	/**
+	 * Register hooks.
+	 *
+	 * @return void
+	 */
+	public function register(): void {
+		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+	}
 
-        $layout = $this->repository->getLayout($userId);
+	/**
+	 * Register REST routes.
+	 *
+	 * @return void
+	 */
+	public function registerRoutes(): void {
+		// Layout CRUD.
+		register_rest_route(
+			self::NAMESPACE,
+			'/builder/layout',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'show' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'store' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'layout'  => array(
+							'required' => true,
+						),
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
 
-        return rest_ensure_response([
-            'user_id' => $userId,
-            'layout' => $layout,
-        ]);
-    }
+		// Asset catalogs (backgrounds + stickers).
+		register_rest_route(
+			self::NAMESPACE,
+			'/builder/assets',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'getAssets' ),
+				'permission_callback' => array( $this, 'canAccess' ),
+			)
+		);
 
-    public function store(WP_REST_Request $request)
-    {
-        $userId = $this->resolveUserId($request);
-        $layout = $request->get_param('layout');
+		// Background selection.
+		register_rest_route(
+			self::NAMESPACE,
+			'/builder/background',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'setBackground' ),
+				'permission_callback' => array( $this, 'canAccess' ),
+				'args'                => array(
+					'background_id' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+					),
+					'user_id'       => array(
+						'type'              => 'integer',
+						'required'          => false,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
 
-        if (is_string($layout)) {
-            $decoded = json_decode($layout, true);
-            $layout = is_array($decoded) ? $decoded : [];
-        }
+		// Sticker management.
+		register_rest_route(
+			self::NAMESPACE,
+			'/builder/stickers',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'getStickers' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'addSticker' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'asset'   => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+						'x'       => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'default'           => 0,
+							'sanitize_callback' => 'intval',
+						),
+						'y'       => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'default'           => 0,
+							'sanitize_callback' => 'intval',
+						),
+						'scale'   => array(
+							'type'              => 'number',
+							'required'          => false,
+							'default'           => 1.0,
+							'sanitize_callback' => 'floatval',
+						),
+						'user_id' => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
 
-        if (!is_array($layout)) {
-            return new WP_Error('invalid_layout', __('Estrutura de layout inválida', 'apollo-social'), [
-                'status' => 400,
-            ]);
-        }
+		// Single sticker update/delete.
+		register_rest_route(
+			self::NAMESPACE,
+			'/builder/stickers/(?P<instance_id>[a-z0-9_-]+)',
+			array(
+				array(
+					'methods'             => 'PATCH',
+					'callback'            => array( $this, 'updateSticker' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'instance_id' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+						'x'           => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'intval',
+						),
+						'y'           => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'intval',
+						),
+						'scale'       => array(
+							'type'              => 'number',
+							'required'          => false,
+							'sanitize_callback' => 'floatval',
+						),
+						'rotation'    => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'intval',
+						),
+						'z_index'     => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+						'user_id'     => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+				array(
+					'methods'             => 'DELETE',
+					'callback'            => array( $this, 'deleteSticker' ),
+					'permission_callback' => array( $this, 'canAccess' ),
+					'args'                => array(
+						'instance_id' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+						'user_id'     => array(
+							'type'              => 'integer',
+							'required'          => false,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			)
+		);
+	}
 
-        $this->repository->saveLayout($userId, $layout);
+	// ─────────────────────────────────────────────────────────────────────────
+	// Layout Endpoints
+	// ─────────────────────────────────────────────────────────────────────────
 
-        return rest_ensure_response([
-            'success' => true,
-            'layout' => $this->repository->getLayout($userId),
-        ]);
-    }
+	/**
+	 * GET /builder/layout - Retrieve user layout.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function show( WP_REST_Request $request ) {
+		$user_id = $this->resolveUserId( $request );
+		$layout  = $this->repository->getLayout( $user_id );
 
-    public function canAccess(): bool
-    {
-        return is_user_logged_in();
-    }
+		return rest_ensure_response(
+			array(
+				'user_id' => $user_id,
+				'layout'  => $layout,
+			)
+		);
+	}
 
-    private function resolveUserId(WP_REST_Request $request): int
-    {
-        $userId = absint($request->get_param('user_id'));
+	/**
+	 * POST /builder/layout - Save user layout.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function store( WP_REST_Request $request ) {
+		$user_id = $this->resolveUserId( $request );
+		$layout  = $request->get_param( 'layout' );
 
-        if ($userId && current_user_can('edit_users')) {
-            return $userId;
-        }
+		if ( is_string( $layout ) ) {
+			$decoded = json_decode( $layout, true );
+			$layout  = is_array( $decoded ) ? $decoded : array();
+		}
 
-        return get_current_user_id();
-    }
+		if ( ! is_array( $layout ) ) {
+			return new WP_Error(
+				'apollo_invalid_layout',
+				__( 'Estrutura de layout inválida.', 'apollo-social' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$this->repository->saveLayout( $user_id, $layout );
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'layout'  => $this->repository->getLayout( $user_id ),
+			)
+		);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Asset Endpoints
+	// ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * GET /builder/assets - Retrieve available backgrounds and stickers.
+	 *
+	 * Returns only assets the current user has access to.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with assets.
+	 */
+	public function getAssets( WP_REST_Request $request ): WP_REST_Response {
+		$user_id = get_current_user_id();
+
+		$backgrounds = BackgroundRegistry::get_available_for_user( $user_id );
+		$stickers    = StickerRegistry::get_available_for_user( $user_id );
+
+		return rest_ensure_response(
+			array(
+				'backgrounds'           => array_values( $backgrounds ),
+				'background_categories' => BackgroundRegistry::get_categories(),
+				'stickers'              => array_values( $stickers ),
+				'sticker_categories'    => StickerRegistry::get_categories(),
+			)
+		);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Background Endpoints
+	// ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * POST /builder/background - Set user background.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function setBackground( WP_REST_Request $request ) {
+		$user_id       = $this->resolveUserId( $request );
+		$background_id = $request->get_param( 'background_id' );
+
+		// Validate user has access to this background.
+		$available = BackgroundRegistry::get_available_for_user( $user_id );
+		if ( ! isset( $available[ $background_id ] ) ) {
+			return new WP_Error(
+				'apollo_background_not_available',
+				__( 'Este background não está disponível para você.', 'apollo-social' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$success = $this->repository->setBackground( $user_id, $background_id );
+
+		if ( ! $success ) {
+			return new WP_Error(
+				'apollo_background_save_failed',
+				__( 'Falha ao salvar background.', 'apollo-social' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'    => true,
+				'background' => $this->repository->getBackground( $user_id ),
+			)
+		);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Sticker Endpoints
+	// ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * GET /builder/stickers - Get user's stickers.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with stickers.
+	 */
+	public function getStickers( WP_REST_Request $request ): WP_REST_Response {
+		$user_id  = $this->resolveUserId( $request );
+		$stickers = $this->repository->getStickers( $user_id );
+
+		// Enrich with asset data.
+		$enriched = array_map(
+			function ( array $sticker ): array {
+				$asset                 = StickerRegistry::get_by_id( $sticker['asset'] ?? '' );
+				$sticker['asset_data'] = $asset;
+				return $sticker;
+			},
+			$stickers
+		);
+
+		return rest_ensure_response(
+			array(
+				'user_id'  => $user_id,
+				'stickers' => $enriched,
+			)
+		);
+	}
+
+	/**
+	 * POST /builder/stickers - Add a sticker to user layout.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function addSticker( WP_REST_Request $request ) {
+		$user_id  = $this->resolveUserId( $request );
+		$asset_id = $request->get_param( 'asset' );
+
+		// Validate user has access to this sticker.
+		$available = StickerRegistry::get_available_for_user( $user_id );
+		if ( ! isset( $available[ $asset_id ] ) ) {
+			return new WP_Error(
+				'apollo_sticker_not_available',
+				__( 'Este sticker não está disponível para você.', 'apollo-social' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$sticker_data = array(
+			'asset' => $asset_id,
+			'x'     => $request->get_param( 'x' ),
+			'y'     => $request->get_param( 'y' ),
+			'scale' => $request->get_param( 'scale' ),
+		);
+
+		$instance_id = $this->repository->addSticker( $user_id, $sticker_data );
+
+		if ( empty( $instance_id ) ) {
+			return new WP_Error(
+				'apollo_sticker_add_failed',
+				__( 'Falha ao adicionar sticker.', 'apollo-social' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'     => true,
+				'instance_id' => $instance_id,
+				'stickers'    => $this->repository->getStickers( $user_id ),
+			)
+		);
+	}
+
+	/**
+	 * PATCH /builder/stickers/{instance_id} - Update sticker position/properties.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function updateSticker( WP_REST_Request $request ) {
+		$user_id     = $this->resolveUserId( $request );
+		$instance_id = $request->get_param( 'instance_id' );
+
+		$updates = array_filter(
+			array(
+				'x'        => $request->get_param( 'x' ),
+				'y'        => $request->get_param( 'y' ),
+				'scale'    => $request->get_param( 'scale' ),
+				'rotation' => $request->get_param( 'rotation' ),
+				'z_index'  => $request->get_param( 'z_index' ),
+			),
+			function ( $value ): bool {
+				return null !== $value;
+			}
+		);
+
+		if ( empty( $updates ) ) {
+			return new WP_Error(
+				'apollo_sticker_no_updates',
+				__( 'Nenhuma atualização fornecida.', 'apollo-social' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$success = $this->repository->updateSticker( $user_id, $instance_id, $updates );
+
+		if ( ! $success ) {
+			return new WP_Error(
+				'apollo_sticker_update_failed',
+				__( 'Sticker não encontrado ou falha ao atualizar.', 'apollo-social' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'stickers' => $this->repository->getStickers( $user_id ),
+			)
+		);
+	}
+
+	/**
+	 * DELETE /builder/stickers/{instance_id} - Remove a sticker.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response.
+	 */
+	public function deleteSticker( WP_REST_Request $request ) {
+		$user_id     = $this->resolveUserId( $request );
+		$instance_id = $request->get_param( 'instance_id' );
+
+		$success = $this->repository->removeSticker( $user_id, $instance_id );
+
+		if ( ! $success ) {
+			return new WP_Error(
+				'apollo_sticker_delete_failed',
+				__( 'Sticker não encontrado.', 'apollo-social' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'stickers' => $this->repository->getStickers( $user_id ),
+			)
+		);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	// Helpers
+	// ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * Check if current user can access builder.
+	 *
+	 * @return bool True if user is logged in.
+	 */
+	public function canAccess(): bool {
+		return is_user_logged_in();
+	}
+
+	/**
+	 * Resolve user ID from request.
+	 *
+	 * Admins can specify a user_id, regular users get their own ID.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return int Resolved user ID.
+	 */
+	private function resolveUserId( WP_REST_Request $request ): int {
+		$user_id = absint( $request->get_param( 'user_id' ) );
+
+		if ( $user_id && current_user_can( 'edit_users' ) ) {
+			return $user_id;
+		}
+
+		return get_current_user_id();
+	}
 }
-

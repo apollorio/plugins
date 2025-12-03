@@ -1,774 +1,1253 @@
 <?php
 /**
- * Template: Editor de Documentos/Planilhas (Quill Integration)
- * Usado por /doc/new, /doc/{id}, /pla/new, /pla/{id}
- * 
- * This template integrates Quill.js rich text editor with:
- *   - Custom image upload to WordPress Media Library
- *   - Delta-based autosave for structured content persistence
- *   - Content recovery from stored Delta JSON
+ * Template: Apollo Word Editor (Documentos/Planilhas)
  *
- * Delta Format:
- *   Quill uses Delta format internally - a JSON structure describing
- *   content as operations (insert, delete, retain). We store this
- *   format in post meta for accurate content preservation.
+ * Editor WYSIWYG estilo Word com formatação rica e exportação PDF.
+ * Baseado no template aprovado: design-library/docs-editor.html
  *
- * @package ApolloSocial
+ * URLs:
+ *   /doc/new     → Criar novo documento
+ *   /doc/{id}    → Editar documento existente
+ *   /pla/new     → Criar nova planilha
+ *   /pla/{id}    → Editar planilha existente
+ *
+ * @package Apollo\Modules\Documents
  * @since   1.1.0
+ * @see     apollo-core/templates/design-library/docs-editor.html
  */
 
-// Use the DocumentSaveHandler for accessing stored content
-use ApolloSocial\Ajax\DocumentSaveHandler;
+declare( strict_types=1 );
 
-$type_label = $type === 'documento' ? 'Documento' : 'Planilha';
-$icon       = $type === 'documento' ? '📄' : '📊';
-$is_new     = $mode === 'new';
-
-// Document ID: for existing documents, get from route/query
-$document_id = $is_new ? 0 : ( $document['id'] ?? 0 );
+use Apollo\Modules\Documents\DocumentsHelpers;
 
 // Get document data
-$doc_title   = $is_new ? '' : ( $document['title'] ?? '' );
-$doc_content = $is_new ? '' : ( $document['content'] ?? '' );
+$type_label   = $type === 'documento' ? 'Documento' : 'Planilha';
+$is_new       = $mode === 'new';
+$document_id  = $is_new ? 0 : ( $document['id'] ?? 0 );
+$file_id      = $is_new ? '' : ( $document['file_id'] ?? '' );
+$doc_title    = $is_new ? 'Novo ' . $type_label : ( $document['title'] ?? '' );
+$doc_content  = $is_new ? '<h1>Novo ' . $type_label . '</h1><p>Comece a escrever seu documento aqui...</p>' : ( $document['content'] ?? '' );
+$doc_status   = $document['status'] ?? 'draft';
+$doc_version  = (int) ( $document['version'] ?? 1 );
 
-// Get Delta JSON from post meta if editing existing document
-// Delta is the preferred format for Quill - preserves exact formatting
-$doc_delta = '';
-if ( ! $is_new && $document_id > 0 ) {
-    // Try to get Delta from post meta
-    $stored_delta = get_post_meta( $document_id, '_apollo_document_delta', true );
-    if ( $stored_delta ) {
-        $doc_delta = $stored_delta;
-    }
-}
+// Get status and type info with tooltips
+$status_info = DocumentsHelpers::getStatusInfo( $doc_status );
+$type_info   = DocumentsHelpers::getTypeInfo( $type );
 
-// Generate nonce for secure AJAX operations (image upload + document save)
-// This nonce is used by both ImageUploadHandler and DocumentSaveHandler
-$upload_nonce = wp_create_nonce( 'apollo_editor_image_upload' );
+// Field tooltips
+$tooltips = array(
+	'title'        => DocumentsHelpers::getFieldTooltip( 'title' ),
+	'status'       => $status_info['tooltip'],
+	'type'         => $type_info['tooltip'],
+	'version'      => DocumentsHelpers::getVersionTooltip( $doc_version ),
+	'save_status'  => DocumentsHelpers::getFieldTooltip( 'save_status' ),
+	'export_pdf'   => DocumentsHelpers::getFieldTooltip( 'export_pdf' ),
+	'prepare_sign' => DocumentsHelpers::getFieldTooltip( 'prepare_sign' ),
+	'font_family'  => DocumentsHelpers::getFieldTooltip( 'font_family' ),
+	'font_size'    => DocumentsHelpers::getFieldTooltip( 'font_size' ),
+	'font_weight'  => DocumentsHelpers::getFieldTooltip( 'font_weight' ),
+	'text_color'   => DocumentsHelpers::getFieldTooltip( 'text_color' ),
+	'text_align'   => DocumentsHelpers::getFieldTooltip( 'text_align' ),
+);
 
-get_header();
+// Can edit/sign based on status
+$can_edit = DocumentsHelpers::canEdit( $doc_status );
+$can_sign = DocumentsHelpers::canSign( $doc_status ) || $doc_status === 'draft';
+
+// Generate nonce for secure AJAX operations
+$ajax_nonce = wp_create_nonce( 'apollo_document_editor' );
+$ajax_url   = admin_url( 'admin-ajax.php' );
+
+// Don't use standard WP header - this is a full-page app
 ?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Apollo :: Editor - <?php echo esc_html( $doc_title ); ?></title>
 
-<style>
-    .apollo-editor {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    
-    .editor-header {
-        background: white;
-        border-bottom: 2px solid #e2e8f0;
-        padding: 15px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        z-index: 10;
-    }
-    
-    .editor-title-section {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        flex: 1;
-    }
-    
-    .editor-icon {
-        font-size: 32px;
-    }
-    
-    .editor-title-input {
-        border: none;
-        font-size: 24px;
-        font-weight: 700;
-        color: #2d3748;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: all 0.3s;
-        flex: 1;
-        max-width: 600px;
-    }
-    
-    .editor-title-input:focus {
-        outline: none;
-        background: #f7fafc;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .editor-actions {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .editor-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-size: 14px;
-    }
-    
-    .btn-save {
-        background: #667eea;
-        color: white;
-    }
-    
-    .btn-save:hover {
-        background: #5568d3;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-prepare {
-        background: #48bb78;
-        color: white;
-    }
-    
-    .btn-prepare:hover {
-        background: #38a169;
-    }
-    
-    .btn-secondary {
-        background: #e2e8f0;
-        color: #4a5568;
-    }
-    
-    .btn-secondary:hover {
-        background: #cbd5e0;
-    }
-    
-    .save-status {
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        display: none;
-    }
-    
-    .save-status.saving {
-        background: #fef3c7;
-        color: #92400e;
-        display: inline-block;
-    }
-    
-    .save-status.saved {
-        background: #d1fae5;
-        color: #065f46;
-        display: inline-block;
-    }
-    
-    .editor-body {
-        flex: 1;
-        display: flex;
-        overflow: hidden;
-    }
-    
-    .editor-toolbar {
-        background: #f7fafc;
-        border-right: 2px solid #e2e8f0;
-        padding: 20px;
-        width: 250px;
-        overflow-y: auto;
-    }
-    
-    .toolbar-section {
-        margin-bottom: 25px;
-    }
-    
-    .toolbar-section h3 {
-        margin: 0 0 12px 0;
-        font-size: 13px;
-        font-weight: 700;
-        color: #718096;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .toolbar-btn {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 8px;
-        border: 2px solid #e2e8f0;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s;
-        text-align: left;
-        font-weight: 600;
-        font-size: 14px;
-        color: #2d3748;
-    }
-    
-    .toolbar-btn:hover {
-        border-color: #667eea;
-        background: #edf2f7;
-        transform: translateX(5px);
-    }
-    
-    .editor-canvas {
-        flex: 1;
-        padding: 40px;
-        overflow-y: auto;
-        background: #edf2f7;
-    }
-    
-    .editor-page {
-        background: white;
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 60px 80px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        min-height: 1000px;
-    }
-    
-    .editor-content {
-        border: none;
-        width: 100%;
-        min-height: 800px;
-        font-size: 16px;
-        line-height: 1.6;
-        color: #2d3748;
-        resize: none;
-        font-family: Georgia, 'Times New Roman', serif;
-    }
-    
-    .editor-content:focus {
-        outline: none;
-    }
-    
-    .spreadsheet-grid {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .spreadsheet-grid th {
-        background: #f7fafc;
-        border: 1px solid #e2e8f0;
-        padding: 8px;
-        font-weight: 600;
-        font-size: 12px;
-        color: #718096;
-        text-align: center;
-    }
-    
-    .spreadsheet-grid td {
-        border: 1px solid #e2e8f0;
-        padding: 0;
-    }
-    
-    .spreadsheet-cell {
-        border: none;
-        width: 100%;
-        padding: 8px;
-        font-size: 14px;
-        font-family: monospace;
-    }
-    
-    .spreadsheet-cell:focus {
-        outline: 2px solid #667eea;
-        background: #f0f8ff;
-    }
-</style>
+	<!-- UNI.CSS Global Design System (MANDATORY) -->
+	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+	<script src="https://assets.apollo.rio.br/base.js" defer></script>
 
-<div class="apollo-editor">
-    
-    <div class="editor-header">
-        <div class="editor-title-section">
-            <span class="editor-icon"><?php echo $icon; ?></span>
-            <input type="text" 
-                   class="editor-title-input" 
-                   id="document-title"
-                   value="<?php echo esc_attr($doc_title); ?>" 
-                   placeholder="Título do <?php echo strtolower($type_label); ?>">
-            <span class="save-status" id="save-status"></span>
-        </div>
-        
-        <div class="editor-actions">
-            <button class="editor-btn btn-secondary" onclick="window.location.href='/sign'">
-                ← Voltar
-            </button>
-            <button class="editor-btn btn-save" id="save-btn">
-                💾 Salvar
-            </button>
-            <?php if (!$is_new): ?>
-            <button class="editor-btn btn-prepare" id="prepare-btn">
-                ✍️ Preparar para Assinatura
-            </button>
-            <?php endif; ?>
-        </div>
-    </div>
-    
-    <div class="editor-body">
-        
-        <div class="editor-toolbar">
-            
-            <?php if ($type === 'documento'): ?>
-            <div class="toolbar-section">
-                <h3>Formatação</h3>
-                <button class="toolbar-btn" onclick="formatText('bold')">
-                    <strong>B</strong> Negrito
-                </button>
-                <button class="toolbar-btn" onclick="formatText('italic')">
-                    <em>I</em> Itálico
-                </button>
-                <button class="toolbar-btn" onclick="formatText('underline')">
-                    <u>U</u> Sublinhado
-                </button>
-            </div>
-            
-            <div class="toolbar-section">
-                <h3>Elementos</h3>
-                <button class="toolbar-btn" onclick="insertHeading()">
-                    📌 Título
-                </button>
-                <button class="toolbar-btn" onclick="insertList()">
-                    📋 Lista
-                </button>
-                <button class="toolbar-btn" onclick="insertTable()">
-                    📊 Tabela
-                </button>
-            </div>
-            <?php endif; ?>
-            
-            <?php if ($type === 'planilha'): ?>
-            <div class="toolbar-section">
-                <h3>Planilha</h3>
-                <button class="toolbar-btn" onclick="addRow()">
-                    ➕ Adicionar Linha
-                </button>
-                <button class="toolbar-btn" onclick="addColumn()">
-                    ➕ Adicionar Coluna
-                </button>
-                <button class="toolbar-btn" onclick="deleteRow()">
-                    ➖ Remover Linha
-                </button>
-            </div>
-            
-            <div class="toolbar-section">
-                <h3>Funções</h3>
-                <button class="toolbar-btn" onclick="insertFormula('SUM')">
-                    Σ SOMA
-                </button>
-                <button class="toolbar-btn" onclick="insertFormula('AVG')">
-                    μ MÉDIA
-                </button>
-                <button class="toolbar-btn" onclick="insertFormula('COUNT')">
-                    # CONTAR
-                </button>
-            </div>
-            <?php endif; ?>
-            
-            <div class="toolbar-section">
-                <h3>Informações</h3>
-                <div style="font-size: 12px; color: #718096; line-height: 1.5;">
-                    <p><strong>Tipo:</strong> <?php echo $type_label; ?></p>
-                    <?php if (!$is_new): ?>
-                    <p><strong>ID:</strong> <?php echo esc_html($document['file_id']); ?></p>
-                    <p><strong>Criado:</strong> <?php echo date_i18n('d/m/Y', strtotime($document['created_at'])); ?></p>
-                    <p><strong>Atualizado:</strong> <?php echo date_i18n('d/m/Y', strtotime($document['updated_at'])); ?></p>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-        </div>
-        
-        <div class="editor-canvas">
-            <div class="editor-page">
-                
-                <?php if ($type === 'documento'): ?>
-                <!-- 
-                    Quill Editor Container
-                    
-                    The data-apollo-quill attribute triggers automatic initialization
-                    via quill-editor.js. The hidden input stores the content for form
-                    submission and auto-save functionality.
-                    
-                    Image uploads are handled by our custom image handler which:
-                    1. Opens a file picker when the image button is clicked
-                    2. Validates file type (JPEG, PNG, GIF, WebP) and size (max 5MB)
-                    3. Uploads to WordPress Media Library via AJAX
-                    4. Shows progress feedback during upload
-                    5. Inserts the returned URL into the editor on success
-                    
-                    Security: All uploads require a valid nonce and upload_files capability.
-                -->
-                <div id="quill-container" 
-                     class="apollo-quill-container"
-                     data-apollo-quill="true"
-                     data-placeholder="Comece a escrever seu documento..."
-                     data-hidden-input="#document-content">
-                </div>
-                <input type="hidden" 
-                       id="document-content" 
-                       name="document_content"
-                       value="<?php echo esc_attr($doc_content); ?>">
-                <?php endif; ?>
-                
-                <?php if ($type === 'planilha'): ?>
-                <table class="spreadsheet-grid" id="spreadsheet-grid">
-                    <thead>
-                        <tr>
-                            <th style="width: 40px;">#</th>
-                            <?php for ($col = 0; $col < 10; $col++): ?>
-                            <th><?php echo chr(65 + $col); ?></th>
-                            <?php endfor; ?>
-                        </tr>
-                    </thead>
-                    <tbody id="spreadsheet-body">
-                        <?php for ($row = 1; $row <= 20; $row++): ?>
-                        <tr>
-                            <th><?php echo $row; ?></th>
-                            <?php for ($col = 0; $col < 10; $col++): ?>
-                            <td>
-                                <input type="text" 
-                                       class="spreadsheet-cell" 
-                                       data-row="<?php echo $row; ?>" 
-                                       data-col="<?php echo $col; ?>">
-                            </td>
-                            <?php endfor; ?>
-                        </tr>
-                        <?php endfor; ?>
-                    </tbody>
-                </table>
-                <?php endif; ?>
-                
-            </div>
-        </div>
-        
-    </div>
-    
-</div>
+	<!-- Material Icons -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-<script>
-(function() {
-    const titleInput = document.getElementById('document-title');
-    const contentInput = document.getElementById('document-content');
-    const saveBtn = document.getElementById('save-btn');
-    const saveStatus = document.getElementById('save-status');
-    const prepareBtn = document.getElementById('prepare-btn');
-    
-    let saveTimeout;
-    let isDirty = false;
-    
-    // Auto-save ao editar
-    function markDirty() {
-        isDirty = true;
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(autoSave, 2000);
-    }
-    
-    if (titleInput) {
-        titleInput.addEventListener('input', markDirty);
-    }
-    
-    if (contentInput) {
-        contentInput.addEventListener('input', markDirty);
-    }
-    
-    // Auto-save
-    function autoSave() {
-        if (!isDirty) return;
-        
-        saveStatus.textContent = '⏳ Salvando...';
-        saveStatus.className = 'save-status saving';
-        
-        const formData = new FormData();
-        formData.append('title', titleInput.value);
-        formData.append('content', contentInput ? contentInput.value : getSpreadsheetData());
-        formData.append('ajax', '1');
-        
-        fetch(window.location.href, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            saveStatus.textContent = '✅ Salvo';
-            saveStatus.className = 'save-status saved';
-            isDirty = false;
-            
-            setTimeout(() => {
-                saveStatus.style.display = 'none';
-            }, 2000);
-        })
-        .catch(error => {
-            console.error('Erro ao salvar:', error);
-        });
-    }
-    
-    // Save manual
-    if (saveBtn) {
-        saveBtn.addEventListener('click', autoSave);
-    }
-    
-    // Preparar para assinatura
-    if (prepareBtn) {
-        prepareBtn.addEventListener('click', function() {
-            if (confirm('Preparar este documento para assinatura? Ele será convertido para PDF.')) {
-                alert('Funcionalidade em desenvolvimento. O documento será convertido para PDF e adicionado à lista de assinaturas.');
-            }
-        });
-    }
-    
-    // Funções de formatação (documento)
-    window.formatText = function(format) {
-        document.execCommand(format, false, null);
-    };
-    
-    window.insertHeading = function() {
-        if (contentInput) {
-            const cursor = contentInput.selectionStart;
-            const text = contentInput.value;
-            contentInput.value = text.slice(0, cursor) + '\n\n## Título\n\n' + text.slice(cursor);
-            markDirty();
-        }
-    };
-    
-    window.insertList = function() {
-        if (contentInput) {
-            const cursor = contentInput.selectionStart;
-            const text = contentInput.value;
-            contentInput.value = text.slice(0, cursor) + '\n\n- Item 1\n- Item 2\n- Item 3\n\n' + text.slice(cursor);
-            markDirty();
-        }
-    };
-    
-    window.insertTable = function() {
-        if (contentInput) {
-            const cursor = contentInput.selectionStart;
-            const text = contentInput.value;
-            const table = '\n\n| Coluna 1 | Coluna 2 |\n|----------|----------|\n| Valor 1  | Valor 2  |\n\n';
-            contentInput.value = text.slice(0, cursor) + table + text.slice(cursor);
-            markDirty();
-        }
-    };
-    
-    // Funções de planilha
-    window.addRow = function() {
-        const tbody = document.getElementById('spreadsheet-body');
-        if (!tbody) return;
-        
-        const rowCount = tbody.rows.length + 1;
-        const newRow = tbody.insertRow();
-        
-        const th = document.createElement('th');
-        th.textContent = rowCount;
-        newRow.appendChild(th);
-        
-        for (let col = 0; col < 10; col++) {
-            const td = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'spreadsheet-cell';
-            input.dataset.row = rowCount;
-            input.dataset.col = col;
-            td.appendChild(input);
-            newRow.appendChild(td);
-        }
-        
-        markDirty();
-    };
-    
-    window.addColumn = function() {
-        alert('Adicionar coluna: Em desenvolvimento');
-    };
-    
-    window.deleteRow = function() {
-        const tbody = document.getElementById('spreadsheet-body');
-        if (tbody && tbody.rows.length > 0) {
-            tbody.deleteRow(-1);
-            markDirty();
-        }
-    };
-    
-    window.insertFormula = function(formula) {
-        alert(`Inserir fórmula ${formula}: Em desenvolvimento`);
-    };
-    
-    function getSpreadsheetData() {
-        const cells = document.querySelectorAll('.spreadsheet-cell');
-        const data = [];
-        
-        cells.forEach(cell => {
-            if (cell.value) {
-                data.push({
-                    row: cell.dataset.row,
-                    col: cell.dataset.col,
-                    value: cell.value
-                });
-            }
-        });
-        
-        return JSON.stringify(data);
-    }
-    
-    // Salvar ao sair
-    window.addEventListener('beforeunload', function(e) {
-        if (isDirty) {
-            e.preventDefault();
-            e.returnValue = '';
-            return '';
-        }
-    });
-})();
-</script>
+	<!-- Remix Icons (for consistency with other Apollo templates) -->
+	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
-<?php if ($type === 'documento'): ?>
-<!--
-    Quill Editor Dependencies & Configuration
-    
-    We load Quill from CDN for simplicity, but in production you might
-    want to bundle it locally for better performance and offline support.
-    
-    The apolloQuillConfig object provides:
-    - ajaxUrl: WordPress AJAX endpoint for AJAX operations
-    - uploadAction: AJAX action for image upload
-    - saveAction: AJAX action for document save (Delta autosave)
-    - nonce: Security token for CSRF protection
-    - documentId: ID of document being edited (null for new)
-    - autosaveInterval: Debounce interval for autosave (ms)
-    - initialDelta: Delta JSON for existing document content
-    - maxFileSize: Maximum upload size in bytes
-    - allowedTypes: Whitelisted MIME types for images
-    - i18n: Localized strings for UI feedback
--->
+	<!-- Sign Document Module -->
+	<script src="<?php echo esc_url( plugins_url( 'assets/js/sign-document.js', dirname( __DIR__ ) ) ); ?>" defer></script>
 
-<!-- Quill CSS from CDN -->
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+	<!-- Default Font (matches uni.css Urbanist) -->
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- Quill JS from CDN -->
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+	<style>
+		:root {
+			--apollo-primary: #3498db;
+			--apollo-bg: #f0f2f5;
+			--paper-width: 210mm;
+			--paper-height: 297mm;
+			--toolbar-height: 70px;
+		}
 
-<!-- Apollo Quill Configuration with Delta Autosave -->
-<script>
-/**
- * Configuration object for Apollo Quill Editor.
- *
- * This config enables:
- *   1. Image upload to WordPress Media Library
- *   2. Delta-based autosave for content persistence
- *   3. Content recovery from stored Delta JSON
- *
- * Security: All operations require valid nonce and user capabilities.
- * The nonce is generated per session and validated server-side.
- */
-window.apolloQuillConfig = {
-    // ===== AJAX Endpoints =====
-    
-    // WordPress AJAX endpoint (admin-ajax.php)
-    ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
-    
-    // AJAX action for image uploads (ImageUploadHandler.php)
-    uploadAction: 'apollo_upload_editor_image',
-    
-    // AJAX action for document save (DocumentSaveHandler.php)
-    saveAction: 'apollo_save_document',
-    
-    // ===== Security =====
-    
-    // Security nonce - validated by both handlers
-    // Prevents CSRF attacks and ensures user is authenticated
-    nonce: '<?php echo esc_js( $upload_nonce ); ?>',
-    
-    // ===== Document Context =====
-    
-    // Document ID: null for new documents, ID for existing
-    // Used by autosave to know whether to create or update
-    documentId: <?php echo $document_id ? intval( $document_id ) : 'null'; ?>,
-    
-    // ===== Autosave Configuration =====
-    
-    // Debounce interval: wait this long after last change before saving
-    // 3000ms = 3 seconds - balances responsiveness with server load
-    autosaveInterval: 3000,
-    
-    // ===== Initial Content (Delta Format) =====
-    
-    // Delta JSON for existing documents
-    // This is the preferred format - preserves exact formatting
-    // For new documents, this is null
-    <?php if ( ! empty( $doc_delta ) ) : ?>
-    initialDelta: <?php echo $doc_delta; // Already JSON, no escaping needed ?>,
-    <?php else : ?>
-    initialDelta: null,
-    <?php endif; ?>
-    
-    // ===== Image Upload Configuration =====
-    
-    // Maximum file size (bytes) - matches server php.ini
-    maxFileSize: <?php echo intval( wp_max_upload_size() ); ?>,
-    
-    // Allowed MIME types - whitelist for security
-    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-    
-    // ===== Localized Strings (i18n) =====
-    
-    i18n: {
-        // Image upload messages
-        uploading: '<?php echo esc_js( __( 'Enviando imagem...', 'apollo-social' ) ); ?>',
-        uploadSuccess: '<?php echo esc_js( __( 'Imagem inserida!', 'apollo-social' ) ); ?>',
-        uploadError: '<?php echo esc_js( __( 'Erro ao enviar imagem.', 'apollo-social' ) ); ?>',
-        invalidType: '<?php echo esc_js( __( 'Tipo não permitido. Use JPEG, PNG, GIF ou WebP.', 'apollo-social' ) ); ?>',
-        fileTooLarge: '<?php echo esc_js( __( 'Arquivo muito grande. Máximo: 5 MB.', 'apollo-social' ) ); ?>',
-        selectImage: '<?php echo esc_js( __( 'Selecionar imagem', 'apollo-social' ) ); ?>',
-        
-        // Network/server messages
-        networkError: '<?php echo esc_js( __( 'Erro de rede. Verifique sua conexão.', 'apollo-social' ) ); ?>',
-        serverError: '<?php echo esc_js( __( 'Erro no servidor. Tente novamente.', 'apollo-social' ) ); ?>',
-        permissionDenied: '<?php echo esc_js( __( 'Sem permissão para esta ação.', 'apollo-social' ) ); ?>',
-        
-        // Autosave messages
-        saving: '<?php echo esc_js( __( 'Salvando...', 'apollo-social' ) ); ?>',
-        saved: '<?php echo esc_js( __( 'Salvo', 'apollo-social' ) ); ?>',
-        saveError: '<?php echo esc_js( __( 'Erro ao salvar', 'apollo-social' ) ); ?>',
-        unsavedChanges: '<?php echo esc_js( __( 'Você tem alterações não salvas. Deseja sair?', 'apollo-social' ) ); ?>'
-    }
-};
-</script>
+		body {
+			font-family: var(--ap-font-primary, 'Urbanist', system-ui, sans-serif);
+			background-color: var(--apollo-bg);
+			color: var(--ap-text-primary, #1a1a1a);
+			margin: 0;
+			height: 100vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
 
-<!-- Apollo Quill Editor with Image Upload & Delta Autosave -->
-<script src="<?php echo esc_url( APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/quill-editor.js' ); ?>"></script>
+		/* --- Top Navigation Bar --- */
+		.apollo-navbar {
+			height: 50px;
+			background: var(--ap-bg-card, #fff);
+			border-bottom: 1px solid var(--ap-border-light, #e0e0e0);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 20px;
+			flex-shrink: 0;
+		}
 
-<script>
-/**
- * Integration: Handle Quill ready event.
- *
- * When Quill initializes, we receive:
- *   - quill: The Quill instance
- *   - autosaveManager: The AutosaveManager instance
- *   - saveStatus: The save status UI controller
- *
- * This event fires after:
- *   1. Quill is created with toolbar
- *   2. Initial content is loaded (from Delta or HTML fallback)
- *   3. Autosave is wired up
- */
-document.addEventListener('apolloQuillReady', function(event) {
-    const { quill, autosaveManager, saveStatus } = event.detail;
-    const hiddenInput = document.getElementById('document-content');
-    
-    // Update the auto-save function to use Quill's content
-    if (window.markDirty && quill) {
-        quill.on('text-change', function() {
-            // Sync content to hidden input for save
-            if (hiddenInput) {
-                hiddenInput.value = quill.root.innerHTML;
-            }
-            window.markDirty();
-        });
-    }
-    
-    console.log('[Apollo Editor] Quill integration complete');
-});
-</script>
-<?php endif; ?>
+		.brand {
+			display: flex;
+			align-items: center;
+			font-weight: 600;
+			color: var(--ap-text-primary, #2c3e50);
+			font-size: 16px;
+			gap: 10px;
+		}
 
-<?php get_footer(); ?>
+		.ripple-dot {
+			width: 10px;
+			height: 10px;
+			background-color: var(--ap-color-primary, var(--apollo-primary));
+			border-radius: 50%;
+			position: relative;
+			animation: rippleShadow 2s infinite ease-out;
+		}
+
+		@keyframes rippleShadow {
+			0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.6); }
+			100% { box-shadow: 0 0 0 12px rgba(52, 152, 219, 0); }
+		}
+
+		.file-name {
+			color: var(--ap-text-primary, #333);
+			font-size: 14px;
+			font-weight: 600;
+			border: 1px solid transparent;
+			padding: 4px 10px;
+			border-radius: var(--ap-radius-sm, 6px);
+			outline: none;
+			min-width: 200px;
+			background: transparent;
+		}
+
+		.file-name:hover,
+		.file-name:focus {
+			border-color: var(--ap-border-default, #e0e0e0);
+			background: var(--ap-bg-muted, #f9f9f9);
+		}
+
+		.navbar-actions {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.save-status {
+			font-size: 12px;
+			color: var(--ap-text-muted, #888);
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: var(--ap-radius-sm, 6px);
+		}
+
+		.save-status.saving {
+			background: rgba(234, 179, 8, 0.1);
+			color: #92400e;
+		}
+
+		.save-status.saved {
+			background: rgba(16, 185, 129, 0.1);
+			color: #065f46;
+		}
+
+		.save-status.error {
+			background: rgba(239, 68, 68, 0.1);
+			color: #dc2626;
+		}
+
+		/* Use .ap-btn classes from uni.css */
+		.btn-navbar {
+			padding: 8px 16px;
+			border: 1px solid var(--ap-border-default, #ddd);
+			background: var(--ap-bg-card, #fff);
+			border-radius: var(--ap-radius-md, 8px);
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: var(--ap-transition-fast, all 0.2s);
+			color: var(--ap-text-secondary, #555);
+		}
+
+		.btn-navbar:hover {
+			background: var(--ap-bg-muted, #f5f5f5);
+			border-color: var(--ap-border-dark, #ccc);
+		}
+
+		.btn-navbar.primary {
+			background: var(--ap-text-primary, #0f172a);
+			color: var(--ap-bg-main, #fff);
+			border-color: var(--ap-text-primary, #0f172a);
+		}
+
+		.btn-navbar.primary:hover {
+			opacity: 0.9;
+		}
+
+		.btn-navbar.success {
+			background: var(--ap-color-success, #10b981);
+			color: #fff;
+			border-color: var(--ap-color-success, #10b981);
+		}
+
+		/* --- Editor Toolbar --- */
+		.editor-toolbar {
+			background: var(--ap-bg-card, #fff);
+			padding: 10px 20px;
+			border-bottom: 1px solid var(--ap-border-light, #e0e0e0);
+			display: flex;
+			gap: 12px;
+			align-items: center;
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			box-shadow: var(--ap-shadow-sm, 0 2px 6px rgba(0,0,0,0.02));
+			flex-shrink: 0;
+			z-index: 10;
+		}
+
+		.tool-group {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			padding-right: 12px;
+			border-right: 1px solid var(--ap-border-light, #eee);
+		}
+
+		.tool-group:last-child {
+			border-right: none;
+		}
+
+		.form-select-sm {
+			border-radius: var(--ap-radius-sm, 4px);
+			border: 1px solid var(--ap-border-default, #ddd);
+			font-size: 13px;
+			cursor: pointer;
+			padding: 6px 10px;
+			background: var(--ap-bg-card, #fff);
+			color: var(--ap-text-primary, #333);
+		}
+
+		#fontSelector { width: 180px; }
+		#fontWeight { width: 130px; }
+		#fontSize { width: 70px; }
+
+		.btn-tool {
+			width: 32px;
+			height: 32px;
+			padding: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 1px solid transparent;
+			background: transparent;
+			border-radius: var(--ap-radius-sm, 4px);
+			color: var(--ap-text-secondary, #555);
+			transition: var(--ap-transition-fast, all 0.2s);
+			cursor: pointer;
+		}
+
+		.btn-tool:hover {
+			background: var(--ap-bg-muted, #f5f5f5);
+			border-color: var(--ap-border-default, #ddd);
+		}
+
+		.btn-tool.active {
+			background: rgba(59, 130, 246, 0.1);
+			color: var(--ap-color-info, #3b82f6);
+			border-color: rgba(59, 130, 246, 0.3);
+		}
+
+		.btn-tool .material-symbols-rounded {
+			font-size: 20px;
+		}
+
+		#textColor {
+			width: 32px;
+			height: 32px;
+			padding: 2px;
+			border: none;
+			background: none;
+			cursor: pointer;
+		}
+
+		/* --- Main Workspace --- */
+		.workspace {
+			flex: 1;
+			overflow-y: auto;
+			padding: 40px;
+			display: flex;
+			justify-content: center;
+			position: relative;
+			background: var(--apollo-bg);
+		}
+
+		.document-page {
+			background: var(--ap-bg-card, white);
+			width: var(--paper-width);
+			min-height: var(--paper-height);
+			padding: 25mm;
+			box-shadow: var(--ap-shadow-lg, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+			margin-bottom: 40px;
+			outline: none;
+			line-height: 1.6;
+		}
+
+		.document-page:focus {
+			outline: none;
+		}
+
+		.document-page h1 {
+			font-size: 28px;
+			font-weight: 600;
+			margin-bottom: 16px;
+			color: var(--ap-text-primary, #1a1a1a);
+		}
+
+		.document-page h2 {
+			font-size: 22px;
+			font-weight: 600;
+			margin-bottom: 12px;
+			color: var(--ap-text-primary, #333);
+		}
+
+		.document-page h3 {
+			font-size: 18px;
+			font-weight: 600;
+			margin-bottom: 10px;
+			color: var(--ap-text-secondary, #444);
+		}
+
+		.document-page p {
+			font-size: 14px;
+			margin-bottom: 12px;
+			color: var(--ap-text-secondary, #444);
+		}
+
+		.document-page table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 16px 0;
+		}
+
+		.document-page th,
+		.document-page td {
+			border: 1px solid var(--ap-border-default, #ddd);
+			padding: 8px 12px;
+			text-align: left;
+		}
+
+		.document-page th {
+			background: var(--ap-bg-muted, #f5f5f5);
+			font-weight: 600;
+		}
+
+		/* Scrollbar */
+		::-webkit-scrollbar { width: 8px; height: 8px; }
+		::-webkit-scrollbar-track { background: var(--ap-bg-muted, #f1f1f1); }
+		::-webkit-scrollbar-thumb { background: var(--ap-border-default, #ccc); border-radius: 4px; }
+		::-webkit-scrollbar-thumb:hover { background: var(--ap-border-dark, #bbb); }
+
+		/* Print / PDF Styles */
+		@media print {
+			.apollo-navbar, .editor-toolbar { display: none !important; }
+			.workspace { padding: 0; overflow: visible; }
+			.document-page {
+				box-shadow: none;
+				margin: 0;
+				padding: 20mm;
+			}
+		}
+
+		/* Responsive */
+		@media (max-width: 900px) {
+			.document-page {
+				width: 100%;
+				padding: 20px;
+			}
+			.navbar-actions .btn-navbar span {
+				display: none;
+			}
+			.editor-toolbar {
+				padding: 8px 12px;
+				gap: 8px;
+			}
+			.tool-group {
+				padding-right: 8px;
+			}
+		}
+
+		/* Spreadsheet Mode */
+		.spreadsheet-container {
+			width: 100%;
+			overflow-x: auto;
+		}
+
+		.spreadsheet-grid {
+			width: 100%;
+			border-collapse: collapse;
+			font-family: var(--ap-font-primary);
+		}
+
+		.spreadsheet-grid th {
+			background: var(--ap-bg-muted, #f7fafc);
+			border: 1px solid var(--ap-border-light, #e2e8f0);
+			padding: 8px;
+			font-weight: 600;
+			font-size: 12px;
+			color: var(--ap-text-muted, #718096);
+			text-align: center;
+			position: sticky;
+			top: 0;
+		}
+
+		.spreadsheet-grid td {
+			border: 1px solid var(--ap-border-light, #e2e8f0);
+			padding: 0;
+		}
+
+		.spreadsheet-cell {
+			border: none;
+			width: 100%;
+			padding: 8px;
+			font-size: 14px;
+			font-family: 'Fira Code', 'Monaco', monospace;
+			background: transparent;
+		}
+
+		.spreadsheet-cell:focus {
+			outline: 2px solid var(--ap-color-info, #3b82f6);
+			background: rgba(59, 130, 246, 0.05);
+		}
+
+		/* Dark mode support */
+		body.dark-mode {
+			--apollo-bg: #1e293b;
+		}
+
+		body.dark-mode .document-page {
+			background: #0f172a;
+			color: #f1f5f9;
+		}
+
+		body.dark-mode .document-page h1,
+		body.dark-mode .document-page h2,
+		body.dark-mode .document-page h3,
+		body.dark-mode .document-page p {
+			color: #e2e8f0;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- @section:navbar -->
+	<div class="apollo-navbar">
+		<div class="brand">
+			<div class="ripple-dot"></div>
+			<span>Apollo::Rio</span>
+			<span style="color: var(--ap-text-disabled, #ccc);">/</span>
+			<span class="file-name <?php echo $can_edit ? '' : 'readonly'; ?>"
+					contenteditable="<?php echo $can_edit ? 'true' : 'false'; ?>"
+					id="document-title"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['title'] ); ?>"><?php echo esc_html( $doc_title ); ?></span>
+		</div>
+
+		<div class="navbar-actions">
+			<!-- Status Badge with Tooltip -->
+			<span class="ap-badge <?php echo esc_attr( $status_info['class'] ); ?>"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['status'] ); ?>">
+				<span class="material-symbols-rounded" style="font-size: 14px;"><?php echo esc_html( $status_info['icon'] ); ?></span>
+				<?php echo esc_html( $status_info['label'] ); ?>
+			</span>
+
+			<!-- Type Badge -->
+			<span class="ap-badge ap-badge--muted"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['type'] ); ?>">
+				<i class="<?php echo esc_attr( $type_info['icon'] ); ?>"></i>
+				<?php echo esc_html( $type_info['label'] ); ?>
+			</span>
+
+			<!-- Version Badge -->
+			<span class="ap-badge ap-badge--outline"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['version'] ); ?>">
+				v<?php echo esc_html( $doc_version ); ?>
+			</span>
+
+			<span class="save-status saved" id="save-status"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['save_status'] ); ?>">
+				<span class="material-symbols-rounded" style="font-size: 16px;">cloud_done</span>
+				<span id="save-text"><?php echo $is_new ? 'Novo' : 'Salvo'; ?></span>
+			</span>
+
+			<button class="btn-navbar" onclick="window.location.href='/sign'"
+					data-ap-tooltip="Voltar à lista de documentos">
+				<span class="material-symbols-rounded">arrow_back</span>
+				<span>Voltar</span>
+			</button>
+
+			<?php if ( $can_edit ) : ?>
+			<button class="btn-navbar" id="btn-save"
+					data-ap-tooltip="Salvar documento (Ctrl+S)">
+				<span class="material-symbols-rounded">save</span>
+				<span>Salvar</span>
+			</button>
+			<?php endif; ?>
+
+			<button class="btn-navbar primary" id="btn-export-pdf"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['export_pdf'] ); ?>">
+				<span class="material-symbols-rounded">picture_as_pdf</span>
+				<span>Exportar PDF</span>
+			</button>
+
+			<?php if ( ! $is_new && $can_sign ) : ?>
+			<button class="btn-navbar success" id="btn-prepare-sign"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['prepare_sign'] ); ?>">
+				<i class="ri-quill-pen-line"></i>
+				<span>Assinar</span>
+			</button>
+			<?php endif; ?>
+		</div>
+	</div>
+
+	<!-- @section:toolbar -->
+	<?php if ( $type === 'documento' && $can_edit ) : ?>
+	<div class="editor-toolbar">
+		<!-- Font Family -->
+		<div class="tool-group">
+			<select id="fontSelector" class="form-select-sm"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_family'] ); ?>">
+				<option value="Poppins">Poppins</option>
+				<option value="Roboto">Roboto</option>
+				<option value="Open Sans">Open Sans</option>
+				<option value="Montserrat">Montserrat</option>
+				<option value="Lato">Lato</option>
+				<option value="Inter">Inter</option>
+				<option value="Urbanist" selected>Urbanist</option>
+				<option value="Oswald">Oswald</option>
+				<option value="Raleway">Raleway</option>
+				<option value="Nunito">Nunito</option>
+				<option value="Ubuntu">Ubuntu</option>
+				<option value="Playfair Display">Playfair Display</option>
+				<option value="Merriweather">Merriweather</option>
+				<option value="PT Sans">PT Sans</option>
+				<option value="Work Sans">Work Sans</option>
+				<option value="DM Sans">DM Sans</option>
+				<option value="Fira Sans">Fira Sans</option>
+				<option value="Quicksand">Quicksand</option>
+				<option value="Barlow">Barlow</option>
+				<option value="Manrope">Manrope</option>
+			</select>
+		</div>
+
+		<!-- Weight & Size -->
+		<div class="tool-group">
+			<select id="fontWeight" class="form-select-sm"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_weight'] ); ?>">
+				<option value="300">Light (300)</option>
+				<option value="400" selected>Regular (400)</option>
+				<option value="500">Medium (500)</option>
+				<option value="600">Semi Bold (600)</option>
+				<option value="700">Bold (700)</option>
+				<option value="800">Extra Bold (800)</option>
+			</select>
+			<select id="fontSize" class="form-select-sm"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_size'] ); ?>">
+				<option value="10px">10</option>
+				<option value="12px">12</option>
+				<option value="14px" selected>14</option>
+				<option value="16px">16</option>
+				<option value="18px">18</option>
+				<option value="20px">20</option>
+				<option value="24px">24</option>
+				<option value="28px">28</option>
+				<option value="32px">32</option>
+				<option value="36px">36</option>
+				<option value="48px">48</option>
+			</select>
+		</div>
+
+		<!-- Formatting -->
+		<div class="tool-group">
+			<button id="styleBold" class="btn-tool" data-ap-tooltip="Negrito (Ctrl+B)">
+				<span class="material-symbols-rounded">format_bold</span>
+			</button>
+			<button id="styleItalic" class="btn-tool" data-ap-tooltip="Itálico (Ctrl+I)">
+				<span class="material-symbols-rounded">format_italic</span>
+			</button>
+			<button id="styleUnderline" class="btn-tool" data-ap-tooltip="Sublinhado (Ctrl+U)">
+				<span class="material-symbols-rounded">format_underlined</span>
+			</button>
+			<input type="color" id="textColor" value="#000000"
+					data-ap-tooltip="<?php echo esc_attr( $tooltips['text_color'] ); ?>">
+		</div>
+
+		<!-- Alignment -->
+		<div class="tool-group">
+			<button id="alignLeft" class="btn-tool alignment-btn active" data-ap-tooltip="Alinhar à esquerda">
+				<span class="material-symbols-rounded">format_align_left</span>
+			</button>
+			<button id="alignCenter" class="btn-tool alignment-btn" data-ap-tooltip="Centralizar">
+				<span class="material-symbols-rounded">format_align_center</span>
+			</button>
+			<button id="alignRight" class="btn-tool alignment-btn" data-ap-tooltip="Alinhar à direita">
+				<span class="material-symbols-rounded">format_align_right</span>
+			</button>
+			<button id="alignJustify" class="btn-tool alignment-btn" data-ap-tooltip="Justificar">
+				<span class="material-symbols-rounded">format_align_justify</span>
+			</button>
+		</div>
+
+		<!-- Insert -->
+		<div class="tool-group">
+			<button id="insertHeading" class="btn-tool" data-ap-tooltip="Inserir título H2">
+				<span class="material-symbols-rounded">title</span>
+			</button>
+			<button id="insertList" class="btn-tool" data-ap-tooltip="Inserir lista com marcadores">
+				<span class="material-symbols-rounded">format_list_bulleted</span>
+			</button>
+			<button id="insertTable" class="btn-tool" data-ap-tooltip="Inserir tabela 3x3">
+				<span class="material-symbols-rounded">table_chart</span>
+			</button>
+			<button id="insertImage" class="btn-tool" data-ap-tooltip="Inserir imagem (URL)">
+				<span class="material-symbols-rounded">image</span>
+			</button>
+		</div>
+	</div>
+	<?php elseif ( $type === 'planilha' && $can_edit ) : ?>
+	<!-- Spreadsheet Toolbar -->
+	<div class="editor-toolbar">
+		<div class="tool-group">
+			<button class="btn-tool" id="addRow" data-ap-tooltip="Adicionar nova linha">
+				<i class="ri-add-line"></i>
+			</button>
+			<button class="btn-tool" id="addCol" data-ap-tooltip="Adicionar nova coluna">
+				<i class="ri-add-circle-line"></i>
+			</button>
+			<button class="btn-tool" id="deleteRow" data-ap-tooltip="Remover linha selecionada">
+				<i class="ri-subtract-line"></i>
+			</button>
+		</div>
+		<div class="tool-group">
+			<button class="btn-tool" id="insertSum" data-ap-tooltip="Inserir fórmula SOMA">
+				Σ
+			</button>
+			<button class="btn-tool" id="insertAvg" title="Inserir MÉDIA">
+				μ
+			</button>
+			<button class="btn-tool" id="insertCount" title="Inserir CONTAR">
+				#
+			</button>
+		</div>
+	</div>
+	<?php endif; ?>
+
+	<!-- @section:workspace -->
+	<div id="main" class="workspace">
+		<?php if ( $type === 'documento' ) : ?>
+		<div class="document-page" contenteditable="true" spellcheck="true" id="editor-content">
+			<?php echo wp_kses_post( $doc_content ); ?>
+		</div>
+		<?php else : ?>
+		<div class="document-page">
+			<div class="spreadsheet-container">
+				<table class="spreadsheet-grid" id="spreadsheet-grid">
+					<thead>
+						<tr>
+							<th style="width: 40px;">#</th>
+							<?php for ( $col = 0; $col < 10; $col++ ) : ?>
+								<th><?php echo chr( 65 + $col ); ?></th>
+							<?php endfor; ?>
+						</tr>
+					</thead>
+					<tbody id="spreadsheet-body">
+						<?php for ( $row = 1; $row <= 20; $row++ ) : ?>
+							<tr>
+								<th><?php echo $row; ?></th>
+								<?php for ( $col = 0; $col < 10; $col++ ) : ?>
+									<td>
+										<input type="text"
+											class="spreadsheet-cell"
+											data-row="<?php echo $row; ?>"
+											data-col="<?php echo $col; ?>">
+									</td>
+								<?php endfor; ?>
+							</tr>
+						<?php endfor; ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<?php endif; ?>
+	</div>
+
+	<!-- Hidden form data -->
+	<input type="hidden" id="document-id" value="<?php echo esc_attr( $document_id ); ?>">
+	<input type="hidden" id="document-file-id" value="<?php echo esc_attr( $file_id ); ?>">
+	<input type="hidden" id="document-type" value="<?php echo esc_attr( $type ); ?>">
+	<input type="hidden" id="ajax-nonce" value="<?php echo esc_attr( $ajax_nonce ); ?>">
+	<input type="hidden" id="ajax-url" value="<?php echo esc_url( $ajax_url ); ?>">
+
+	<?php
+	// Include signature modal if document can be signed
+	if ( ! $is_new && $can_sign ) :
+		$document_title = $doc_title;
+		include __DIR__ . '/partials/signature-modal.php';
+	endif;
+	?>
+
+	<script>
+	(function() {
+		'use strict';
+
+		// Configuration
+		const config = {
+			documentId: document.getElementById('document-id').value || null,
+			fileId: document.getElementById('document-file-id').value || null,
+			documentType: document.getElementById('document-type').value || 'documento',
+			nonce: document.getElementById('ajax-nonce').value,
+			ajaxUrl: document.getElementById('ajax-url').value || '/wp-admin/admin-ajax.php',
+			autosaveInterval: 2000
+		};
+
+		// State
+		let activeElement = null;
+		let saveTimeout = null;
+		let isDirty = false;
+		let loadedFonts = new Set(['Urbanist', 'Poppins', 'Open Sans']);
+
+		// Google Fonts loader
+		function loadGoogleFont(font) {
+			if (loadedFonts.has(font)) return;
+
+			const fontQuery = font.replace(/ /g, '+');
+			const url = `https://fonts.googleapis.com/css2?family=${fontQuery}:wght@300;400;500;600;700;800&display=swap`;
+
+			const link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = url;
+			link.className = 'dynamic-font';
+			document.head.appendChild(link);
+			loadedFonts.add(font);
+		}
+
+		// Save status UI
+		function updateSaveStatus(status, text) {
+			const statusEl = document.getElementById('save-status');
+			const textEl = document.getElementById('save-text');
+			const iconEl = statusEl.querySelector('.material-symbols-rounded');
+
+			statusEl.classList.remove('saving', 'saved', 'error');
+
+			switch(status) {
+				case 'saving':
+					statusEl.classList.add('saving');
+					iconEl.textContent = 'sync';
+					textEl.textContent = text || 'Salvando...';
+					break;
+				case 'saved':
+					statusEl.classList.add('saved');
+					iconEl.textContent = 'cloud_done';
+					textEl.textContent = text || 'Salvo';
+					break;
+				case 'error':
+					statusEl.classList.add('error');
+					iconEl.textContent = 'error';
+					textEl.textContent = text || 'Erro ao salvar';
+					break;
+			}
+		}
+
+		// Mark as dirty (needs save)
+		function markDirty() {
+			isDirty = true;
+			clearTimeout(saveTimeout);
+			saveTimeout = setTimeout(autoSave, config.autosaveInterval);
+		}
+
+		// Auto-save function
+		function autoSave() {
+			if (!isDirty) return;
+
+			updateSaveStatus('saving');
+
+			const formData = new FormData();
+			formData.append('action', 'apollo_save_document');
+			formData.append('nonce', config.nonce);
+			formData.append('document_id', config.documentId || '');
+			formData.append('document_type', config.documentType);
+			formData.append('title', document.getElementById('document-title').textContent.trim());
+
+			if (config.documentType === 'documento') {
+				formData.append('content', document.getElementById('editor-content').innerHTML);
+			} else {
+				formData.append('content', getSpreadsheetData());
+			}
+
+			fetch(config.ajaxUrl, {
+				method: 'POST',
+				body: formData,
+				credentials: 'same-origin'
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					isDirty = false;
+					config.documentId = data.data.document_id;
+					config.fileId = data.data.file_id;
+					updateSaveStatus('saved');
+
+					// Update URL if new document
+					if (data.data.is_new && data.data.file_id) {
+						const prefix = config.documentType === 'documento' ? 'doc' : 'pla';
+						window.history.replaceState({}, '', '/' + prefix + '/' + data.data.file_id);
+					}
+				} else {
+					updateSaveStatus('error', data.data?.message || 'Erro');
+				}
+			})
+			.catch(() => {
+				updateSaveStatus('error', 'Falha na conexão');
+			});
+		}
+
+		// Export PDF
+		function exportPDF() {
+			updateSaveStatus('saving', 'Gerando PDF...');
+
+			const formData = new FormData();
+			formData.append('action', 'apollo_export_document_pdf');
+			formData.append('nonce', config.nonce);
+			formData.append('document_id', config.documentId || '');
+			formData.append('title', document.getElementById('document-title').textContent.trim());
+
+			if (config.documentType === 'documento') {
+				formData.append('content', document.getElementById('editor-content').innerHTML);
+			} else {
+				formData.append('content', getSpreadsheetData());
+			}
+
+			fetch(config.ajaxUrl, {
+				method: 'POST',
+				body: formData,
+				credentials: 'same-origin'
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success && data.data.pdf_url) {
+					updateSaveStatus('saved', 'PDF gerado!');
+					window.open(data.data.pdf_url, '_blank');
+				} else {
+					updateSaveStatus('error', data.data?.message || 'Erro ao gerar PDF');
+				}
+			})
+			.catch(() => {
+				updateSaveStatus('error', 'Falha ao gerar PDF');
+			});
+		}
+
+		// Prepare for signing - Opens the signature modal
+		function prepareForSigning() {
+			if (!config.documentId) {
+				alert('Salve o documento antes de assinar.');
+				return;
+			}
+
+			// The modal is handled by sign-document.js
+			// This function is now a fallback if the modal script isn't loaded
+			if (window.ApolloSignatureModal) {
+				window.ApolloSignatureModal.open({
+					documentId: config.documentId,
+					title: document.getElementById('document-title').textContent.trim(),
+					restUrl: '/wp-json/apollo-social/v1/documents/' + config.documentId + '/sign'
+				});
+			} else {
+				// Fallback to old behavior if modal not available
+				console.warn('Signature modal not available, using legacy flow');
+				updateSaveStatus('saving', 'Preparando...');
+
+				const formData = new FormData();
+				formData.append('action', 'apollo_prepare_document_signing');
+				formData.append('nonce', config.nonce);
+				formData.append('document_id', config.documentId);
+
+				fetch(config.ajaxUrl, {
+					method: 'POST',
+					body: formData,
+					credentials: 'same-origin'
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success && data.data.sign_url) {
+						updateSaveStatus('saved', 'Pronto!');
+						window.location.href = data.data.sign_url;
+					} else {
+						updateSaveStatus('error', data.data?.message || 'Erro');
+					}
+				})
+				.catch(() => {
+					updateSaveStatus('error', 'Falha na conexão');
+				});
+			}
+		}
+
+		// Apply style to selection/element
+		function applyStyle(property, value) {
+			document.execCommand('styleWithCSS', false, true);
+
+			const selection = window.getSelection();
+			if (selection.rangeCount > 0 && !selection.isCollapsed) {
+				const range = selection.getRangeAt(0);
+				const span = document.createElement('span');
+				span.style[property] = value;
+				range.surroundContents(span);
+			} else if (activeElement) {
+				activeElement.style[property] = value;
+			}
+
+			markDirty();
+		}
+
+		// RGB to Hex
+		function rgbToHex(rgb) {
+			if (!rgb || rgb === 'rgba(0, 0, 0, 0)') return '#000000';
+			const result = rgb.match(/\d+/g);
+			if (!result) return '#000000';
+			return '#' + ((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1).toUpperCase();
+		}
+
+		// Spreadsheet: Get data as JSON
+		function getSpreadsheetData() {
+			const cells = document.querySelectorAll('.spreadsheet-cell');
+			const data = [];
+
+			cells.forEach(cell => {
+				if (cell.value) {
+					data.push({
+						row: cell.dataset.row,
+						col: cell.dataset.col,
+						value: cell.value
+					});
+				}
+			});
+
+			return JSON.stringify(data);
+		}
+
+		// Initialize
+		document.addEventListener('DOMContentLoaded', function() {
+			const editorContent = document.getElementById('editor-content');
+			const titleEl = document.getElementById('document-title');
+
+			// Document type specific setup
+			if (config.documentType === 'documento' && editorContent) {
+				// Select element on click
+				editorContent.addEventListener('click', function(e) {
+					const target = e.target.closest('h1, h2, h3, p, li, td, th, span, div');
+					if (target && editorContent.contains(target)) {
+						document.querySelectorAll('.document-page *').forEach(el => el.classList.remove('active-element'));
+						target.classList.add('active-element');
+						activeElement = target;
+
+						// Update toolbar
+						const fontFamily = getComputedStyle(target).fontFamily.split(',')[0].replace(/['"]/g, '');
+						const fontSize = getComputedStyle(target).fontSize;
+						const fontWeight = getComputedStyle(target).fontWeight;
+						const color = rgbToHex(getComputedStyle(target).color);
+						const textAlign = getComputedStyle(target).textAlign;
+
+						const fontSel = document.getElementById('fontSelector');
+						const sizeSel = document.getElementById('fontSize');
+						const weightSel = document.getElementById('fontWeight');
+						const colorPicker = document.getElementById('textColor');
+
+						if (fontSel) fontSel.value = fontFamily;
+						if (sizeSel) sizeSel.value = fontSize;
+						if (weightSel) weightSel.value = fontWeight;
+						if (colorPicker) colorPicker.value = color;
+
+						document.querySelectorAll('.alignment-btn').forEach(btn => btn.classList.remove('active'));
+						const alignBtn = document.getElementById('align' + textAlign.charAt(0).toUpperCase() + textAlign.slice(1));
+						if (alignBtn) alignBtn.classList.add('active');
+					}
+				});
+
+				// Input events
+				editorContent.addEventListener('input', markDirty);
+
+				// Font selector
+				const fontSelector = document.getElementById('fontSelector');
+				if (fontSelector) {
+					fontSelector.addEventListener('change', function() {
+						const font = this.value;
+						loadGoogleFont(font);
+						applyStyle('fontFamily', '"' + font + '", sans-serif');
+					});
+				}
+
+				// Font weight
+				const fontWeight = document.getElementById('fontWeight');
+				if (fontWeight) {
+					fontWeight.addEventListener('change', function() {
+						applyStyle('fontWeight', this.value);
+					});
+				}
+
+				// Font size
+				const fontSize = document.getElementById('fontSize');
+				if (fontSize) {
+					fontSize.addEventListener('change', function() {
+						applyStyle('fontSize', this.value);
+					});
+				}
+
+				// Text color
+				const textColor = document.getElementById('textColor');
+				if (textColor) {
+					textColor.addEventListener('input', function() {
+						applyStyle('color', this.value);
+					});
+				}
+
+				// Bold
+				const styleBold = document.getElementById('styleBold');
+				if (styleBold) {
+					styleBold.addEventListener('click', function() {
+						document.execCommand('bold', false, null);
+						this.classList.toggle('active');
+						markDirty();
+					});
+				}
+
+				// Italic
+				const styleItalic = document.getElementById('styleItalic');
+				if (styleItalic) {
+					styleItalic.addEventListener('click', function() {
+						document.execCommand('italic', false, null);
+						this.classList.toggle('active');
+						markDirty();
+					});
+				}
+
+				// Underline
+				const styleUnderline = document.getElementById('styleUnderline');
+				if (styleUnderline) {
+					styleUnderline.addEventListener('click', function() {
+						document.execCommand('underline', false, null);
+						this.classList.toggle('active');
+						markDirty();
+					});
+				}
+
+				// Alignment
+				['alignLeft', 'alignCenter', 'alignRight', 'alignJustify'].forEach(function(id) {
+					const btn = document.getElementById(id);
+					if (btn) {
+						btn.addEventListener('click', function() {
+							const align = id.replace('align', '').toLowerCase();
+							document.execCommand('justify' + align.charAt(0).toUpperCase() + align.slice(1), false, null);
+							document.querySelectorAll('.alignment-btn').forEach(b => b.classList.remove('active'));
+							this.classList.add('active');
+							markDirty();
+						});
+					}
+				});
+
+				// Insert heading
+				const insertHeading = document.getElementById('insertHeading');
+				if (insertHeading) {
+					insertHeading.addEventListener('click', function() {
+						document.execCommand('formatBlock', false, 'h2');
+						markDirty();
+					});
+				}
+
+				// Insert list
+				const insertList = document.getElementById('insertList');
+				if (insertList) {
+					insertList.addEventListener('click', function() {
+						document.execCommand('insertUnorderedList', false, null);
+						markDirty();
+					});
+				}
+
+				// Insert table
+				const insertTable = document.getElementById('insertTable');
+				if (insertTable) {
+					insertTable.addEventListener('click', function() {
+						const table = '<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">' +
+							'<tr>' +
+							'<th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 1</th>' +
+							'<th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 2</th>' +
+							'<th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 3</th>' +
+							'</tr>' +
+							'<tr>' +
+							'<td style="border: 1px solid #ddd; padding: 8px;">Valor 1</td>' +
+							'<td style="border: 1px solid #ddd; padding: 8px;">Valor 2</td>' +
+							'<td style="border: 1px solid #ddd; padding: 8px;">Valor 3</td>' +
+							'</tr>' +
+							'</table>';
+						document.execCommand('insertHTML', false, table);
+						markDirty();
+					});
+				}
+
+				// Insert image
+				const insertImage = document.getElementById('insertImage');
+				if (insertImage) {
+					insertImage.addEventListener('click', function() {
+						const url = prompt('URL da imagem:');
+						if (url) {
+							document.execCommand('insertImage', false, url);
+							markDirty();
+						}
+					});
+				}
+
+			} else {
+				// Spreadsheet mode
+				const cells = document.querySelectorAll('.spreadsheet-cell');
+				cells.forEach(function(cell) {
+					cell.addEventListener('input', markDirty);
+				});
+
+				// Add row
+				const addRowBtn = document.getElementById('addRow');
+				if (addRowBtn) {
+					addRowBtn.addEventListener('click', function() {
+						const tbody = document.getElementById('spreadsheet-body');
+						const rowCount = tbody.rows.length + 1;
+						const newRow = tbody.insertRow();
+
+						const th = document.createElement('th');
+						th.textContent = rowCount;
+						newRow.appendChild(th);
+
+						for (let col = 0; col < 10; col++) {
+							const td = document.createElement('td');
+							const input = document.createElement('input');
+							input.type = 'text';
+							input.className = 'spreadsheet-cell';
+							input.dataset.row = rowCount;
+							input.dataset.col = col;
+							input.addEventListener('input', markDirty);
+							td.appendChild(input);
+							newRow.appendChild(td);
+						}
+
+						markDirty();
+					});
+				}
+
+				// Delete row
+				const deleteRowBtn = document.getElementById('deleteRow');
+				if (deleteRowBtn) {
+					deleteRowBtn.addEventListener('click', function() {
+						const tbody = document.getElementById('spreadsheet-body');
+						if (tbody && tbody.rows.length > 1) {
+							tbody.deleteRow(-1);
+							markDirty();
+						}
+					});
+				}
+			}
+
+			// Title input
+			if (titleEl) {
+				titleEl.addEventListener('input', markDirty);
+			}
+
+			// Save button
+			const saveBtn = document.getElementById('btn-save');
+			if (saveBtn) {
+				saveBtn.addEventListener('click', function() {
+					isDirty = true;
+					autoSave();
+				});
+			}
+
+			// Export PDF button
+			const exportBtn = document.getElementById('btn-export-pdf');
+			if (exportBtn) {
+				exportBtn.addEventListener('click', exportPDF);
+			}
+
+			// Prepare for signing button
+			const prepareBtn = document.getElementById('btn-prepare-sign');
+			if (prepareBtn) {
+				prepareBtn.addEventListener('click', prepareForSigning);
+			}
+
+			// Keyboard shortcuts
+			document.addEventListener('keydown', function(e) {
+				if (e.ctrlKey || e.metaKey) {
+					switch(e.key.toLowerCase()) {
+						case 's':
+							e.preventDefault();
+							isDirty = true;
+							autoSave();
+							break;
+						case 'b':
+							e.preventDefault();
+							const boldBtn = document.getElementById('styleBold');
+							if (boldBtn) boldBtn.click();
+							break;
+						case 'i':
+							e.preventDefault();
+							const italicBtn = document.getElementById('styleItalic');
+							if (italicBtn) italicBtn.click();
+							break;
+						case 'u':
+							e.preventDefault();
+							const underlineBtn = document.getElementById('styleUnderline');
+							if (underlineBtn) underlineBtn.click();
+							break;
+					}
+				}
+			});
+
+			// Warn before leaving with unsaved changes
+			window.addEventListener('beforeunload', function(e) {
+				if (isDirty) {
+					e.preventDefault();
+					e.returnValue = '';
+					return 'Você tem alterações não salvas. Deseja sair?';
+				}
+			});
+		});
+	})();
+	</script>
+</body>
+</html>

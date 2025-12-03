@@ -3,136 +3,163 @@
 namespace Apollo\Modules\Builder;
 
 use Apollo\Modules\Builder\Admin\BuilderAdminPage;
+use Apollo\Modules\Builder\Assets\BackgroundRegistry;
+use Apollo\Modules\Builder\Assets\StickerRegistry;
 use Apollo\Modules\Builder\Http\BuilderRestController;
 use Apollo\Modules\Builder\Widgets\StickyNoteWidget;
 
-class BuilderServiceProvider
-{
-    private LayoutRepository $repository;
-    private Renderer $renderer;
-    private ?BuilderAdminPage $adminPage = null;
-    private ?BuilderRestController $restController = null;
+class BuilderServiceProvider {
 
-    public function __construct()
-    {
-        $this->repository = new LayoutRepository();
-        $this->renderer = new Renderer($this->repository);
-    }
+	private LayoutRepository $repository;
+	private Renderer $renderer;
+	private ?BuilderAdminPage $adminPage           = null;
+	private ?BuilderRestController $restController = null;
 
-    public function register(): void
-    {
-        add_action('plugins_loaded', [$this, 'bootstrap'], 25);
-    }
+	public function __construct() {
+		$this->repository = new LayoutRepository();
+		$this->renderer   = new Renderer( $this->repository );
+	}
 
-    public function bootstrap(): void
-    {
-        $this->maybeRegisterAdminPage();
-        $this->maybeRegisterRest();
-        $this->registerShortcodes();
-        $this->registerWidgets();
-        $this->registerFrontendAssets();
-    }
+	public function register(): void {
+		add_action( 'plugins_loaded', array( $this, 'bootstrap' ), 25 );
+	}
 
-    private function dependenciesSatisfied(): bool
-    {
-        return class_exists('SiteOrigin_Panels_Renderer');
-    }
+	public function bootstrap(): void {
+		$this->maybeRegisterAdminPage();
+		$this->maybeRegisterRest();
+		$this->registerShortcodes();
+		$this->registerWidgets();
+		$this->registerFrontendAssets();
+	}
 
-    private function maybeRegisterAdminPage(): void
-    {
-        $this->adminPage = new BuilderAdminPage($this->repository);
-        $this->adminPage->register();
+	private function dependenciesSatisfied(): bool {
+		return class_exists( 'SiteOrigin_Panels_Renderer' );
+	}
 
-        // Legacy dependency check removed as we are moving to Apollo Builder (ShadCN)
-        // if (!$this->dependenciesSatisfied()) {
-        //    add_action('admin_notices', [$this, 'dependencyNotice']);
-        // }
-    }
+	private function maybeRegisterAdminPage(): void {
+		$this->adminPage = new BuilderAdminPage( $this->repository );
+		$this->adminPage->register();
 
-    private function maybeRegisterRest(): void
-    {
-        $this->restController = new BuilderRestController($this->repository);
-        $this->restController->register();
-    }
+		// Legacy dependency check removed as we are moving to Apollo Builder (ShadCN)
+		// if (!$this->dependenciesSatisfied()) {
+		// add_action('admin_notices', [$this, 'dependencyNotice']);
+		// }
+	}
 
-    private function registerShortcodes(): void
-    {
-        add_shortcode('apollo_profile', function ($atts = []) {
-            $atts = shortcode_atts([
-                'user_id' => get_current_user_id(),
-            ], $atts);
+	private function maybeRegisterRest(): void {
+		$this->restController = new BuilderRestController( $this->repository );
+		$this->restController->register();
+	}
 
-            $userId = absint($atts['user_id']);
+	private function registerShortcodes(): void {
+		add_shortcode(
+			'apollo_profile',
+			function ( $atts = array() ) {
+				$atts = shortcode_atts(
+					array(
+						'user_id' => get_current_user_id(),
+					),
+					$atts
+				);
 
-            wp_enqueue_style('apollo-uni-css');
-            wp_enqueue_style('apollo-social-builder');
+				$userId = absint( $atts['user_id'] );
 
-            return $this->renderer->renderForUser($userId);
-        });
-    }
+				wp_enqueue_style( 'apollo-uni-css' );
+				wp_enqueue_style( 'apollo-social-builder' );
 
-    private function registerFrontendAssets(): void
-    {
-        add_action('init', function () {
-            $pluginFile = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
+				return $this->renderer->renderForUser( $userId );
+			}
+		);
+	}
 
-            if (!wp_style_is('apollo-uni-css', 'registered')) {
-                wp_register_style(
-                    'apollo-uni-css',
-                    'https://assets.apollo.rio.br/uni.css',
-                    [],
-                    '2025-11'
-                );
-            }
+	private function registerFrontendAssets(): void {
+		add_action(
+			'init',
+			function () {
+				$pluginFile = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
 
-            wp_register_style(
-                'apollo-social-builder',
-                plugins_url('assets/css/builder.css', $pluginFile),
-                ['apollo-uni-css'],
-                APOLLO_SOCIAL_VERSION
-            );
+				if ( ! wp_style_is( 'apollo-uni-css', 'registered' ) ) {
+					wp_register_style(
+						'apollo-uni-css',
+						'https://assets.apollo.rio.br/uni.css',
+						array(),
+						'2025-11'
+					);
+				}
 
-            wp_register_script(
-                'apollo-social-builder-runtime',
-                plugins_url('assets/js/builder.js', $pluginFile),
-                ['jquery'],
-                APOLLO_SOCIAL_VERSION,
-                true
-            );
-        });
-    }
+				wp_register_style(
+					'apollo-social-builder',
+					plugins_url( 'assets/css/builder.css', $pluginFile ),
+					array( 'apollo-uni-css' ),
+					APOLLO_SOCIAL_VERSION
+				);
 
-    private function registerWidgets(): void
-    {
-        add_action('widgets_init', function () {
-            register_widget(StickyNoteWidget::class);
-        });
+				// Apollo Builder main script.
+				wp_register_script(
+					'apollo-social-builder-runtime',
+					plugins_url( 'assets/js/builder.js', $pluginFile ),
+					array( 'jquery' ),
+					APOLLO_SOCIAL_VERSION,
+					true
+				);
 
-        add_filter('siteorigin_panels_widgets', function ($widgets) {
-            $widgets['apollo_sticky_note'] = [
-                'title' => __('Apollo Sticky Note', 'apollo-social'),
-                'description' => __('Nota adesiva estilo Habbo com Tailwind/Shadcn.', 'apollo-social'),
-                'class' => StickyNoteWidget::class,
-                'is_so_widget' => false,
-            ];
+				// Apollo Builder Assets module (backgrounds & stickers).
+				wp_register_script(
+					'apollo-builder-assets',
+					plugins_url( 'assets/js/apollo-builder-assets.js', $pluginFile ),
+					array( 'jquery', 'apollo-social-builder-runtime' ),
+					APOLLO_SOCIAL_VERSION,
+					true
+				);
 
-            return $widgets;
-        });
-    }
+				// Localize REST nonce for the assets module.
+				wp_localize_script(
+					'apollo-builder-assets',
+					'apolloBuilderConfig',
+					array(
+						'restNonce' => wp_create_nonce( 'wp_rest' ),
+						'restUrl'   => rest_url( 'apollo-social/v1/builder' ),
+					)
+				);
+			}
+		);
+	}
 
-    public function dependencyNotice(): void
-    {
-        if (class_exists('SiteOrigin_Panels_Renderer')) {
-            return;
-        }
+	private function registerWidgets(): void {
+		add_action(
+			'widgets_init',
+			function () {
+				register_widget( StickyNoteWidget::class );
+			}
+		);
 
-        ?>
-        <div class="notice notice-error">
-            <p>
-                <?php esc_html_e('Apollo Social Builder requer o plugin SiteOrigin Page Builder ativo.', 'apollo-social'); ?>
-            </p>
-        </div>
-        <?php
-    }
+		add_filter(
+			'siteorigin_panels_widgets',
+			function ( $widgets ) {
+				$widgets['apollo_sticky_note'] = array(
+					'title'        => __( 'Apollo Sticky Note', 'apollo-social' ),
+					'description'  => __( 'Nota adesiva estilo Habbo com Tailwind/Shadcn.', 'apollo-social' ),
+					'class'        => StickyNoteWidget::class,
+					'is_so_widget' => false,
+				);
+
+				return $widgets;
+			}
+		);
+	}
+
+	public function dependencyNotice(): void {
+		if ( class_exists( 'SiteOrigin_Panels_Renderer' ) ) {
+			return;
+		}
+
+		?>
+		<div class="notice notice-error">
+			<p>
+				<?php esc_html_e( 'Apollo Social Builder requer o plugin SiteOrigin Page Builder ativo.', 'apollo-social' ); ?>
+			</p>
+		</div>
+		<?php
+	}
 }
 

@@ -7,47 +7,45 @@ namespace Apollo\Domain\Classifieds;
  * Represents a classified advertisement.
  * TODO: Define ad properties, moderation status and season binding.
  */
-class AdEntity
-{
-    /**
-     * Ad ID
-     * TODO: implement property and getters/setters
-     */
-    protected $id;
+class AdEntity {
 
-    /**
-     * Ad slug
-     * TODO: implement property and URL generation
-     */
-    protected $slug;
+	/**
+	 * Ad ID
+	 * TODO: implement property and getters/setters
+	 */
+	protected $id;
 
-    /**
-     * Season binding (optional)
-     * TODO: implement season association
-     */
-    protected $season;
+	/**
+	 * Ad slug
+	 * TODO: implement property and URL generation
+	 */
+	protected $slug;
 
-    /**
-     * Moderation status
-     * TODO: implement moderation workflow
-     */
-    protected $status;
+	/**
+	 * Season binding (optional)
+	 * TODO: implement season association
+	 */
+	protected $season;
 
-    /**
-     * Get ad URL
-     * TODO: implement URL generation for /anuncio/{slug}
-     */
-    public function getUrl()
-    {
-        // TODO: implement ad URL generation logic
-    }
+	/**
+	 * Moderation status
+	 * TODO: implement moderation workflow
+	 */
+	protected $status;
 
-    /**
-     * Check if ad is approved
-     * TODO: implement moderation status checking
-     */
-    public function isApproved()
-    {
-        // TODO: implement approval checking logic
-    }
+	/**
+	 * Get ad URL
+	 * TODO: implement URL generation for /anuncio/{slug}
+	 */
+	public function getUrl() {
+		// TODO: implement ad URL generation logic
+	}
+
+	/**
+	 * Check if ad is approved
+	 * TODO: implement moderation status checking
+	 */
+	public function isApproved() {
+		// TODO: implement approval checking logic
+	}
 }

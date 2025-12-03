@@ -8,83 +8,85 @@ use Apollo\Domain\Groups\Repositories\GroupsRepository;
  * Default Groups Creator
  * Creates default COMUNIDADES and PROJECT TEAM (NÚCLEO) groups on plugin activation
  */
-class DefaultGroups
-{
-    private GroupsRepository $repository;
+class DefaultGroups {
 
-    public function __construct()
-    {
-        $this->repository = new GroupsRepository();
-    }
+	private GroupsRepository $repository;
 
-    /**
-     * Create default groups if they don't exist
-     */
-    public function createDefaults(): void
-    {
-        // Create COMUNIDADES (public communities group)
-        $this->createComunidadesGroup();
+	public function __construct() {
+		$this->repository = new GroupsRepository();
+	}
 
-        // Create PROJECT TEAM (NÚCLEO - producers/work group)
-        $this->createProjectTeamGroup();
-    }
+	/**
+	 * Create default groups if they don't exist
+	 */
+	public function createDefaults(): void {
+		// Create COMUNIDADES (public communities group)
+		$this->createComunidadesGroup();
 
-    /**
-     * Create COMUNIDADES group
-     */
-    private function createComunidadesGroup(): void
-    {
-        $existing = $this->repository->findBySlug('comunidades');
-        if ($existing) {
-            return; // Already exists
-        }
+		// Create PROJECT TEAM (NÚCLEO - producers/work group)
+		$this->createProjectTeamGroup();
+	}
 
-        $this->repository->create([
-            'title' => 'COMUNIDADES',
-            'slug' => 'comunidades',
-            'description' => 'Grupo público para comunidades e grupos de interesse',
-            'type' => 'comunidade',
-            'status' => 'published',
-            'visibility' => 'public',
-            'creator_id' => 1 // System user
-        ]);
-    }
+	/**
+	 * Create COMUNIDADES group
+	 */
+	private function createComunidadesGroup(): void {
+		$existing = $this->repository->findBySlug( 'comunidades' );
+		if ( $existing ) {
+			return; 
+			// Already exists
+		}
 
-    /**
-     * Create PROJECT TEAM (NÚCLEO) group
-     */
-    private function createProjectTeamGroup(): void
-    {
-        $existing = $this->repository->findBySlug('project-team');
-        if ($existing) {
-            return; // Already exists
-        }
+		$this->repository->create(
+			array(
+				'title'       => 'COMUNIDADES',
+				'slug'        => 'comunidades',
+				'description' => 'Grupo público para comunidades e grupos de interesse',
+				'type'        => 'comunidade',
+				'status'      => 'published',
+				'visibility'  => 'public',
+				'creator_id'  => 1, 
+			// System user
+			)
+		);
+	}
 
-        $this->repository->create([
-            'title' => 'PROJECT TEAM',
-            'slug' => 'project-team',
-            'description' => 'Núcleo de produtores e equipe de trabalho Apollo',
-            'type' => 'nucleo',
-            'status' => 'published',
-            'visibility' => 'members_only', // Private group for producers
-            'creator_id' => 1 // System user
-        ]);
-    }
+	/**
+	 * Create PROJECT TEAM (NÚCLEO) group
+	 */
+	private function createProjectTeamGroup(): void {
+		$existing = $this->repository->findBySlug( 'project-team' );
+		if ( $existing ) {
+			return; 
+			// Already exists
+		}
 
-    /**
-     * Get default COMUNIDADES group
-     */
-    public function getComunidadesGroup()
-    {
-        return $this->repository->findBySlug('comunidades');
-    }
+		$this->repository->create(
+			array(
+				'title'       => 'PROJECT TEAM',
+				'slug'        => 'project-team',
+				'description' => 'Núcleo de produtores e equipe de trabalho Apollo',
+				'type'        => 'nucleo',
+				'status'      => 'published',
+				'visibility'  => 'members_only', 
+				// Private group for producers
+												'creator_id' => 1, 
+			// System user
+			)
+		);
+	}
 
-    /**
-     * Get default PROJECT TEAM group
-     */
-    public function getProjectTeamGroup()
-    {
-        return $this->repository->findBySlug('project-team');
-    }
+	/**
+	 * Get default COMUNIDADES group
+	 */
+	public function getComunidadesGroup() {
+		return $this->repository->findBySlug( 'comunidades' );
+	}
+
+	/**
+	 * Get default PROJECT TEAM group
+	 */
+	public function getProjectTeamGroup() {
+		return $this->repository->findBySlug( 'project-team' );
+	}
 }
-

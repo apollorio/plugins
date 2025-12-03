@@ -4,4 +4,3 @@
  */
 
 // TODO: implement classifieds archive template
-?>

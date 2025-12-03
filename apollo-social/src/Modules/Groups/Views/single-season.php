@@ -12,4 +12,3 @@
 // 3. Display season info, timeline, participants
 // 4. Show season-specific content (events, classifieds, groups)
 // 5. Render using Canvas Mode layout
-?>

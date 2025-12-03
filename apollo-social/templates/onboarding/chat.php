@@ -1,465 +1,455 @@
 <?php
 /**
  * Onboarding Chat Template
- * Based on CodePen design: https://codepen.io/Rafael-Valle-the-looper/pen/xbZpXyM
- * Features: chat bubbles, typing animation, minimal header, smooth transitions
+ * STRICT MODE: 100% UNI.CSS conformance
+ * Chat-style conversational onboarding flow
+ *
+ * @package Apollo_Social
+ * @subpackage Onboarding
+ * @version 2.0.0
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Enqueue assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+}
+
+$config       = $config ?? array();
+$progress     = $progress ?? array();
+$current_step = $current_step ?? 'welcome';
+$user_id      = $user_id ?? get_current_user_id();
+$nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 ?>
 
-<div class="apollo-canvas apollo-onboarding">
-    <div class="chat-container">
-        <!-- Minimal Header -->
-        <div class="chat-header">
-            <div class="header-avatar">
-                <img src="<?php echo plugin_dir_url(__FILE__) . '../../assets/images/apollo-avatar.png'; ?>" 
-                     alt="Apollo" class="avatar-img">
-            </div>
-            <div class="header-info">
-                <h3 class="header-title">Apollo Social</h3>
-                <span class="header-status">
-                    <span class="status-dot"></span>
-                    online
-                </span>
-            </div>
-        </div>
+<div class="ap-onboarding ap-onboarding-chat">
+	<!-- Chat Container -->
+	<div class="ap-chat-container">
+		<!-- Chat Header -->
+		<header class="ap-chat-header">
+			<div class="ap-chat-header-avatar">
+				<div class="ap-avatar ap-avatar-md" style="background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));">
+					<i class="ri-robot-2-line"></i>
+				</div>
+				<div class="ap-chat-status-dot"></div>
+			</div>
+			<div class="ap-chat-header-info">
+				<h3 class="ap-chat-header-title">Apollo Social</h3>
+				<span class="ap-chat-header-status">
+					<span class="ap-online-indicator"></span>
+					online
+				</span>
+			</div>
+			<button class="ap-btn-icon-sm ap-hide-mobile" data-ap-tooltip="Fechar onboarding">
+				<i class="ri-close-line"></i>
+			</button>
+		</header>
 
-        <!-- Messages Area -->
-        <div class="chat-messages" id="chatMessages">
-            <!-- Welcome message -->
-            <div class="message-bubble bot-message" data-step="welcome">
-                <div class="message-content">
-                    <p><?php echo esc_html($config['messages']['welcome'] ?? 'Olá! Vou te ajudar a configurar seu perfil no Apollo 🚀'); ?></p>
-                </div>
-                <div class="message-timestamp">
-                    <?php echo date('H:i'); ?>
-                </div>
-            </div>
+		<!-- Messages Area -->
+		<div class="ap-chat-messages" id="chatMessages">
+			<!-- Welcome message -->
+			<div class="ap-chat-message ap-chat-message-bot" data-step="welcome">
+				<div class="ap-chat-bubble">
+					<p><?php echo esc_html( $config['messages']['welcome'] ?? 'Olá! Vou te ajudar a configurar seu perfil no Apollo 🚀' ); ?></p>
+				</div>
+				<span class="ap-chat-timestamp"><?php echo esc_html( date_i18n( 'H:i' ) ); ?></span>
+			</div>
+			<!-- Dynamic messages will be added here by JavaScript -->
+		</div>
 
-            <!-- Dynamic messages will be added here by JavaScript -->
-        </div>
+		<!-- Typing Indicator -->
+		<div class="ap-chat-typing" id="typingIndicator" style="display: none;">
+			<div class="ap-chat-typing-bubble">
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+		</div>
 
-        <!-- Chat Input Area -->
-        <div class="chat-input-area" id="chatInputArea">
-            <!-- Input will be dynamically generated based on current step -->
-        </div>
+		<!-- Chat Input Area -->
+		<div class="ap-chat-input" id="chatInputArea">
+			<!-- Input will be dynamically generated based on current step -->
+		</div>
 
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator" style="display: none;">
-            <div class="typing-bubble">
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Progress Bar -->
-    <div class="onboarding-progress">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-        </div>
-        <div class="progress-text">
-            <span id="progressText">Passo 1 de 7</span>
-        </div>
-    </div>
+		<!-- Progress Bar -->
+		<div class="ap-chat-progress">
+			<div class="ap-progress">
+				<div class="ap-progress-bar" id="progressFill" style="width: 0%;"></div>
+			</div>
+			<span class="ap-chat-progress-text" id="progressText">Passo 1 de 7</span>
+		</div>
+	</div>
 </div>
 
 <!-- Hidden data for JavaScript -->
 <script type="application/json" id="onboardingData">
 {
-    "config": <?php echo json_encode($config); ?>,
-    "progress": <?php echo json_encode($progress); ?>,
-    "currentStep": "<?php echo esc_js($current_step); ?>",
-    "userId": <?php echo intval($user_id ?? 0); ?>,
-    "nonce": "<?php echo esc_js($nonce); ?>"
+	"config": <?php echo wp_json_encode( $config ); ?>,
+	"progress": <?php echo wp_json_encode( $progress ); ?>,
+	"currentStep": "<?php echo esc_js( $current_step ); ?>",
+	"userId": <?php echo intval( $user_id ); ?>,
+	"nonce": "<?php echo esc_js( $nonce ); ?>"
 }
 </script>
 
 <style>
-/* Import base styles for Apollo Canvas */
-.apollo-canvas.apollo-onboarding {
-    max-width: 480px;
-    margin: 0 auto;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* ==========================================================================
+	ONBOARDING CHAT - UNI.CSS Extension
+	========================================================================== */
+
+.ap-onboarding-chat {
+	max-width: 480px;
+	margin: 0 auto;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--ap-bg-surface);
+	font-family: var(--ap-font-primary);
 }
 
 /* Chat Container */
-.chat-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: hidden;
+.ap-chat-container {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	background: var(--ap-bg-card);
+	overflow: hidden;
 }
 
-/* Header */
-.chat-header {
-    display: flex;
-    align-items: center;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+/* Chat Header */
+.ap-chat-header {
+	display: flex;
+	align-items: center;
+	padding: 16px 20px;
+	background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+	color: white;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	gap: 12px;
 }
 
-.header-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: 12px;
-    background: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.ap-chat-header-avatar {
+	position: relative;
 }
 
-.avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.ap-chat-header-avatar .ap-avatar {
+	background: rgba(255, 255, 255, 0.2) !important;
 }
 
-.header-info {
-    flex: 1;
+.ap-chat-status-dot {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 10px;
+	height: 10px;
+	background: var(--ap-color-success);
+	border-radius: 50%;
+	border: 2px solid white;
 }
 
-.header-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 2px 0;
+.ap-chat-header-info {
+	flex: 1;
 }
 
-.header-status {
-    font-size: 13px;
-    opacity: 0.9;
-    display: flex;
-    align-items: center;
+.ap-chat-header-title {
+	font-size: var(--ap-text-md);
+	font-weight: 600;
+	margin: 0;
+	color: white;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: pulse 2s infinite;
+.ap-chat-header-status {
+	font-size: var(--ap-text-sm);
+	opacity: 0.9;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
-/* Messages Area */
-.chat-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    scroll-behavior: smooth;
+.ap-online-indicator {
+	width: 8px;
+	height: 8px;
+	background: var(--ap-color-success);
+	border-radius: 50%;
+	animation: ap-pulse 2s infinite;
 }
 
-/* Message Bubbles */
-.message-bubble {
-    margin-bottom: 16px;
-    animation: slideUp 0.3s ease;
+/* Chat Messages */
+.ap-chat-messages {
+	flex: 1;
+	padding: 20px;
+	overflow-y: auto;
+	scroll-behavior: smooth;
 }
 
-.bot-message .message-content {
-    background: #f1f5f9;
-    color: #1e293b;
-    border-radius: 18px 18px 18px 4px;
-    padding: 12px 16px;
-    max-width: 85%;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.ap-chat-message {
+	margin-bottom: 16px;
+	animation: ap-slide-up 0.3s ease;
 }
 
-.user-message .message-content {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 18px 18px 4px 18px;
-    padding: 12px 16px;
-    max-width: 85%;
-    margin-left: auto;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.ap-chat-bubble {
+	padding: 12px 16px;
+	max-width: 85%;
+	border-radius: var(--ap-radius-xl);
 }
 
-.message-timestamp {
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 4px;
-    text-align: right;
+.ap-chat-message-bot .ap-chat-bubble {
+	background: var(--ap-bg-muted);
+	color: var(--ap-text-primary);
+	border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
+	box-shadow: var(--ap-shadow-sm);
 }
 
-.user-message .message-timestamp {
-    text-align: right;
-    color: #64748b;
+.ap-chat-message-user .ap-chat-bubble {
+	background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+	color: white;
+	border-radius: var(--ap-radius-xl) var(--ap-radius-xl) 4px var(--ap-radius-xl);
+	margin-left: auto;
+	box-shadow: var(--ap-shadow-sm);
+}
+
+.ap-chat-timestamp {
+	font-size: var(--ap-text-xs);
+	color: var(--ap-text-muted);
+	margin-top: 4px;
+	display: block;
+}
+
+.ap-chat-message-user .ap-chat-timestamp {
+	text-align: right;
 }
 
 /* Typing Indicator */
-.typing-indicator {
-    padding: 0 20px 10px 20px;
+.ap-chat-typing {
+	padding: 0 20px 10px;
 }
 
-.typing-bubble {
-    background: #f1f5f9;
-    border-radius: 18px 18px 18px 4px;
-    padding: 12px 16px;
-    max-width: 60px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.ap-chat-typing-bubble {
+	background: var(--ap-bg-muted);
+	border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
+	padding: 12px 16px;
+	max-width: 60px;
+	display: flex;
+	gap: 4px;
 }
 
-.typing-dots {
-    display: flex;
-    gap: 4px;
+.ap-chat-typing-bubble span {
+	width: 6px;
+	height: 6px;
+	background: var(--ap-text-muted);
+	border-radius: 50%;
+	animation: ap-typing-dots 1.4s infinite;
 }
 
-.typing-dots span {
-    width: 6px;
-    height: 6px;
-    background: #64748b;
-    border-radius: 50%;
-    animation: typingDots 1.4s infinite;
+.ap-chat-typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+.ap-chat-typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Chat Input */
+.ap-chat-input {
+	padding: 16px 20px;
+	background: var(--ap-bg-card);
+	border-top: 1px solid var(--ap-border-light);
 }
 
-.typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
+.ap-chat-input-group {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
-.typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
+.ap-chat-text-input {
+	flex: 1;
+	border: 1px solid var(--ap-border-default);
+	border-radius: var(--ap-radius-full);
+	padding: 10px 16px;
+	font-size: var(--ap-text-base);
+	outline: none;
+	transition: var(--ap-transition-fast);
+	font-family: var(--ap-font-primary);
 }
 
-/* Chat Input Area */
-.chat-input-area {
-    padding: 16px 20px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
+.ap-chat-text-input:focus {
+	border-color: var(--ap-orange-500);
+	box-shadow: 0 0 0 3px var(--ap-orange-100);
 }
 
-/* Text Input */
-.input-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.ap-chat-send-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: none;
+	background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+	color: white;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: var(--ap-transition-fast);
 }
 
-.text-input {
-    flex: 1;
-    border: 1px solid #d1d5db;
-    border-radius: 20px;
-    padding: 10px 16px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s ease;
+.ap-chat-send-btn:hover {
+	transform: scale(1.05);
 }
 
-.text-input:focus {
-    border-color: #667eea;
-}
-
-.send-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s ease;
-}
-
-.send-button:hover {
-    transform: scale(1.05);
-}
-
-.send-button:active {
-    transform: scale(0.95);
+.ap-chat-send-btn:active {
+	transform: scale(0.95);
 }
 
 /* Choice Chips */
-.choice-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+.ap-chat-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
 }
 
-.chip {
-    padding: 8px 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 20px;
-    background: white;
-    color: #374151;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    user-select: none;
+.ap-chat-chip {
+	padding: 8px 16px;
+	border: 1px solid var(--ap-border-default);
+	border-radius: var(--ap-radius-full);
+	background: var(--ap-bg-card);
+	color: var(--ap-text-secondary);
+	cursor: pointer;
+	font-size: var(--ap-text-sm);
+	transition: var(--ap-transition-fast);
+	user-select: none;
+	font-family: var(--ap-font-primary);
 }
 
-.chip:hover {
-    border-color: #667eea;
-    background: #f8fafc;
+.ap-chat-chip:hover {
+	border-color: var(--ap-orange-500);
+	background: var(--ap-orange-50);
 }
 
-.chip.selected {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-color: #667eea;
+.ap-chat-chip.selected {
+	background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+	color: white;
+	border-color: var(--ap-orange-500);
 }
 
-.chip.multi-select.selected {
-    background: #667eea;
-    color: white;
+/* Progress */
+.ap-chat-progress {
+	padding: 16px 20px;
+	background: var(--ap-bg-card);
+	border-top: 1px solid var(--ap-border-light);
 }
 
-/* Contact Form */
-.contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.ap-chat-progress .ap-progress {
+	margin-bottom: 8px;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.form-label {
-    font-size: 13px;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.form-input {
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s ease;
-}
-
-.form-input:focus {
-    border-color: #667eea;
-}
-
-/* Progress Bar */
-.onboarding-progress {
-    padding: 16px 20px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    text-align: center;
-    font-size: 12px;
-    color: #6b7280;
+.ap-chat-progress-text {
+	text-align: center;
+	font-size: var(--ap-text-xs);
+	color: var(--ap-text-muted);
+	display: block;
 }
 
 /* Animations */
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes ap-slide-up {
+	from { opacity: 0; transform: translateY(20px); }
+	to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes typingDots {
-    0%, 20% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.7;
-    }
-    80%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+@keyframes ap-typing-dots {
+	0%, 20% { transform: scale(1); opacity: 1; }
+	50% { transform: scale(1.2); opacity: 0.7; }
+	80%, 100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+@keyframes ap-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-    .apollo-canvas.apollo-onboarding {
-        max-width: 100%;
-        height: 100vh;
-    }
-    
-    .choice-chips {
-        flex-direction: column;
-    }
-    
-    .chip {
-        text-align: center;
-    }
+	.ap-onboarding-chat {
+		max-width: 100%;
+		height: 100vh;
+	}
+	
+	.ap-chat-chips {
+		flex-direction: column;
+	}
+	
+	.ap-chat-chip {
+		text-align: center;
+	}
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .apollo-canvas.apollo-onboarding {
-        background: #0f172a;
-    }
-    
-    .chat-container {
-        background: #1e293b;
-    }
-    
-    .bot-message .message-content {
-        background: #334155;
-        color: #f1f5f9;
-    }
-    
-    .typing-bubble {
-        background: #334155;
-    }
-    
-    .chat-input-area {
-        background: #1e293b;
-        border-color: #334155;
-    }
-    
-    .onboarding-progress {
-        background: #1e293b;
-        border-color: #334155;
-    }
+/* Dark mode */
+body.dark-mode .ap-chat-container {
+	background: var(--ap-bg-card);
+}
+
+body.dark-mode .ap-chat-message-bot .ap-chat-bubble {
+	background: var(--ap-bg-muted);
+	color: var(--ap-text-primary);
+}
+
+body.dark-mode .ap-chat-typing-bubble {
+	background: var(--ap-bg-muted);
+}
+
+body.dark-mode .ap-chat-input,
+body.dark-mode .ap-chat-progress {
+	background: var(--ap-bg-card);
+	border-color: var(--ap-border-light);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	const dataEl = document.getElementById('onboardingData');
+	if (!dataEl) return;
+	
+	const data = JSON.parse(dataEl.textContent);
+	
+	// Initialize onboarding chat
+	window.apolloOnboarding = {
+		config: data.config,
+		progress: data.progress,
+		currentStep: data.currentStep,
+		userId: data.userId,
+		nonce: data.nonce,
+		
+		showTyping: function() {
+			document.getElementById('typingIndicator').style.display = 'block';
+		},
+		
+		hideTyping: function() {
+			document.getElementById('typingIndicator').style.display = 'none';
+		},
+		
+		addMessage: function(content, isUser = false) {
+			const container = document.getElementById('chatMessages');
+			const msg = document.createElement('div');
+			msg.className = 'ap-chat-message ' + (isUser ? 'ap-chat-message-user' : 'ap-chat-message-bot');
+			msg.innerHTML = `
+				<div class="ap-chat-bubble">
+					<p>${content}</p>
+				</div>
+				<span class="ap-chat-timestamp">${new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</span>
+			`;
+			container.appendChild(msg);
+			container.scrollTop = container.scrollHeight;
+		},
+		
+		updateProgress: function(percent) {
+			document.getElementById('progressFill').style.width = percent + '%';
+		},
+		
+		setProgressText: function(text) {
+			document.getElementById('progressText').textContent = text;
+		}
+	};
+	
+	// Start onboarding flow
+	console.log('Apollo Onboarding initialized', data);
+});
+</script>

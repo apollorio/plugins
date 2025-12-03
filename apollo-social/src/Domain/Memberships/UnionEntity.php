@@ -7,41 +7,39 @@ namespace Apollo\Domain\Memberships;
  * Represents a membership union/organization.
  * TODO: Define union properties, member management and badge settings.
  */
-class UnionEntity
-{
-    /**
-     * Union ID
-     * TODO: implement property and getters/setters
-     */
-    protected $id;
+class UnionEntity {
 
-    /**
-     * Union slug
-     * TODO: implement property and URL generation
-     */
-    protected $slug;
+	/**
+	 * Union ID
+	 * TODO: implement property and getters/setters
+	 */
+	protected $id;
 
-    /**
-     * Badge settings for this union
-     * TODO: implement badges toggle functionality per union
-     */
-    protected $badge_settings;
+	/**
+	 * Union slug
+	 * TODO: implement property and URL generation
+	 */
+	protected $slug;
 
-    /**
-     * Get union URL
-     * TODO: implement URL generation for /uniao/{slug}
-     */
-    public function getUrl()
-    {
-        // TODO: implement union URL generation logic
-    }
+	/**
+	 * Badge settings for this union
+	 * TODO: implement badges toggle functionality per union
+	 */
+	protected $badge_settings;
 
-    /**
-     * Check if badges are enabled for this union
-     * TODO: implement badge toggle checking
-     */
-    public function hasBadgesEnabled()
-    {
-        // TODO: implement badge toggle checking logic
-    }
+	/**
+	 * Get union URL
+	 * TODO: implement URL generation for /uniao/{slug}
+	 */
+	public function getUrl() {
+		// TODO: implement union URL generation logic
+	}
+
+	/**
+	 * Check if badges are enabled for this union
+	 * TODO: implement badge toggle checking
+	 */
+	public function hasBadgesEnabled() {
+		// TODO: implement badge toggle checking logic
+	}
 }

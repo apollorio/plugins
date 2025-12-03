@@ -1,219 +1,226 @@
 <?php
 /**
  * Template: Cena::Rio Dashboard
- * Baseado em ShadCN Sidebar-15
- * https://ui.shadcn.com/view/new-york-v4/sidebar-15
- * 
- * Features:
- * - Sidebar com logo clicável
- * - Centro de notificações ao clicar no logo
- * - Resumo de mensagens de chat
- * - Layout responsivo
+ * STRICT MODE: 100% UNI.CSS conformance
+ *
+ * @package Apollo_Social
+ * @subpackage CenaRio
+ * @version 2.0.0
+ * @uses UNI.CSS v5.2.0 - Dashboard components
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 // Verificar se usuário tem acesso
-if (!current_user_can('cena-rio') && !current_user_can('administrator')) {
-    wp_die('Acesso negado. Você precisa da permissão "cena-rio" para acessar esta página.', 'Acesso Negado', array('response' => 403));
+if ( ! current_user_can( 'cena-rio' ) && ! current_user_can( 'administrator' ) ) {
+	wp_die(
+		esc_html__( 'Acesso negado. Você precisa da permissão "cena-rio" para acessar esta página.', 'apollo-social' ),
+		esc_html__( 'Acesso Negado', 'apollo-social' ),
+		array( 'response' => 403 )
+	);
 }
 
-$current_user = wp_get_current_user();
-$user_id = $current_user->ID;
+$current_user  = wp_get_current_user();
+$user_id       = $current_user->ID;
+$user_initials = strtoupper( substr( $current_user->display_name, 0, 2 ) );
 
 // Buscar documentos do usuário
-$user_documents = function_exists('Apollo\CenaRio\CenaRioModule::getUserDocuments') 
-    ? Apollo\CenaRio\CenaRioModule::getUserDocuments($user_id)
-    : array();
+$user_documents = array();
+if ( class_exists( 'Apollo\CenaRio\CenaRioModule' ) && method_exists( 'Apollo\CenaRio\CenaRioModule', 'getUserDocuments' ) ) {
+	$user_documents = Apollo\CenaRio\CenaRioModule::getUserDocuments( $user_id );
+}
 
-// Buscar notificações/mensagens (placeholder - integrar com sistema de chat)
-$notifications = array(); // TODO: Integrar com sistema de chat
+// Tab atual
+$current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'dashboard';
+
+// Enqueue UNI.CSS assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+} else {
+	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '5.2.0' );
+	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', array(), '4.2.0', true );
+}
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
 
 get_header();
 ?>
 
-<div class="flex h-screen w-full overflow-hidden bg-background">
-    <!-- Sidebar -->
-    <aside class="sidebar border-r border-border bg-card w-64 flex-shrink-0 flex flex-col">
-        <!-- Sidebar Header -->
-        <div class="sidebar-header flex items-center justify-between p-4 border-b border-border">
-            <div class="flex items-center gap-2">
-                <!-- Logo clicável -->
-                <button 
-                    id="logoButton"
-                    class="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
-                    aria-label="Abrir notificações"
-                >
-                    <i class="ri-notification-3-line text-xl"></i>
-                </button>
-                <div class="flex flex-col">
-                    <h2 class="text-sm font-semibold text-foreground">Cena::Rio</h2>
-                    <p class="text-xs text-muted-foreground">Dashboard</p>
-                </div>
-            </div>
-        </div>
+<div class="ap-dashboard">
+	<!-- Sidebar -->
+	<aside class="ap-dashboard-sidebar">
+		<!-- Logo & Brand -->
+		<div class="ap-sidebar-header">
+			<button type="button" class="ap-sidebar-logo" id="notificationsToggle" data-ap-tooltip="Abrir notificações">
+				<i class="ri-notification-3-line"></i>
+			</button>
+			<div class="ap-sidebar-brand">
+				<h2 class="ap-sidebar-title">Cena<span class="ap-text-accent">::</span>Rio</h2>
+				<p class="ap-sidebar-subtitle">Dashboard</p>
+			</div>
+		</div>
 
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar-content flex-1 overflow-y-auto p-4 space-y-1">
-            <a href="<?php echo esc_url(home_url('/cena-rio')); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-                <i class="ri-home-4-line"></i>
-                <span>Início</span>
-            </a>
-            
-            <a href="<?php echo esc_url(home_url('/cena-rio?tab=documents')); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-                <i class="ri-file-text-line"></i>
-                <span>Documentos</span>
-                <?php if (!empty($user_documents)): ?>
-                    <span class="ml-auto badge badge-primary"><?php echo count($user_documents); ?></span>
-                <?php endif; ?>
-            </a>
-            
-            <a href="<?php echo esc_url(home_url('/cena-rio?tab=plans')); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-                <i class="ri-calendar-line"></i>
-                <span>Planos de Evento</span>
-            </a>
-            
-            <a href="<?php echo esc_url(home_url('/chat')); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-                <i class="ri-message-3-line"></i>
-                <span>Mensagens</span>
-                <?php if (!empty($notifications)): ?>
-                    <span class="ml-auto badge badge-primary"><?php echo count($notifications); ?></span>
-                <?php endif; ?>
-            </a>
-            
-            <div class="separator my-4"></div>
-            
-            <a href="<?php echo esc_url(get_author_posts_url($user_id)); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-                <i class="ri-user-line"></i>
-                <span>Meu Perfil</span>
-            </a>
-            
-            <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" 
-               class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors">
-                <i class="ri-logout-box-r-line"></i>
-                <span>Sair</span>
-            </a>
-        </nav>
+		<!-- Navigation -->
+		<nav class="ap-sidebar-nav">
+			<a href="<?php echo esc_url( home_url( '/cena-rio' ) ); ?>" 
+				class="ap-nav-item <?php echo $current_tab === 'dashboard' ? 'active' : ''; ?>"
+				data-ap-tooltip="Visão geral do dashboard">
+				<i class="ri-home-4-line"></i>
+				<span>Início</span>
+			</a>
+			
+			<a href="<?php echo esc_url( add_query_arg( 'tab', 'documents', home_url( '/cena-rio' ) ) ); ?>" 
+				class="ap-nav-item <?php echo $current_tab === 'documents' ? 'active' : ''; ?>"
+				data-ap-tooltip="Gerenciar documentos e contratos">
+				<i class="ri-file-text-line"></i>
+				<span>Documentos</span>
+				<?php if ( ! empty( $user_documents ) ) : ?>
+				<span class="ap-badge ap-badge-primary"><?php echo count( $user_documents ); ?></span>
+				<?php endif; ?>
+			</a>
+			
+			<a href="<?php echo esc_url( add_query_arg( 'tab', 'plans', home_url( '/cena-rio' ) ) ); ?>" 
+				class="ap-nav-item <?php echo $current_tab === 'plans' ? 'active' : ''; ?>"
+				data-ap-tooltip="Planos e cronogramas de eventos">
+				<i class="ri-calendar-line"></i>
+				<span>Planos de Evento</span>
+			</a>
+			
+			<a href="<?php echo esc_url( home_url( '/chat' ) ); ?>" 
+				class="ap-nav-item"
+				data-ap-tooltip="Mensagens e conversas">
+				<i class="ri-message-3-line"></i>
+				<span>Mensagens</span>
+			</a>
+			
+			<div class="ap-nav-divider"></div>
+			
+			<a href="<?php echo esc_url( home_url( '/id/' . $current_user->user_login ) ); ?>" 
+				class="ap-nav-item"
+				data-ap-tooltip="Ver seu perfil público">
+				<i class="ri-user-line"></i>
+				<span>Meu Perfil</span>
+			</a>
+			
+			<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" 
+				class="ap-nav-item ap-nav-item-danger"
+				data-ap-tooltip="Sair da sua conta">
+				<i class="ri-logout-box-r-line"></i>
+				<span>Sair</span>
+			</a>
+		</nav>
 
-        <!-- Sidebar Footer -->
-        <div class="sidebar-footer p-4 border-t border-border">
-            <div class="flex items-center gap-3">
-                <div class="avatar">
-                    <?php echo get_avatar($user_id, 32, '', '', array('class' => 'rounded-full')); ?>
-                </div>
-                <div class="flex flex-col flex-1 min-w-0">
-                    <p class="text-sm font-medium text-foreground truncate">
-                        <?php echo esc_html($current_user->display_name); ?>
-                    </p>
-                    <p class="text-xs text-muted-foreground truncate">
-                        <?php echo esc_html($current_user->user_email); ?>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </aside>
+		<!-- User Footer -->
+		<div class="ap-sidebar-footer">
+			<div class="ap-user-card">
+				<div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));">
+					<span><?php echo esc_html( $user_initials ); ?></span>
+				</div>
+				<div class="ap-user-card-info">
+					<p class="ap-user-card-name"><?php echo esc_html( $current_user->display_name ); ?></p>
+					<p class="ap-user-card-email"><?php echo esc_html( $current_user->user_email ); ?></p>
+				</div>
+			</div>
+		</div>
+	</aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <!-- Top Bar -->
-        <header class="border-b border-border bg-card px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-foreground">Bem-vindo, <?php echo esc_html($current_user->display_name); ?>!</h1>
-                    <p class="text-sm text-muted-foreground mt-1">Gerencie seus documentos e planos de evento</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button class="btn btn-secondary">
-                        <i class="ri-search-line mr-2"></i>
-                        Buscar
-                    </button>
-                </div>
-            </div>
-        </header>
+	<!-- Main Content -->
+	<main class="ap-dashboard-main">
+		<!-- Header -->
+		<header class="ap-dashboard-header">
+			<div class="ap-header-content">
+				<div class="ap-header-title-group">
+					<h1 class="ap-heading-2">
+						<?php
+						$greeting = '';
+						$hour     = (int) current_time( 'G' );
+						if ( $hour < 12 ) {
+							$greeting = 'Bom dia';
+						} elseif ( $hour < 18 ) {
+							$greeting = 'Boa tarde';
+						} else {
+							$greeting = 'Boa noite';
+						}
+						echo esc_html( $greeting . ', ' . $current_user->display_name );
+						?>
+						!
+					</h1>
+					<p class="ap-text-muted">Gerencie seus documentos e planos de evento</p>
+				</div>
+				<div class="ap-header-actions">
+					<button class="ap-btn ap-btn-outline ap-btn-sm" data-ap-tooltip="Buscar documentos">
+						<i class="ri-search-line"></i>
+						<span class="ap-hide-mobile">Buscar</span>
+					</button>
+				</div>
+			</div>
+		</header>
 
-        <!-- Content Area -->
-        <div class="flex-1 overflow-y-auto p-6">
-            <?php
-            $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'dashboard';
-            
-            switch ($tab) {
-                case 'documents':
-                    include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/documents-list.php';
-                    break;
-                case 'plans':
-                    include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/plans-list.php';
-                    break;
-                default:
-                    include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/dashboard-content.php';
-                    break;
-            }
-            ?>
-        </div>
-    </main>
+		<!-- Content Area -->
+		<div class="ap-dashboard-content">
+			<?php
+			switch ( $current_tab ) {
+				case 'documents':
+					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/documents-list.php';
+					break;
+				case 'plans':
+					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/plans-list.php';
+					break;
+				default:
+					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/dashboard-content.php';
+					break;
+			}
+			?>
+		</div>
+	</main>
 
-    <!-- Notifications Center Modal -->
-    <div id="notificationsModal" 
-         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div class="bg-card border border-border rounded-lg shadow-lg w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between p-4 border-b border-border">
-                <h2 class="text-lg font-semibold text-foreground">Centro de Notificações</h2>
-                <button id="closeNotifications" 
-                        class="text-muted-foreground hover:text-foreground transition-colors">
-                    <i class="ri-close-line text-xl"></i>
-                </button>
-            </div>
-            
-            <!-- Notifications Content -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <?php if (empty($notifications)): ?>
-                    <div class="text-center py-8">
-                        <i class="ri-notification-off-line text-4xl text-muted-foreground mb-4"></i>
-                        <p class="text-muted-foreground">Nenhuma notificação no momento</p>
-                    </div>
-                <?php else: ?>
-                    <div class="space-y-2">
-                        <?php foreach ($notifications as $notification): ?>
-                            <div class="p-3 rounded-md border border-border hover:bg-accent transition-colors cursor-pointer">
-                                <p class="text-sm font-medium text-foreground"><?php echo esc_html($notification['title']); ?></p>
-                                <p class="text-xs text-muted-foreground mt-1"><?php echo esc_html($notification['message']); ?></p>
-                                <p class="text-xs text-muted-foreground mt-2"><?php echo esc_html($notification['time']); ?></p>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
+	<!-- Notifications Modal -->
+	<div class="ap-modal" id="notificationsModal">
+		<div class="ap-modal-backdrop" data-close-modal></div>
+		<div class="ap-modal-content ap-modal-sm">
+			<div class="ap-modal-header">
+				<h3 class="ap-modal-title">
+					<i class="ri-notification-3-line"></i>
+					Centro de Notificações
+				</h3>
+				<button class="ap-btn-icon-sm" data-close-modal data-ap-tooltip="Fechar">
+					<i class="ri-close-line"></i>
+				</button>
+			</div>
+			<div class="ap-modal-body">
+				<div class="ap-empty-state">
+					<i class="ri-notification-off-line"></i>
+					<p>Nenhuma notificação no momento</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
-// Notifications Modal
-document.getElementById('logoButton')?.addEventListener('click', function() {
-    document.getElementById('notificationsModal')?.classList.remove('hidden');
-    document.getElementById('notificationsModal')?.classList.add('flex');
-});
-
-document.getElementById('closeNotifications')?.addEventListener('click', function() {
-    document.getElementById('notificationsModal')?.classList.add('hidden');
-    document.getElementById('notificationsModal')?.classList.remove('flex');
-});
-
-// Fechar ao clicar fora
-document.getElementById('notificationsModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.add('hidden');
-        this.classList.remove('flex');
-    }
+document.addEventListener('DOMContentLoaded', function() {
+	// Notifications Modal
+	const notificationsToggle = document.getElementById('notificationsToggle');
+	const notificationsModal = document.getElementById('notificationsModal');
+	
+	notificationsToggle?.addEventListener('click', function() {
+		notificationsModal?.classList.add('open');
+	});
+	
+	notificationsModal?.querySelectorAll('[data-close-modal]').forEach(function(el) {
+		el.addEventListener('click', function() {
+			notificationsModal.classList.remove('open');
+		});
+	});
+	
+	// Escape to close modal
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape' && notificationsModal?.classList.contains('open')) {
+			notificationsModal.classList.remove('open');
+		}
+	});
 });
 </script>
 
 <?php get_footer(); ?>
-

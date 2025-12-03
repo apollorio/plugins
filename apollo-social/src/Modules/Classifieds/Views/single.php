@@ -4,4 +4,3 @@
  */
 
 // TODO: implement single classified template
-?>

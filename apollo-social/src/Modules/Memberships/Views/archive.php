@@ -12,4 +12,3 @@
 // 3. Display join/application options
 // 4. Show badge settings per union
 // 5. Render using Canvas Mode layout
-?>

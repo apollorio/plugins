@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Social – Delta Helper Functions
  *
@@ -18,10 +19,11 @@
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
-use ApolloSocial\Converters\DeltaToHtmlConverter;
+// Define class name as string to avoid Intelephense static analysis on optional dependency
+define( 'APOLLO_DELTA_CONVERTER_CLASS', 'ApolloSocial\\Converters\\DeltaToHtmlConverter' );
 
 /**
  * Convert Quill Delta JSON to sanitized HTML.
@@ -46,28 +48,28 @@ use ApolloSocial\Converters\DeltaToHtmlConverter;
  * @return string Sanitized HTML output.
  */
 function apollo_delta_to_html( $delta, array $options = array() ) {
-    // Check if the converter class is available (Composer autoload)
-    if ( ! class_exists( DeltaToHtmlConverter::class ) ) {
-        // Log warning and return fallback
-        error_log( '[Apollo] DeltaToHtmlConverter not available. Run: composer require nadar/quill-delta-parser' );
-        
-        // Try to decode and extract plain text as fallback
-        if ( is_string( $delta ) ) {
-            $decoded = json_decode( $delta, true );
-            if ( $decoded && isset( $decoded['ops'] ) ) {
-                $text = '';
-                foreach ( $decoded['ops'] as $op ) {
-                    if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
-                        $text .= $op['insert'];
-                    }
-                }
-                return '<div class="apollo-document-content"><p>' . nl2br( esc_html( $text ) ) . '</p></div>';
-            }
-        }
-        return '';
-    }
+	// Check if the converter class is available (Composer autoload)
+	if ( ! class_exists( APOLLO_DELTA_CONVERTER_CLASS ) ) {
+		// Log warning and return fallback
+		error_log( '[Apollo] DeltaToHtmlConverter not available. Run: composer require nadar/quill-delta-parser' );
 
-    return DeltaToHtmlConverter::toHtml( $delta, $options );
+		// Try to decode and extract plain text as fallback
+		if ( is_string( $delta ) ) {
+			$decoded = json_decode( $delta, true );
+			if ( $decoded && isset( $decoded['ops'] ) ) {
+				$text = '';
+				foreach ( $decoded['ops'] as $op ) {
+					if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
+						$text .= $op['insert'];
+					}
+				}
+				return '<div class="apollo-document-content"><p>' . nl2br( esc_html( $text ) ) . '</p></div>';
+			}
+		}
+		return '';
+	}
+
+	return call_user_func_array( array( APOLLO_DELTA_CONVERTER_CLASS, 'toHtml' ), array( $delta, $options ) );
 }
 
 /**
@@ -91,24 +93,24 @@ function apollo_delta_to_html( $delta, array $options = array() ) {
  * @return string Plain text content (embeds replaced with [type] placeholders).
  */
 function apollo_delta_to_text( $delta ) {
-    if ( ! class_exists( DeltaToHtmlConverter::class ) ) {
-        // Fallback: extract text manually
-        if ( is_string( $delta ) ) {
-            $decoded = json_decode( $delta, true );
-            if ( $decoded && isset( $decoded['ops'] ) ) {
-                $text = '';
-                foreach ( $decoded['ops'] as $op ) {
-                    if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
-                        $text .= $op['insert'];
-                    }
-                }
-                return trim( $text );
-            }
-        }
-        return '';
-    }
+	if ( ! class_exists( APOLLO_DELTA_CONVERTER_CLASS ) ) {
+		// Fallback: extract text manually
+		if ( is_string( $delta ) ) {
+			$decoded = json_decode( $delta, true );
+			if ( $decoded && isset( $decoded['ops'] ) ) {
+				$text = '';
+				foreach ( $decoded['ops'] as $op ) {
+					if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
+						$text .= $op['insert'];
+					}
+				}
+				return trim( $text );
+			}
+		}
+		return '';
+	}
 
-    return DeltaToHtmlConverter::toText( $delta );
+	return call_user_func( array( APOLLO_DELTA_CONVERTER_CLASS, 'toText' ), $delta );
 }
 
 /**
@@ -122,8 +124,8 @@ function apollo_delta_to_text( $delta ) {
  * @return int Word count.
  */
 function apollo_delta_word_count( $delta ) {
-    $text = apollo_delta_to_text( $delta );
-    return str_word_count( $text );
+	$text = apollo_delta_to_text( $delta );
+	return str_word_count( $text );
 }
 
 /**
@@ -140,32 +142,32 @@ function apollo_delta_word_count( $delta ) {
  * @return bool True if the Delta is empty.
  */
 function apollo_delta_is_empty( $delta ) {
-    if ( empty( $delta ) ) {
-        return true;
-    }
+	if ( empty( $delta ) ) {
+		return true;
+	}
 
-    // Parse if string
-    if ( is_string( $delta ) ) {
-        $delta = json_decode( $delta, true );
-    }
+	// Parse if string
+	if ( is_string( $delta ) ) {
+		$delta = json_decode( $delta, true );
+	}
 
-    // Check for valid structure
-    if ( ! is_array( $delta ) || ! isset( $delta['ops'] ) || empty( $delta['ops'] ) ) {
-        return true;
-    }
+	// Check for valid structure
+	if ( ! is_array( $delta ) || ! isset( $delta['ops'] ) || empty( $delta['ops'] ) ) {
+		return true;
+	}
 
-    // Check if only whitespace
-    $text = '';
-    foreach ( $delta['ops'] as $op ) {
-        if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
-            $text .= $op['insert'];
-        } elseif ( isset( $op['insert'] ) && is_array( $op['insert'] ) ) {
-            // Has an embed (image, etc.) - not empty
-            return false;
-        }
-    }
+	// Check if only whitespace
+	$text = '';
+	foreach ( $delta['ops'] as $op ) {
+		if ( isset( $op['insert'] ) && is_string( $op['insert'] ) ) {
+			$text .= $op['insert'];
+		} elseif ( isset( $op['insert'] ) && is_array( $op['insert'] ) ) {
+			// Has an embed (image, etc.) - not empty
+			return false;
+		}
+	}
 
-    return trim( $text ) === '';
+	return trim( $text ) === '';
 }
 
 /**
@@ -181,14 +183,14 @@ function apollo_delta_is_empty( $delta ) {
  * @return string The excerpt text.
  */
 function apollo_delta_excerpt( $delta, $length = 55, $more = '...' ) {
-    $text  = apollo_delta_to_text( $delta );
-    $words = explode( ' ', $text );
+	$text  = apollo_delta_to_text( $delta );
+	$words = explode( ' ', $text );
 
-    if ( count( $words ) <= $length ) {
-        return $text;
-    }
+	if ( count( $words ) <= $length ) {
+		return $text;
+	}
 
-    return implode( ' ', array_slice( $words, 0, $length ) ) . $more;
+	return implode( ' ', array_slice( $words, 0, $length ) ) . $more;
 }
 
 /**
@@ -204,19 +206,19 @@ function apollo_delta_excerpt( $delta, $length = 55, $more = '...' ) {
  * @return string|null The content (HTML or Delta JSON), or null if not found.
  */
 function apollo_get_document_content( $document_id, $as_html = true ) {
-    $delta = get_post_meta( $document_id, '_apollo_document_delta', true );
+	$delta = get_post_meta( $document_id, '_apollo_document_delta', true );
 
-    if ( empty( $delta ) ) {
-        // Fallback: return post_content (HTML)
-        $post = get_post( $document_id );
-        return $post ? $post->post_content : null;
-    }
+	if ( empty( $delta ) ) {
+		// Fallback: return post_content (HTML)
+		$post = get_post( $document_id );
+		return $post ? $post->post_content : null;
+	}
 
-    if ( $as_html ) {
-        return apollo_delta_to_html( $delta );
-    }
+	if ( $as_html ) {
+		return apollo_delta_to_html( $delta );
+	}
 
-    return $delta;
+	return $delta;
 }
 
 /**
@@ -234,29 +236,29 @@ function apollo_get_document_content( $document_id, $as_html = true ) {
  * @return string|void HTML output if echo is false.
  */
 function apollo_render_document( $document_id, array $options = array() ) {
-    $defaults = array(
-        'echo'  => true,
-        'class' => '',
-    );
-    $options = array_merge( $defaults, $options );
+	$defaults = array(
+		'echo'  => true,
+		'class' => '',
+	);
+	$options  = array_merge( $defaults, $options );
 
-    $html = apollo_get_document_content( $document_id, true );
+	$html = apollo_get_document_content( $document_id, true );
 
-    if ( empty( $html ) ) {
-        $output = '<div class="apollo-document-empty">' . 
-                  esc_html__( 'Este documento está vazio.', 'apollo-social' ) . 
-                  '</div>';
-    } else {
-        $class = 'apollo-document-render';
-        if ( ! empty( $options['class'] ) ) {
-            $class .= ' ' . esc_attr( $options['class'] );
-        }
-        $output = '<div class="' . $class . '">' . $html . '</div>';
-    }
+	if ( empty( $html ) ) {
+		$output = '<div class="apollo-document-empty">' .
+			esc_html__( 'Este documento está vazio.', 'apollo-social' ) .
+			'</div>';
+	} else {
+		$class = 'apollo-document-render';
+		if ( ! empty( $options['class'] ) ) {
+			$class .= ' ' . esc_attr( $options['class'] );
+		}
+		$output = '<div class="' . $class . '">' . $html . '</div>';
+	}
 
-    if ( $options['echo'] ) {
-        echo $output;
-    } else {
-        return $output;
-    }
+	if ( $options['echo'] ) {
+		echo $output;
+	} else {
+		return $output;
+	}
 }

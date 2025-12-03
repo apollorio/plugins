@@ -11,4 +11,3 @@
 // 2. List groups with filtering options
 // 3. Show pagination
 // 4. Render using Canvas Mode layout
-?>

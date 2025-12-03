@@ -1,677 +1,446 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Documento - Apollo Signatures</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .wizard-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .wizard-header {
-            background: #2c3e50;
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .wizard-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .wizard-header p {
-            opacity: 0.9;
-            font-size: 16px;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: #ecf0f1;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #3498db;
-            transition: width 0.3s ease;
-        }
-
-        .wizard-content {
-            padding: 40px;
-        }
-
-        .step {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .step-title {
-            font-size: 24px;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .step-subtitle {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .template-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .template-card {
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .template-card:hover {
-            border-color: #3498db;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .template-card.selected {
-            border-color: #3498db;
-            background: #ebf3ff;
-        }
-
-        .template-card h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .template-card p {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-
-        .track-selection {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .track-card {
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            padding: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .track-card:hover {
-            border-color: #3498db;
-            transform: translateY(-2px);
-        }
-
-        .track-card.selected {
-            border-color: #3498db;
-            background: #ebf3ff;
-        }
-
-        .track-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .track-card h3 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .track-card .track-subtitle {
-            color: #3498db;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .track-card .track-description {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .track-card .track-legal {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ecf0f1;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        .btn:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .success-message {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .success-icon {
-            font-size: 64px;
-            color: #27ae60;
-            margin-bottom: 20px;
-        }
-
-        .success-message h2 {
-            color: #27ae60;
-            margin-bottom: 15px;
-        }
-
-        .success-message p {
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-
-        .signature-link {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .signature-link input {
-            flex: 1;
-            border: none;
-            background: none;
-            font-family: monospace;
-            color: #495057;
-        }
-
-        .copy-btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .compliance-info {
-            background: #e8f4fd;
-            border-left: 4px solid #3498db;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 4px 4px 0;
-        }
-
-        .compliance-info h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .compliance-info p {
-            color: #7f8c8d;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .step-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #bdc3c7;
-            transition: background-color 0.3s ease;
-        }
-
-        .step-dot.active {
-            background: #3498db;
-        }
-
-        .step-dot.completed {
-            background: #27ae60;
-        }
-    </style>
-</head>
-<body>
-    <div class="wizard-container">
-        <div class="wizard-header">
-            <h1>🖊️ Criar Documento para Assinatura</h1>
-            <p>Trilhos A e B conforme Lei 14.063/2020</p>
-        </div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
-        </div>
-
-        <div class="wizard-content">
-            <div class="step-indicator">
-                <div class="step-dot active" data-step="1"></div>
-                <div class="step-dot" data-step="2"></div>
-                <div class="step-dot" data-step="3"></div>
-                <div class="step-dot" data-step="4"></div>
-                <div class="step-dot" data-step="5"></div>
-            </div>
-
-            <!-- Step 1: Choose Template -->
-            <div class="step active" id="step1">
-                <h2 class="step-title">
-                    📄 Escolher Modelo
-                </h2>
-                <p class="step-subtitle">Selecione um modelo de documento para personalizar</p>
-
-                <div class="template-grid">
-                    <div class="template-card" data-template="contract">
-                        <h3>Contrato de Prestação de Serviços</h3>
-                        <p>Modelo completo para prestação de serviços com cláusulas padrão</p>
-                    </div>
-                    <div class="template-card" data-template="nda">
-                        <h3>Acordo de Confidencialidade (NDA)</h3>
-                        <p>Termo de confidencialidade para proteção de informações</p>
-                    </div>
-                    <div class="template-card" data-template="authorization">
-                        <h3>Autorização de Uso de Imagem</h3>
-                        <p>Autorização para uso de imagem e voz em materiais</p>
-                    </div>
-                    <div class="template-card" data-template="partnership">
-                        <h3>Termo de Parceria</h3>
-                        <p>Acordo de parceria entre organizações ou empresas</p>
-                    </div>
-                </div>
-
-                <div class="buttons">
-                    <span></span>
-                    <button class="btn btn-primary" id="nextStep1" disabled>Próximo</button>
-                </div>
-            </div>
-
-            <!-- Step 2: Fill Template Data -->
-            <div class="step" id="step2">
-                <h2 class="step-title">
-                    ✏️ Preencher Dados
-                </h2>
-                <p class="step-subtitle">Complete as informações do documento</p>
-
-                <form id="templateForm">
-                    <div class="form-group">
-                        <label class="form-label">Título do Documento</label>
-                        <input type="text" class="form-input" name="title" placeholder="Ex: Contrato de Prestação de Serviços - Projeto XYZ">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nome do Contratante</label>
-                        <input type="text" class="form-input" name="contractor_name" placeholder="Nome da empresa ou pessoa contratante">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Nome do Contratado</label>
-                        <input type="text" class="form-input" name="contracted_name" placeholder="Nome da empresa ou pessoa contratada">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Valor do Contrato</label>
-                        <input type="text" class="form-input" name="contract_value" placeholder="R$ 0,00">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Data de Início</label>
-                        <input type="date" class="form-input" name="start_date">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Observações Adicionais</label>
-                        <textarea class="form-textarea" name="notes" placeholder="Informações específicas para este documento..."></textarea>
-                    </div>
-                </form>
-
-                <div class="buttons">
-                    <button class="btn btn-secondary" id="prevStep2">Voltar</button>
-                    <button class="btn btn-primary" id="nextStep2">Próximo</button>
-                </div>
-            </div>
-
-            <!-- Step 3: Signer Information -->
-            <div class="step" id="step3">
-                <h2 class="step-title">
-                    👤 Dados do Signatário
-                </h2>
-                <p class="step-subtitle">Informe os dados da pessoa que irá assinar</p>
-
-                <form id="signerForm">
-                    <div class="form-group">
-                        <label class="form-label">Nome Completo</label>
-                        <input type="text" class="form-input" name="signer_name" placeholder="Nome completo do signatário" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">E-mail</label>
-                        <input type="email" class="form-input" name="signer_email" placeholder="email@exemplo.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">CPF ou CNPJ</label>
-                        <input type="text" class="form-input" name="signer_document" placeholder="000.000.000-00 ou 00.000.000/0001-00">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Telefone (opcional)</label>
-                        <input type="tel" class="form-input" name="signer_phone" placeholder="(11) 99999-9999">
-                    </div>
-                </form>
-
-                <div class="buttons">
-                    <button class="btn btn-secondary" id="prevStep3">Voltar</button>
-                    <button class="btn btn-primary" id="nextStep3">Próximo</button>
-                </div>
-            </div>
-
-            <!-- Step 4: Choose Signature Track -->
-            <div class="step" id="step4">
-                <h2 class="step-title">
-                    ⚖️ Escolher Trilho de Assinatura
-                </h2>
-                <p class="step-subtitle">Selecione o nível de segurança jurídica necessário</p>
-
-                <div class="track-selection">
-                    <div class="track-card" data-track="track_b">
-                        <div class="track-icon">🛡️</div>
-                        <h3>Assinatura Qualificada</h3>
-                        <div class="track-subtitle">ICP-Brasil (GOV.BR)</div>
-                        <div class="track-description">
-                            Para documentos oficiais, cartórios e órgãos públicos. 
-                            Requer certificado digital ICP-Brasil ou login GOV.BR.
-                        </div>
-                        <div class="track-legal">
-                            <strong>Base Legal:</strong> Lei 14.063/2020 + MP 2.200-2/2001<br>
-                            <strong>Validade:</strong> Equivale à assinatura manuscrita
-                        </div>
-                    </div>
-                </div>
-
-                <div class="compliance-info">
-                    <h4>ℹ️ Informações de Compliance</h4>
-                    <p><strong>Assinatura Qualificada:</strong> Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita com presunção absoluta de validade.</p>
-                    <p><strong>Certificação:</strong> Utiliza infraestrutura de chaves públicas brasileira (ICP-Brasil) via integração GOV.BR.</p>
-                </div>
-
-                <div class="buttons">
-                    <button class="btn btn-secondary" id="prevStep4">Voltar</button>
-                    <button class="btn btn-primary" id="nextStep4" disabled>Próximo</button>
-                </div>
-            </div>
-
-            <!-- Step 5: Success -->
-            <div class="step" id="step5">
-                <div class="success-message">
-                    <div class="success-icon">✅</div>
-                    <h2>Documento Criado com Sucesso!</h2>
-                    <p>O documento foi gerado e está pronto para assinatura.</p>
-
-                    <div class="signature-link">
-                        <input type="text" id="signingUrl" readonly>
-                        <button class="copy-btn" onclick="copySigningUrl()">Copiar</button>
-                    </div>
-
-                    <div class="compliance-info">
-                        <h4>🔒 Próximos Passos</h4>
-                        <p>1. Compartilhe o link de assinatura com o signatário</p>
-                        <p>2. O signatário receberá um e-mail com instruções</p>
-                        <p>3. Você será notificado quando a assinatura for concluída</p>
-                        <p>4. O documento assinado ficará disponível para download</p>
-                    </div>
-
-                    <div class="buttons">
-                        <a href="/apollo/documentos" class="btn btn-secondary">Ver Documentos</a>
-                        <button class="btn btn-primary" onclick="startNew()">Criar Novo</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentStep = 1;
-        let selectedTemplate = null;
-        let selectedTrack = null;
-        let formData = {};
-
-        // Step navigation
-        function updateProgressBar() {
-            const progress = (currentStep / 5) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-            
-            // Update step dots
-            document.querySelectorAll('.step-dot').forEach((dot, index) => {
-                const stepNum = index + 1;
-                dot.classList.remove('active', 'completed');
-                
-                if (stepNum < currentStep) {
-                    dot.classList.add('completed');
-                } else if (stepNum === currentStep) {
-                    dot.classList.add('active');
-                }
-            });
-        }
-
-        function showStep(step) {
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step' + step).classList.add('active');
-            currentStep = step;
-            updateProgressBar();
-        }
-
-        // Template selection
-        document.querySelectorAll('.template-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedTemplate = this.dataset.template;
-                document.getElementById('nextStep1').disabled = false;
-            });
-        });
-
-        // Track selection
-        document.querySelectorAll('.track-card').forEach(card => {
-            card.addEventListener('click', function() {
-                document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedTrack = this.dataset.track;
-                document.getElementById('nextStep4').disabled = false;
-            });
-        });
-
-        // Navigation buttons
-        document.getElementById('nextStep1').addEventListener('click', () => showStep(2));
-        document.getElementById('prevStep2').addEventListener('click', () => showStep(1));
-        document.getElementById('nextStep2').addEventListener('click', () => {
-            // Collect form data
-            const form = document.getElementById('templateForm');
-            const formDataObj = new FormData(form);
-            for (let [key, value] of formDataObj.entries()) {
-                formData[key] = value;
-            }
-            showStep(3);
-        });
-
-        document.getElementById('prevStep3').addEventListener('click', () => showStep(2));
-        document.getElementById('nextStep3').addEventListener('click', () => {
-            // Validate signer form
-            const form = document.getElementById('signerForm');
-            if (form.checkValidity()) {
-                const formDataObj = new FormData(form);
-                for (let [key, value] of formDataObj.entries()) {
-                    formData[key] = value;
-                }
-                showStep(4);
-            } else {
-                form.reportValidity();
-            }
-        });
-
-        document.getElementById('prevStep4').addEventListener('click', () => showStep(3));
-        document.getElementById('nextStep4').addEventListener('click', () => {
-            // Submit the document creation
-            createDocument();
-        });
-
-        function createDocument() {
-            // Show loading state
-            const btn = document.getElementById('nextStep4');
-            btn.disabled = true;
-            btn.textContent = 'Criando...';
-
-            // Simulate API call
-            const documentData = {
-                template: selectedTemplate,
-                track: selectedTrack,
-                data: formData
-            };
-
-            // In real implementation, make AJAX call to backend
-            console.log('Creating document:', documentData);
-
-            // Simulate success after 2 seconds
-            setTimeout(() => {
-                const signingUrl = `https://apollo.example.com/sign/${Math.random().toString(36).substr(2, 9)}`;
-                document.getElementById('signingUrl').value = signingUrl;
-                showStep(5);
-            }, 2000);
-        }
-
-        function copySigningUrl() {
-            const input = document.getElementById('signingUrl');
-            input.select();
-            document.execCommand('copy');
-            
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = 'Copiado!';
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 2000);
-        }
-
-        function startNew() {
-            location.reload();
-        }
-
-        // Initialize
-        updateProgressBar();
-    </script>
-</body>
-</html>
+<?php
+/**
+ * Document Wizard Template
+ * STRICT MODE: 100% UNI.CSS compliance
+ * Step-by-step wizard for creating documents for signature
+ *
+ * @package Apollo_Social
+ * @version 2.1.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Enqueue global assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+}
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+
+// Get document templates
+$templates = array(
+	'contract'      => array(
+		'title'       => __( 'Contrato de Prestação de Serviços', 'apollo-social' ),
+		'description' => __( 'Modelo completo para prestação de serviços com cláusulas padrão', 'apollo-social' ),
+		'icon'        => 'ri-file-text-line',
+	),
+	'nda'           => array(
+		'title'       => __( 'Acordo de Confidencialidade (NDA)', 'apollo-social' ),
+		'description' => __( 'Termo de confidencialidade para proteção de informações', 'apollo-social' ),
+		'icon'        => 'ri-shield-keyhole-line',
+	),
+	'authorization' => array(
+		'title'       => __( 'Autorização de Uso de Imagem', 'apollo-social' ),
+		'description' => __( 'Autorização para uso de imagem e voz em materiais', 'apollo-social' ),
+		'icon'        => 'ri-camera-line',
+	),
+	'partnership'   => array(
+		'title'       => __( 'Termo de Parceria', 'apollo-social' ),
+		'description' => __( 'Acordo de parceria entre organizações ou empresas', 'apollo-social' ),
+		'icon'        => 'ri-handshake-line',
+	),
+);
+
+get_header();
+?>
+
+<!-- STRICT MODE: Document Wizard - UNI.CSS v5.2.0 -->
+<div class="ap-page ap-bg-gradient-primary ap-min-h-screen ap-py-6">
+	<div class="ap-container ap-max-w-3xl">
+		
+		<div class="ap-card ap-shadow-lg">
+			<!-- Header -->
+			<div class="ap-card-header ap-bg-dark ap-text-white ap-text-center ap-py-8">
+				<h1 class="ap-heading-xl ap-flex ap-items-center ap-justify-center ap-gap-2">
+					<i class="ri-edit-2-line"></i>
+					<?php esc_html_e( 'Criar Documento para Assinatura', 'apollo-social' ); ?>
+				</h1>
+				<p class="ap-text-white-80 ap-mt-2">
+					<?php esc_html_e( 'Trilhos A e B conforme Lei 14.063/2020', 'apollo-social' ); ?>
+				</p>
+			</div>
+			
+			<!-- Progress Bar -->
+			<div class="ap-progress-bar ap-h-1">
+				<div class="ap-progress-fill ap-bg-primary" id="progressFill" style="width: 20%"></div>
+			</div>
+
+			<div class="ap-card-body ap-p-8">
+				<!-- Step Indicator -->
+				<div class="ap-flex ap-justify-center ap-gap-2 ap-mb-8">
+					<?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+					<span class="ap-step-dot <?php echo $i === 1 ? 'ap-step-dot-active' : ''; ?>" 
+							data-step="<?php echo esc_attr( $i ); ?>"
+							data-ap-tooltip="<?php echo esc_attr( sprintf( __( 'Etapa %d', 'apollo-social' ), $i ) ); ?>"></span>
+					<?php endfor; ?>
+				</div>
+
+				<!-- Step 1: Choose Template -->
+				<div class="ap-wizard-step ap-wizard-step-active" id="step1">
+					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
+						<i class="ri-file-list-3-line ap-text-primary"></i>
+						<?php esc_html_e( 'Escolher Modelo', 'apollo-social' ); ?>
+					</h2>
+					<p class="ap-text-muted ap-mb-6">
+						<?php esc_html_e( 'Selecione um modelo de documento para personalizar', 'apollo-social' ); ?>
+					</p>
+
+					<div class="ap-grid ap-grid-2 ap-gap-4">
+						<?php foreach ( $templates as $key => $template ) : ?>
+						<button type="button" 
+								class="ap-card ap-card-hover ap-card-selectable ap-text-left ap-p-5"
+								data-template="<?php echo esc_attr( $key ); ?>"
+								data-ap-tooltip="<?php echo esc_attr( $template['description'] ); ?>">
+							<div class="ap-flex ap-items-start ap-gap-3">
+								<div class="ap-avatar ap-avatar-md ap-bg-primary-100">
+									<i class="<?php echo esc_attr( $template['icon'] ); ?> ap-text-primary"></i>
+								</div>
+								<div>
+									<h3 class="ap-font-semibold ap-mb-1"><?php echo esc_html( $template['title'] ); ?></h3>
+									<p class="ap-text-sm ap-text-muted"><?php echo esc_html( $template['description'] ); ?></p>
+								</div>
+							</div>
+						</button>
+						<?php endforeach; ?>
+					</div>
+
+					<div class="ap-flex ap-justify-end ap-mt-8 ap-pt-6 ap-border-t">
+						<button class="ap-btn ap-btn-primary" id="nextStep1" disabled
+								data-ap-tooltip="<?php esc_attr_e( 'Selecione um modelo primeiro', 'apollo-social' ); ?>">
+							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+							<i class="ri-arrow-right-line"></i>
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 2: Fill Template Data -->
+				<div class="ap-wizard-step" id="step2">
+					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
+						<i class="ri-edit-line ap-text-primary"></i>
+						<?php esc_html_e( 'Preencher Dados', 'apollo-social' ); ?>
+					</h2>
+					<p class="ap-text-muted ap-mb-6">
+						<?php esc_html_e( 'Complete as informações do documento', 'apollo-social' ); ?>
+					</p>
+
+					<form id="templateForm" class="ap-space-y-4">
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Título do Documento', 'apollo-social' ); ?></label>
+							<input type="text" class="ap-form-input" name="title" 
+									placeholder="<?php esc_attr_e( 'Ex: Contrato de Prestação de Serviços - Projeto XYZ', 'apollo-social' ); ?>"
+									data-ap-tooltip="<?php esc_attr_e( 'Nome identificador do documento', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Nome do Contratante', 'apollo-social' ); ?></label>
+							<input type="text" class="ap-form-input" name="contractor_name" 
+									placeholder="<?php esc_attr_e( 'Nome da empresa ou pessoa contratante', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Nome do Contratado', 'apollo-social' ); ?></label>
+							<input type="text" class="ap-form-input" name="contracted_name" 
+									placeholder="<?php esc_attr_e( 'Nome da empresa ou pessoa contratada', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-grid ap-grid-2 ap-gap-4">
+							<div class="ap-form-group">
+								<label class="ap-form-label"><?php esc_html_e( 'Valor do Contrato', 'apollo-social' ); ?></label>
+								<input type="text" class="ap-form-input" name="contract_value" placeholder="R$ 0,00">
+							</div>
+
+							<div class="ap-form-group">
+								<label class="ap-form-label"><?php esc_html_e( 'Data de Início', 'apollo-social' ); ?></label>
+								<input type="date" class="ap-form-input" name="start_date">
+							</div>
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Observações Adicionais', 'apollo-social' ); ?></label>
+							<textarea class="ap-form-textarea" name="notes" rows="3"
+										placeholder="<?php esc_attr_e( 'Informações específicas para este documento...', 'apollo-social' ); ?>"></textarea>
+						</div>
+					</form>
+
+					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
+						<button class="ap-btn ap-btn-secondary" id="prevStep2">
+							<i class="ri-arrow-left-line"></i>
+							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+						</button>
+						<button class="ap-btn ap-btn-primary" id="nextStep2">
+							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+							<i class="ri-arrow-right-line"></i>
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 3: Signer Information -->
+				<div class="ap-wizard-step" id="step3">
+					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
+						<i class="ri-user-line ap-text-primary"></i>
+						<?php esc_html_e( 'Dados do Signatário', 'apollo-social' ); ?>
+					</h2>
+					<p class="ap-text-muted ap-mb-6">
+						<?php esc_html_e( 'Informe os dados da pessoa que irá assinar', 'apollo-social' ); ?>
+					</p>
+
+					<form id="signerForm" class="ap-space-y-4">
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Nome Completo', 'apollo-social' ); ?> *</label>
+							<input type="text" class="ap-form-input" name="signer_name" 
+									placeholder="<?php esc_attr_e( 'Nome completo do signatário', 'apollo-social' ); ?>" required
+									data-ap-tooltip="<?php esc_attr_e( 'Nome como aparecerá no documento', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'E-mail', 'apollo-social' ); ?> *</label>
+							<input type="email" class="ap-form-input" name="signer_email" 
+									placeholder="email@exemplo.com" required
+									data-ap-tooltip="<?php esc_attr_e( 'E-mail para envio do link de assinatura', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'CPF ou CNPJ', 'apollo-social' ); ?></label>
+							<input type="text" class="ap-form-input" name="signer_document" 
+									placeholder="<?php esc_attr_e( '000.000.000-00 ou 00.000.000/0001-00', 'apollo-social' ); ?>"
+									data-ap-tooltip="<?php esc_attr_e( 'Documento para validação', 'apollo-social' ); ?>">
+						</div>
+
+						<div class="ap-form-group">
+							<label class="ap-form-label"><?php esc_html_e( 'Telefone (opcional)', 'apollo-social' ); ?></label>
+							<input type="tel" class="ap-form-input" name="signer_phone" placeholder="(11) 99999-9999">
+						</div>
+					</form>
+
+					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
+						<button class="ap-btn ap-btn-secondary" id="prevStep3">
+							<i class="ri-arrow-left-line"></i>
+							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+						</button>
+						<button class="ap-btn ap-btn-primary" id="nextStep3">
+							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+							<i class="ri-arrow-right-line"></i>
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 4: Choose Signature Track -->
+				<div class="ap-wizard-step" id="step4">
+					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
+						<i class="ri-scales-3-line ap-text-primary"></i>
+						<?php esc_html_e( 'Escolher Trilho de Assinatura', 'apollo-social' ); ?>
+					</h2>
+					<p class="ap-text-muted ap-mb-6">
+						<?php esc_html_e( 'Selecione o nível de segurança jurídica necessário', 'apollo-social' ); ?>
+					</p>
+
+					<div class="ap-card ap-card-hover ap-card-selectable ap-p-6 ap-text-center" data-track="track_b">
+						<div class="ap-avatar ap-avatar-xl ap-mx-auto ap-mb-4 ap-bg-primary-100">
+							<i class="ri-shield-check-line ap-text-3xl ap-text-primary"></i>
+						</div>
+						<h3 class="ap-heading-md ap-mb-1"><?php esc_html_e( 'Assinatura Qualificada', 'apollo-social' ); ?></h3>
+						<p class="ap-text-primary ap-font-semibold ap-mb-3"><?php esc_html_e( 'ICP-Brasil (GOV.BR)', 'apollo-social' ); ?></p>
+						<p class="ap-text-sm ap-text-muted ap-mb-4">
+							<?php esc_html_e( 'Para documentos oficiais, cartórios e órgãos públicos. Requer certificado digital ICP-Brasil ou login GOV.BR.', 'apollo-social' ); ?>
+						</p>
+						<div class="ap-alert ap-alert-info ap-text-xs ap-text-left">
+							<strong><?php esc_html_e( 'Base Legal:', 'apollo-social' ); ?></strong> Lei 14.063/2020 + MP 2.200-2/2001<br>
+							<strong><?php esc_html_e( 'Validade:', 'apollo-social' ); ?></strong> <?php esc_html_e( 'Equivale à assinatura manuscrita', 'apollo-social' ); ?>
+						</div>
+					</div>
+
+					<div class="ap-alert ap-alert-primary ap-mt-6">
+						<h4 class="ap-flex ap-items-center ap-gap-2 ap-font-semibold ap-mb-2">
+							<i class="ri-information-line"></i>
+							<?php esc_html_e( 'Informações de Compliance', 'apollo-social' ); ?>
+						</h4>
+						<p class="ap-text-sm">
+							<strong><?php esc_html_e( 'Assinatura Qualificada:', 'apollo-social' ); ?></strong> 
+							<?php esc_html_e( 'Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita com presunção absoluta de validade.', 'apollo-social' ); ?>
+						</p>
+					</div>
+
+					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
+						<button class="ap-btn ap-btn-secondary" id="prevStep4">
+							<i class="ri-arrow-left-line"></i>
+							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+						</button>
+						<button class="ap-btn ap-btn-primary" id="nextStep4" disabled
+								data-ap-tooltip="<?php esc_attr_e( 'Selecione o trilho de assinatura', 'apollo-social' ); ?>">
+							<?php esc_html_e( 'Criar Documento', 'apollo-social' ); ?>
+							<i class="ri-check-line"></i>
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 5: Success -->
+				<div class="ap-wizard-step" id="step5">
+					<div class="ap-text-center ap-py-8">
+						<div class="ap-avatar ap-avatar-xl ap-mx-auto ap-mb-4 ap-bg-success-100">
+							<i class="ri-checkbox-circle-line ap-text-4xl ap-text-success"></i>
+						</div>
+						<h2 class="ap-heading-lg ap-text-success ap-mb-2">
+							<?php esc_html_e( 'Documento Criado com Sucesso!', 'apollo-social' ); ?>
+						</h2>
+						<p class="ap-text-muted ap-mb-6">
+							<?php esc_html_e( 'O documento foi gerado e está pronto para assinatura.', 'apollo-social' ); ?>
+						</p>
+
+						<div class="ap-input-group ap-max-w-lg ap-mx-auto ap-mb-6">
+							<input type="text" id="signingUrl" class="ap-form-input ap-font-mono ap-text-sm" readonly>
+							<button class="ap-btn ap-btn-primary" onclick="copySigningUrl()"
+									data-ap-tooltip="<?php esc_attr_e( 'Copiar link', 'apollo-social' ); ?>">
+								<i class="ri-file-copy-line"></i>
+								<?php esc_html_e( 'Copiar', 'apollo-social' ); ?>
+							</button>
+						</div>
+
+						<div class="ap-alert ap-alert-info ap-text-left">
+							<h4 class="ap-flex ap-items-center ap-gap-2 ap-font-semibold ap-mb-2">
+								<i class="ri-lock-line"></i>
+								<?php esc_html_e( 'Próximos Passos', 'apollo-social' ); ?>
+							</h4>
+							<ol class="ap-list-decimal ap-list-inside ap-text-sm ap-space-y-1">
+								<li><?php esc_html_e( 'Compartilhe o link de assinatura com o signatário', 'apollo-social' ); ?></li>
+								<li><?php esc_html_e( 'O signatário receberá um e-mail com instruções', 'apollo-social' ); ?></li>
+								<li><?php esc_html_e( 'Você será notificado quando a assinatura for concluída', 'apollo-social' ); ?></li>
+								<li><?php esc_html_e( 'O documento assinado ficará disponível para download', 'apollo-social' ); ?></li>
+							</ol>
+						</div>
+
+						<div class="ap-flex ap-justify-center ap-gap-4 ap-mt-8">
+							<a href="<?php echo esc_url( home_url( '/docs/' ) ); ?>" class="ap-btn ap-btn-secondary">
+								<i class="ri-folder-line"></i>
+								<?php esc_html_e( 'Ver Documentos', 'apollo-social' ); ?>
+							</a>
+							<button class="ap-btn ap-btn-primary" onclick="location.reload()">
+								<i class="ri-add-line"></i>
+								<?php esc_html_e( 'Criar Novo', 'apollo-social' ); ?>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	let currentStep = 1;
+	let selectedTemplate = null;
+	let selectedTrack = null;
+	let formData = {};
+
+	// Step navigation
+	function updateProgressBar() {
+		const progress = (currentStep / 5) * 100;
+		document.getElementById('progressFill').style.width = progress + '%';
+		
+		document.querySelectorAll('.ap-step-dot').forEach((dot, index) => {
+			const stepNum = index + 1;
+			dot.classList.remove('ap-step-dot-active', 'ap-step-dot-completed');
+			
+			if (stepNum < currentStep) {
+				dot.classList.add('ap-step-dot-completed');
+			} else if (stepNum === currentStep) {
+				dot.classList.add('ap-step-dot-active');
+			}
+		});
+	}
+
+	function showStep(step) {
+		document.querySelectorAll('.ap-wizard-step').forEach(s => s.classList.remove('ap-wizard-step-active'));
+		document.getElementById('step' + step).classList.add('ap-wizard-step-active');
+		currentStep = step;
+		updateProgressBar();
+	}
+
+	// Template selection
+	document.querySelectorAll('[data-template]').forEach(card => {
+		card.addEventListener('click', function() {
+			document.querySelectorAll('[data-template]').forEach(c => c.classList.remove('ap-card-selected'));
+			this.classList.add('ap-card-selected');
+			selectedTemplate = this.dataset.template;
+			document.getElementById('nextStep1').disabled = false;
+		});
+	});
+
+	// Track selection
+	document.querySelectorAll('[data-track]').forEach(card => {
+		card.addEventListener('click', function() {
+			document.querySelectorAll('[data-track]').forEach(c => c.classList.remove('ap-card-selected'));
+			this.classList.add('ap-card-selected');
+			selectedTrack = this.dataset.track;
+			document.getElementById('nextStep4').disabled = false;
+		});
+	});
+
+	// Navigation buttons
+	document.getElementById('nextStep1').addEventListener('click', () => showStep(2));
+	document.getElementById('prevStep2').addEventListener('click', () => showStep(1));
+	document.getElementById('nextStep2').addEventListener('click', () => {
+		const form = document.getElementById('templateForm');
+		const formDataObj = new FormData(form);
+		for (let [key, value] of formDataObj.entries()) {
+			formData[key] = value;
+		}
+		showStep(3);
+	});
+
+	document.getElementById('prevStep3').addEventListener('click', () => showStep(2));
+	document.getElementById('nextStep3').addEventListener('click', () => {
+		const form = document.getElementById('signerForm');
+		if (form.checkValidity()) {
+			const formDataObj = new FormData(form);
+			for (let [key, value] of formDataObj.entries()) {
+				formData[key] = value;
+			}
+			showStep(4);
+		} else {
+			form.reportValidity();
+		}
+	});
+
+	document.getElementById('prevStep4').addEventListener('click', () => showStep(3));
+	document.getElementById('nextStep4').addEventListener('click', () => {
+		createDocument();
+	});
+
+	function createDocument() {
+		const btn = document.getElementById('nextStep4');
+		btn.disabled = true;
+		btn.innerHTML = '<i class="ri-loader-4-line ap-animate-spin"></i> <?php echo esc_js( __( 'Criando...', 'apollo-social' ) ); ?>';
+
+		const documentData = {
+			template: selectedTemplate,
+			track: selectedTrack,
+			data: formData
+		};
+
+		// API call would go here
+		setTimeout(() => {
+			const signingUrl = `${window.location.origin}/sign/${Math.random().toString(36).substr(2, 9)}`;
+			document.getElementById('signingUrl').value = signingUrl;
+			showStep(5);
+		}, 2000);
+	}
+});
+
+function copySigningUrl() {
+	const input = document.getElementById('signingUrl');
+	input.select();
+	document.execCommand('copy');
+	
+	const btn = event.target.closest('button');
+	const originalText = btn.innerHTML;
+	btn.innerHTML = '<i class="ri-check-line"></i> <?php echo esc_js( __( 'Copiado!', 'apollo-social' ) ); ?>';
+	setTimeout(() => {
+		btn.innerHTML = originalText;
+	}, 2000);
+}
+</script>
+
+<?php get_footer(); ?>

@@ -8,23 +8,21 @@ use Apollo\Infrastructure\PostTypes\SocialPostType;
  *
  * Registers core functionality like routes, Canvas Mode and base hooks.
  */
-class CoreServiceProvider
-{
-    /**
-     * Register core services
-     */
-    public function register()
-    {
-        // FASE 2: Registrar CPT de posts sociais
-        $social_post_type = new SocialPostType();
-        $social_post_type->register();
-    }
+class CoreServiceProvider {
 
-    /**
-     * Boot core services
-     */
-    public function boot()
-    {
-        // Setup routes, install output guards, register rewrites
-    }
+	/**
+	 * Register core services
+	 */
+	public function register() {
+		// FASE 2: Registrar CPT de posts sociais
+		$social_post_type = new SocialPostType();
+		$social_post_type->register();
+	}
+
+	/**
+	 * Boot core services
+	 */
+	public function boot() {
+		// Setup routes, install output guards, register rewrites
+	}
 }

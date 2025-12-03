@@ -6,40 +6,38 @@ namespace Apollo\Domain\Signatures;
  *
  * Represents a document that needs to be signed with GOV.BR
  */
-class DocumentEntity
-{
-    /**
-     * Document ID
-     * TODO: implement property and getters/setters
-     */
-    protected $id;
+class DocumentEntity {
 
-    /**
-     * GOV.BR template ID
-     */
-    protected $govbr_template_id;
+	/**
+	 * Document ID
+	 * TODO: implement property and getters/setters
+	 */
+	protected $id;
 
-    /**
-     * Signature status
-     * TODO: implement signature tracking
-     */
-    protected $status;
+	/**
+	 * GOV.BR template ID
+	 */
+	protected $govbr_template_id;
 
-    /**
-     * Create signature request
-     * Implements GOV.BR API integration for qualified signature requests
-     */
-    public function createSignatureRequest($signers)
-    {
-        // TODO: implement signature request creation logic
-    }
+	/**
+	 * Signature status
+	 * TODO: implement signature tracking
+	 */
+	protected $status;
 
-    /**
-     * Check if document is fully signed
-     * TODO: implement signature completion checking
-     */
-    public function isFullySigned()
-    {
-        // TODO: implement signature completion checking logic
-    }
+	/**
+	 * Create signature request
+	 * Implements GOV.BR API integration for qualified signature requests
+	 */
+	public function createSignatureRequest( $signers ) {
+		// TODO: implement signature request creation logic
+	}
+
+	/**
+	 * Check if document is fully signed
+	 * TODO: implement signature completion checking
+	 */
+	public function isFullySigned() {
+		// TODO: implement signature completion checking logic
+	}
 }

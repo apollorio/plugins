@@ -1,535 +1,366 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assinatura Local - Apollo Social</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<?php
+/**
+ * Local Signature Canvas Template
+ * STRICT MODE: 100% UNI.CSS compliance
+ * Signature capture interface for internal Apollo Social documents
+ *
+ * @package Apollo_Social
+ * @version 2.1.0
+ */
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
-        .signature-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            max-width: 800px;
-            width: 100%;
-            overflow: hidden;
-        }
+// Enqueue global assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+}
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
 
-        .signature-header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+// Get signer email from URL if provided
+$signer_email = isset( $_GET['signer_email'] ) ? sanitize_email( wp_unslash( $_GET['signer_email'] ) ) : '';
+$template_id  = isset( $_GET['template_id'] ) ? absint( $_GET['template_id'] ) : 0;
 
-        .signature-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
+get_header();
+?>
 
-        .signature-header p {
-            opacity: 0.9;
-            font-size: 16px;
-        }
+<!-- STRICT MODE: Local Signature Canvas - UNI.CSS v5.2.0 -->
+<div class="ap-page ap-bg-gradient-primary ap-min-h-screen ap-flex ap-items-center ap-justify-center ap-py-6">
+	<div class="ap-container ap-max-w-3xl">
+		
+		<div class="ap-card ap-shadow-lg">
+			<!-- Header -->
+			<div class="ap-card-header ap-bg-gradient-primary ap-text-white ap-text-center ap-py-8">
+				<h1 class="ap-heading-xl ap-flex ap-items-center ap-justify-center ap-gap-2">
+					<i class="ri-edit-2-line"></i>
+					<?php esc_html_e( 'Assinatura Local', 'apollo-social' ); ?>
+				</h1>
+				<p class="ap-text-white-80 ap-mt-2">
+					<?php esc_html_e( 'Sistema de assinatura interno Apollo Social', 'apollo-social' ); ?>
+				</p>
+			</div>
 
-        .signature-body {
-            padding: 40px;
-        }
+			<div class="ap-card-body ap-p-8">
+				<!-- Error/Success Messages -->
+				<div id="errorContainer"></div>
+				<div id="successContainer"></div>
 
-        .form-section {
-            margin-bottom: 30px;
-        }
+				<!-- Signer Information -->
+				<section class="ap-mb-8">
+					<h3 class="ap-heading-md ap-flex ap-items-center ap-gap-2 ap-mb-4">
+						<i class="ri-user-line ap-text-primary"></i>
+						<?php esc_html_e( 'Informações do Signatário', 'apollo-social' ); ?>
+					</h3>
+					
+					<div class="ap-space-y-4">
+						<div class="ap-form-group">
+							<label for="signerName" class="ap-form-label">
+								<?php esc_html_e( 'Nome Completo', 'apollo-social' ); ?> *
+							</label>
+							<input type="text" id="signerName" class="ap-form-input" required 
+									placeholder="<?php esc_attr_e( 'Digite seu nome completo', 'apollo-social' ); ?>"
+									data-ap-tooltip="<?php esc_attr_e( 'Nome como aparecerá no documento assinado', 'apollo-social' ); ?>">
+						</div>
 
-        .form-section h3 {
-            color: #374151;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 600;
-        }
+						<div class="ap-form-group">
+							<label for="signerEmail" class="ap-form-label">
+								<?php esc_html_e( 'Email', 'apollo-social' ); ?> *
+							</label>
+							<input type="email" id="signerEmail" class="ap-form-input" required 
+									placeholder="<?php esc_attr_e( 'Digite seu email', 'apollo-social' ); ?>"
+									value="<?php echo esc_attr( $signer_email ); ?>"
+									data-ap-tooltip="<?php esc_attr_e( 'Email para confirmação da assinatura', 'apollo-social' ); ?>">
+						</div>
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+						<div class="ap-form-group">
+							<label for="signerDocument" class="ap-form-label">
+								<?php esc_html_e( 'Documento (opcional)', 'apollo-social' ); ?>
+							</label>
+							<input type="text" id="signerDocument" class="ap-form-input" 
+									placeholder="<?php esc_attr_e( 'CPF, RG ou outro documento', 'apollo-social' ); ?>"
+									data-ap-tooltip="<?php esc_attr_e( 'Documento para verificação adicional', 'apollo-social' ); ?>">
+						</div>
+					</div>
+				</section>
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 500;
-        }
+				<!-- Signature Area -->
+				<section class="ap-mb-8">
+					<h3 class="ap-heading-md ap-flex ap-items-center ap-gap-2 ap-mb-4">
+						<i class="ri-pen-nib-line ap-text-primary"></i>
+						<?php esc_html_e( 'Área de Assinatura', 'apollo-social' ); ?>
+					</h3>
+					
+					<div class="ap-alert ap-alert-info ap-mb-4">
+						<h4 class="ap-flex ap-items-center ap-gap-2 ap-font-semibold ap-mb-2">
+							<i class="ri-shield-check-line"></i>
+							<?php esc_html_e( 'Informações de Segurança', 'apollo-social' ); ?>
+						</h4>
+						<ul class="ap-list-disc ap-list-inside ap-text-sm ap-space-y-1">
+							<li><?php esc_html_e( 'Sua assinatura será capturada como evidência digital', 'apollo-social' ); ?></li>
+							<li><?php esc_html_e( 'Geramos hash SHA-256 para verificação de integridade', 'apollo-social' ); ?></li>
+							<li><?php esc_html_e( 'Timestamp e IP são registrados para auditoria', 'apollo-social' ); ?></li>
+							<li><?php esc_html_e( 'Certificado local com validade de 10 anos', 'apollo-social' ); ?></li>
+						</ul>
+					</div>
 
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
+					<div class="ap-signature-canvas-wrapper ap-border-2 ap-border-dashed ap-rounded-xl ap-p-5 ap-bg-muted ap-text-center" id="canvasSection">
+						<p class="ap-text-muted ap-mb-3 ap-flex ap-items-center ap-justify-center ap-gap-2">
+							<i class="ri-hand-coin-line"></i>
+							<?php esc_html_e( 'Desenhe sua assinatura no quadro abaixo', 'apollo-social' ); ?>
+						</p>
+						<canvas id="signatureCanvas" 
+								class="ap-signature-canvas ap-border ap-rounded-lg ap-bg-white ap-cursor-crosshair"
+								width="600" height="200"
+								data-ap-tooltip="<?php esc_attr_e( 'Clique e arraste para desenhar', 'apollo-social' ); ?>"></canvas>
+						
+						<div class="ap-flex ap-justify-center ap-gap-4 ap-mt-4">
+							<button type="button" class="ap-btn ap-btn-outline" onclick="clearSignature()"
+									data-ap-tooltip="<?php esc_attr_e( 'Limpar assinatura', 'apollo-social' ); ?>">
+								<i class="ri-delete-bin-line"></i>
+								<?php esc_html_e( 'Limpar', 'apollo-social' ); ?>
+							</button>
+							<button type="button" class="ap-btn ap-btn-secondary" onclick="undoLastStroke()"
+									data-ap-tooltip="<?php esc_attr_e( 'Desfazer último traço', 'apollo-social' ); ?>">
+								<i class="ri-arrow-go-back-line"></i>
+								<?php esc_html_e( 'Desfazer', 'apollo-social' ); ?>
+							</button>
+						</div>
+					</div>
+				</section>
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
+				<!-- Action Buttons -->
+				<div class="ap-flex ap-justify-center ap-gap-4">
+					<button type="button" class="ap-btn ap-btn-primary ap-btn-lg" onclick="processSignature()"
+							data-ap-tooltip="<?php esc_attr_e( 'Processar e salvar assinatura', 'apollo-social' ); ?>">
+						<i class="ri-checkbox-circle-line"></i>
+						<?php esc_html_e( 'Processar Assinatura', 'apollo-social' ); ?>
+					</button>
+					<a href="javascript:history.back()" class="ap-btn ap-btn-outline ap-btn-lg">
+						<i class="ri-arrow-left-line"></i>
+						<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+					</a>
+				</div>
 
-        .canvas-section {
-            border: 3px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            background: #f9fafb;
-            margin: 20px 0;
-        }
+				<!-- Loading State -->
+				<div id="loadingContainer" class="ap-text-center ap-py-8" style="display: none;">
+					<div class="ap-spinner ap-spinner-lg ap-mx-auto ap-mb-4"></div>
+					<p class="ap-text-muted"><?php esc_html_e( 'Processando assinatura...', 'apollo-social' ); ?></p>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
 
-        .canvas-section.active {
-            border-color: #4f46e5;
-            background: #f0f0ff;
-        }
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	// Canvas setup
+	const canvas = document.getElementById('signatureCanvas');
+	const ctx = canvas.getContext('2d');
+	let isDrawing = false;
+	let strokes = [];
+	let currentStroke = [];
+	let startTime = Date.now();
 
-        #signatureCanvas {
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            cursor: crosshair;
-            background: white;
-            display: block;
-            margin: 0 auto;
-        }
+	// Setup canvas
+	ctx.strokeStyle = '#000000';
+	ctx.lineWidth = 2;
+	ctx.lineCap = 'round';
+	ctx.lineJoin = 'round';
 
-        .canvas-controls {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+	// Mouse events
+	canvas.addEventListener('mousedown', startDrawing);
+	canvas.addEventListener('mousemove', draw);
+	canvas.addEventListener('mouseup', stopDrawing);
+	canvas.addEventListener('mouseleave', stopDrawing);
 
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+	// Touch events
+	canvas.addEventListener('touchstart', handleTouch, { passive: false });
+	canvas.addEventListener('touchmove', handleTouch, { passive: false });
+	canvas.addEventListener('touchend', handleTouch, { passive: false });
 
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
+	function startDrawing(e) {
+		isDrawing = true;
+		currentStroke = [];
+		
+		const rect = canvas.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+		
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+		currentStroke.push({x, y, timestamp: Date.now()});
+		
+		document.getElementById('canvasSection').classList.add('ap-signature-canvas-active');
+	}
 
-        .btn-primary:hover {
-            background: #4338ca;
-            transform: translateY(-2px);
-        }
+	function draw(e) {
+		if (!isDrawing) return;
+		
+		const rect = canvas.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const y = e.clientY - rect.top;
+		
+		ctx.lineTo(x, y);
+		ctx.stroke();
+		currentStroke.push({x, y, timestamp: Date.now()});
+	}
 
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
+	function stopDrawing() {
+		if (!isDrawing) return;
+		
+		isDrawing = false;
+		if (currentStroke.length > 0) {
+			strokes.push([...currentStroke]);
+		}
+		currentStroke = [];
+	}
 
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
+	function handleTouch(e) {
+		e.preventDefault();
+		
+		const touch = e.touches[0] || e.changedTouches[0];
+		const mouseEvent = new MouseEvent(
+			e.type === 'touchstart' ? 'mousedown' : 
+			e.type === 'touchmove' ? 'mousemove' : 'mouseup', 
+			{
+				clientX: touch.clientX,
+				clientY: touch.clientY
+			}
+		);
+		
+		canvas.dispatchEvent(mouseEvent);
+	}
 
-        .btn-outline {
-            background: transparent;
-            color: #4f46e5;
-            border: 2px solid #4f46e5;
-        }
+	window.clearSignature = function() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		strokes = [];
+		currentStroke = [];
+		document.getElementById('canvasSection').classList.remove('ap-signature-canvas-active');
+	};
 
-        .btn-outline:hover {
-            background: #4f46e5;
-            color: white;
-        }
+	window.undoLastStroke = function() {
+		if (strokes.length === 0) return;
+		
+		strokes.pop();
+		redrawCanvas();
+	};
 
-        .signature-info {
-            background: #f0f9ff;
-            border: 1px solid #0ea5e9;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+	function redrawCanvas() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		
+		strokes.forEach(stroke => {
+			if (stroke.length === 0) return;
+			
+			ctx.beginPath();
+			ctx.moveTo(stroke[0].x, stroke[0].y);
+			
+			stroke.forEach(point => {
+				ctx.lineTo(point.x, point.y);
+			});
+			
+			ctx.stroke();
+		});
+	}
 
-        .signature-info h4 {
-            color: #0ea5e9;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
+	function showError(message) {
+		document.getElementById('errorContainer').innerHTML = 
+			`<div class="ap-alert ap-alert-error ap-mb-4">
+				<i class="ri-error-warning-line"></i> ${message}
+			</div>`;
+	}
 
-        .signature-info ul {
-            color: #0369a1;
-            padding-left: 20px;
-        }
+	function showSuccess(message) {
+		document.getElementById('successContainer').innerHTML = 
+			`<div class="ap-alert ap-alert-success ap-mb-4">
+				<i class="ri-checkbox-circle-line"></i> ${message}
+			</div>`;
+	}
 
-        .signature-info li {
-            margin-bottom: 5px;
-        }
+	function clearMessages() {
+		document.getElementById('errorContainer').innerHTML = '';
+		document.getElementById('successContainer').innerHTML = '';
+	}
 
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fca5a5;
-            color: #dc2626;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+	window.processSignature = async function() {
+		clearMessages();
+		
+		// Validate form
+		const name = document.getElementById('signerName').value.trim();
+		const email = document.getElementById('signerEmail').value.trim();
+		
+		if (!name) {
+			showError('<?php echo esc_js( __( 'Nome é obrigatório', 'apollo-social' ) ); ?>');
+			return;
+		}
+		
+		if (!email) {
+			showError('<?php echo esc_js( __( 'Email é obrigatório', 'apollo-social' ) ); ?>');
+			return;
+		}
+		
+		if (strokes.length === 0) {
+			showError('<?php echo esc_js( __( 'Por favor, desenhe sua assinatura', 'apollo-social' ) ); ?>');
+			return;
+		}
+		
+		// Show loading
+		document.getElementById('loadingContainer').style.display = 'block';
+		
+		const signatureData = {
+			signer_name: name,
+			signer_email: email,
+			signer_document: document.getElementById('signerDocument').value.trim(),
+			stroke_data: strokes,
+			canvas_width: canvas.width,
+			canvas_height: canvas.height,
+			duration: Date.now() - startTime,
+			screen_resolution: `${screen.width}x${screen.height}`,
+			device_pixel_ratio: window.devicePixelRatio || 1,
+			template_id: '<?php echo esc_js( $template_id ); ?>'
+		};
+		
+		try {
+			const response = await fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					action: 'apollo_process_local_signature',
+					signature_data: JSON.stringify(signatureData),
+					nonce: '<?php echo esc_js( wp_create_nonce( 'apollo_local_signature' ) ); ?>'
+				})
+			});
+			
+			const result = await response.json();
+			
+			if (result.success) {
+				showSuccess('<?php echo esc_js( __( 'Assinatura processada com sucesso!', 'apollo-social' ) ); ?>');
+				
+				const certificate = result.data.certificate;
+				setTimeout(() => {
+					alert(`✅ <?php echo esc_js( __( 'Assinatura concluída!', 'apollo-social' ) ); ?>\n\n<?php echo esc_js( __( 'Certificado:', 'apollo-social' ) ); ?> ${certificate.certificate_id}\n<?php echo esc_js( __( 'Verificação:', 'apollo-social' ) ); ?> ${certificate.verification_url}`);
+					
+					if (window.opener) {
+						window.close();
+					} else {
+						window.location.href = '<?php echo esc_url( home_url( '/docs/' ) ); ?>';
+					}
+				}, 1000);
+				
+			} else {
+				showError(result.data.errors ? result.data.errors.join(', ') : '<?php echo esc_js( __( 'Erro desconhecido', 'apollo-social' ) ); ?>');
+			}
+			
+		} catch (error) {
+			showError('<?php echo esc_js( __( 'Erro ao processar assinatura:', 'apollo-social' ) ); ?> ' + error.message);
+		} finally {
+			document.getElementById('loadingContainer').style.display = 'none';
+		}
+	};
+});
+</script>
 
-        .success-message {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            color: #16a34a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid #4f46e5;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .signature-body {
-                padding: 20px;
-            }
-            
-            #signatureCanvas {
-                width: 100%;
-                height: 200px;
-            }
-            
-            .canvas-controls {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="signature-container">
-        <div class="signature-header">
-            <h1>📝 Assinatura Local</h1>
-            <p>Sistema de assinatura interno Apollo Social</p>
-        </div>
-
-        <div class="signature-body">
-            <div id="errorContainer"></div>
-            <div id="successContainer"></div>
-
-            <!-- Informações do Signatário -->
-            <div class="form-section">
-                <h3>👤 Informações do Signatário</h3>
-                
-                <div class="form-group">
-                    <label for="signerName">Nome Completo *</label>
-                    <input type="text" id="signerName" required placeholder="Digite seu nome completo">
-                </div>
-
-                <div class="form-group">
-                    <label for="signerEmail">Email *</label>
-                    <input type="email" id="signerEmail" required placeholder="Digite seu email">
-                </div>
-
-                <div class="form-group">
-                    <label for="signerDocument">Documento (opcional)</label>
-                    <input type="text" id="signerDocument" placeholder="CPF, RG ou outro documento">
-                </div>
-            </div>
-
-            <!-- Área de Assinatura -->
-            <div class="form-section">
-                <h3>✍️ Área de Assinatura</h3>
-                
-                <div class="signature-info">
-                    <h4>🔒 Informações de Segurança</h4>
-                    <ul>
-                        <li>Sua assinatura será capturada como evidência digital</li>
-                        <li>Geramos hash SHA-256 para verificação de integridade</li>
-                        <li>Timestamp e IP são registrados para auditoria</li>
-                        <li>Certificado local com validade de 10 anos</li>
-                    </ul>
-                </div>
-
-                <div class="canvas-section" id="canvasSection">
-                    <p>👆 Desenhe sua assinatura no quadro abaixo</p>
-                    <canvas id="signatureCanvas" width="600" height="200"></canvas>
-                    
-                    <div class="canvas-controls">
-                        <button type="button" class="btn btn-outline" onclick="clearSignature()">
-                            🗑️ Limpar
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="undoLastStroke()">
-                            ↶ Desfazer
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botões de Ação -->
-            <div class="form-section">
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-primary" onclick="processSignature()">
-                        ✅ Processar Assinatura
-                    </button>
-                    <a href="javascript:history.back()" class="btn btn-outline">
-                        ← Voltar
-                    </a>
-                </div>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loadingContainer" class="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Processando assinatura...</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Canvas setup
-        const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let strokes = [];
-        let currentStroke = [];
-        let startTime = Date.now();
-
-        // Setup canvas
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        // Mouse events
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-
-        // Touch events
-        canvas.addEventListener('touchstart', handleTouch);
-        canvas.addEventListener('touchmove', handleTouch);
-        canvas.addEventListener('touchend', handleTouch);
-
-        function startDrawing(e) {
-            isDrawing = true;
-            currentStroke = [];
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            currentStroke.push({x, y, timestamp: Date.now()});
-            
-            document.getElementById('canvasSection').classList.add('active');
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            currentStroke.push({x, y, timestamp: Date.now()});
-        }
-
-        function stopDrawing() {
-            if (!isDrawing) return;
-            
-            isDrawing = false;
-            strokes.push([...currentStroke]);
-            currentStroke = [];
-        }
-
-        function handleTouch(e) {
-            e.preventDefault();
-            
-            const touch = e.touches[0] || e.changedTouches[0];
-            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 
-                                            e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            
-            canvas.dispatchEvent(mouseEvent);
-        }
-
-        function clearSignature() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            strokes = [];
-            currentStroke = [];
-            document.getElementById('canvasSection').classList.remove('active');
-        }
-
-        function undoLastStroke() {
-            if (strokes.length === 0) return;
-            
-            strokes.pop();
-            redrawCanvas();
-        }
-
-        function redrawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            strokes.forEach(stroke => {
-                if (stroke.length === 0) return;
-                
-                ctx.beginPath();
-                ctx.moveTo(stroke[0].x, stroke[0].y);
-                
-                stroke.forEach(point => {
-                    ctx.lineTo(point.x, point.y);
-                });
-                
-                ctx.stroke();
-            });
-        }
-
-        function showError(message) {
-            document.getElementById('errorContainer').innerHTML = 
-                `<div class="error-message">❌ ${message}</div>`;
-        }
-
-        function showSuccess(message) {
-            document.getElementById('successContainer').innerHTML = 
-                `<div class="success-message">✅ ${message}</div>`;
-        }
-
-        function clearMessages() {
-            document.getElementById('errorContainer').innerHTML = '';
-            document.getElementById('successContainer').innerHTML = '';
-        }
-
-        async function processSignature() {
-            clearMessages();
-            
-            // Validate form
-            const name = document.getElementById('signerName').value.trim();
-            const email = document.getElementById('signerEmail').value.trim();
-            
-            if (!name) {
-                showError('Nome é obrigatório');
-                return;
-            }
-            
-            if (!email) {
-                showError('Email é obrigatório');
-                return;
-            }
-            
-            if (strokes.length === 0) {
-                showError('Por favor, desenhe sua assinatura');
-                return;
-            }
-            
-            // Show loading
-            document.getElementById('loadingContainer').style.display = 'block';
-            
-            const signatureData = {
-                signer_name: name,
-                signer_email: email,
-                signer_document: document.getElementById('signerDocument').value.trim(),
-                stroke_data: strokes,
-                canvas_width: canvas.width,
-                canvas_height: canvas.height,
-                duration: Date.now() - startTime,
-                screen_resolution: `${screen.width}x${screen.height}`,
-                device_pixel_ratio: window.devicePixelRatio || 1,
-                template_id: new URLSearchParams(window.location.search).get('template_id')
-            };
-            
-            try {
-                const response = await fetch('/wp-admin/admin-ajax.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: 'apollo_process_local_signature',
-                        signature_data: JSON.stringify(signatureData),
-                        nonce: '<?php echo wp_create_nonce("apollo_local_signature"); ?>'
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showSuccess('Assinatura processada com sucesso!');
-                    
-                    // Show certificate info
-                    const certificate = result.data.certificate;
-                    setTimeout(() => {
-                        alert(`✅ Assinatura concluída!\n\nCertificado: ${certificate.certificate_id}\nURL de Verificação: ${certificate.verification_url}`);
-                        
-                        // Redirect or close
-                        if (window.opener) {
-                            window.close();
-                        } else {
-                            window.location.href = '/apollo/dashboard';
-                        }
-                    }, 1000);
-                    
-                } else {
-                    showError(result.data.errors.join(', '));
-                }
-                
-            } catch (error) {
-                showError('Erro ao processar assinatura: ' + error.message);
-            } finally {
-                document.getElementById('loadingContainer').style.display = 'none';
-            }
-        }
-
-        // Auto-fill from URL params
-        window.addEventListener('load', () => {
-            const params = new URLSearchParams(window.location.search);
-            const email = params.get('signer_email');
-            
-            if (email) {
-                document.getElementById('signerEmail').value = email;
-            }
-        });
-    </script>
-</body>
-</html>
+<?php get_footer(); ?>

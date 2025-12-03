@@ -4,477 +4,468 @@ namespace Apollo\Infrastructure\Workflows;
 
 /**
  * Content Workflow Manager
- * 
+ *
  * Manages approval workflows and state transitions for Apollo content.
  */
-class ContentWorkflow
-{
-    private array $workflows = [];
-    private array $states = [];
-    private array $transitions = [];
+class ContentWorkflow {
 
-    public function __construct()
-    {
-        $this->initializeWorkflows();
-    }
+	private array $workflows   = array();
+	private array $states      = array();
+	private array $transitions = array();
 
-    /**
-     * Initialize default workflows
-     */
-    private function initializeWorkflows(): void
-    {
-        $this->workflows = [
-            'group' => [
-                'name' => 'Aprovação de Grupos',
-                'states' => ['draft', 'pending_review', 'published', 'rejected', 'suspended'],
-                'default_state' => 'draft'
-            ],
-            'event' => [
-                'name' => 'Aprovação de Eventos',
-                'states' => ['draft', 'pending_review', 'published', 'rejected', 'cancelled'],
-                'default_state' => 'draft'
-            ],
-            'ad' => [
-                'name' => 'Aprovação de Anúncios',
-                'states' => ['draft', 'pending_review', 'published', 'rejected', 'expired'],
-                'default_state' => 'draft'
-            ]
-        ];
+	public function __construct() {
+		$this->initializeWorkflows();
+	}
 
-        $this->states = [
-            'draft' => [
-                'label' => 'Rascunho',
-                'description' => 'Conteúdo em edição, não visível publicamente',
-                'color' => '#6b7280',
-                'icon' => '📝',
-                'public' => false
-            ],
-            'pending_review' => [
-                'label' => 'Aguardando Aprovação',
-                'description' => 'Conteúdo enviado para moderação',
-                'color' => '#f59e0b',
-                'icon' => '⏳',
-                'public' => false
-            ],
-            'published' => [
-                'label' => 'Publicado',
-                'description' => 'Conteúdo aprovado e visível publicamente',
-                'color' => '#10b981',
-                'icon' => '✅',
-                'public' => true
-            ],
-            'rejected' => [
-                'label' => 'Rejeitado',
-                'description' => 'Conteúdo rejeitado na moderação',
-                'color' => '#ef4444',
-                'icon' => '❌',
-                'public' => false
-            ],
-            'suspended' => [
-                'label' => 'Suspenso',
-                'description' => 'Conteúdo temporariamente suspenso',
-                'color' => '#f97316',
-                'icon' => '⏸️',
-                'public' => false
-            ],
-            'cancelled' => [
-                'label' => 'Cancelado',
-                'description' => 'Evento cancelado',
-                'color' => '#6b7280',
-                'icon' => '🚫',
-                'public' => true
-            ],
-            'expired' => [
-                'label' => 'Expirado',
-                'description' => 'Anúncio expirado',
-                'color' => '#9ca3af',
-                'icon' => '⌛',
-                'public' => false
-            ]
-        ];
+	/**
+	 * Initialize default workflows
+	 */
+	private function initializeWorkflows(): void {
+		$this->workflows = array(
+			'group' => array(
+				'name'          => 'Aprovação de Grupos',
+				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'suspended' ),
+				'default_state' => 'draft',
+			),
+			'event' => array(
+				'name'          => 'Aprovação de Eventos',
+				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'cancelled' ),
+				'default_state' => 'draft',
+			),
+			'ad'    => array(
+				'name'          => 'Aprovação de Anúncios',
+				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'expired' ),
+				'default_state' => 'draft',
+			),
+		);
 
-        $this->transitions = [
-            'draft' => ['pending_review', 'published'],
-            'pending_review' => ['published', 'rejected', 'draft'],
-            'published' => ['suspended', 'rejected', 'cancelled', 'expired'],
-            'rejected' => ['draft', 'pending_review'],
-            'suspended' => ['published', 'rejected'],
-            'cancelled' => [],
-            'expired' => ['published']
-        ];
-    }
+		$this->states = array(
+			'draft'          => array(
+				'label'       => 'Rascunho',
+				'description' => 'Conteúdo em edição, não visível publicamente',
+				'color'       => '#6b7280',
+				'icon'        => '📝',
+				'public'      => false,
+			),
+			'pending_review' => array(
+				'label'       => 'Aguardando Aprovação',
+				'description' => 'Conteúdo enviado para moderação',
+				'color'       => '#f59e0b',
+				'icon'        => '⏳',
+				'public'      => false,
+			),
+			'published'      => array(
+				'label'       => 'Publicado',
+				'description' => 'Conteúdo aprovado e visível publicamente',
+				'color'       => '#10b981',
+				'icon'        => '✅',
+				'public'      => true,
+			),
+			'rejected'       => array(
+				'label'       => 'Rejeitado',
+				'description' => 'Conteúdo rejeitado na moderação',
+				'color'       => '#ef4444',
+				'icon'        => '❌',
+				'public'      => false,
+			),
+			'suspended'      => array(
+				'label'       => 'Suspenso',
+				'description' => 'Conteúdo temporariamente suspenso',
+				'color'       => '#f97316',
+				'icon'        => '⏸️',
+				'public'      => false,
+			),
+			'cancelled'      => array(
+				'label'       => 'Cancelado',
+				'description' => 'Evento cancelado',
+				'color'       => '#6b7280',
+				'icon'        => '🚫',
+				'public'      => true,
+			),
+			'expired'        => array(
+				'label'       => 'Expirado',
+				'description' => 'Anúncio expirado',
+				'color'       => '#9ca3af',
+				'icon'        => '⌛',
+				'public'      => false,
+			),
+		);
 
-    /**
-     * Get initial state for new content (FINAL MATRIX)
-     */
-    public function getInitialState(string $content_type, array $data = []): string
-    {
-        $user = wp_get_current_user();
-        
-        if (!$user->exists()) {
-            return 'draft';
-        }
+		$this->transitions = array(
+			'draft'          => array( 'pending_review', 'published' ),
+			'pending_review' => array( 'published', 'rejected', 'draft' ),
+			'published'      => array( 'suspended', 'rejected', 'cancelled', 'expired' ),
+			'rejected'       => array( 'draft', 'pending_review' ),
+			'suspended'      => array( 'published', 'rejected' ),
+			'cancelled'      => array(),
+			'expired'        => array( 'published' ),
+		);
+	}
 
-        return $this->resolveStatus($user, $content_type, $data);
-    }
+	/**
+	 * Get initial state for new content (FINAL MATRIX)
+	 */
+	public function getInitialState( string $content_type, array $data = array() ): string {
+		$user = wp_get_current_user();
 
-    /**
-     * Resolve status based on final matrix
-     */
-    public function resolveStatus(\WP_User $user, string $content_type, array $ctx = []): string
-    {
-        // Editor/Administrator - always published
-        if (in_array('administrator', $user->roles) || in_array('editor', $user->roles)) {
-            return 'published';
-        }
+		if ( ! $user->exists() ) {
+			return 'draft';
+		}
 
-        // Special rules for Community/Núcleo groups - always pending_review for non-editors
-        if ($content_type === 'group') {
-            $group_type = $ctx['type'] ?? '';
-            if (in_array($group_type, ['comunidade', 'nucleo'])) {
-                return 'pending_review';
-            }
-        }
+		return $this->resolveStatus( $user, $content_type, $data );
+	}
 
-        // Role-based matrix
-        if (in_array('author', $user->roles)) {
-            // Author rules
-            switch ($content_type) {
-                case 'group':
-                    return 'pending_review'; // Social/Discussion → pending
-                case 'ad':
-                    return 'pending_review'; // Classified → pending
-                case 'event':
-                    return 'published'; // Event → published directly
-                default:
-                    return 'pending_review';
-            }
-        }
+	/**
+	 * Resolve status based on final matrix
+	 */
+	public function resolveStatus( \WP_User $user, string $content_type, array $ctx = array() ): string {
+		// Editor/Administrator - always published
+		if ( in_array( 'administrator', $user->roles ) || in_array( 'editor', $user->roles ) ) {
+			return 'published';
+		}
 
-        if (in_array('subscriber', $user->roles)) {
-            // Subscriber rules
-            switch ($content_type) {
-                case 'group':
-                    return 'draft'; // Social/Discussion → draft
-                case 'ad':
-                    return 'published'; // Classified → published directly
-                case 'event':
-                    return 'pending_review'; // Event → pending
-                default:
-                    return 'draft';
-            }
-        }
+		// Special rules for Community/Núcleo groups - always pending_review for non-editors
+		if ( $content_type === 'group' ) {
+			$group_type = $ctx['type'] ?? '';
+			if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
+				return 'pending_review';
+			}
+		}
 
-        // Contributor rules - everything draft except Community/Núcleo
-        if (in_array('contributor', $user->roles)) {
-            if ($content_type === 'group') {
-                $group_type = $ctx['type'] ?? '';
-                if (in_array($group_type, ['comunidade', 'nucleo'])) {
-                    return 'pending_review';
-                }
-            }
-            return 'draft';
-        }
+		// Role-based matrix
+		if ( in_array( 'author', $user->roles ) ) {
+			// Author rules
+			switch ( $content_type ) {
+				case 'group':
+					return 'pending_review'; 
+				// Social/Discussion → pending
+				case 'ad':
+					return 'pending_review'; 
+				// Classified → pending
+				case 'event':
+					return 'published'; 
+				// Event → published directly
+				default:
+					return 'pending_review';
+			}
+		}
 
-        // Default fallback
-        return 'draft';
-    }
+		if ( in_array( 'subscriber', $user->roles ) ) {
+			// Subscriber rules
+			switch ( $content_type ) {
+				case 'group':
+					return 'draft'; 
+				// Social/Discussion → draft
+				case 'ad':
+					return 'published'; 
+				// Classified → published directly
+				case 'event':
+					return 'pending_review'; 
+				// Event → pending
+				default:
+					return 'draft';
+			}
+		}
 
-    /**
-     * Check if user can publish directly
-     */
-    private function canPublishDirectly(string $content_type): bool
-    {
-        $user = wp_get_current_user();
-        
-        // Administrators and editors can always publish directly
-        if (in_array('administrator', $user->roles) || in_array('editor', $user->roles)) {
-            return true;
-        }
+		// Contributor rules - everything draft except Community/Núcleo
+		if ( in_array( 'contributor', $user->roles ) ) {
+			if ( $content_type === 'group' ) {
+				$group_type = $ctx['type'] ?? '';
+				if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
+					return 'pending_review';
+				}
+			}
+			return 'draft';
+		}
 
-        return false;
-    }
+		// Default fallback
+		return 'draft';
+	}
 
-    /**
-     * Transition content to new state
-     */
-    public function transition(int $content_id, string $content_type, string $new_state, array $data = []): array
-    {
-        $current_state = $this->getCurrentState($content_id, $content_type);
-        
-        // Validate transition
-        if (!$this->canTransition($current_state, $new_state)) {
-            return [
-                'success' => false,
-                'message' => "Transição de '{$current_state}' para '{$new_state}' não é permitida"
-            ];
-        }
+	/**
+	 * Check if user can publish directly
+	 */
+	private function canPublishDirectly( string $content_type ): bool {
+		$user = wp_get_current_user();
 
-        // Check permissions for transition
-        if (!$this->canUserTransition($content_type, $current_state, $new_state)) {
-            return [
-                'success' => false,
-                'message' => 'Você não tem permissão para esta transição'
-            ];
-        }
+		// Administrators and editors can always publish directly
+		if ( in_array( 'administrator', $user->roles ) || in_array( 'editor', $user->roles ) ) {
+			return true;
+		}
 
-        // Execute transition
-        $result = $this->executeTransition($content_id, $content_type, $current_state, $new_state, $data);
+		return false;
+	}
 
-        if ($result['success']) {
-            // Log transition
-            $this->logTransition($content_id, $content_type, $current_state, $new_state, $data);
-            
-            // Execute post-transition actions
-            $this->executePostTransitionActions($content_id, $content_type, $new_state, $data);
-        }
+	/**
+	 * Transition content to new state
+	 */
+	public function transition( int $content_id, string $content_type, string $new_state, array $data = array() ): array {
+		$current_state = $this->getCurrentState( $content_id, $content_type );
 
-        return $result;
-    }
+		// Validate transition
+		if ( ! $this->canTransition( $current_state, $new_state ) ) {
+			return array(
+				'success' => false,
+				'message' => "Transição de '{$current_state}' para '{$new_state}' não é permitida",
+			);
+		}
 
-    /**
-     * Check if transition is allowed
-     */
-    private function canTransition(string $from_state, string $to_state): bool
-    {
-        return in_array($to_state, $this->transitions[$from_state] ?? []);
-    }
+		// Check permissions for transition
+		if ( ! $this->canUserTransition( $content_type, $current_state, $new_state ) ) {
+			return array(
+				'success' => false,
+				'message' => 'Você não tem permissão para esta transição',
+			);
+		}
 
-    /**
-     * Check if user can perform transition
-     */
-    private function canUserTransition(string $content_type, string $from_state, string $to_state): bool
-    {
-        $user = wp_get_current_user();
-        
-        // Administrators can do any transition
-        if (in_array('administrator', $user->roles)) {
-            return true;
-        }
+		// Execute transition
+		$result = $this->executeTransition( $content_id, $content_type, $current_state, $new_state, $data );
 
-        // Transitions that require moderation capabilities
-        $moderation_transitions = ['pending_review' => 'published', 'pending_review' => 'rejected'];
-        $transition_key = "{$from_state} => {$to_state}";
-        
-        if (in_array($transition_key, $moderation_transitions)) {
-            return current_user_can('apollo_moderate') || current_user_can("apollo_moderate_{$content_type}s");
-        }
+		if ( $result['success'] ) {
+			// Log transition
+			$this->logTransition( $content_id, $content_type, $current_state, $new_state, $data );
 
-        // Users can move their own content to pending_review
-        if ($to_state === 'pending_review') {
-            return true; // Will be validated at content level
-        }
+			// Execute post-transition actions
+			$this->executePostTransitionActions( $content_id, $content_type, $new_state, $data );
+		}
 
-        // Editors can publish directly
-        if ($to_state === 'published' && in_array('editor', $user->roles)) {
-            return true;
-        }
+		return $result;
+	}
 
-        return false;
-    }
+	/**
+	 * Check if transition is allowed
+	 */
+	private function canTransition( string $from_state, string $to_state ): bool {
+		return in_array( $to_state, $this->transitions[ $from_state ] ?? array() );
+	}
 
-    /**
-     * Execute the actual transition
-     */
-    private function executeTransition(int $content_id, string $content_type, string $from_state, string $to_state, array $data): array
-    {
-        global $wpdb;
+	/**
+	 * Check if user can perform transition
+	 */
+	private function canUserTransition( string $content_type, string $from_state, string $to_state ): bool {
+		$user = wp_get_current_user();
 
-        try {
-            // Update content status
-            $table = $this->getContentTable($content_type);
-            $status_column = $this->getStatusColumn($content_type);
-            
-            $updated = $wpdb->update(
-                $table,
-                [$status_column => $to_state],
-                ['id' => $content_id],
-                ['%s'],
-                ['%d']
-            );
+		// Administrators can do any transition
+		if ( in_array( 'administrator', $user->roles ) ) {
+			return true;
+		}
 
-            if ($updated === false) {
-                return [
-                    'success' => false,
-                    'message' => 'Erro ao atualizar status no banco de dados'
-                ];
-            }
+		// Transitions that require moderation capabilities
+		$moderation_transitions = array(
+			'pending_review' => 'published',
+			'pending_review' => 'rejected',
+		);
+		$transition_key         = "{$from_state} => {$to_state}";
 
-            return [
-                'success' => true,
-                'message' => "Status alterado para '{$this->states[$to_state]['label']}'"
-            ];
+		if ( in_array( $transition_key, $moderation_transitions ) ) {
+			return current_user_can( 'apollo_moderate' ) || current_user_can( "apollo_moderate_{$content_type}s" );
+		}
 
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Erro interno: ' . $e->getMessage()
-            ];
-        }
-    }
+		// Users can move their own content to pending_review
+		if ( $to_state === 'pending_review' ) {
+			return true; 
+			// Will be validated at content level
+		}
 
-    /**
-     * Get current state of content
-     */
-    private function getCurrentState(int $content_id, string $content_type): string
-    {
-        global $wpdb;
+		// Editors can publish directly
+		if ( $to_state === 'published' && in_array( 'editor', $user->roles ) ) {
+			return true;
+		}
 
-        $table = $this->getContentTable($content_type);
-        $status_column = $this->getStatusColumn($content_type);
-        
-        $state = $wpdb->get_var($wpdb->prepare(
-            "SELECT {$status_column} FROM {$table} WHERE id = %d",
-            $content_id
-        ));
+		return false;
+	}
 
-        return $state ?: 'draft';
-    }
+	/**
+	 * Execute the actual transition
+	 */
+	private function executeTransition( int $content_id, string $content_type, string $from_state, string $to_state, array $data ): array {
+		global $wpdb;
 
-    /**
-     * Get database table for content type
-     */
-    private function getContentTable(string $content_type): string
-    {
-        global $wpdb;
+		try {
+			// Update content status
+			$table         = $this->getContentTable( $content_type );
+			$status_column = $this->getStatusColumn( $content_type );
 
-        $tables = [
-            'group' => $wpdb->prefix . 'apollo_groups',
-            'event' => $wpdb->prefix . 'eva_events', 
-            'ad' => $wpdb->prefix . 'apollo_ads'
-        ];
+			$updated = $wpdb->update(
+				$table,
+				array( $status_column => $to_state ),
+				array( 'id' => $content_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
 
-        return $tables[$content_type] ?? $wpdb->posts;
-    }
+			if ( $updated === false ) {
+				return array(
+					'success' => false,
+					'message' => 'Erro ao atualizar status no banco de dados',
+				);
+			}
 
-    /**
-     * Get status column for content type
-     */
-    private function getStatusColumn(string $content_type): string
-    {
-        return $content_type === 'event' ? 'post_status' : 'status';
-    }
+			return array(
+				'success' => true,
+				'message' => "Status alterado para '{$this->states[$to_state]['label']}'",
+			);
 
-    /**
-     * Log state transition
-     */
-    private function logTransition(int $content_id, string $content_type, string $from_state, string $to_state, array $data): void
-    {
-        global $wpdb;
+		} catch ( Exception $e ) {
+			return array(
+				'success' => false,
+				'message' => 'Erro interno: ' . $e->getMessage(),
+			);
+		}//end try
+	}
 
-        $wpdb->insert(
-            $wpdb->prefix . 'apollo_workflow_log',
-            [
-                'content_id' => $content_id,
-                'content_type' => $content_type,
-                'from_state' => $from_state,
-                'to_state' => $to_state,
-                'user_id' => get_current_user_id(),
-                'reason' => $data['reason'] ?? '',
-                'metadata' => json_encode($data),
-                'created_at' => current_time('mysql')
-            ],
-            ['%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s']
-        );
-    }
+	/**
+	 * Get current state of content
+	 */
+	private function getCurrentState( int $content_id, string $content_type ): string {
+		global $wpdb;
 
-    /**
-     * Execute post-transition actions
-     */
-    private function executePostTransitionActions(int $content_id, string $content_type, string $new_state, array $data): void
-    {
-        switch ($new_state) {
-            case 'published':
-                $this->notifyContentPublished($content_id, $content_type);
-                break;
-                
-            case 'rejected':
-                $this->notifyContentRejected($content_id, $content_type, $data['reason'] ?? '');
-                break;
-                
-            case 'pending_review':
-                $this->notifyModeratorsNewContent($content_id, $content_type);
-                break;
-                
-            case 'suspended':
-                $this->notifyContentSuspended($content_id, $content_type, $data['reason'] ?? '');
-                break;
-        }
-    }
+		$table         = $this->getContentTable( $content_type );
+		$status_column = $this->getStatusColumn( $content_type );
 
-    /**
-     * Get workflow status display
-     */
-    public function getStatusDisplay(string $state): array
-    {
-        $state_info = $this->states[$state] ?? $this->states['draft'];
-        
-        return [
-            'label' => $state_info['label'],
-            'description' => $state_info['description'],
-            'color' => $state_info['color'],
-            'icon' => $state_info['icon'],
-            'public' => $state_info['public']
-        ];
-    }
+		$state = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT {$status_column} FROM {$table} WHERE id = %d",
+				$content_id
+			)
+		);
 
-    /**
-     * Get available transitions for current state
-     */
-    public function getAvailableTransitions(string $current_state, string $content_type): array
-    {
-        $available = [];
-        $possible_states = $this->transitions[$current_state] ?? [];
-        
-        foreach ($possible_states as $state) {
-            if ($this->canUserTransition($content_type, $current_state, $state)) {
-                $available[] = [
-                    'state' => $state,
-                    'display' => $this->getStatusDisplay($state)
-                ];
-            }
-        }
+		return $state ?: 'draft';
+	}
 
-        return $available;
-    }
+	/**
+	 * Get database table for content type
+	 */
+	private function getContentTable( string $content_type ): string {
+		global $wpdb;
 
-    /**
-     * Get workflow summary for content
-     */
-    public function getWorkflowSummary(int $content_id, string $content_type): array
-    {
-        $current_state = $this->getCurrentState($content_id, $content_type);
-        $status_display = $this->getStatusDisplay($current_state);
-        $available_transitions = $this->getAvailableTransitions($current_state, $content_type);
-        
-        return [
-            'current_state' => $current_state,
-            'status_display' => $status_display,
-            'available_transitions' => $available_transitions,
-            'workflow_name' => $this->workflows[$content_type]['name'] ?? 'Workflow Padrão'
-        ];
-    }
+		$tables = array(
+			'group' => $wpdb->prefix . 'apollo_groups',
+			'event' => $wpdb->prefix . 'eva_events',
+			'ad'    => $wpdb->prefix . 'apollo_ads',
+		);
 
-    /**
-     * Notification methods (stubs - implement with actual notification system)
-     */
-    private function notifyContentPublished(int $content_id, string $content_type): void
-    {
-        // TODO: Implement notification to content author
-    }
+		return $tables[ $content_type ] ?? $wpdb->posts;
+	}
 
-    private function notifyContentRejected(int $content_id, string $content_type, string $reason): void
-    {
-        // TODO: Implement notification to content author with rejection reason
-    }
+	/**
+	 * Get status column for content type
+	 */
+	private function getStatusColumn( string $content_type ): string {
+		return $content_type === 'event' ? 'post_status' : 'status';
+	}
 
-    private function notifyModeratorsNewContent(int $content_id, string $content_type): void
-    {
-        // TODO: Implement notification to moderators about new content pending review
-    }
+	/**
+	 * Log state transition
+	 */
+	private function logTransition( int $content_id, string $content_type, string $from_state, string $to_state, array $data ): void {
+		global $wpdb;
 
-    private function notifyContentSuspended(int $content_id, string $content_type, string $reason): void
-    {
-        // TODO: Implement notification to content author about suspension
-    }
+		$wpdb->insert(
+			$wpdb->prefix . 'apollo_workflow_log',
+			array(
+				'content_id'   => $content_id,
+				'content_type' => $content_type,
+				'from_state'   => $from_state,
+				'to_state'     => $to_state,
+				'user_id'      => get_current_user_id(),
+				'reason'       => $data['reason'] ?? '',
+				'metadata'     => json_encode( $data ),
+				'created_at'   => current_time( 'mysql' ),
+			),
+			array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
+		);
+	}
+
+	/**
+	 * Execute post-transition actions
+	 */
+	private function executePostTransitionActions( int $content_id, string $content_type, string $new_state, array $data ): void {
+		switch ( $new_state ) {
+			case 'published':
+				$this->notifyContentPublished( $content_id, $content_type );
+				break;
+
+			case 'rejected':
+				$this->notifyContentRejected( $content_id, $content_type, $data['reason'] ?? '' );
+				break;
+
+			case 'pending_review':
+				$this->notifyModeratorsNewContent( $content_id, $content_type );
+				break;
+
+			case 'suspended':
+				$this->notifyContentSuspended( $content_id, $content_type, $data['reason'] ?? '' );
+				break;
+		}
+	}
+
+	/**
+	 * Get workflow status display
+	 */
+	public function getStatusDisplay( string $state ): array {
+		$state_info = $this->states[ $state ] ?? $this->states['draft'];
+
+		return array(
+			'label'       => $state_info['label'],
+			'description' => $state_info['description'],
+			'color'       => $state_info['color'],
+			'icon'        => $state_info['icon'],
+			'public'      => $state_info['public'],
+		);
+	}
+
+	/**
+	 * Get available transitions for current state
+	 */
+	public function getAvailableTransitions( string $current_state, string $content_type ): array {
+		$available       = array();
+		$possible_states = $this->transitions[ $current_state ] ?? array();
+
+		foreach ( $possible_states as $state ) {
+			if ( $this->canUserTransition( $content_type, $current_state, $state ) ) {
+				$available[] = array(
+					'state'   => $state,
+					'display' => $this->getStatusDisplay( $state ),
+				);
+			}
+		}
+
+		return $available;
+	}
+
+	/**
+	 * Get workflow summary for content
+	 */
+	public function getWorkflowSummary( int $content_id, string $content_type ): array {
+		$current_state         = $this->getCurrentState( $content_id, $content_type );
+		$status_display        = $this->getStatusDisplay( $current_state );
+		$available_transitions = $this->getAvailableTransitions( $current_state, $content_type );
+
+		return array(
+			'current_state'         => $current_state,
+			'status_display'        => $status_display,
+			'available_transitions' => $available_transitions,
+			'workflow_name'         => $this->workflows[ $content_type ]['name'] ?? 'Workflow Padrão',
+		);
+	}
+
+	/**
+	 * Notification methods (stubs - implement with actual notification system)
+	 */
+	private function notifyContentPublished( int $content_id, string $content_type ): void {
+		// TODO: Implement notification to content author
+	}
+
+	private function notifyContentRejected( int $content_id, string $content_type, string $reason ): void {
+		// TODO: Implement notification to content author with rejection reason
+	}
+
+	private function notifyModeratorsNewContent( int $content_id, string $content_type ): void {
+		// TODO: Implement notification to moderators about new content pending review
+	}
+
+	private function notifyContentSuspended( int $content_id, string $content_type, string $reason ): void {
+		// TODO: Implement notification to content author about suspension
+	}
 }

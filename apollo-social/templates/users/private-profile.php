@@ -1,299 +1,842 @@
 <?php
-defined('ABSPATH') || exit;
+/**
+ * Private Profile Template - User Dashboard
+ * STRICT MODE: 100% UNI.CSS conformance
+ *
+ * @package Apollo_Social
+ * @subpackage Users
+ * @version 2.0.0
+ */
+
+defined( 'ABSPATH' ) || exit;
 
 // Ensure user is logged in
-if (!is_user_logged_in()) {
-    auth_redirect();
-    exit;
+if ( ! is_user_logged_in() ) {
+	auth_redirect();
+	exit;
 }
 
-$current_user = wp_get_current_user();
-$user_id = $current_user->ID;
-$avatar_url = get_avatar_url($user_id, ['size' => 200]);
-$display_name = $current_user->display_name;
-$user_login = $current_user->user_login;
+// Enqueue assets
+if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
+	apollo_enqueue_global_assets();
+}
+
+$current_user  = wp_get_current_user();
+$user_id       = $current_user->ID;
+$avatar_url    = get_avatar_url( $user_id, array( 'size' => 200 ) );
+$display_name  = $current_user->display_name;
+$user_login    = $current_user->user_login;
+$user_initials = strtoupper( substr( $display_name, 0, 2 ) );
+
+// User meta
+$user_bio         = get_user_meta( $user_id, 'description', true ) ?: 'Conectando eventos, comunidades e dados da cena eletrônica do Rio.';
+$user_location    = get_user_meta( $user_id, 'user_location', true ) ?: 'Rio de Janeiro';
+$membership_level = get_user_meta( $user_id, 'membership_level', true ) ?: 'clubber';
+
+// Stats (placeholder - replace with actual queries)
+$stats = array(
+	'producer'  => 3,
+	'favorited' => 11,
+	'posts'     => 5,
+	'comments'  => 37,
+	'liked'     => 26,
+);
+
+// Membership labels
+$membership_labels = array(
+	'clubber'  => 'Clubber',
+	'dj'       => 'DJ',
+	'producer' => 'Producer',
+	'promoter' => 'Promoter',
+);
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-white">
+<html lang="pt-BR" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <title>Apollo :: Perfil Social</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Remix Icons -->
-  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-  <!-- Motion.dev -->
-  <script src="https://unpkg.com/@motionone/dom/dist/motion-one.umd.js"></script>
-  <style>
-    .aprioEXP-body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif; }
-    .aprioEXP-card-shell { border-radius: 0.75rem; border: 1px solid rgba(148, 163, 184, 0.4); background-color: rgba(255, 255, 255, 0.9); box-shadow: 0 14px 40px rgba(15, 23, 42, 0.09); backdrop-filter: blur(10px); }
-    .aprioEXP-metric-chip { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 999px; background: #f3f4f6; padding: 0.1rem 0.55rem; font-size: 0.7rem; color: #4b5563; white-space: nowrap; }
-    .aprioEXP-badge-private { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; background: #02061799; color: #f9fafb; }
-    .aprioEXP-badge-public { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 999px; padding: 0.15rem 0.55rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; background: #ecfdf3; color: #15803d; }
-    .aprioEXP-tab-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.75rem; font-weight: 500; color: #6b7280; border: none; background: transparent; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
-    .aprioEXP-tab-btn:hover { background-color: #e5e7eb; color: #111827; }
-    .aprioEXP-tab-btn[data-active="true"] { background: #02061799; backdrop-filter: blur(6px); color: #f9fafb; font-weight: 300; box-shadow: 0 10px 44px rgba(15, 23, 42, 0.03); filter: brightness(1.3); }
-    .bg-slate-90099 { background: #02061799; }
-    .bg-slate-90099:hover { background: #020617CC; transform: translateY(-2px); transition: all ease-in-out 0.35s; }
-    .sidebar-shell { background: #f9fafb; border-right: 1px solid #e5e7eb; }
-    /* aprioEXP Custom CSS */
-    .aprioEXP-profile-header-row { display: flex; flex-direction: column; gap: 1rem; }
-    @media (min-width: 768px) { .aprioEXP-profile-header-row { flex-direction: row; align-items: center; } }
-    .aprioEXP-user-data-section { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
-    @media (min-width: 768px) { .aprioEXP-user-data-section { width: 60%; } }
-    .aprioEXP-stats-section { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%; }
-    @media (min-width: 768px) { .aprioEXP-stats-section { width: 40%; align-items: flex-end; } }
-    .aprioEXP-cards-container { display: flex; flex-wrap: wrap; gap: 0.5rem; width: 100%; }
-    @media (min-width: 768px) { .aprioEXP-cards-container { justify-content: flex-end; } }
-    .aprioEXP-stat-card { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 0.5rem; background-color: #f1f5f9; padding: 0.15rem 0.35rem; min-width: 3rem; width: fit-content; }
-    .aprioEXP-card-numbers-title { font-size: 8px; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; }
-    .aprioEXP-card-numbers-numbers { font-size: 12px; font-weight: 500; color: #0f172a; }
-    .aprioEXP-card-numbers-listing { font-size: 9.5px; font-weight: 600; text-align: center; line-height: 1.2; color: #334155; }
-    .aprioEXP-edit-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; border-radius: 0.375rem; border: 1px solid #e2e8f0; background-color: white; padding: 0.375rem 0.75rem; font-size: 11px; font-weight: 500; color: #334155; width: 100%; cursor: pointer; transition: background-color 0.2s; }
-    .aprioEXP-edit-btn:hover { background-color: #f8fafc; }
-    @media (min-width: 768px) { .aprioEXP-edit-btn { width: auto; } }
-  </style>
+	<meta charset="UTF-8">
+	<title>Apollo :: Perfil Social</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<!-- UNI.CSS -->
+	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+	<script src="https://assets.apollo.rio.br/base.js" defer></script>
+	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
 </head>
-<body class="h-full bg-slate-50 text-slate-900">
-<section class="aprioEXP-body">
- <div class="min-h-screen flex flex-col">
-  <!-- Top header -->
-  <header class="h-14 flex items-center justify-between border-b bg-white/80 backdrop-blur px-3 md:px-6">
-   <div class="flex items-center gap-3">
-    <button class="inline-flex h-8 w-8 items-center justify-center menutags bg-slate-90099 text-white">
-     <i class="ri-slack-line text-[18px]"></i>
-    </button>
-    <div class="flex flex-col">
-     <span class="text-[10px] uppercase tracking-[0.12em] text-slate-400">Rede Social CULTURAl Carioca</span>
-     <span class="text-sm font-semibold">@<?php echo esc_html($user_login); ?> · Apollo::rio</span>
-    </div>
-   </div>
-   <div class="flex items-center gap-2 text-[11px]">
-    <a href="/clubber/<?php echo $user_id; ?>" class="hidden md:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50" >
-     <i class="ri-eye-line text-xs"></i> <span>Ver como visitante</span>
-    </a>
-    <a href="#" class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 font-medium text-white" >
-     <i class="ri-external-link-line text-xs"></i> <span>Abrir página pública</span>
-    </a>
-    <button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
-     <div class="h-7 w-7 overflow-hidden rounded-full bg-slate-200">
-      <img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($display_name); ?>" class="h-full w-full object-cover" />
-     </div>
-    </button>
-   </div>
-  </header>
-  <!-- Main -->
-  <main class="flex-1 flex justify-center px-3 md:px-6 py-4 md:py-6">
-   <div class="w-full max-w-6xl grid lg:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)] gap-4">
-    <!-- LEFT COLUMN: Profile + Tabs -->
-    <div class="space-y-4">
-     <!-- Profile card -->
-     <section class="aprioEXP-card-shell p-4 md:p-5">
-      <div class="aprioEXP-profile-header-row">
-       <!-- USER DATA SECTION -->
-       <div class="aprioEXP-user-data-section">
-        <div class="relative shrink-0">
-         <div class="h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-full bg-gradient-to-tr from-orange-500 via-rose-500 to-amber-400 aspect-square">
-          <img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar" class="h-full w-full object-cover mix-blend-luminosity" />
-         </div>
-         <span class="absolute bottom-0 right-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] text-white ring-2 ring-white z-10" >
-          <i class="ri-flashlight-fill"></i>
-         </span>
-        </div>
-        <div class="min-w-0">
-         <div class="flex flex-wrap items-center gap-2">
-          <h1 class="truncate text-base md:text-lg font-semibold"><?php echo esc_html($display_name); ?> · Apollo::rio</h1>
-          <span class="aprioEXP-metric-chip"> <i class="ri-music-2-line text-xs"></i> <span>Produtor &amp; DJ</span> </span>
-         </div>
-         <p class="mt-1 text-[11px] md:text-[12px] text-slate-600 line-clamp-2">
-          Conectando eventos, comunidades e dados da cena eletrônica do Rio.
-         </p>
-         <div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-[11px] text-slate-500">
-          <span class="aprioEXP-metric-chip"> <i class="ri-map-pin-line text-xs"></i> Copacabana · RJ </span>
-          <span class="aprioEXP-metric-chip"> <i class="ri-vip-crown-2-line text-xs"></i> Industry access </span>
-          <span class="aprioEXP-metric-chip"> <i class="ri-group-line text-xs"></i> 3 núcleos · 8 comunidades </span>
-         </div>
-        </div>
-       </div>
-       <!-- STATS SECTION -->
-       <div class="aprioEXP-stats-section">
-        <div class="aprioEXP-cards-container">
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Producer</span> <span class="aprioEXP-card-numbers-numbers">3</span> </div>
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Favoritado</span> <span class="aprioEXP-card-numbers-numbers">11</span> </div>
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Posts</span> <span class="aprioEXP-card-numbers-numbers">5</span> </div>
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Comments</span> <span class="aprioEXP-card-numbers-numbers">37</span> </div>
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Liked</span> <span class="aprioEXP-card-numbers-numbers">26</span> </div>
-         <div class="aprioEXP-stat-card"> <span class="aprioEXP-card-numbers-title">Memberships</span> <span class="aprioEXP-card-numbers-listing"> DJ ◦ Producer<br/>Hostess ◦ Apollo </span> </div>
-        </div>
-        <button class="aprioEXP-edit-btn"> <i class="ri-pencil-line text-xs"></i> <span>Editar perfil interno</span> </button>
-       </div>
-      </div>
-     </section>
-     <!-- Tabs + content -->
-     <section class="aprioEXP-card-shell p-3 md:p-4">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
-       <div class="flex flex-wrap gap-1 md:gap-2" role="tablist" aria-label="Navegação do perfil">
-        <button class="aprioEXP-tab-btn" type="button" data-tab-target="events" data-active="true" role="tab" aria-selected="true" > <i class="ri-heart-3-line text-[13px]"></i> <span>Eventos favoritos</span> </button>
-        <button class="aprioEXP-tab-btn" type="button" data-tab-target="metrics" role="tab" aria-selected="false" > <i class="ri-bar-chart-2-line text-[13px]"></i> <span>Meus números</span> </button>
-        <button class="aprioEXP-tab-btn" type="button" data-tab-target="nucleo" role="tab" aria-selected="false" > <i class="ri-lock-2-line text-[13px]"></i> <span>Núcleo (privado)</span> </button>
-        <button class="aprioEXP-tab-btn" type="button" data-tab-target="communities" role="tab" aria-selected="false" > <i class="ri-community-line text-[13px]"></i> <span>Comunidades</span> </button>
-        <button class="aprioEXP-tab-btn" type="button" data-tab-target="docs" role="tab" aria-selected="false" > <i class="ri-file-text-line text-[13px]"></i> <span>Documentos</span> </button>
-       </div>
-       <div class="flex items-center gap-2 text-[11px] text-slate-500">
-        <span class="hidden sm:inline">Fluxo interno Apollo Social</span>
-        <span class="h-4 w-px bg-slate-200"></span>
-        <span class="aprioEXP-metric-chip"> <i class="ri-shining-fill text-[12px]"></i> <span>Motion tabs</span> </span>
-       </div>
-      </div>
-      <div class="mt-3 space-y-4">
-       <!-- TAB: Eventos favoritos -->
-       <div data-tab-panel="events" role="tabpanel" class="space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-         <div class="flex-1">
-          <h2 class="text-sm font-semibold">Eventos favoritados</h2>
-          <p class="text-[12px] text-slate-600"> Eventos que você marcou como <b>Ir</b>, <b>Talvez</b> ou salvou para acompanhar. </p>
-         </div>
-         <button class="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 hover:bg-slate-50" > <i class="ri-filter-3-line text-xs"></i> <span>Filtrar por data</span> </button>
-        </div>
-        <div class="grid gap-3 md:grid-cols-2 text-[12px]">
-         <!-- Event 1 -->
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div class="flex items-start justify-between gap-2">
-           <div> <h3 class="text-sm font-semibold">Dismantle · Puro Suco do Caos</h3> <p class="text-[11px] text-slate-600">Copacabana · 22:00 · sexta</p> <p class="mt-1 text-[11px] text-slate-600 line-clamp-2"> Noite longa de techno, house e caos carioca, hosted by Valle &amp; amigxs. </p> </div>
-           <div class="flex flex-col items-end text-[11px]"> <span class="rounded-md bg-slate-90099 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white" > Ir </span> <span class="mt-1 text-slate-500">+143 pessoas</span> </div>
-          </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
-           <div class="flex flex-wrap items-center gap-2"> <span class="aprioEXP-metric-chip"> <i class="ri-moon-clear-line text-xs"></i> After cadastrado </span> <span class="aprioEXP-metric-chip"> <i class="ri-map-pin-2-line text-xs"></i> Copacabana </span> </div>
-           <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-external-link-line text-xs"></i> <span>Ver evento</span> </button>
-          </div>
-         </article>
-         <!-- Event 2 -->
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div class="flex items-start justify-between gap-2">
-           <div> <h3 class="text-sm font-semibold">Afters em Botafogo · Apollo edition</h3> <p class="text-[11px] text-slate-600">Botafogo · 04:30 · domingo</p> <p class="mt-1 text-[11px] text-slate-600 line-clamp-2"> Pós-festa com grooves mais leves, disco, house e encontros improváveis. </p> </div>
-           <div class="flex flex-col items-end text-[11px]"> <span class="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-900" > Talvez </span> <span class="mt-1 text-slate-500">+57 pessoas</span> </div>
-          </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
-           <div class="flex flex-wrap items-center gap-2"> <span class="aprioEXP-metric-chip"> <i class="ri-vip-diamond-line text-xs"></i> Lista amiga </span> <span class="aprioEXP-metric-chip"> <i class="ri-route-line text-xs"></i> A 800m de você </span> </div>
-           <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-external-link-line text-xs"></i> <span>Ver evento</span> </button>
-          </div>
-         </article>
-        </div>
-       </div>
-       <!-- TAB: Meus números -->
-       <div data-tab-panel="metrics" role="tabpanel" class="hidden space-y-3">
-        <div class="flex items-center justify-center h-32 text-slate-400 text-sm">
-         <p>Dados de performance sendo calculados...</p>
-        </div>
-       </div>
-       <!-- TAB: Núcleo (privado) -->
-       <div data-tab-panel="nucleo" role="tabpanel" class="hidden space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-         <div class="flex-1"> <h2 class="text-sm font-semibold">Núcleos privados</h2> <p class="text-[12px] text-slate-600"> Espaços de trabalho e coordenação fechados, visíveis apenas para quem tem convite. </p> </div>
-         <div class="flex flex-wrap gap-2 text-[11px]"> <button class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 font-medium text-white" > <i class="ri-team-line text-xs"></i> <span>Criar novo núcleo</span> </button> <button class="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" > <i class="ri-shield-keyhole-line text-xs"></i> <span>Gerenciar acessos</span> </button> </div>
-        </div>
-        <div class="grid gap-3 md:grid-cols-2 text-[12px]">
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div class="flex items-start justify-between gap-2"> <div> <div class="flex items-center gap-2 mb-1"> <h3 class="text-sm font-semibold">Núcleo Cena::rio</h3> <span class="aprioEXP-badge-private"> <i class="ri-lock-2-line text-[11px]"></i> Privado </span> </div> <p class="text-slate-600 text-[11px] line-clamp-2"> Registro vivo da cena eletrônica carioca, curadoria de eventos e dados. </p> </div> <div class="text-[11px] text-slate-500 text-right"> <p>12 membros</p> <p>3 eventos ativos</p> </div> </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500"> <div class="flex flex-wrap items-center gap-2"> <span class="aprioEXP-metric-chip"> <i class="ri-database-2-line text-xs"></i> Registro::rio sync </span> <span class="aprioEXP-metric-chip"> <i class="ri-bar-chart-grouped-line text-xs"></i> Dashboard ativo </span> </div> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-line text-xs"></i> <span>Entrar no núcleo</span> </button> </div>
-         </article>
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div class="flex items-start justify-between gap-2"> <div> <div class="flex items-center gap-2 mb-1"> <h3 class="text-sm font-semibold">Núcleo Produção &amp; Tech</h3> <span class="aprioEXP-badge-private"> <i class="ri-lock-2-line text-[11px]"></i> Privado </span> </div> <p class="text-slate-600 text-[11px] line-clamp-2"> Automação de planilhas, formulários, Gestor Apollo e integrações. </p> </div> <div class="text-[11px] text-slate-500 text-right"> <p>7 membros</p> <p>2 projetos abertos</p> </div> </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500"> <div class="flex flex-wrap items-center gap-2"> <span class="aprioEXP-metric-chip"> <i class="ri-code-s-slash-line text-xs"></i> Stack Apollo </span> <span class="aprioEXP-metric-chip"> <i class="ri-folder-2-line text-xs"></i> Docs internos </span> </div> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-line text-xs"></i> <span>Abrir board</span> </button> </div>
-         </article>
-        </div>
-       </div>
-       <!-- TAB: Comunidades -->
-       <div data-tab-panel="communities" role="tabpanel" class="hidden space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-         <div class="flex-1"> <h2 class="text-sm font-semibold">Comunidades públicas</h2> <p class="text-[12px] text-slate-600"> Grupos abertos para a cena, onde qualquer pessoa pode participar ou seguir. </p> </div> <button class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 text-[11px] font-medium text-white" > <i class="ri-community-line text-xs"></i> <span>Criar nova comunidade</span> </button>
-        </div>
-        <div class="grid gap-3 md:grid-cols-3 text-[12px]">
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div> <div class="flex items-center gap-2 mb-1"> <h3 class="text-sm font-semibold">Tropicalis :: RJ</h3> <span class="aprioEXP-badge-public"> <i class="ri-sun-line text-[11px]"></i> Aberta </span> </div> <p class="text-slate-600 text-[11px] line-clamp-2"> Guia vivo de festas eletrônicas do Rio, com cupons, reviews e achados. </p> </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500"> <span>943 membros · 27 eventos listados</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-line text-xs"></i> <span>Ver comunidade</span> </button> </div>
-         </article>
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div> <div class="flex items-center gap-2 mb-1"> <h3 class="text-sm font-semibold">After Lovers · Zona Sul</h3> <span class="aprioEXP-badge-public"> <i class="ri-sparkling-2-line text-[11px]"></i> Aberta </span> </div> <p class="text-slate-600 text-[11px] line-clamp-2"> Encontros, afters e rolês de pista estendida pela madrugada. </p> </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500"> <span>312 membros · 8 afters ativos</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-line text-xs"></i> <span>Ver comunidade</span> </button> </div>
-         </article>
-         <article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
-          <div> <div class="flex items-center gap-2 mb-1"> <h3 class="text-sm font-semibold">Produtores &amp; DJs BR</h3> <span class="aprioEXP-badge-public"> <i class="ri-global-line text-[11px]"></i> Aberta </span> </div> <p class="text-slate-600 text-[11px] line-clamp-2"> Fórum de discussão sobre produção musical, equipamentos e mercado. </p> </div>
-          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500"> <span>1.2k membros · 15 tópicos hoje</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-line text-xs"></i> <span>Ver comunidade</span> </button> </div>
-         </article>
-        </div>
-       </div>
-       <!-- TAB: Documentos -->
-       <div data-tab-panel="docs" role="tabpanel" class="hidden space-y-3">
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-         <div class="flex-1"> <h2 class="text-sm font-semibold">Documentos para assinar ou criar</h2> <p class="text-[12px] text-slate-600"> Fluxo rápido para contratos de DJ, staff, núcleos e parcerias de eventos. </p> </div> <div class="flex flex-wrap gap-2 text-[11px]"> <button class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 font-medium text-white" > <i class="ri-file-add-line text-xs"></i> <span>Novo documento</span> </button> <button class="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" > <i class="ri-ink-bottle-line text-xs"></i> <span>Assinar .doc em fila</span> </button> </div>
-        </div>
-        <div class="grid gap-3 md:grid-cols-3 text-[12px]">
-         <article class="aprioEXP-card-shell p-3">
-          <div class="flex items-start justify-between gap-2 mb-1"> <span class="font-semibold">Contrato DJ · Dismantle</span> <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-900" > <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"></span> Pendente </span> </div>
-          <p class="text-slate-600 text-[11px] mb-2 line-clamp-2"> Instrumento de prestação de serviços para set principal · 04h de duração, Copacabana. </p>
-          <div class="flex items-center justify-between text-[11px] text-slate-500"> <span>Última atualização: hoje · 13:22</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-edit-box-line text-xs"></i> <span>Revisar</span> </button> </div>
-         </article>
-         <article class="aprioEXP-card-shell p-3">
-          <div class="flex items-start justify-between gap-2 mb-1"> <span class="font-semibold">Acordo Núcleo Cena::rio</span> <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900" > <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Assinado </span> </div>
-          <p class="text-slate-600 text-[11px] mb-2 line-clamp-2"> Termos internos de coordenação do núcleo de curadoria e registro da cena. </p>
-          <div class="flex items-center justify-between text-[11px] text-slate-500"> <span>Assinado: 03/11/2025</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-download-2-line text-xs"></i> <span>Baixar PDF</span> </button> </div>
-         </article>
-         <article class="aprioEXP-card-shell p-3">
-          <div class="flex items-start justify-between gap-2 mb-1"> <span class="font-semibold">Ficha técnica · Staff</span> <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700" > Rascunho </span> </div>
-          <p class="text-slate-600 text-[11px] mb-2 line-clamp-2"> Formulário para mapear funções, horários e pagamentos da equipe de apoio. </p>
-          <div class="flex items-center justify-between text-[11px] text-slate-500"> <span>Rascunho salvo: 28/10/2025</span> <button class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100" > <i class="ri-arrow-right-up-line text-xs"></i> <span>Abrir ficha</span> </button> </div>
-         </article>
-        </div>
-       </div>
-      </div>
-     </section>
-    </div>
-    <!-- RIGHT COLUMN: Sidebar (Restored) -->
-    <div class="space-y-4">
-     <!-- Resumo rápido Card -->
-     <section class="aprioEXP-card-shell p-4">
-      <h3 class="text-sm font-semibold mb-3">Resumo rápido</h3>
-      <ul class="space-y-3 text-[12px] text-slate-600">
-       <li class="flex gap-2"> <i class="ri-calendar-event-line text-slate-400 mt-0.5"></i> <div> <span class="block font-medium text-slate-900">Próximo compromisso</span> <span>Dismantle · Copacabana · sexta, 22:00</span> </div> </li>
-       <li class="flex gap-2"> <i class="ri-file-text-line text-slate-400 mt-0.5"></i> <div> <span class="block font-medium text-slate-900">Docs pendentes</span> <span>1 contrato DJ · 2 fichas staff</span> </div> </li>
-       <li class="flex gap-2"> <i class="ri-message-3-line text-slate-400 mt-0.5"></i> <div> <span class="block font-medium text-slate-900">Mensagens não lidas</span> <span>4 conversas</span> </div> </li>
-      </ul>
-      <button class="mt-4 w-full flex items-center justify-center gap-2 rounded-md bg-slate-90099 py-2 text-[11px] font-medium text-white transition-colors"> <span>Abrir Gestor Apollo</span> <i class="ri-arrow-right-line"></i> </button>
-     </section>
-     <!-- Status social Card -->
-     <section class="aprioEXP-card-shell p-4">
-      <h3 class="text-sm font-semibold mb-3">Status social</h3>
-      <div class="space-y-3 text-[12px]">
-       <div> <p class="font-medium text-slate-900 mb-1">Núcleos ativos</p> <div class="flex flex-wrap gap-1"> <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">Cena::rio</span> <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">Produção & Tech</span> <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-600">Tropicalis Core</span> </div> </div>
-       <div> <p class="font-medium text-slate-900 mb-1">Comunidades em destaque</p> <div class="flex flex-wrap gap-1"> <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700 border border-emerald-100">Tropicalis :: RJ</span> <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-purple-700 border border-purple-100">After Lovers</span> <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-blue-700 border border-blue-100">Produtores & DJs BR</span> </div> </div>
-      </div>
-     </section>
-    </div>
-   </div>
-  </main>
- </div>
- <script>
-  // Simple Tab Logic
-  document.addEventListener("DOMContentLoaded", () => {
-   const tabs = document.querySelectorAll('[role="tab"]');
-   const panels = document.querySelectorAll('[role="tabpanel"]');
-   tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-     // Deselect all
-     tabs.forEach((t) => { t.setAttribute("aria-selected", "false"); t.setAttribute("data-active", "false"); });
-     panels.forEach((p) => p.classList.add("hidden"));
-     // Select clicked
-     tab.setAttribute("aria-selected", "true");
-     tab.setAttribute("data-active", "true");
-     const target = tab.getAttribute("data-tab-target");
-     document.querySelector(`[data-tab-panel="${target}"]`).classList.remove("hidden");
-    });
-   });
-  });
- </script>
-</section>
+<body class="ap-body">
+<div class="ap-page ap-page-profile">
+	
+	<!-- Top Header -->
+	<header class="ap-header ap-header-sticky">
+		<div class="ap-container ap-flex ap-flex-between ap-flex-center-v">
+			<div class="ap-flex ap-gap-3 ap-flex-center-v">
+				<a href="<?php echo esc_url( home_url() ); ?>" 
+					class="ap-btn ap-btn-icon" 
+					style="background: var(--ap-orange-500); color: white;"
+					data-ap-tooltip="Voltar ao início">
+					<i class="ri-slack-line"></i>
+				</a>
+				<div>
+					<span class="ap-text-xs ap-text-muted ap-text-uppercase">Rede Social Cultural Carioca</span>
+					<span class="ap-text-sm ap-text-bold">@<?php echo esc_html( $user_login ); ?> · Apollo::rio</span>
+				</div>
+			</div>
+			
+			<div class="ap-flex ap-gap-2 ap-flex-center-v">
+				<a href="<?php echo esc_url( home_url( '/id/' . $user_login ) ); ?>" 
+					class="ap-btn ap-btn-outline ap-btn-sm ap-hide-mobile"
+					data-ap-tooltip="Ver como outros usuários veem seu perfil">
+					<i class="ri-eye-line"></i>
+					<span>Ver como visitante</span>
+				</a>
+				<a href="<?php echo esc_url( home_url( '/id/' . $user_login ) ); ?>" 
+					class="ap-btn ap-btn-primary ap-btn-sm"
+					data-ap-tooltip="Abrir sua página pública">
+					<i class="ri-external-link-line"></i>
+					<span>Página pública</span>
+				</a>
+				<div class="ap-avatar ap-avatar-sm" data-ap-tooltip="<?php echo esc_attr( $display_name ); ?>">
+					<img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $display_name ); ?>">
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Main Content -->
+	<main class="ap-main">
+		<div class="ap-container">
+			<div class="ap-grid ap-grid-sidebar">
+				
+				<!-- Left Column: Profile + Tabs -->
+				<div class="ap-col-main">
+					
+					<!-- Profile Card -->
+					<section class="ap-card ap-card-profile ap-mb-4">
+						<div class="ap-card-body">
+							<div class="ap-profile-header">
+								<!-- User Info -->
+								<div class="ap-profile-user">
+									<div class="ap-avatar ap-avatar-xl ap-avatar-gradient">
+										<img src="<?php echo esc_url( $avatar_url ); ?>" alt="Avatar">
+										<span class="ap-avatar-badge ap-badge-success" data-ap-tooltip="Perfil verificado">
+											<i class="ri-flashlight-fill"></i>
+										</span>
+									</div>
+									<div class="ap-profile-info">
+										<div class="ap-flex ap-gap-2 ap-flex-center-v ap-flex-wrap">
+											<h1 class="ap-heading-4"><?php echo esc_html( $display_name ); ?></h1>
+											<span class="ap-badge ap-badge-muted">
+												<i class="ri-music-2-line"></i>
+												<?php echo esc_html( $membership_labels[ $membership_level ] ?? 'Clubber' ); ?>
+											</span>
+										</div>
+										<p class="ap-text-sm ap-text-muted ap-mt-1"><?php echo esc_html( $user_bio ); ?></p>
+										<div class="ap-flex ap-gap-2 ap-flex-wrap ap-mt-2">
+											<span class="ap-chip">
+												<i class="ri-map-pin-line"></i>
+												<?php echo esc_html( $user_location ); ?>
+											</span>
+											<span class="ap-chip">
+												<i class="ri-vip-crown-2-line"></i>
+												Industry access
+											</span>
+											<span class="ap-chip">
+												<i class="ri-group-line"></i>
+												3 núcleos · 8 comunidades
+											</span>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Stats -->
+								<div class="ap-profile-stats">
+									<div class="ap-stats-grid">
+										<?php foreach ( $stats as $key => $value ) : ?>
+										<div class="ap-stat-mini" data-ap-tooltip="Total de <?php echo esc_attr( $key ); ?>">
+											<span class="ap-stat-label"><?php echo esc_html( ucfirst( $key ) ); ?></span>
+											<span class="ap-stat-value"><?php echo esc_html( $value ); ?></span>
+										</div>
+										<?php endforeach; ?>
+									</div>
+									<a href="<?php echo esc_url( home_url( '/painel/editar' ) ); ?>" 
+										class="ap-btn ap-btn-outline ap-btn-sm ap-btn-block ap-mt-3"
+										data-ap-tooltip="Editar informações do perfil">
+										<i class="ri-pencil-line"></i>
+										Editar perfil
+									</a>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<!-- Tabs Section -->
+					<section class="ap-card">
+						<div class="ap-card-body">
+							<!-- Tab Navigation -->
+							<div class="ap-tabs-header">
+								<div class="ap-tabs-nav" role="tablist">
+									<button class="ap-tab active" data-tab-target="events" role="tab" aria-selected="true" data-ap-tooltip="Eventos que você favoritou">
+										<i class="ri-heart-3-line"></i>
+										<span>Favoritos</span>
+									</button>
+									<button class="ap-tab" data-tab-target="metrics" role="tab" data-ap-tooltip="Suas métricas de atividade">
+										<i class="ri-bar-chart-2-line"></i>
+										<span>Métricas</span>
+									</button>
+									<button class="ap-tab" data-tab-target="nucleo" role="tab" data-ap-tooltip="Grupos privados que você participa">
+										<i class="ri-lock-2-line"></i>
+										<span>Núcleos</span>
+									</button>
+									<button class="ap-tab" data-tab-target="communities" role="tab" data-ap-tooltip="Comunidades públicas">
+										<i class="ri-community-line"></i>
+										<span>Comunidades</span>
+									</button>
+									<button class="ap-tab" data-tab-target="docs" role="tab" data-ap-tooltip="Documentos e contratos">
+										<i class="ri-file-text-line"></i>
+										<span>Documentos</span>
+									</button>
+								</div>
+							</div>
+
+							<!-- Tab Panels -->
+							<div class="ap-tabs-content ap-mt-4">
+								
+								<!-- Events Tab -->
+								<div class="ap-tab-panel active" data-tab-panel="events" role="tabpanel">
+									<div class="ap-section-header ap-mb-3">
+										<div>
+											<h2 class="ap-heading-5">Eventos favoritados</h2>
+											<p class="ap-text-sm ap-text-muted">Eventos marcados como <strong>Ir</strong>, <strong>Talvez</strong> ou salvos.</p>
+										</div>
+										<button class="ap-btn ap-btn-outline ap-btn-sm" data-ap-tooltip="Filtrar eventos por data">
+											<i class="ri-filter-3-line"></i>
+											Filtrar
+										</button>
+									</div>
+									
+									<div class="ap-grid ap-grid-2 ap-gap-3">
+										<!-- Event Card 1 -->
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2">
+													<div>
+														<h3 class="ap-card-title">Dismantle · Puro Suco do Caos</h3>
+														<p class="ap-text-xs ap-text-muted">Copacabana · 22:00 · sexta</p>
+														<p class="ap-text-sm ap-text-muted ap-mt-1">Noite longa de techno, house e caos carioca.</p>
+													</div>
+													<div class="ap-text-right">
+														<span class="ap-badge ap-badge-primary">Ir</span>
+														<p class="ap-text-xs ap-text-muted ap-mt-1">+143 pessoas</p>
+													</div>
+												</div>
+												<div class="ap-card-footer ap-mt-3">
+													<div class="ap-flex ap-gap-2">
+														<span class="ap-chip ap-chip-sm">
+															<i class="ri-moon-clear-line"></i> After
+														</span>
+														<span class="ap-chip ap-chip-sm">
+															<i class="ri-map-pin-2-line"></i> Copacabana
+														</span>
+													</div>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Ver detalhes do evento">
+														<i class="ri-external-link-line"></i>
+														Ver
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<!-- Event Card 2 -->
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2">
+													<div>
+														<h3 class="ap-card-title">Afters em Botafogo · Apollo</h3>
+														<p class="ap-text-xs ap-text-muted">Botafogo · 04:30 · domingo</p>
+														<p class="ap-text-sm ap-text-muted ap-mt-1">Pós-festa com grooves leves, disco e house.</p>
+													</div>
+													<div class="ap-text-right">
+														<span class="ap-badge ap-badge-warning">Talvez</span>
+														<p class="ap-text-xs ap-text-muted ap-mt-1">+57 pessoas</p>
+													</div>
+												</div>
+												<div class="ap-card-footer ap-mt-3">
+													<div class="ap-flex ap-gap-2">
+														<span class="ap-chip ap-chip-sm">
+															<i class="ri-vip-diamond-line"></i> Lista amiga
+														</span>
+													</div>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Ver detalhes do evento">
+														<i class="ri-external-link-line"></i>
+														Ver
+													</a>
+												</div>
+											</div>
+										</article>
+									</div>
+								</div>
+
+								<!-- Metrics Tab -->
+								<div class="ap-tab-panel" data-tab-panel="metrics" role="tabpanel">
+									<div class="ap-empty-state">
+										<i class="ri-bar-chart-2-line"></i>
+										<h3>Métricas em desenvolvimento</h3>
+										<p>Seus dados de performance estão sendo calculados...</p>
+									</div>
+								</div>
+
+								<!-- Nucleos Tab -->
+								<div class="ap-tab-panel" data-tab-panel="nucleo" role="tabpanel">
+									<div class="ap-section-header ap-mb-3">
+										<div>
+											<h2 class="ap-heading-5">Núcleos privados</h2>
+											<p class="ap-text-sm ap-text-muted">Espaços de trabalho fechados, visíveis apenas para convidados.</p>
+										</div>
+										<div class="ap-flex ap-gap-2">
+											<button class="ap-btn ap-btn-primary ap-btn-sm" data-ap-tooltip="Criar um novo núcleo privado">
+												<i class="ri-team-line"></i>
+												Criar núcleo
+											</button>
+											<button class="ap-btn ap-btn-outline ap-btn-sm" data-ap-tooltip="Gerenciar permissões">
+												<i class="ri-shield-keyhole-line"></i>
+												Acessos
+											</button>
+										</div>
+									</div>
+
+									<div class="ap-grid ap-grid-2 ap-gap-3">
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2">
+													<div>
+														<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
+															<h3 class="ap-card-title">Núcleo Cena::rio</h3>
+															<span class="ap-badge ap-badge-dark">
+																<i class="ri-lock-2-line"></i> Privado
+															</span>
+														</div>
+														<p class="ap-text-sm ap-text-muted">Registro vivo da cena eletrônica carioca.</p>
+													</div>
+													<div class="ap-text-right ap-text-xs ap-text-muted">
+														<p>12 membros</p>
+														<p>3 eventos</p>
+													</div>
+												</div>
+												<div class="ap-card-footer ap-mt-3">
+													<div class="ap-flex ap-gap-2">
+														<span class="ap-chip ap-chip-sm">
+															<i class="ri-database-2-line"></i> Sync
+														</span>
+													</div>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Entrar no núcleo">
+														<i class="ri-arrow-right-line"></i>
+														Entrar
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2">
+													<div>
+														<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
+															<h3 class="ap-card-title">Produção & Tech</h3>
+															<span class="ap-badge ap-badge-dark">
+																<i class="ri-lock-2-line"></i> Privado
+															</span>
+														</div>
+														<p class="ap-text-sm ap-text-muted">Automação e integrações Apollo.</p>
+													</div>
+													<div class="ap-text-right ap-text-xs ap-text-muted">
+														<p>7 membros</p>
+														<p>2 projetos</p>
+													</div>
+												</div>
+												<div class="ap-card-footer ap-mt-3">
+													<div class="ap-flex ap-gap-2">
+														<span class="ap-chip ap-chip-sm">
+															<i class="ri-code-s-slash-line"></i> Stack
+														</span>
+													</div>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Abrir board">
+														<i class="ri-arrow-right-line"></i>
+														Board
+													</a>
+												</div>
+											</div>
+										</article>
+									</div>
+								</div>
+
+								<!-- Communities Tab -->
+								<div class="ap-tab-panel" data-tab-panel="communities" role="tabpanel">
+									<div class="ap-section-header ap-mb-3">
+										<div>
+											<h2 class="ap-heading-5">Comunidades públicas</h2>
+											<p class="ap-text-sm ap-text-muted">Grupos abertos para a cena.</p>
+										</div>
+										<button class="ap-btn ap-btn-primary ap-btn-sm" data-ap-tooltip="Criar uma nova comunidade">
+											<i class="ri-community-line"></i>
+											Nova comunidade
+										</button>
+									</div>
+
+									<div class="ap-grid ap-grid-3 ap-gap-3">
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
+													<h3 class="ap-card-title">Tropicalis :: RJ</h3>
+													<span class="ap-badge ap-badge-success">
+														<i class="ri-sun-line"></i> Aberta
+													</span>
+												</div>
+												<p class="ap-text-sm ap-text-muted">Guia vivo de festas eletrônicas do Rio.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">943 membros</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Ver comunidade">
+														<i class="ri-arrow-right-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
+													<h3 class="ap-card-title">After Lovers</h3>
+													<span class="ap-badge ap-badge-success">
+														<i class="ri-sparkling-2-line"></i> Aberta
+													</span>
+												</div>
+												<p class="ap-text-sm ap-text-muted">Afters e rolês pela madrugada.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">312 membros</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Ver comunidade">
+														<i class="ri-arrow-right-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
+													<h3 class="ap-card-title">Produtores BR</h3>
+													<span class="ap-badge ap-badge-success">
+														<i class="ri-global-line"></i> Aberta
+													</span>
+												</div>
+												<p class="ap-text-sm ap-text-muted">Fórum sobre produção musical.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">1.2k membros</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Ver comunidade">
+														<i class="ri-arrow-right-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+									</div>
+								</div>
+
+								<!-- Documents Tab -->
+								<div class="ap-tab-panel" data-tab-panel="docs" role="tabpanel">
+									<div class="ap-section-header ap-mb-3">
+										<div>
+											<h2 class="ap-heading-5">Documentos</h2>
+											<p class="ap-text-sm ap-text-muted">Contratos de DJ, staff, núcleos e parcerias.</p>
+										</div>
+										<div class="ap-flex ap-gap-2">
+											<button class="ap-btn ap-btn-primary ap-btn-sm" data-ap-tooltip="Criar novo documento">
+												<i class="ri-file-add-line"></i>
+												Novo
+											</button>
+											<button class="ap-btn ap-btn-outline ap-btn-sm" data-ap-tooltip="Ver documentos pendentes de assinatura">
+												<i class="ri-ink-bottle-line"></i>
+												Assinar
+											</button>
+										</div>
+									</div>
+
+									<div class="ap-grid ap-grid-3 ap-gap-3">
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
+													<h3 class="ap-card-title ap-text-sm">Contrato DJ · Dismantle</h3>
+													<span class="ap-badge ap-badge-warning">Pendente</span>
+												</div>
+												<p class="ap-text-xs ap-text-muted">Prestação de serviços para set principal.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">Atualizado: hoje</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Revisar documento">
+														<i class="ri-edit-box-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
+													<h3 class="ap-card-title ap-text-sm">Acordo Núcleo Cena::rio</h3>
+													<span class="ap-badge ap-badge-success">Assinado</span>
+												</div>
+												<p class="ap-text-xs ap-text-muted">Termos internos de coordenação.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">03/11/2025</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Baixar PDF">
+														<i class="ri-download-2-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+
+										<article class="ap-card ap-card-hover">
+											<div class="ap-card-body">
+												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
+													<h3 class="ap-card-title ap-text-sm">Ficha técnica · Staff</h3>
+													<span class="ap-badge ap-badge-secondary">Rascunho</span>
+												</div>
+												<p class="ap-text-xs ap-text-muted">Formulário de funções e horários.</p>
+												<div class="ap-card-footer ap-mt-3">
+													<span class="ap-text-xs ap-text-muted">28/10/2025</span>
+													<a href="#" class="ap-btn ap-btn-ghost ap-btn-sm" data-ap-tooltip="Abrir ficha">
+														<i class="ri-arrow-right-up-line"></i>
+													</a>
+												</div>
+											</div>
+										</article>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+
+				<!-- Right Sidebar -->
+				<aside class="ap-col-sidebar">
+					<!-- Quick Summary -->
+					<section class="ap-card ap-mb-4">
+						<div class="ap-card-body">
+							<h3 class="ap-heading-5 ap-mb-3">Resumo rápido</h3>
+							<ul class="ap-list ap-list-icon">
+								<li>
+									<i class="ri-calendar-event-line ap-text-muted"></i>
+									<div>
+										<span class="ap-text-sm ap-text-bold">Próximo compromisso</span>
+										<span class="ap-text-xs ap-text-muted ap-block">Dismantle · sexta, 22:00</span>
+									</div>
+								</li>
+								<li>
+									<i class="ri-file-text-line ap-text-muted"></i>
+									<div>
+										<span class="ap-text-sm ap-text-bold">Docs pendentes</span>
+										<span class="ap-text-xs ap-text-muted ap-block">1 contrato · 2 fichas</span>
+									</div>
+								</li>
+								<li>
+									<i class="ri-message-3-line ap-text-muted"></i>
+									<div>
+										<span class="ap-text-sm ap-text-bold">Mensagens</span>
+										<span class="ap-text-xs ap-text-muted ap-block">4 não lidas</span>
+									</div>
+								</li>
+							</ul>
+							<a href="<?php echo esc_url( home_url( '/gestor' ) ); ?>" 
+								class="ap-btn ap-btn-primary ap-btn-block ap-mt-3"
+								data-ap-tooltip="Abrir o Gestor Apollo">
+								Abrir Gestor Apollo
+								<i class="ri-arrow-right-line"></i>
+							</a>
+						</div>
+					</section>
+
+					<!-- Social Status -->
+					<section class="ap-card">
+						<div class="ap-card-body">
+							<h3 class="ap-heading-5 ap-mb-3">Status social</h3>
+							
+							<div class="ap-mb-3">
+								<p class="ap-text-sm ap-text-bold ap-mb-1">Núcleos ativos</p>
+								<div class="ap-flex ap-gap-1 ap-flex-wrap">
+									<span class="ap-chip ap-chip-sm">Cena::rio</span>
+									<span class="ap-chip ap-chip-sm">Produção & Tech</span>
+									<span class="ap-chip ap-chip-sm">Tropicalis Core</span>
+								</div>
+							</div>
+							
+							<div>
+								<p class="ap-text-sm ap-text-bold ap-mb-1">Comunidades em destaque</p>
+								<div class="ap-flex ap-gap-1 ap-flex-wrap">
+									<span class="ap-chip ap-chip-sm ap-chip-success">Tropicalis :: RJ</span>
+									<span class="ap-chip ap-chip-sm" style="background: #f3e8ff; color: #7c3aed;">After Lovers</span>
+									<span class="ap-chip ap-chip-sm ap-chip-info">Produtores BR</span>
+								</div>
+							</div>
+						</div>
+					</section>
+				</aside>
+			</div>
+		</div>
+	</main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	// Tab functionality
+	const tabs = document.querySelectorAll('[role="tab"]');
+	const panels = document.querySelectorAll('[role="tabpanel"]');
+	
+	tabs.forEach(tab => {
+		tab.addEventListener('click', function() {
+			// Deactivate all tabs
+			tabs.forEach(t => {
+				t.classList.remove('active');
+				t.setAttribute('aria-selected', 'false');
+			});
+			
+			// Hide all panels
+			panels.forEach(p => p.classList.remove('active'));
+			
+			// Activate clicked tab
+			this.classList.add('active');
+			this.setAttribute('aria-selected', 'true');
+			
+			// Show corresponding panel
+			const target = this.getAttribute('data-tab-target');
+			const panel = document.querySelector(`[data-tab-panel="${target}"]`);
+			if (panel) panel.classList.add('active');
+		});
+	});
+});
+</script>
+
+<style>
+/* Profile-specific extensions */
+.ap-page-profile .ap-main {
+	padding: 24px 0;
+}
+
+.ap-profile-header {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+	.ap-profile-header {
+		flex-direction: row;
+		align-items: flex-start;
+	}
+}
+
+.ap-profile-user {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	flex: 1;
+}
+
+.ap-profile-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.ap-profile-stats {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+	.ap-profile-stats {
+		align-items: flex-end;
+	}
+}
+
+.ap-stats-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.ap-stat-mini {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0.25rem 0.5rem;
+	background: var(--ap-bg-muted);
+	border-radius: var(--ap-radius-md);
+	min-width: 3rem;
+}
+
+.ap-stat-label {
+	font-size: 8px;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var(--ap-text-muted);
+}
+
+.ap-stat-value {
+	font-size: var(--ap-text-sm);
+	font-weight: 600;
+	color: var(--ap-text-primary);
+}
+
+.ap-avatar-gradient {
+	background: linear-gradient(135deg, var(--ap-orange-500), #ec4899, #f59e0b);
+}
+
+.ap-avatar-gradient img {
+	mix-blend-mode: luminosity;
+}
+
+.ap-avatar-badge {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	border: 2px solid white;
+}
+
+.ap-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.15rem 0.55rem;
+	border-radius: var(--ap-radius-full);
+	background: var(--ap-bg-muted);
+	font-size: var(--ap-text-xs);
+	color: var(--ap-text-secondary);
+}
+
+.ap-chip-sm {
+	font-size: 10px;
+	padding: 0.1rem 0.4rem;
+}
+
+.ap-chip-success {
+	background: var(--ap-color-success-bg);
+	color: var(--ap-color-success);
+}
+
+.ap-chip-info {
+	background: var(--ap-color-info-bg);
+	color: var(--ap-color-info);
+}
+
+/* Sidebar grid */
+.ap-grid-sidebar {
+	display: grid;
+	gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+	.ap-grid-sidebar {
+		grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
+	}
+}
+
+.ap-col-main {
+	min-width: 0;
+}
+
+.ap-col-sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+/* Tabs */
+.ap-tabs-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	border-bottom: 1px solid var(--ap-border-light);
+	padding-bottom: 0.75rem;
+}
+
+.ap-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.4rem 0.8rem;
+	border-radius: var(--ap-radius-full);
+	font-size: var(--ap-text-xs);
+	font-weight: 500;
+	color: var(--ap-text-muted);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	transition: var(--ap-transition-fast);
+}
+
+.ap-tab:hover {
+	background: var(--ap-bg-muted);
+	color: var(--ap-text-primary);
+}
+
+.ap-tab.active {
+	background: var(--ap-orange-500);
+	color: white;
+}
+
+.ap-tab-panel {
+	display: none;
+}
+
+.ap-tab-panel.active {
+	display: block;
+}
+
+/* List with icons */
+.ap-list-icon {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.ap-list-icon li {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.ap-list-icon li > i {
+	margin-top: 0.25rem;
+}
+
+/* Section header */
+.ap-section-header {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+	.ap-section-header {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+}
+
+/* Card footer */
+.ap-card-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--ap-border-light);
+}
+</style>
 </body>
 </html>
-

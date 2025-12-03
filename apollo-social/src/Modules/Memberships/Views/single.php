@@ -12,4 +12,3 @@
 // 3. Display union info, members, benefits
 // 4. Show badge toggle settings (for admins)
 // 5. Render using Canvas Mode layout
-?>

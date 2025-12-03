@@ -2,9 +2,9 @@
 declare(strict_types=1);
 /**
  * Apollo PDF Export Handler
- * 
+ *
  * Handles AJAX requests for PDF generation from the document editor.
- * 
+ *
  * @package Apollo\Ajax
  * @since 1.0.0
  */
@@ -12,11 +12,11 @@ declare(strict_types=1);
 namespace Apollo\Ajax;
 
 // Load PdfGenerator if not already loaded
-if (!class_exists('Apollo\\Modules\\Documents\\PdfGenerator')) {
-    $pdf_generator_path = dirname(__DIR__) . '/Modules/Documents/PdfGenerator.php';
-    if (file_exists($pdf_generator_path)) {
-        require_once $pdf_generator_path;
-    }
+if ( ! class_exists( 'Apollo\\Modules\\Documents\\PdfGenerator' ) ) {
+	$pdf_generator_path = dirname( __DIR__ ) . '/Modules/Documents/PdfGenerator.php';
+	if ( file_exists( $pdf_generator_path ) ) {
+		require_once $pdf_generator_path;
+	}
 }
 
 use Apollo\Modules\Documents\PdfGenerator;
@@ -24,180 +24,197 @@ use Apollo\Modules\Documents\PdfGenerator;
 /**
  * PDF Export AJAX Handler
  */
-class PdfExportHandler
-{
-    /** @var string AJAX action name */
-    private const ACTION = 'apollo_export_pdf';
-    
-    /** @var string Nonce action */
-    private const NONCE_ACTION = 'apollo_editor_image_upload';
-    
-    /**
-     * Constructor - registers AJAX handlers
-     */
-    public function __construct()
-    {
-        add_action('wp_ajax_' . self::ACTION, [$this, 'handleExport']);
-        add_action('wp_ajax_nopriv_' . self::ACTION, [$this, 'handleUnauthorized']);
-    }
-    
-    /**
-     * Static initializer (alternative)
-     */
-    public static function init(): void
-    {
-        new self();
-    }
-    
-    /**
-     * Handle PDF export request
-     */
-    public function handleExport(): void
-    {
-        // Verify nonce
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(
-            sanitize_text_field(wp_unslash($_POST['nonce'])),
-            self::NONCE_ACTION
-        )) {
-            wp_send_json_error([
-                'message' => __('Token de segurança inválido.', 'apollo-social'),
-            ], 403);
-        }
-        
-        // Check user capability
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error([
-                'message' => __('Você não tem permissão para esta ação.', 'apollo-social'),
-            ], 403);
-        }
-        
-        // Get parameters
-        $document_id = isset($_POST['document_id']) ? intval($_POST['document_id']) : 0;
-        $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : 'Documento';
-        $content = isset($_POST['content']) ? wp_kses_post(wp_unslash($_POST['content'])) : '';
-        
-        if (empty($content)) {
-            wp_send_json_error([
-                'message' => __('Conteúdo do documento está vazio.', 'apollo-social'),
-            ], 400);
-        }
-        
-        // Initialize PDF Generator
-        $pdf_generator = new PdfGenerator();
-        
-        // Check available libraries
-        $libraries = $pdf_generator->getAvailableLibraries();
-        
-        if (empty($libraries)) {
-            // Return HTML download link as fallback
-            $html_url = self::saveAsHtml($content, $title);
-            
-            wp_send_json_success([
-                'pdf_url' => null,
-                'html_url' => $html_url,
-                'message' => __('Nenhuma biblioteca PDF disponível. Use a versão HTML.', 'apollo-social'),
-                'fallback' => true,
-            ]);
-        }
-        
-        // Generate filename
-        $filename = sanitize_file_name($title) ?: 'documento';
-        $filename .= '_' . date('Ymd_His');
-        
-        // Prepare HTML with styles
-        $styled_html = self::prepareStyledHtml($content, $title);
-        
-        // Generate PDF
-        $pdf_path = $pdf_generator->generateFromHtml($styled_html, $filename, [
-            'title' => $title,
-            'author' => wp_get_current_user()->display_name,
-        ]);
-        
-        if (!$pdf_path) {
-            wp_send_json_error([
-                'message' => $pdf_generator->getLastError() ?: __('Erro ao gerar PDF.', 'apollo-social'),
-            ], 500);
-        }
-        
-        // Get URL
-        $pdf_url = $pdf_generator->getUrl($pdf_path);
-        
-        // Update document record if exists
-        if ($document_id > 0) {
-            global $wpdb;
-            $table = $wpdb->prefix . 'apollo_documents';
-            
-            $relative_path = str_replace(ABSPATH, '/', $pdf_path);
-            
-            $wpdb->update(
-                $table,
-                [
-                    'pdf_path' => $relative_path,
-                    'status' => 'ready',
-                ],
-                ['id' => $document_id],
-                ['%s', '%s'],
-                ['%d']
-            );
-        }
-        
-        wp_send_json_success([
-            'pdf_url' => $pdf_url,
-            'pdf_path' => $pdf_path,
-            'library' => $pdf_generator->getLibraryUsed(),
-            'message' => __('PDF gerado com sucesso!', 'apollo-social'),
-        ]);
-    }
-    
-    /**
-     * Handle unauthorized requests
-     */
-    public function handleUnauthorized(): void
-    {
-        wp_send_json_error([
-            'message' => __('Você precisa estar logado para exportar PDFs.', 'apollo-social'),
-        ], 401);
-    }
-    
-    /**
-     * Save content as HTML file (fallback)
-     * 
-     * @param string $content HTML content
-     * @param string $title Document title
-     * @return string URL to HTML file
-     */
-    private static function saveAsHtml(string $content, string $title): string
-    {
-        $upload_dir = wp_upload_dir();
-        $output_dir = $upload_dir['basedir'] . '/apollo-documents/html/';
-        
-        if (!file_exists($output_dir)) {
-            wp_mkdir_p($output_dir);
-        }
-        
-        $filename = sanitize_file_name($title) . '_' . date('Ymd_His') . '.html';
-        $filepath = $output_dir . $filename;
-        
-        $full_html = self::prepareStyledHtml($content, $title);
-        
-        file_put_contents($filepath, $full_html);
-        
-        return str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $filepath);
-    }
-    
-    /**
-     * Prepare HTML with embedded styles for PDF/HTML export
-     * 
-     * @param string $content Raw HTML content
-     * @param string $title Document title
-     * @return string Complete styled HTML
-     */
-    private static function prepareStyledHtml(string $content, string $title): string
-    {
-        $date = date_i18n('d/m/Y H:i');
-        $author = wp_get_current_user()->display_name;
-        
-        return <<<HTML
+class PdfExportHandler {
+
+	/** @var string AJAX action name */
+	private const ACTION = 'apollo_export_pdf';
+
+	/** @var string Nonce action */
+	private const NONCE_ACTION = 'apollo_editor_image_upload';
+
+	/**
+	 * Constructor - registers AJAX handlers
+	 */
+	public function __construct() {
+		add_action( 'wp_ajax_' . self::ACTION, array( $this, 'handleExport' ) );
+		add_action( 'wp_ajax_nopriv_' . self::ACTION, array( $this, 'handleUnauthorized' ) );
+	}
+
+	/**
+	 * Static initializer (alternative)
+	 */
+	public static function init(): void {
+		new self();
+	}
+
+	/**
+	 * Handle PDF export request
+	 */
+	public function handleExport(): void {
+		// Verify nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce(
+			sanitize_text_field( wp_unslash( $_POST['nonce'] ) ),
+			self::NONCE_ACTION
+		) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Token de segurança inválido.', 'apollo-social' ),
+				),
+				403
+			);
+		}
+
+		// Check user capability
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Você não tem permissão para esta ação.', 'apollo-social' ),
+				),
+				403
+			);
+		}
+
+		// Get parameters
+		$document_id = isset( $_POST['document_id'] ) ? intval( $_POST['document_id'] ) : 0;
+		$title       = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : 'Documento';
+		$content     = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
+
+		if ( empty( $content ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Conteúdo do documento está vazio.', 'apollo-social' ),
+				),
+				400
+			);
+		}
+
+		// Initialize PDF Generator
+		$pdf_generator = new PdfGenerator();
+
+		// Check available libraries
+		$libraries = $pdf_generator->getAvailableLibraries();
+
+		if ( empty( $libraries ) ) {
+			// Return HTML download link as fallback
+			$html_url = self::saveAsHtml( $content, $title );
+
+			wp_send_json_success(
+				array(
+					'pdf_url'  => null,
+					'html_url' => $html_url,
+					'message'  => __( 'Nenhuma biblioteca PDF disponível. Use a versão HTML.', 'apollo-social' ),
+					'fallback' => true,
+				)
+			);
+		}
+
+		// Generate filename
+		$filename  = sanitize_file_name( $title ) ?: 'documento';
+		$filename .= '_' . date( 'Ymd_His' );
+
+		// Prepare HTML with styles
+		$styled_html = self::prepareStyledHtml( $content, $title );
+
+		// Generate PDF
+		$pdf_path = $pdf_generator->generateFromHtml(
+			$styled_html,
+			$filename,
+			array(
+				'title'  => $title,
+				'author' => wp_get_current_user()->display_name,
+			)
+		);
+
+		if ( ! $pdf_path ) {
+			wp_send_json_error(
+				array(
+					'message' => $pdf_generator->getLastError() ?: __( 'Erro ao gerar PDF.', 'apollo-social' ),
+				),
+				500
+			);
+		}
+
+		// Get URL
+		$pdf_url = $pdf_generator->getUrl( $pdf_path );
+
+		// Update document record if exists
+		if ( $document_id > 0 ) {
+			global $wpdb;
+			$table = $wpdb->prefix . 'apollo_documents';
+
+			$relative_path = str_replace( ABSPATH, '/', $pdf_path );
+
+			$wpdb->update(
+				$table,
+				array(
+					'pdf_path' => $relative_path,
+					'status'   => 'ready',
+				),
+				array( 'id' => $document_id ),
+				array( '%s', '%s' ),
+				array( '%d' )
+			);
+		}
+
+		wp_send_json_success(
+			array(
+				'pdf_url'  => $pdf_url,
+				'pdf_path' => $pdf_path,
+				'library'  => $pdf_generator->getLibraryUsed(),
+				'message'  => __( 'PDF gerado com sucesso!', 'apollo-social' ),
+			)
+		);
+	}
+
+	/**
+	 * Handle unauthorized requests
+	 */
+	public function handleUnauthorized(): void {
+		wp_send_json_error(
+			array(
+				'message' => __( 'Você precisa estar logado para exportar PDFs.', 'apollo-social' ),
+			),
+			401
+		);
+	}
+
+	/**
+	 * Save content as HTML file (fallback)
+	 *
+	 * @param string $content HTML content
+	 * @param string $title Document title
+	 * @return string URL to HTML file
+	 */
+	private static function saveAsHtml( string $content, string $title ): string {
+		$upload_dir = wp_upload_dir();
+		$output_dir = $upload_dir['basedir'] . '/apollo-documents/html/';
+
+		if ( ! file_exists( $output_dir ) ) {
+			wp_mkdir_p( $output_dir );
+		}
+
+		$filename = sanitize_file_name( $title ) . '_' . date( 'Ymd_His' ) . '.html';
+		$filepath = $output_dir . $filename;
+
+		$full_html = self::prepareStyledHtml( $content, $title );
+
+		file_put_contents( $filepath, $full_html );
+
+		return str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $filepath );
+	}
+
+	/**
+	 * Prepare HTML with embedded styles for PDF/HTML export
+	 *
+	 * @param string $content Raw HTML content
+	 * @param string $title Document title
+	 * @return string Complete styled HTML
+	 */
+	private static function prepareStyledHtml( string $content, string $title ): string {
+		$date   = date_i18n( 'd/m/Y H:i' );
+		$author = wp_get_current_user()->display_name;
+
+		return <<<HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -385,9 +402,8 @@ class PdfExportHandler
 </body>
 </html>
 HTML;
-    }
+	}
 }
 
 // Initialize the handler when file is loaded
 new PdfExportHandler();
-

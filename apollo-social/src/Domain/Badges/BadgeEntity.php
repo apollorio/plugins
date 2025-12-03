@@ -7,41 +7,39 @@ namespace Apollo\Domain\Badges;
  * Represents a badge/achievement in the system.
  * TODO: Define badge properties, award criteria and display logic.
  */
-class BadgeEntity
-{
-    /**
-     * Badge ID
-     * TODO: implement property and getters/setters
-     */
-    protected $id;
+class BadgeEntity {
 
-    /**
-     * Badge slug
-     * TODO: implement property and URL generation
-     */
-    protected $slug;
+	/**
+	 * Badge ID
+	 * TODO: implement property and getters/setters
+	 */
+	protected $id;
 
-    /**
-     * Award criteria
-     * TODO: implement criteria definition and checking
-     */
-    protected $criteria;
+	/**
+	 * Badge slug
+	 * TODO: implement property and URL generation
+	 */
+	protected $slug;
 
-    /**
-     * Check if user has this badge
-     * TODO: implement badge ownership checking
-     */
-    public function isAwardedTo($user)
-    {
-        // TODO: implement badge ownership checking logic
-    }
+	/**
+	 * Award criteria
+	 * TODO: implement criteria definition and checking
+	 */
+	protected $criteria;
 
-    /**
-     * Award badge to user
-     * TODO: implement badge awarding logic
-     */
-    public function awardTo($user, $reason = '')
-    {
-        // TODO: implement badge awarding logic
-    }
+	/**
+	 * Check if user has this badge
+	 * TODO: implement badge ownership checking
+	 */
+	public function isAwardedTo( $user ) {
+		// TODO: implement badge ownership checking logic
+	}
+
+	/**
+	 * Award badge to user
+	 * TODO: implement badge awarding logic
+	 */
+	public function awardTo( $user, $reason = '' ) {
+		// TODO: implement badge awarding logic
+	}
 }

@@ -7,47 +7,45 @@ namespace Apollo\Domain\Groups;
  * Represents invitations to join groups.
  * TODO: Define invitation properties, expiry and approval workflow.
  */
-class Invitation
-{
-    /**
-     * Invitation ID
-     * TODO: implement property and getters/setters
-     */
-    protected $id;
+class Invitation {
 
-    /**
-     * Target group
-     * TODO: implement group association
-     */
-    protected $group;
+	/**
+	 * Invitation ID
+	 * TODO: implement property and getters/setters
+	 */
+	protected $id;
 
-    /**
-     * Invited user
-     * TODO: implement user association
-     */
-    protected $user;
+	/**
+	 * Target group
+	 * TODO: implement group association
+	 */
+	protected $group;
 
-    /**
-     * Invitation status
-     * TODO: implement status tracking (pending, accepted, declined, expired)
-     */
-    protected $status;
+	/**
+	 * Invited user
+	 * TODO: implement user association
+	 */
+	protected $user;
 
-    /**
-     * Check if invitation is valid
-     * TODO: implement validity checking (expiry, status)
-     */
-    public function isValid()
-    {
-        // TODO: implement validation logic
-    }
+	/**
+	 * Invitation status
+	 * TODO: implement status tracking (pending, accepted, declined, expired)
+	 */
+	protected $status;
 
-    /**
-     * Accept invitation
-     * TODO: implement acceptance logic
-     */
-    public function accept()
-    {
-        // TODO: implement acceptance logic
-    }
+	/**
+	 * Check if invitation is valid
+	 * TODO: implement validity checking (expiry, status)
+	 */
+	public function isValid() {
+		// TODO: implement validation logic
+	}
+
+	/**
+	 * Accept invitation
+	 * TODO: implement acceptance logic
+	 */
+	public function accept() {
+		// TODO: implement acceptance logic
+	}
 }

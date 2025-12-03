@@ -2,43 +2,39 @@
 
 namespace Apollo\Modules\Pwa;
 
-class PwaServiceProvider
-{
-    public function register(): void
-    {
-        add_action('wp_enqueue_scripts', [$this, 'enqueue']);
-        add_action('wp_head', [$this, 'addManifestLink']);
-    }
+class PwaServiceProvider {
 
-    public function enqueue(): void
-    {
-        $pluginFile = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
-        $swUrl = plugins_url('public/service-worker.js', $pluginFile);
+	public function register(): void {
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
+		add_action( 'wp_head', array( $this, 'addManifestLink' ) );
+	}
 
-        wp_register_script(
-            'apollo-social-pwa',
-            '',
-            [],
-            APOLLO_SOCIAL_VERSION,
-            true
-        );
+	public function enqueue(): void {
+		$pluginFile = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
+		$swUrl      = plugins_url( 'public/service-worker.js', $pluginFile );
 
-        wp_enqueue_script('apollo-social-pwa');
+		wp_register_script(
+			'apollo-social-pwa',
+			'',
+			array(),
+			APOLLO_SOCIAL_VERSION,
+			true
+		);
 
-        $inline = sprintf(
-            "if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('%s').catch(function (error) { console.debug('Apollo SW', error); }); }); }",
-            esc_url_raw($swUrl)
-        );
+		wp_enqueue_script( 'apollo-social-pwa' );
 
-        wp_add_inline_script('apollo-social-pwa', $inline);
-    }
+		$inline = sprintf(
+			"if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('%s').catch(function (error) { console.debug('Apollo SW', error); }); }); }",
+			esc_url_raw( $swUrl )
+		);
 
-    public function addManifestLink(): void
-    {
-        $pluginFile = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
-        $manifestUrl = plugins_url('public/manifest.webmanifest', $pluginFile);
+		wp_add_inline_script( 'apollo-social-pwa', $inline );
+	}
 
-        echo '<link rel="manifest" href="' . esc_url($manifestUrl) . '" />' . "\n";
-    }
+	public function addManifestLink(): void {
+		$pluginFile  = APOLLO_SOCIAL_PLUGIN_DIR . 'apollo-social.php';
+		$manifestUrl = plugins_url( 'public/manifest.webmanifest', $pluginFile );
+
+		echo '<link rel="manifest" href="' . esc_url( $manifestUrl ) . '" />' . "\n";
+	}
 }
-
