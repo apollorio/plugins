@@ -1,7 +1,22 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: COMMUNITIES/GROUPS LISTING
+PHP: templates/shortcode-communities.php | Shortcode: [apollo_communities]
+
+@BLOCKS: HEADER, SIDEBAR, COMMUNITIES_GRID, HERO_BANNER, CATEGORIES
+@WIDGETS: SEARCH_BAR, FILTER_TABS, CREATE_COMMUNITY_BTN, CATEGORY_CHIPS
+@CARDS: COMMUNITY_CARD (with cover, avatar, members_count, category)
+@LAYOUTS: 3-COLUMN (sidebar-main-aside) + RESPONSIVE GRID
+
+PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
+          $search_term, $user_communities[], $featured_communities[]
+================================================================================
+-->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
   <meta charset="UTF-8" />
+  <!-- @PHP: wp_title() -->
   <title>Apollo :: Comunidades</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
@@ -29,7 +44,7 @@
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
 
   <!-- Remixicon (fallback) -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <!-- Extra font for cards -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

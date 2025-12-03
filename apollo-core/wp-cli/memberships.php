@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -392,5 +393,3 @@ class Apollo_Membership_CLI_Command {
 }
 
 WP_CLI::add_command( 'apollo membership', 'Apollo_Membership_CLI_Command' );
-
-

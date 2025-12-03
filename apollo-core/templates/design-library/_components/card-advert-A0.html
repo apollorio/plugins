@@ -1,0 +1,271 @@
+<!--
+================================================================================
+COMPONENT: ADVERT CARD (A0)
+================================================================================
+REQUIRES: https://assets.apollo.rio.br/uni.css + https://assets.apollo.rio.br/base.js
+
+USAGE: Classifieds/Marketplace listings
+VARIANTS: Grid view (default), List view
+CATEGORIES: tickets, bedroom, equipment, services
+
+PHP FILE: apollo-social/templates/classifieds/parts/card-advert.php
+SHORTCODE CONTEXT: [apollo_classifieds]
+
+@PHP VARS:
+  - $advert_id (post ID)
+  - $advert_title (post_title)
+  - $author_id, $author_name, $author_initials
+  - $event_title, $event_date, $event_venue (if ticket)
+  - $price, $price_unit (/unid, /mês, /dia, /evento)
+  - $quantity_label (e.g., "2x ingressos", "1 quarto")
+  - $category (tickets|bedroom|equipment|services)
+  - $image_url (thumbnail)
+  - $permalink
+
+CLASSES UNI.CSS:
+  .ap-advert-card, .ap-advert-body, .ap-advert-top
+  .ap-advert-author, .ap-advert-author-info, .ap-advert-label, .ap-advert-author-name
+  .ap-advert-event, .ap-advert-event-info, .ap-advert-event-title, .ap-advert-event-meta
+  .ap-advert-image, .ap-advert-category-badge
+  .ap-advert-info, .ap-advert-quantity, .ap-advert-price
+  .ap-price-currency, .ap-price-value, .ap-price-unit
+  .ap-advert-footer, .ap-advert-btn, .ap-advert-btn-primary, .ap-advert-btn-secondary
+
+BADGE MODIFIERS:
+  (default orange) - Tickets
+  .ap-badge-bedroom - Pink (#ec4899)
+  .ap-badge-equipment - Green (#22c55e)
+  .ap-badge-service - Blue (#3b82f6)
+
+================================================================================
+-->
+
+<!-- ADVERT CARD - Grid View -->
+<a href="#" class="ap-advert-card" data-category="tickets" data-price="150">
+  <div class="ap-advert-body">
+    <!-- @BLOCK: TOP - Author & Context Info -->
+    <div class="ap-advert-top">
+      <!-- @ELEMENT: AUTHOR -->
+      <div class="ap-advert-author">
+        <!-- @PHP: echo apollo_get_avatar($author_id, 32) OR initials fallback -->
+        <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+          <span>JP</span>
+        </div>
+        <div class="ap-advert-author-info">
+          <span class="ap-advert-label">Anúncio de</span>
+          <!-- @PHP: echo esc_html($author_name) -->
+          <span class="ap-advert-author-name">João Paulo</span>
+        </div>
+      </div>
+      
+      <!-- @ELEMENT: EVENT/CONTEXT (for tickets) or ITEM DETAILS -->
+      <div class="ap-advert-event">
+        <div class="ap-advert-event-info">
+          <!-- @PHP: echo esc_html($event_title OR $item_title) -->
+          <span class="ap-advert-event-title">BLOCO DO CAOS</span>
+          <!-- @PHP: echo esc_html($event_date . ' @ ' . $venue_name) OR $item_meta -->
+          <span class="ap-advert-event-meta">15/02 @ Circo Voador</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- @BLOCK: IMAGE -->
+    <div class="ap-advert-image">
+      <!-- @PHP: echo get_the_post_thumbnail($advert_id, 'medium') -->
+      <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" alt="Evento">
+      
+      <!-- @ELEMENT: CATEGORY BADGE -->
+      <!-- @PHP: echo apollo_get_advert_badge($category) -->
+      <span class="ap-advert-category-badge">
+        <i class="ri-ticket-2-fill"></i> Ingresso
+      </span>
+    </div>
+  </div>
+  
+  <!-- @BLOCK: INFO - Price & Quantity -->
+  <div class="ap-advert-info">
+    <div class="ap-advert-quantity">
+      <!-- @PHP: echo apollo_get_quantity_icon($category) -->
+      <i class="ri-ticket-line"></i>
+      <!-- @PHP: echo esc_html($quantity_label) -->
+      <span><b>2x</b> ingressos</span>
+    </div>
+    <div class="ap-advert-price">
+      <span class="ap-price-currency">R$</span>
+      <!-- @PHP: echo number_format($price, 0, ',', '.') -->
+      <span class="ap-price-value">150</span>
+      <!-- @PHP: echo esc_html($price_unit) -->
+      <span class="ap-price-unit">/unid</span>
+    </div>
+  </div>
+  
+  <!-- @BLOCK: FOOTER - Actions -->
+  <div class="ap-advert-footer">
+    <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor">
+      <i class="ri-user-search-line"></i> Investigar
+    </button>
+    <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+      <i class="ri-chat-3-line"></i> Chat
+    </button>
+  </div>
+</a>
+
+<!-- ============================================
+     VARIANT: BEDROOM / FLATSHARE
+     ============================================ -->
+<a href="#" class="ap-advert-card" data-category="bedroom" data-price="1200">
+  <div class="ap-advert-body">
+    <div class="ap-advert-top">
+      <div class="ap-advert-author">
+        <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+          <span>ML</span>
+        </div>
+        <div class="ap-advert-author-info">
+          <span class="ap-advert-label">Anúncio de</span>
+          <span class="ap-advert-author-name">Maria Luiza</span>
+        </div>
+      </div>
+      <div class="ap-advert-event">
+        <div class="ap-advert-event-info">
+          <span class="ap-advert-event-title">República Lapa</span>
+          <span class="ap-advert-event-meta">Centro, Rio de Janeiro</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="ap-advert-image">
+      <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600" alt="Quarto">
+      <span class="ap-advert-category-badge ap-badge-bedroom">
+        <i class="ri-home-heart-fill"></i> Quarto
+      </span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-info">
+    <div class="ap-advert-quantity">
+      <i class="ri-door-open-line"></i>
+      <span><b>1</b> quarto disponível</span>
+    </div>
+    <div class="ap-advert-price">
+      <span class="ap-price-currency">R$</span>
+      <span class="ap-price-value">1.200</span>
+      <span class="ap-price-unit">/mês</span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-footer">
+    <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do anunciante">
+      <i class="ri-user-search-line"></i> Investigar
+    </button>
+    <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+      <i class="ri-chat-3-line"></i> Chat
+    </button>
+  </div>
+</a>
+
+<!-- ============================================
+     VARIANT: EQUIPMENT
+     ============================================ -->
+<a href="#" class="ap-advert-card" data-category="equipment" data-price="350">
+  <div class="ap-advert-body">
+    <div class="ap-advert-top">
+      <div class="ap-advert-author">
+        <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #22c55e, #4ade80);">
+          <span>DJ</span>
+        </div>
+        <div class="ap-advert-author-info">
+          <span class="ap-advert-label">Anúncio de</span>
+          <span class="ap-advert-author-name">DJ Thunder</span>
+        </div>
+      </div>
+      <div class="ap-advert-event">
+        <div class="ap-advert-event-info">
+          <span class="ap-advert-event-title">Pioneer DDJ-400</span>
+          <span class="ap-advert-event-meta">Seminovo, 1 ano de uso</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="ap-advert-image">
+      <img src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600" alt="Equipamento DJ">
+      <span class="ap-advert-category-badge ap-badge-equipment">
+        <i class="ri-sound-module-fill"></i> Equipamento
+      </span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-info">
+    <div class="ap-advert-quantity">
+      <i class="ri-box-3-line"></i>
+      <span>Venda ou <b>Aluguel</b></span>
+    </div>
+    <div class="ap-advert-price">
+      <span class="ap-price-currency">R$</span>
+      <span class="ap-price-value">350</span>
+      <span class="ap-price-unit">/dia</span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-footer">
+    <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor">
+      <i class="ri-user-search-line"></i> Investigar
+    </button>
+    <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+      <i class="ri-chat-3-line"></i> Chat
+    </button>
+  </div>
+</a>
+
+<!-- ============================================
+     VARIANT: SERVICE
+     ============================================ -->
+<a href="#" class="ap-advert-card" data-category="services" data-price="500">
+  <div class="ap-advert-body">
+    <div class="ap-advert-top">
+      <div class="ap-advert-author">
+        <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
+          <span>FS</span>
+        </div>
+        <div class="ap-advert-author-info">
+          <span class="ap-advert-label">Anúncio de</span>
+          <span class="ap-advert-author-name">Felipe Studio</span>
+        </div>
+      </div>
+      <div class="ap-advert-event">
+        <div class="ap-advert-event-info">
+          <span class="ap-advert-event-title">Fotografia de Eventos</span>
+          <span class="ap-advert-event-meta">Profissional, 5 anos exp.</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="ap-advert-image">
+      <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600" alt="Fotografia">
+      <span class="ap-advert-category-badge ap-badge-service">
+        <i class="ri-camera-lens-fill"></i> Serviço
+      </span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-info">
+    <div class="ap-advert-quantity">
+      <i class="ri-camera-line"></i>
+      <span>Cobertura <b>completa</b></span>
+    </div>
+    <div class="ap-advert-price">
+      <span class="ap-price-currency">R$</span>
+      <span class="ap-price-value">500</span>
+      <span class="ap-price-unit">/evento</span>
+    </div>
+  </div>
+  
+  <div class="ap-advert-footer">
+    <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver portfólio">
+      <i class="ri-user-search-line"></i> Investigar
+    </button>
+    <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Solicitar orçamento">
+      <i class="ri-chat-3-line"></i> Chat
+    </button>
+  </div>
+</a>
+

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -48,7 +49,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		);
 
 		// Set enabled capabilities.
-		$settings = apollo_get_default_mod_settings();
+		$settings                                   = apollo_get_default_mod_settings();
 		$settings['enabled_caps']['publish_events'] = true;
 		update_option( 'apollo_mod_settings', $settings );
 	}
@@ -82,7 +83,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		$request->set_param( 'note', 'Approved by test' );
 
 		$response = rest_do_request( $request );
-		$data = $response->get_data();
+		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
@@ -99,7 +100,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		wp_set_current_user( $this->moderator_id );
 
 		// Disable publish_events.
-		$settings = apollo_get_mod_settings();
+		$settings                                   = apollo_get_mod_settings();
 		$settings['enabled_caps']['publish_events'] = false;
 		update_option( 'apollo_mod_settings', $settings );
 
@@ -123,7 +124,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		$request->set_param( 'reason', 'Test suspension' );
 
 		$response = rest_do_request( $request );
-		$data = $response->get_data();
+		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
@@ -160,7 +161,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		$request->set_param( 'reason', 'Test block' );
 
 		$response = rest_do_request( $request );
-		$data = $response->get_data();
+		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
@@ -208,9 +209,9 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		// Check log.
 		$logs = apollo_get_mod_log(
 			array(
-				'action'      => 'suspend_user',
-				'target_id'   => $this->user_id,
-				'limit'       => 1,
+				'action'    => 'suspend_user',
+				'target_id' => $this->user_id,
+				'limit'     => 1,
 			)
 		);
 
@@ -220,4 +221,3 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		$this->assertEquals( $this->admin_id, $logs[0]->actor_id );
 	}
 }
-

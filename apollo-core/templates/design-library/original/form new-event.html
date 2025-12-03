@@ -1,0 +1,921 @@
+<!doctype html>
+<!--
+================================================================================
+APOLLO FORM TEMPLATE: UNIVERSAL CPT FORM DESIGN
+Version: 2.0.0
+Plugin: apollo-core (shared across all CPT plugins)
+
+PURPOSE: BASE DESIGN for ALL post-new.php?post_type=* FRONTEND FORMS
+         This is NOT for login/register (that has its own special design)
+         
+USAGE:
+  - event_listing → Novo Evento
+  - event_dj → Novo DJ  
+  - event_local → Novo Local
+  - apollo_community → Nova Comunidade
+  - apollo_document → Novo Documento
+
+@BLOCKS: FORM_CONTAINER, FORM_HEADER, FORM_BODY, FORM_FOOTER, MODALS
+@WIDGETS: UPLOAD_ZONE, COMBOBOX, CHIPS, TIMETABLE, SLIDER, GALLERY
+@ELEMENTS: TEXT_INPUT, TEXTAREA, SELECT, RICH_EDITOR, BTN, CHIP
+@LAYOUTS: CENTERED_BOX (max-width: 520px, glassmorphism)
+
+PHP INTEGRATION:
+  - Use shortcode [apollo_form post_type="event_listing"]
+  - PHP: templates/forms/form-base.php
+  - Fields loaded dynamically via $form_fields array
+  - Validation via AJAX + PHP class Apollo_Form_Handler
+  
+CSS CLASSES (Generic for UNI.CSS):
+  .ap-form-box       → Main container with glassmorphism
+  .ap-form-title     → Form header title
+  .ap-form-group     → Field wrapper
+  .ap-form-label     → Field label
+  .ap-form-input     → Text/email/url inputs
+  .ap-form-textarea  → Textarea with rich editor option
+  .ap-form-select    → Select dropdown
+  .ap-upload-zone    → File upload dropzone
+  .ap-gallery-grid   → Multiple image upload grid
+  .ap-chips-area     → Tag/category chips container
+  .ap-chip           → Individual chip
+  .ap-combobox       → Searchable dropdown
+  .ap-timetable      → Sortable list (DJs, schedule)
+  .ap-slider-wrap    → Range slider with bubble
+  .ap-modal-overlay  → Modal background
+  .ap-modal-card     → Modal content
+  .ap-btn            → Base button
+  .ap-btn-primary    → Primary action button
+  .ap-btn-ghost      → Secondary/cancel button
+================================================================================
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <!-- @PHP: echo esc_html($form_title) . ' - Apollo'; -->
+  <title>Cena::rio · Novo Evento</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  
+  <!-- @PHP: Use apollo_enqueue_global_assets() instead -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/base.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <!-- Page-specific overrides (will be moved to uni.css or theme) -->
+  <style>
+    :root {
+      /* Palette - Elegant Grays & Orange Accent */
+      --bg: #f5f5f5;
+      --card-bg: rgba(255, 255, 255, 0.65);
+      --accent: #f97316;
+      --accent-soft: rgba(249,115,22,0.08);
+      
+      /* New Gray Scale - Removing Dark Blue */
+      --text: #1a1a1a;        /* Neutral Dark Gray */
+      --text-muted: #737373;  /* Neutral Medium Gray */
+      --text-light: #a3a3a3;  /* Light Gray */
+      
+      --radius-box: 24px;
+      --radius-field: 12px;
+      --radius-pill: 999px;
+      
+      --shadow-soft: 0 20px 40px rgba(0,0,0,0.04);
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      
+      /* Strict Design Rule: Thin Borders */
+      --border-width: 0.5px; 
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      padding: 24px;
+      transition: padding 0.3s ease;
+    }
+
+    /* --- Unified Box Design --- */
+    .box {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border-radius: var(--radius-box);
+      padding: 24px 22px 26px;
+      box-shadow: var(--shadow-soft);
+      border: var(--border-width) solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-radius 0.3s ease, min-height 0.3s ease;
+    }
+    
+    /* Fixed Gradients */
+    .box::before {
+      content: ""; position: absolute; 
+      top: -300px; left: -350px; width: 750px; height: 750px;
+      background: radial-gradient(circle, rgba(255, 160, 122, 0.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .box::after {
+      content: ""; position: absolute; 
+      top: 60%; right: -300px; width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    
+    .box-inner { position: relative; z-index: 1; }
+
+    /* --- Typography --- */
+    .form-title {
+      font-size: 1.4rem; font-weight: 700; letter-spacing:.5px; text-transform: uppercase;margin-left:5px; touch-action:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;
+      color:#1a1a1a80; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    h1 i { color: var(--accent); font-size:2rem; margin-right:5px}
+    
+    h3 {
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      margin: 24px 0 12px 0; display: flex; align-items: center; gap: 6px; color: var(--text-muted);
+    }
+    h3 i { color: var(--accent); }
+
+    /* --- Forms & Inputs --- */
+    .form-group { margin-bottom: 16px; position: relative; }
+    .form-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--text-muted); margin-bottom: 6px; display: block; font-weight: 600;
+    }
+
+    .text-input, textarea, select {
+      width: 100%;
+      border-radius: var(--radius-field);
+      border: var(--border-width) solid var(--border-subtle);
+      background: rgba(255,255,255,0.5);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: .85rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .text-input:focus, textarea:focus, select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); background: #ffffff;
+    }
+    input::placeholder, textarea::placeholder { color: rgba(0, 0, 0, 0.3); font-size: 12.5px; font-weight: 400; }
+
+    /* --- Rich Editor --- */
+    .rich-editor-wrapper {
+      border: var(--border-width) solid var(--border-subtle);
+      border-radius: var(--radius-field);
+      background: rgba(255,255,255,0.5);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .rich-editor-wrapper:focus-within {
+      border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); background: #ffffff;
+    }
+    .toolbar {
+      display: flex; gap: 4px; padding: 8px 12px 6px;
+      border-bottom: 0.5px solid rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.4);
+    }
+    .tool-btn {
+      background: transparent; border: none; border-radius: 4px; padding: 4px; 
+      cursor: pointer; color: var(--text-muted); font-size: 14px; 
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tool-btn:hover { color: var(--accent); background: rgba(255,255,255,0.8); }
+    .rich-editor-wrapper textarea {
+      border: none; border-radius: 0; background: transparent; box-shadow: none; padding: 10px 12px; margin: 0; resize: vertical;
+    }
+    .rich-editor-wrapper textarea:focus { box-shadow: none; border: none; }
+
+    /* --- Combobox --- */
+    .combobox-wrapper { position: relative; flex: 1; }
+    .combobox-dropdown {
+      position: absolute; top: 110%; left: 0; right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border: var(--border-width) solid var(--border-subtle);
+      border-radius: var(--radius-field);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      z-index: 50; max-height: 200px; overflow-y: auto;
+      display: none; padding: 4px;
+    }
+    .combobox-dropdown.active { display: block; }
+    .combobox-option {
+      padding: 8px 12px; font-size: 0.85rem; color: var(--text);
+      border-radius: 6px; cursor: pointer;
+    }
+    .combobox-option:hover { background: var(--accent-soft); color: var(--accent); }
+    .combobox-option.hidden { display: none; }
+
+    /* --- Upload & Gallery --- */
+    .upload-zone {
+      border: 0.7px dashed var(--border-subtle); border-radius: var(--radius-field);
+      background: radial-gradient(circle at 0 100%, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+      padding: 24px; text-align: center; cursor: pointer; margin-bottom: 20px; 
+      position: relative; overflow: hidden; transition: background 0.2s;
+      user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;
+    }
+    .upload-zone:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .upload-icon {
+      color: var(--accent); background: #ffffff; width: 36px; height: 36px; font-size:16px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; border: var(--border-width) solid var(--border-subtle); margin: 0 auto 8px auto;
+    }
+    #previewImg, #previewFooterImg, .modal-preview-img { 
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; 
+    }
+    .upload-text { font-size:11px; color: var(--text-muted); }
+
+    .gallery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .gallery-slot {
+      aspect-ratio: 1; border: 0.7px dashed var(--border-subtle); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      background: rgba(255,255,255,0.3); overflow: hidden; position: relative;
+    }
+    .gallery-slot:hover { border-color: var(--accent); }
+    .gallery-slot i { color: var(--text-muted); font-size: 1.2rem; }
+    .gallery-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+    /* --- Chips --- */
+    .chips-area { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip {
+      padding: 4px 10px; border-radius: var(--radius-pill);
+      background: #fff; border: var(--border-width) solid var(--border-subtle);
+      font-size: 10px; color: var(--text-muted); cursor: pointer;
+      text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .chip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .chip-remove { margin-left: 4px; cursor: pointer; opacity: 0.6; }
+
+    /* --- Timetable --- */
+    .timetable-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .timetable-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.4);
+      border: var(--border-width) solid var(--border-subtle);
+      border-radius: var(--radius-field);
+      padding: 8px;
+    }
+    .drag-arrows { display:flex; flex-direction: column; }
+    .drag-arrows i { font-size: 10px; cursor: pointer; opacity: 0.4; }
+    .drag-arrows i:hover { opacity: 1; color: var(--accent); }
+    .dj-name { flex: 1; font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .time-inputs { display: flex; gap: 4px; align-items: center; }
+    .time-inputs input {
+      width: 55px; padding: 4px; font-size: 0.7rem; border-radius: 6px;
+      border: var(--border-width) solid var(--border-subtle); background: #fff; text-align: center;
+    }
+
+    /* --- Slider --- */
+    .slider-wrap {
+      margin-top: 6px; padding: 10px 12px; border-radius: 18px;
+      background: radial-gradient(circle at 0 0, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
+      border: var(--border-width) solid var(--border-subtle); margin-bottom: 20px;
+    }
+    .slider-rail { position: relative; width: 100%; padding-top: 20px; z-index:2; }
+    .slider-rail::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 15px; height: 4px;
+      border-radius: 999px; background: #e5e5e5;
+    }
+    .slider-fill {
+      position: absolute; left: 0; top: 15px; height: 4px; border-radius: 999px;
+      background: linear-gradient(90deg, #fdba74 0%, #f97316 100%); pointer-events: none;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; background: transparent; position: relative; z-index: 2;
+    }
+    input[type="range"]:focus { outline: none; }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px;
+      border-radius: 999px; background: #ffffff;
+      border: 2px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer; margin-top: -8px; 
+    }
+    .bubble {
+      position: absolute; left: 0; top: 0; transform: translateX(-50%) translateY(-8px);
+      padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.4);
+      border: var(--border-width) solid var(--border-subtle); font-size: .7rem;
+      color: var(--text); white-space: nowrap; pointer-events: none;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .pill {
+      width: 40%; justify-content: center; padding: 6px 10px; border-radius: var(--radius-pill); 
+      background: #fff; border: var(--border-width) solid var(--border-subtle); 
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);
+      touch-action:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;
+    }
+    .pill-row { display: flex; justify-content: space-between; margin-bottom: 14px; }
+    .duration-pill {
+      position:absolute; right:0; top:0; transform:translateY(-13px) translateX(-15px);
+      padding: 2px 10px 4px 12px; border-radius:0 0 4px 4px; background: var(--accent-soft);
+      color: #f97316e0; font-size: 8.5px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .12em; -webkit-backdrop-filter: blur(5px); z-index:-5;
+      touch-action:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;
+    }
+
+    /* --- Modals (Full Page on Mobile) --- */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px); z-index: 999;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-card {
+      background: #FFF; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+      padding: 24px; border-radius: var(--radius-box);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      border: var(--border-width) solid var(--border-subtle);
+    }
+    .modal-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+    .modal-footer { display: flex; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 0.5px dashed var(--border-subtle); }
+
+    /* Action Buttons */
+    .action-row { display: flex; gap: 8px; align-items: flex-start; }
+    .btn-icon-add {
+      width: 38px; height: 38px; border-radius: var(--radius-field);
+      border: var(--border-width) solid var(--border-subtle);
+      background: #fff; color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .btn-icon-add:hover { background: var(--accent); color: #FFF; }
+
+    /* Footer */
+    .form-footer {
+      border-top: 0.5px dashed var(--border-subtle); padding-top: 16px; display: flex; gap: 10px; margin-top: 24px;
+    }
+    .btn {
+      flex: 1; padding: 12px; border-radius: var(--radius-field); font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; border: none;
+    }
+    .btn-ghost { background: transparent; border: var(--border-width) solid var(--border-subtle); color: var(--text-muted); }
+    .btn-ghost:hover { background: #e5e5e5; color: var(--text); }
+    .btn-primary { background: var(--text); color: #FFF; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .btn-primary:hover { background: var(--accent); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+
+    .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .lat-row { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 8px; }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      body { padding: 0; align-items: flex-start; background: #fff; }
+      .box {
+        max-width: 100%; min-height: 100vh; border-radius: 0; border: none; box-shadow: none; padding: 24px 20px 80px 20px;
+      }
+      .box::before, .box::after { position: fixed; }
+      .modal-card { width: 100%; height: 100%; max-height: 100%; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       @BLOCK: FORM_CONTAINER (.ap-form-box)
+       @PHP: templates/forms/form-wrapper.php
+       @VARS: $post_type, $form_title, $form_icon
+       ======================================================================== -->
+  <div class="box">
+    <div class="box-inner">
+    
+      <!-- @ELEMENT: FORM_TITLE (.ap-form-title)
+           @PHP: echo esc_html($form_config['title']); 
+           @ICON: $form_config['icon'] (Phosphor icon class) -->
+      <h1 class="form-title"><i class="ph-fill ph-calendar-plus"></i> Registrar Evento</h1>
+
+      <!-- @BLOCK: FORM_BODY
+           @PHP: do_action('apollo_form_before_fields', $post_type);
+           @LOOP: foreach($form_fields as $field): render_field($field); endforeach; -->
+      <form id="eventForm" onsubmit="event.preventDefault();">
+        
+        <!-- ============================================================
+             @WIDGET: UPLOAD_ZONE (.ap-upload-zone)
+             @PHP: templates/forms/fields/field-featured-image.php
+             @FIELD: _thumbnail_id (WordPress featured image)
+             @JS: Uses WordPress Media Library via wp.media()
+             ============================================================ -->
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <img id="previewImg" src="" alt="" />
+          <div class="upload-content" id="uploadPlaceholder">
+            <div class="upload-icon"><i class="ph ph-camera"></i></div>
+            <div class="upload-text">Capa do Evento (Destaque)</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" onchange="previewFile('fileInput','previewImg')" style="display:none" />
+        </div>
+
+        <!-- ============================================================
+             @FIELD_GROUP: BASIC_INFO
+             @PHP: templates/forms/fields/field-text.php
+             ============================================================ -->
+             
+        <!-- @FIELD: post_title (.ap-form-input) -->
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" class="text-input" id="eventTitle" placeholder="Ex: Sunset Jazz" />
+        </div>
+        
+        <!-- @FIELD: post_content (.ap-form-textarea + .ap-rich-editor)
+             @PHP: templates/forms/fields/field-rich-editor.php -->
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <div class="rich-editor-wrapper">
+            <div class="toolbar">
+              <button type="button" class="tool-btn" onclick="formatText('bold')"><i class="ph-bold ph-text-b"></i></button>
+              <button type="button" class="tool-btn" onclick="formatText('italic')"><i class="ph-bold ph-text-italic"></i></button>
+              <button type="button" class="tool-btn" onclick="insertBullet()"><i class="ph-bold ph-list-bullets"></i></button>
+            </div>
+            <textarea id="eventDesc" rows="3" placeholder="Detalhes do evento..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Vídeo Youtube (Opcional)</label>
+          <input type="url" class="text-input" placeholder="https://youtube.com/..." />
+        </div>
+
+        <!-- ============================================================
+             @FIELD_GROUP: TIME_SCHEDULE (.ap-slider-wrap)
+             @PHP: templates/forms/fields/field-datetime-range.php
+             @FIELDS: _event_start_date, _event_start_time, duration
+             ============================================================ -->
+        <div style="margin-top:24px; margin-bottom: 8px;">
+          <h3>Cronograma <i class="ph ph-clock"></i></h3>
+          <div class="inputs-row">
+            <div class="form-group">
+              <label class="form-label">Data Início</label>
+              <input type="date" class="text-input" id="startDate" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hora Início</label>
+              <input type="time" class="text-input" id="startTime" step="3600" />
+            </div>
+          </div>
+          <div class="slider-wrap">
+            <div class="pill-row">
+              <div class="pill"><span class="pill-label">Início</span><span id="labelStartDay">--/--</span></div>
+              <div class="pill"><span class="pill-label">Término</span><span id="labelEndDay">--/--</span></div>
+            </div>
+            <div class="slider-rail">
+              <div class="slider-fill" id="sliderFill"></div>
+              <div class="bubble" id="bubble">Fim</div>
+              <span class="duration-pill" id="durationLabel">DURAÇÃO</span>
+              <input type="range" id="durationSlider" min="1" max="24" step="1" value="9" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sounds -->
+        <div class="form-group">
+          <label class="form-label">Sons (Gêneros)</label>
+          <div class="combobox-wrapper">
+            <input type="text" class="text-input" placeholder="Buscar gêneros..." oninput="filterCombobox(this)" onfocus="openCombobox(this)" onblur="closeCombobox(this)">
+            <div class="combobox-dropdown" id="soundsDropdown">
+              <div class="combobox-option" onmousedown="selectSound('House', this)">House</div>
+              <div class="combobox-option" onmousedown="selectSound('Techno', this)">Techno</div>
+              <div class="combobox-option" onmousedown="selectSound('Jazz', this)">Jazz</div>
+              <div class="combobox-option" onmousedown="selectSound('MPB', this)">MPB</div>
+              <div class="combobox-option" onmousedown="selectSound('Funk', this)">Funk</div>
+            </div>
+          </div>
+          <div class="chips-area" id="soundsContainer"></div>
+        </div>
+
+        <!-- ============================================================
+             @FIELD_GROUP: DJS_LINEUP (.ap-combobox + .ap-timetable)
+             @PHP: templates/forms/fields/field-relationship-dj.php
+             @FIELD: _event_dj_ids (array of event_dj post IDs)
+             @MODAL: #djModal for creating new DJ inline
+             ============================================================ -->
+        <div class="form-group">
+          <label class="form-label">Line-up (DJs)</label>
+          <div class="action-row">
+            <div class="combobox-wrapper">
+               <!-- @PHP: foreach(get_posts(['post_type'=>'event_dj']) as $dj): -->
+               <input type="text" class="text-input" id="djInput" placeholder="Buscar DJ..." oninput="filterCombobox(this)" onfocus="openCombobox(this)" onblur="closeCombobox(this)">
+               <div class="combobox-dropdown" id="djDropdown">
+                  <!-- @PHP: echo dj options from query -->
+               </div>
+            </div>
+            <button type="button" class="btn-icon-add" onclick="openModal('djModal')" title="Novo DJ"><i class="ph-bold ph-plus"></i></button>
+          </div>
+          <!-- @WIDGET: TIMETABLE (.ap-timetable) - Sortable DJ schedule -->
+          <div class="timetable-list" id="timetableList"></div>
+        </div>
+
+        <!-- ============================================================
+             @FIELD_GROUP: LOCAL (.ap-combobox)
+             @PHP: templates/forms/fields/field-relationship-local.php
+             @FIELD: _event_local_ids (event_local post ID)
+             @MODAL: #localModal for creating new Local inline
+             ============================================================ -->
+        <div class="form-group">
+          <label class="form-label">Local</label>
+          <div class="action-row">
+            <div class="combobox-wrapper">
+               <!-- @PHP: foreach(get_posts(['post_type'=>'event_local']) as $local): -->
+               <input type="text" class="text-input" id="localInput" placeholder="Buscar Local..." oninput="filterCombobox(this)" onfocus="openCombobox(this)" onblur="closeCombobox(this)">
+               <div class="combobox-dropdown" id="localDropdown">
+                  <div class="combobox-option" onmousedown="selectLocal('Fundição Progresso', this)">Fundição Progresso</div>
+                  <div class="combobox-option" onmousedown="selectLocal('Circo Voador', this)">Circo Voador</div>
+                  <div class="combobox-option" onmousedown="selectLocal('Museu do Amanhã', this)">Museu do Amanhã</div>
+                  <div class="combobox-option" onmousedown="selectLocal('other', this)">Outro (Inserir manual)</div>
+               </div>
+            </div>
+            <button type="button" class="btn-icon-add" onclick="openModal('localModal')" title="Novo Local"><i class="ph-bold ph-plus"></i></button>
+          </div>
+        </div>
+
+        <!-- Manual Local Fallback -->
+        <div class="form-group" id="manualLocalGroup" style="display:none; margin-top:8px;">
+          <input type="text" class="text-input" placeholder="Nome do Local" style="margin-bottom:8px;" />
+          <input type="text" class="text-input" placeholder="Endereço Completo (sem CEP)" />
+        </div>
+
+        <div class="inputs-row">
+          <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <select class="text-input"><option>Festa</option><option>Show</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="text-input"><option>Público</option><option>Privado</option></select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <input type="text" class="text-input" placeholder="Ex: Verão, Outdoor, Grátis..." />
+        </div>
+
+        <!-- ============================================================
+             @WIDGET: GALLERY (.ap-gallery-grid)
+             @PHP: templates/forms/fields/field-gallery.php
+             @FIELD: _3_imagens_promo (array of attachment IDs)
+             @MAX: 5 images
+             ============================================================ -->
+        <div class="form-group">
+          <label class="form-label">Galeria (Max 5)</label>
+          <div class="gallery-grid">
+            <div class="gallery-slot" onclick="triggerGallery(0)"><i class="ph ph-plus"></i><img id="gal0" class="gallery-preview"><input type="file" onchange="previewGallery(this,0)" style="display:none"></div>
+            <div class="gallery-slot" onclick="triggerGallery(1)"><i class="ph ph-plus"></i><img id="gal1" class="gallery-preview"><input type="file" onchange="previewGallery(this,1)" style="display:none"></div>
+            <div class="gallery-slot" onclick="triggerGallery(2)"><i class="ph ph-plus"></i><img id="gal2" class="gallery-preview"><input type="file" onchange="previewGallery(this,2)" style="display:none"></div>
+            <div class="gallery-slot" onclick="triggerGallery(3)"><i class="ph ph-plus"></i><img id="gal3" class="gallery-preview"><input type="file" onchange="previewGallery(this,3)" style="display:none"></div>
+            <div class="gallery-slot" onclick="triggerGallery(4)"><i class="ph ph-plus"></i><img id="gal4" class="gallery-preview"><input type="file" onchange="previewGallery(this,4)" style="display:none"></div>
+          </div>
+        </div>
+
+        <!-- Footer Highlight -->
+        <div class="form-group">
+          <label class="form-label">Imagem Destaque (Rodapé)</label>
+          <div class="upload-zone" style="padding:16px; margin-bottom:0;" onclick="document.getElementById('footerImgInput').click()">
+            <img id="previewFooterImg" src="" alt="" />
+            <div class="upload-content" id="footerPlaceholder">
+              <div class="upload-icon" style="width:28px; height:28px; font-size:14px;"><i class="ph ph-image"></i></div>
+              <div class="upload-text">Adicionar imagem final</div>
+            </div>
+            <input type="file" id="footerImgInput" accept="image/*" onchange="previewFile('footerImgInput','previewFooterImg')" style="display:none" />
+          </div>
+        </div>
+
+        <!-- ============================================================
+             @BLOCK: FORM_FOOTER (.ap-form-footer)
+             @PHP: templates/forms/form-footer.php
+             @BUTTONS: cancel (.ap-btn-ghost), submit (.ap-btn-primary)
+             ============================================================ -->
+        <div class="form-footer">
+          <!-- @PHP: echo $form_config['cancel_url'] -->
+          <button class="btn btn-ghost">Voltar</button>
+          <!-- @PHP: AJAX submit via Apollo_Form_Handler::submit() -->
+          <button class="btn btn-primary" onclick="submitForm()">Publicar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ======================================================================
+         @MODAL: NEW_LOCAL (.ap-modal-overlay + .ap-modal-card)
+         @PHP: templates/forms/modals/modal-new-local.php
+         @AJAX: wp_ajax_apollo_add_new_local
+         ====================================================================== -->
+    <div class="modal-overlay" id="localModal">
+      <div class="modal-card">
+        <div class="modal-header">Novo Local</div>
+        
+        <div class="form-group">
+          <label class="form-label">Nome do Local</label>
+          <input type="text" class="text-input" id="newLocalName" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea class="text-input" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Endereço Completo</label>
+          <input type="text" class="text-input" id="newLocalAddress" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Geolocalização</label>
+          <div class="lat-row">
+            <input type="text" class="text-input" id="localLat" placeholder="LAT" readonly />
+            <input type="text" class="text-input" id="localLon" placeholder="LON" readonly />
+            <button type="button" class="btn-icon-add" onclick="refreshGeo()" style="width:100%"><i class="ph-bold ph-arrows-clockwise"></i></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contatos</label>
+          <input type="text" class="text-input" placeholder="Website" style="margin-bottom:8px;" />
+          <div class="inputs-row">
+            <input type="text" class="text-input" placeholder="Instagram" />
+            <input type="text" class="text-input" placeholder="Facebook" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Galeria (Max 5)</label>
+          <div class="gallery-grid">
+             <!-- Reusing grid structure slightly simplified for modal -->
+             <div class="gallery-slot" style="background:#f0f0f0"><i class="ph ph-plus"></i></div>
+             <div class="gallery-slot" style="background:#f0f0f0"><i class="ph ph-plus"></i></div>
+             <div class="gallery-slot" style="background:#f0f0f0"><i class="ph ph-plus"></i></div>
+             <div class="gallery-slot" style="background:#f0f0f0"><i class="ph ph-plus"></i></div>
+             <div class="gallery-slot" style="background:#f0f0f0"><i class="ph ph-plus"></i></div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('localModal')">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveNewLocal()">Salvar Local</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         @MODAL: NEW_DJ (.ap-modal-overlay + .ap-modal-card)
+         @PHP: templates/forms/modals/modal-new-dj.php
+         @AJAX: wp_ajax_apollo_add_new_dj
+         @FIELDS: post_title, _dj_* meta fields
+         ====================================================================== -->
+    <div class="modal-overlay" id="djModal">
+      <div class="modal-card">
+        <div class="modal-header">Novo DJ</div>
+        
+        <div class="upload-zone" style="padding:16px; margin-bottom:16px;">
+          <div class="upload-icon" style="width:32px; height:32px; font-size:14px;"><i class="ph ph-user"></i></div>
+          <div class="upload-text">Foto de Perfil</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nome do DJ</label>
+          <input type="text" class="text-input" id="newDjName" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea class="text-input" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Links Sociais</label>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="Website" />
+            <input type="text" class="text-input" placeholder="Instagram" />
+          </div>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="SoundCloud" />
+            <input type="text" class="text-input" placeholder="Spotify" />
+          </div>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="YouTube" />
+            <input type="text" class="text-input" placeholder="Mixcloud" />
+          </div>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="Beatport" />
+            <input type="text" class="text-input" placeholder="Bandcamp" />
+          </div>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="Resident Advisor" />
+            <input type="text" class="text-input" placeholder="Facebook" />
+          </div>
+          <div class="inputs-row" style="margin-bottom:8px;">
+            <input type="text" class="text-input" placeholder="Twitter" />
+            <input type="text" class="text-input" placeholder="TikTok" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Projetos Originais</label>
+          <input type="text" class="text-input" placeholder="Título Projeto 1" style="margin-bottom:6px;" />
+          <input type="text" class="text-input" placeholder="Título Projeto 2" style="margin-bottom:6px;" />
+          <input type="text" class="text-input" placeholder="Título Projeto 3" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mídia</label>
+          <input type="text" class="text-input" placeholder="URL DJ Set" style="margin-bottom:6px;" />
+          <input type="text" class="text-input" placeholder="URL Media Kit" style="margin-bottom:6px;" />
+          <input type="text" class="text-input" placeholder="URL Mix/Playlist" />
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('djModal')">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveNewDJ()">Salvar DJ</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* --- 1. GEO LOGIC --- */
+    function refreshGeo() {
+      const btn = document.querySelector('.lat-row .btn-icon-add i');
+      btn.classList.add('ph-spin');
+      
+      // Mocking fetch
+      setTimeout(() => {
+        // Rio de Janeiro coords approx
+        document.getElementById('localLat').value = "-22.9068";
+        document.getElementById('localLon').value = "-43.1729";
+        btn.classList.remove('ph-spin');
+      }, 1000);
+    }
+
+    /* --- 2. MODAL LOGIC --- */
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    /* --- 3. TIME LOGIC (23h - 08am = 9 hours) --- */
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function formatDateLabel(d) { return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} · ${pad(d.getHours())}h`; }
+    
+    const els = {
+      sd: document.getElementById('startDate'), st: document.getElementById('startTime'),
+      sl: document.getElementById('durationSlider'), dl: document.getElementById('durationLabel'),
+      sf: document.getElementById('sliderFill'), bb: document.getElementById('bubble'),
+      ls: document.getElementById('labelStartDay'), le: document.getElementById('labelEndDay')
+    };
+
+    function updateAll() {
+      const d = els.sd.value; const t = els.st.value;
+      if (!d || !t) return;
+      const start = new Date(`${d}T${t}:00`);
+      const dur = parseInt(els.sl.value, 10) || 1;
+      const end = new Date(start.getTime() + dur * 3600 * 1000);
+
+      els.ls.textContent = formatDateLabel(start);
+      els.le.textContent = formatDateLabel(end);
+      els.dl.textContent = `DURAÇÃO: ${dur}H`;
+      
+      const min = parseInt(els.sl.min, 10);
+      const max = parseInt(els.sl.max, 10);
+      const pct = ((dur - min) / (max - min)) * 100;
+
+      els.sf.style.width = pct + '%';
+      els.bb.style.left = pct + '%';
+      els.bb.textContent = `Fim ${pad(end.getHours())}h`;
+    }
+
+    (function initDefaults(){
+      const now = new Date();
+      // Force 23:00 today
+      now.setHours(23, 0, 0, 0); 
+      
+      els.sd.valueAsDate = now;
+      els.st.value = "23:00";
+      // Default duration to 9h (until 8am)
+      els.sl.value = 9; 
+      
+      updateAll();
+    })();
+
+    els.sd.addEventListener('change', updateAll);
+    els.st.addEventListener('change', updateAll);
+    els.sl.addEventListener('input', updateAll);
+
+    /* --- 4. FORM & COMBOBOX LOGIC --- */
+    function saveNewLocal() {
+      const name = document.getElementById('newLocalName').value;
+      if(name) {
+        const input = document.getElementById('localInput');
+        const dropdown = document.getElementById('localDropdown');
+        const newOption = document.createElement('div');
+        newOption.className = 'combobox-option';
+        newOption.innerText = name;
+        newOption.onmousedown = function() { selectLocal(name, this); };
+        dropdown.insertBefore(newOption, dropdown.lastElementChild);
+        selectLocal(name, {parentElement: {previousElementSibling: input}});
+        closeModal('localModal');
+        document.getElementById('newLocalName').value = "";
+        // Auto-run lat long if empty? Logic handled in refreshGeo manually for now
+      }
+    }
+
+    function saveNewDJ() {
+      const name = document.getElementById('newDjName').value;
+      if(name) { 
+        addRowToTimetable(name); 
+        closeModal('djModal'); 
+        document.getElementById('newDjName').value = ""; 
+      }
+    }
+
+    function addRowToTimetable(name) {
+      const container = document.getElementById('timetableList');
+      const row = document.createElement('div');
+      row.className = 'timetable-row';
+      row.innerHTML = `
+        <div class="drag-handle">
+          <div class="drag-arrows">
+            <i class="ph-bold ph-caret-up" onclick="moveRow(this, -1)"></i>
+            <i class="ph-bold ph-caret-down" onclick="moveRow(this, 1)"></i>
+          </div>
+        </div>
+        <div class="dj-name">${name}</div>
+        <div class="time-inputs">
+          <input type="time"> <span style="font-size:10px;color:var(--text-muted)">às</span> <input type="time">
+        </div>
+        <i class="ph-bold ph-x" style="cursor:pointer; font-size:12px; opacity:0.6" onclick="this.parentElement.remove()"></i>
+      `;
+      container.appendChild(row);
+    }
+    
+    function moveRow(btn, direction) {
+      const row = btn.closest('.timetable-row');
+      if (direction === -1 && row.previousElementSibling) row.parentElement.insertBefore(row, row.previousElementSibling);
+      else if (direction === 1 && row.nextElementSibling) row.parentElement.insertBefore(row.nextElementSibling, row);
+    }
+
+    /* Combobox Generic */
+    function openCombobox(input) { input.nextElementSibling.classList.add('active'); }
+    function closeCombobox(input) { setTimeout(() => input.nextElementSibling.classList.remove('active'), 200); }
+    function filterCombobox(input) {
+      const filter = input.value.toLowerCase();
+      const options = input.nextElementSibling.getElementsByClassName('combobox-option');
+      for (let i = 0; i < options.length; i++) {
+        const txt = options[i].innerText;
+        options[i].classList.toggle('hidden', txt.toLowerCase().indexOf(filter) === -1);
+      }
+    }
+    function selectSound(val, el) {
+      const input = el.parentElement.previousElementSibling;
+      const container = document.getElementById('soundsContainer');
+      if(!Array.from(container.children).some(c => c.innerText.includes(val))) {
+        const chip = document.createElement('div');
+        chip.className = 'chip active';
+        chip.innerHTML = `${val} <span class="chip-remove" onclick="this.parentElement.remove()">×</span>`;
+        container.appendChild(chip);
+      }
+      input.value = ""; filterCombobox(input);
+    }
+    function selectLocal(val, el) {
+      const input = el.parentElement.previousElementSibling;
+      if(val === 'other') {
+        input.value = "Outro";
+        document.getElementById('manualLocalGroup').style.display = 'block';
+      } else {
+        input.value = val;
+        document.getElementById('manualLocalGroup').style.display = 'none';
+      }
+    }
+
+    /* General Utils */
+    function formatText(cmd) { const t = document.getElementById('eventDesc'); t.value += ` [${cmd}] `; t.focus(); }
+    function insertBullet() { const t = document.getElementById('eventDesc'); t.value += "\n• "; t.focus(); }
+    function previewFile(inputId, imgId) {
+      const file = document.getElementById(inputId).files[0];
+      const preview = document.getElementById(imgId);
+      const placeholder = preview.nextElementSibling;
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        preview.src = reader.result; preview.style.display = 'block';
+        if(placeholder) placeholder.style.opacity = '0';
+      }
+      if (file) reader.readAsDataURL(file);
+    }
+    function triggerGallery(idx) { document.querySelectorAll('.gallery-slot input')[idx].click(); }
+    function previewGallery(input, idx) {
+      const file = input.files[0];
+      const img = document.getElementById('gal'+idx);
+      const reader = new FileReader();
+      reader.onloadend = function() { img.src = reader.result; img.style.display = 'block'; }
+      if(file) reader.readAsDataURL(file);
+    }
+    function submitForm() {
+      const btn = document.querySelector('.btn-primary');
+      const original = btn.innerHTML;
+      btn.innerHTML = 'Salvando...';
+      setTimeout(() => { alert('Formulário Enviado!'); btn.innerHTML = original; }, 1000);
+    }
+  </script>
+</body>
+</html>

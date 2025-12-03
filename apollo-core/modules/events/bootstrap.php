@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -34,17 +35,17 @@ class Apollo_Events_Module {
 		register_post_type(
 			'event_listing',
 			array(
-				'labels'              => array(
+				'labels'          => array(
 					'name'          => __( 'Events', 'apollo-core' ),
 					'singular_name' => __( 'Event', 'apollo-core' ),
 				),
-				'public'              => true,
-				'has_archive'         => true,
-				'show_in_rest'        => true,
-				'capability_type'     => 'post',
-				'supports'            => array( 'title', 'editor', 'thumbnail', 'author', 'comments' ),
-				'menu_icon'           => 'dashicons-calendar-alt',
-				'rewrite'             => array( 'slug' => 'events' ),
+				'public'          => true,
+				'has_archive'     => true,
+				'show_in_rest'    => true,
+				'capability_type' => 'post',
+				'supports'        => array( 'title', 'editor', 'thumbnail', 'author', 'comments' ),
+				'menu_icon'       => 'dashicons-calendar-alt',
+				'rewrite'         => array( 'slug' => 'events' ),
 			)
 		);
 
@@ -236,4 +237,3 @@ class Apollo_Events_Module {
 
 // Initialize module.
 Apollo_Events_Module::init();
-

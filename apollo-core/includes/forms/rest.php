@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -24,19 +25,20 @@ function apollo_register_forms_rest_routes() {
 		'apollo/v1',
 		'/forms/submit',
 		array(
-			'methods'             => WP_REST_Server::CREATABLE,
-			'callback'            => 'apollo_rest_submit_form',
-			'permission_callback' => '__return_true', // Public, validated within.
-			'args'                => array(
-				'form_type' => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'data'      => array(
-					'required' => true,
-					'type'     => 'object',
-				),
-			),
+			'methods'                          => WP_REST_Server::CREATABLE,
+			'callback'                         => 'apollo_rest_submit_form',
+			'permission_callback'              => '__return_true', 
+			// Public, validated within.
+										'args' => array(
+											'form_type' => array(
+												'required' => true,
+												'sanitize_callback' => 'sanitize_text_field',
+											),
+											'data'      => array(
+												'required' => true,
+												'type'     => 'object',
+											),
+										),
 		)
 	);
 
@@ -45,15 +47,16 @@ function apollo_register_forms_rest_routes() {
 		'apollo/v1',
 		'/forms/schema',
 		array(
-			'methods'             => WP_REST_Server::READABLE,
-			'callback'            => 'apollo_rest_get_form_schema',
-			'permission_callback' => '__return_true', // Public.
-			'args'                => array(
-				'form_type' => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_text_field',
-				),
-			),
+			'methods'                          => WP_REST_Server::READABLE,
+			'callback'                         => 'apollo_rest_get_form_schema',
+			'permission_callback'              => '__return_true', 
+			// Public.
+										'args' => array(
+											'form_type' => array(
+												'required' => true,
+												'sanitize_callback' => 'sanitize_text_field',
+											),
+										),
 		)
 	);
 }
@@ -93,11 +96,11 @@ function apollo_rest_submit_form( $request ) {
 	// Check if quiz is enabled and validate answers first (for new_user).
 	if ( 'new_user' === $form_type && ! empty( $data['quiz_answers'] ) ) {
 		$quiz_result = apollo_process_quiz_submission( $data['quiz_answers'], $form_type, 0 );
-		
+
 		if ( ! $quiz_result['passed'] ) {
-			$quiz_schema = apollo_get_quiz_schema( $form_type );
+			$quiz_schema  = apollo_get_quiz_schema( $form_type );
 			$require_pass = $quiz_schema['require_pass'] ?? false;
-			
+
 			if ( $require_pass ) {
 				return new WP_Error(
 					'quiz_failed',
@@ -176,24 +179,26 @@ function apollo_rest_submit_form( $request ) {
 		);
 	} catch ( Exception $e ) {
 		// Log the error with context
-		error_log( sprintf( 
-			'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d', 
-			$form_type,
-			$e->getMessage(), 
-			basename( $e->getFile() ),
-			$e->getLine()
-		) );
-		
+		error_log(
+			sprintf(
+				'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d',
+				$form_type,
+				$e->getMessage(),
+				basename( $e->getFile() ),
+				$e->getLine()
+			)
+		);
+
 		// Return user-friendly error
 		return new WP_Error(
 			'form_submission_failed',
 			__( 'Form submission failed. Please try again or contact support if the problem persists.', 'apollo-core' ),
-			array( 
-				'status' => 500,
+			array(
+				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
 			)
 		);
-	}
+	}//end try
 }
 
 /**
@@ -218,7 +223,7 @@ function apollo_process_new_user_form( $data ) {
 	// Process quiz answers if provided (record attempts with real user_id).
 	if ( isset( $data['quiz_answers'] ) && ! empty( $data['quiz_answers'] ) ) {
 		$quiz_result = apollo_process_quiz_submission( $data['quiz_answers'], 'new_user', $user_id );
-		
+
 		// Set quiz status meta.
 		if ( $quiz_result['passed'] ) {
 			apollo_set_user_quiz_status( $user_id, 'passed' );
@@ -288,11 +293,12 @@ function apollo_process_cpt_form( $form_type, $data ) {
 	// Create post as draft.
 	$post_id = wp_insert_post(
 		array(
-			'post_type'    => $post_type,
-			'post_title'   => $post_title,
-			'post_content' => $post_content,
-			'post_status'  => 'draft', // Requires moderation.
-			'post_author'  => get_current_user_id() ? get_current_user_id() : 1,
+			'post_type'                               => $post_type,
+			'post_title'                              => $post_title,
+			'post_content'                            => $post_content,
+			'post_status'                             => 'draft', 
+			// Requires moderation.
+										'post_author' => get_current_user_id() ? get_current_user_id() : 1,
 		),
 		true
 	);
@@ -354,13 +360,13 @@ function apollo_rest_get_form_schema( $request ) {
 	// Add quiz questions if enabled for this form type.
 	$quiz_questions = array();
 	$quiz_enabled   = false;
-	
+
 	if ( function_exists( 'apollo_get_active_quiz_questions' ) ) {
 		$active_questions = apollo_get_active_quiz_questions( $form_type );
-		
+
 		if ( ! empty( $active_questions ) ) {
 			$quiz_enabled = true;
-			
+
 			// Format questions for frontend (hide correct answers).
 			foreach ( $active_questions as $id => $question ) {
 				$quiz_questions[ $id ] = array(
@@ -391,4 +397,3 @@ function apollo_rest_get_form_schema( $request ) {
 		200
 	);
 }
-

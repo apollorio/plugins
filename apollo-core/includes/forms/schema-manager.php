@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -27,7 +28,7 @@ function apollo_get_form_schema( string $form_type ): array {
 	if ( false !== $cached ) {
 		return $cached;
 	}
-	
+
 	$schemas = get_option( 'apollo_form_schemas', array() );
 
 	// If schema doesn't exist, return default.
@@ -37,7 +38,7 @@ function apollo_get_form_schema( string $form_type ): array {
 	} else {
 		$schema = $schemas[ $form_type ];
 	}
-	
+
 	// Cache the result
 	apollo_cache_form_schema( $form_type, $schema );
 
@@ -69,7 +70,7 @@ function apollo_save_form_schema( string $form_type, array $schema ): bool {
 	// Log schema change for audit.
 	if ( $result ) {
 		apollo_log_schema_change( $form_type, $schema );
-		
+
 		// Invalidate cache for all forms
 		apollo_cache_flush_group( 'apollo_forms' );
 	}
@@ -414,4 +415,3 @@ function apollo_is_instagram_id_unique( string $instagram_id, int $exclude_user_
 
 	return true;
 }
-

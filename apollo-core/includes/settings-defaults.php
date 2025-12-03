@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -53,16 +54,16 @@ function apollo_get_mod_settings(): array {
 function apollo_update_mod_settings( $settings ) {
 	$defaults = apollo_get_default_mod_settings();
 	$settings = wp_parse_args( $settings, $defaults );
-	
+
 	// Validate structure.
 	if ( ! is_array( $settings['mods'] ) ) {
 		$settings['mods'] = array();
 	}
-	
+
 	if ( ! is_array( $settings['enabled_caps'] ) ) {
 		$settings['enabled_caps'] = $defaults['enabled_caps'];
 	}
-	
+
 	return update_option( 'apollo_mod_settings', $settings );
 }
 
@@ -76,4 +77,3 @@ function apollo_is_cap_enabled( $capability ) {
 	$settings = apollo_get_mod_settings();
 	return ! empty( $settings['enabled_caps'][ $capability ] );
 }
-

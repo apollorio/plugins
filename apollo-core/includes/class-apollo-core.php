@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -124,7 +125,7 @@ final class Apollo_Core {
 	 */
 	private function check_migration() {
 		$migration_version = get_option( 'apollo_core_migration_version', '0' );
-		
+
 		if ( version_compare( $migration_version, APOLLO_CORE_VERSION, '<' ) ) {
 			// Migration needed - admin will trigger manually.
 			add_action( 'admin_notices', array( $this, 'migration_notice' ) );

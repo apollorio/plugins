@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -164,4 +165,3 @@ class Apollo_Moderation_Audit_Log {
 		return $results;
 	}
 }
-

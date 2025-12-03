@@ -1,15 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full">
+<!--
+================================================================================
+  APOLLO TEMPLATE: CENA::RIO - CATÁLOGO DE FORNECEDORES
+  Version: 1.0.0
+  Plugin: apollo-events-manager / apollo-core
+  PHP File: templates/shortcode-fornecedores.php
+  
+  STRUCTURE INDEX:
+  ================
+  [HEAD]       → Meta tags, Assets (CSS/JS), CSS Variables
+  [LAYOUT]     → Main page shell (flex container)
+  [SIDEBAR]    → Left sidebar desktop navigation
+  [HEADER]     → Top header bar (mobile + desktop)
+  [FILTERS]    → Search & category filter chips
+  [CARDS]      → Supplier cards grid
+  [WIDGETS]    → Right sidebar mini calendar & events
+  [MODAL]      → Supplier detail modal (bottom sheet)
+  [NAVIGATION] → Bottom mobile navigation
+  [SCRIPTS]    → JavaScript logic
+  
+  PHP VARIABLES TO REPLACE:
+  =========================
+  - $suppliers_data (WP_Query or custom array)
+  - $current_user (wp_get_current_user())
+  - $event_categories (get_terms())
+  - $mini_events (WP_Query for upcoming events)
+  
+================================================================================
+-->
 <head>
   <meta charset="UTF-8" />
   <title>Cena::rio · Catálogo de Fornecedores</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-  <!-- TAILWIND -->
+  <!-- ====================================================================
+       [HEAD::ASSETS] External Dependencies
+       PHP: Use wp_enqueue_style() / wp_enqueue_script() instead
+       ==================================================================== -->
+  <!-- UNI.CSS Global Design System -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/base.js" defer></script>
+  
+  <!-- TAILWIND (utilities) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- REMIXICON -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <!-- MOTION ONE -->
   <script src="https://unpkg.com/@motionone/dom@10.16.4/dist/index.js"></script>
@@ -19,8 +56,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- UNI.CSS GLOBAL TOKENS -->
+  <!-- ====================================================================
+       [HEAD::CSS_VARIABLES] Design Tokens
+       PHP: These should match uni.css root variables
+       ==================================================================== -->
   <style>
+    /* ============================================================
+       [ELEMENT::CSS_VARIABLES] Root Design Tokens
+       ============================================================ */
     :root {
       --bg-surface: #f8fafc;
       --primary: #0f172a;
@@ -36,8 +79,11 @@
       --shadow-hard: 0 8px 28px -8px rgba(15,23,42,0.45);
     }
 
+    /* ============================================================
+       [ELEMENT::BASE_STYLES] Body & Global Resets
+       ============================================================ */
     body {
-      font-family: 'Urbanist', sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";;
       background-color: var(--bg-surface);
       -webkit-tap-highlight-color: transparent;
       overflow: hidden;
@@ -50,13 +96,33 @@
     .hide-scroll::-webkit-scrollbar { display: none; }
     .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .nav-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:9px; color:#94a3b8; }
+    /* ============================================================
+       [ELEMENT::BUTTONS] Navigation & Filter Buttons
+       ============================================================ */
+    .nav-btn { 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center; 
+      gap:2px; 
+      font-size:9px; 
+      color:#94a3b8; 
+    }
     .nav-btn.active { color:#0f172a; }
     .nav-btn i { font-size:1.4rem; }
-    .filter-chip { padding:6px 14px; background:rgba(15,23,42,0.05); border-radius:20px; font-weight:600; font-size:.8rem; }
+    
+    .filter-chip { 
+      padding:6px 14px; 
+      background:rgba(15,23,42,0.05); 
+      border-radius:20px; 
+      font-weight:600; 
+      font-size:.8rem; 
+    }
     .filter-chip.active { background:#0f172a; color:white; }
 
-    /* RIGHT SIDEBAR MINI CALENDAR / EVENTS (READ-ONLY) */
+    /* ============================================================
+       [WIDGET::MINI_CALENDAR] Right Sidebar Calendar Styles
+       ============================================================ */
     .mini-card {
       background:#ffffff;
       border:1px solid var(--border-subtle);
@@ -120,6 +186,9 @@
     .mini-day-dot.confirmed { background:#10b981; }
     .mini-day-dot.published { background:#3b82f6; }
 
+    /* ============================================================
+       [WIDGET::MINI_EVENTS] Right Sidebar Events List
+       ============================================================ */
     .mini-legend {
       display:flex;
       flex-wrap:wrap;
@@ -184,35 +253,49 @@
 
 <body class="h-full flex overflow-hidden bg-slate-50">
 
-  <!-- SIDEBAR ESQUERDA (DESKTOP) -->
+  <!-- ======================================================================
+       [LAYOUT::PAGE_SHELL] Main Page Container
+       PHP: This is the main shortcode wrapper
+       ====================================================================== -->
+
+  <!-- ======================================================================
+       [SIDEBAR::DESKTOP] Left Navigation Sidebar (Desktop Only)
+       PHP BLOCK: templates/partials/sidebar-desktop.php
+       VARIABLES: $current_user, $menu_items, $active_page
+       ====================================================================== -->
   <aside class="hidden md:flex w-64 h-screen flex-col border-r border-slate-200 bg-white z-40">
 
-    <!-- HEADER SIDEBAR -->
+    <!-- [SIDEBAR::HEADER] Logo & Branding -->
     <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
       <div class="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center text-white">
         <i class="ri-command-fill text-lg"></i>
       </div>
+      <!-- PHP: echo esc_html( $site_name ); -->
       <span class="font-bold text-slate-900 tracking-tight text-lg">Cena::Rio</span>
     </div>
 
-    <!-- NAVIGATION -->
+    <!-- [SIDEBAR::NAVIGATION] Main Menu Links -->
+    <!-- PHP BLOCK: templates/partials/sidebar-nav-items.php -->
     <nav class="flex-1 px-4 space-y-1 py-6 overflow-y-auto custom-scrollbar">
       <div class="px-2 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
         Menu Principal
       </div>
 
+      <!-- [MENU_ITEM] Agenda -->
       <a href="https://apollo.rio.br/cena-rio/"
          class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
         <i class="ri-calendar-line text-lg group-hover:text-slate-900"></i>
         <span class="font-medium text-sm group-hover:text-slate-900">Agenda</span>
       </a>
 
+      <!-- [MENU_ITEM] Fornecedores (Active) -->
       <a href="#"
          class="flex items-center gap-3 px-3 py-2.5 bg-slate-100 text-slate-900 rounded-lg font-semibold">
         <i class="ri-bar-chart-grouped-line text-lg"></i>
         <span class="text-sm">Fornecedores</span>
       </a>
 
+      <!-- [MENU_ITEM] Documentos -->
       <a href="https://apollo.rio.br/assinar/index.html"
          class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
         <i class="ri-file-text-line text-lg"></i>
@@ -220,48 +303,45 @@
       </a>
     </nav>
 
-    <!-- FOOTER -->
-    <div class="p-0 border-t border-slate-100">
+    <!-- [SIDEBAR::FOOTER] Quick Links & User Info -->
+    <div class="p-0 rounded-lg group">
       <div class="relative flex w-full min-w-0 flex-col px-3">
 
+        <!-- [SIDEBAR::FOOTER_LINKS] Secondary Navigation -->
         <div class="w-full text-sm">
           <ul class="flex w-full min-w-0 flex-col gap-0 ">
             <li class="relative">
-              <a href="#"
-                 class="flex w-full items-center gap-0 px-2 text-left text-slate-600
-                        hover:bg-slate-100 text-[13px]">
+              <a href="#" class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
                 <span>Sobre</span>
               </a>
             </li>
             <li class="relative">
-              <a href="#"
-                 class="flex w-full items-center gap-0 overflow-hidden rounded-md px-2
-                        text-left text-slate-600 hover:bg-slate-100 text-[13px]">
+              <a href="#" class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
                 <span>Ajustes</span>
               </a>
             </li>
             <li class="relative">
-              <a href="#"
-                 class="flex w-full items-center gap-0 px-2 text-left text-red-600
-                        hover:bg-slate-100 text-[13px]">
+              <a href="#" class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
                 <span>Denúncia</span>
               </a>
             </li>
           </ul>
         </div>
 
-        <!-- BLOCO DO USUÁRIO -->
+        <!-- [SIDEBAR::USER_BLOCK] Current User Info -->
+        <!-- PHP: $current_user = wp_get_current_user(); -->
         <div class="flex flex-col gap-2 p-2 mt-2 border-t border-slate-200">
           <div class="flex items-center gap-3 px-2">
+            <!-- PHP: echo get_avatar( $current_user->ID, 32 ); -->
             <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
               AD
             </div>
-
             <div class="flex flex-col leading-tight">
+              <!-- PHP: echo esc_html( $current_user->display_name ); -->
               <span class="text-xs font-bold text-slate-900">Valle</span>
+              <!-- PHP: echo esc_html( $current_user->user_email ); -->
               <span class="text-[10px] text-slate-500">valle@email.com</span>
             </div>
-
             <button class="ml-auto text-slate-400 hover:text-slate-600" title="Logout">
               <i class="ri-logout-box-r-line text-lg"></i>
             </button>
@@ -271,15 +351,21 @@
       </div>
     </div>
   </aside>
+  <!-- [/SIDEBAR::DESKTOP] -->
 
-  <!-- MAIN CONTENT WRAPPER -->
+  <!-- ======================================================================
+       [LAYOUT::MAIN_CONTENT] Main Content Wrapper
+       ====================================================================== -->
   <div class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50">
 
-    <!-- HEADER (Mobile branding + desktop context) -->
+    <!-- ==================================================================
+         [HEADER::TOP] Page Header (Mobile + Desktop)
+         PHP BLOCK: templates/partials/header-page.php
+         ================================================================== -->
     <header class="flex-none bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-30 relative">
       <div class="px-4 h-16 flex items-center justify-between max-w-5xl mx-auto w-full">
 
-        <!-- MOBILE HEADER -->
+        <!-- [HEADER::MOBILE_BRANDING] Mobile Header -->
         <div class="flex items-center gap-3 md:invisible">
           <div class="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg shadow-slate-900/20">
             <i class="ri-command-fill text-xl"></i>
@@ -290,29 +376,35 @@
           </div>
         </div>
 
-        <!-- DESKTOP TITLE -->
+        <!-- [HEADER::DESKTOP_TITLE] Desktop Header -->
         <div class="hidden md:flex flex-col leading-tight">
           <h1 class="text-xl font-bold text-slate-900">Catálogo de Fornecedores</h1>
         </div>
 
-        <!-- ACTIONS -->
+        <!-- [HEADER::ACTIONS] Action Buttons -->
         <div class="flex items-center gap-2">
+          <!-- [BUTTON::ADD_SUPPLIER] -->
           <button class="h-9 w-9 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors" title="Novo Fornecedor" alt="Novo Fornecedor">
             +
           </button>
         </div>
       </div>
     </header>
+    <!-- [/HEADER::TOP] -->
 
-    <!-- SEARCH & FILTERS -->
+    <!-- ==================================================================
+         [BLOCK::FILTERS] Search & Category Filter Section
+         PHP BLOCK: templates/partials/filters-suppliers.php
+         ================================================================== -->
     <div class="flex-none bg-white z-20 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.1)]">
       <div class="max-w-5xl mx-auto w-full px-4 py-4 space-y-4">
 
-        <!-- Search input -->
+        <!-- [ELEMENT::SEARCH_INPUT] Search Bar -->
         <div class="relative group">
           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
             <i class="ri-search-2-line text-slate-400 group-focus-within:text-orange-500 transition-colors"></i>
           </div>
+          <!-- PHP: value="<?php echo esc_attr( $_GET['s'] ?? '' ); ?>" -->
           <input
             type="text"
             id="searchInput"
@@ -321,7 +413,8 @@
           >
         </div>
 
-        <!-- Popular searches -->
+        <!-- [ELEMENT::FILTER_CHIPS] Category Filter Buttons -->
+        <!-- PHP: foreach( $categories as $category ): -->
         <div class="popular-searches md:justify-start flex flex-wrap gap-2">
           <button class="filter-chip active" data-cat="all">Todos</button>
           <button class="filter-chip" data-cat="sound">Áudio & Som</button>
@@ -331,26 +424,48 @@
           <button class="filter-chip" data-cat="visuals">Cenografia</button>
           <button class="filter-chip" data-cat="staff">Staff & Recep</button>
         </div>
+        <!-- PHP: endforeach; -->
 
       </div>
     </div>
+    <!-- [/BLOCK::FILTERS] -->
 
-    <!-- MAIN LIST CONTENT -->
+    <!-- ==================================================================
+         [BLOCK::SUPPLIERS_LIST] Main Content - Supplier Cards
+         PHP BLOCK: templates/partials/suppliers-grid.php
+         ================================================================== -->
     <main class="flex-1 overflow-y-auto bg-slate-50/50 scroll-smooth relative" id="mainContainer">
       <div class="max-w-5xl mx-auto w-full px-4 py-6 pb-24">
 
-        <!-- List Header -->
+        <!-- [ELEMENT::LIST_HEADER] Results Count -->
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Catálogo Verificado</h2>
+          <!-- PHP: echo count( $suppliers ); -->
           <span id="countLabel" class="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">-- resultados</span>
         </div>
 
-        <!-- Grid (Responsive: 1 col mobile, 2 cols lg) -->
+        <!-- [CARDS::SUPPLIERS_GRID] Supplier Cards Container -->
+        <!-- PHP: foreach( $suppliers as $supplier ): -->
         <div id="suppliersGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          <!-- Cards injected via JS -->
+          <!-- [CARD::SUPPLIER] Individual Supplier Card -->
+          <!--
+            PHP VARIABLES PER CARD:
+            - $supplier->name
+            - $supplier->type (category slug)
+            - $supplier->categoryDisplay
+            - $supplier->tags (array)
+            - $supplier->desc
+            - $supplier->logo (URL)
+            - $supplier->banner (URL)
+            - $supplier->verified (bool)
+            - $supplier->price (1-3)
+            - $supplier->rating (float)
+          -->
+          <!-- Cards injected via JS - In PHP use loop -->
         </div>
+        <!-- PHP: endforeach; -->
 
-        <!-- Empty State -->
+        <!-- [ELEMENT::EMPTY_STATE] No Results Message -->
         <div id="emptyState" class="hidden flex-col items-center justify-center py-12 text-center opacity-0">
           <div class="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300">
             <i class="ri-ghost-line text-4xl"></i>
@@ -362,37 +477,41 @@
 
       </div>
     </main>
+    <!-- [/BLOCK::SUPPLIERS_LIST] -->
 
-    <!-- BOTTOM NAVIGATION (MOBILE ONLY: md:hidden) -->
+    <!-- ==================================================================
+         [NAVIGATION::BOTTOM_MOBILE] Mobile Bottom Navigation Bar
+         PHP BLOCK: templates/partials/nav-bottom-mobile.php
+         ================================================================== -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/50 pb-safe">
       <div class="max-w-2xl mx-auto w-full px-4 py-2 flex items-end justify-between h-[60px]">
 
-        <!-- Agenda -> Cena-rio -->
+        <!-- [NAV_ITEM] Agenda -->
         <div class="nav-btn w-14 pb-1" onclick="window.location.href='https://apollo.rio.br/cena-rio/'">
           <i class="ri-calendar-line"></i>
           <span>Agenda</span>
         </div>
 
-        <!-- Pro -> Fornecedores (Active) -->
+        <!-- [NAV_ITEM] Pro/Fornecedores (Active) -->
         <div class="nav-btn active w-14 pb-1" onclick="window.location.href='https://apollo.rio.br/fornecedores'">
           <i class="ri-bar-chart-grouped-line"></i>
           <span>Pro</span>
         </div>
 
-        <!-- Add Button (Floating) -->
+        <!-- [NAV_ITEM::FAB] Floating Action Button -->
         <div class="relative -top-5">
           <button onclick="openModal('addSupplier')" class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(15,23,42,0.6)] hover:scale-105 active:scale-95 transition-transform duration-200">
             <i class="ri-add-line text-3xl"></i>
           </button>
         </div>
 
-        <!-- Docs -> Assinar -->
+        <!-- [NAV_ITEM] Docs -->
         <div class="nav-btn w-14 pb-1" onclick="window.location.href='https://apollo.rio.br/assinar/index.html'">
           <i class="ri-file-text-line"></i>
           <span>Docs</span>
         </div>
 
-        <!-- Settings (Placeholder) -->
+        <!-- [NAV_ITEM] Settings -->
         <div class="nav-btn w-14 pb-1">
           <i class="ri-settings-3-line"></i>
           <span>Ajustes</span>
@@ -400,30 +519,45 @@
 
       </div>
     </div>
+    <!-- [/NAVIGATION::BOTTOM_MOBILE] -->
 
-    <!-- SUPPLIER DETAILS MODAL -->
+    <!-- ==================================================================
+         [MODAL::SUPPLIER_DETAILS] Supplier Detail Bottom Sheet Modal
+         PHP BLOCK: templates/partials/modal-supplier-detail.php
+         ================================================================== -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      
+      <!-- [MODAL::BACKDROP] -->
       <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="detailBackdrop"></div>
+      
+      <!-- [MODAL::PANEL] Bottom Sheet Panel -->
       <div class="fixed inset-x-0 bottom-0 z-10 w-full max-w-2xl mx-auto overflow-hidden transform transition-all translate-y-full" id="detailPanel">
         <div class="bg-white rounded-t-[32px] shadow-2xl overflow-hidden h-[85vh] flex flex-col relative">
 
-          <!-- Drag Handle -->
+          <!-- [MODAL::DRAG_HANDLE] -->
           <div class="w-full h-6 flex items-center justify-center absolute top-0 z-20 bg-gradient-to-b from-black/5 to-transparent pointer-events-none">
             <div class="w-12 h-1.5 bg-white/50 rounded-full mt-2 shadow-sm"></div>
           </div>
 
-          <!-- Header Image Area -->
+          <!-- [MODAL::HERO_IMAGE] Header Image Area -->
           <div class="h-48 bg-slate-900 relative shrink-0">
+            <!-- PHP: echo esc_url( $supplier->banner ); -->
             <img id="m_banner" src="" class="w-full h-full object-cover opacity-60">
+            
+            <!-- [BUTTON::CLOSE_MODAL] -->
             <button onclick="closeModal()" class="absolute top-4 right-4 h-8 w-8 bg-black/20 backdrop-blur-md rounded-full text-white flex items-center justify-center hover:bg-black/40 transition">
               <i class="ri-close-line text-xl"></i>
             </button>
+            
+            <!-- [ELEMENT::SUPPLIER_LOGO] -->
             <div class="absolute -bottom-10 left-6">
               <div class="h-24 w-24 rounded-2xl border-4 border-white shadow-lg bg-white overflow-hidden">
+                <!-- PHP: echo esc_url( $supplier->logo ); -->
                 <img id="m_logo" src="" class="w-full h-full object-contain p-1">
               </div>
             </div>
-            <!-- Category Badge -->
+            
+            <!-- [ELEMENT::BADGES] Category & Price Badge -->
             <div class="absolute bottom-4 right-4 flex gap-2">
               <span id="m_price" class="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-bold tracking-wide shadow-sm">
                 $$$
@@ -434,8 +568,10 @@
             </div>
           </div>
 
-          <!-- Body Content -->
+          <!-- [MODAL::BODY] Content Body -->
           <div class="px-6 pt-12 pb-6 overflow-y-auto flex-1 bg-white">
+            
+            <!-- [ELEMENT::TITLE_ROW] -->
             <div class="flex items-start justify-between mb-1">
               <h2 id="m_title" class="text-2xl font-bold text-slate-900 leading-tight">Supplier Name</h2>
               <div class="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider">
@@ -443,17 +579,20 @@
               </div>
             </div>
 
+            <!-- [ELEMENT::RATING_STARS] -->
             <div class="flex items-center gap-3 mb-4">
               <div class="flex items-center text-yellow-400 text-lg" id="m_stars_container">
-                <!-- stars injected -->
+                <!-- stars injected via JS -->
               </div>
               <span id="m_rating_text" class="text-slate-500 text-sm font-semibold">4.9/5</span>
             </div>
 
+            <!-- [ELEMENT::TAGS] Service Tags -->
             <div id="m_tags" class="flex flex-wrap gap-2 mb-6">
-              <!-- tags injected -->
+              <!-- tags injected via JS -->
             </div>
 
+            <!-- [ELEMENT::DESCRIPTION] About Section -->
             <div class="mb-6">
               <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2">Sobre o Fornecedor</h3>
               <p id="m_desc" class="text-slate-600 text-[15px] leading-relaxed">
@@ -461,6 +600,7 @@
               </p>
             </div>
 
+            <!-- [ELEMENT::STATS_GRID] Statistics Cards -->
             <div class="grid grid-cols-2 gap-3 mb-6">
               <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
                 <div class="text-slate-400 text-xs font-semibold uppercase mb-1">Eventos</div>
@@ -476,7 +616,7 @@
               </div>
             </div>
 
-            <!-- Gallery -->
+            <!-- [ELEMENT::GALLERY] Portfolio Gallery -->
             <div class="mb-24">
               <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Portfólio Recente</h3>
               <div class="flex gap-3 overflow-x-auto hide-scroll pb-2 -mx-6 px-6">
@@ -493,11 +633,14 @@
             </div>
           </div>
 
+          <!-- [MODAL::FOOTER] Action Buttons -->
           <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100 flex gap-3">
+            <!-- [BUTTON::CTA_PRIMARY] WhatsApp Contact -->
             <button class="flex-1 bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-slate-900/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
               <i class="ri-whatsapp-line text-xl"></i>
               Orçamento Rápido
             </button>
+            <!-- [BUTTON::SHARE] -->
             <button class="h-14 w-14 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95 transition-transform">
               <i class="ri-share-forward-line text-xl"></i>
             </button>
@@ -506,14 +649,19 @@
         </div>
       </div>
     </div>
+    <!-- [/MODAL::SUPPLIER_DETAILS] -->
 
   </div>
+  <!-- [/LAYOUT::MAIN_CONTENT] -->
 
-  <!-- RIGHT SIDEBAR (DESKTOP) - READ-ONLY CALENDAR + EVENTS OVERVIEW -->
+  <!-- ======================================================================
+       [WIDGET::RIGHT_SIDEBAR] Calendar & Events Overview (Desktop Only)
+       PHP BLOCK: templates/partials/sidebar-right-calendar.php
+       ====================================================================== -->
   <aside class="hidden lg:flex flex-col w-[360px] border-l border-slate-200 bg-white h-full overflow-y-auto">
     <div class="flex-1 p-4 space-y-4">
 
-      <!-- MINI CALENDAR (OVERVIEW ONLY, NO ADD) -->
+      <!-- [WIDGET::MINI_CALENDAR] Overview Calendar -->
       <div class="mini-card">
         <div class="mini-card-title">
           <span>Calendário da Cena</span>
@@ -528,10 +676,12 @@
           <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
         </div>
 
+        <!-- PHP: Render calendar grid with event dots -->
         <div id="mini-calendar-grid" class="mini-calendar-grid">
           <!-- days injected via JS -->
         </div>
 
+        <!-- [ELEMENT::LEGEND] Calendar Legend -->
         <div class="mini-legend">
           <div class="mini-legend-item">
             <span class="mini-legend-dot"></span>
@@ -548,24 +698,34 @@
         </div>
       </div>
 
-      <!-- MINI EVENTS (OVERVIEW ONLY, NO ACTIONS) -->
+      <!-- [WIDGET::MINI_EVENTS] Events This Month -->
       <div class="mini-card">
         <div class="mini-card-title">
           <span>Eventos deste mês</span>
+          <!-- PHP: echo count( $events_this_month ); -->
           <span id="mini-events-count" class="text-[10px] text-slate-500 font-medium">–</span>
         </div>
 
+        <!-- PHP: foreach( $events_this_month as $event ): -->
         <div id="mini-events-list" class="mini-events-list">
           <!-- events injected via JS -->
         </div>
+        <!-- PHP: endforeach; -->
       </div>
 
     </div>
   </aside>
+  <!-- [/WIDGET::RIGHT_SIDEBAR] -->
 
-  <!-- GLOBAL SCRIPTS -->
+  <!-- ======================================================================
+       [SCRIPTS::MAIN] JavaScript Logic
+       PHP: Move to separate JS file and use wp_enqueue_script()
+       ====================================================================== -->
   <script>
-    // --- DATA SUPPLIERS ---
+    // ===================================================================
+    // [DATA::SUPPLIERS] Supplier Database
+    // PHP: Replace with: const suppliers = <?php echo json_encode( $suppliers ); ?>;
+    // ===================================================================
     const suppliers = [
       {
         id: 1,
@@ -673,14 +833,18 @@
       }
     ];
 
-    // --- DOM ELEMENTS SUPPLIERS ---
+    // ===================================================================
+    // [DOM::ELEMENTS] DOM Element References
+    // ===================================================================
     const grid = document.getElementById('suppliersGrid');
     const searchInput = document.getElementById('searchInput');
     const countLabel = document.getElementById('countLabel');
     const chips = document.querySelectorAll('.filter-chip');
     const emptyState = document.getElementById('emptyState');
 
-    // --- HELPERS SUPPLIERS ---
+    // ===================================================================
+    // [HELPERS::PRICE] Generate Price HTML ($, $$, $$$)
+    // ===================================================================
     function getPriceHtml(priceLevel) {
       let html = '';
       for (let i = 1; i <= 3; i++) {
@@ -693,11 +857,16 @@
       return html;
     }
 
+    // ===================================================================
+    // [HELPERS::STARS] Generate Star Rating HTML
+    // ===================================================================
     function getStarsHtml(rating) {
       return `<i class="ri-star-fill text-yellow-400 text-xs mr-0.5"></i><span class="text-xs font-bold text-slate-700">${rating}</span>`;
     }
 
-    // --- RENDER SUPPLIERS ---
+    // ===================================================================
+    // [RENDER::CARDS] Render Supplier Cards
+    // ===================================================================
     function renderCards(data) {
       grid.innerHTML = '';
 
@@ -778,7 +947,9 @@
       });
     }
 
-    // --- FILTER LOGIC SUPPLIERS ---
+    // ===================================================================
+    // [FILTER::LOGIC] Category & Search Filtering
+    // ===================================================================
     let activeCategory = 'all';
     let searchTerm = '';
 
@@ -816,7 +987,9 @@
       filterData();
     }
 
-    // --- MODAL SUPPLIERS ---
+    // ===================================================================
+    // [MODAL::FUNCTIONS] Modal Open/Close Logic
+    // ===================================================================
     const modal = document.getElementById('detailModal');
     const backdrop = document.getElementById('detailBackdrop');
     const panel = document.getElementById('detailPanel');
@@ -883,13 +1056,22 @@
       }
     }
 
+    // ===================================================================
+    // [INIT::PAGE] Initial Page Load
+    // ===================================================================
     document.addEventListener('DOMContentLoaded', () => {
       renderCards(suppliers);
     });
   </script>
 
-  <!-- MINI CALENDAR + EVENTS OVERVIEW SCRIPT (READ-ONLY) -->
+  <!-- ===================================================================
+       [SCRIPTS::MINI_CALENDAR] Mini Calendar & Events Overview
+       =================================================================== -->
   <script>
+    // ===================================================================
+    // [DATA::EVENTS] Events Database for Calendar
+    // PHP: Replace with: const miniEventsObj = <?php echo json_encode( $events_data ); ?>;
+    // ===================================================================
     const MINI_STORAGE_KEY = 'cenario_events_v3';
     const MINI_DEFAULT_EVENTS = {
       "2025-11-09": [
@@ -916,6 +1098,9 @@
 
     const miniEventsObj = loadMiniEvents();
 
+    // ===================================================================
+    // [DOM::CALENDAR_ELEMENTS] Calendar DOM References
+    // ===================================================================
     const miniMonthLabelEl = document.getElementById('mini-month-label');
     const miniCalendarGridEl = document.getElementById('mini-calendar-grid');
     const miniEventsListEl = document.getElementById('mini-events-list');
@@ -924,6 +1109,9 @@
     const weekDaysMini = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
     const monthsMini = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 
+    // ===================================================================
+    // [HELPERS::DATE] Date Utilities
+    // ===================================================================
     function pad2(n) { return String(n).padStart(2,'0'); }
     function isoDateMini(y,m,d) { return `${y}-${pad2(m)}-${pad2(d)}`; }
     function daysInMonthMini(year, monthIndex){ return new Date(year, monthIndex + 1, 0).getDate(); }
@@ -931,8 +1119,11 @@
 
     const todayMini = new Date();
     let miniYear = todayMini.getFullYear();
-    let miniMonth = todayMini.getMonth(); // 0-based
+    let miniMonth = todayMini.getMonth();
 
+    // ===================================================================
+    // [RENDER::CALENDAR] Render Mini Calendar Grid
+    // ===================================================================
     function renderMiniCalendar() {
       if (!miniCalendarGridEl) return;
       miniCalendarGridEl.innerHTML = '';
@@ -968,7 +1159,6 @@
           const dot = document.createElement('span');
           dot.className = 'mini-day-dot';
 
-          // If any confirmed/published event exists, color accordingly
           const hasConfirmed = dayEvents.some(ev => ev.status === 'confirmed');
           const hasPublished = dayEvents.some(ev => ev.status === 'published');
 
@@ -981,7 +1171,7 @@
         miniCalendarGridEl.appendChild(dayEl);
       }
 
-      // Trailing blanks to complete grid line
+      // Trailing blanks
       const totalCells = leadingCount + totalDays;
       const trailing = (7 - (totalCells % 7)) % 7;
       for (let t = 0; t < trailing; t++) {
@@ -992,6 +1182,9 @@
       }
     }
 
+    // ===================================================================
+    // [RENDER::EVENTS_LIST] Render Mini Events List
+    // ===================================================================
     function renderMiniEvents() {
       if (!miniEventsListEl) return;
       miniEventsListEl.innerHTML = '';
@@ -1003,13 +1196,11 @@
         });
       });
 
-      // Filter events for current month/year
       const toRender = items.filter(ev => {
         const d = new Date(ev.dateKey + 'T12:00:00');
         return d.getFullYear() === miniYear && d.getMonth() === miniMonth;
       });
 
-      // Sort by date + status (confirmed first)
       toRender.sort((a,b) => {
         if (a.dateKey === b.dateKey) {
           if (a.status === b.status) return 0;
@@ -1087,7 +1278,9 @@
       });
     }
 
-    // INIT MINI
+    // ===================================================================
+    // [INIT::CALENDAR] Initialize Calendar Widgets
+    // ===================================================================
     renderMiniCalendar();
     renderMiniEvents();
   </script>

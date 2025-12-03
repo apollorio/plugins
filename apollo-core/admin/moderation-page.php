@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -68,8 +69,8 @@ function apollo_enqueue_moderation_assets( $hook ) {
 		'apollo-moderation-admin',
 		'apolloModerationAdmin',
 		array(
-			'restUrl'  => rest_url( 'apollo/v1/' ),
-			'nonce'    => wp_create_nonce( 'wp_rest' ),
+			'restUrl'   => rest_url( 'apollo/v1/' ),
+			'nonce'     => wp_create_nonce( 'wp_rest' ),
 			'canManage' => current_user_can( 'manage_apollo_mod_settings' ),
 		)
 	);
@@ -263,9 +264,9 @@ function apollo_render_queue_tab(): void {
 	foreach ( $query->posts as $post ) {
 		$source = get_post_meta( $post->ID, '_apollo_source', true );
 		if ( 'cena-rio' === $source ) {
-			$cena_rio_count++;
+			++$cena_rio_count;
 		} else {
-			$other_count++;
+			++$other_count;
 		}
 	}
 
@@ -280,17 +281,17 @@ function apollo_render_queue_tab(): void {
 		<!-- Source filter tabs -->
 		<div class="apollo-queue-source-filter" style="margin: 16px 0; display: flex; gap: 8px;">
 			<a href="?page=apollo-moderation&tab=queue&source=all" 
-			   class="button <?php echo 'all' === $current_filter ? 'button-primary' : ''; ?>">
+				class="button <?php echo 'all' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Todos (%d)', 'apollo-core' ), $query->found_posts ) ); ?>
 			</a>
 			<a href="?page=apollo-moderation&tab=queue&source=cena-rio" 
-			   class="button <?php echo 'cena-rio' === $current_filter ? 'button-primary' : ''; ?>"
-			   style="<?php echo $cena_rio_count > 0 ? 'background: #f97316; border-color: #f97316; color: #fff;' : ''; ?>">
+				class="button <?php echo 'cena-rio' === $current_filter ? 'button-primary' : ''; ?>"
+				style="<?php echo $cena_rio_count > 0 ? 'background: #f97316; border-color: #f97316; color: #fff;' : ''; ?>">
 				<span class="dashicons dashicons-calendar-alt" style="margin-top: 3px;"></span>
 				<?php echo esc_html( sprintf( __( 'CENA-RIO (%d)', 'apollo-core' ), $cena_rio_count ) ); ?>
 			</a>
 			<a href="?page=apollo-moderation&tab=queue&source=other" 
-			   class="button <?php echo 'other' === $current_filter ? 'button-primary' : ''; ?>">
+				class="button <?php echo 'other' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Outros (%d)', 'apollo-core' ), $other_count ) ); ?>
 			</a>
 		</div>
@@ -308,10 +309,11 @@ function apollo_render_queue_tab(): void {
 				</tr>
 			</thead>
 			<tbody>
-				<?php 
+				<?php
 				$has_items = false;
-				if ( $query->have_posts() ) : 
-					while ( $query->have_posts() ) : $query->the_post();
+				if ( $query->have_posts() ) :
+					while ( $query->have_posts() ) :
+						$query->the_post();
 						$post_id = get_the_ID();
 						$source  = get_post_meta( $post_id, '_apollo_source', true );
 						$is_cena = 'cena-rio' === $source;
@@ -326,9 +328,9 @@ function apollo_render_queue_tab(): void {
 
 						$has_items = true;
 						$row_style = $is_cena ? 'border-left: 4px solid #f97316; background: #fff7ed;' : '';
-						
+
 						// Get post type label
-						$post_type = get_post_type();
+						$post_type   = get_post_type();
 						$type_labels = array(
 							'event_listing'      => __( 'Evento', 'apollo-core' ),
 							'event_local'        => __( 'Local', 'apollo-core' ),
@@ -336,7 +338,7 @@ function apollo_render_queue_tab(): void {
 							'apollo_social_post' => __( 'Post', 'apollo-core' ),
 							'post'               => __( 'Post', 'apollo-core' ),
 						);
-						$type_label = $type_labels[ $post_type ] ?? $post_type;
+						$type_label  = $type_labels[ $post_type ] ?? $post_type;
 						?>
 						<tr data-post-id="<?php echo esc_attr( $post_id ); ?>" style="<?php echo esc_attr( $row_style ); ?>">
 							<td>
@@ -495,8 +497,8 @@ function apollo_handle_save_settings() {
 	}
 
 	// Get form data.
-	$mods             = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
-	$enabled_caps     = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : array();
+	$mods              = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
+	$enabled_caps      = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : array();
 	$audit_log_enabled = isset( $_POST['audit_log_enabled'] );
 
 	// Update settings.

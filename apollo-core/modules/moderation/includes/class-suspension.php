@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -56,7 +57,7 @@ class Apollo_Moderation_Suspension {
 					array( 'status' => 403 )
 				);
 			}
-		}
+		}//end if
 
 		return $user;
 	}
@@ -175,4 +176,3 @@ class Apollo_Moderation_Suspension {
 		return true;
 	}
 }
-

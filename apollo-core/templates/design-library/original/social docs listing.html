@@ -1,7 +1,22 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: DOCUMENTS LISTING (Contracts & Docs)
+PHP: templates/shortcode-docs-listing.php | Shortcode: [apollo_docs]
+
+@BLOCKS: HEADER, SIDEBAR, DOCS_GRID, FILTERS, STATS_SUMMARY
+@WIDGETS: SEARCH_BAR, FILTER_CHIPS, VIEW_TOGGLE, NEW_DOC_BTN
+@CARDS: DOC_CARD (with status: draft, pending, signed, expired)
+@LAYOUTS: 3-COLUMN (sidebar-main-aside)
+
+PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
+          $docs_stats (total, pending, signed), $categories[]
+================================================================================
+-->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
   <meta charset="UTF-8" />
+  <!-- @PHP: wp_title() -->
   <title>Apollo :: Docs & Contratos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
@@ -30,7 +45,7 @@
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
 
   <!-- Remixicon (fallback caso base.js não injete) -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <style>
     :root {

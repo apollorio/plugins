@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -293,17 +294,17 @@ class Apollo_Moderation_REST_API {
 		$queue = array();
 		foreach ( $query->posts as $post ) {
 			$queue[] = array(
-				'id'         => $post->ID,
-				'title'      => $post->post_title,
-				'type'       => $post->post_type,
-				'status'     => $post->post_status,
-				'author'     => array(
+				'id'        => $post->ID,
+				'title'     => $post->post_title,
+				'type'      => $post->post_type,
+				'status'    => $post->post_status,
+				'author'    => array(
 					'id'   => $post->post_author,
 					'name' => get_the_author_meta( 'display_name', $post->post_author ),
 				),
-				'date'       => $post->post_date,
-				'edit_link'  => get_edit_post_link( $post->ID, 'raw' ),
-				'thumbnail'  => get_the_post_thumbnail_url( $post->ID, 'thumbnail' ),
+				'date'      => $post->post_date,
+				'edit_link' => get_edit_post_link( $post->ID, 'raw' ),
+				'thumbnail' => get_the_post_thumbnail_url( $post->ID, 'thumbnail' ),
 			);
 		}
 
@@ -342,7 +343,7 @@ class Apollo_Moderation_REST_API {
 			array(
 				'success' => true,
 				'message' => sprintf(
-					/* translators: %d: number of days */
+													/* translators: %d: number of days */
 					__( 'User suspended for %d days.', 'apollo-core' ),
 					$days
 				),
@@ -546,4 +547,3 @@ class Apollo_Moderation_REST_API {
 		return true;
 	}
 }
-

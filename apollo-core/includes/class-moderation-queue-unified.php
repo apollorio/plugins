@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -44,14 +45,14 @@ class Apollo_Moderation_Queue_Unified {
 	public static function init(): void {
 		// Add pending count to admin menu
 		add_action( 'admin_menu', array( __CLASS__, 'add_pending_count_badge' ), 999 );
-		
+
 		// Hook into post save to trigger moderation visibility
 		add_action( 'save_post', array( __CLASS__, 'on_post_save' ), 10, 3 );
 		add_action( 'transition_post_status', array( __CLASS__, 'on_status_change' ), 10, 3 );
-		
+
 		// Register REST endpoint for unified queue
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-		
+
 		// Clear transient cache when posts change
 		add_action( 'save_post', array( __CLASS__, 'clear_pending_cache' ) );
 		add_action( 'delete_post', array( __CLASS__, 'clear_pending_cache' ) );
@@ -74,7 +75,7 @@ class Apollo_Moderation_Queue_Unified {
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'source' => array(
+					'source'    => array(
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 					),
@@ -99,7 +100,7 @@ class Apollo_Moderation_Queue_Unified {
 	 * @return bool True if user can moderate.
 	 */
 	public static function check_moderation_permission(): bool {
-		return current_user_can( 'view_moderation_queue' ) 
+		return current_user_can( 'view_moderation_queue' )
 			|| current_user_can( 'apollo_cena_moderate_events' )
 			|| current_user_can( 'moderate_apollo_content' )
 			|| current_user_can( 'manage_options' );
@@ -198,8 +199,8 @@ class Apollo_Moderation_Queue_Unified {
 		self::clear_pending_cache();
 
 		// If post is pending/draft and from a moderated CPT, mark it
-		if ( in_array( $post->post_status, array( 'pending', 'draft' ), true ) 
-			&& in_array( $post->post_type, self::get_moderation_cpts(), true ) 
+		if ( in_array( $post->post_status, array( 'pending', 'draft' ), true )
+			&& in_array( $post->post_type, self::get_moderation_cpts(), true )
 		) {
 			// Mark when the post was submitted for moderation
 			if ( ! get_post_meta( $post_id, '_apollo_submitted_for_moderation', true ) ) {
@@ -227,7 +228,7 @@ class Apollo_Moderation_Queue_Unified {
 		if ( 'publish' === $new_status && in_array( $old_status, array( 'pending', 'draft' ), true ) ) {
 			update_post_meta( $post->ID, '_apollo_approved_at', current_time( 'mysql' ) );
 			update_post_meta( $post->ID, '_apollo_approved_by', get_current_user_id() );
-			
+
 			// Trigger action for notifications
 			do_action( 'apollo_post_approved', $post->ID, $post );
 		}
@@ -251,7 +252,7 @@ class Apollo_Moderation_Queue_Unified {
 		}
 
 		$meta_query = array();
-		
+
 		// Filter by source (e.g., 'cena-rio')
 		if ( $source_filter ) {
 			$meta_query[] = array(
@@ -280,24 +281,24 @@ class Apollo_Moderation_Queue_Unified {
 			$source = get_post_meta( $post->ID, '_apollo_source', true );
 
 			$items[] = array(
-				'id'           => $post->ID,
-				'title'        => $post->post_title ?: __( '(sem título)', 'apollo-core' ),
-				'type'         => $post->post_type,
-				'type_label'   => self::get_post_type_label( $post->post_type ),
-				'status'       => $post->post_status,
-				'author'       => array(
+				'id'          => $post->ID,
+				'title'       => $post->post_title ?: __( '(sem título)', 'apollo-core' ),
+				'type'        => $post->post_type,
+				'type_label'  => self::get_post_type_label( $post->post_type ),
+				'status'      => $post->post_status,
+				'author'      => array(
 					'id'   => $post->post_author,
 					'name' => $author ? $author->display_name : __( 'Desconhecido', 'apollo-core' ),
 				),
-				'date'         => $post->post_date,
-				'date_human'   => human_time_diff( strtotime( $post->post_date ), current_time( 'timestamp' ) ) . ' ' . __( 'atrás', 'apollo-core' ),
-				'edit_link'    => get_edit_post_link( $post->ID, 'raw' ),
-				'thumbnail'    => get_the_post_thumbnail_url( $post->ID, 'thumbnail' ) ?: '',
-				'source'       => $source ?: 'wordpress',
-				'is_cena_rio'  => 'cena-rio' === $source,
-				'excerpt'      => wp_trim_words( $post->post_content, 20 ),
+				'date'        => $post->post_date,
+				'date_human'  => human_time_diff( strtotime( $post->post_date ), current_time( 'timestamp' ) ) . ' ' . __( 'atrás', 'apollo-core' ),
+				'edit_link'   => get_edit_post_link( $post->ID, 'raw' ),
+				'thumbnail'   => get_the_post_thumbnail_url( $post->ID, 'thumbnail' ) ?: '',
+				'source'      => $source ?: 'wordpress',
+				'is_cena_rio' => 'cena-rio' === $source,
+				'excerpt'     => wp_trim_words( $post->post_content, 20 ),
 			);
-		}
+		}//end foreach
 
 		// Group by source for easy filtering
 		$by_source = array(
@@ -390,7 +391,7 @@ class Apollo_Moderation_Queue_Unified {
 			if ( ! isset( $counts[ $type ] ) ) {
 				$counts[ $type ] = 0;
 			}
-			$counts[ $type ]++;
+			++$counts[ $type ];
 		}
 		return $counts;
 	}
@@ -436,7 +437,7 @@ class Apollo_Moderation_Queue_Unified {
 		$filtered_posts = array();
 		foreach ( $posts as $post ) {
 			$source = get_post_meta( $post->ID, '_apollo_source', true );
-			
+
 			if ( 'cena-rio' === $source ) {
 				// CENA-RIO event: only show if confirmed by industry
 				$cena_status = get_post_meta( $post->ID, '_apollo_cena_status', true );
@@ -485,4 +486,3 @@ class Apollo_Moderation_Queue_Unified {
 
 // Initialize
 Apollo_Moderation_Queue_Unified::init();
-

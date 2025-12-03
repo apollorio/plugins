@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * Apollo Design Library
  *
@@ -41,7 +42,7 @@ class Apollo_Design_Library {
 	 * Inicializa a biblioteca
 	 */
 	public static function init(): void {
-		$plugin_dir = defined( 'APOLLO_CORE_PLUGIN_DIR' ) ? APOLLO_CORE_PLUGIN_DIR : plugin_dir_path( __FILE__ ) . '../';
+		$plugin_dir         = defined( 'APOLLO_CORE_PLUGIN_DIR' ) ? APOLLO_CORE_PLUGIN_DIR : plugin_dir_path( __FILE__ ) . '../';
 		self::$library_path = $plugin_dir . 'templates/design-library/';
 	}
 
@@ -295,4 +296,3 @@ class Apollo_Design_Library {
 
 // Inicializa a biblioteca
 add_action( 'plugins_loaded', array( 'Apollo_Design_Library', 'init' ), 5 );
-

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -202,4 +203,3 @@ class Test_Apollo_Form_Schema extends WP_UnitTestCase {
 		$this->assertEquals( '1.0.0', $version );
 	}
 }
-

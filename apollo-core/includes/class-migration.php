@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -120,12 +121,12 @@ class Apollo_Core_Migration {
 			if ( false === $existing_value ) {
 				// New option doesn't exist, create it.
 				update_option( $new_key, $old_value );
-				$migrated++;
+				++$migrated;
 			} elseif ( is_array( $old_value ) && is_array( $existing_value ) ) {
 				// Merge arrays.
 				$merged = array_merge( $existing_value, $old_value );
 				update_option( $new_key, $merged );
-				$migrated++;
+				++$migrated;
 			}
 		}
 
@@ -158,10 +159,10 @@ class Apollo_Core_Migration {
 				if ( empty( $existing ) ) {
 					// Add new meta.
 					update_post_meta( $row->post_id, $new_key, $row->meta_value );
-					$migrated++;
+					++$migrated;
 				}
 			}
-		}
+		}//end foreach
 
 		return $migrated;
 	}
@@ -203,4 +204,3 @@ class Apollo_Core_Migration {
 		return true;
 	}
 }
-

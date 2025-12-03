@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -325,7 +326,7 @@ class Apollo_Membership_Test extends WP_UnitTestCase {
 	 */
 	public function test_membership_change_is_logged() {
 		// Enable audit log.
-		$settings = apollo_get_mod_settings();
+		$settings                      = apollo_get_mod_settings();
 		$settings['audit_log_enabled'] = true;
 		apollo_update_mod_settings( $settings );
 
@@ -355,5 +356,3 @@ class Apollo_Membership_Test extends WP_UnitTestCase {
 		$this->assertEquals( 'apollo', $details['to'] );
 	}
 }
-
-

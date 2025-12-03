@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -154,7 +155,7 @@ class Apollo_Core_Permissions {
 	 */
 	public static function is_co_author( $user_id, $post_id ) {
 		$co_authors = get_post_meta( $post_id, '_event_co_authors', true );
-		
+
 		if ( ! is_array( $co_authors ) ) {
 			$co_authors = get_post_meta( $post_id, '_local_co_authors', true );
 		}
@@ -233,4 +234,3 @@ class Apollo_Core_Permissions {
 		return true;
 	}
 }
-

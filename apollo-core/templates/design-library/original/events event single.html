@@ -1,12 +1,29 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: EVENT SINGLE PAGE
+PHP: templates/single-event_listing.php | CPT: event_listing
+
+@BLOCKS: HERO_MEDIA, EVENT_BODY, QUICK_ACTIONS, LINEUP, VENUE, TICKETS
+@WIDGETS: RSVP_AVATARS, PROMO_SLIDER, VENUE_SLIDER, MAP, BOTTOM_BAR
+@CARDS: DJ_LINEUP_CARD, TICKET_CARD
+@LAYOUTS: MOBILE_FIRST (max-width: 500px centered)
+
+PHP VARS: $event, $event_title, $event_date, $venue, $lineup[], $tickets[], 
+          $gallery[], $promo_code, $youtube_url, $interested_users[]
+================================================================================
+-->
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
+    <!-- @PHP: echo esc_html($event_title) . ' - Apollo::rio'; -->
     <title>Festa Dismantle #2 - Apollo::rio</title>
     <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- UNI.CSS (Apollo Global Design System - base utilities only) -->
+    <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
     <style>
         * { 
             -webkit-tap-highlight-color: transparent; corner-shape:squircle;
@@ -880,10 +897,17 @@
     </style>
 </head>
 <body>
+    <!-- @LAYOUT: MOBILE_CONTAINER (centered on desktop, fullwidth mobile) -->
     <div class="mobile-container">
-        <!-- Hero Media -->
+    
+        <!-- ================================================================
+             @BLOCK: HERO_MEDIA
+             @PHP: templates/partials/event-hero.php
+             @VARS: $youtube_url OR $featured_image_url (fallback)
+             ================================================================ -->
         <div class="hero-media">
              <div class="video-cover">
+    <!-- @PHP: echo esc_url($youtube_embed_url); -->
     <iframe
       src="[$URL_YOUTUBE_HERE]"
       allow="autoplay; fullscreen"
@@ -976,9 +1000,17 @@
             </div>
         </div>
 
-        <!-- Event Body -->
+        <!-- ================================================================
+             @BLOCK: EVENT_BODY
+             @PHP: templates/partials/event-content.php
+             ================================================================ -->
         <div class="event-body">
-            <!-- Quick Actions -->
+        
+            <!-- ============================================================
+                 @WIDGET: QUICK_ACTIONS (Tickets, Lineup, Route, Interest)
+                 @PHP: templates/partials/event-quick-actions.php
+                 @VARS: $has_tickets, $has_lineup, $has_venue, $user_interested
+                 ============================================================ -->
             <div class="quick-actions">
                 <a href="#route_TICKETS" class="quick-action">
                     <div class="quick-action-icon">
@@ -1008,9 +1040,16 @@
          
           
           
-        <!-- RSVP Row with Avatar Explosion = EXAMPLE TO REPLACE WITH USER AVATAR -->
+        <!-- ============================================================
+             @WIDGET: RSVP_AVATARS (Interested Users)
+             @PHP: templates/partials/event-rsvp-avatars.php
+             @VARS: $interested_users[] (array of user objects)
+             @VARS: $total_interested (int), $max_visible = 10
+             @LOOP: foreach(array_slice($interested_users, 0, $max_visible) as $user)
+             ============================================================ -->
 <div class="rsvp-row">
     <div class="avatars-explosion">
+        <!-- @PHP: foreach($interested_users as $user): echo get_avatar_url($user->ID); endforeach; -->
         <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/1.jpg')"></div>
         <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/2.jpg')"></div>
         <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/3.jpg')"></div>

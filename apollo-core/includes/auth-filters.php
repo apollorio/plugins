@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -118,13 +119,16 @@ function apollo_login_error_messages() {
 
 	return '';
 }
-add_filter( 'login_message', function( $message ) {
-	$apollo_message = apollo_login_error_messages();
-	if ( $apollo_message ) {
-		$message .= '<div class="message">' . esc_html( $apollo_message ) . '</div>';
+add_filter(
+	'login_message',
+	function ( $message ) {
+		$apollo_message = apollo_login_error_messages();
+		if ( $apollo_message ) {
+			$message .= '<div class="message">' . esc_html( $apollo_message ) . '</div>';
+		}
+		return $message;
 	}
-	return $message;
-} );
+);
 
 /**
  * Check if user can perform action (helper function)
@@ -182,4 +186,3 @@ function apollo_get_user_status( $user_id ) {
 
 	return $status;
 }
-

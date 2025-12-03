@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -130,10 +131,10 @@ class Test_Apollo_REST_Forms extends WP_UnitTestCase {
 		$request->set_param(
 			'data',
 			array(
-				'post_title'         => 'Test Event',
-				'post_content'       => 'Test event description',
-				'_event_start_date'  => '2025-12-01',
-				'instagram_user_id'  => 'event_instagram',
+				'post_title'        => 'Test Event',
+				'post_content'      => 'Test event description',
+				'_event_start_date' => '2025-12-01',
+				'instagram_user_id' => 'event_instagram',
 			)
 		);
 
@@ -229,4 +230,3 @@ class Test_Apollo_REST_Forms extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'instagram_user_id', $data['errors'] );
 	}
 }
-

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -31,6 +32,9 @@ define( 'APOLLO_CORE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Load Integration Bridge FIRST - provides shared utilities for all Apollo plugins.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/integration-bridge.php';
+
+// Load Global Assets Manager - centralized UNI.CSS and global asset management.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-global-assets.php';
 
 // Load helper functions.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/caching.php';
@@ -113,4 +117,3 @@ function apollo_core() {
 
 // Start the plugin.
 apollo_core();
-

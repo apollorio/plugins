@@ -1,7 +1,22 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: COMMUNITY/GROUP SINGLE PAGE
+PHP: templates/single-apollo_community.php | CPT: apollo_community
+
+@BLOCKS: COVER_HERO, COMMUNITY_INFO, MEMBERS_LIST, POSTS_FEED, EVENTS, RULES
+@WIDGETS: JOIN_BTN, MEMBERS_AVATARS, SHARE_BTN, ADMIN_ACTIONS, TABS
+@CARDS: MEMBER_CARD, POST_CARD, EVENT_PREVIEW_CARD
+@LAYOUTS: HEADER_HERO + TAB_CONTENT + SIDEBAR
+
+PHP VARS: $community, $community_title, $cover_url, $description, $members[],
+          $admins[], $posts_query, $events[], $rules[], $is_member, $can_post
+================================================================================
+-->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
   <meta charset="UTF-8" />
+  <!-- @PHP: echo 'Comunidade · ' . esc_html($community_title); -->
   <title>Apollo :: Comunidade · Gay Techno RJ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
@@ -22,7 +37,7 @@
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
 
   <!-- Remixicon -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <style>
     :root {

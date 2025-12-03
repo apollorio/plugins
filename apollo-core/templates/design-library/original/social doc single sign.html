@@ -1,7 +1,23 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: DOCUMENT SIGNING PAGE
+PHP: templates/shortcode-doc-sign.php | Shortcode: [apollo_doc_sign id="X"]
+
+@BLOCKS: DOC_HEADER, DOC_PREVIEW, SIGNATURE_PAD, PARTIES_LIST, TIMELINE
+@WIDGETS: SIGNATURE_CANVAS, ACCEPT_CHECKBOX, SIGN_BTN, DOWNLOAD_BTN
+@ELEMENTS: PARTY_ROW, SIGNATURE_FIELD, AUDIT_LOG_ITEM
+@LAYOUTS: 2-COLUMN (doc-preview + sidebar-actions)
+
+PHP VARS: $document, $document_id, $document_title, $parties[], $signatures[],
+          $current_user, $user_role (signer/viewer), $can_sign, $is_signed,
+          $audit_log[], $expiry_date
+================================================================================
+-->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
   <meta charset="UTF-8" />
+  <!-- @PHP: echo 'Assinar: ' . esc_html($document_title); -->
   <title>Apollo :: Assinar Documento</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
@@ -30,7 +46,7 @@
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
 
   <!-- Remixicon (fallback) -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <style>
     :root {

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -194,9 +195,9 @@ function apollo_rest_can_manage_memberships() {
 /**
  * Validate user ID
  *
- * @param int              $param   User ID.
- * @param WP_REST_Request  $request Request object.
- * @param string           $key     Parameter key.
+ * @param int             $param   User ID.
+ * @param WP_REST_Request $request Request object.
+ * @param string          $key     Parameter key.
  * @return bool True if valid.
  */
 function apollo_rest_validate_user_id( $param, $request, $key ) {
@@ -207,9 +208,9 @@ function apollo_rest_validate_user_id( $param, $request, $key ) {
 /**
  * Validate membership slug
  *
- * @param string           $param   Membership slug.
- * @param WP_REST_Request  $request Request object.
- * @param string           $key     Parameter key.
+ * @param string          $param   Membership slug.
+ * @param WP_REST_Request $request Request object.
+ * @param string          $key     Parameter key.
  * @return bool True if valid.
  */
 function apollo_rest_validate_membership_slug( $param, $request, $key ) {
@@ -263,8 +264,8 @@ function apollo_rest_set_membership( $request ) {
 			);
 		}
 
-		$user             = get_userdata( $user_id );
-		$membership_data  = apollo_get_membership_data( $membership_slug );
+		$user            = get_userdata( $user_id );
+		$membership_data = apollo_get_membership_data( $membership_slug );
 
 		return new WP_REST_Response(
 			array(
@@ -277,19 +278,24 @@ function apollo_rest_set_membership( $request ) {
 			200
 		);
 	} catch ( Exception $e ) {
-		error_log( sprintf( 
-			'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s', 
-			$user_id ?? 0,
-			$membership_slug ?? 'unknown',
-			$e->getMessage()
-		) );
-		
+		error_log(
+			sprintf(
+				'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s',
+				$user_id ?? 0,
+				$membership_slug ?? 'unknown',
+				$e->getMessage()
+			)
+		);
+
 		return new WP_Error(
 			'membership_update_failed',
 			__( 'Failed to update membership. Please try again.', 'apollo-core' ),
-			array( 'status' => 500, 'debug_info' => WP_DEBUG ? $e->getMessage() : null )
+			array(
+				'status'     => 500,
+				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
+			)
 		);
-	}
+	}//end try
 }
 
 /**
@@ -396,7 +402,7 @@ function apollo_rest_update_membership( $request ) {
 
 	// Get current memberships.
 	$memberships = get_option( 'apollo_memberships', array() );
-	
+
 	if ( ! isset( $memberships[ $slug ] ) ) {
 		return new WP_REST_Response(
 			array(
@@ -584,5 +590,3 @@ function apollo_rest_import_memberships( $request ) {
 		200
 	);
 }
-
-

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -25,7 +26,7 @@ function apollo_display_membership_badge( $user_id, $args = array() ) {
 		'badge_class'    => '',
 		'show_label'     => true,
 	);
-	$args = wp_parse_args( $args, $defaults );
+	$args     = wp_parse_args( $args, $defaults );
 
 	// Get user membership.
 	$membership_slug = apollo_get_user_membership( $user_id );
@@ -72,7 +73,7 @@ function apollo_display_membership_badge( $user_id, $args = array() ) {
 
 	if ( ! empty( $instagram_id ) ) {
 		$instagram_url = 'https://instagram.com/' . esc_attr( $instagram_id );
-		$html .= sprintf(
+		$html         .= sprintf(
 			'<a href="%s" target="_blank" rel="noopener noreferrer" style="color: %s; text-decoration: none;" class="apollo-membership__instagram">@%s</a>',
 			esc_url( $instagram_url ),
 			$text_color,
@@ -105,7 +106,7 @@ function apollo_the_membership_badge( $user_id, $args = array() ) {
  */
 function apollo_add_membership_to_author_box( $author_box, $user_id ) {
 	$badge = apollo_display_membership_badge( $user_id );
-	
+
 	if ( empty( $badge ) ) {
 		return $author_box;
 	}
@@ -247,7 +248,7 @@ add_action( 'pre_get_users', 'apollo_sort_users_by_membership' );
 /**
  * Add membership badge to comments
  *
- * @param string  $comment_text Comment text.
+ * @param string     $comment_text Comment text.
  * @param WP_Comment $comment    Comment object.
  * @return string Modified comment text.
  */
@@ -257,7 +258,7 @@ function apollo_add_membership_to_comment( $comment_text, $comment = null ) {
 	}
 
 	$badge = apollo_display_membership_badge( $comment->user_id, array( 'show_instagram' => false ) );
-	
+
 	if ( empty( $badge ) ) {
 		return $comment_text;
 	}

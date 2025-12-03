@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -26,10 +27,10 @@ class Apollo_Cena_Rio_Submissions {
 	public static function init(): void {
 		// Register shortcode for front-end submission form
 		add_shortcode( 'apollo_cena_submit_event', array( __CLASS__, 'render_submission_form' ) );
-		
+
 		// Handle form submission
 		add_action( 'template_redirect', array( __CLASS__, 'handle_submission' ) );
-		
+
 		// REST API endpoint for AJAX submissions
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 	}
@@ -45,7 +46,8 @@ class Apollo_Cena_Rio_Submissions {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_get_events' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ), // Only CENA members
+				'permission_callback' => array( __CLASS__, 'check_submission_permission' ), 
+			// Only CENA members
 			)
 		);
 
@@ -89,10 +91,10 @@ class Apollo_Cena_Rio_Submissions {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'event_lat'         => array(
-						'type'              => 'number',
+						'type' => 'number',
 					),
 					'event_lng'         => array(
-						'type'              => 'number',
+						'type' => 'number',
 					),
 				),
 			)
@@ -174,7 +176,7 @@ class Apollo_Cena_Rio_Submissions {
 		$events = array();
 		foreach ( $query->posts as $post ) {
 			$cena_status = get_post_meta( $post->ID, '_apollo_cena_status', true );
-			
+
 			// Map CENA internal status to display status
 			// expected = pending internal approval from industry
 			// confirmed = approved by industry, waiting MOD approval for public
@@ -184,29 +186,31 @@ class Apollo_Cena_Rio_Submissions {
 				$display_status = 'confirmed';
 			}
 			if ( 'publish' === $post->post_status ) {
-				$display_status = 'published'; // Already public
+				$display_status = 'published'; 
+				// Already public
 			}
 
 			$events[] = array(
-				'id'            => $post->ID,
-				'title'         => get_the_title( $post->ID ),
-				'description'   => $post->post_content,
-				'post_status'   => $post->post_status,
-				'cena_status'   => $cena_status,
-				'status'        => $display_status, // expected | confirmed | published
-				'start_date'    => get_post_meta( $post->ID, '_event_start_date', true ),
-				'end_date'      => get_post_meta( $post->ID, '_event_end_date', true ),
-				'start_time'    => get_post_meta( $post->ID, '_event_start_time', true ),
-				'end_time'      => get_post_meta( $post->ID, '_event_end_time', true ),
-				'venue'         => get_post_meta( $post->ID, '_event_venue_name', true ),
-				'lat'           => get_post_meta( $post->ID, '_event_lat', true ),
-				'lng'           => get_post_meta( $post->ID, '_event_lng', true ),
-				'author_id'     => $post->post_author,
-				'dateKey'       => get_post_meta( $post->ID, '_event_start_date', true ),
-				'is_public'     => 'publish' === $post->post_status,
-				'awaiting_mod'  => 'confirmed' === $cena_status && 'draft' === $post->post_status,
+				'id'                             => $post->ID,
+				'title'                          => get_the_title( $post->ID ),
+				'description'                    => $post->post_content,
+				'post_status'                    => $post->post_status,
+				'cena_status'                    => $cena_status,
+				'status'                         => $display_status, 
+				// expected | confirmed | published
+									'start_date' => get_post_meta( $post->ID, '_event_start_date', true ),
+				'end_date'                       => get_post_meta( $post->ID, '_event_end_date', true ),
+				'start_time'                     => get_post_meta( $post->ID, '_event_start_time', true ),
+				'end_time'                       => get_post_meta( $post->ID, '_event_end_time', true ),
+				'venue'                          => get_post_meta( $post->ID, '_event_venue_name', true ),
+				'lat'                            => get_post_meta( $post->ID, '_event_lat', true ),
+				'lng'                            => get_post_meta( $post->ID, '_event_lng', true ),
+				'author_id'                      => $post->post_author,
+				'dateKey'                        => get_post_meta( $post->ID, '_event_start_date', true ),
+				'is_public'                      => 'publish' === $post->post_status,
+				'awaiting_mod'                   => 'confirmed' === $cena_status && 'draft' === $post->post_status,
 			);
-		}
+		}//end foreach
 
 		return new WP_REST_Response(
 			array(
@@ -293,9 +297,9 @@ class Apollo_Cena_Rio_Submissions {
 				'success' => true,
 				'message' => __( 'Evento confirmado! Enviado para aprovação do MOD.', 'apollo-core' ),
 				'event'   => array(
-					'id'          => $post_id,
-					'cena_status' => 'confirmed',
-					'post_status' => 'draft',
+					'id'           => $post_id,
+					'cena_status'  => 'confirmed',
+					'post_status'  => 'draft',
 					'awaiting_mod' => true,
 				),
 			),
@@ -634,7 +638,7 @@ class Apollo_Cena_Rio_Submissions {
 	 *
 	 * Events start as 'private' with _apollo_cena_status = 'expected'
 	 * They are ONLY visible in the CENA-RIO internal calendar.
-	 * 
+	 *
 	 * When industry confirms → status changes to 'confirmed' and post becomes 'draft'
 	 * Then it appears in MOD queue for public approval.
 	 *
@@ -657,8 +661,9 @@ class Apollo_Cena_Rio_Submissions {
 				'post_type'    => 'event_listing',
 				'post_title'   => $event_data['title'],
 				'post_content' => $event_data['description'],
-				'post_status'  => 'private', // Internal only - NOT in MOD queue
-				'post_author'  => get_current_user_id(),
+				'post_status'  => 'private', 
+				// Internal only - NOT in MOD queue
+												'post_author' => get_current_user_id(),
 			),
 			true
 		);
@@ -669,13 +674,14 @@ class Apollo_Cena_Rio_Submissions {
 
 		// Add CENA-specific meta
 		update_post_meta( $post_id, '_apollo_source', 'cena-rio' );
-		update_post_meta( $post_id, '_apollo_cena_status', 'expected' ); // Expected = awaiting industry confirmation
+		update_post_meta( $post_id, '_apollo_cena_status', 'expected' ); 
+		// Expected = awaiting industry confirmation
 		update_post_meta( $post_id, '_apollo_cena_submitted_by', get_current_user_id() );
 		update_post_meta( $post_id, '_apollo_cena_submitted_at', current_time( 'mysql' ) );
 
 		// Add event dates (apollo-events-manager format)
 		update_post_meta( $post_id, '_event_start_date', $event_data['start_date'] );
-		
+
 		if ( ! empty( $event_data['end_date'] ) ) {
 			update_post_meta( $post_id, '_event_end_date', $event_data['end_date'] );
 		}

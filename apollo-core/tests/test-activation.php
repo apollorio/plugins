@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -54,7 +55,7 @@ class Apollo_Core_Activation_Test extends WP_UnitTestCase {
 		$table_name = $wpdb->prefix . 'apollo_mod_log';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" );
-		
+
 		$this->assertEquals( $table_name, $table_exists, 'apollo_mod_log table should exist' );
 	}
 
@@ -90,4 +91,3 @@ class Apollo_Core_Activation_Test extends WP_UnitTestCase {
 		$this->assertTrue( $role->has_cap( 'apollo_view_dj_stats' ), 'DJ should have apollo_view_dj_stats capability' );
 	}
 }
-

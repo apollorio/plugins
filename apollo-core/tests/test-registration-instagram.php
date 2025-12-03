@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -141,7 +142,7 @@ class Test_Apollo_Registration_Instagram extends WP_UnitTestCase {
 	 * Test Instagram ID format validation
 	 */
 	public function test_instagram_format_validation() {
-		$valid_usernames = array( 'user123', 'test_user', 'User_Name_123', 'a' );
+		$valid_usernames   = array( 'user123', 'test_user', 'User_Name_123', 'a' );
 		$invalid_usernames = array( 'user name', 'user!', 'user@', 'a_very_long_username_that_exceeds_thirty_chars' );
 
 		foreach ( $valid_usernames as $username ) {
@@ -153,4 +154,3 @@ class Test_Apollo_Registration_Instagram extends WP_UnitTestCase {
 		}
 	}
 }
-

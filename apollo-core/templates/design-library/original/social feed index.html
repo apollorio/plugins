@@ -1,7 +1,21 @@
 <!DOCTYPE html>
+<!--
+================================================================================
+APOLLO TEMPLATE: SOCIAL FEED INDEX
+PHP: templates/shortcode-social-feed.php | Shortcode: [apollo_social_feed]
+
+@BLOCKS: HEADER, SIDEBAR, FEED_CARDS, STORIES, FILTERS, COMPOSE_POST
+@WIDGETS: USER_MENU, NOTIFICATIONS, SEARCH, DARK_MODE_TOGGLE
+@CARDS: POST_CARD, STORY_CARD, USER_CARD, SUGGESTION_CARD
+@LAYOUTS: 3-COLUMN (sidebar-feed-aside)
+
+PHP VARS: $current_user, $posts_query, $stories, $suggestions, $notifications
+================================================================================
+-->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
   <meta charset="UTF-8" />
+  <!-- @PHP: wp_title() ou get_bloginfo('name') -->
   <title>Apollo :: Feed Social</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
@@ -30,7 +44,7 @@
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
 
   <!-- Remixicon (fallback caso base.js não injete) -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 
   <style>
     :root {
@@ -268,10 +282,17 @@
 </head>
 <body class="min-h-screen">
 
-  <!-- APP SHELL: SIDEBAR DESKTOP + MAIN + BOTTOM NAV MOBILE -->
+  <!-- ========================================================================
+       @LAYOUT: APP_SHELL (3-column: sidebar-main-aside)
+       @PHP: Wrapper principal do shortcode
+       ======================================================================== -->
   <div class="min-h-screen flex bg-slate-50">
 
-    <!-- SIDEBAR DESKTOP (nav lateral, mais clean) -->
+    <!-- ====================================================================
+         @BLOCK: SIDEBAR_DESKTOP
+         @PHP: templates/partials/sidebar-social.php
+         @VARS: $menu_items, $current_page, $current_user
+         ==================================================================== -->
       <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <!-- Logo / topo -->
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
@@ -330,10 +351,15 @@
         </a>
       </nav>
 
-      <!-- User / footer sidebar -->
+      <!-- ================================================================
+           @WIDGET: SIDEBAR_USER_BLOCK
+           @PHP: $user = wp_get_current_user();
+           @VARS: $user->display_name, $user->user_login, get_avatar_url($user->ID)
+           ================================================================ -->
       <div class="border-t border-slate-100 px-4 py-3">
         <div class="flex items-center gap-3">
           <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
+            <!-- @PHP: echo get_avatar($user->ID, 32); -->
             <img
               src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
               class="h-full w-full object-cover"
@@ -341,7 +367,9 @@
             />
           </div>
           <div class="flex flex-col leading-tight">
+            <!-- @PHP: echo esc_html($user->display_name); -->
             <span class="text-[12px] font-semibold text-slate-900">Valle</span>
+            <!-- @PHP: echo '@' . esc_html($user->user_login); -->
             <span class="text-[10px] text-slate-500">@valle</span>
           </div>
           <button class="ml-auto text-slate-400 hover:text-slate-700">
@@ -352,10 +380,16 @@
     </aside>
 
 
-    <!-- MAIN COLUMN (TOP HEADER + FEED + SIDEBAR DIREITA) -->
+    <!-- ====================================================================
+         @LAYOUT: MAIN_COLUMN (header + feed + aside)
+         ==================================================================== -->
     <div class="flex-1 flex flex-col min-h-screen">
 
-      <!-- TOP HEADER (sempre visível) -->
+      <!-- ================================================================
+           @BLOCK: TOP_HEADER
+           @PHP: templates/partials/header-social.php
+           @VARS: $user, $notifications_count, $greeting (boa tarde/noite/dia)
+           ================================================================ -->
       <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
           <!-- Versão mobile mostra só ícone -->
@@ -421,12 +455,18 @@
           <!-- LEFT COLUMN: FEED STREAM -->
           <div class="space-y-4">
 
-            <!-- Feed Controls / Create Post -->
+            <!-- ============================================================
+                 @WIDGET: COMPOSE_POST (Create New Post Box)
+                 @PHP: templates/partials/compose-post.php
+                 @VARS: $user, $user->display_name
+                 ============================================================ -->
             <section class="bg-white md:rounded-xl border-b md:border border-slate-200 p-4 sticky md:static top-14 z-30">
               <div class="flex items-center gap-3 mb-4">
                 <div class="h-10 w-10 rounded-full bg-slate-100 overflow-hidden shrink-0">
+                  <!-- @PHP: echo get_avatar($user->ID, 40); -->
                   <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb" class="h-full w-full" />
                 </div>
+                <!-- @PHP: sprintf('No que você está pensando, %s?', $user->display_name) -->
                 <button class="flex-1 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 text-[13px] px-4 py-2.5 rounded-full transition-colors">
                   No que você está pensando, Valle?
                 </button>
@@ -451,10 +491,20 @@
               </div>
             </section>
 
-            <!-- FEED STREAM -->
+            <!-- ============================================================
+                 @BLOCK: FEED_STREAM
+                 @PHP: templates/partials/feed-loop.php
+                 @VARS: $posts_query = new WP_Query(['post_type' => 'apollo_post'])
+                 @LOOP: foreach($posts as $post): / endforeach;
+                 ============================================================ -->
             <div id="feed-container" class="space-y-4 px-0 md:px-0">
 
-              <!-- POST 1: DISMANTLE -->
+              <!-- ========================================================
+                   @CARD: POST_CARD (Event Type)
+                   @PHP: templates/cards/card-post-event.php
+                   @VARS: $post, $author, $event_data, $likes_count, $comments_count
+                   @ATTR: data-type="<?php echo $post_type; ?>"
+                   ======================================================== -->
               <article class="aprioEXP-card-shell p-4 flex gap-3 feed-item" data-type="events">
                 <div class="shrink-0">
                   <div class="h-10 w-10 rounded-full overflow-hidden border border-slate-200">
@@ -507,7 +557,11 @@
                 </div>
               </article>
 
-              <!-- POST 2: COMMUNITY -->
+              <!-- ========================================================
+                   @CARD: POST_CARD (Community Type)
+                   @PHP: templates/cards/card-post-community.php
+                   @VARS: $post, $author, $community_name, $tags
+                   ======================================================== -->
               <article class="aprioEXP-card-shell p-4 flex gap-3 feed-item" data-type="community">
                 <div class="shrink-0">
                   <div class="h-10 w-10 rounded-full overflow-hidden bg-neutral-100">
@@ -546,7 +600,12 @@
                 </div>
               </article>
 
-              <!-- POST 3: MARKET -->
+              <!-- ========================================================
+                   @CARD: POST_CARD (Marketplace/Classified Type)
+                   @PHP: templates/cards/card-post-market.php
+                   @VARS: $post, $listing_title, $price, $seller, $seller_reputation
+                   @INTEGRATION: WPAdverts plugin
+                   ======================================================== -->
               <article class="aprioEXP-card-shell p-4 flex gap-3 feed-item border-l-4 border-l-emerald-500" data-type="market">
                 <div class="shrink-0">
                   <div class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">

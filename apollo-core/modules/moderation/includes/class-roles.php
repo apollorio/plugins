@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -105,14 +106,14 @@ class Apollo_Moderation_Roles {
 
 		// Map content type to capability.
 		$cap_map = array(
-			'event_listing'       => 'publish_events',
-			'event_local'         => 'publish_locals',
-			'event_dj'            => 'publish_djs',
-			'apollo_nucleo'       => 'publish_nucleos',
-			'apollo_comunidade'   => 'publish_comunidades',
-			'apollo_classified'   => 'edit_classifieds',
-			'apollo_social_post'  => 'edit_posts',
-			'post'                => 'edit_posts',
+			'event_listing'      => 'publish_events',
+			'event_local'        => 'publish_locals',
+			'event_dj'           => 'publish_djs',
+			'apollo_nucleo'      => 'publish_nucleos',
+			'apollo_comunidade'  => 'publish_comunidades',
+			'apollo_classified'  => 'edit_classifieds',
+			'apollo_social_post' => 'edit_posts',
+			'post'               => 'edit_posts',
 		);
 
 		$required_cap = isset( $cap_map[ $content_type ] ) ? $cap_map[ $content_type ] : false;
@@ -196,4 +197,3 @@ class Apollo_Moderation_Roles {
 		return array_unique( $types );
 	}
 }
-

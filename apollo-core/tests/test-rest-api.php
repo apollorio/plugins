@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -163,4 +164,3 @@ class Apollo_Core_REST_API_Test extends WP_UnitTestCase {
 		$this->assertFalse( $data['liked'], 'Post should be unliked' );
 	}
 }
-

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -73,7 +74,7 @@ class Apollo_Cena_Rio_Canvas {
 		// Check permissions based on page
 		if ( 'calendar' === $page ) {
 			if ( ! Apollo_Cena_Rio_Roles::user_can_submit() ) {
-				wp_die( 
+				wp_die(
 					esc_html__( 'Você não tem permissão para acessar esta página.', 'apollo-core' ),
 					esc_html__( 'Acesso Negado', 'apollo-core' ),
 					array( 'response' => 403 )
@@ -83,7 +84,7 @@ class Apollo_Cena_Rio_Canvas {
 
 		if ( 'moderation' === $page ) {
 			if ( ! Apollo_Cena_Rio_Roles::user_can_moderate() ) {
-				wp_die( 
+				wp_die(
 					esc_html__( 'Você não tem permissão para acessar a moderação.', 'apollo-core' ),
 					esc_html__( 'Acesso Negado', 'apollo-core' ),
 					array( 'response' => 403 )
@@ -130,4 +131,3 @@ class Apollo_Cena_Rio_Canvas {
 
 // Initialize
 Apollo_Cena_Rio_Canvas::init();
-

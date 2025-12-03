@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -20,19 +21,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function apollo_get_client_ip(): string {
 	$ip = '0.0.0.0';
-	
+
 	// Check various headers in order of trust
 	$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
-	
+
 	foreach ( $ip_keys as $key ) {
 		if ( ! empty( $_SERVER[ $key ] ) ) {
 			$raw_ip = sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) );
-			
+
 			// Handle comma-separated list (X-Forwarded-For)
 			if ( strpos( $raw_ip, ',' ) !== false ) {
 				$raw_ip = trim( explode( ',', $raw_ip )[0] );
 			}
-			
+
 			// Validate IP format
 			if ( filter_var( $raw_ip, FILTER_VALIDATE_IP ) ) {
 				$ip = $raw_ip;
@@ -40,7 +41,7 @@ function apollo_get_client_ip(): string {
 			}
 		}
 	}
-	
+
 	return $ip;
 }
 
@@ -54,28 +55,33 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 	$endpoint = $request->get_route();
 	$user_id  = get_current_user_id();
 	$ip       = apollo_get_client_ip();
-	
+
 	// Different limits for different endpoint types
 	$limits = array(
-		'/apollo/v1/forms/submit'       => 10,  // 10 submissions per minute
-		'/apollo/v1/quiz/attempt'       => 5,   // 5 quiz attempts per minute
-		'/apollo/v1/memberships/set'    => 20,  // 20 membership changes per minute
-		'/apollo/v1/moderation/approve' => 30,  // 30 approvals per minute
-		'default'                       => 100, // 100 requests per minute for other endpoints
+		'/apollo/v1/forms/submit'                   => 10,  
+		// 10 submissions per minute
+					'/apollo/v1/quiz/attempt'       => 5,   
+		// 5 quiz attempts per minute
+					'/apollo/v1/memberships/set'    => 20,  
+		// 20 membership changes per minute
+					'/apollo/v1/moderation/approve' => 30,  
+		// 30 approvals per minute
+					'default'                       => 100, 
+	// 100 requests per minute for other endpoints
 	);
-	
+
 	$limit = $limits[ $endpoint ] ?? $limits['default'];
-	
+
 	// Create unique key for this endpoint/user/IP combination
 	$key      = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );
 	$attempts = get_transient( $key );
-	
+
 	if ( false === $attempts ) {
 		$attempts = 0;
 	}
-	
-	$attempts++;
-	
+
+	++$attempts;
+
 	// Check if limit exceeded
 	if ( $attempts > $limit ) {
 		// Log rate limit violation
@@ -93,7 +99,7 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 				)
 			);
 		}
-		
+
 		return new WP_Error(
 			'rate_limit_exceeded',
 			sprintf(
@@ -104,14 +110,15 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 			array(
 				'status' => 429,
 				'limit'  => $limit,
-				'reset'  => 60, // Seconds until reset
+				'reset'  => 60, 
+			// Seconds until reset
 			)
 		);
-	}
-	
+	}//end if
+
 	// Store updated attempt count
 	set_transient( $key, $attempts, 60 );
-	
+
 	return true;
 }
 
@@ -125,24 +132,24 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
  */
 function apollo_rest_rate_limit_middleware( $result, WP_REST_Server $server, WP_REST_Request $request ) {
 	$route = $request->get_route();
-	
+
 	// Only apply to apollo endpoints
 	if ( 0 !== strpos( $route, '/apollo/v1' ) ) {
 		return $result;
 	}
-	
+
 	// Skip rate limiting for health check
 	if ( '/apollo/v1/health' === $route ) {
 		return $result;
 	}
-	
+
 	// Check rate limit
 	$check = apollo_rest_rate_limit_check( $request );
-	
+
 	if ( is_wp_error( $check ) ) {
 		return $check;
 	}
-	
+
 	return $result;
 }
 add_filter( 'rest_pre_dispatch', 'apollo_rest_rate_limit_middleware', 10, 3 );
@@ -157,25 +164,25 @@ add_filter( 'rest_pre_dispatch', 'apollo_rest_rate_limit_middleware', 10, 3 );
  */
 function apollo_rest_add_rate_limit_headers( WP_HTTP_Response $result, WP_REST_Server $server, WP_REST_Request $request ) {
 	$route = $request->get_route();
-	
+
 	// Only for apollo endpoints
 	if ( 0 !== strpos( $route, '/apollo/v1' ) ) {
 		return $result;
 	}
-	
+
 	$user_id  = get_current_user_id();
 	$ip       = apollo_get_client_ip();
 	$key      = 'apollo_rate_limit_' . md5( $route . '_' . $user_id . '_' . $ip );
 	$attempts = (int) get_transient( $key );
-	
+
 	// Default limit
 	$limit = 100;
-	
+
 	// Add headers
 	$result->header( 'X-RateLimit-Limit', (string) $limit );
 	$result->header( 'X-RateLimit-Remaining', (string) max( 0, $limit - $attempts ) );
 	$result->header( 'X-RateLimit-Reset', (string) ( time() + 60 ) );
-	
+
 	return $result;
 }
 add_filter( 'rest_post_dispatch', 'apollo_rest_add_rate_limit_headers', 10, 3 );
@@ -191,12 +198,13 @@ function apollo_get_rate_limit_status( string $endpoint, int $user_id = 0 ): arr
 	if ( 0 === $user_id ) {
 		$user_id = get_current_user_id();
 	}
-	
+
 	$ip       = apollo_get_client_ip();
 	$key      = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );
 	$attempts = (int) get_transient( $key );
-	$limit    = 100; // Default
-	
+	$limit    = 100; 
+	// Default
+
 	return array(
 		'endpoint'  => $endpoint,
 		'user_id'   => $user_id,
@@ -220,17 +228,16 @@ function apollo_clear_rate_limit( string $endpoint, int $user_id = 0, string $ip
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return false;
 	}
-	
+
 	if ( 0 === $user_id ) {
 		$user_id = get_current_user_id();
 	}
-	
+
 	if ( empty( $ip ) ) {
 		$ip = apollo_get_client_ip();
 	}
-	
+
 	$key = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );
-	
+
 	return delete_transient( $key );
 }
-

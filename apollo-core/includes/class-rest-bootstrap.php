@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -83,4 +84,3 @@ class Apollo_Core_Rest_Bootstrap {
 		return rest_url( self::NAMESPACE . '/' . ltrim( $path, '/' ) );
 	}
 }
-

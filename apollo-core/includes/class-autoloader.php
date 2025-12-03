@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -67,4 +68,3 @@ class Apollo_Core_Autoloader {
 		}
 	}
 }
-

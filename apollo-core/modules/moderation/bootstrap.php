@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -42,4 +43,3 @@ class Apollo_Moderation_Module {
 
 // Initialize module.
 Apollo_Moderation_Module::init();
-

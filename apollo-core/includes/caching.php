@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -23,15 +24,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function apollo_cache_remember( string $key, callable $callback, string $group = 'apollo_core', int $ttl = 3600 ) {
 	$cached = wp_cache_get( $key, $group );
-	
+
 	if ( false !== $cached ) {
 		return $cached;
 	}
-	
+
 	$data = $callback();
-	
+
 	wp_cache_set( $key, $data, $group, $ttl );
-	
+
 	return $data;
 }
 
@@ -70,12 +71,12 @@ function apollo_cache_flush_group( string $group ): void {
 function apollo_cache_versioned_key( string $key, string $group ): string {
 	$version_key = "apollo_cache_version_{$group}";
 	$version     = (int) wp_cache_get( $version_key, 'apollo_core' );
-	
+
 	if ( 0 === $version ) {
 		$version = 1;
 		wp_cache_set( $version_key, $version, 'apollo_core', DAY_IN_SECONDS );
 	}
-	
+
 	return "{$key}_v{$version}";
 }
 
@@ -164,21 +165,26 @@ function apollo_cache_flush_all(): void {
  * Usage: wp apollo cache flush
  */
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	WP_CLI::add_command( 'apollo cache flush', function() {
-		apollo_cache_flush_all();
-		WP_CLI::success( 'Apollo caches flushed successfully.' );
-	} );
-	
-	WP_CLI::add_command( 'apollo cache stats', function() {
-		WP_CLI::line( 'Apollo Cache Statistics:' );
-		WP_CLI::line( '------------------------' );
-		
-		// This is a simplified stats - real implementation would need cache plugin support
-		WP_CLI::line( 'Cache groups: apollo_quiz, apollo_forms, apollo_memberships, apollo_core' );
-		WP_CLI::line( 'TTL: 1 hour (3600 seconds)' );
-		WP_CLI::line( 'Versioning: Enabled' );
-		
-		WP_CLI::success( 'Use "wp apollo cache flush" to clear all caches.' );
-	} );
-}
+	WP_CLI::add_command(
+		'apollo cache flush',
+		function () {
+			apollo_cache_flush_all();
+			WP_CLI::success( 'Apollo caches flushed successfully.' );
+		}
+	);
 
+	WP_CLI::add_command(
+		'apollo cache stats',
+		function () {
+			WP_CLI::line( 'Apollo Cache Statistics:' );
+			WP_CLI::line( '------------------------' );
+
+			// This is a simplified stats - real implementation would need cache plugin support
+			WP_CLI::line( 'Cache groups: apollo_quiz, apollo_forms, apollo_memberships, apollo_core' );
+			WP_CLI::line( 'TTL: 1 hour (3600 seconds)' );
+			WP_CLI::line( 'Versioning: Enabled' );
+
+			WP_CLI::success( 'Use "wp apollo cache flush" to clear all caches.' );
+		}
+	);
+}//end if

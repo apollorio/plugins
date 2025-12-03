@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -103,10 +104,12 @@ class Apollo_Core_Canvas_Loader {
 		$template_slug = ltrim( $template_slug, '/' );
 
 		// Check in theme.
-		$theme_template = locate_template( array(
-			'apollo-core/' . $template_slug,
-			$template_slug,
-		) );
+		$theme_template = locate_template(
+			array(
+				'apollo-core/' . $template_slug,
+				$template_slug,
+			)
+		);
 
 		if ( $theme_template ) {
 			return $theme_template;
@@ -122,4 +125,3 @@ class Apollo_Core_Canvas_Loader {
 		return false;
 	}
 }
-

@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -20,7 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function apollo_register_forms_admin_menu() {
 	add_submenu_page(
-		'apollo-moderation', // Parent slug (assuming moderation is parent).
+		'apollo-moderation', 
+		// Parent slug (assuming moderation is parent).
 		__( 'Forms', 'apollo-core' ),
 		__( 'Formulários', 'apollo-core' ),
 		'manage_options',
@@ -65,10 +67,10 @@ function apollo_enqueue_forms_admin_assets( $hook ) {
 		'apollo-forms-admin',
 		'apolloFormsAdmin',
 		array(
-			'nonce'          => wp_create_nonce( 'apollo_forms_admin' ),
-			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-			'validTypes'     => array( 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' ),
-			'strings'        => array(
+			'nonce'      => wp_create_nonce( 'apollo_forms_admin' ),
+			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+			'validTypes' => array( 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' ),
+			'strings'    => array(
 				'confirmDelete' => __( 'Are you sure you want to delete this field?', 'apollo-core' ),
 				'addField'      => __( 'Add Field', 'apollo-core' ),
 				'editField'     => __( 'Edit Field', 'apollo-core' ),

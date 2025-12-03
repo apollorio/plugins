@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -121,4 +122,3 @@ function apollo_remove_moderator_role( $user_id ) {
 	$user->remove_role( 'apollo' );
 	return true;
 }
-

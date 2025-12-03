@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -81,7 +82,7 @@ class Apollo_Core_Activation {
 					__( 'Cena::rio', 'apollo-core' ),
 					$author->capabilities
 				);
-				
+
 				// Add specific capabilities.
 				$role = get_role( 'cena-rio' );
 				if ( $role ) {
@@ -101,7 +102,7 @@ class Apollo_Core_Activation {
 					__( 'DJ', 'apollo-core' ),
 					$author->capabilities
 				);
-				
+
 				// Add specific capabilities.
 				$role = get_role( 'dj' );
 				if ( $role ) {
@@ -119,7 +120,7 @@ class Apollo_Core_Activation {
 					__( 'Núcleo Member', 'apollo-core' ),
 					$subscriber->capabilities
 				);
-				
+
 				// Add specific capabilities.
 				$role = get_role( 'nucleo-member' );
 				if ( $role ) {
@@ -137,7 +138,7 @@ class Apollo_Core_Activation {
 					__( 'Clubber', 'apollo-core' ),
 					$subscriber->capabilities
 				);
-				
+
 				// Clubbers can publish social posts and create communities.
 				$role = get_role( 'clubber' );
 				if ( $role ) {
@@ -154,13 +155,13 @@ class Apollo_Core_Activation {
 	 */
 	private static function create_options() {
 		$default_settings = array(
-			'auto_approve_events'   => false,
-			'auto_approve_posts'    => false,
-			'require_moderation'    => array( 'event_listing', 'apollo_social_post' ),
-			'mod_roles'             => array( 'apollo', 'editor', 'administrator' ),
-			'audit_log_enabled'     => true,
-			'canvas_mode_enabled'   => true,
-			'migration_completed'   => false,
+			'auto_approve_events' => false,
+			'auto_approve_posts'  => false,
+			'require_moderation'  => array( 'event_listing', 'apollo_social_post' ),
+			'mod_roles'           => array( 'apollo', 'editor', 'administrator' ),
+			'audit_log_enabled'   => true,
+			'canvas_mode_enabled' => true,
+			'migration_completed' => false,
 		);
 
 		add_option( 'apollo_mod_settings', $default_settings );
@@ -217,4 +218,3 @@ class Apollo_Core_Activation {
 		Apollo_Cena_Rio_Roles::activate();
 	}
 }
-

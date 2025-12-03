@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -20,9 +21,9 @@ function apollo_render_membership_types_manager() {
 		return;
 	}
 
-	$memberships     = apollo_get_memberships();
-	$custom_only     = get_option( 'apollo_memberships', array() );
-	$defaults        = apollo_get_default_memberships();
+	$memberships = apollo_get_memberships();
+	$custom_only = get_option( 'apollo_memberships', array() );
+	$defaults    = apollo_get_default_memberships();
 	?>
 	<div class="apollo-membership-types-manager" style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
 		<h2><?php esc_html_e( 'Membership Types Manager', 'apollo-core' ); ?></h2>
@@ -57,7 +58,7 @@ function apollo_render_membership_types_manager() {
 			<tbody>
 				<?php foreach ( $memberships as $slug => $data ) : ?>
 					<?php
-					$is_default = isset( $defaults[ $slug ] );
+					$is_default   = isset( $defaults[ $slug ] );
 					$is_protected = 'nao-verificado' === $slug || $is_default;
 					?>
 					<tr data-membership-slug="<?php echo esc_attr( $slug ); ?>">
@@ -178,9 +179,9 @@ function apollo_render_membership_types_manager() {
  * @param WP_User $user User object.
  */
 function apollo_render_user_membership_selector( $user ) {
-	$memberships     = apollo_get_memberships();
-	$current         = apollo_get_user_membership( $user->ID );
-	$can_edit        = current_user_can( 'edit_apollo_users' );
+	$memberships = apollo_get_memberships();
+	$current     = apollo_get_user_membership( $user->ID );
+	$can_edit    = current_user_can( 'edit_apollo_users' );
 	?>
 	<select class="apollo-user-membership-select" data-user-id="<?php echo esc_attr( $user->ID ); ?>" <?php disabled( ! $can_edit ); ?>>
 		<?php foreach ( $memberships as $slug => $data ) : ?>

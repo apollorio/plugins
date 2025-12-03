@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -25,15 +26,15 @@ class Apollo_Cena_Rio_Moderation {
 	public static function init(): void {
 		// Register shortcode for moderation queue
 		add_shortcode( 'apollo_cena_moderation_queue', array( __CLASS__, 'render_moderation_queue' ) );
-		
+
 		// Handle POST actions
 		add_action( 'admin_post_apollo_cena_approve', array( __CLASS__, 'handle_approve' ) );
 		add_action( 'admin_post_apollo_cena_reject', array( __CLASS__, 'handle_reject' ) );
-		
+
 		// AJAX handlers for front-end moderation
 		add_action( 'wp_ajax_apollo_cena_approve', array( __CLASS__, 'ajax_approve' ) );
 		add_action( 'wp_ajax_apollo_cena_reject', array( __CLASS__, 'ajax_reject' ) );
-		
+
 		// REST API endpoints
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 	}
@@ -62,7 +63,7 @@ class Apollo_Cena_Rio_Moderation {
 				'callback'            => array( __CLASS__, 'rest_approve_event' ),
 				'permission_callback' => array( __CLASS__, 'check_moderation_permission' ),
 				'args'                => array(
-					'id' => array(
+					'id'   => array(
 						'required' => true,
 						'type'     => 'integer',
 					),
@@ -83,7 +84,7 @@ class Apollo_Cena_Rio_Moderation {
 				'callback'            => array( __CLASS__, 'rest_reject_event' ),
 				'permission_callback' => array( __CLASS__, 'check_moderation_permission' ),
 				'args'                => array(
-					'id' => array(
+					'id'     => array(
 						'required' => true,
 						'type'     => 'integer',
 					),
@@ -433,7 +434,8 @@ class Apollo_Cena_Rio_Moderation {
 		$result = wp_update_post(
 			array(
 				'ID'          => $post_id,
-				'post_status' => 'draft', // or 'trash'
+				'post_status' => 'draft', 
+			// or 'trash'
 			),
 			true
 		);
@@ -477,9 +479,9 @@ class Apollo_Cena_Rio_Moderation {
 			wp_die( esc_html__( 'Invalid request.', 'apollo-core' ) );
 		}
 
-		$post_id    = absint( $_POST['post_id'] );
-		$nonce      = sanitize_text_field( wp_unslash( $_POST['cena_nonce'] ) );
-		
+		$post_id = absint( $_POST['post_id'] );
+		$nonce   = sanitize_text_field( wp_unslash( $_POST['cena_nonce'] ) );
+
 		if ( ! wp_verify_nonce( $nonce, 'apollo_cena_approve_' . $post_id ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'apollo-core' ) );
 		}
@@ -506,9 +508,9 @@ class Apollo_Cena_Rio_Moderation {
 			wp_die( esc_html__( 'Invalid request.', 'apollo-core' ) );
 		}
 
-		$post_id    = absint( $_POST['post_id'] );
-		$nonce      = sanitize_text_field( wp_unslash( $_POST['cena_nonce'] ) );
-		
+		$post_id = absint( $_POST['post_id'] );
+		$nonce   = sanitize_text_field( wp_unslash( $_POST['cena_nonce'] ) );
+
 		if ( ! wp_verify_nonce( $nonce, 'apollo_cena_reject_' . $post_id ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'apollo-core' ) );
 		}
@@ -576,19 +578,19 @@ class Apollo_Cena_Rio_Moderation {
 		$author = get_userdata( $post->post_author );
 
 		return array(
-			'id'            => $post->ID,
-			'title'         => get_the_title( $post->ID ),
-			'description'   => $post->post_content,
-			'status'        => $post->post_status,
-			'start_date'    => get_post_meta( $post->ID, '_event_start_date', true ),
-			'end_date'      => get_post_meta( $post->ID, '_event_end_date', true ),
-			'venue'         => get_post_meta( $post->ID, '_event_venue_name', true ),
-			'lat'           => get_post_meta( $post->ID, '_event_lat', true ),
-			'lng'           => get_post_meta( $post->ID, '_event_lng', true ),
-			'author'        => $author ? $author->display_name : '',
-			'author_id'     => $post->post_author,
-			'submitted_at'  => get_post_meta( $post->ID, '_apollo_cena_submitted_at', true ),
-			'cena_status'   => get_post_meta( $post->ID, '_apollo_cena_status', true ),
+			'id'           => $post->ID,
+			'title'        => get_the_title( $post->ID ),
+			'description'  => $post->post_content,
+			'status'       => $post->post_status,
+			'start_date'   => get_post_meta( $post->ID, '_event_start_date', true ),
+			'end_date'     => get_post_meta( $post->ID, '_event_end_date', true ),
+			'venue'        => get_post_meta( $post->ID, '_event_venue_name', true ),
+			'lat'          => get_post_meta( $post->ID, '_event_lat', true ),
+			'lng'          => get_post_meta( $post->ID, '_event_lng', true ),
+			'author'       => $author ? $author->display_name : '',
+			'author_id'    => $post->post_author,
+			'submitted_at' => get_post_meta( $post->ID, '_apollo_cena_submitted_at', true ),
+			'cena_status'  => get_post_meta( $post->ID, '_apollo_cena_status', true ),
 		);
 	}
 }

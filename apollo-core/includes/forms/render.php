@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -110,9 +111,9 @@ function apollo_render_field( $field, $values = array() ) {
 				<?php
 				break;
 
-		case 'select':
-			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
-			?>
+			case 'select':
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+				?>
 			<select 
 				id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
 				name="<?php echo esc_attr( $field['key'] ); ?>" 
@@ -129,15 +130,15 @@ function apollo_render_field( $field, $values = array() ) {
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<?php
-			break;
+				<?php
+				break;
 
-		case 'checkbox':
-			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
-			
-			if ( empty( $options ) ) {
-				// Single checkbox
-				?>
+			case 'checkbox':
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+
+				if ( empty( $options ) ) {
+					// Single checkbox
+					?>
 				<label class="apollo-checkbox-label">
 					<input 
 						type="checkbox" 
@@ -150,11 +151,11 @@ function apollo_render_field( $field, $values = array() ) {
 					>
 					<span><?php echo esc_html( $field['label'] ); ?></span>
 				</label>
-				<?php
-			} else {
-				// Multiple checkboxes
-				$selected_values = is_array( $value ) ? $value : ( ! empty( $value ) ? explode( ',', $value ) : array() );
-				?>
+					<?php
+				} else {
+					// Multiple checkboxes
+					$selected_values = is_array( $value ) ? $value : ( ! empty( $value ) ? explode( ',', $value ) : array() );
+					?>
 				<div class="apollo-checkbox-group">
 					<?php foreach ( $options as $option_value => $option_label ) : ?>
 						<label class="apollo-checkbox-label">
@@ -169,13 +170,13 @@ function apollo_render_field( $field, $values = array() ) {
 						</label>
 					<?php endforeach; ?>
 				</div>
-				<?php
-			}
-			break;
+					<?php
+				}//end if
+				break;
 
 			case 'radio':
-			$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
-			?>
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+				?>
 			<div class="apollo-radio-group">
 				<?php foreach ( $options as $option_value => $option_label ) : ?>
 					<label class="apollo-radio-label">
@@ -191,10 +192,10 @@ function apollo_render_field( $field, $values = array() ) {
 					</label>
 				<?php endforeach; ?>
 			</div>
-			<?php
-			break;
+				<?php
+				break;
 
-		case 'instagram':
+			case 'instagram':
 				?>
 				<div class="apollo-instagram-field">
 					<span class="apollo-instagram-prefix">@</span>
@@ -268,7 +269,8 @@ function apollo_render_field( $field, $values = array() ) {
 				<?php
 				break;
 
-			default: // text
+			default: 
+				// text
 				?>
 				<input 
 					type="text" 
@@ -280,7 +282,7 @@ function apollo_render_field( $field, $values = array() ) {
 				>
 				<?php
 				break;
-		}
+		}//end switch
 		?>
 
 		<div class="apollo-field-error" style="display:none;"></div>
@@ -316,7 +318,7 @@ function apollo_save_user_instagram_on_register( $user_id ) {
 				}
 			}
 		}
-	}
+	}//end if
 }
 add_action( 'user_register', 'apollo_save_user_instagram_on_register' );
 

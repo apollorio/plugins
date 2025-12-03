@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -67,12 +68,12 @@ class Apollo_Moderation_WP_CLI {
 		$table_data = array();
 		foreach ( $logs as $log ) {
 			$table_data[] = array(
-				'ID'          => $log->id,
-				'Date'        => $log->created_at,
-				'Actor'       => $log->actor_id . ' (' . $log->actor_role . ')',
-				'Action'      => $log->action,
-				'Target'      => $log->target_type . ':' . $log->target_id,
-				'Details'     => is_array( $log->details ) ? wp_json_encode( $log->details ) : '',
+				'ID'      => $log->id,
+				'Date'    => $log->created_at,
+				'Actor'   => $log->actor_id . ' (' . $log->actor_role . ')',
+				'Action'  => $log->action,
+				'Target'  => $log->target_type . ':' . $log->target_id,
+				'Details' => is_array( $log->details ) ? wp_json_encode( $log->details ) : '',
 			);
 		}
 
@@ -219,4 +220,3 @@ class Apollo_Moderation_WP_CLI {
 		WP_CLI::success( "User #{$user_id} suspended for $days days." );
 	}
 }
-

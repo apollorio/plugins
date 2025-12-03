@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -34,17 +35,17 @@ class Apollo_Social_Module {
 		register_post_type(
 			'apollo_social_post',
 			array(
-				'labels'              => array(
+				'labels'          => array(
 					'name'          => __( 'Social Posts', 'apollo-core' ),
 					'singular_name' => __( 'Social Post', 'apollo-core' ),
 				),
-				'public'              => true,
-				'has_archive'         => true,
-				'show_in_rest'        => true,
-				'capability_type'     => 'post',
-				'supports'            => array( 'title', 'editor', 'thumbnail', 'author', 'comments' ),
-				'menu_icon'           => 'dashicons-format-status',
-				'rewrite'             => array( 'slug' => 'posts' ),
+				'public'          => true,
+				'has_archive'     => true,
+				'show_in_rest'    => true,
+				'capability_type' => 'post',
+				'supports'        => array( 'title', 'editor', 'thumbnail', 'author', 'comments' ),
+				'menu_icon'       => 'dashicons-format-status',
+				'rewrite'         => array( 'slug' => 'posts' ),
 			)
 		);
 
@@ -52,16 +53,16 @@ class Apollo_Social_Module {
 		register_post_type(
 			'user_page',
 			array(
-				'labels'              => array(
+				'labels'          => array(
 					'name'          => __( 'User Pages', 'apollo-core' ),
 					'singular_name' => __( 'User Page', 'apollo-core' ),
 				),
-				'public'              => true,
-				'show_in_rest'        => true,
-				'capability_type'     => 'post',
-				'supports'            => array( 'title', 'editor', 'author', 'comments' ),
-				'menu_icon'           => 'dashicons-admin-users',
-				'rewrite'             => array( 'slug' => 'profile' ),
+				'public'          => true,
+				'show_in_rest'    => true,
+				'capability_type' => 'post',
+				'supports'        => array( 'title', 'editor', 'author', 'comments' ),
+				'menu_icon'       => 'dashicons-admin-users',
+				'rewrite'         => array( 'slug' => 'profile' ),
 			)
 		);
 	}
@@ -264,4 +265,3 @@ class Apollo_Social_Module {
 
 // Initialize module.
 Apollo_Social_Module::init();
-

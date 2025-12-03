@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -19,7 +20,7 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		apollo_init_quiz_schemas();
 
 		$schema = apollo_get_quiz_schema( 'new_user' );
-		
+
 		$this->assertIsArray( $schema );
 		$this->assertArrayHasKey( 'enabled', $schema );
 		$this->assertArrayHasKey( 'questions', $schema );
@@ -44,7 +45,7 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		);
 
 		$question_id = apollo_save_quiz_question( 'new_user', $question );
-		
+
 		$this->assertNotFalse( $question_id );
 		$this->assertIsInt( $question_id );
 
@@ -61,24 +62,27 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		// Add 5 active questions.
 		for ( $i = 1; $i <= 5; $i++ ) {
 			$question = array(
-				'title'       => "Question $i",
-				'answers'     => array( 'A' => 'Answer A', 'B' => 'Answer B' ),
-				'correct'     => array( 'A' ),
-				'active'      => true,
+				'title'   => "Question $i",
+				'answers' => array(
+					'A' => 'Answer A',
+					'B' => 'Answer B',
+				),
+				'correct' => array( 'A' ),
+				'active'  => true,
 			);
-			
+
 			$result = apollo_save_quiz_question( 'new_user', $question );
 			$this->assertNotFalse( $result, "Should be able to add question $i" );
 		}
 
 		// Try to add 6th active question - should fail.
 		$question = array(
-			'title'       => 'Question 6',
-			'answers'     => array( 'A' => 'Answer A' ),
-			'correct'     => array( 'A' ),
-			'active'      => true,
+			'title'   => 'Question 6',
+			'answers' => array( 'A' => 'Answer A' ),
+			'correct' => array( 'A' ),
+			'active'  => true,
 		);
-		
+
 		$result = apollo_save_quiz_question( 'new_user', $question );
 		$this->assertFalse( $result, 'Should not be able to add 6th active question' );
 	}
@@ -89,16 +93,16 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 	public function test_quiz_answer_validation() {
 		// Add test question.
 		$question_data = array(
-			'title'       => 'Select multiple correct answers',
-			'answers'     => array(
+			'title'   => 'Select multiple correct answers',
+			'answers' => array(
 				'A' => 'Correct 1',
 				'B' => 'Incorrect',
 				'C' => 'Correct 2',
 			),
-			'correct'     => array( 'A', 'C' ),
-			'active'      => true,
+			'correct' => array( 'A', 'C' ),
+			'active'  => true,
 		);
-		
+
 		$question_id = apollo_save_quiz_question( 'new_user', $question_data );
 
 		// Test correct answer.
@@ -124,16 +128,19 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		// Create test question.
 		$question = array(
 			'title'   => 'Test question',
-			'answers' => array( 'A' => 'Answer A', 'B' => 'Answer B' ),
+			'answers' => array(
+				'A' => 'Answer A',
+				'B' => 'Answer B',
+			),
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		$question_id = apollo_save_quiz_question( 'new_user', $question );
 
 		// Record attempt.
 		$attempt_id = apollo_record_quiz_attempt( $user_id, $question_id, array( 'A' ), true );
-		
+
 		$this->assertNotFalse( $attempt_id );
 
 		// Verify attempt was recorded.
@@ -152,12 +159,15 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		// Create question with max 3 retries.
 		$question = array(
 			'title'       => 'Limited retries',
-			'answers'     => array( 'A' => 'Correct', 'B' => 'Wrong' ),
+			'answers'     => array(
+				'A' => 'Correct',
+				'B' => 'Wrong',
+			),
 			'correct'     => array( 'A' ),
 			'max_retries' => 3,
 			'active'      => true,
 		);
-		
+
 		$question_id = apollo_save_quiz_question( 'new_user', $question );
 
 		// Make 3 failed attempts.
@@ -177,18 +187,24 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		// Create 2 active questions.
 		$q1 = array(
 			'title'   => 'Question 1',
-			'answers' => array( 'A' => 'Correct', 'B' => 'Wrong' ),
+			'answers' => array(
+				'A' => 'Correct',
+				'B' => 'Wrong',
+			),
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		$q2 = array(
 			'title'   => 'Question 2',
-			'answers' => array( 'A' => 'Wrong', 'B' => 'Correct' ),
+			'answers' => array(
+				'A' => 'Wrong',
+				'B' => 'Correct',
+			),
 			'correct' => array( 'B' ),
 			'active'  => true,
 		);
-		
+
 		$q1_id = apollo_save_quiz_question( 'new_user', $q1 );
 		$q2_id = apollo_save_quiz_question( 'new_user', $q2 );
 
@@ -200,9 +216,9 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 			$q1_id => array( 'A' ),
 			$q2_id => array( 'B' ),
 		);
-		
+
 		$result = apollo_process_quiz_submission( $answers, 'new_user', 0 );
-		
+
 		$this->assertTrue( $result['success'] );
 		$this->assertTrue( $result['passed'] );
 
@@ -211,9 +227,9 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 			$q1_id => array( 'B' ), // Wrong.
 			$q2_id => array( 'B' ), // Correct.
 		);
-		
+
 		$result = apollo_process_quiz_submission( $answers, 'new_user', 0 );
-		
+
 		$this->assertTrue( $result['success'] );
 		$this->assertFalse( $result['passed'] );
 		$this->assertFalse( $result['results'][ $q1_id ]['passed'] );
@@ -231,25 +247,25 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		$question_id = apollo_save_quiz_question( 'new_user', $question );
-		
+
 		// Enable quiz but don't require pass.
-		$schema = apollo_get_quiz_schema( 'new_user' );
-		$schema['enabled'] = true;
+		$schema                 = apollo_get_quiz_schema( 'new_user' );
+		$schema['enabled']      = true;
 		$schema['require_pass'] = false;
 		apollo_save_quiz_schema( 'new_user', $schema );
 
 		// Create user with correct quiz answer.
 		$user_data = array(
-			'user_login'      => 'testuser',
-			'user_email'      => 'test@example.com',
-			'user_pass'       => 'password123',
-			'quiz_answers'    => array( $question_id => array( 'A' ) ),
+			'user_login'   => 'testuser',
+			'user_email'   => 'test@example.com',
+			'user_pass'    => 'password123',
+			'quiz_answers' => array( $question_id => array( 'A' ) ),
 		);
 
 		$result = apollo_process_new_user_form( $user_data );
-		
+
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'user_id', $result );
 
@@ -265,29 +281,32 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 		// Create active question.
 		$question = array(
 			'title'   => 'Registration quiz',
-			'answers' => array( 'A' => 'Correct', 'B' => 'Wrong' ),
+			'answers' => array(
+				'A' => 'Correct',
+				'B' => 'Wrong',
+			),
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		$question_id = apollo_save_quiz_question( 'new_user', $question );
-		
+
 		// Enable quiz but don't require pass (allow registration with failed quiz).
-		$schema = apollo_get_quiz_schema( 'new_user' );
-		$schema['enabled'] = true;
+		$schema                 = apollo_get_quiz_schema( 'new_user' );
+		$schema['enabled']      = true;
 		$schema['require_pass'] = false;
 		apollo_save_quiz_schema( 'new_user', $schema );
 
 		// Create user with incorrect quiz answer.
 		$user_data = array(
-			'user_login'      => 'testuser2',
-			'user_email'      => 'test2@example.com',
-			'user_pass'       => 'password123',
-			'quiz_answers'    => array( $question_id => array( 'B' ) ),
+			'user_login'   => 'testuser2',
+			'user_email'   => 'test2@example.com',
+			'user_pass'    => 'password123',
+			'quiz_answers' => array( $question_id => array( 'B' ) ),
 		);
 
 		$result = apollo_process_new_user_form( $user_data );
-		
+
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'user_id', $result );
 
@@ -317,7 +336,7 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 	 * Test rate limiting
 	 */
 	public function test_quiz_rate_limiting() {
-		$ip = '192.168.1.1';
+		$ip      = '192.168.1.1';
 		$user_id = 123;
 
 		// First 10 attempts should be allowed.
@@ -342,29 +361,27 @@ class Apollo_Registration_Quiz_Test extends WP_UnitTestCase {
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		$q2 = array(
 			'title'   => 'Inactive Q2',
 			'answers' => array( 'A' => 'Answer' ),
 			'correct' => array( 'A' ),
 			'active'  => false,
 		);
-		
+
 		$q3 = array(
 			'title'   => 'Active Q3',
 			'answers' => array( 'A' => 'Answer' ),
 			'correct' => array( 'A' ),
 			'active'  => true,
 		);
-		
+
 		apollo_save_quiz_question( 'new_user', $q1 );
 		apollo_save_quiz_question( 'new_user', $q2 );
 		apollo_save_quiz_question( 'new_user', $q3 );
 
 		$active = apollo_get_active_quiz_questions( 'new_user' );
-		
+
 		$this->assertCount( 2, $active );
 	}
 }
-
-

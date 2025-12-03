@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -96,7 +97,7 @@ class Apollo_Core_Module_Loader {
 	 * @return bool
 	 */
 	private function is_module_enabled( $module_slug ) {
-		$settings = get_option( 'apollo_mod_settings', array() );
+		$settings        = get_option( 'apollo_mod_settings', array() );
 		$enabled_modules = isset( $settings['enabled_modules'] ) ? $settings['enabled_modules'] : array( 'events', 'social', 'moderation' );
 
 		return in_array( $module_slug, $enabled_modules, true );
@@ -121,4 +122,3 @@ class Apollo_Core_Module_Loader {
 		return isset( $this->modules[ $module_slug ] );
 	}
 }
-

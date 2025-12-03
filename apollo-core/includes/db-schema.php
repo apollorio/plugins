@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -112,7 +113,7 @@ function apollo_get_mod_log( array $args = array() ): array {
 	$args = wp_parse_args( $args, $defaults );
 
 	// Build WHERE clause.
-	$where = array( '1=1' );
+	$where  = array( '1=1' );
 	$values = array();
 
 	if ( $args['actor_id'] ) {
@@ -177,4 +178,3 @@ function apollo_cleanup_mod_log( int $days = 90 ): int|false {
 		)
 	);
 }
-

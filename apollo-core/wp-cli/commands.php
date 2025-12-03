@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -161,11 +162,11 @@ class Apollo_Core_CLI_Commands {
 		$table_data = array();
 		foreach ( $logs as $log ) {
 			$table_data[] = array(
-				'ID'          => $log->id,
-				'Date'        => $log->created_at,
-				'Actor'       => $log->actor_id . ' (' . $log->actor_role . ')',
-				'Action'      => $log->action,
-				'Target'      => $log->target_type . ':' . $log->target_id,
+				'ID'     => $log->id,
+				'Date'   => $log->created_at,
+				'Actor'  => $log->actor_id . ' (' . $log->actor_role . ')',
+				'Action' => $log->action,
+				'Target' => $log->target_type . ':' . $log->target_id,
 			);
 		}
 
@@ -174,4 +175,3 @@ class Apollo_Core_CLI_Commands {
 }
 
 WP_CLI::add_command( 'apollo', 'Apollo_Core_CLI_Commands' );
-

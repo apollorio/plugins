@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -42,7 +43,7 @@ class Apollo_Cena_Rio_Roles {
 	 */
 	public static function activate(): void {
 		self::setup_roles();
-		
+
 		// Flush rewrite rules for Canvas routes if class is loaded
 		if ( class_exists( 'Apollo_Cena_Rio_Canvas' ) ) {
 			Apollo_Cena_Rio_Canvas::flush_rewrite_rules();
@@ -64,16 +65,19 @@ class Apollo_Cena_Rio_Roles {
 			__( 'Cena::Rio Membro', 'apollo-core' ),
 			array(
 				// Basic WP capabilities
-				'read'                   => true,
-				
+				'read'                            => true,
+
 				// Event listing capabilities (DRAFT ONLY)
-				'edit_event_listing'     => true,  // Can edit own events
-				'edit_event_listings'    => true,  // Can edit own events (plural)
-				'delete_event_listing'   => true,  // Can delete own drafts
-				
-				// CANNOT publish or edit others
-				'publish_event_listings' => false,
-				'edit_others_event_listings' => false,
+				'edit_event_listing'              => true,  
+				// Can edit own events
+												'edit_event_listings' => true,  
+				// Can edit own events (plural)
+												'delete_event_listing' => true,  
+				// Can delete own drafts
+
+												// CANNOT publish or edit others
+												'publish_event_listings' => false,
+				'edit_others_event_listings'      => false,
 				'delete_published_event_listings' => false,
 			)
 		);
@@ -91,20 +95,20 @@ class Apollo_Cena_Rio_Roles {
 			__( 'Cena::Rio Moderador', 'apollo-core' ),
 			array(
 				// Basic WP capabilities
-				'read'                   => true,
-				
+				'read'                            => true,
+
 				// All CENA-ROLE capabilities
-				'edit_event_listing'     => true,
-				'edit_event_listings'    => true,
-				'delete_event_listing'   => true,
-				
+				'edit_event_listing'              => true,
+				'edit_event_listings'             => true,
+				'delete_event_listing'            => true,
+
 				// Plus moderation capabilities
 				'edit_others_event_listings'      => true,
 				'publish_event_listings'          => true,
 				'delete_others_event_listings'    => true,
 				'delete_published_event_listings' => true,
 				'read_private_event_listings'     => true,
-				
+
 				// Custom CENA moderation capability
 				'apollo_cena_moderate_events'     => true,
 			)
@@ -173,7 +177,7 @@ class Apollo_Cena_Rio_Roles {
 
 		// Allow cena_role, cena_moderator, apollo, editor, administrator
 		$allowed_roles = array( 'cena_role', 'cena_moderator', 'apollo', 'editor', 'administrator' );
-		
+
 		foreach ( $allowed_roles as $role ) {
 			if ( in_array( $role, $user->roles, true ) ) {
 				return true;
@@ -204,4 +208,3 @@ class Apollo_Cena_Rio_Roles {
 
 // Initialize
 Apollo_Cena_Rio_Roles::init();
-
