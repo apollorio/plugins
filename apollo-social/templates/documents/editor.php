@@ -31,28 +31,28 @@ $doc_status   = $document['status'] ?? 'draft';
 $doc_version  = (int) ( $document['version'] ?? 1 );
 
 // Get status and type info with tooltips
-$status_info = DocumentsHelpers::getStatusInfo( $doc_status );
-$type_info   = DocumentsHelpers::getTypeInfo( $type );
+$status_info = DocumentsHelpers::get_status_info( $doc_status );
+$type_info   = DocumentsHelpers::get_type_info( $type );
 
 // Field tooltips
 $tooltips = array(
-	'title'        => DocumentsHelpers::getFieldTooltip( 'title' ),
+	'title'        => DocumentsHelpers::get_field_tooltip( 'title' ),
 	'status'       => $status_info['tooltip'],
 	'type'         => $type_info['tooltip'],
-	'version'      => DocumentsHelpers::getVersionTooltip( $doc_version ),
-	'save_status'  => DocumentsHelpers::getFieldTooltip( 'save_status' ),
-	'export_pdf'   => DocumentsHelpers::getFieldTooltip( 'export_pdf' ),
-	'prepare_sign' => DocumentsHelpers::getFieldTooltip( 'prepare_sign' ),
-	'font_family'  => DocumentsHelpers::getFieldTooltip( 'font_family' ),
-	'font_size'    => DocumentsHelpers::getFieldTooltip( 'font_size' ),
-	'font_weight'  => DocumentsHelpers::getFieldTooltip( 'font_weight' ),
-	'text_color'   => DocumentsHelpers::getFieldTooltip( 'text_color' ),
-	'text_align'   => DocumentsHelpers::getFieldTooltip( 'text_align' ),
+	'version'      => DocumentsHelpers::get_version_tooltip( $doc_version ),
+	'save_status'  => DocumentsHelpers::get_field_tooltip( 'save_status' ),
+	'export_pdf'   => DocumentsHelpers::get_field_tooltip( 'export_pdf' ),
+	'prepare_sign' => DocumentsHelpers::get_field_tooltip( 'prepare_sign' ),
+	'font_family'  => DocumentsHelpers::get_field_tooltip( 'font_family' ),
+	'font_size'    => DocumentsHelpers::get_field_tooltip( 'font_size' ),
+	'font_weight'  => DocumentsHelpers::get_field_tooltip( 'font_weight' ),
+	'text_color'   => DocumentsHelpers::get_field_tooltip( 'text_color' ),
+	'text_align'   => DocumentsHelpers::get_field_tooltip( 'text_align' ),
 );
 
 // Can edit/sign based on status
-$can_edit = DocumentsHelpers::canEdit( $doc_status );
-$can_sign = DocumentsHelpers::canSign( $doc_status ) || $doc_status === 'draft';
+$can_edit = DocumentsHelpers::can_edit( $doc_status );
+$can_sign = DocumentsHelpers::can_sign( $doc_status ) || $doc_status === 'draft';
 
 // Generate nonce for secure AJAX operations
 $ajax_nonce = wp_create_nonce( 'apollo_document_editor' );
