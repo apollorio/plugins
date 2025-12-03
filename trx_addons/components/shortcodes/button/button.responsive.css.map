@@ -1,7 +1,0 @@
-{
-"version": 3,
-"mappings": "AAIA,yBAAoB;EAChB,YAAY;EAEd,sDAAoB;IC6bnB,OAAO,EAAE,YAAsB;IAF/B,OAAO,EAAE,WAAW;IAKtB,OAAO,EAAE,IAAI;IA6EX,uBAAsB,ED3gBQ,UAAU;ICygBxC,aAAa,EAAqB,KAAK;IAKzC,eAAe,ED9gBiB,UAAU;IC6exC,mBAAkB,ED5eQ,MAAM;IC0ehC,cAAc,ED1eY,MAAM;IC+elC,WAAW,ED/eiB,MAAM;ICidjC,iBAAgB,EDhdI,IAAI;ICgdxB,aAAgB,EDhdI,IAAI;ICkdzB,SAAS,EDldY,IAAI;IACvB,GAAG,EAAE,GAAG;;EAET,sFAAoD;IACnD,WAAW,EAAE,CAAC",
-"sources": ["button.responsive.scss","../../../css/_mixins.scss"],
-"names": [],
-"file": "button.responsive.css"
-}
