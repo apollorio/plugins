@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get current user
-$current_user = wp_get_current_user();
+$user_obj     = wp_get_current_user();
 $is_logged_in = is_user_logged_in();
 
 // If already logged in, redirect

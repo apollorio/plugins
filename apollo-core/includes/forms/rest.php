@@ -27,7 +27,7 @@ function apollo_register_forms_rest_routes() {
 		array(
 			'methods'                          => WP_REST_Server::CREATABLE,
 			'callback'                         => 'apollo_rest_submit_form',
-			'permission_callback'              => '__return_true', 
+			'permission_callback'              => '__return_true',
 			// Public, validated within.
 										'args' => array(
 											'form_type' => array(
@@ -49,7 +49,7 @@ function apollo_register_forms_rest_routes() {
 		array(
 			'methods'                          => WP_REST_Server::READABLE,
 			'callback'                         => 'apollo_rest_get_form_schema',
-			'permission_callback'              => '__return_true', 
+			'permission_callback'              => '__return_true',
 			// Public.
 										'args' => array(
 											'form_type' => array(
@@ -178,16 +178,19 @@ function apollo_rest_submit_form( $request ) {
 			200
 		);
 	} catch ( Exception $e ) {
-		// Log the error with context
-		error_log(
-			sprintf(
-				'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d',
-				$form_type,
-				$e->getMessage(),
-				basename( $e->getFile() ),
-				$e->getLine()
-			)
-		);
+		// Log the error with context.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d',
+					$form_type,
+					$e->getMessage(),
+					basename( $e->getFile() ),
+					$e->getLine()
+				)
+			);
+		}
 
 		// Return user-friendly error
 		return new WP_Error(
@@ -296,7 +299,7 @@ function apollo_process_cpt_form( $form_type, $data ) {
 			'post_type'                               => $post_type,
 			'post_title'                              => $post_title,
 			'post_content'                            => $post_content,
-			'post_status'                             => 'draft', 
+			'post_status'                             => 'draft',
 			// Requires moderation.
 										'post_author' => get_current_user_id() ? get_current_user_id() : 1,
 		),

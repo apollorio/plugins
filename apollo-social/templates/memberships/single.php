@@ -17,9 +17,10 @@ if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
 
-$current_user    = wp_get_current_user();
-$user_id         = get_current_user_id();
-$membership_slug = get_query_var( 'membership_slug' ) ?: 'clubber';
+$user_obj            = wp_get_current_user();
+$user_id             = get_current_user_id();
+$membership_slug_raw = get_query_var( 'membership_slug' );
+$membership_slug     = ! empty( $membership_slug_raw ) ? $membership_slug_raw : 'clubber';
 
 // Membership levels configuration
 $membership_levels = array(
@@ -186,11 +187,13 @@ $membership_levels = array(
 );
 
 // Get current membership data
-$membership          = $membership_levels[ $membership_slug ] ?? $membership_levels['clubber'];
-$user_membership     = get_user_meta( $user_id, 'membership_level', true ) ?: 'clubber';
-$is_current          = ( $user_membership === $membership_slug );
-$membership_status   = get_user_meta( $user_id, 'membership_status', true ) ?: 'active';
-$has_pending_request = ( $membership_status === 'pending' );
+$membership            = isset( $membership_levels[ $membership_slug ] ) ? $membership_levels[ $membership_slug ] : $membership_levels['clubber'];
+$user_membership_raw   = get_user_meta( $user_id, 'membership_level', true );
+$user_membership       = ! empty( $user_membership_raw ) ? $user_membership_raw : 'clubber';
+$is_current            = ( $user_membership === $membership_slug );
+$membership_status_raw = get_user_meta( $user_id, 'membership_status', true );
+$membership_status     = ! empty( $membership_status_raw ) ? $membership_status_raw : 'active';
+$has_pending_request   = ( $membership_status === 'pending' );
 
 get_header();
 ?>
@@ -210,7 +213,7 @@ get_header();
 				<i class="ri-arrow-right-s-line"></i>
 				<span><?php echo esc_html( $membership['label'] ); ?></span>
 			</div>
-			
+
 			<div class="ap-hero-content ap-text-center">
 				<div class="ap-avatar ap-avatar-xl ap-mx-auto" style="background: <?php echo esc_attr( $membership['color'] ); ?>;">
 					<i class="<?php echo esc_attr( $membership['icon'] ); ?>" style="color: white; font-size: 2rem;"></i>
@@ -219,7 +222,7 @@ get_header();
 					<?php echo esc_html( $membership['label'] ); ?>
 				</h1>
 				<p class="ap-text-lg ap-text-muted"><?php echo esc_html( $membership['description'] ); ?></p>
-				
+
 				<?php if ( $is_current ) : ?>
 				<div class="ap-badge ap-badge-success ap-badge-lg">
 					<i class="ri-checkbox-circle-line"></i>
@@ -244,7 +247,7 @@ get_header();
 					Recursos Incluídos
 				</h2>
 			</div>
-			
+
 			<div class="ap-grid ap-grid-3 ap-gap-4">
 				<?php foreach ( $membership['features'] as $feature ) : ?>
 				<div class="ap-card ap-card-hover">
@@ -272,7 +275,7 @@ get_header();
 						Requisitos
 					</h2>
 					<p class="ap-text-muted">Para se tornar <?php echo esc_html( $membership['label'] ); ?>, você precisa:</p>
-					
+
 					<ul class="ap-list ap-list-check ap-mt-4">
 						<?php foreach ( $membership['requirements'] as $req ) : ?>
 						<li>
@@ -282,29 +285,29 @@ get_header();
 						<?php endforeach; ?>
 					</ul>
 				</div>
-				
+
 				<div class="ap-card">
 					<div class="ap-card-body">
 						<?php if ( ! is_user_logged_in() ) : ?>
 						<h3 class="ap-card-title">Faça login para solicitar</h3>
 						<p class="ap-card-text">Você precisa estar logado para solicitar este membership.</p>
-						<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" 
+						<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"
 							class="ap-btn ap-btn-primary ap-btn-block ap-mt-3"
 							data-ap-tooltip="Fazer login na plataforma">
 							<i class="ri-login-box-line"></i>
 							Fazer Login
 						</a>
-						
+
 						<?php elseif ( $is_current ) : ?>
 						<h3 class="ap-card-title">Você já possui este nível!</h3>
 						<p class="ap-card-text">Aproveite todos os recursos disponíveis para você.</p>
-						<a href="<?php echo esc_url( home_url( '/painel' ) ); ?>" 
+						<a href="<?php echo esc_url( home_url( '/painel' ) ); ?>"
 							class="ap-btn ap-btn-secondary ap-btn-block ap-mt-3"
 							data-ap-tooltip="Acessar seu painel">
 							<i class="ri-dashboard-line"></i>
 							Ir para o Painel
 						</a>
-						
+
 						<?php elseif ( $has_pending_request ) : ?>
 						<h3 class="ap-card-title">Solicitação em análise</h3>
 						<p class="ap-card-text">Sua solicitação está sendo analisada. Você receberá uma notificação em breve.</p>
@@ -312,11 +315,11 @@ get_header();
 							<div class="ap-progress-bar" style="width: 60%; background: <?php echo esc_attr( $membership['color'] ); ?>;"></div>
 						</div>
 						<p class="ap-text-xs ap-text-muted ap-mt-2">Tempo médio: 24-48 horas</p>
-						
+
 						<?php elseif ( $membership_slug === 'clubber' ) : ?>
 						<h3 class="ap-card-title">Nível Básico</h3>
 						<p class="ap-card-text">Este é o nível padrão para todos os usuários cadastrados.</p>
-						
+
 						<?php else : ?>
 						<h3 class="ap-card-title">Solicitar Upgrade</h3>
 						<p class="ap-card-text">Preencha os requisitos e solicite seu upgrade.</p>
@@ -324,18 +327,18 @@ get_header();
 							<?php wp_nonce_field( 'apollo_membership_upgrade', 'membership_nonce' ); ?>
 							<input type="hidden" name="action" value="apollo_request_membership_upgrade">
 							<input type="hidden" name="membership_level" value="<?php echo esc_attr( $membership_slug ); ?>">
-							
+
 							<div class="ap-form-group">
 								<label class="ap-form-label">Por que você quer este nível?</label>
-								<textarea name="membership_reason" 
-											class="ap-form-input" 
-											rows="3" 
+								<textarea name="membership_reason"
+											class="ap-form-input"
+											rows="3"
 											required
 											placeholder="Descreva sua atuação na cena..."
 											data-ap-tooltip="Explique brevemente sua experiência"></textarea>
 							</div>
-							
-							<button type="submit" 
+
+							<button type="submit"
 									class="ap-btn ap-btn-primary ap-btn-block"
 									style="background: <?php echo esc_attr( $membership['color'] ); ?>;"
 									data-ap-tooltip="Enviar solicitação para análise">
@@ -353,7 +356,7 @@ get_header();
 
 	<!-- Back Link -->
 	<section class="ap-section ap-text-center">
-		<a href="<?php echo esc_url( home_url( '/membership' ) ); ?>" 
+		<a href="<?php echo esc_url( home_url( '/membership' ) ); ?>"
 			class="ap-btn ap-btn-outline"
 			data-ap-tooltip="Ver todos os níveis disponíveis">
 			<i class="ri-arrow-left-line"></i>

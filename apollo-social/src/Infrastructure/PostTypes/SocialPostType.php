@@ -51,7 +51,7 @@ class SocialPostType {
 			'publicly_queryable'           => true,
 			'show_ui'                      => true,
 			'show_in_menu'                 => true,
-			'show_in_rest'                 => true, 
+			'show_in_rest'                 => true,
 			// Gutenberg support
 							'query_var'    => true,
 			'rewrite'                      => array( 'slug' => 'post-social' ),
@@ -68,11 +68,11 @@ class SocialPostType {
 				'comments',
 				'custom-fields',
 			),
-			'comment_status'               => 'open', 
+			'comment_status'               => 'open',
 			// FASE 2: Permitir comentários
 							'map_meta_cap' => true,
 			'capabilities'                 => array(
-				'create_posts' => 'publish_posts', 
+				'create_posts' => 'publish_posts',
 		// Apenas usuários que podem publicar podem criar
 			),
 		);

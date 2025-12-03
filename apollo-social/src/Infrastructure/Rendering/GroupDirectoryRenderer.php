@@ -19,7 +19,7 @@ class GroupDirectoryRenderer {
 	 * Render group directory page
 	 */
 	public function render( $template_data ) {
-		$type = $template_data['type']; 
+		$type = $template_data['type'];
 		// comunidade, nucleo, season
 
 		// Get group type configuration
@@ -61,7 +61,7 @@ class GroupDirectoryRenderer {
 	private function getGroupsData( $type ) {
 		$filters = array(
 			'type'   => $type,
-			'status' => 'published', 
+			'status' => 'published',
 		// Only show published groups
 		);
 

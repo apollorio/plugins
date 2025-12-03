@@ -58,7 +58,7 @@ class Apollo_Widget_Sticker extends Apollo_Widget_Base {
 				__( 'Sticker', 'apollo-social' ),
 				'',
 				array(
-					'options' => array(), 
+					'options' => array(),
 					// Populated dynamically from apollo_builder_stickers option
 															'dynamic' => true,
 				)

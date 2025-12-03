@@ -75,8 +75,8 @@ function apollo_register_shortcode( $atts ) {
 				$user = new WP_User( $user_id );
 				$user->set_role( 'clubber' );
 
-				// Add membership meta
-				update_user_meta( $user_id, 'membership', 'Não Verificado' );
+				// Add membership meta using canonical key from apollo-core/memberships.php
+				update_user_meta( $user_id, '_apollo_membership', 'nao-verificado' );
 
 				// Auto-login user
 				wp_set_current_user( $user_id );
@@ -106,7 +106,7 @@ function apollo_register_shortcode( $atts ) {
 	?>
 	<div class="apollo-register-form-wrapper glass p-6 rounded-lg max-w-md mx-auto">
 		<h2 class="text-2xl font-bold mb-6 text-center">Criar Conta</h2>
-		
+
 		<?php if ( ! empty( $registration_errors ) ) : ?>
 			<div class="apollo-register-errors bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
 				<h4 class="font-semibold text-red-800 mb-2">Erros encontrados:</h4>
@@ -117,108 +117,108 @@ function apollo_register_shortcode( $atts ) {
 				</ul>
 			</div>
 		<?php endif; ?>
-		
+
 		<form class="apollo-register-form space-y-4" method="post">
 			<?php wp_nonce_field( 'apollo_register', 'apollo_register_nonce' ); ?>
-			
+
 			<!-- Username -->
 			<div>
 				<label for="apollo_register_username" class="block text-sm font-medium mb-2">
 					Nome de Usuário <span class="text-red-500">*</span>
 				</label>
-				<input 
-					type="text" 
-					id="apollo_register_username" 
-					name="username" 
-					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+				<input
+					type="text"
+					id="apollo_register_username"
+					name="username"
+					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
 					required
 					autocomplete="username"
 					value="<?php echo isset( $_POST['username'] ) ? esc_attr( $_POST['username'] ) : ''; ?>"
 					placeholder="Escolha um nome de usuário"
 				>
 			</div>
-			
+
 			<!-- Email -->
 			<div>
 				<label for="apollo_register_email" class="block text-sm font-medium mb-2">
 					Email <span class="text-red-500">*</span>
 				</label>
-				<input 
-					type="email" 
-					id="apollo_register_email" 
-					name="email" 
-					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+				<input
+					type="email"
+					id="apollo_register_email"
+					name="email"
+					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
 					required
 					autocomplete="email"
 					value="<?php echo isset( $_POST['email'] ) ? esc_attr( $_POST['email'] ) : ''; ?>"
 					placeholder="seu@email.com"
 				>
 			</div>
-			
+
 			<!-- Password -->
 			<div>
 				<label for="apollo_register_password" class="block text-sm font-medium mb-2">
 					Senha <span class="text-red-500">*</span>
 				</label>
-				<input 
-					type="password" 
-					id="apollo_register_password" 
-					name="password" 
-					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+				<input
+					type="password"
+					id="apollo_register_password"
+					name="password"
+					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
 					required
 					autocomplete="new-password"
 					minlength="6"
 					placeholder="Mínimo 6 caracteres"
 				>
 			</div>
-			
+
 			<!-- Password Confirm -->
 			<div>
 				<label for="apollo_register_password_confirm" class="block text-sm font-medium mb-2">
 					Confirmar Senha <span class="text-red-500">*</span>
 				</label>
-				<input 
-					type="password" 
-					id="apollo_register_password_confirm" 
-					name="password_confirm" 
-					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" 
+				<input
+					type="password"
+					id="apollo_register_password_confirm"
+					name="password_confirm"
+					class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
 					required
 					autocomplete="new-password"
 					minlength="6"
 					placeholder="Digite a senha novamente"
 				>
 			</div>
-			
+
 			<!-- Submit Button -->
 			<div>
-				<button 
-					type="submit" 
-					name="apollo_register_submit" 
-					value="1" 
+				<button
+					type="submit"
+					name="apollo_register_submit"
+					value="1"
 					class="w-full btn btn-primary px-6 py-3"
 				>
 					<i class="ri-user-add-line"></i> Criar Conta
 				</button>
 			</div>
 		</form>
-		
+
 		<div class="mt-6 text-center text-sm">
 			<p>
-				Já tem uma conta? 
+				Já tem uma conta?
 				<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="text-primary hover:underline">
 					Fazer Login
 				</a>
 			</p>
 		</div>
 	</div>
-	
+
 	<script>
 	// Password match validation
 	document.addEventListener('DOMContentLoaded', function() {
 		const form = document.querySelector('.apollo-register-form');
 		const password = document.getElementById('apollo_register_password');
 		const passwordConfirm = document.getElementById('apollo_register_password_confirm');
-		
+
 		if (form && password && passwordConfirm) {
 			function validatePasswords() {
 				if (passwordConfirm.value && password.value !== passwordConfirm.value) {
@@ -227,7 +227,7 @@ function apollo_register_shortcode( $atts ) {
 					passwordConfirm.setCustomValidity('');
 				}
 			}
-			
+
 			password.addEventListener('input', validatePasswords);
 			passwordConfirm.addEventListener('input', validatePasswords);
 		}
@@ -270,7 +270,7 @@ function apollo_login_shortcode( $atts ) {
 	?>
 	<div class="apollo-login-form-wrapper glass p-6 rounded-lg max-w-md mx-auto">
 		<h2 class="text-2xl font-bold mb-6 text-center">Entrar</h2>
-		
+
 		<?php
 		// Show login errors if any
 		if ( isset( $_GET['login'] ) && $_GET['login'] === 'failed' ) {
@@ -279,7 +279,7 @@ function apollo_login_shortcode( $atts ) {
             </div>';
 		}
 		?>
-		
+
 		<?php
 		// Use WordPress login form
 		$login_args = array(
@@ -299,7 +299,7 @@ function apollo_login_shortcode( $atts ) {
 
 		wp_login_form( $login_args );
 		?>
-		
+
 		<div class="mt-6 space-y-3 text-center text-sm">
 			<p>
 				<a href="<?php echo esc_url( wp_lostpassword_url( get_permalink() ) ); ?>" class="text-primary hover:underline">
@@ -307,14 +307,14 @@ function apollo_login_shortcode( $atts ) {
 				</a>
 			</p>
 			<p>
-				Não tem uma conta? 
+				Não tem uma conta?
 				<a href="<?php echo esc_url( wp_registration_url() ); ?>" class="text-primary hover:underline">
 					Criar Conta
 				</a>
 			</p>
 		</div>
 	</div>
-	
+
 	<style>
 	.apollo-login-form-wrapper form {
 		display: flex;

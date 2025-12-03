@@ -28,17 +28,17 @@ return array(
 	|
 	*/
 	'plausible'        => array(
-		'domain'                   => '', 
+		'domain'                   => '',
 		// Your domain (e.g., 'mysite.com')
-				'script_url'       => 'https://plausible.io/js/script.js', 
+				'script_url'       => 'https://plausible.io/js/script.js',
 		// Or self-hosted
-				'inject_on_canvas' => true, 
+				'inject_on_canvas' => true,
 		// Only inject on Apollo Canvas routes
-				'custom_events'    => true, 
+				'custom_events'    => true,
 		// Enable custom events tracking
-				'outbound_links'   => true, 
+				'outbound_links'   => true,
 		// Track outbound clicks
-				'file_downloads'   => false, 
+				'file_downloads'   => false,
 // Track file downloads
 	),
 
@@ -142,9 +142,9 @@ return array(
 		'enabled'                => true,
 		'show_session_stats'     => true,
 		'show_local_counters'    => true,
-		'show_plausible_embed'   => false, 
+		'show_plausible_embed'   => false,
 		// Set to true if you have public dashboard
-				'cache_duration' => 300, 
+				'cache_duration' => 300,
 // 5 minutes
 	),
 );

@@ -16,7 +16,7 @@ class GroupEntity {
 	public $visibility;
 	public $members_count = 0;
 	public $creator_id;
-	public $created_by; 
+	public $created_by;
 	// Legacy alias
 	public $created_at;
 	public $updated_at;
@@ -33,11 +33,11 @@ class GroupEntity {
 		$this->visibility    = $data['visibility'] ?? 'public';
 		$this->members_count = $data['members_count'] ?? 0;
 		$this->creator_id    = $data['creator_id'] ?? ( $data['created_by'] ?? 0 );
-		$this->created_by    = $this->creator_id; 
+		$this->created_by    = $this->creator_id;
 		// Legacy alias
-		$this->created_at    = $data['created_at'] ?? date( 'Y-m-d H:i:s' );
-		$this->updated_at    = $data['updated_at'] ?? null;
-		$this->published_at  = $data['published_at'] ?? null;
+		$this->created_at   = $data['created_at'] ?? date( 'Y-m-d H:i:s' );
+		$this->updated_at   = $data['updated_at'] ?? null;
+		$this->published_at = $data['published_at'] ?? null;
 	}
 
 	// Getters for compatibility

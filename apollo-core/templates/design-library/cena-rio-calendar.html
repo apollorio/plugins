@@ -5,7 +5,7 @@
   @description: Calendário mensal com lista de eventos e mapa integrado (Leaflet)
   @author: Apollo Team
   @last_updated: 2025-11-28
-  
+
   @placeholders:
     {{user.name}}          - Nome do usuário logado
     {{user.email}}         - Email do usuário
@@ -20,7 +20,7 @@
     {{event.status}}       - expected|confirmed|published
     {{event.lat}}          - Latitude
     {{event.lng}}          - Longitude
-    
+
   @sections:
     sidebar     - Menu lateral esquerdo
     header      - Topbar com navegação de mês
@@ -28,7 +28,7 @@
     events-list - Lista de eventos
     map-footer  - Mapa Leaflet no rodapé
     bottom-nav  - Navegação mobile
-    
+
   @features:
     - Leaflet map integration
     - Month navigation
@@ -39,63 +39,187 @@
 -->
 <!doctype html>
 <html lang="pt-BR" class="h-full">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Cena::rio · Calendário Avançado</title>
-  
+
   <!-- UNI.CSS Global Design System -->
   <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
   <script src="https://assets.apollo.rio.br/base.js" defer></script>
-  
+
   <!-- Tailwind for quick styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
-  
+
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
+
   <style>
-    :root{
-      --bg:#f8fafc;
-      --muted:#64748b;
-      --accent:#f97316;
-      --accent-strong:#ea580c;
-      --confirmed:#10b981;
-      --published:#3b82f6;
-      --card:#ffffff;
-      --border:#e6eef6;
-      --shadow: 0 8px 30px rgba(15,23,42,0.06);
+    :root {
+      --bg: #f8fafc;
+      --muted: #64748b;
+      --accent: #f97316;
+      --accent-strong: #ea580c;
+      --confirmed: #10b981;
+      --published: #3b82f6;
+      --card: #ffffff;
+      --border: #e6eef6;
+      --shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
     }
-    
-    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial;}
-    
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      font-family: Inter, system-ui, Arial;
+    }
+
     /* Layout */
-    .app { display:flex; min-height:100vh; gap:0; }
-    aside.leftbar { width:14rem; background:#fff; border-right:1px solid #eef2f7; display:flex; flex-direction:column; z-index:40; }
-    @media (max-width: 980px){ aside.leftbar{display:none} }
-    main.content { flex:1; display:flex; flex-direction:column; min-height:100vh; }
-    
+    .app {
+      display: flex;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    aside.leftbar {
+      width: 14rem;
+      background: #fff;
+      border-right: 1px solid #eef2f7;
+      display: flex;
+      flex-direction: column;
+      z-index: 40;
+    }
+
+    @media (max-width: 980px) {
+      aside.leftbar {
+        display: none
+      }
+    }
+
+    main.content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
     /* Top header */
-    header.topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:rgba(255,255,255,0.9); border-bottom:1px solid #eef2f7; position:sticky; top:0; z-index:60; backdrop-filter: blur(6px); }
-    
+    header.topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid #eef2f7;
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      backdrop-filter: blur(6px);
+    }
+
     /* Main area split: calendar column + events grid */
-    .workspace { display:grid; grid-template-columns: 320px 1fr; gap:20px; padding:20px; max-width:1400px; margin:0 auto; width:100%; box-sizing:border-box; }
-    @media (max-width: 1100px){ .workspace { grid-template-columns: 1fr; padding-bottom: 0 } }
-    
+    .workspace {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
+        padding-bottom: 0
+      }
+    }
+
     /* Calendar card */
-    .calendar-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; box-shadow:var(--shadow); }
-    .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;color:var(--muted);font-weight:700;font-size:12px;margin-top:8px}
-    .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
-    .day-btn{height:56px;border-radius:10px;border:1px solid transparent;background:transparent;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0f172a;cursor:pointer;position:relative}
-    .day-btn.disabled{opacity:0.35;cursor:default}
-    .day-btn.selected{background:#0f172a;color:#fff;box-shadow:0 8px 24px rgba(15,23,42,0.12)}
-    .day-dot{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:999px;opacity:0.95}
-    .day-dot.expected{background:var(--accent)}
-    .day-dot.confirmed{background:var(--confirmed);width:10px;height:10px}
-    .day-dot.published{background:var(--published);width:10px;height:10px}
-    
+    .calendar-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      margin-top: 8px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .day-btn {
+      height: 56px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #0f172a;
+      cursor: pointer;
+      position: relative
+    }
+
+    .day-btn.disabled {
+      opacity: 0.35;
+      cursor: default
+    }
+
+    .day-btn.selected {
+      background: #0f172a;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12)
+    }
+
+    .day-dot {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      opacity: 0.95
+    }
+
+    .day-dot.expected {
+      background: var(--accent)
+    }
+
+    .day-dot.confirmed {
+      background: var(--confirmed);
+      width: 10px;
+      height: 10px
+    }
+
+    .day-dot.published {
+      background: var(--published);
+      width: 10px;
+      height: 10px
+    }
+
     /* Events List */
     .events-grid {
       display: flex;
@@ -103,7 +227,7 @@
       gap: 12px;
       width: 100%;
     }
-    
+
     .event-card {
       display: flex;
       flex-direction: row;
@@ -118,13 +242,14 @@
       transition: transform .12s ease, box-shadow .12s ease;
       gap: 16px;
     }
-    
+
     @media (max-width: 640px) {
       .event-card {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
       }
+
       .event-card .event-controls {
         width: 100%;
         justify-content: space-between;
@@ -133,96 +258,285 @@
         border-top: 1px solid #f1f5f9;
       }
     }
-    
-    .event-card.expected { border-left: 4px solid var(--accent); }
-    .event-card.confirmed { border-left: 4px solid var(--confirmed); }
-    .event-card.published { border-left: 4px solid var(--published); }
-    .event-info { flex: 1; min-width: 0; }
-    .event-controls { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-    .event-title { font-weight: 700; font-size: 16px; color: #0f172a; }
-    .event-meta { font-size: 14px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
-    .event-actions { display: flex; gap: 8px; align-items: center; }
-    
+
+    .event-card.expected {
+      border-left: 4px solid var(--accent);
+    }
+
+    .event-card.confirmed {
+      border-left: 4px solid var(--confirmed);
+    }
+
+    .event-card.published {
+      border-left: 4px solid var(--published);
+    }
+
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .event-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .event-meta {
+      font-size: 14px;
+      color: #64748b;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     /* Footer map full width */
-    footer.map-footer { width:100%; background:#fff; border-top:1px solid #eef2f7; padding:0; position:relative; z-index:10; }
-    #footer-map { width:100%; height:320px; border-radius:0; }
-    @media (max-width:640px){ #footer-map { height:200px } }
-    
+    footer.map-footer {
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #eef2f7;
+      padding: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    #footer-map {
+      width: 100%;
+      height: 320px;
+      border-radius: 0;
+    }
+
+    @media (max-width:640px) {
+      #footer-map {
+        height: 200px
+      }
+    }
+
     /* Bottom nav mobile only */
     .bottom-nav {
-      position:fixed;
-      left:0; right:0;
+      position: fixed;
+      left: 0;
+      right: 0;
       bottom: env(safe-area-inset-bottom, 0);
-      display:flex; justify-content:space-around; align-items:center;
-      height:64px; padding:8px 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.98));
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 64px;
+      padding: 8px 12px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.98));
       backdrop-filter: blur(8px);
-      z-index:1200;
-      box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+      z-index: 1200;
+      box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.06);
     }
-    .bottom-nav .nav-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; font-size:11px; color:#64748b; width:56px; }
-    .bottom-nav .nav-btn.active { color:#0f172a; }
-    @media (min-width: 980px){ .bottom-nav { display:none } }
-    
+
+    .bottom-nav .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      color: #64748b;
+      width: 56px;
+    }
+
+    .bottom-nav .nav-btn.active {
+      color: #0f172a;
+    }
+
+    @media (min-width: 980px) {
+      .bottom-nav {
+        display: none
+      }
+    }
+
     /* Helpers */
-    .muted{color:var(--muted)}
-    .legend{display:flex;gap:12px;align-items:center;color:#475569;font-size:13px}
-    .btn { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:8px; border:1px solid transparent; background:#111827; color:#fff; font-weight:600; cursor:pointer; font-size: 13px; transition: opacity 0.2s;}
-    .btn:hover { opacity: 0.9; }
-    .btn.ghost { background:transparent; color:#475569; border-color:var(--border) }
-    .btn.ghost:hover { background: #f1f5f9; color: #0f172a; }
-    .btn.small { padding: 6px 12px; font-size: 12px; }
-    :focus { outline: 3px solid rgba(99,102,241,0.12); outline-offset: 2px; }
+    .muted {
+      color: var(--muted)
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      color: #475569;
+      font-size: 13px
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: #111827;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: #475569;
+      border-color: var(--border)
+    }
+
+    .btn.ghost:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .btn.small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    :focus {
+      outline: 3px solid rgba(99, 102, 241, 0.12);
+      outline-offset: 2px;
+    }
   </style>
 </head>
 
 <body class="h-full">
   <div class="app">
-    
+
     <!-- @section:sidebar -->
     <!-- LEFT SIDEBAR -->
     <aside class="leftbar">
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
-        <span class="font-bold text-slate-900 tracking-tight text-lg">Cena::Rio</span>
+        <div class="flex flex-col leading-tight">
+          <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+          <span class="text-[15px] font-extrabold text-slate-900">Apollo::rio</span>
+        </div>
       </div>
-      
+
       <nav class="flex-1 px-4 space-y-1 py-6 overflow-y-auto">
-        <div class="px-2 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Menu</div>
+        <div class="px-2 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navegação</div>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
-          <i class="ri-calendar-line text-lg"></i>
-          <span class="font-medium text-sm">Agenda</span>
+          <i class="ri-building-3-line text-lg"></i>
+          <span class="font-medium text-sm">Feed</span>
         </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-calendar-event-line text-lg"></i>
+          <span class="font-medium text-sm">Eventos</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-user-community-fill text-lg"></i>
+          <span class="font-medium text-sm">Comunidades</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-team-fill text-lg"></i>
+          <span class="font-medium text-sm">Núcleos</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-megaphone-line text-lg"></i>
+          <span class="font-medium text-sm">Classificados</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-file-text-line text-lg"></i>
+          <span class="font-medium text-sm">Docs & Contratos</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-user-smile-fill text-lg"></i>
+          <span class="font-medium text-sm">Perfil</span>
+        </a>
+
+        <!-- @PHP: if(current_user_can('cena-rio') || current_user_can('administrator')): -->
+        <div class="px-2 mt-4 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cena::rio</div>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 bg-slate-100 text-slate-900 rounded-lg font-semibold">
+          <i class="ri-calendar-line text-lg"></i>
+          <span class="text-sm">Agenda</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
           <i class="ri-bar-chart-grouped-line text-lg"></i>
-          <span class="text-sm">Fornecedores</span>
+          <span class="font-medium text-sm">Fornecedores</span>
         </a>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
           <i class="ri-file-text-line text-lg"></i>
           <span class="font-medium text-sm">Documentos</span>
         </a>
+        <!-- @PHP: endif; -->
+
+        <div class="px-2 mt-4 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acesso Rápido</div>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-slate-600 rounded-lg hover:bg-slate-50 group">
+          <i class="ri-settings-6-line text-lg"></i>
+          <span class="font-medium text-sm">Ajustes</span>
+        </a>
       </nav>
-      
-      <div class="p-3 border-t border-slate-100">
-        <div class="flex items-center gap-3 px-2">
-          <!-- @placeholder: {{user.initials}}, {{user.name}}, {{user.email}} -->
-          <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">{{user.initials}}</div>
-          <div class="flex flex-col leading-tight">
-            <span class="text-xs font-bold text-slate-900">{{user.name}}</span>
-            <span class="text-[10px] text-slate-500">{{user.email}}</span>
+
+      <!-- Footer Links & User Block -->
+      <div class="p-0 rounded-lg group mb-4">
+        <div class="relative flex w-full min-w-0 flex-col px-3">
+          <div class="w-full text-sm">
+            <ul class="flex w-full min-w-0 flex-col gap-0">
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Sobre</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Ajustes</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
+                  <span>Denúncia</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <button class="ml-auto text-slate-400 hover:text-slate-600" title="Logout">
-            <i class="ri-logout-box-r-line text-lg"></i>
-          </button>
+
+          <div class="flex flex-col gap-2 p-2 mt-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-2 mt-2">
+              <div
+                class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+                {{user.initials}}</div>
+              <div class="flex flex-col leading-tight">
+                <span class="text-[14px] font-bold text-slate-900">{{user.name}}</span>
+                <span class="text-[12px] text-slate-500">{{user.email}}</span>
+              </div>
+              <button class="ml-auto text-slate-200 hover:text-slate-300" title="Logout">
+                <i class="ri-logout-box-r-line text-[18px]"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
 
     <!-- MAIN -->
     <main class="content">
-      
+
       <!-- @section:header -->
       <!-- Topbar -->
       <header class="topbar">
@@ -247,27 +561,39 @@
       <!-- @section:content -->
       <!-- Workspace: calendar + events -->
       <section class="workspace">
-        
+
         <!-- @section:calendar -->
         <!-- Calendar column -->
         <aside class="calendar-card" aria-label="Calendário">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div style="font-weight:700">Calendário</div>
             <div class="legend">
-              <div class="sw"><span class="box" style="width:14px;height:8px;background:rgba(249,115,22,0.3);border-radius:6px;display:inline-block"></span> Esperado</div>
-              <div class="sw"><span class="box" style="width:14px;height:8px;background:var(--confirmed);border-radius:6px;display:inline-block"></span> Confirmado</div>
-              <div class="sw"><span class="box" style="width:14px;height:8px;background:var(--published);border-radius:6px;display:inline-block"></span> Público</div>
+              <div class="sw"><span class="box"
+                  style="width:14px;height:8px;background:rgba(249,115,22,0.3);border-radius:6px;display:inline-block"></span>
+                Esperado</div>
+              <div class="sw"><span class="box"
+                  style="width:14px;height:8px;background:var(--confirmed);border-radius:6px;display:inline-block"></span>
+                Confirmado</div>
+              <div class="sw"><span class="box"
+                  style="width:14px;height:8px;background:var(--published);border-radius:6px;display:inline-block"></span>
+                Público</div>
             </div>
           </div>
-          
+
           <div class="weekdays" aria-hidden="true">
-            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            <div>Dom</div>
+            <div>Seg</div>
+            <div>Ter</div>
+            <div>Qua</div>
+            <div>Qui</div>
+            <div>Sex</div>
+            <div>Sáb</div>
           </div>
-          
+
           <div id="calendar-grid" class="grid" role="grid" aria-label="Calendário mensal">
             <!-- Days are rendered by JavaScript -->
           </div>
-          
+
           <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
             <button id="btn-add-event" class="btn"><i class="ri-add-line"></i> Novo Evento</button>
             <div style="font-size:12px;color:var(--muted)">Toque em um dia</div>
@@ -288,7 +614,7 @@
               </button>
             </div>
           </div>
-          
+
           <div id="events-grid" class="events-grid" aria-live="polite">
             <!-- @loop: {{#each events}} -->
             <!--
@@ -304,70 +630,75 @@
                 </div>
                 <div class="event-controls">
                   <!-- Status badge -->
-                  {{#if (eq event.status "expected")}}
-                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(249,115,22,0.1);color:var(--accent);font-size:12px;font-weight:700">
-                    <i class="ri-radar-fill"></i> Esperado
-                  </span>
-                  {{/if}}
-                  {{#if (eq event.status "confirmed")}}
-                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(16,185,129,0.1);color:var(--confirmed);font-size:12px;font-weight:700">
-                    <i class="ri-check-double-line"></i> Confirmado
-                  </span>
-                  {{/if}}
-                  {{#if (eq event.status "published")}}
-                  <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(59,130,246,0.1);color:var(--published);font-size:12px;font-weight:700">
-                    <i class="ri-global-line"></i> Público
-                  </span>
-                  {{/if}}
-                  
-                  <!-- Actions -->
-                  <div class="event-actions">
-                    {{#if (eq event.status "expected")}}
-                    <button class="btn small" onclick="confirmEvent({{event.id}})">Confirmar</button>
-                    {{/if}}
-                    <button class="btn small ghost" onclick="editEvent({{event.id}})"><i class="ri-edit-line"></i></button>
-                    <button class="btn small ghost" onclick="deleteEvent({{event.id}})"><i class="ri-delete-bin-line"></i></button>
-                  </div>
-                </div>
-              </article>
-            -->
-            <!-- {{/each}} -->
+            {{#if (eq event.status "expected")}}
+            <span
+              style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(249,115,22,0.1);color:var(--accent);font-size:12px;font-weight:700">
+              <i class="ri-radar-fill"></i> Esperado
+            </span>
+            {{/if}}
+            {{#if (eq event.status "confirmed")}}
+            <span
+              style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(16,185,129,0.1);color:var(--confirmed);font-size:12px;font-weight:700">
+              <i class="ri-check-double-line"></i> Confirmado
+            </span>
+            {{/if}}
+            {{#if (eq event.status "published")}}
+            <span
+              style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px;background:rgba(59,130,246,0.1);color:var(--published);font-size:12px;font-weight:700">
+              <i class="ri-global-line"></i> Público
+            </span>
+            {{/if}}
+
+            <!-- Actions -->
+            <div class="event-actions">
+              {{#if (eq event.status "expected")}}
+              <button class="btn small" onclick="confirmEvent({{event.id}})">Confirmar</button>
+              {{/if}}
+              <button class="btn small ghost" onclick="editEvent({{event.id}})"><i class="ri-edit-line"></i></button>
+              <button class="btn small ghost" onclick="deleteEvent({{event.id}})"><i
+                  class="ri-delete-bin-line"></i></button>
+            </div>
           </div>
+          </article>
+          -->
+          <!-- {{/each}} -->
         </div>
-      </section>
+  </div>
+  </section>
 
-      <!-- @section:map-footer -->
-      <!-- Footer map full width -->
-      <footer class="map-footer">
-        <div id="footer-map"></div>
-      </footer>
+  <!-- @section:map-footer -->
+  <!-- Footer map full width -->
+  <footer class="map-footer">
+    <div id="footer-map"></div>
+  </footer>
 
-      <!-- @section:bottom-nav -->
-      <!-- Mobile bottom nav -->
-      <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
-        <div class="nav-btn" onclick="location.href='#agenda'">
-          <i class="ri-calendar-line"></i>
-          <span>Agenda</span>
-        </div>
-        <div class="nav-btn active" onclick="location.href='#fornecedores'">
-          <i class="ri-bar-chart-grouped-line"></i>
-          <span>Pro</span>
-        </div>
-        <div style="position:relative;top:-18px">
-          <button onclick="openQuickAdd()" class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg">
-            <i class="ri-add-line text-3xl"></i>
-          </button>
-        </div>
-        <div class="nav-btn" onclick="location.href='#docs'">
-          <i class="ri-file-text-line"></i>
-          <span>Docs</span>
-        </div>
-        <div class="nav-btn" onclick="location.href='#settings'">
-          <i class="ri-settings-3-line"></i>
-          <span>Ajustes</span>
-        </div>
-      </div>
-    </main>
+  <!-- @section:bottom-nav -->
+  <!-- Mobile bottom nav -->
+  <div class="bottom-nav" role="navigation" aria-label="Navegação inferior">
+    <div class="nav-btn" onclick="location.href='#agenda'">
+      <i class="ri-calendar-line"></i>
+      <span>Agenda</span>
+    </div>
+    <div class="nav-btn active" onclick="location.href='#fornecedores'">
+      <i class="ri-bar-chart-grouped-line"></i>
+      <span>Pro</span>
+    </div>
+    <div style="position:relative;top:-18px">
+      <button onclick="openQuickAdd()"
+        class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg">
+        <i class="ri-add-line text-3xl"></i>
+      </button>
+    </div>
+    <div class="nav-btn" onclick="location.href='#docs'">
+      <i class="ri-file-text-line"></i>
+      <span>Docs</span>
+    </div>
+    <div class="nav-btn" onclick="location.href='#settings'">
+      <i class="ri-settings-3-line"></i>
+      <span>Ajustes</span>
+    </div>
+  </div>
+  </main>
   </div>
 
   <!-- Modal root -->
@@ -375,5 +706,5 @@
 
   <!-- JavaScript será implementado em arquivo separado -->
 </body>
-</html>
 
+</html>

@@ -308,17 +308,17 @@ class MetaKeysAuditor {
 
 		// Penalty for missing required keys
 		foreach ( $audit['missing_keys'] as $key => $event_ids ) {
-			$penalties += count( $event_ids ) * 2; 
+			$penalties += count( $event_ids ) * 2;
 			// 2 points per missing required key
 		}
 
 		// Penalty for invalid types
 		foreach ( $audit['invalid_types'] as $key => $event_ids ) {
-			$penalties += count( $event_ids ) * 1; 
+			$penalties += count( $event_ids ) * 1;
 			// 1 point per invalid type
 		}
 
-		$score -= min( $penalties, 100 ); 
+		$score -= min( $penalties, 100 );
 		// Cap at 0
 
 		return max( 0, round( $score, 1 ) );

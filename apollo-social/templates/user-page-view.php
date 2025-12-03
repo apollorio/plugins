@@ -58,7 +58,7 @@ get_header();
 		src="<?php echo esc_url( $cover_url ); ?>" 
 		alt="<?php echo esc_attr( sprintf( 'Capa de %s', $user->display_name ) ); ?>"
 		class="w-full h-full object-cover"
-		data-tooltip="Foto de capa do perfil"
+		data-ap-tooltip="Foto de capa do perfil"
 	/>
 	<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 	</div>
@@ -82,7 +82,7 @@ get_header();
 			);
 			?>
 			<?php if ( $is_verified ) : ?>
-			<span class="absolute -bottom-1 -right-1 h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white" data-tooltip="Perfil verificado">
+			<span class="absolute -bottom-1 -right-1 h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white" data-ap-tooltip="Perfil verificado">
 			<i class="ri-check-line text-white text-xs"></i>
 			</span>
 			<?php endif; ?>
@@ -97,15 +97,15 @@ get_header();
 
 		<!-- Stats Row -->
 		<div class="flex items-center justify-around py-3 border-y border-slate-100 my-4">
-		<div class="text-center" data-tooltip="Total de publicações">
+		<div class="text-center" data-ap-tooltip="Total de publicações">
 			<span class="block text-lg font-bold text-slate-900"><?php echo esc_html( $posts_count ?: 0 ); ?></span>
 			<span class="text-xs text-slate-500">Posts</span>
 		</div>
-		<div class="text-center" data-tooltip="Pessoas que seguem este perfil">
+		<div class="text-center" data-ap-tooltip="Pessoas que seguem este perfil">
 			<span class="block text-lg font-bold text-slate-900"><?php echo esc_html( $followers_count ?: 0 ); ?></span>
 			<span class="text-xs text-slate-500">Seguidores</span>
 		</div>
-		<div class="text-center" data-tooltip="Perfis que este usuário segue">
+		<div class="text-center" data-ap-tooltip="Perfis que este usuário segue">
 			<span class="block text-lg font-bold text-slate-900"><?php echo esc_html( $following_count ?: 0 ); ?></span>
 			<span class="text-xs text-slate-500">Seguindo</span>
 		</div>
@@ -113,21 +113,21 @@ get_header();
 
 		<!-- Bio -->
 		<?php if ( $bio ) : ?>
-		<p class="text-sm text-slate-700 mb-4" data-tooltip="Biografia do usuário"><?php echo esc_html( $bio ); ?></p>
+		<p class="text-sm text-slate-700 mb-4" data-ap-tooltip="Biografia do usuário"><?php echo esc_html( $bio ); ?></p>
 		<?php else : ?>
-		<p class="text-sm text-slate-400 italic mb-4" data-tooltip="Este usuário ainda não adicionou uma bio">Nenhuma bio ainda...</p>
+		<p class="text-sm text-slate-400 italic mb-4" data-ap-tooltip="Este usuário ainda não adicionou uma bio">Nenhuma bio ainda...</p>
 		<?php endif; ?>
 
 		<!-- Location & Links -->
 		<div class="flex flex-wrap gap-3 text-sm text-slate-500">
 		<?php if ( $location ) : ?>
-		<span class="flex items-center gap-1" data-tooltip="Localização">
+		<span class="flex items-center gap-1" data-ap-tooltip="Localização">
 			<i class="ri-map-pin-line"></i>
 			<?php echo esc_html( $location ); ?>
 		</span>
 		<?php endif; ?>
 		<?php if ( $website ) : ?>
-		<a href="<?php echo esc_url( $website ); ?>" target="_blank" rel="noopener" class="flex items-center gap-1 text-orange-600 hover:underline" data-tooltip="Site pessoal">
+		<a href="<?php echo esc_url( $website ); ?>" target="_blank" rel="noopener" class="flex items-center gap-1 text-orange-600 hover:underline" data-ap-tooltip="Site pessoal">
 			<i class="ri-link"></i>
 			<?php echo esc_html( parse_url( $website, PHP_URL_HOST ) ); ?>
 		</a>
@@ -137,23 +137,23 @@ get_header();
 		<!-- Action Buttons -->
 		<div class="flex gap-2 mt-4">
 		<?php if ( is_user_logged_in() && get_current_user_id() !== $user_id ) : ?>
-		<button class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors" data-tooltip="Seguir este perfil" data-action="follow" data-user-id="<?php echo esc_attr( $user_id ); ?>">
+		<button class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors" data-ap-tooltip="Seguir este perfil" data-action="follow" data-user-id="<?php echo esc_attr( $user_id ); ?>">
 			<i class="ri-user-add-line mr-1"></i>
 			Seguir
 		</button>
-		<button class="py-2 px-4 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 transition-colors" data-tooltip="Enviar mensagem" data-action="message" data-user-id="<?php echo esc_attr( $user_id ); ?>">
+		<button class="py-2 px-4 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 transition-colors" data-ap-tooltip="Enviar mensagem" data-action="message" data-user-id="<?php echo esc_attr( $user_id ); ?>">
 			<i class="ri-mail-line"></i>
 		</button>
 		<?php elseif ( get_current_user_id() === $user_id ) : ?>
-		<a href="<?php echo esc_url( add_query_arg( 'action', 'edit' ) ); ?>" class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors text-center" data-tooltip="Personalizar sua página pública">
+		<a href="<?php echo esc_url( add_query_arg( 'action', 'edit' ) ); ?>" class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors text-center" data-ap-tooltip="Personalizar sua página pública">
 			<i class="ri-edit-line mr-1"></i>
 			Editar Página
 		</a>
-		<a href="<?php echo esc_url( home_url( '/meu-perfil/' ) ); ?>" class="py-2 px-4 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 transition-colors" data-tooltip="Ir para configurações privadas">
+		<a href="<?php echo esc_url( home_url( '/meu-perfil/' ) ); ?>" class="py-2 px-4 border border-slate-200 rounded-full text-sm text-slate-600 hover:bg-slate-50 transition-colors" data-ap-tooltip="Ir para configurações privadas">
 			<i class="ri-settings-3-line"></i>
 		</a>
 		<?php else : ?>
-		<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors text-center" data-tooltip="Faça login para interagir">
+		<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="flex-1 py-2 px-4 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors text-center" data-ap-tooltip="Faça login para interagir">
 			<i class="ri-login-box-line mr-1"></i>
 			Entrar para Seguir
 		</a>
@@ -178,14 +178,14 @@ get_header();
 						'post_id'      => $post_id,
 						'display_name' => $user->display_name,
 					);
-					echo '<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4" data-tooltip="Widget personalizado">';
+					echo '<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4" data-ap-tooltip="Widget personalizado">';
 					echo $widgets[ $widget_id ]['render']( $props, $ctx );
 					echo '</div>';
 				}
 			}
 		}
 	} else {
-		echo '<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6 text-center" data-tooltip="O usuário pode adicionar widgets aqui">';
+		echo '<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6 text-center" data-ap-tooltip="O usuário pode adicionar widgets aqui">';
 		echo '<i class="ri-layout-grid-line text-3xl text-slate-300 mb-2"></i>';
 		echo '<p class="text-slate-400 text-sm">Esta página ainda não tem widgets personalizados.</p>';
 		echo '</div>';
@@ -196,7 +196,7 @@ get_header();
 	<!-- Depoimentos (Testimonials Section) - STRICT MODE -->
 	<section class="depoimentos px-4 pb-8">
 	<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6">
-		<h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2" data-tooltip="Depoimentos deixados por outros usuários">
+		<h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2" data-ap-tooltip="Depoimentos deixados por outros usuários">
 		<i class="ri-chat-quote-line text-orange-500"></i>
 		Depoimentos
 		</h2>
@@ -230,7 +230,7 @@ get_header();
 		<?php endforeach; ?>
 		</div>
 		<?php else : ?>
-		<div class="text-center py-6" data-tooltip="Seja o primeiro a deixar um depoimento!">
+		<div class="text-center py-6" data-ap-tooltip="Seja o primeiro a deixar um depoimento!">
 		<i class="ri-chat-smile-2-line text-3xl text-slate-300 mb-2"></i>
 		<p class="text-slate-400 text-sm">Nenhum depoimento ainda.</p>
 		</div>
@@ -248,9 +248,9 @@ get_header();
 				rows="2"
 				placeholder="Deixe um depoimento sobre <?php echo esc_attr( $user->display_name ); ?>..."
 				class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-				data-tooltip="Escreva algo legal sobre este usuário"
+				data-ap-tooltip="Escreva algo legal sobre este usuário"
 			></textarea>
-			<button type="submit" class="mt-2 px-4 py-1.5 bg-slate-900 text-white text-sm rounded-full font-medium hover:bg-slate-800 transition-colors" data-tooltip="Publicar seu depoimento">
+			<button type="submit" class="mt-2 px-4 py-1.5 bg-slate-900 text-white text-sm rounded-full font-medium hover:bg-slate-800 transition-colors" data-ap-tooltip="Publicar seu depoimento">
 				<i class="ri-send-plane-line mr-1"></i>
 				Enviar
 			</button>
@@ -259,7 +259,7 @@ get_header();
 		</form>
 		<?php elseif ( ! is_user_logged_in() ) : ?>
 		<div class="mt-6 pt-4 border-t border-slate-100 text-center">
-		<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-full text-sm hover:bg-slate-200 transition-colors" data-tooltip="Faça login para deixar um depoimento">
+		<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-full text-sm hover:bg-slate-200 transition-colors" data-ap-tooltip="Faça login para deixar um depoimento">
 			<i class="ri-login-box-line"></i>
 			Entrar para deixar um depoimento
 		</a>

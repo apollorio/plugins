@@ -19,8 +19,8 @@ if ( file_exists( $shadcn_loader ) ) {
 	}
 }
 
-$current_user = wp_get_current_user();
-$user_id      = $current_user->ID;
+$user_obj = wp_get_current_user();
+$user_id  = $user_obj->ID;
 
 // Buscar documentos
 $all_documents = function_exists( 'Apollo\CenaRio\CenaRioModule::getLibraryDocuments' )
@@ -31,7 +31,7 @@ $my_documents = function_exists( 'Apollo\CenaRio\CenaRioModule::getUserDocuments
 	? Apollo\CenaRio\CenaRioModule::getUserDocuments( $user_id )
 	: array();
 
-$signed_documents = array(); 
+$signed_documents = array();
 // TODO: Implementar busca de documentos assinados
 
 $current_filter = isset( $_GET['filter'] ) ? sanitize_text_field( $_GET['filter'] ) : 'all';
@@ -52,21 +52,21 @@ get_header();
 
 		<!-- Sidebar Navigation -->
 		<nav class="sidebar-content flex-1 overflow-y-auto p-4 space-y-1">
-			<a href="<?php echo esc_url( add_query_arg( 'filter', 'all' ) ); ?>" 
+			<a href="<?php echo esc_url( add_query_arg( 'filter', 'all' ) ); ?>"
 				class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $current_filter === 'all' ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent hover:text-accent-foreground'; ?>">
 				<i class="ri-folder-line"></i>
 				<span>Todos os Documentos</span>
 				<span class="ml-auto badge badge-default"><?php echo count( $all_documents ); ?></span>
 			</a>
-			
-			<a href="<?php echo esc_url( add_query_arg( 'filter', 'my' ) ); ?>" 
+
+			<a href="<?php echo esc_url( add_query_arg( 'filter', 'my' ) ); ?>"
 				class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $current_filter === 'my' ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent hover:text-accent-foreground'; ?>">
 				<i class="ri-file-user-line"></i>
 				<span>Meus Documentos</span>
 				<span class="ml-auto badge badge-default"><?php echo count( $my_documents ); ?></span>
 			</a>
-			
-			<a href="<?php echo esc_url( add_query_arg( 'filter', 'signed' ) ); ?>" 
+
+			<a href="<?php echo esc_url( add_query_arg( 'filter', 'signed' ) ); ?>"
 				class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $current_filter === 'signed' ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent hover:text-accent-foreground'; ?>">
 				<i class="ri-file-check-line"></i>
 				<span>Assinados</span>
@@ -74,10 +74,10 @@ get_header();
 					<span class="ml-auto badge badge-primary"><?php echo count( $signed_documents ); ?></span>
 				<?php endif; ?>
 			</a>
-			
+
 			<div class="separator my-4"></div>
-			
-			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>" 
+
+			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>"
 				class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
 				<i class="ri-add-line"></i>
 				<span>Novo Documento</span>
@@ -123,9 +123,9 @@ get_header();
 				<div class="flex items-center gap-2">
 					<div class="relative">
 						<i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
-						<input 
-							type="text" 
-							placeholder="Buscar documentos..." 
+						<input
+							type="text"
+							placeholder="Buscar documentos..."
 							class="input pl-10 w-64"
 							id="searchDocuments"
 						>
@@ -180,12 +180,12 @@ get_header();
 										</div>
 										<div class="flex items-center gap-2">
 											<?php if ( $is_signed ) : ?>
-												<i class="ri-file-check-line text-xl text-green-600" title="Assinado"></i>
+												<i class="ri-file-check-line text-xl text-green-600" data-ap-tooltip="<?php esc_attr_e( 'Documento assinado', 'apollo-social' ); ?>"></i>
 											<?php endif; ?>
 											<?php if ( $is_mine ) : ?>
-												<i class="ri-user-line text-xl text-muted-foreground" title="Meu documento"></i>
+												<i class="ri-user-line text-xl text-muted-foreground" data-ap-tooltip="<?php esc_attr_e( 'Meu documento', 'apollo-social' ); ?>"></i>
 											<?php endif; ?>
-											<i class="ri-file-text-line text-2xl text-muted-foreground"></i>
+											<i class="ri-file-text-line text-2xl text-muted-foreground" data-ap-tooltip="<?php esc_attr_e( 'Documento', 'apollo-social' ); ?>"></i>
 										</div>
 									</div>
 									<p class="card-description line-clamp-2">
@@ -194,11 +194,11 @@ get_header();
 								</div>
 								<div class="card-content">
 									<div class="flex items-center justify-between text-xs text-muted-foreground">
-										<div class="flex items-center gap-2">
+										<div class="flex items-center gap-2" data-ap-tooltip="<?php esc_attr_e( 'Data de criação', 'apollo-social' ); ?>">
 											<i class="ri-calendar-line"></i>
 											<span><?php echo esc_html( date_i18n( 'd/m/Y', strtotime( $doc->post_date ) ) ); ?></span>
 										</div>
-										<div class="flex items-center gap-2">
+										<div class="flex items-center gap-2" data-ap-tooltip="<?php esc_attr_e( 'Autor do documento', 'apollo-social' ); ?>">
 											<i class="ri-user-line"></i>
 											<span><?php echo esc_html( get_the_author_meta( 'display_name', $doc->post_author ) ); ?></span>
 										</div>
@@ -218,11 +218,11 @@ get_header();
 document.getElementById('searchDocuments')?.addEventListener('input', function(e) {
 	const search = e.target.value.toLowerCase();
 	const cards = document.querySelectorAll('.card');
-	
+
 	cards.forEach(card => {
 		const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
 		const description = card.querySelector('.card-description')?.textContent.toLowerCase() || '';
-		
+
 		if (title.includes(search) || description.includes(search)) {
 			card.style.display = '';
 		} else {

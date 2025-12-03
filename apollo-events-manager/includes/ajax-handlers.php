@@ -26,6 +26,11 @@ add_action( 'wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_mo
  * @deprecated Use apollo_get_event_modal action instead
  */
 function apollo_ajax_load_event_modal() {
+	// TEMP: Xdebug breakpoint para depuração Apollo.
+	if ( function_exists( 'xdebug_break' ) ) {
+		xdebug_break();
+	}
+
 	try {
 		// Verify nonce (standardized)
 		check_ajax_referer( 'apollo_events_nonce', 'nonce' );
@@ -79,11 +84,11 @@ function apollo_ajax_load_event_modal() {
 		?>
 	<div class="apollo-event-modal-overlay" data-apollo-close></div>
 	<div class="apollo-event-modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title-<?php echo esc_attr( $event_id ); ?>">
-		
+
 		<button class="apollo-event-modal-close" type="button" data-apollo-close aria-label="Fechar">
 			<i class="ri-close-line"></i>
 		</button>
-		
+
 		<div class="apollo-event-hero">
 			<div class="apollo-event-hero-media">
 				<img src="<?php echo esc_url( $banner_url ); ?>" alt="<?php echo esc_attr( $event->post_title ); ?>" loading="lazy">
@@ -92,7 +97,7 @@ function apollo_ajax_load_event_modal() {
 					<span class="m"><?php echo esc_html( $date_info['month_pt'] ); ?></span>
 				</div>
 			</div>
-			
+
 			<div class="apollo-event-hero-info">
 				<h1 class="apollo-event-title" id="modal-title-<?php echo esc_attr( $event_id ); ?>">
 					<?php echo esc_html( $event->post_title ); ?>
@@ -112,11 +117,11 @@ function apollo_ajax_load_event_modal() {
 				<?php endif; ?>
 			</div>
 		</div>
-		
+
 		<div class="apollo-event-body">
 			<?php echo wp_kses_post( $content ); ?>
 		</div>
-		
+
 	</div>
 		<?php
 		$html = ob_get_clean();

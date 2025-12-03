@@ -93,7 +93,7 @@ class HtmlRenderService {
 	 * Initialize base CSS for PDF
 	 */
 	private function initBaseCss(): void {
-		$this->base_css = <<<CSS
+		$this->base_css = <<<'CSS'
 /* Apollo Document Styles */
 .apollo-document {
     font-family: 'DejaVu Sans', 'Helvetica', 'Arial', sans-serif;
@@ -832,7 +832,7 @@ HTML;
 			);
 		}
 
-		$blocks = '<div class="signatures-container" style="margin-top: 48pt; page-break-inside: avoid;">';
+		$blocks  = '<div class="signatures-container" style="margin-top: 48pt; page-break-inside: avoid;">';
 		$blocks .= '<h3 style="margin-bottom: 24pt;">Assinaturas</h3>';
 		$blocks .= '<div style="display: flex; justify-content: space-between; gap: 24pt;">';
 

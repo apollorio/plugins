@@ -28,7 +28,7 @@ return array(
 	),
 
 	'uploads'     => array(
-		'max_file_size'         => 10485760, 
+		'max_file_size'         => 10485760,
 		// 10MB
 				'allowed_types' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
 		'max_files_per_post'    => 5,
@@ -47,7 +47,7 @@ return array(
 
 	'performance' => array(
 		'cache_enabled'         => true,
-		'cache_duration'        => 3600, 
+		'cache_duration'        => 3600,
 		// 1 hour
 				'rate_limiting' => true,
 		'audit_logging'         => true,

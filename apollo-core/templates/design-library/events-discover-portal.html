@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Events - Apollo::rio</title>
+
+    <!-- External Assets -->
+    <link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
+    <link href="https://assets.apollo.rio.br/uni.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           EVENTS DISCOVER PORTAL - PAGE SPECIFIC STYLES
+           Note: Core styles are in uni.css (section 14.1-14.4)
+           ========================================================================== */
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 0px;
+            margin-bottom: 50px;
+        }
+
+        .title-page {
+            font-size: 4rem;
+            font-weight: 800;
+            padding: 2rem;
+            color: var(--ap-text-primary);
+            line-height: 1.1;
+        }
+
+        .subtitle-page {
+            font-size: 1.75rem;
+            max-width: 850px;
+            margin: 20px auto 0 auto;
+            color: var(--ap-text-secondary);
+        }
+
+        mark {
+            background-color: #fd5c021a;
+            font-weight: 500;
+            color: #fd5c02;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 250px 40px 50px 40px;
+        }
+
+        /* Header Styles */
+        .site-header {
+            position: relative;
+            z-index: 999;
+        }
+
+        .menu-h-apollo-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+            mask: linear-gradient(to bottom, rgb(0 0 0) 0%, rgb(0 0 0 / .8) 40%, rgb(0 0 0 / .3) 70%, transparent 100%);
+            -webkit-mask: linear-gradient(to bottom, rgb(0 0 0) 0%, rgb(0 0 0 / .8) 40%, rgb(0 0 0 / .3) 70%, transparent 100%);
+            z-index: 998;
+            pointer-events: none;
+            transition: var(--ap-transition-base);
+        }
+
+        body.dark-mode .menu-h-apollo-blur {
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.1) 50%, transparent 100%);
+        }
+
+        .main-nav {
+            display: flex;
+            position: fixed;
+            height: 22px;
+            top: 18px;
+            right: 19px;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .menu-apollo-logo {
+            position: fixed;
+            height: 23px;
+            top: 14px;
+            left: 19px;
+            opacity: .8;
+            z-index: 999;
+            transition: var(--ap-transition-base);
+        }
+
+        .menu-apollo-logo:hover {
+            opacity: 1;
+        }
+
+        .main-nav a,
+        .main-nav .menu-h-apollo-button {
+            display: inline-block;
+            margin: 0 16px;
+            color: var(--ap-text-secondary);
+            font-size: .95rem;
+            transition: var(--ap-transition-base);
+        }
+
+        .ario-eve:hover {
+            color: var(--ap-text-secondary);
+        }
+
+        .menu-h-apollo-button {
+            margin: 0px 10px 0px 13px !important;
+            border: 1px solid var(--ap-border-default);
+            border-radius: calc(var(--ap-radius-lg)/1.2);
+            padding: 4px 12px;
+            font-size: .84rem !important;
+            cursor: pointer;
+            background: none;
+            font-family: var(--ap-font-primary);
+        }
+
+        .menu-h-apollo-button:hover {
+            background: var(--ap-border-default);
+            color: var(--ap-text-primary);
+        }
+
+        /* User Menu Dropdown */
+        div.menu-h-lista {
+            position: relative;
+        }
+
+        div.menu-h-lista>div.list {
+            position: absolute;
+            top: 40px;
+            right: 5px;
+            color: var(--ap-text-secondary);
+            border-radius: var(--ap-radius-lg);
+            padding: 0.8rem 1rem !important;
+            display: none;
+            width: 160px;
+            background: var(--ap-bg-translucent);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--ap-border-light);
+            box-shadow: var(--ap-shadow-md);
+        }
+
+        div.menu-h-lista.open>div.list {
+            display: block;
+        }
+
+        div.menu-h-lista>div.list>.item {
+            font-size: .85rem !important;
+            margin: 0;
+            text-align: left;
+            width: 100%;
+            padding: 0.5rem 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--ap-transition-base);
+        }
+
+        .menu-h-lista .item:hover {
+            color: var(--ap-text-primary);
+            font-weight: 600;
+        }
+
+        .menu-h-lista hr {
+            height: 1px;
+            background-color: var(--ap-border-light);
+            border: none;
+            width: 100%;
+            margin: 6px 0;
+        }
+
+        .ri-arrow-right-up-line {
+            margin: 4px 0 -3px 1px !important;
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--ap-bg-main);
+            border: 1px solid var(--ap-border-default);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: var(--ap-transition-base);
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--ap-shadow-md);
+        }
+
+        .dark-mode-toggle i {
+            font-size: 1.1rem;
+            color: var(--ap-text-secondary);
+            transition: var(--ap-transition-base);
+        }
+
+        .dark-mode-toggle .ri-sun-line {
+            display: none;
+        }
+
+        .dark-mode-toggle .ri-moon-line {
+            display: block;
+        }
+
+        body.dark-mode .dark-mode-toggle .ri-sun-line {
+            display: block;
+        }
+
+        body.dark-mode .dark-mode-toggle .ri-moon-line {
+            display: none;
+        }
+
+        /* Layout Toggle */
+        .wpem-event-layout-action-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .wpem-event-layout-icon {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--ap-radius-md);
+            border: 1px solid var(--ap-border-default);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wpem-event-layout-icon:hover {
+            background: var(--ap-bg-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 80px 20px 30px 20px;
+            }
+
+            .hero-section {
+                padding: 40px 0;
+            }
+
+            .title-page {
+                font-size: 3rem;
+            }
+
+            .main-nav a.ario-eve {
+                display: none;
+            }
+
+            .main-nav {
+                right: 10px;
+            }
+
+            .menu-apollo-logo {
+                left: 10px;
+            }
+
+            .main-nav a,
+            .main-nav .menu-h-apollo-button {
+                margin: 0 8px;
+            }
+
+            .menu-h-apollo-button {
+                margin: 0 0 0 8px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title-page {
+                font-size: 2.5rem;
+            }
+
+            .hero-section {
+                padding: 20px 0;
+                margin-bottom: 30px;
+            }
+
+            .dark-mode-toggle {
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======================= HEADER ======================= -->
+    <header class="site-header">
+        <div class="menu-h-apollo-blur"></div>
+        <a href="https://apollo.rio.br/" alt="Logo Apollo::rio" title="Apollo::rio">
+            <img src="https://vertente.apollo.rio.br/i.png" class="menu-apollo-logo">
+        </a>
+        <nav class="main-nav">
+            <a class="a-hover off"><span id="agoraH">--:--</span> RJ</a>
+            <a href="#" class="ario-eve" title="Portal de Eventos">Eventos<i class="ri-arrow-right-up-line"></i></a>
+
+            <!-- User Menu Dropdown -->
+            <div class="menu-h-lista">
+                <button class="menu-h-apollo-button caption" id="userMenuTrigger">Login</button>
+                <div class="list">
+                    <div class="item ok"><i class="ri-global-line"></i> Explorer</div>
+                    <hr>
+                    <div class="item ok"><i class="ri-fingerprint-2-fill"></i> My Apollo</div>
+                    <div class="item ok"><i class="ri-logout-box-r-line"></i> Logout</div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- ===================== END HEADER ===================== -->
+
+    <main class="main-container">
+        <!-- SHORTCODE [discover-events-now] OUTPUT START -->
+        <div class="event-manager-shortcode-wrapper discover-events-now-shortcode">
+
+            <section class="hero-section">
+                <h1 class="title-page">Experience Tomorrow's Events</h1>
+                <p class="subtitle-page">Um novo <mark>&nbsp;hub digital que conecta cultura,&nbsp;</mark> tecnologia e
+                    experiências em tempo real... <mark>&nbsp;O futuro da cultura carioca começa aqui!&nbsp;</mark></p>
+            </section>
+
+            <!-- ======================= FILTERS & SEARCH ======================= -->
+            <div class="filters-and-search">
+                <div class="menutags event_types">
+                    <button class="menutag event-category active" data-slug="all">All</button>
+                    <button class="menutag event-category" data-slug="music">Underground</button>
+                    <button class="menutag event-category" data-slug="art-culture">Art & Culture</button>
+                    <button class="menutag event-category" data-slug="mainstream">Mainstream</button>
+                    <button class="menutag event-category" data-slug="workshops">D-Edge club</button>
+                </div>
+
+                <div class="search-date-controls">
+                    <form class="box-search" role="search" id="eventSearchForm">
+                        <label for="eventSearchInput" class="visually-hidden">Procurar</label>
+                        <i class="ri-search-line"></i>
+                        <input type="text" name="search_keywords" id="eventSearchInput" placeholder="Buscar eventos...">
+                        <input type="hidden" name="post_type" value="event_listing">
+                    </form>
+
+                    <div class="box-rio" id="eventDatePicker">
+                        <button type="button" class="date-arrow" id="datePrev" aria-label="Previous month">‹</button>
+                        <span class="date-display" id="dateDisplay"></span>
+                        <button type="button" class="date-arrow" id="dateNext" aria-label="Next month">›</button>
+                    </div>
+                </div>
+            </div>
+            <!-- ===================== END FILTERS & SEARCH ===================== -->
+
+            <!-- Layout Toggle -->
+            <div class="wpem-col wpem-col-12 wpem-col-sm-6 wpem-col-md-6 wpem-col-lg-4">
+                <div class="wpem-event-layout-action-wrapper">
+                    <div class="wpem-event-layout-action">
+                        <div class="wpem-event-layout-icon wpem-event-list-layout wpem-active-layout"
+                            title="Events List View" id="wpem-event-toggle-layout" onclick="toggleLayout(this)">
+                            <i class="wpem-icon-menu"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= EVENT LISTING GRID ======================= -->
+            <div class="event_listings">
+
+                <!-- Card 1 - TYPE-1 (Cutout Mask) -->
+                <a href="#" class="event_listing" data-event-id="1" data-category="music" data-month-str="out">
+                    <div class="box-date-event">
+                        <span class="date-day">25</span>
+                        <span class="date-month">out</span>
+                    </div>
+
+                    <div class="picture">
+                        <img src="https://galeria.dismantle.com.br/foto/bonyinc/_MG_0338.jpg"
+                            alt="Event Image: Festa Dismantle #1" loading="lazy">
+
+                        <div class="event-card-tags">
+                            <span>House</span>
+                            <span>Disco</span>
+                            <span>Techno</span>
+                        </div>
+                    </div>
+                    <div class="event-line">
+                        <div class="box-info-event">
+                            <h2 class="event-li-title afasta-bmin">Festa Dismantle #1</h2>
+                            <p class="event-li-detail of-dj afasta-bmin">
+                                <i class="ri-sound-module-fill"></i>
+                                <span>Marta Supernova, Brunossa, Marilds, Magri, Bida Sarô, Mau Lopes</span>
+                            </p>
+                            <p class="event-li-detail of-location afasta-bmin">
+                                <i class="ri-map-pin-2-line"></i>
+                                <span>Cais Imperatriz</span>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Card 2 -->
+                <a href="#" class="event_listing" data-event-id="2" data-category="art-culture" data-month-str="nov">
+                    <div class="box-date-event">
+                        <span class="date-day">15</span>
+                        <span class="date-month">nov</span>
+                    </div>
+
+                    <div class="picture">
+                        <img src="https://images.unsplash.com/photo-1517423568366-8b83523034fd?q=80&w=1935&auto=format&fit=crop"
+                            alt="Art Gallery Opening" loading="lazy">
+
+                        <div class="event-card-tags">
+                            <span>Art</span>
+                        </div>
+                    </div>
+                    <div class="event-line">
+                        <div class="box-info-event">
+                            <h2 class="event-li-title afasta-bmin">Galeria "Luzes da Cidade"</h2>
+                            <p class="event-li-detail of-dj afasta-bmin">
+                                <i class="ri-sound-module-fill"></i>
+                                <span>Ana Clara, Coletivo Urbano</span>
+                            </p>
+                            <p class="event-li-detail of-location afasta-bmin">
+                                <i class="ri-map-pin-2-line"></i>
+                                <span>Museu do Amanhã</span>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Card 3 -->
+                <a href="#" class="event_listing" data-event-id="3" data-category="mainstream" data-month-str="nov">
+                    <div class="box-date-event">
+                        <span class="date-day">12</span>
+                        <span class="date-month">abr</span>
+                    </div>
+
+                    <div class="picture">
+                        <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2070&auto=format&fit=crop"
+                            alt="Mainstream Show" loading="lazy">
+
+                        <div class="event-card-tags">
+                            <span>Show</span>
+                            <span>Pop</span>
+                        </div>
+                    </div>
+                    <div class="event-line">
+                        <div class="box-info-event">
+                            <h2 class="event-li-title afasta-bmin">Verão Pop Festival</h2>
+                            <p class="event-li-detail of-dj afasta-bmin">
+                                <i class="ri-sound-module-fill"></i>
+                                Vários artistas
+                            </p>
+                            <p class="event-li-detail of-location afasta-bmin">
+                                <i class="ri-map-pin-2-line"></i>
+                                <span>Praia de Copacabana</span>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Card 4 -->
+                <a href="#" class="event_listing" data-event-id="4" data-category="music" data-month-str="dez">
+                    <div class="box-date-event">
+                        <span class="date-day">05</span>
+                        <span class="date-month">dez</span>
+                    </div>
+
+                    <div class="picture">
+                        <img src="https://galeria.dismantle.com.br/foto/bonyinc/_MG_1118.jpg" alt="Techno Event"
+                            loading="lazy">
+
+                        <div class="event-card-tags">
+                            <span>Techno</span>
+                            <span>Underground</span>
+                        </div>
+                    </div>
+                    <div class="event-line">
+                        <div class="box-info-event">
+                            <h2 class="event-li-title afasta-bmin">D-Edge Showcase</h2>
+                            <p class="event-li-detail of-dj afasta-bmin">
+                                <i class="ri-sound-module-fill"></i>
+                                <span>Renato Ratier, BLANCAh</span>
+                            </p>
+                            <p class="event-li-detail of-location afasta-bmin">
+                                <i class="ri-map-pin-2-line"></i>
+                                <span>D-Edge club Rio</span>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+            <!-- ===================== END EVENT LISTING GRID ===================== -->
+
+            <!-- ======================= HIGHLIGHT BANNER ======================= -->
+            <section class="banner-ario-1-wrapper" style="margin-top: 80px;">
+                <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop"
+                    class="ban-ario-1-img" alt="Upcoming Festival">
+                <div class="ban-ario-1-content">
+                    <h3 class="ban-ario-1-subtit">Extra! Extra!</h3>
+                    <h2 class="ban-ario-1-titl">Retrospectiva Clubbe::rio 2026</h2>
+                    <p class="ban-ario-1-txt">
+                        A Retrospectiva Clubber 2026 está chegando! E em breve vamos liberar as primeiras novidades...
+                        Fique ligado, porque essa publicação promete celebrar tudo o que fez o coração da pista bater
+                        mais forte! Spoilers?
+                    </p>
+                    <a href="#" class="ban-ario-1-btn">
+                        Saiba Mais <i class="ri-arrow-right-line"></i>
+                    </a>
+                </div>
+            </section>
+            <!-- ===================== END HIGHLIGHT BANNER ===================== -->
+
+        </div>
+        <!-- SHORTCODE [discover-events-now] OUTPUT END -->
+    </main>
+
+    <!-- ======================= DARK MODE TOGGLE ======================= -->
+    <div class="dark-mode-toggle" id="darkModeToggle" role="button" aria-label="Toggle dark mode">
+        <i class="ri-sun-line"></i>
+        <i class="ri-moon-line"></i>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Dark Mode Toggle ---
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+
+            if (localStorage.getItem('theme') === 'dark') {
+                body.classList.add('dark-mode');
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+
+            // --- User Menu Dropdown ---
+            const userMenuTrigger = document.getElementById('userMenuTrigger');
+            const userMenu = userMenuTrigger.parentElement;
+            userMenuTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target)) {
+                    userMenu.classList.remove('open');
+                }
+            });
+
+            // --- Header Clock ---
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                document.getElementById('agoraH').textContent = timeString;
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // --- Event Filtering Logic ---
+            let activeCategory = 'all';
+            let searchQuery = '';
+            let displayDate = new Date();
+
+            const categoryButtons = document.querySelectorAll('.event-category');
+            const searchInput = document.getElementById('eventSearchInput');
+            const searchForm = document.getElementById('eventSearchForm');
+            const allEvents = document.querySelectorAll('.event_listing');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const datePrev = document.getElementById('datePrev');
+            const dateNext = document.getElementById('dateNext');
+
+            const monthShortNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+            const monthMap = {
+                'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5,
+                'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11
+            };
+
+            function filterEvents() {
+                const displayMonth = displayDate.getMonth();
+
+                allEvents.forEach(event => {
+                    const category = event.dataset.category;
+                    const monthStr = event.dataset.monthStr;
+                    const eventMonth = monthMap[monthStr];
+
+                    const showByDate = eventMonth === displayMonth;
+                    const showByCategory = activeCategory === 'all' || category === activeCategory;
+                    const textContent = event.textContent.toLowerCase();
+                    const showBySearch = searchQuery === '' || textContent.includes(searchQuery);
+
+                    if (showByDate && showByCategory && showBySearch) {
+                        event.classList.remove('hidden');
+                        event.style.display = 'block';
+                    } else {
+                        event.classList.add('hidden');
+                        event.style.display = 'none';
+                    }
+                });
+            }
+
+            function updateDatepicker() {
+                const monthName = monthShortNames[displayDate.getMonth()];
+                const year = displayDate.getFullYear().toString().slice(-2);
+                dateDisplay.textContent = `${monthName} '${year}`;
+                filterEvents();
+            }
+
+            datePrev.addEventListener('click', () => {
+                displayDate.setMonth(displayDate.getMonth() - 1);
+                updateDatepicker();
+            });
+
+            dateNext.addEventListener('click', () => {
+                displayDate.setMonth(displayDate.getMonth() + 1);
+                updateDatepicker();
+            });
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    activeCategory = button.dataset.slug;
+                    filterEvents();
+                });
+            });
+
+            searchForm.addEventListener('submit', (e) => e.preventDefault());
+
+            searchInput.addEventListener('input', () => {
+                searchQuery = searchInput.value.toLowerCase();
+                filterEvents();
+            });
+
+            // Initial Load - Set to first event's month
+            const firstEvent = document.querySelector('.event_listing');
+            if (firstEvent) {
+                const firstEventMonthStr = firstEvent.dataset.monthStr;
+                const firstEventMonthIndex = monthMap[firstEventMonthStr];
+
+                if (firstEventMonthIndex !== undefined) {
+                    const now = new Date();
+                    const currentMonth = now.getMonth();
+                    const currentYear = now.getFullYear();
+
+                    let eventYear = currentYear;
+                    if (firstEventMonthIndex < currentMonth) {
+                        eventYear = currentYear + 1;
+                    }
+
+                    if (firstEventMonthStr === 'out' || firstEventMonthStr === 'nov' || firstEventMonthStr === 'dez') {
+                        eventYear = 2025;
+                    }
+
+                    displayDate.setFullYear(eventYear);
+                    displayDate.setMonth(firstEventMonthIndex);
+                }
+            }
+
+            updateDatepicker();
+
+        });
+
+        // Layout Toggle
+        function toggleLayout(element) {
+            const listings = document.querySelector('.event_listings');
+            if (element.classList.contains('wpem-event-list-layout')) {
+                element.classList.remove('wpem-event-list-layout');
+                element.classList.add('wpem-event-box-layout');
+                element.title = 'Events Box View';
+                element.innerHTML = '<i class="wpem-icon-stop2"></i>';
+                listings.classList.remove('list-view');
+            } else {
+                element.classList.remove('wpem-event-box-layout');
+                element.classList.add('wpem-event-list-layout');
+                element.title = 'Events List View';
+                element.innerHTML = '<i class="wpem-icon-menu"></i>';
+                listings.classList.add('list-view');
+            }
+            element.classList.toggle('wpem-active-layout');
+        }
+    </script>
+</body>
+
+</html>

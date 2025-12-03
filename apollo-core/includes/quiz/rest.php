@@ -204,17 +204,20 @@ function apollo_rest_quiz_attempt( $request ) {
 			200
 		);
 	} catch ( Exception $e ) {
-		// Log the error with context
-		error_log(
-			sprintf(
-				'[Apollo Core] Quiz attempt error - Question: %s, Form: %s, Message: %s, File: %s:%d',
-				$question_id ?? 'unknown',
-				$form_type ?? 'unknown',
-				$e->getMessage(),
-				basename( $e->getFile() ),
-				$e->getLine()
-			)
-		);
+		// Log the error with context.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[Apollo Core] Quiz attempt error - Question: %s, Form: %s, Message: %s, File: %s:%d',
+					$question_id ?? 'unknown',
+					$form_type ?? 'unknown',
+					$e->getMessage(),
+					basename( $e->getFile() ),
+					$e->getLine()
+				)
+			);
+		}
 
 		// Return user-friendly error
 		return new WP_Error(

@@ -490,7 +490,7 @@ class AdminHubPage {
 	private function renderSecurityContent(): void {
 		// Get security threats log
 		$threats = get_option( 'apollo_security_threats', array() );
-		$threats = array_reverse( $threats ); 
+		$threats = array_reverse( $threats );
 		// Most recent first
 		?>
 		<div class="apollo-hub-section">

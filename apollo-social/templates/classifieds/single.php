@@ -28,7 +28,8 @@ $author_since    = $author ? date( 'M Y', strtotime( $author->user_registered ) 
 // Meta data
 $price            = get_post_meta( $classified_id, '_classified_price', true );
 $condition        = get_post_meta( $classified_id, '_classified_condition', true );
-$category         = get_post_meta( $classified_id, '_classified_category', true ) ?: 'other';
+$category_raw     = get_post_meta( $classified_id, '_classified_category', true );
+$category         = ! empty( $category_raw ) ? $category_raw : 'other';
 $location         = get_post_meta( $classified_id, '_classified_location', true );
 $contact_phone    = get_post_meta( $classified_id, '_classified_phone', true );
 $contact_whatsapp = get_post_meta( $classified_id, '_classified_whatsapp', true );
@@ -36,7 +37,8 @@ $views_count      = (int) get_post_meta( $classified_id, '_classified_views', tr
 $event_title      = get_post_meta( $classified_id, '_classified_event_title', true );
 $event_date       = get_post_meta( $classified_id, '_classified_event_date', true );
 $event_venue      = get_post_meta( $classified_id, '_classified_event_venue', true );
-$quantity         = get_post_meta( $classified_id, '_classified_quantity', true ) ?: '1';
+$quantity_raw     = get_post_meta( $classified_id, '_classified_quantity', true );
+$quantity         = ! empty( $quantity_raw ) ? $quantity_raw : '1';
 
 // Increment view count
 update_post_meta( $classified_id, '_classified_views', $views_count + 1 );
@@ -133,7 +135,7 @@ get_header();
 <body class="ap-classifieds-body">
 
 <div class="ap-classifieds" style="max-width: 800px;">
-  
+
 	<!-- Header -->
 	<header class="ap-classifieds-header" style="margin-bottom: 0; padding: 16px 0;">
 	<div style="display: flex; align-items: center; gap: 12px;">
@@ -149,7 +151,7 @@ get_header();
 		</div>
 		</div>
 	</div>
-	
+
 	<div style="display: flex; gap: 8px;">
 		<button class="ap-btn-icon-sm" data-ap-tooltip="Compartilhar anúncio" onclick="navigator.share?.({title: '<?php echo esc_js( $title ); ?>', url: window.location.href})">
 		<i class="ri-share-line"></i>
@@ -167,14 +169,14 @@ get_header();
 		<img src="<?php echo esc_url( $featured_image ); ?>" alt="<?php echo esc_attr( $title ); ?>"
 			style="width: 100%; height: 100%; object-fit: cover;"
 			data-ap-tooltip="Imagem principal do anúncio">
-	   
+
 		<!-- Category Badge -->
 		<span class="ap-advert-category-badge <?php echo esc_attr( $cat_config['badge'] ); ?>" style="position: absolute; top: 12px; left: 12px;">
 		<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>"></i> <?php echo esc_html( $cat_config['label'] ); ?>
 		</span>
-	   
+
 		<?php if ( ! empty( $gallery ) && count( $gallery ) > 0 ) : ?>
-		<span style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; padding: 4px 10px; border-radius: 999px;" 
+		<span style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; padding: 4px 10px; border-radius: 999px;"
 			data-ap-tooltip="Total de fotos">
 		<i class="ri-image-line"></i> <?php echo count( $gallery ) + 1; ?> fotos
 		</span>
@@ -185,7 +187,7 @@ get_header();
 		<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size: 64px; color: var(--ap-text-muted);"></i>
 	</div>
 	<?php endif; ?>
-	
+
 	<!-- Gallery Thumbnails -->
 	<?php if ( ! empty( $gallery ) && count( $gallery ) > 0 ) : ?>
 	<div style="display: flex; gap: 4px; padding: 4px; overflow-x: auto;">
@@ -193,7 +195,7 @@ get_header();
 		<img src="<?php echo esc_url( $featured_image ); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
 		</div>
 		<?php foreach ( $gallery as $image_id ) : ?>
-		<div style="width: 60px; height: 60px; flex-shrink: 0; border-radius: 8px; overflow: hidden; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;" 
+		<div style="width: 60px; height: 60px; flex-shrink: 0; border-radius: 8px; overflow: hidden; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;"
 			onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
 			<?php echo wp_get_attachment_image( $image_id, 'thumbnail', false, array( 'style' => 'width:100%;height:100%;object-fit:cover;' ) ); ?>
 		</div>
@@ -213,13 +215,13 @@ get_header();
 		</div>
 		<h1 style="font-size: 18px; font-weight: 700; color: var(--ap-text-primary); margin: 0;"><?php echo esc_html( $title ); ?></h1>
 		</div>
-	   
-		<span class="ap-badge" style="background: <?php echo esc_attr( $condition_config['color'] ); ?>20; color: <?php echo esc_attr( $condition_config['color'] ); ?>; border: none;" 
+
+		<span class="ap-badge" style="background: <?php echo esc_attr( $condition_config['color'] ); ?>20; color: <?php echo esc_attr( $condition_config['color'] ); ?>; border: none;"
 			data-ap-tooltip="Condição do item">
 		<?php echo esc_html( $condition_config['label'] ); ?>
 		</span>
 	</div>
-	
+
 	<!-- Meta Info -->
 	<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; font-size: 14px; color: var(--ap-text-muted);">
 		<?php if ( $location ) : ?>
@@ -227,22 +229,22 @@ get_header();
 		<i class="ri-map-pin-line"></i> <?php echo esc_html( $location ); ?>
 		</span>
 		<?php endif; ?>
-	   
+
 		<span style="display: flex; align-items: center; gap: 4px;" data-ap-tooltip="Data de publicação">
 		<i class="ri-time-line"></i> <?php echo esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ); ?> atrás
 		</span>
-	   
+
 		<span style="display: flex; align-items: center; gap: 4px;" data-ap-tooltip="Visualizações">
 		<i class="ri-eye-line"></i> <?php echo esc_html( $views_count + 1 ); ?> views
 		</span>
-	   
+
 		<?php if ( $quantity && $quantity !== '1' ) : ?>
 		<span style="display: flex; align-items: center; gap: 4px;" data-ap-tooltip="Quantidade disponível">
 		<i class="ri-stack-line"></i> <?php echo esc_html( $quantity ); ?>x disponível
 		</span>
 		<?php endif; ?>
 	</div>
-	
+
 	<?php if ( $category === 'tickets' && $event_title ) : ?>
 	<!-- Event Info for Tickets -->
 	<div style="margin-top: 16px; padding: 12px; background: var(--ap-bg-muted); border-radius: var(--ap-radius-lg);">
@@ -281,8 +283,8 @@ get_header();
 		</div>
 		</a>
 		<div style="flex: 1; min-width: 0;">
-		<a href="<?php echo esc_url( home_url( '/id/' . $author_login ) ); ?>" 
-			style="font-weight: 700; color: var(--ap-text-primary); text-decoration: none;" 
+		<a href="<?php echo esc_url( home_url( '/id/' . $author_login ) ); ?>"
+			style="font-weight: 700; color: var(--ap-text-primary); text-decoration: none;"
 			data-ap-tooltip="Ver perfil do anunciante">
 			<?php echo esc_html( $author_name ); ?>
 		</a>
@@ -302,35 +304,35 @@ get_header();
 	<h2 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ap-text-muted); margin: 0 0 12px 0;">
 		Contato
 	</h2>
-	
+
 	<div style="display: flex; flex-direction: column; gap: 8px;">
 		<?php
 		if ( $contact_whatsapp ) :
 			$whatsapp_number  = preg_replace( '/\D/', '', $contact_whatsapp );
 			$whatsapp_message = urlencode( 'Olá! Vi seu anúncio "' . $title . '" no Apollo e gostaria de mais informações.' );
 			?>
-		<a href="https://wa.me/55<?php echo esc_attr( $whatsapp_number ); ?>?text=<?php echo $whatsapp_message; ?>" 
+		<a href="https://wa.me/55<?php echo esc_attr( $whatsapp_number ); ?>?text=<?php echo $whatsapp_message; ?>"
 		target="_blank" rel="noopener"
-		class="ap-btn" 
+		class="ap-btn"
 		style="background: #25D366; color: white; justify-content: center; padding: 14px;"
 		data-ap-tooltip="Enviar mensagem via WhatsApp">
 		<i class="ri-whatsapp-line" style="font-size: 20px;"></i>
 		Chamar no WhatsApp
 		</a>
 		<?php endif; ?>
-	   
+
 		<?php if ( $contact_phone ) : ?>
-		<a href="tel:+55<?php echo esc_attr( preg_replace( '/\D/', '', $contact_phone ) ); ?>" 
-		class="ap-btn ap-btn-outline" 
+		<a href="tel:+55<?php echo esc_attr( preg_replace( '/\D/', '', $contact_phone ) ); ?>"
+		class="ap-btn ap-btn-outline"
 		style="justify-content: center; padding: 14px;"
 		data-ap-tooltip="Ligar para o anunciante">
 		<i class="ri-phone-line" style="font-size: 20px;"></i>
 			<?php echo esc_html( $contact_phone ); ?>
 		</a>
 		<?php endif; ?>
-	   
+
 		<?php if ( ! $contact_whatsapp && ! $contact_phone ) : ?>
-		<button class="ap-btn ap-btn-primary" 
+		<button class="ap-btn ap-btn-primary"
 				style="justify-content: center; padding: 14px;"
 				data-ap-tooltip="Enviar mensagem pelo chat interno"
 				onclick="apolloChat?.open(<?php echo esc_attr( $author_id ); ?>);">

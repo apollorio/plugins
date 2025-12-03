@@ -137,13 +137,13 @@ class ContentWorkflow {
 			// Author rules
 			switch ( $content_type ) {
 				case 'group':
-					return 'pending_review'; 
+					return 'pending_review';
 				// Social/Discussion → pending
 				case 'ad':
-					return 'pending_review'; 
+					return 'pending_review';
 				// Classified → pending
 				case 'event':
-					return 'published'; 
+					return 'published';
 				// Event → published directly
 				default:
 					return 'pending_review';
@@ -154,13 +154,13 @@ class ContentWorkflow {
 			// Subscriber rules
 			switch ( $content_type ) {
 				case 'group':
-					return 'draft'; 
+					return 'draft';
 				// Social/Discussion → draft
 				case 'ad':
-					return 'published'; 
+					return 'published';
 				// Classified → published directly
 				case 'event':
-					return 'pending_review'; 
+					return 'pending_review';
 				// Event → pending
 				default:
 					return 'draft';
@@ -263,7 +263,7 @@ class ContentWorkflow {
 
 		// Users can move their own content to pending_review
 		if ( $to_state === 'pending_review' ) {
-			return true; 
+			return true;
 			// Will be validated at content level
 		}
 

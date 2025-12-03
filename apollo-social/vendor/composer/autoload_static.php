@@ -4,46 +4,95 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036
-{
-    public static $prefixLengthsPsr4 = array (
-        'n' => 
-        array (
-            'nadar\\quill\\' => 12,
-        ),
-        'A' => 
-        array (
-            'Apollo\\' => 7,
-            'ApolloSocial\\' => 13,
-        ),
-    );
+class ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036 {
 
-    public static $prefixDirsPsr4 = array (
-        'nadar\\quill\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/nadar/quill-delta-parser/src',
-        ),
-        'Apollo\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src',
-        ),
-        'ApolloSocial\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src',
-        ),
-    );
+	public static $files = array(
+		'0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+	);
 
-    public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-    );
+	public static $prefixLengthsPsr4 = array(
+		'n' =>
+		array(
+			'nadar\\quill\\' => 12,
+		),
+		'S' =>
+		array(
+			'Symfony\\Polyfill\\Mbstring\\' => 26,
+			'Svg\\'                         => 4,
+			'Sabberworm\\CSS\\'             => 15,
+		),
+		'M' =>
+		array(
+			'Masterminds\\' => 12,
+		),
+		'F' =>
+		array(
+			'FontLib\\' => 8,
+		),
+		'D' =>
+		array(
+			'Dompdf\\' => 7,
+		),
+		'A' =>
+		array(
+			'Apollo\\'       => 7,
+			'ApolloSocial\\' => 13,
+		),
+	);
 
-    public static function getInitializer(ClassLoader $loader)
-    {
-        return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$classMap;
+	public static $prefixDirsPsr4 = array(
+		'nadar\\quill\\'                =>
+		array(
+			0 => __DIR__ . '/..' . '/nadar/quill-delta-parser/src',
+		),
+		'Symfony\\Polyfill\\Mbstring\\' =>
+		array(
+			0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
+		),
+		'Svg\\'                         =>
+		array(
+			0 => __DIR__ . '/..' . '/phenx/php-svg-lib/src/Svg',
+		),
+		'Sabberworm\\CSS\\'             =>
+		array(
+			0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
+		),
+		'Masterminds\\'                 =>
+		array(
+			0 => __DIR__ . '/..' . '/masterminds/html5/src',
+		),
+		'FontLib\\'                     =>
+		array(
+			0 => __DIR__ . '/..' . '/phenx/php-font-lib/src/FontLib',
+		),
+		'Dompdf\\'                      =>
+		array(
+			0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
+		),
+		'Apollo\\'                      =>
+		array(
+			0 => __DIR__ . '/../..' . '/src',
+		),
+		'ApolloSocial\\'                =>
+		array(
+			0 => __DIR__ . '/../..' . '/src',
+		),
+	);
 
-        }, null, ClassLoader::class);
-    }
+	public static $classMap = array(
+		'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+		'Dompdf\\Cpdf'                => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
+	);
+
+	public static function getInitializer( ClassLoader $loader ) {
+		return \Closure::bind(
+			function () use ( $loader ) {
+				$loader->prefixLengthsPsr4 = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$prefixLengthsPsr4;
+				$loader->prefixDirsPsr4    = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$prefixDirsPsr4;
+				$loader->classMap          = ComposerStaticInit2060eb6f1b607aa533241cc8abcdd036::$classMap;
+			},
+			null,
+			ClassLoader::class
+		);
+	}
 }

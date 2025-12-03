@@ -14,6 +14,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
 ================================================================================
 -->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
+
 <head>
   <meta charset="UTF-8" />
   <!-- @PHP: wp_title() -->
@@ -50,10 +51,10 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
   <style>
     :root {
       --font-primary: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-      --text-size: 14.75px!important;
-      --text-regular: 12.75px!important;
-      --text-small: 10.75px!important;
-      --text-smaller: 7.75px!important;
+      --text-size: 14.75px !important;
+      --text-regular: 12.75px !important;
+      --text-small: 10.75px !important;
+      --text-smaller: 7.75px !important;
 
       --radius-sec: 20px;
       --radius-main: 12px;
@@ -109,7 +110,8 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       padding: 0;
     }
 
-    html, body {
+    html,
+    body {
       color: var(--text-main);
       font-family: var(--font-primary);
       font-size: 14.75px;
@@ -126,13 +128,23 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       min-height: 100%;
     }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
 
-    .pb-safe-area { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .pb-safe-area {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
 
     @media only screen and (max-width: 868px) {
-      body, html {
+
+      body,
+      html {
         max-width: 550px;
         margin: 0 auto;
         display: block;
@@ -153,6 +165,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       white-space: nowrap;
       transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     }
+
     .menutag[data-active="true"] {
       background-color: #0f172a;
       color: #ffffff;
@@ -166,6 +179,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
       transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
     }
+
     .aprioEXP-card-shell:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
@@ -175,7 +189,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
     body.dark-mode .aprioEXP-card-shell {
       background-color: #020617;
       border-color: #1f2937;
-      box-shadow: 0 10px 32px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
     }
 
     .aprio-sidebar-nav a {
@@ -231,6 +245,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       letter-spacing: 0.06em;
       color: #94a3b8;
     }
+
     .aprio-mini-link {
       font-size: 11px;
       color: #64748b;
@@ -238,6 +253,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       align-items: center;
       gap: 0.25rem;
     }
+
     .aprio-mini-link:hover {
       color: #0f172a;
     }
@@ -252,27 +268,31 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       border: 1px solid transparent;
       transition: background-color 0.16s ease, border-color 0.16s ease;
     }
+
     .aprio-doc-row:hover {
       background-color: #f8fafc;
       border-color: #e5e7eb;
     }
+
     body.dark-mode .aprio-doc-row:hover {
       background-color: #020617;
       border-color: #1f2937;
     }
   </style>
 </head>
+
 <body class="min-h-screen">
   <div class="min-h-screen flex bg-slate-50">
 
     <!-- SIDEBAR DESKTOP -->
-   
-  <!-- SIDEBAR DESKTOP: APOLLO SOCIAL -->
+
+    <!-- SIDEBAR DESKTOP: APOLLO SOCIAL -->
     <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <!-- Logo / topo -->
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
         <div class="flex flex-col leading-tight">
           <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
@@ -310,7 +330,7 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
         </a>
 
         <a href="#">
-         <i class="ri-file-text-line"></i>
+          <i class="ri-file-text-line"></i>
           <span>Docs & Contratos</span>
         </a>
 
@@ -319,7 +339,27 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
           <span>Perfil</span>
         </a>
 
-        <div class="mt-4 px-1 mb-1 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Configurações</div>
+        <!-- @PHP: if(current_user_can('cena-rio') || current_user_can('administrator')): -->
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+
+        <a href="#">
+          <i class="ri-calendar-line"></i>
+          <span>Agenda</span>
+        </a>
+
+        <a href="#">
+          <i class="ri-bar-chart-grouped-line"></i>
+          <span>Fornecedores</span>
+        </a>
+
+        <a href="#">
+          <i class="ri-file-text-line"></i>
+          <span>Documentos</span>
+        </a>
+        <!-- @PHP: endif; -->
+
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido
+        </div>
         <a href="#">
           <i class="ri-settings-6-line"></i>
           <span>Ajustes</span>
@@ -327,22 +367,48 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
       </nav>
 
       <!-- User / footer sidebar -->
-      <div class="border-t border-slate-100 px-4 py-3">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
-              class="h-full w-full object-cover"
-              alt="Valle"
-            />
+      <div class="p-0 rounded-lg group mb-4">
+        <div class="relative flex w-full min-w-0 flex-col px-3">
+          <!-- Footer Links -->
+          <div class="w-full text-sm">
+            <ul class="flex w-full min-w-0 flex-col gap-0">
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Sobre</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Ajustes</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
+                  <span>Denúncia</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <div class="flex flex-col leading-tight">
-            <span class="text-[12px] font-semibold text-slate-900">Valle</span>
-            <span class="text-[10px] text-slate-500">@valle</span>
+
+          <!-- User Block -->
+          <div class="flex flex-col gap-2 p-2 mt-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-2 mt-2">
+              <div
+                class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+                AD
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span class="text-[14px] font-bold text-slate-900">Valle</span>
+                <span class="text-[12px] text-slate-500">valle@email.com</span>
+              </div>
+              <button class="ml-auto text-slate-200 hover:text-slate-300" title="Logout">
+                <i class="ri-logout-box-r-line text-[18px]"></i>
+              </button>
+            </div>
           </div>
-          <button class="ml-auto text-slate-400 hover:text-slate-700">
-            <i class="ri-logout-circle-r-line text-base"></i>
-          </button>
         </div>
       </div>
     </aside>
@@ -351,10 +417,12 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
     <div class="flex-1 flex flex-col min-h-screen">
 
       <!-- HEADER -->
-      <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
+      <header
+        class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-[6px] bg-slate-900 flex items-center justify-center md:hidden text-white">
-            <i class="ri-command-fill text-[20px]"></i>
+          <div
+            class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center md:hidden shadow-md shadow-orange-500/60">
+            <i class="ri-slack-fill text-white text-[20px]"></i>
           </div>
 
           <div class="flex flex-col leading-none">
@@ -368,14 +436,31 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
         </div>
 
         <div class="hidden md:flex items-center gap-3 text-[12px]">
-          <button class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50">
+          <button
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50">
             <i class="ri-search-line text-xs"></i>
             <span>Buscar doc...</span>
           </button>
-          <a href="docs-editor.html" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
+          <a href="docs-editor.html"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
             <i class="ri-add-line text-sm"></i>
             Novo documento
           </a>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Messages">
+            <i class="ri-message-3-line text-[16px]"></i>
+          </button>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Notifications">
+            <i class="ri-notification-2-line text-[16px]"></i>
+          </button>
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all"
+            title="Apps">
+            <svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z">
+              </path>
+            </svg>
+          </button>
         </div>
 
         <!-- Mobile actions -->
@@ -403,7 +488,8 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
                   <span class="text-[12px] font-semibold text-slate-700">Meus documentos</span>
                   <span class="text-[11px] text-slate-500">Central de contratos, termos e checklists da cena</span>
                 </div>
-                <a href="docs-editor.html" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
+                <a href="docs-editor.html"
+                  class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
                   <i class="ri-add-line text-sm"></i>
                   Novo documento
                 </a>
@@ -429,13 +515,15 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
                 <!-- DOC 1 -->
                 <button class="aprio-doc-row text-left">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
+                    <div
+                      class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
                       <i class="ri-file-text-line text-base"></i>
                     </div>
                     <div class="min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="font-semibold text-slate-800 truncate">Contrato · DJ Dismantle · 27/01</span>
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px]">
                           <i class="ri-shield-check-line text-[10px]"></i> Assinado
                         </span>
                       </div>
@@ -457,13 +545,15 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
                 <!-- DOC 2 -->
                 <button class="aprio-doc-row text-left">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
+                    <div
+                      class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
                       <i class="ri-clipboard-line text-base"></i>
                     </div>
                     <div class="min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="font-semibold text-slate-800 truncate">Checklist Operacional · Festa Rara</span>
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px]">
                           <i class="ri-time-line text-[10px]"></i> Em rascunho
                         </span>
                       </div>
@@ -485,13 +575,15 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
                 <!-- DOC 3 -->
                 <button class="aprio-doc-row text-left">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
+                    <div
+                      class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
                       <i class="ri-file-lock-line text-base"></i>
                     </div>
                     <div class="min-w-0">
                       <div class="flex items-center gap-2">
                         <span class="font-semibold text-slate-800 truncate">Termo de Comunidade · Tropicalis</span>
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px]">
                           <i class="ri-mail-send-line text-[10px]"></i> Aguardando assinatura
                         </span>
                       </div>
@@ -562,7 +654,8 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
             <div class="aprioEXP-card-shell p-4">
               <h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">Ações rápidas</h2>
               <div class="space-y-2 text-[12px]">
-                <a href="docs-editor.html" class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50">
+                <a href="docs-editor.html"
+                  class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50">
                   <span class="flex items-center gap-2">
                     <i class="ri-add-line text-slate-500 text-sm"></i>
                     <span>Novo documento em branco</span>
@@ -609,7 +702,8 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
             <i class="ri-search-2-line text-xl"></i>
           </button>
           <a href="docs-editor.html" class="flex flex-col items-center justify-center text-slate-900 gap-1 -mt-6">
-            <div class="h-12 w-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20">
+            <div
+              class="h-12 w-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg shadow-slate-900/20">
               <i class="ri-add-line text-2xl"></i>
             </div>
           </a>
@@ -625,4 +719,5 @@ PHP VARS: $documents_query, $current_user, $filter_status, $search_term,
     </div>
   </div>
 </body>
+
 </html>

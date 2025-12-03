@@ -266,7 +266,7 @@ class LayoutRepository {
 		);
 
 		if ( count( $layout['stickers'] ) === $original_count ) {
-			return false; 
+			return false;
 			// Sticker not found.
 		}
 
@@ -396,7 +396,7 @@ class LayoutRepository {
 	 */
 	private function sanitizeRotation( $rotation ): int {
 		$rotation = (int) $rotation;
-		return ( ( $rotation % 360 ) + 360 ) % 360; 
+		return ( ( $rotation % 360 ) + 360 ) % 360;
 		// Normalize to 0-359.
 	}
 }

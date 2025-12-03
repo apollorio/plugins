@@ -19,8 +19,76 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Verificar token na URL
-$token = get_query_var( 'signature_token' ) ?: ( $args['token'] ?? '' );
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Inline sign-document-specific styles.
+		$sign_doc_css = '
+			:root {
+				--font-primary: "Urbanist", system-ui, sans-serif;
+				--bg-main: #ffffff;
+				--text-main: rgba(19, 21, 23, .6);
+				--text-primary: rgba(19, 21, 23, .85);
+				--border-color-2: #e5e7eb;
+			}
+			body.dark-mode {
+				--bg-main: #131517;
+				--text-main: #ffffff91;
+				--text-primary: #fdfdfdfa;
+				--border-color-2: #374151;
+			}
+			* { box-sizing: border-box; margin: 0; padding: 0; }
+			html, body {
+				color: var(--text-main);
+				font-family: var(--font-primary);
+				background-color: #f8fafc;
+				min-height: 100%;
+			}
+			.no-scrollbar::-webkit-scrollbar { display: none; }
+			.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+			@media only screen and (max-width: 868px) {
+				body, html { max-width: 550px; margin: 0 auto; }
+			}
+		';
+		wp_add_inline_style( 'apollo-uni-css', $sign_doc_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
+// Verificar token na URL.
+$token_raw = get_query_var( 'signature_token' );
+$token     = ! empty( $token_raw ) ? $token_raw : ( isset( $args['token'] ) ? $args['token'] : '' );
 
 if ( empty( $token ) ) {
 	wp_die( 'Token inválido', 'Erro', array( 'response' => 400 ) );
@@ -32,7 +100,7 @@ global $wpdb;
 $signatures_table = $wpdb->prefix . 'apollo_document_signatures';
 $documents_table  = $wpdb->prefix . 'apollo_documents';
 
-// Buscar signature request
+// Buscar signature request.
 $signature = $wpdb->get_row(
 	$wpdb->prepare(
 		"SELECT s.*, d.*
@@ -48,10 +116,10 @@ if ( ! $signature ) {
 	wp_die( 'Link de assinatura inválido ou expirado', 'Erro', array( 'response' => 404 ) );
 }
 
-// Verificar se já foi assinado
+// Verificar se já foi assinado.
 $already_signed = ( $signature['status'] === 'signed' );
 
-// Get all signers for this document
+// Get all signers for this document.
 $all_signers = $wpdb->get_results(
 	$wpdb->prepare(
 		"SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY id ASC",
@@ -60,7 +128,7 @@ $all_signers = $wpdb->get_results(
 	ARRAY_A
 );
 
-// Compute stats
+// Compute stats.
 $total_signers     = count( $all_signers );
 $completed_signers = 0;
 foreach ( $all_signers as $s ) {
@@ -69,22 +137,28 @@ foreach ( $all_signers as $s ) {
 	}
 }
 
-// Current user info
-$current_user = wp_get_current_user();
-$user_avatar  = get_avatar_url( $current_user->ID, array( 'size' => 80 ) );
-$user_name    = $current_user->display_name ?: 'Visitante';
-$user_handle  = $current_user->user_login ?: 'guest';
+// Current user info - avoid overriding WP globals.
+$user_obj        = wp_get_current_user();
+$user_avatar     = get_avatar_url( $user_obj->ID, array( 'size' => 80 ) );
+$user_name_raw   = $user_obj->display_name;
+$user_name       = ! empty( $user_name_raw ) ? $user_name_raw : 'Visitante';
+$user_handle_raw = $user_obj->user_login;
+$user_handle     = ! empty( $user_handle_raw ) ? $user_handle_raw : 'guest';
 
-// Document info
-$doc_title    = $signature['title'] ?? 'Documento';
-$doc_type     = $signature['type'] ?? 'documento';
-$doc_category = $doc_type === 'planilha' ? 'Planilha' : 'Documento';
-$doc_code     = 'APR-DOC-' . gmdate( 'Y' ) . '-' . str_pad( (string) ( $signature['document_id'] ?? 0 ), 5, '0', STR_PAD_LEFT );
-$doc_date     = isset( $signature['created_at'] ) ? date_i18n( 'd M Y · H:i', strtotime( $signature['created_at'] ) ) : gmdate( 'd M Y' );
-$doc_pages    = 1; 
-// Could be computed from content
-$doc_content  = $signature['content'] ?? '';
-$doc_status   = $already_signed ? 'signed' : 'pending';
+// Document info - avoid null coalesce for arrays.
+$doc_title_raw = isset( $signature['title'] ) ? $signature['title'] : '';
+$doc_title     = ! empty( $doc_title_raw ) ? $doc_title_raw : 'Documento';
+$doc_type_raw  = isset( $signature['type'] ) ? $signature['type'] : '';
+$doc_type      = ! empty( $doc_type_raw ) ? $doc_type_raw : 'documento';
+$doc_category  = $doc_type === 'planilha' ? 'Planilha' : 'Documento';
+$doc_id_value  = isset( $signature['document_id'] ) ? (int) $signature['document_id'] : 0;
+$doc_code      = 'APR-DOC-' . gmdate( 'Y' ) . '-' . str_pad( (string) $doc_id_value, 5, '0', STR_PAD_LEFT );
+$doc_date      = isset( $signature['created_at'] ) ? date_i18n( 'd M Y · H:i', strtotime( $signature['created_at'] ) ) : gmdate( 'd M Y' );
+$doc_pages     = 1;
+// Could be computed from content.
+$doc_content_raw = isset( $signature['content'] ) ? $signature['content'] : '';
+$doc_content     = $doc_content_raw;
+$doc_status      = $already_signed ? 'signed' : 'pending';
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full w-full bg-slate-50">
@@ -92,15 +166,8 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 	<title><?php echo esc_html( sprintf( __( 'Assinar: %s', 'apollo-social' ), $doc_title ) ); ?> - Apollo::Rio</title>
-
-	<!-- Apollo Design System -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-
-	<!-- Icons -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
-
-	<style>
+	<?php wp_head(); ?>
+</head>	<style>
 		:root {
 			--font-primary: "Urbanist", system-ui, sans-serif;
 			--bg-main: #ffffff;
@@ -383,8 +450,6 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 		}
 		.sign-result-box.hidden { display: none; }
 	</style>
-
-	<?php wp_head(); ?>
 </head>
 <body class="min-h-screen">
 <div class="min-h-screen flex bg-slate-50">
@@ -443,12 +508,12 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 
 				<div style="display: flex; align-items: center; gap: 0.75rem;">
 					<?php if ( $doc_status === 'pending' ) : ?>
-					<span class="status-badge-pending hidden md:flex">
+					<span class="status-badge-pending hidden md:flex" data-ap-tooltip="<?php esc_attr_e( 'Aguardando assinaturas pendentes', 'apollo-social' ); ?>">
 						<span style="display: inline-block; height: 0.5rem; width: 0.5rem; border-radius: 9999px; background: #fbbf24; animation: pulse 2s infinite;"></span>
 						<?php esc_html_e( 'Pendente', 'apollo-social' ); ?>
 					</span>
 					<?php else : ?>
-					<span class="status-badge-signed hidden md:flex">
+					<span class="status-badge-signed hidden md:flex" data-ap-tooltip="<?php esc_attr_e( 'Documento assinado com sucesso', 'apollo-social' ); ?>">
 						<span style="display: inline-block; height: 0.5rem; width: 0.5rem; border-radius: 9999px; background: #22c55e;"></span>
 						<?php esc_html_e( 'Assinado', 'apollo-social' ); ?>
 					</span>
@@ -510,10 +575,10 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 					<div style="width: 100%; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;" class="lg:w-[380px]">
 
 						<!-- Signers Panel -->
-						<section style="background: #fff; border-radius: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.25rem;">
+						<section style="background: #fff; border-radius: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.25rem;" data-ap-tooltip="<?php esc_attr_e( 'Lista de assinantes do documento', 'apollo-social' ); ?>">
 							<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
 								<h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;"><?php esc_html_e( 'Fluxo de Assinaturas', 'apollo-social' ); ?></h3>
-								<span style="font-size: 0.75rem; font-weight: 500; color: #64748b; background: #f1f5f9; padding: 0.125rem 0.5rem; border-radius: 0.375rem;">
+								<span style="font-size: 0.75rem; font-weight: 500; color: #64748b; background: #f1f5f9; padding: 0.125rem 0.5rem; border-radius: 0.375rem;" data-ap-tooltip="<?php echo esc_attr( sprintf( __( '%1$d de %2$d assinaturas concluídas', 'apollo-social' ), $completed_signers, $total_signers ) ); ?>">
 									<?php echo esc_html( $completed_signers ); ?>/<?php echo esc_html( $total_signers ); ?>
 								</span>
 							</div>
@@ -521,19 +586,22 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 							<div class="space-y-3">
 								<?php
 								foreach ( $all_signers as $signer ) :
-									$is_current = ( $signer['verification_token'] === $token );
-									$is_signed  = ( $signer['status'] === 'signed' );
-									$initials   = '';
+									$is_current  = ( $signer['verification_token'] === $token );
+									$is_signed   = ( $signer['status'] === 'signed' );
+									$initials    = '';
 									$signer_name = $signer['signer_name'] ?? __( 'Assinante', 'apollo-social' );
-									$parts = explode( ' ', $signer_name );
+									$parts       = explode( ' ', $signer_name );
 									foreach ( $parts as $p ) {
 										if ( strlen( $p ) > 0 ) {
 											$initials .= mb_strtoupper( mb_substr( $p, 0, 1 ) );
 										}
 									}
-									$initials = substr( $initials, 0, 2 );
+									$initials       = substr( $initials, 0, 2 );
+									$signer_tooltip = $is_signed
+										? sprintf( __( '%s já assinou o documento', 'apollo-social' ), $signer_name )
+										: sprintf( __( '%s ainda não assinou', 'apollo-social' ), $signer_name );
 									?>
-								<div class="signer-card <?php echo $is_current ? 'is-you' : ''; ?> <?php echo $is_signed ? 'is-signed' : ''; ?>">
+								<div class="signer-card <?php echo $is_current ? 'is-you' : ''; ?> <?php echo $is_signed ? 'is-signed' : ''; ?>" data-ap-tooltip="<?php echo esc_attr( $signer_tooltip ); ?>">
 									<div style="display: flex; align-items: center; gap: 0.75rem;">
 										<div style="height: 2rem; width: 2rem; border-radius: 9999px; <?php echo $is_current ? 'background: linear-gradient(135deg, #fb923c, #f43f5e); color: #fff;' : 'background: #f1f5f9; color: #64748b;'; ?> display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
 											<?php echo esc_html( $initials ); ?>
@@ -543,7 +611,7 @@ $doc_status   = $already_signed ? 'signed' : 'pending';
 											<p style="font-size: 10px; color: #64748b; margin: 0;"><?php echo esc_html( $signer['signer_cpf'] ?? '' ); ?></p>
 										</div>
 									</div>
-									<span style="display: flex; align-items: center; gap: 0.25rem; font-size: 10px; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); <?php echo $is_signed ? 'color: #16a34a; background: #f0fdf4;' : 'color: #d97706; background: #fff;'; ?>">
+									<span style="display: flex; align-items: center; gap: 0.25rem; font-size: 10px; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); <?php echo $is_signed ? 'color: #16a34a; background: #f0fdf4;' : 'color: #d97706; background: #fff;'; ?>" data-ap-tooltip="<?php echo $is_signed ? esc_attr__( 'Assinatura concluída', 'apollo-social' ) : esc_attr__( 'Aguardando assinatura', 'apollo-social' ); ?>">
 										<?php if ( $is_signed ) : ?>
 										<i class="ri-check-line"></i> <?php esc_html_e( 'Assinado', 'apollo-social' ); ?>
 										<?php else : ?>

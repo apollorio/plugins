@@ -33,7 +33,7 @@ class DefaultGroups {
 	private function createComunidadesGroup(): void {
 		$existing = $this->repository->findBySlug( 'comunidades' );
 		if ( $existing ) {
-			return; 
+			return;
 			// Already exists
 		}
 
@@ -45,7 +45,7 @@ class DefaultGroups {
 				'type'        => 'comunidade',
 				'status'      => 'published',
 				'visibility'  => 'public',
-				'creator_id'  => 1, 
+				'creator_id'  => 1,
 			// System user
 			)
 		);
@@ -57,7 +57,7 @@ class DefaultGroups {
 	private function createProjectTeamGroup(): void {
 		$existing = $this->repository->findBySlug( 'project-team' );
 		if ( $existing ) {
-			return; 
+			return;
 			// Already exists
 		}
 
@@ -68,9 +68,9 @@ class DefaultGroups {
 				'description' => 'Núcleo de produtores e equipe de trabalho Apollo',
 				'type'        => 'nucleo',
 				'status'      => 'published',
-				'visibility'  => 'members_only', 
+				'visibility'  => 'members_only',
 				// Private group for producers
-												'creator_id' => 1, 
+												'creator_id' => 1,
 			// System user
 			)
 		);

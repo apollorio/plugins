@@ -32,7 +32,7 @@ class Apollo_Builder_Admin {
 			'apollo-social-hub',
 			__( 'Apollo Builder', 'apollo-social' ),
 			__( '🏗️ Apollo Builder', 'apollo-social' ),
-			'read', 
+			'read',
 			// Allow subscribers to see the menu, access control handled in render
 			'apollo-builder',
 			array( __CLASS__, 'render_launcher_page' )

@@ -10,6 +10,7 @@
  *
  * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
  * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable Generic.Files.LowercasedFilename.NotFound
  */
 
 declare( strict_types=1 );
@@ -536,13 +537,15 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		}
 
 		// Try file_id.
-		$args  = array(
+		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for document lookup by file_id.
+		$args = array(
 			'post_type'      => self::POST_TYPE,
 			'meta_key'       => self::META_PREFIX . 'file_id',
 			'meta_value'     => $document_id,
 			'posts_per_page' => 1,
 			'post_status'    => 'any',
 		);
+		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		$query = new WP_Query( $args );
 
 		return $query->have_posts() ? $query->posts[0] : null;
@@ -645,6 +648,14 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 * @return array|WP_Error
 	 */
 	private function generate_pdf_dompdf( WP_Post $post, array $options = array() ) {
+		if ( ! class_exists( 'Dompdf\Dompdf' ) ) {
+			return new WP_Error(
+				'dompdf_not_available',
+				__( 'Dompdf library is not available.', 'apollo-social' ),
+				array( 'status' => 500 )
+			);
+		}
+
 		// Build HTML.
 		$html = $this->build_pdf_html( $post, $options );
 

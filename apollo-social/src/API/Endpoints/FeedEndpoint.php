@@ -40,7 +40,7 @@ class FeedEndpoint {
 			array(
 				'methods'                              => WP_REST_Server::READABLE,
 				'callback'                             => array( $this, 'getFeed' ),
-				'permission_callback'                  => '__return_true', 
+				'permission_callback'                  => '__return_true',
 				// Publicly readable
 												'args' => array(
 													'page' => array(
@@ -85,7 +85,7 @@ class FeedEndpoint {
 					return $post['type'] === $type_filter;
 				}
 			);
-			$posts = array_values( $posts ); 
+			$posts = array_values( $posts );
 			// Re-index
 		}
 

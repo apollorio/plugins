@@ -130,7 +130,7 @@ class CanvasRenderer {
 		if ( file_exists( $layout_file ) ) {
 			// Make data available to template
 			$canvas_data = array_merge( $template_data, $handler_output );
-			$view        = $canvas_data; 
+			$view        = $canvas_data;
 			// For template compatibility
 
 			include $layout_file;

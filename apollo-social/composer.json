@@ -10,6 +10,12 @@
     }
   },
   "require": {
-    "nadar/quill-delta-parser": "^3.0"
+    "php": ">=8.0",
+    "nadar/quill-delta-parser": "^3.0",
+    "symfony/polyfill-mbstring": "^1.28",
+    "dompdf/dompdf": "^2.0"
+  },
+  "suggest": {
+    "tecnickcom/tcpdf": "Alternative PDF library if Dompdf is not suitable"
   }
 }

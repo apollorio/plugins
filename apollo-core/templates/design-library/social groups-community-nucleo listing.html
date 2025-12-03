@@ -14,6 +14,7 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
 ================================================================================
 -->
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
+
 <head>
   <meta charset="UTF-8" />
   <!-- @PHP: wp_title() -->
@@ -49,12 +50,14 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
   <!-- Extra font for cards -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <style>
     :root {
       --font-primary: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-      --text-size: 14.75px!important;
+      --text-size: 14.75px !important;
       --radius-sec: 20px;
       --radius-main: 12px;
       --radius-card: 16px;
@@ -80,7 +83,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       padding: 0;
     }
 
-    html, body {
+    html,
+    body {
       color: var(--text-main);
       font-family: var(--font-primary);
       font-size: 14.75px;
@@ -97,13 +101,23 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       min-height: 100%;
     }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
 
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
 
     @media only screen and (max-width: 868px) {
-      body, html {
+
+      body,
+      html {
         max-width: 550px;
         margin: 0 auto;
         display: block;
@@ -124,7 +138,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     }
 
-    .aprio-sidebar-nav a i { font-size: 18px; }
+    .aprio-sidebar-nav a i {
+      font-size: 18px;
+    }
 
     .aprio-sidebar-nav a:hover {
       background-color: #f8fafc;
@@ -142,11 +158,13 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
     body.dark-mode .aprio-sidebar-nav a {
       color: #94a3b8;
     }
+
     body.dark-mode .aprio-sidebar-nav a:hover {
       background-color: white;
       border-left-color: #1f2937;
       color: #e5e7eb;
     }
+
     body.dark-mode .aprio-sidebar-nav a[aria-current="page"] {
       background-color: white;
       border-left-color: #f97316;
@@ -163,7 +181,11 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       color: #64748b;
       text-align: center;
     }
-    .nav-btn i { font-size: 20px; }
+
+    .nav-btn i {
+      font-size: 20px;
+    }
+
     .nav-btn.active {
       color: #0f172a;
       font-weight: 600;
@@ -173,15 +195,18 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
     .community-card {
       position: relative;
       width: 100%;
-      max-width: 230px;          /* maior, mas ainda compacto → em 6xl cabem 4–6 por linha */
-      aspect-ratio: 4 / 5;       /* pedido: 4/5 */
+      max-width: 230px;
+      /* maior, mas ainda compacto → em 6xl cabem 4–6 por linha */
+      aspect-ratio: 4 / 5;
+      /* pedido: 4/5 */
       border: 8px solid #ffffff;
       border-radius: 22px;
       overflow: hidden;
       box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
       background: #000;
       isolation: isolate;
-      flex: 0 0 auto;            /* não estica, mantém "card" fixo */
+      flex: 0 0 auto;
+      /* não estica, mantém "card" fixo */
     }
 
     .community-card__media {
@@ -203,21 +228,17 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       inset: 0;
       pointer-events: none;
       backdrop-filter: blur(24px) saturate(190%);
-      background: linear-gradient(
-        to bottom,
-        rgba(15, 23, 42, 0.0) 0%,
-        rgba(15, 23, 42, 0.08) 32%,
-        rgba(15, 23, 42, 0.4) 62%,
-        rgba(15, 23, 42, 0.78) 85%,
-        rgba(15, 23, 42, 0.93) 100%
-      );
-      mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0, 0, 0, 0.25) 40%,
-        rgba(0, 0, 0, 0.75) 60%,
-        black 80%
-      );
+      background: linear-gradient(to bottom,
+          rgba(15, 23, 42, 0.0) 0%,
+          rgba(15, 23, 42, 0.08) 32%,
+          rgba(15, 23, 42, 0.4) 62%,
+          rgba(15, 23, 42, 0.78) 85%,
+          rgba(15, 23, 42, 0.93) 100%);
+      mask-image: linear-gradient(to bottom,
+          transparent 0%,
+          rgba(0, 0, 0, 0.25) 40%,
+          rgba(0, 0, 0, 0.75) 60%,
+          black 80%);
     }
 
     .community-card__body {
@@ -339,12 +360,15 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
         border-width: 7px;
         border-radius: 20px;
       }
+
       .community-card__name {
         font-size: 0.9rem;
       }
+
       .community-card__description {
         font-size: 0.72rem;
       }
+
       .community-card__follow-btn {
         font-size: 0.7rem;
         padding-inline: 0.6rem;
@@ -360,8 +384,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
     <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <!-- Logo / topo -->
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
         <div class="flex flex-col leading-tight">
           <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
@@ -399,7 +424,7 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
         </a>
 
         <a href="#">
-         <i class="ri-file-text-line"></i>
+          <i class="ri-file-text-line"></i>
           <span>Docs & Contratos</span>
         </a>
 
@@ -408,7 +433,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
           <span>Perfil</span>
         </a>
 
-        <div class="mt-4 px-1 mb-1 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Configurações</div>
+        <div class="mt-4 px-1 mb-1 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Configurações
+        </div>
         <a href="#">
           <i class="ri-settings-6-line"></i>
           <span>Ajustes</span>
@@ -419,11 +445,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       <div class="border-t border-slate-100 px-4 py-3">
         <div class="flex items-center gap-3">
           <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
-              class="h-full w-full object-cover"
-              alt="Valle"
-            />
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
+              class="h-full w-full object-cover" alt="Valle" />
           </div>
           <div class="flex flex-col leading-tight">
             <span class="text-[12px] font-semibold text-slate-900">Valle</span>
@@ -440,7 +463,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
     <div class="flex-1 flex flex-col min-h-screen bg-slate-50/60">
 
       <!-- HEADER -->
-      <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
+      <header
+        class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
           <!-- Mobile icon -->
           <div class="h-9 w-9 rounded-[6px] bg-slate-900 flex items-center justify-center md:hidden text-white">
@@ -460,25 +484,36 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
         <!-- Desktop controls -->
         <div class="hidden md:flex items-center gap-3 text-[12px]">
           <div class="relative group">
-            <i class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs group-focus-within:text-slate-600"></i>
-            <input
-              type="text"
-              placeholder="Buscar comunidades..."
+            <i
+              class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs group-focus-within:text-slate-600"></i>
+            <input type="text" placeholder="Buscar comunidades..."
               class="pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-[12px] w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all"
-              id="search-communities"
-            />
+              id="search-communities" />
           </div>
 
-          <button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900">
-            <i class="ri-moon-line text-lg"></i>
+          <button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900" title="Dark Mode">
+            <i class="ri-moon-line text-[14px]"></i>
+          </button>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Messages">
+            <i class="ri-message-3-line text-[16px]"></i>
+          </button>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Notifications">
+            <i class="ri-notification-2-line text-[16px]"></i>
+          </button>
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all"
+            title="Apps">
+            <svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z">
+              </path>
+            </svg>
           </button>
 
-          <button class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
-              alt="Valle"
-              class="h-full w-full rounded-full object-cover"
-            />
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb" alt="Valle"
+              class="h-full w-full rounded-full object-cover" />
           </button>
         </div>
 
@@ -498,32 +533,40 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
         <div class="w-full max-w-6xl mx-auto flex flex-col gap-4">
 
           <!-- Filters / header row -->
-          <section class="bg-white/90 border border-slate-200 md:rounded-2xl px-4 py-3 md:px-5 md:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <section
+            class="bg-white/90 border border-slate-200 md:rounded-2xl px-4 py-3 md:px-5 md:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div class="flex items-center gap-2">
-              <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white text-xs">
+              <span
+                class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white text-xs">
                 <i class="ri-hashtag"></i>
               </span>
               <div class="flex flex-col leading-tight">
                 <span class="text-[12px] font-semibold text-slate-900">Comunidades públicas</span>
-                <span class="text-[11px] text-slate-500">Entre, leia as regras e conecte-se com quem vive a mesma cena que você.</span>
+                <span class="text-[11px] text-slate-500">Entre, leia as regras e conecte-se com quem vive a mesma cena
+                  que você.</span>
               </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-2 text-[11px]">
-              <button class="px-3 py-1 rounded-full border border-slate-900 bg-slate-900 text-white font-medium" data-filter="all">
+              <button class="px-3 py-1 rounded-full border border-slate-900 bg-slate-900 text-white font-medium"
+                data-filter="all">
                 Todas
               </button>
-              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50" data-filter="after">
+              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
+                data-filter="after">
                 After / madrugada
               </button>
-              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50" data-filter="produtores">
+              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
+                data-filter="produtores">
                 Produtores
               </button>
-              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50" data-filter="zona-sul">
+              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
+                data-filter="zona-sul">
                 Zona Sul
 
               </button>
-              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50" data-filter="direitos">
+              <button class="px-3 py-1 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50"
+                data-filter="direitos">
                 Segurança & Direitos
               </button>
             </div>
@@ -531,27 +574,22 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
 
           <!-- LISTA DE COMUNIDADES – FLEX START, GAP PEQUENO, 4–6 POR TELA DESKTOP -->
           <section class="mt-2">
-            <div
-              id="communities-grid"
-              class="flex flex-wrap justify-start gap-4 md:gap-5"
-              style="row-gap: 18px;"
-            >
+            <div id="communities-grid" class="flex flex-wrap justify-start gap-4 md:gap-5" style="row-gap: 18px;">
 
               <!-- 1. After Lovers ZS -->
               <article class="community-card" data-tags="after,zona-sul,copacabana">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/167404/pexels-photo-167404.jpeg"
-                    alt="After Lovers ZS"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/167404/pexels-photo-167404.jpeg" alt="After Lovers ZS"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
                     <h2 class="community-card__name">After Lovers ZS</h2>
-                    <svg fill="#22c55e" class="community-card__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" />
+                    <svg fill="#22c55e" class="community-card__badge" xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24">
+                      <path
+                        d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" />
                     </svg>
                   </div>
                   <p class="community-card__description">
@@ -560,17 +598,17 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -581,37 +619,35 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 2. Produtores RJ -->
               <article class="community-card" data-tags="produtores,networking,cenario">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
+                  <img class="community-card__avatar"
                     src="https://images.pexels.com/photos/104743/crowd-silhouettes-party-dancing-104743.jpeg"
-                    alt="Produtores RJ"
-                    loading="lazy"
-                  />
+                    alt="Produtores RJ" loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
                     <h2 class="community-card__name">Produtores RJ</h2>
-                    <svg fill="#fb923c" class="community-card__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg fill="#fb923c" class="community-card__badge" xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24">
                       <path d="M12 2L15.09 8.26L22 9.27L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9.27L8.91 8.26L12 2Z" />
                     </svg>
                   </div>
                   <p class="community-card__description">
                     Bastidores, orçamentos, checklists, som, luz, bar e perrengues de produção.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Solicitar</span>
                       </button>
                     </div>
@@ -622,37 +658,36 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 3. Gay Techno RJ -->
               <article class="community-card" data-tags="zona-sul,lgbt,techno">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/2747449/pexels-photo-2747449.jpeg"
-                    alt="Gay Techno RJ"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/2747449/pexels-photo-2747449.jpeg" alt="Gay Techno RJ"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
                     <h2 class="community-card__name">Gay Techno RJ</h2>
-                    <svg fill="#6366f1" class="community-card__badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V22L12 19.82L16 22V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2Z" />
+                    <svg fill="#6366f1" class="community-card__badge" xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9C5 11.38 6.19 13.47 8 14.74V22L12 19.82L16 22V14.74C17.81 13.47 19 11.38 19 9C19 5.13 15.87 2 12 2Z" />
                     </svg>
                   </div>
                   <p class="community-card__description">
                     Line-ups, rumores, pistas seguras e quem tá tocando o quê na cena queer.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -663,12 +698,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 4. Clubbers Copacabana -->
               <article class="community-card" data-tags="zona-sul,copacabana,clubbers">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1674040/pexels-photo-1674040.jpeg"
-                    alt="Clubbers Copacabana"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1674040/pexels-photo-1674040.jpeg" alt="Clubbers Copacabana"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -677,20 +709,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Quem mora entre o posto 2 e o túnel, chama e combina pista junto.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -701,12 +733,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 5. VJs & Luz RJ -->
               <article class="community-card" data-tags="produtores,tecnico,luz,vj">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1047442/pexels-photo-1047442.jpeg"
-                    alt="VJs & Luz RJ"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1047442/pexels-photo-1047442.jpeg" alt="VJs & Luz RJ"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -718,17 +747,17 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -739,12 +768,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 6. Cena Lapa & Centro -->
               <article class="community-card" data-tags="centro,lapa,rolês">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/799091/pexels-photo-799091.jpeg"
-                    alt="Cena Lapa & Centro"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/799091/pexels-photo-799091.jpeg" alt="Cena Lapa & Centro"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -753,20 +779,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Arcos, galpão, porão e baile escondido mapeados pela galera.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -777,12 +803,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 7. Bass & Breaks BR -->
               <article class="community-card" data-tags="bass,breaks,uk,underground">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/7083920/pexels-photo-7083920.jpeg"
-                    alt="Bass & Breaks BR"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/7083920/pexels-photo-7083920.jpeg" alt="Bass & Breaks BR"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -791,20 +814,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     UK vibes, grave torto, breakbeat e pista quebrada pelo Brasil.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -815,12 +838,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 8. House de Boteco -->
               <article class="community-card" data-tags="house,bar,boteco">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/3009802/pexels-photo-3009802.jpeg"
-                    alt="House de Boteco"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/3009802/pexels-photo-3009802.jpeg" alt="House de Boteco"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -829,20 +849,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     +XX postsFesta com gelo de isopor, groove fino e cerveja trincando.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -853,12 +873,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 9. Ravers da Serra -->
               <article class="community-card" data-tags="outdoor,serra,rave">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1674040/pexels-photo-1674040.jpeg"
-                    alt="Ravers da Serra"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1674040/pexels-photo-1674040.jpeg" alt="Ravers da Serra"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -867,20 +884,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Trilha, van, vista absurda e som alto na beira do penhasco.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -891,12 +908,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 10. Domply Lovers -->
               <article class="community-card" data-tags="domply,mergulho,afetos">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg"
-                    alt="Domply Lovers"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg" alt="Domply Lovers"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -905,20 +919,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Mixtapes, memes, mergulhos e lembranças de verão que não acabam.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -929,12 +943,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 11. DJs Iniciantes RJ -->
               <article class="community-card" data-tags="djs,iniciantes,aprendizado">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg"
-                    alt="DJs Iniciantes RJ"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg" alt="DJs Iniciantes RJ"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -946,17 +957,17 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -967,12 +978,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 12. Sapatão Techno -->
               <article class="community-card" data-tags="lgbt,sapatão,techno">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1858175/pexels-photo-1858175.jpeg"
-                    alt="Sapatão Techno"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1858175/pexels-photo-1858175.jpeg" alt="Sapatão Techno"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -984,17 +992,17 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -1005,12 +1013,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 13. Queer Funk RJ -->
               <article class="community-card" data-tags="funk,lgbt,queer">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1674042/pexels-photo-1674042.jpeg"
-                    alt="Queer Funk RJ"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1674042/pexels-photo-1674042.jpeg" alt="Queer Funk RJ"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -1019,20 +1024,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Batidão, paredão, corpa livre e baile na favela sem homofobia.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -1043,12 +1048,9 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
               <!-- 14. Festival Makers BR -->
               <article class="community-card" data-tags="produtores,festival,editais,direitos">
                 <figure class="community-card__media">
-                  <img
-                    class="community-card__avatar"
-                    src="https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg"
-                    alt="Festival Makers BR"
-                    loading="lazy"
-                  />
+                  <img class="community-card__avatar"
+                    src="https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg" alt="Festival Makers BR"
+                    loading="lazy" />
                 </figure>
                 <div class="community-card__body">
                   <div class="community-card__header">
@@ -1057,20 +1059,20 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
                   <p class="community-card__description">
                     Quem sonha grande, planilha maior ainda: tour, editais e operação.
                   </p>
-                 <div class="community-card__footer">
+                  <div class="community-card__footer">
                     <div class="community-card__stats">
                       <div class="community-card__stat">
-                          <i class="ri-user-community-fill"></i>
+                        <i class="ri-user-community-fill"></i>
                         <span class="community-card__stat-value  text-[9.5px]">1.280 clubbers</span>
                       </div>
                       <div class="community-card__stat">
-                      <i class="ri-chat-poll-fill"></i>
+                        <i class="ri-chat-poll-fill"></i>
                         <span class=" text-[9.5px]">+120 posts</span>
                       </div>
                     </div>
                     <div class="community-card__actions">
                       <button type="button" class="community-card__follow-btn">
-                      <i class="ri-add-fill text-white"></i>
+                        <i class="ri-add-fill text-white"></i>
                         <span class="text-white text-[9.5px]">Entrar</span>
                       </button>
                     </div>
@@ -1084,7 +1086,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
       </main>
 
       <!-- BOTTOM NAV MOBILE -->
-      <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/50 pb-safe z-50">
+      <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/50 pb-safe z-50">
         <div class="max-w-2xl mx-auto w-full px-4 py-2 flex items-end justify-between h-[60px]">
           <div class="nav-btn w-14 pb-1">
             <i class="ri-home-5-line"></i>
@@ -1095,7 +1098,8 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
             <span>Agenda</span>
           </div>
           <div class="relative -top-5">
-            <button class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(15,23,42,0.6)]">
+            <button
+              class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(15,23,42,0.6)]">
               <i class="ri-add-line text-3xl"></i>
             </button>
           </div>
@@ -1157,4 +1161,5 @@ PHP VARS: $communities_query, $current_user, $categories[], $filter_category,
     });
   </script>
 </body>
+
 </html>

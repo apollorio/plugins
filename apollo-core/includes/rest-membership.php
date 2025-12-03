@@ -278,14 +278,17 @@ function apollo_rest_set_membership( $request ) {
 			200
 		);
 	} catch ( Exception $e ) {
-		error_log(
-			sprintf(
-				'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s',
-				$user_id ?? 0,
-				$membership_slug ?? 'unknown',
-				$e->getMessage()
-			)
-		);
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s',
+					$user_id ?? 0,
+					$membership_slug ?? 'unknown',
+					$e->getMessage()
+				)
+			);
+		}
 
 		return new WP_Error(
 			'membership_update_failed',

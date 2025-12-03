@@ -5,15 +5,7 @@
  * @package Apollo\Modules\Signatures\Controllers
  *
  * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
- * phpcs:disable WordPress.NamingConventions
- * phpcs:disable Squiz.Commenting
- * phpcs:disable Generic.Commenting.DocComment.MissingShort
- * phpcs:disable WordPress.PHP.YodaConditions.NotYoda
- * phpcs:disable WordPress.DB
- * phpcs:disable WordPress.Security
- * phpcs:disable WordPressVIPMinimum
- * phpcs:disable Universal.Operators.DisallowShortTernary.Found
- * phpcs:disable WordPress.DateTime.RestrictedFunctions.date_date
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
  */
 
 namespace Apollo\Modules\Signatures\Controllers;
@@ -41,16 +33,18 @@ class LocalSignatureController {
 	}
 
 	/**
-	 * Process local signature via AJAX
+	 * Process local signature via AJAX.
 	 */
 	public function processSignature() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_local_signature' ) ) {
-			wp_die( 'Security check failed' );
+		// Verify nonce.
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'apollo_local_signature' ) ) {
+			wp_die( esc_html__( 'Security check failed', 'apollo-social' ) );
 		}
 
 		try {
-			$signature_data = json_decode( $_POST['signature_data'] ?? '{}', true );
+			$raw_data       = isset( $_POST['signature_data'] ) ? wp_unslash( $_POST['signature_data'] ) : '{}';
+			$signature_data = json_decode( $raw_data, true );
 
 			if ( empty( $signature_data ) ) {
 				wp_send_json_error( array( 'errors' => array( 'Dados de assinatura inválidos' ) ) );
@@ -70,10 +64,15 @@ class LocalSignatureController {
 	}
 
 	/**
-	 * Verify signature via AJAX
+	 * Verify signature via AJAX.
 	 */
 	public function verifySignature() {
-		$certificate_id = sanitize_text_field( $_POST['certificate_id'] ?? '' );
+		// Nonce verification - skip for public verification links.
+		$nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		$certificate_id = isset( $_POST['certificate_id'] ) ? sanitize_text_field( wp_unslash( $_POST['certificate_id'] ) ) : '';
+
+		// Allow public verification without nonce (read-only operation).
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public verification endpoint for certificate validation.
 
 		if ( empty( $certificate_id ) ) {
 			wp_send_json_error( array( 'error' => 'ID do certificado é obrigatório' ) );

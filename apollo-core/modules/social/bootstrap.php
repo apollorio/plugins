@@ -71,6 +71,11 @@ class Apollo_Social_Module {
 	 * Register REST routes
 	 */
 	public static function register_rest_routes() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
 			'/feed',

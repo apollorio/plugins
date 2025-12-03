@@ -156,7 +156,7 @@ class LuckysheetConverter {
 	 *
 	 * @var int
 	 */
-	const MAX_CELL_LENGTH = 32767; 
+	const MAX_CELL_LENGTH = 32767;
 	// Excel's limit
 
 	/**
@@ -180,27 +180,27 @@ class LuckysheetConverter {
 	 * @var array
 	 */
 	private static $dangerous_patterns = array(
-		'/^=\s*cmd/i',        
+		'/^=\s*cmd/i',
 		// Command execution
-					'/^=\s*exec/i',       
+					'/^=\s*exec/i',
 		// Execute
-					'/^=\s*system/i',     
+					'/^=\s*system/i',
 		// System calls
-					'/^=\s*shell/i',      
+					'/^=\s*shell/i',
 		// Shell commands
-					'/^=\s*powershell/i', 
+					'/^=\s*powershell/i',
 		// PowerShell
-					'/^=\s*wscript/i',    
+					'/^=\s*wscript/i',
 		// Windows Script Host
-					'/^=\s*mshta/i',      
+					'/^=\s*mshta/i',
 		// MSHTA
-					'/^\+\s*cmd/i',       
+					'/^\+\s*cmd/i',
 		// Plus prefix injection
-					'/^-\s*cmd/i',        
+					'/^-\s*cmd/i',
 		// Minus prefix injection
-					'/^@\s*cmd/i',        
+					'/^@\s*cmd/i',
 		// At prefix injection
-					'/\|\s*cmd/i',        
+					'/\|\s*cmd/i',
 	// Pipe to command
 	);
 
@@ -230,9 +230,9 @@ class LuckysheetConverter {
 				'sheet_name'         => 'Planilha 1',
 				'default_col_width'  => self::DEFAULT_COL_WIDTH,
 				'default_row_height' => self::DEFAULT_ROW_HEIGHT,
-				'freeze_row'         => 0,  
+				'freeze_row'         => 0,
 				// Freeze first N rows (header)
-												'freeze_col' => 0,  
+												'freeze_col' => 0,
 				// Freeze first N columns
 												'show_grid' => true,
 				'show_row_header'    => true,
@@ -321,28 +321,28 @@ class LuckysheetConverter {
 		// Build the complete sheet object
 		$sheet = array(
 			'name'                          => $this->sheet_config['sheet_name'],
-			'index'                         => 'sheet_' . uniqid(),  
+			'index'                         => 'sheet_' . uniqid(),
 			// Unique ID for this sheet
-							'status'        => 1,                     
+							'status'        => 1,
 			// 1 = active/visible
-							'order'         => 0,                     
+							'order'         => 0,
 			// First sheet
-							'hide'          => 0,                     
+							'hide'          => 0,
 			// Not hidden
-							'row'           => count( $rows ),        
+							'row'           => count( $rows ),
 			// Total rows
-							'column'        => $max_cols,             
+							'column'        => $max_cols,
 			// Total columns
-							'celldata'      => $celldata,             
+							'celldata'      => $celldata,
 			// All cell data
-							'config'        => $config,               
+							'config'        => $config,
 			// Sheet configuration
-							'scrollLeft'    => 0,                     
+							'scrollLeft'    => 0,
 			// Scroll position
 							'scrollTop'     => 0,
-			'luckysheet_select_save'        => array(),   
+			'luckysheet_select_save'        => array(),
 			// Selection state
-							'zoomRatio'     => 1,                     
+							'zoomRatio'     => 1,
 			// Zoom level
 							'showGridLines' => $this->sheet_config['show_grid'] ? 1 : 0,
 		);
@@ -402,27 +402,27 @@ class LuckysheetConverter {
 
 		// Build the cell value object (v property)
 		$cell_value = array(
-			'v'                 => $type_info['value'],   
+			'v'                 => $type_info['value'],
 			// Raw value
-							'm' => $type_info['display'], 
+							'm' => $type_info['display'],
 			// Display/formatted value
 				'ct'            => array(
-					'fa'                        => $type_info['format'], 
+					'fa'                        => $type_info['format'],
 					// Format string (e.g., "General", "#,##0.00")
-											't' => $type_info['type'],   
+											't' => $type_info['type'],
 			// Type: s=string, n=number, b=boolean, d=date
 				),
 		);
 
 		// Apply header styling if this is a header row
 		if ( ! empty( $options['is_header'] ) ) {
-			$cell_value['bl'] = 1;           
+			$cell_value['bl'] = 1;
 			// Bold
-			$cell_value['bg'] = '#f3f4f6';   
+			$cell_value['bg'] = '#f3f4f6';
 			// Light gray background
-			$cell_value['ht'] = 1;           
+			$cell_value['ht'] = 1;
 			// Center align
-			$cell_value['fc'] = '#1f2937';   
+			$cell_value['fc'] = '#1f2937';
 			// Dark text color
 		}
 
@@ -455,7 +455,7 @@ class LuckysheetConverter {
 			return $value;
 		}
 		if ( is_numeric( $value ) ) {
-			return $value; 
+			return $value;
 			// Numbers don't need sanitization
 		}
 		if ( ! is_string( $value ) ) {
@@ -516,13 +516,13 @@ class LuckysheetConverter {
 	private function detectCellType( $value, $type_hint = 'auto' ) {
 		// Default result for strings
 		$result = array(
-			'type'                    => 's',       
+			'type'                    => 's',
 			// String
-							'value'   => $value,    
+							'value'   => $value,
 			// Raw value
-							'display' => $value,    
+							'display' => $value,
 			// Display value
-							'format'  => 'General', 
+							'format'  => 'General',
 		// Format string
 		);
 
@@ -554,7 +554,7 @@ class LuckysheetConverter {
 			// Don't execute formulas, just store them
 			// Luckysheet will evaluate them client-side
 			return array(
-				'type'                      => 'f', 
+				'type'                      => 'f',
 				// Formula (custom type, Luckysheet uses 's' but stores formula)
 									'value' => $value,
 				'display'                   => $value,
@@ -616,13 +616,13 @@ class LuckysheetConverter {
 
 		// Common date patterns
 		$patterns = array(
-			'/^\d{2}\/\d{2}\/\d{4}$/',     
+			'/^\d{2}\/\d{2}\/\d{4}$/',
 			// 25/12/2025
-							'/^\d{4}-\d{2}-\d{2}$/',       
+							'/^\d{4}-\d{2}-\d{2}$/',
 			// 2025-12-25
-							'/^\d{2}-\d{2}-\d{4}$/',       
+							'/^\d{2}-\d{2}-\d{4}$/',
 			// 25-12-2025
-							'/^\d{1,2}\s+\w+\s+\d{4}$/',   
+							'/^\d{1,2}\s+\w+\s+\d{4}$/',
 		// 25 December 2025
 		);
 
@@ -702,13 +702,13 @@ class LuckysheetConverter {
 			$key = sprintf( '%d_%d', $def['r'], $def['c'] );
 
 			$merge[ $key ] = array(
-				'r'                      => (int) $def['r'],   
+				'r'                      => (int) $def['r'],
 				// Start row
-									'c'  => (int) $def['c'],   
+									'c'  => (int) $def['c'],
 				// Start column
-									'rs' => (int) $def['rs'],  
+									'rs' => (int) $def['rs'],
 				// Row span
-									'cs' => (int) $def['cs'],  
+									'cs' => (int) $def['cs'],
 			// Column span
 			);
 		}

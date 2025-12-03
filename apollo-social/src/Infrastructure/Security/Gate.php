@@ -243,7 +243,7 @@ class Gate {
 			return 1;
 		}
 
-		return 0; 
+		return 0;
 		// No role
 	}
 

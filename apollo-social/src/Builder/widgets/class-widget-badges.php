@@ -105,7 +105,7 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 		if ( is_array( $identities ) && ! empty( $identities ) ) {
 			foreach ( $identities as $identity ) {
 				if ( $identity === 'clubber' ) {
-					continue; 
+					continue;
 					// Skip default
 				}
 
@@ -113,7 +113,7 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 					'id'                           => 'cultura-' . $identity,
 					'label'                        => ucfirst( str_replace( '-', ' ', $identity ) ),
 					'description'                  => sprintf( __( 'Cultura::Rio %s', 'apollo-social' ), $identity ),
-					'image_url'                    => '', 
+					'image_url'                    => '',
 					// Will use default badge
 											'type' => 'cultura',
 				);

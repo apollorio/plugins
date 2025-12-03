@@ -12,7 +12,7 @@ class UserPageRenderer {
 	 * Render user profile page
 	 */
 	public function render( $template_data ) {
-		$param = $template_data['param']; 
+		$param = $template_data['param'];
 		// user ID or login
 
 		// TODO: Implement real user lookup

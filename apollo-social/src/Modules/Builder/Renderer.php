@@ -72,13 +72,13 @@ class Renderer {
 			style="<?php echo esc_attr( $background_style ); ?>"
 			data-user-id="<?php echo esc_attr( (string) $user_id ); ?>">
 
-			<?php 
-			// Background layer (for animated/complex backgrounds). 
+			<?php
+			// Background layer (for animated/complex backgrounds).
 			?>
 			<div class="apollo-canvas__background-layer"></div>
 
-			<?php 
-			// Widgets layer. 
+			<?php
+			// Widgets layer.
 			?>
 			<div class="apollo-canvas__widgets-layer">
 				<?php
@@ -87,8 +87,8 @@ class Renderer {
 				?>
 			</div>
 
-			<?php 
-			// Stickers layer (on top). 
+			<?php
+			// Stickers layer (on top).
 			?>
 			<div class="apollo-canvas__stickers-layer">
 				<?php

@@ -19,8 +19,8 @@ if ( file_exists( $shadcn_loader ) ) {
 	}
 }
 
-$current_user = wp_get_current_user();
-$user_id      = $current_user->ID;
+$user_obj = wp_get_current_user();
+$user_id  = $user_obj->ID;
 
 // Buscar conversas (placeholder - integrar com sistema real)
 $conversations = array(

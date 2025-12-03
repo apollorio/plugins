@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
+
 <head>
   <meta charset="UTF-8" />
   <title>Apollo :: Comunidade · Gay Techno RJ</title>
@@ -32,38 +33,78 @@
       --text-primary: rgba(15, 23, 42, 0.95);
       --border-color-2: #e5e7eb;
     }
-    html, body {
+
+    html,
+    body {
       font-family: var(--font-primary);
       background-color: var(--bg-main);
       color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
     }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
 
     .aprio-sidebar-nav a {
-      display:flex; align-items:center; gap:0.75rem;
-      padding:0.55rem 0.75rem; margin-bottom:0.1rem;
-      border-radius:10px; border-left:2px solid transparent;
-      font-size:13px; color:#64748b; text-decoration:none;
-      transition:background-color .18s,color .18s,border-color .18s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.1rem;
+      border-radius: 10px;
+      border-left: 2px solid transparent;
+      font-size: 13px;
+      color: #64748b;
+      text-decoration: none;
+      transition: background-color .18s, color .18s, border-color .18s;
     }
-    .aprio-sidebar-nav a i { font-size:18px; }
+
+    .aprio-sidebar-nav a i {
+      font-size: 18px;
+    }
+
     .aprio-sidebar-nav a:hover {
-      background-color:#f8fafc; color:#0f172a; border-left-color:#e5e7eb;
+      background-color: #f8fafc;
+      color: #0f172a;
+      border-left-color: #e5e7eb;
     }
+
     .aprio-sidebar-nav a[aria-current="page"] {
-      background-color:#f1f5f9; color:#0f172a;
-      border-left-color:#0f172a; font-weight:600;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      border-left-color: #0f172a;
+      font-weight: 600;
     }
 
     .nav-btn {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:0.15rem; font-size:10px; color:#64748b; text-align:center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      font-size: 10px;
+      color: #64748b;
+      text-align: center;
     }
-    .nav-btn i { font-size:20px; }
-    .nav-btn.active { color:#0f172a; font-weight:600; }
+
+    .nav-btn i {
+      font-size: 20px;
+    }
+
+    .nav-btn.active {
+      color: #0f172a;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -74,12 +115,13 @@
     <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <!-- Logo / topo -->
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
         <div class="flex flex-col leading-tight">
-          <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.18em]">Apollo</span>
-          <span class="text-[15px] font-extrabold text-slate-900">Social</span>
+          <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+          <span class="text-[15px] font-extrabold text-slate-900">Apollo::rio</span>
         </div>
       </div>
 
@@ -118,34 +160,80 @@
         </a>
 
         <a href="#">
-          <i class="ri-user-3-line"></i>
+          <i class="ri-user-smile-fill"></i>
           <span>Perfil</span>
         </a>
 
-        <div class="mt-4 px-1 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Configurações</div>
+        <!-- @PHP: if(current_user_can('cena-rio') || current_user_can('administrator')): -->
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+
         <a href="#">
-          <i class="ri-settings-3-line"></i>
+          <i class="ri-calendar-line"></i>
+          <span>Agenda</span>
+        </a>
+
+        <a href="#">
+          <i class="ri-bar-chart-grouped-line"></i>
+          <span>Fornecedores</span>
+        </a>
+
+        <a href="#">
+          <i class="ri-file-text-line"></i>
+          <span>Documentos</span>
+        </a>
+        <!-- @PHP: endif; -->
+
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido
+        </div>
+        <a href="#">
+          <i class="ri-settings-6-line"></i>
           <span>Ajustes</span>
         </a>
       </nav>
 
       <!-- User / footer sidebar -->
-      <div class="border-t border-slate-100 px-4 py-3">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
-              class="h-full w-full object-cover"
-              alt="Valle"
-            />
+      <div class="p-0 rounded-lg group mb-4">
+        <div class="relative flex w-full min-w-0 flex-col px-3">
+          <!-- Footer Links -->
+          <div class="w-full text-sm">
+            <ul class="flex w-full min-w-0 flex-col gap-0">
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Sobre</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Ajustes</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
+                  <span>Denúncia</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <div class="flex flex-col leading-tight">
-            <span class="text-[12px] font-semibold text-slate-900">Valle</span>
-            <span class="text-[10px] text-slate-500">@valle</span>
+
+          <!-- User Block -->
+          <div class="flex flex-col gap-2 p-2 mt-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-2 mt-2">
+              <div
+                class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+                AD
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span class="text-[14px] font-bold text-slate-900">Valle</span>
+                <span class="text-[12px] text-slate-500">valle@email.com</span>
+              </div>
+              <button class="ml-auto text-slate-200 hover:text-slate-300" title="Logout">
+                <i class="ri-logout-box-r-line text-[18px]"></i>
+              </button>
+            </div>
           </div>
-          <button class="ml-auto text-slate-400 hover:text-slate-700">
-            <i class="ri-logout-box-r-line text-lg"></i>
-          </button>
         </div>
       </div>
     </aside>
@@ -154,9 +242,11 @@
     <div class="flex-1 flex flex-col min-h-screen bg-slate-50/70">
 
       <!-- HEADER -->
-      <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
+      <header
+        class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
-          <button type="button" onclick="history.back()" class="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 md:hidden">
+          <button type="button" onclick="history.back()"
+            class="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 md:hidden">
             <i class="ri-arrow-left-line text-lg"></i>
           </button>
           <!-- Mobile icon -->
@@ -184,7 +274,8 @@
             <i class="ri-flashlight-line text-xs"></i>
             <span>ativo agora</span>
           </div>
-          <button class="inline-flex items-center gap-1 rounded-full border border-slate-900 bg-slate-900 text-white px-3 py-1.5 text-[12px] font-semibold shadow-sm hover:bg-slate-800">
+          <button
+            class="inline-flex items-center gap-1 rounded-full border border-slate-900 bg-slate-900 text-white px-3 py-1.5 text-[12px] font-semibold shadow-sm hover:bg-slate-800">
             <i class="ri-add-line text-xs"></i>
             Entrar na comunidade
           </button>
@@ -192,7 +283,8 @@
 
         <!-- Mobile actions -->
         <div class="flex md:hidden items-center gap-2">
-          <button class="rounded-full border border-slate-900 bg-slate-900 text-white px-3 py-1.5 text-[11px] font-semibold">
+          <button
+            class="rounded-full border border-slate-900 bg-slate-900 text-white px-3 py-1.5 text-[11px] font-semibold">
             Entrar
           </button>
         </div>
@@ -208,12 +300,15 @@
             <!-- Hero / capa comunidade -->
             <div class="overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 relative">
               <div class="h-32 w-full bg-gradient-to-r from-fuchsia-500 via-sky-400 to-emerald-400 opacity-80"></div>
-              <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent">
+              <div
+                class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent">
                 <div class="inline-flex items-center gap-2 mb-2">
-                  <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40 border border-white/20">
+                  <span
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40 border border-white/20">
                     <i class="ri-vip-crown-2-line text-lg text-amber-300"></i>
                   </span>
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-black/40 border border-white/15 px-2.5 py-1">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full bg-black/40 border border-white/15 px-2.5 py-1">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-[11px] text-slate-100 font-medium uppercase tracking-wide">Comunidade ativa</span>
                   </span>
@@ -298,13 +393,15 @@
                 <!-- owner -->
                 <div class="flex items-center gap-3">
                   <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host1&backgroundColor=e5e7eb" class="w-full h-full object-cover" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host1&backgroundColor=e5e7eb"
+                      class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1">
                     <p class="text-[13px] font-semibold text-slate-900">Marta</p>
                     <p class="text-[11px] text-slate-500">@martatechno · Donx</p>
                   </div>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[10px] px-2 py-0.5">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[10px] px-2 py-0.5">
                     <i class="ri-star-smile-line text-[11px]"></i> fundadora
                   </span>
                 </div>
@@ -312,13 +409,15 @@
                 <!-- co 1 -->
                 <div class="flex items-center gap-3">
                   <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb" class="w-full h-full object-cover" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
+                      class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1">
                     <p class="text-[13px] font-semibold text-slate-900">Valle</p>
                     <p class="text-[11px] text-slate-500">@valle · Co-responsável</p>
                   </div>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5">
                     <i class="ri-command-line text-[11px]"></i> curadoria
                   </span>
                 </div>
@@ -326,13 +425,15 @@
                 <!-- co 2 -->
                 <div class="flex items-center gap-3">
                   <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host3&backgroundColor=e5e7eb" class="w-full h-full object-cover" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Host3&backgroundColor=e5e7eb"
+                      class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1">
                     <p class="text-[13px] font-semibold text-slate-900">Nayara</p>
                     <p class="text-[11px] text-slate-500">@nay · Moderação</p>
                   </div>
-                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5">
+                  <span
+                    class="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5">
                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> online
                   </span>
                 </div>
@@ -349,31 +450,40 @@
               </div>
               <div class="flex flex-wrap gap-2">
                 <!-- chips simples -->
-                <button class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
+                <button
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
                   <span class="h-5 w-5 rounded-full bg-slate-300 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User1&backgroundColor=cbd5f5" class="w-full h-full" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User1&backgroundColor=cbd5f5"
+                      class="w-full h-full" />
                   </span>
                   <span>@vini.rj</span>
                 </button>
-                <button class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
+                <button
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
                   <span class="h-5 w-5 rounded-full bg-slate-300 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User2&backgroundColor=cbd5f5" class="w-full h-full" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User2&backgroundColor=cbd5f5"
+                      class="w-full h-full" />
                   </span>
                   <span>@luquers</span>
                 </button>
-                <button class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
+                <button
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
                   <span class="h-5 w-5 rounded-full bg-slate-300 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User3&backgroundColor=cbd5f5" class="w-full h-full" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User3&backgroundColor=cbd5f5"
+                      class="w-full h-full" />
                   </span>
                   <span>@kaka.tech</span>
                 </button>
-                <button class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
+                <button
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1">
                   <span class="h-5 w-5 rounded-full bg-slate-300 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User4&backgroundColor=cbd5f5" class="w-full h-full" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User4&backgroundColor=cbd5f5"
+                      class="w-full h-full" />
                   </span>
                   <span>@ju_queer</span>
                 </button>
-                <button class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[11px] px-2.5 py-1">
+                <button
+                  class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[11px] px-2.5 py-1">
                   <i class="ri-user-search-line text-xs"></i>
                   <span>Ver todos</span>
                 </button>
@@ -388,18 +498,12 @@
             <div class="bg-white/95 border border-slate-200 rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-sm">
               <div class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full overflow-hidden bg-slate-100 flex-shrink-0">
-                  <img
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
-                    class="h-full w-full object-cover"
-                    alt="Você"
-                  />
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
+                    class="h-full w-full object-cover" alt="Você" />
                 </div>
                 <div class="flex-1">
-                  <textarea
-                    rows="2"
-                    placeholder="Compartilhe algo com a Gay Techno RJ..."
-                    class="w-full resize-none border border-slate-200 rounded-2xl px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900/60"
-                  ></textarea>
+                  <textarea rows="2" placeholder="Compartilhe algo com a Gay Techno RJ..."
+                    class="w-full resize-none border border-slate-200 rounded-2xl px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900/60"></textarea>
                   <div class="mt-2 flex items-center justify-between">
                     <div class="flex items-center gap-2 text-slate-400 text-[12px]">
                       <button class="inline-flex items-center gap-1 hover:text-slate-700">
@@ -411,7 +515,8 @@
                         <span>Indicar festa</span>
                       </button>
                     </div>
-                    <button class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[12px] px-3 py-1.5 font-semibold shadow-sm hover:bg-slate-800">
+                    <button
+                      class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[12px] px-3 py-1.5 font-semibold shadow-sm hover:bg-slate-800">
                       <i class="ri-send-plane-2-line text-xs"></i>
                       <span>Postar</span>
                     </button>
@@ -424,7 +529,8 @@
             <article class="bg-white/95 border border-slate-200 rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-sm">
               <header class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full overflow-hidden bg-slate-100">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost1&backgroundColor=e5e7eb" class="h-full w-full object-cover" />
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost1&backgroundColor=e5e7eb"
+                    class="h-full w-full object-cover" />
                 </div>
                 <div class="flex-1">
                   <div class="flex items-center justify-between gap-2">
@@ -450,7 +556,8 @@
 
               <div class="mt-3 text-[13px] text-slate-700 leading-relaxed">
                 <p>
-                  Pra quem quer pista mais queer friendly hoje à noite: alguém foi recentemente na festa <span class="font-semibold">XXX</span> em Botafogo?
+                  Pra quem quer pista mais queer friendly hoje à noite: alguém foi recentemente na festa <span
+                    class="font-semibold">XXX</span> em Botafogo?
                   Curioso se a energia tá boa ou se ainda rola muita cara feia.
                 </p>
               </div>
@@ -481,7 +588,8 @@
               <div class="mt-3 border-t border-dashed border-slate-200 pt-3">
                 <div class="flex items-start gap-2.5">
                   <div class="h-7 w-7 rounded-full overflow-hidden bg-slate-100">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Reply1&backgroundColor=e5e7eb" class="h-full w-full object-cover" />
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Reply1&backgroundColor=e5e7eb"
+                      class="h-full w-full object-cover" />
                   </div>
                   <div class="flex-1">
                     <div class="flex items-center gap-1.5">
@@ -489,7 +597,8 @@
                       <span class="text-[10px] text-slate-400">há 45 min</span>
                     </div>
                     <p class="text-[12px] text-slate-700 leading-relaxed">
-                      Fui sábado passado, pista principal meio heterotope ainda, mas o segundo ambiente tava super de boas, galera queer e som mais pesado.
+                      Fui sábado passado, pista principal meio heterotope ainda, mas o segundo ambiente tava super de
+                      boas, galera queer e som mais pesado.
                     </p>
                   </div>
                 </div>
@@ -500,7 +609,8 @@
             <article class="bg-white/95 border border-slate-200 rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-sm">
               <header class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full overflow-hidden bg-slate-100">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost2&backgroundColor=e5e7eb" class="h-full w-full object-cover" />
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost2&backgroundColor=e5e7eb"
+                    class="h-full w-full object-cover" />
                 </div>
                 <div class="flex-1">
                   <div class="flex items-center justify-between gap-2">
@@ -523,12 +633,14 @@
               <div class="mt-3 text-[13px] text-slate-700 leading-relaxed space-y-2">
                 <p>
                   Galera, testamos esse novo rolê no Centro ontem e a pista tava
-                  <span class="font-semibold">100% segura e diversa</span>. Vou deixar o flyer aqui, quem for hoje comenta depois o que achou.
+                  <span class="font-semibold">100% segura e diversa</span>. Vou deixar o flyer aqui, quem for hoje
+                  comenta depois o que achou.
                 </p>
               </div>
 
               <div class="mt-3 rounded-xl overflow-hidden border border-slate-200 bg-slate-900">
-                <div class="aspect-[16/9] bg-gradient-to-br from-fuchsia-500 via-slate-900 to-sky-400 flex items-center justify-center">
+                <div
+                  class="aspect-[16/9] bg-gradient-to-br from-fuchsia-500 via-slate-900 to-sky-400 flex items-center justify-center">
                   <span class="text-[11px] uppercase tracking-[0.18em] text-slate-100/80">
                     Flyer do rolê · preview
                   </span>
@@ -559,7 +671,8 @@
             <article class="bg-white/95 border border-slate-200 rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-sm">
               <header class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full overflow-hidden bg-slate-100">
-                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost3&backgroundColor=e5e7eb" class="h-full w-full object-cover" />
+                  <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=UserPost3&backgroundColor=e5e7eb"
+                    class="h-full w-full object-cover" />
                 </div>
                 <div class="flex-1">
                   <div class="flex items-center justify-between gap-2">
@@ -572,7 +685,8 @@
                         <span>há 1 dia</span>
                       </div>
                     </div>
-                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5">
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5">
                       <i class="ri-notification-3-line text-[11px]"></i> aviso
                     </span>
                   </div>
@@ -581,7 +695,8 @@
 
               <div class="mt-3 text-[13px] text-slate-700 leading-relaxed">
                 <p>
-                  Lembrando: qualquer situação de assédio ou desconforto em rolê citado aqui, manda print da divulgação + relato pra moderação no privado. A comunidade é pra cuidar umas das outras também.
+                  Lembrando: qualquer situação de assédio ou desconforto em rolê citado aqui, manda print da divulgação
+                  + relato pra moderação no privado. A comunidade é pra cuidar umas das outras também.
                 </p>
               </div>
 
@@ -597,7 +712,8 @@
       </main>
 
       <!-- BOTTOM NAV MOBILE -->
-      <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/50 pb-safe z-50">
+      <nav
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/50 pb-safe z-50">
         <div class="max-w-2xl mx-auto w-full px-4 py-2 flex items-end justify-between h-[60px]">
           <div class="nav-btn w-14 pb-1">
             <i class="ri-home-5-line"></i>
@@ -608,7 +724,8 @@
             <span>Agenda</span>
           </div>
           <div class="relative -top-5">
-            <button class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(15,23,42,0.6)]">
+            <button
+              class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-[0_8px_20px_-6px_rgba(15,23,42,0.6)]">
               <i class="ri-add-line text-3xl"></i>
             </button>
           </div>
@@ -625,5 +742,5 @@
     </div>
   </div>
 </body>
-</html>
 
+</html>

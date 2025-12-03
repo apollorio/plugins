@@ -64,7 +64,7 @@ class LikesEndpoint {
 			array(
 				'methods'                              => 'GET',
 				'callback'                             => array( $this, 'getLikeStatus' ),
-				'permission_callback'                  => '__return_true', 
+				'permission_callback'                  => '__return_true',
 				// Público, mas retorna false se não logado
 												'args' => array(
 													'content_type' => array(

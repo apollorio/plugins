@@ -17,8 +17,8 @@ if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
 
-$current_user = wp_get_current_user();
-$user_id      = get_current_user_id();
+$user_obj = wp_get_current_user();
+$user_id  = get_current_user_id();
 
 // Membership levels
 $membership_levels = array(
@@ -60,8 +60,10 @@ $membership_levels = array(
 );
 
 // Get user's current membership
-$user_membership   = get_user_meta( $user_id, 'membership_level', true ) ?: 'clubber';
-$membership_status = get_user_meta( $user_id, 'membership_status', true ) ?: 'active';
+$user_membership_raw   = get_user_meta( $user_id, 'membership_level', true );
+$user_membership       = ! empty( $user_membership_raw ) ? $user_membership_raw : 'clubber';
+$membership_status_raw = get_user_meta( $user_id, 'membership_status', true );
+$membership_status     = ! empty( $membership_status_raw ) ? $membership_status_raw : 'active';
 
 get_header();
 ?>
@@ -133,9 +135,9 @@ get_header();
 				foreach ( $membership_levels as $level_key => $level ) :
 					$is_current = ( $user_membership === $level_key );
 					?>
-				<div class="ap-card ap-card-hover <?php echo $is_current ? 'ap-card-active' : ''; ?>" 
+				<div class="ap-card ap-card-hover <?php echo $is_current ? 'ap-card-active' : ''; ?>"
 					style="<?php echo $is_current ? 'border-color: ' . esc_attr( $level['color'] ) . ';' : ''; ?>">
-					
+
 					<!-- Card Header -->
 					<div class="ap-card-header">
 						<div class="ap-avatar ap-avatar-md" style="background: <?php echo esc_attr( $level['color'] ); ?>;">
@@ -154,7 +156,7 @@ get_header();
 							<?php echo esc_html( $level['label'] ); ?>
 						</h3>
 						<p class="ap-card-text"><?php echo esc_html( $level['description'] ); ?></p>
-						
+
 						<!-- Features List -->
 						<ul class="ap-list ap-list-check">
 							<?php foreach ( $level['features'] as $feature ) : ?>
@@ -169,7 +171,7 @@ get_header();
 					<!-- Card Footer -->
 					<div class="ap-card-footer">
 						<?php if ( $is_current ) : ?>
-						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>" 
+						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>"
 							class="ap-btn ap-btn-outline ap-btn-block"
 							data-ap-tooltip="Ver detalhes do seu membership">
 							<i class="ri-eye-line"></i>
@@ -181,7 +183,7 @@ get_header();
 							Nível Básico
 						</span>
 						<?php else : ?>
-						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>" 
+						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>"
 							class="ap-btn ap-btn-primary ap-btn-block"
 							data-ap-tooltip="Solicitar upgrade para <?php echo esc_attr( $level['label'] ); ?>">
 							<i class="ri-arrow-up-circle-line"></i>
@@ -201,7 +203,7 @@ get_header();
 			<div class="ap-section-header ap-text-center">
 				<h2 class="ap-heading-2">Perguntas Frequentes</h2>
 			</div>
-			
+
 			<div class="ap-grid ap-grid-2 ap-gap-4">
 				<div class="ap-card">
 					<div class="ap-card-body">
@@ -214,7 +216,7 @@ get_header();
 						</p>
 					</div>
 				</div>
-				
+
 				<div class="ap-card">
 					<div class="ap-card-body">
 						<h4 class="ap-card-title">
@@ -226,7 +228,7 @@ get_header();
 						</p>
 					</div>
 				</div>
-				
+
 				<div class="ap-card">
 					<div class="ap-card-body">
 						<h4 class="ap-card-title">
@@ -238,7 +240,7 @@ get_header();
 						</p>
 					</div>
 				</div>
-				
+
 				<div class="ap-card">
 					<div class="ap-card-body">
 						<h4 class="ap-card-title">

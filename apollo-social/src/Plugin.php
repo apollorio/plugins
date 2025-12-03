@@ -22,21 +22,21 @@ class Plugin {
 	 * Builds all CPT hooks, preparations, and Canvas pages
 	 */
 	public function __construct() {
-		// Prevent double initialization
+		// Prevent double initialization.
 		if ( $this->initialized ) {
 			return;
 		}
 
 		$this->initialized = true;
 
-		// Register Role Manager (rename WordPress roles)
+		// Register Role Manager (rename WordPress roles).
 		$role_manager = new \Apollo\Core\RoleManager();
 		$role_manager->register();
 
-		// Bootstrap plugin automatically
+		// Bootstrap plugin automatically.
 		$this->bootstrap();
 
-		// Initialize Canvas pages
+		// Initialize Canvas pages.
 		$this->initializeCanvasPages();
 	}
 
@@ -58,17 +58,17 @@ class Plugin {
 		// Bug fix: Early return para evitar execução desnecessária em cada request
 		$pages_created   = get_option( 'apollo_social_canvas_pages_created', false );
 		$pages_version   = get_option( 'apollo_social_canvas_pages_version', '1.0' );
-		$current_version = '2.0'; 
-		// Incrementar quando adicionar novas páginas
+		$current_version = '2.0';
+		// Incrementar quando adicionar novas páginas.
 
-		// Se páginas já foram criadas e versão está atualizada, não executar
+		// Se páginas já foram criadas e versão está atualizada, não executar.
 		if ( $pages_created && $pages_version === $current_version ) {
 			return;
 		}
 
-		// FASE 1: Verificar versão da opção para upgrades futuros
+		// FASE 1: Verificar versão da opção para upgrades futuros.
 
-		// Pages to create
+		// Pages to create.
 		$pages = array(
 			'feed'       => array(
 				'title'    => 'Feed Social',
@@ -90,9 +90,9 @@ class Plugin {
 				'slug'     => 'cena-rio',
 				'template' => 'cena/cena.php',
 			),
-			// Note: '/cena' route is handled by Routes.php for backward compatibility
-			// Both /cena and /cena-rio point to the same template, but only one page is created
-			// FASE 1: Páginas faltantes
+			// Note: '/cena' route is handled by Routes.php for backward compatibility.
+			// Both /cena and /cena-rio point to the same template, but only one page is created.
+			// FASE 1: Páginas faltantes.
 			'documentos' => array(
 				'title'    => 'Documentos',
 				'slug'     => 'documentos',
@@ -102,7 +102,7 @@ class Plugin {
 				'title'    => 'Enviar Conteúdo',
 				'slug'     => 'enviar',
 				'template' => 'users/submit-content.php',
-				// Only add event submit shortcode if Apollo Events Manager is active
+				// Only add event submit shortcode if Apollo Events Manager is active.
 				'content'  => ( shortcode_exists( 'apollo_event_submit' ) ) ? '[apollo_event_submit]' : '<!-- Apollo Canvas Page -->',
 			),
 		);
@@ -110,16 +110,16 @@ class Plugin {
 		$created_count  = 0;
 		$existing_count = 0;
 
-		// FASE 1: Verificar cada página individualmente (idempotência melhorada)
+		// FASE 1: Verificar cada página individualmente (idempotência melhorada).
 		foreach ( $pages as $key => $page_data ) {
-			// Check if page exists by slug
+			// Check if page exists by slug.
 			$existing = get_page_by_path( $page_data['slug'] );
 
 			if ( $existing ) {
-				// Página existe - verificar se tem metadados Canvas
+				// Página existe - verificar se tem metadados Canvas.
 				$is_canvas = get_post_meta( $existing->ID, '_apollo_canvas_page', true );
 				if ( ! $is_canvas ) {
-					// Atualizar página existente para Canvas
+					// Atualizar página existente para Canvas.
 					update_post_meta( $existing->ID, '_apollo_canvas_page', true );
 					if ( isset( $page_data['template'] ) ) {
 						update_post_meta( $existing->ID, '_apollo_canvas_template', $page_data['template'] );
@@ -127,7 +127,7 @@ class Plugin {
 				}
 				++$existing_count;
 			} else {
-				// Criar nova página
+				// Criar nova página.
 				$page_content = isset( $page_data['content'] ) ? $page_data['content'] : '<!-- Apollo Canvas Page -->';
 
 				$page_id = wp_insert_post(
@@ -141,7 +141,7 @@ class Plugin {
 				);
 
 				if ( $page_id && ! is_wp_error( $page_id ) ) {
-					// Mark as Apollo Canvas page
+					// Mark as Apollo Canvas page.
 					update_post_meta( $page_id, '_apollo_canvas_page', true );
 					if ( isset( $page_data['template'] ) ) {
 						update_post_meta( $page_id, '_apollo_canvas_template', $page_data['template'] );
@@ -151,12 +151,12 @@ class Plugin {
 			}//end if
 		}//end foreach
 
-		// FASE 1: Atualizar versão apenas se houve mudanças ou upgrade necessário
+		// FASE 1: Atualizar versão apenas se houve mudanças ou upgrade necessário.
 		if ( $pages_version !== $current_version || $created_count > 0 ) {
 			update_option( 'apollo_social_canvas_pages_version', $current_version );
 			update_option( 'apollo_social_canvas_pages_created', true );
 
-			// Log para debug
+			// Log para debug.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				error_log(
 					sprintf(
@@ -174,10 +174,11 @@ class Plugin {
 	 * Bootstrap the plugin (register providers, hooks)
 	 */
 	public function bootstrap() {
-		// Register service providers
+		.
+		// Register service providers.
 		$this->registerProviders();
 
-		// Initialize core functionality
+		// Initialize core functionality.
 		$this->initializeCore();
 	}
 
@@ -185,7 +186,7 @@ class Plugin {
 	 * Register all service providers
 	 */
 	private function registerProviders() {
-		// Load helper functions
+		// Load helper functions.
 		if ( ! function_exists( 'config' ) ) {
 			require_once APOLLO_SOCIAL_PLUGIN_DIR . 'src/helpers.php';
 		}
@@ -200,13 +201,13 @@ class Plugin {
 			new \Apollo\Infrastructure\Providers\AnalyticsServiceProvider(),
 		);
 
-		// Load Events Manager Integration (read-only access to event_dj and event_local CPTs)
+		// Load Events Manager Integration (read-only access to event_dj and event_local CPTs).
 		$integration_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Infrastructure/Integration/EventsManagerIntegration.php';
 		if ( file_exists( $integration_file ) ) {
 			require_once $integration_file;
 		}
 
-		// FASE 1: Carregar DocumentsRoutes se módulo de documentos existir
+		// FASE 1: Carregar DocumentsRoutes se módulo de documentos existir.
 		$documents_routes_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Modules/Documents/DocumentsRoutes.php';
 		if ( file_exists( $documents_routes_file ) ) {
 			require_once $documents_routes_file;
@@ -215,46 +216,46 @@ class Plugin {
 			}
 		}
 
-		// CRITICAL: All REST API endpoints MUST be registered on rest_api_init hook
-		// WordPress 5.1+ requires this - registering during plugins_loaded causes fatal errors
+		// CRITICAL: All REST API endpoints MUST be registered on rest_api_init hook.
+		// WordPress 5.1+ requires this - registering during plugins_loaded causes fatal errors.
 		add_action(
 			'rest_api_init',
 			function () {
-				// Register Widgets API endpoints
+				// Register Widgets API endpoints.
 				$widgets_endpoints = new \Apollo\API\Endpoints\WidgetsEndpoints();
 				$widgets_endpoints->register();
 
-				// FASE 2: Register Likes endpoint
+				// FASE 2: Register Likes endpoint.
 				$likes_endpoint = new \Apollo\API\Endpoints\LikesEndpoint();
 				$likes_endpoint->register();
 
-				// FASE 2: Register Comments endpoint
+				// FASE 2: Register Comments endpoint.
 				$comments_endpoint = new \Apollo\API\Endpoints\CommentsEndpoint();
 				$comments_endpoint->register();
 
-				// P0-6: Register Favorites endpoint
+				// P0-6: Register Favorites endpoint.
 				$favorites_endpoint = new \Apollo\API\Endpoints\FavoritesEndpoint();
 				$favorites_endpoint->register();
 
-				// P0-5: Register Feed endpoint
+				// P0-5: Register Feed endpoint.
 				$feed_endpoint = new \Apollo\API\Endpoints\FeedEndpoint();
 				$feed_endpoint->register();
 
-				// P0-7: Register Groups endpoint
+				// P0-7: Register Groups endpoint.
 				$groups_endpoint = new \Apollo\API\Endpoints\GroupsEndpoint();
 				$groups_endpoint->register();
 
-				// P0-10: Register CENA RIO Event endpoint
+				// P0-10: Register CENA RIO Event endpoint.
 				$cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
 				$cena_rio_endpoint->register();
 
-				// P0-9: Register Documents endpoint (if class exists)
+				// P0-9: Register Documents endpoint (if class exists).
 				if ( class_exists( '\Apollo\API\Endpoints\DocumentsEndpoint' ) ) {
 					$documents_endpoint = new \Apollo\API\Endpoints\DocumentsEndpoint();
 					$documents_endpoint->register();
 				}
 
-				// Register Onboarding endpoints via APIRegister
+				// Register Onboarding endpoints via APIRegister.
 				if ( class_exists( '\Apollo\API\APIRegister' ) ) {
 					$api_register = new \Apollo\API\APIRegister();
 					$api_register->registerRoutes();
@@ -262,7 +263,7 @@ class Plugin {
 			}
 		);
 
-		// Register User Page Auto-Create hook
+		// Register User Page Auto-Create hook.
 		$user_page_auto_create = new \Apollo\Hooks\UserPageAutoCreate();
 		$user_page_auto_create->register();
 
@@ -278,10 +279,10 @@ class Plugin {
 	}
 
 	/**
-	 * Initialize core functionality
+	 * Initialize core functionality.
 	 */
 	private function initializeCore() {
-		// Register routes
+		// Register routes.
 		add_action( 'init', array( $this, 'registerRoutes' ) );
 
 		// Handle plugin requests
@@ -289,7 +290,7 @@ class Plugin {
 	}
 
 	/**
-	 * Register plugin routes
+	 * Register plugin routes.
 	 */
 	public function registerRoutes() {
 		$routes = new Routes();
@@ -301,25 +302,25 @@ class Plugin {
 	 * This ensures Canvas Mode pages are rendered before theme template selection
 	 */
 	public function handlePluginRequests() {
-		// Check if this is an Apollo Canvas route
+		// Check if this is an Apollo Canvas route.
 		$routes        = new Routes();
 		$current_route = $routes->getCurrentRoute();
 
-		// If route is already matched and is Canvas, prevent theme template
+		// If route is already matched and is Canvas, prevent theme template.
 		if ( $current_route && ! empty( $current_route['canvas'] ) ) {
-			// P0-4: Force Canvas Mode - prevent theme template loading
+			// P0-4: Force Canvas Mode - prevent theme template loading.
 			add_filter(
 				'template_include',
 				function ( $template ) {
 					// Return empty string to prevent theme template
-					// CanvasBuilder will handle full rendering via wp_die()
+					// CanvasBuilder will handle full rendering via wp_die().
 					return '';
 				},
 				999
 			);
 		}
 
-		// Handle the route (will call wp_die() if Canvas route matched)
+		// Handle the route (will call wp_die() if Canvas route matched).
 		$routes->handleRequest();
 	}
 }

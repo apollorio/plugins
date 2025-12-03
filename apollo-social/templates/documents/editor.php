@@ -18,17 +18,83 @@
 
 declare( strict_types=1 );
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use Apollo\Modules\Documents\DocumentsHelpers;
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Material Symbols.
+		wp_enqueue_style(
+			'material-symbols',
+			'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0',
+			array(),
+			'1.0.0'
+		);
+
+		// Google Fonts.
+		wp_enqueue_style(
+			'google-fonts-editor',
+			'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
+			array(),
+			'1.0.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Sign Document Module.
+		wp_enqueue_script(
+			'apollo-sign-document',
+			plugins_url( 'assets/js/sign-document.js', dirname( __DIR__ ) ),
+			array(),
+			'1.0.0',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
 // Get document data
-$type_label   = $type === 'documento' ? 'Documento' : 'Planilha';
-$is_new       = $mode === 'new';
-$document_id  = $is_new ? 0 : ( $document['id'] ?? 0 );
-$file_id      = $is_new ? '' : ( $document['file_id'] ?? '' );
-$doc_title    = $is_new ? 'Novo ' . $type_label : ( $document['title'] ?? '' );
-$doc_content  = $is_new ? '<h1>Novo ' . $type_label . '</h1><p>Comece a escrever seu documento aqui...</p>' : ( $document['content'] ?? '' );
-$doc_status   = $document['status'] ?? 'draft';
-$doc_version  = (int) ( $document['version'] ?? 1 );
+$type_label  = $type === 'documento' ? 'Documento' : 'Planilha';
+$is_new      = $mode === 'new';
+$document_id = $is_new ? 0 : ( $document['id'] ?? 0 );
+$file_id     = $is_new ? '' : ( $document['file_id'] ?? '' );
+$doc_title   = $is_new ? 'Novo ' . $type_label : ( $document['title'] ?? '' );
+$doc_content = $is_new ? '<h1>Novo ' . $type_label . '</h1><p>Comece a escrever seu documento aqui...</p>' : ( $document['content'] ?? '' );
+$doc_status  = $document['status'] ?? 'draft';
+$doc_version = (int) ( $document['version'] ?? 1 );
 
 // Get status and type info with tooltips
 $status_info = DocumentsHelpers::get_status_info( $doc_status );
@@ -66,22 +132,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Apollo :: Editor - <?php echo esc_html( $doc_title ); ?></title>
-
-	<!-- UNI.CSS Global Design System (MANDATORY) -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-
-	<!-- Material Icons -->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-
-	<!-- Remix Icons (for consistency with other Apollo templates) -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
-
-	<!-- Sign Document Module -->
-	<script src="<?php echo esc_url( plugins_url( 'assets/js/sign-document.js', dirname( __DIR__ ) ) ); ?>" defer></script>
-
-	<!-- Default Font (matches uni.css Urbanist) -->
-	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+	<?php wp_head(); ?>
 
 	<style>
 		:root {

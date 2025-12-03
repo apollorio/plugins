@@ -14,7 +14,52 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Get document if editing existing
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Google Fonts.
+		wp_enqueue_style(
+			'google-fonts-editor',
+			'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap',
+			array(),
+			'1.0.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
+// Get document if editing existing.
 $document_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 $is_new      = ! $document_id;
 
@@ -26,11 +71,12 @@ $document_status  = 'draft';
 if ( $document_id ) {
 	$document = get_post( $document_id );
 	if ( $document && $document->post_type === 'apollo_document' ) {
-		$document_title   = $document->post_title;
-		$document_content = $document->post_content;
-		$document_status  = get_post_meta( $document_id, '_document_status', true ) ?: 'draft';
+		$document_title      = $document->post_title;
+		$document_content    = $document->post_content;
+		$document_status_raw = get_post_meta( $document_id, '_document_status', true );
+		$document_status     = ! empty( $document_status_raw ) ? $document_status_raw : 'draft';
 
-		// Check permissions
+		// Check permissions.
 		if ( ! current_user_can( 'edit_post', $document_id ) ) {
 			wp_die( __( 'Você não tem permissão para editar este documento.', 'apollo-social' ) );
 		}
@@ -40,8 +86,8 @@ if ( $document_id ) {
 	}
 }
 
-// Current user
-$current_user = wp_get_current_user();
+// Current user - avoid overriding WP globals.
+$user_obj = wp_get_current_user();
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full">
@@ -49,16 +95,8 @@ $current_user = wp_get_current_user();
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
 	<title><?php echo esc_html( $document_title ); ?> - DOC::rio</title>
-	
-	<!-- Apollo Design System -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-	
-	<!-- Google Fonts - Initial -->
-	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-	
+	<?php wp_head(); ?>
+
 	<style>
 		:root {
 			--apollo-primary: #3498db;
@@ -67,7 +105,7 @@ $current_user = wp_get_current_user();
 			--paper-height: 297mm;
 			--toolbar-height: 70px;
 		}
-		
+
 		body.apollo-canvas {
 			font-family: 'Inter', sans-serif;
 			background-color: var(--apollo-bg);
@@ -78,7 +116,7 @@ $current_user = wp_get_current_user();
 			display: flex;
 			flex-direction: column;
 		}
-		
+
 		/* Top Navigation */
 		.apollo-navbar {
 			height: 50px;
@@ -89,7 +127,7 @@ $current_user = wp_get_current_user();
 			padding: 0 20px;
 			flex-shrink: 0;
 		}
-		
+
 		.brand {
 			display: flex;
 			align-items: center;
@@ -97,7 +135,7 @@ $current_user = wp_get_current_user();
 			color: #2c3e50;
 			font-size: 16px;
 		}
-		
+
 		.ripple-dot {
 			width: 10px;
 			height: 10px;
@@ -107,12 +145,12 @@ $current_user = wp_get_current_user();
 			margin-right: 15px;
 			animation: rippleShadow 2s infinite ease-out;
 		}
-		
+
 		@keyframes rippleShadow {
 			0% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.6); }
 			100% { box-shadow: 0 0 0 12px rgba(52, 152, 219, 0); }
 		}
-		
+
 		.file-name {
 			margin-left: 10px;
 			color: #666;
@@ -127,14 +165,14 @@ $current_user = wp_get_current_user();
 			border-color: #e0e0e0;
 			background: #f9f9f9;
 		}
-		
+
 		.navbar-actions {
 			margin-left: auto;
 			display: flex;
 			align-items: center;
 			gap: 8px;
 		}
-		
+
 		.save-indicator {
 			font-size: 12px;
 			color: #888;
@@ -144,7 +182,7 @@ $current_user = wp_get_current_user();
 		}
 		.save-indicator.saving { color: var(--apollo-primary); }
 		.save-indicator.saved { color: #27ae60; }
-		
+
 		/* Editor Toolbar */
 		.editor-toolbar {
 			background: #fff;
@@ -159,7 +197,7 @@ $current_user = wp_get_current_user();
 			flex-shrink: 0;
 			z-index: 10;
 		}
-		
+
 		.tool-group {
 			display: flex;
 			align-items: center;
@@ -168,7 +206,7 @@ $current_user = wp_get_current_user();
 			border-right: 1px solid #eee;
 		}
 		.tool-group:last-child { border-right: none; }
-		
+
 		.tool-select {
 			border-radius: 4px;
 			border: 1px solid #ddd;
@@ -177,11 +215,11 @@ $current_user = wp_get_current_user();
 			cursor: pointer;
 			background: #fff;
 		}
-		
+
 		#fontSelector { width: 160px; }
 		#fontWeight { width: 100px; }
 		#fontSize { width: 70px; }
-		
+
 		.btn-tool {
 			width: 32px;
 			height: 32px;
@@ -206,7 +244,7 @@ $current_user = wp_get_current_user();
 			border-color: #bbdefb;
 		}
 		.btn-tool i { font-size: 18px; }
-		
+
 		#textColor {
 			width: 32px;
 			height: 32px;
@@ -215,7 +253,7 @@ $current_user = wp_get_current_user();
 			background: none;
 			cursor: pointer;
 		}
-		
+
 		/* Workspace */
 		.workspace {
 			flex: 1;
@@ -225,7 +263,7 @@ $current_user = wp_get_current_user();
 			justify-content: center;
 			position: relative;
 		}
-		
+
 		.document-page {
 			background: white;
 			width: var(--paper-width);
@@ -235,7 +273,7 @@ $current_user = wp_get_current_user();
 			margin-bottom: 40px;
 			outline: none;
 		}
-		
+
 		.document-page h1 {
 			font-family: 'Poppins', sans-serif;
 			font-size: 32px;
@@ -243,7 +281,7 @@ $current_user = wp_get_current_user();
 			color: #000;
 			margin: 0 0 16px 0;
 		}
-		
+
 		.document-page h2 {
 			font-family: 'Poppins', sans-serif;
 			font-size: 24px;
@@ -251,7 +289,7 @@ $current_user = wp_get_current_user();
 			color: #333;
 			margin: 24px 0 12px 0;
 		}
-		
+
 		.document-page p {
 			font-family: 'Inter', sans-serif;
 			font-size: 14px;
@@ -259,7 +297,7 @@ $current_user = wp_get_current_user();
 			line-height: 1.7;
 			margin: 0 0 12px 0;
 		}
-		
+
 		.active-element {
 			position: relative;
 		}
@@ -273,7 +311,7 @@ $current_user = wp_get_current_user();
 			background-color: var(--apollo-primary);
 			opacity: 0.5;
 		}
-		
+
 		/* Mobile Responsive */
 		@media (max-width: 900px) {
 			.workspace { padding: 16px; }
@@ -286,55 +324,55 @@ $current_user = wp_get_current_user();
 			.tool-group { padding-right: 8px; }
 			#fontSelector { width: 120px; }
 		}
-		
+
 		@media (max-width: 600px) {
 			.navbar-actions .btn { font-size: 12px; padding: 4px 8px; }
 			.file-name { font-size: 12px; min-width: 100px; }
 		}
-		
+
 		/* Scrollbar */
 		::-webkit-scrollbar { width: 8px; height: 8px; }
 		::-webkit-scrollbar-track { background: #f1f1f1; }
 		::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 		::-webkit-scrollbar-thumb:hover { background: #bbb; }
 	</style>
-	
+
 	<?php wp_head(); ?>
 </head>
 <body class="apollo-canvas">
 
 <!-- Top Navigation -->
-<div class="apollo-navbar" data-tooltip="<?php esc_attr_e( 'Barra de navegação do editor', 'apollo-social' ); ?>">
+<div class="apollo-navbar" data-ap-tooltip="<?php esc_attr_e( 'Barra de navegação do editor', 'apollo-social' ); ?>">
 	<div class="brand">
-		<div class="ripple-dot" data-tooltip="<?php esc_attr_e( 'Status: conectado', 'apollo-social' ); ?>"></div>
-		<span style="font-family:system-ui;font-weight:700;font-size:1.5rem;" data-tooltip="<?php esc_attr_e( 'Editor de documentos Apollo', 'apollo-social' ); ?>">DOC::rio</span>
+		<div class="ripple-dot" data-ap-tooltip="<?php esc_attr_e( 'Status: conectado', 'apollo-social' ); ?>"></div>
+		<span style="font-family:system-ui;font-weight:700;font-size:1.5rem;" data-ap-tooltip="<?php esc_attr_e( 'Editor de documentos Apollo', 'apollo-social' ); ?>">DOC::rio</span>
 		<span class="mx-3" style="font-family:system-ui;font-weight:200;font-size:1.5rem;">/</span>
-		<span 
-			class="file-name" 
-			contenteditable="true" 
+		<span
+			class="file-name"
+			contenteditable="true"
 			id="documentTitle"
-			data-tooltip="<?php esc_attr_e( 'Clique para editar o nome do documento', 'apollo-social' ); ?>"
+			data-ap-tooltip="<?php esc_attr_e( 'Clique para editar o nome do documento', 'apollo-social' ); ?>"
 		><?php echo esc_html( $document_title ); ?></span>
 	</div>
-	
+
 	<div class="navbar-actions">
-		<span class="save-indicator" id="saveIndicator" data-tooltip="<?php esc_attr_e( 'Status de salvamento', 'apollo-social' ); ?>">
+		<span class="save-indicator" id="saveIndicator" data-ap-tooltip="<?php esc_attr_e( 'Status de salvamento', 'apollo-social' ); ?>">
 			<i class="ri-cloud-line"></i>
 			<span><?php esc_html_e( 'Salvo', 'apollo-social' ); ?></span>
 		</span>
-		
-		<button class="btn btn-secondary" id="btnPreview" data-tooltip="<?php esc_attr_e( 'Pré-visualizar documento', 'apollo-social' ); ?>">
+
+		<button class="btn btn-secondary" id="btnPreview" data-ap-tooltip="<?php esc_attr_e( 'Pré-visualizar documento', 'apollo-social' ); ?>">
 			<i class="ri-eye-line"></i>
 			<span class="hidden md:inline"><?php esc_html_e( 'Preview', 'apollo-social' ); ?></span>
 		</button>
-		
-		<button class="btn btn-primary" id="btnSave" data-tooltip="<?php esc_attr_e( 'Salvar documento', 'apollo-social' ); ?>">
+
+		<button class="btn btn-primary" id="btnSave" data-ap-tooltip="<?php esc_attr_e( 'Salvar documento', 'apollo-social' ); ?>">
 			<i class="ri-save-line"></i>
 			<span class="hidden md:inline"><?php esc_html_e( 'Salvar', 'apollo-social' ); ?></span>
 		</button>
-		
+
 		<?php if ( $document_status === 'draft' ) : ?>
-		<button class="btn btn-success" id="btnPublish" data-tooltip="<?php esc_attr_e( 'Publicar e enviar para assinatura', 'apollo-social' ); ?>">
+		<button class="btn btn-success" id="btnPublish" data-ap-tooltip="<?php esc_attr_e( 'Publicar e enviar para assinatura', 'apollo-social' ); ?>">
 			<i class="ri-send-plane-line"></i>
 			<span class="hidden md:inline"><?php esc_html_e( 'Publicar', 'apollo-social' ); ?></span>
 		</button>
@@ -343,10 +381,10 @@ $current_user = wp_get_current_user();
 </div>
 
 <!-- Editor Toolbar -->
-<div class="editor-toolbar" data-tooltip="<?php esc_attr_e( 'Barra de ferramentas de formatação', 'apollo-social' ); ?>">
+<div class="editor-toolbar" data-ap-tooltip="<?php esc_attr_e( 'Barra de ferramentas de formatação', 'apollo-social' ); ?>">
 	<!-- Font Family -->
 	<div class="tool-group">
-		<select id="fontSelector" class="tool-select" title="<?php esc_attr_e( 'Família da fonte', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Selecionar fonte', 'apollo-social' ); ?>">
+		<select id="fontSelector" class="tool-select" title="<?php esc_attr_e( 'Família da fonte', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Selecionar fonte', 'apollo-social' ); ?>">
 			<option value="Poppins">Poppins</option>
 			<option value="Inter">Inter</option>
 			<option value="Roboto">Roboto</option>
@@ -366,7 +404,7 @@ $current_user = wp_get_current_user();
 
 	<!-- Weight & Size -->
 	<div class="tool-group">
-		<select id="fontWeight" class="tool-select" title="<?php esc_attr_e( 'Peso da fonte', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Selecionar peso', 'apollo-social' ); ?>">
+		<select id="fontWeight" class="tool-select" title="<?php esc_attr_e( 'Peso da fonte', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Selecionar peso', 'apollo-social' ); ?>">
 			<option value="300"><?php esc_html_e( 'Light', 'apollo-social' ); ?></option>
 			<option value="400"><?php esc_html_e( 'Regular', 'apollo-social' ); ?></option>
 			<option value="500"><?php esc_html_e( 'Medium', 'apollo-social' ); ?></option>
@@ -374,7 +412,7 @@ $current_user = wp_get_current_user();
 			<option value="700"><?php esc_html_e( 'Bold', 'apollo-social' ); ?></option>
 		</select>
 
-		<select id="fontSize" class="tool-select" title="<?php esc_attr_e( 'Tamanho da fonte', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Selecionar tamanho', 'apollo-social' ); ?>">
+		<select id="fontSize" class="tool-select" title="<?php esc_attr_e( 'Tamanho da fonte', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Selecionar tamanho', 'apollo-social' ); ?>">
 			<option value="10px">10</option>
 			<option value="12px">12</option>
 			<option value="14px">14</option>
@@ -391,62 +429,62 @@ $current_user = wp_get_current_user();
 
 	<!-- Formatting -->
 	<div class="tool-group">
-		<button id="styleBold" class="btn-tool" title="<?php esc_attr_e( 'Negrito', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Aplicar negrito (Ctrl+B)', 'apollo-social' ); ?>">
+		<button id="styleBold" class="btn-tool" title="<?php esc_attr_e( 'Negrito', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Aplicar negrito (Ctrl+B)', 'apollo-social' ); ?>">
 			<i class="ri-bold"></i>
 		</button>
-		<button id="styleItalic" class="btn-tool" title="<?php esc_attr_e( 'Itálico', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Aplicar itálico (Ctrl+I)', 'apollo-social' ); ?>">
+		<button id="styleItalic" class="btn-tool" title="<?php esc_attr_e( 'Itálico', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Aplicar itálico (Ctrl+I)', 'apollo-social' ); ?>">
 			<i class="ri-italic"></i>
 		</button>
-		<button id="styleUnderline" class="btn-tool" title="<?php esc_attr_e( 'Sublinhado', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Aplicar sublinhado (Ctrl+U)', 'apollo-social' ); ?>">
+		<button id="styleUnderline" class="btn-tool" title="<?php esc_attr_e( 'Sublinhado', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Aplicar sublinhado (Ctrl+U)', 'apollo-social' ); ?>">
 			<i class="ri-underline"></i>
 		</button>
-		<input type="color" id="textColor" value="#000000" title="<?php esc_attr_e( 'Cor do texto', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Selecionar cor do texto', 'apollo-social' ); ?>">
+		<input type="color" id="textColor" value="#000000" title="<?php esc_attr_e( 'Cor do texto', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Selecionar cor do texto', 'apollo-social' ); ?>">
 	</div>
 
 	<!-- Alignment -->
 	<div class="tool-group">
-		<button id="alignLeft" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Alinhar à esquerda', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Alinhar texto à esquerda', 'apollo-social' ); ?>">
+		<button id="alignLeft" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Alinhar à esquerda', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Alinhar texto à esquerda', 'apollo-social' ); ?>">
 			<i class="ri-align-left"></i>
 		</button>
-		<button id="alignCenter" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Centralizar', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Centralizar texto', 'apollo-social' ); ?>">
+		<button id="alignCenter" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Centralizar', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Centralizar texto', 'apollo-social' ); ?>">
 			<i class="ri-align-center"></i>
 		</button>
-		<button id="alignRight" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Alinhar à direita', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Alinhar texto à direita', 'apollo-social' ); ?>">
+		<button id="alignRight" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Alinhar à direita', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Alinhar texto à direita', 'apollo-social' ); ?>">
 			<i class="ri-align-right"></i>
 		</button>
-		<button id="alignJustify" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Justificar', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Justificar texto', 'apollo-social' ); ?>">
+		<button id="alignJustify" class="btn-tool alignment-btn" title="<?php esc_attr_e( 'Justificar', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Justificar texto', 'apollo-social' ); ?>">
 			<i class="ri-align-justify"></i>
 		</button>
 	</div>
 
 	<!-- Insert -->
 	<div class="tool-group">
-		<button id="insertHeading" class="btn-tool" title="<?php esc_attr_e( 'Inserir título', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Inserir título H2', 'apollo-social' ); ?>">
+		<button id="insertHeading" class="btn-tool" title="<?php esc_attr_e( 'Inserir título', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Inserir título H2', 'apollo-social' ); ?>">
 			<i class="ri-heading"></i>
 		</button>
-		<button id="insertList" class="btn-tool" title="<?php esc_attr_e( 'Inserir lista', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Inserir lista com marcadores', 'apollo-social' ); ?>">
+		<button id="insertList" class="btn-tool" title="<?php esc_attr_e( 'Inserir lista', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Inserir lista com marcadores', 'apollo-social' ); ?>">
 			<i class="ri-list-unordered"></i>
 		</button>
-		<button id="insertImage" class="btn-tool" title="<?php esc_attr_e( 'Inserir imagem', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Inserir imagem no documento', 'apollo-social' ); ?>">
+		<button id="insertImage" class="btn-tool" title="<?php esc_attr_e( 'Inserir imagem', 'apollo-social' ); ?>" data-ap-tooltip="<?php esc_attr_e( 'Inserir imagem no documento', 'apollo-social' ); ?>">
 			<i class="ri-image-add-line"></i>
 		</button>
 	</div>
 </div>
 
 <!-- Main Workspace -->
-<div class="workspace" data-tooltip="<?php esc_attr_e( 'Área de edição do documento', 'apollo-social' ); ?>">
-	<div 
-		class="document-page" 
-		contenteditable="true" 
-		spellcheck="true" 
+<div class="workspace" data-ap-tooltip="<?php esc_attr_e( 'Área de edição do documento', 'apollo-social' ); ?>">
+	<div
+		class="document-page"
+		contenteditable="true"
+		spellcheck="true"
 		id="documentContent"
-		data-tooltip="<?php esc_attr_e( 'Clique para editar o conteúdo', 'apollo-social' ); ?>"
+		data-ap-tooltip="<?php esc_attr_e( 'Clique para editar o conteúdo', 'apollo-social' ); ?>"
 	>
 		<?php if ( $document_content ) : ?>
 			<?php echo wp_kses_post( $document_content ); ?>
 		<?php else : ?>
-			<h1 data-tooltip="<?php esc_attr_e( 'Título principal do documento', 'apollo-social' ); ?>"><?php esc_html_e( 'Título do Documento', 'apollo-social' ); ?></h1>
-			<p data-tooltip="<?php esc_attr_e( 'Parágrafo de introdução', 'apollo-social' ); ?>"><?php esc_html_e( 'Comece a escrever seu documento aqui. Use a barra de ferramentas acima para formatar o texto.', 'apollo-social' ); ?></p>
+			<h1 data-ap-tooltip="<?php esc_attr_e( 'Título principal do documento', 'apollo-social' ); ?>"><?php esc_html_e( 'Título do Documento', 'apollo-social' ); ?></h1>
+			<p data-ap-tooltip="<?php esc_attr_e( 'Parágrafo de introdução', 'apollo-social' ); ?>"><?php esc_html_e( 'Comece a escrever seu documento aqui. Use a barra de ferramentas acima para formatar o texto.', 'apollo-social' ); ?></p>
 		<?php endif; ?>
 	</div>
 </div>
@@ -456,18 +494,18 @@ document.addEventListener('DOMContentLoaded', function() {
 	const documentPage = document.getElementById('documentContent');
 	const documentTitle = document.getElementById('documentTitle');
 	const saveIndicator = document.getElementById('saveIndicator');
-	const documentId = <?php echo $document_id ?: 'null'; ?>;
-	
+	const documentId = <?php echo $document_id ? (int) $document_id : 'null'; ?>;
+
 	let activeElement = null;
 	let saveTimeout = null;
 	let loadedFonts = new Set(['Poppins', 'Inter']);
-	
+
 	// Helper to update save indicator
 	function setSaveStatus(status) {
 		saveIndicator.className = 'save-indicator ' + status;
 		const icon = saveIndicator.querySelector('i');
 		const text = saveIndicator.querySelector('span');
-		
+
 		if (status === 'saving') {
 			icon.className = 'ri-loader-4-line';
 			text.textContent = '<?php echo esc_js( __( 'Salvando...', 'apollo-social' ) ); ?>';
@@ -479,24 +517,24 @@ document.addEventListener('DOMContentLoaded', function() {
 			text.textContent = '<?php echo esc_js( __( 'Salvar', 'apollo-social' ) ); ?>';
 		}
 	}
-	
+
 	// Auto-save functionality
 	function autoSave() {
 		if (saveTimeout) clearTimeout(saveTimeout);
 		saveTimeout = setTimeout(saveDocument, 2000);
 	}
-	
+
 	// Save document
 	async function saveDocument(publish = false) {
 		setSaveStatus('saving');
-		
+
 		const data = {
 			title: documentTitle.textContent.trim(),
 			content: documentPage.innerHTML,
 			status: publish ? 'pending' : 'draft',
 			document_id: documentId
 		};
-		
+
 		try {
 			const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/documents/save' ) ); ?>', {
 				method: 'POST',
@@ -506,9 +544,9 @@ document.addEventListener('DOMContentLoaded', function() {
 				},
 				body: JSON.stringify(data)
 			});
-			
+
 			const result = await response.json();
-			
+
 			if (result.success) {
 				setSaveStatus('saved');
 				if (!documentId && result.document_id) {
@@ -530,11 +568,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			setSaveStatus('');
 		}
 	}
-	
+
 	// Event listeners for content changes
 	documentPage.addEventListener('input', autoSave);
 	documentTitle.addEventListener('input', autoSave);
-	
+
 	// Button actions
 	document.getElementById('btnSave')?.addEventListener('click', () => saveDocument(false));
 	document.getElementById('btnPublish')?.addEventListener('click', () => {
@@ -542,68 +580,68 @@ document.addEventListener('DOMContentLoaded', function() {
 			saveDocument(true);
 		}
 	});
-	
+
 	// Selection tracking
 	documentPage.addEventListener('click', function(e) {
 		const target = e.target;
 		if (target === documentPage) return;
-		
+
 		// Remove active from all
 		documentPage.querySelectorAll('.active-element').forEach(el => el.classList.remove('active-element'));
-		
+
 		// Add active to clicked element
 		target.classList.add('active-element');
 		activeElement = target;
-		
+
 		// Update toolbar to reflect current element styles
 		updateToolbarFromElement(target);
 	});
-	
+
 	function updateToolbarFromElement(el) {
 		const style = window.getComputedStyle(el);
-		
+
 		// Font family
 		const fontFamily = style.fontFamily.split(',')[0].replace(/['"]/g, '').trim();
 		document.getElementById('fontSelector').value = fontFamily;
-		
+
 		// Font size
 		document.getElementById('fontSize').value = style.fontSize;
-		
+
 		// Font weight
 		document.getElementById('fontWeight').value = style.fontWeight;
-		
+
 		// Text color
 		const rgb = style.color;
 		const hex = rgbToHex(rgb);
 		document.getElementById('textColor').value = hex;
-		
+
 		// Italic
 		document.getElementById('styleItalic').classList.toggle('active', style.fontStyle === 'italic');
-		
+
 		// Bold
 		document.getElementById('styleBold').classList.toggle('active', parseInt(style.fontWeight) >= 600);
-		
+
 		// Underline
 		document.getElementById('styleUnderline').classList.toggle('active', style.textDecoration.includes('underline'));
-		
+
 		// Alignment
 		const align = style.textAlign;
 		document.querySelectorAll('.alignment-btn').forEach(btn => btn.classList.remove('active'));
 		const alignBtn = document.getElementById('align' + capitalize(align));
 		if (alignBtn) alignBtn.classList.add('active');
 	}
-	
+
 	function rgbToHex(rgb) {
 		if (!rgb || rgb === 'rgba(0, 0, 0, 0)') return '#000000';
 		const result = rgb.match(/\d+/g);
 		if (!result) return '#000000';
 		return '#' + ((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1);
 	}
-	
+
 	function capitalize(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
 	}
-	
+
 	// Apply style to active element or selection
 	function applyStyle(property, value) {
 		if (activeElement) {
@@ -614,11 +652,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.execCommand('styleWithCSS', false, true);
 		}
 	}
-	
+
 	// Font selector
 	document.getElementById('fontSelector').addEventListener('change', function() {
 		const font = this.value;
-		
+
 		// Load font if not already loaded
 		if (!loadedFonts.has(font)) {
 			const link = document.createElement('link');
@@ -627,46 +665,46 @@ document.addEventListener('DOMContentLoaded', function() {
 			document.head.appendChild(link);
 			loadedFonts.add(font);
 		}
-		
+
 		applyStyle('fontFamily', `"${font}", sans-serif`);
 	});
-	
+
 	// Font weight
 	document.getElementById('fontWeight').addEventListener('change', function() {
 		applyStyle('fontWeight', this.value);
 	});
-	
+
 	// Font size
 	document.getElementById('fontSize').addEventListener('change', function() {
 		applyStyle('fontSize', this.value);
 	});
-	
+
 	// Text color
 	document.getElementById('textColor').addEventListener('input', function() {
 		applyStyle('color', this.value);
 	});
-	
+
 	// Bold
 	document.getElementById('styleBold').addEventListener('click', function() {
 		document.execCommand('bold', false, null);
 		this.classList.toggle('active');
 		autoSave();
 	});
-	
+
 	// Italic
 	document.getElementById('styleItalic').addEventListener('click', function() {
 		document.execCommand('italic', false, null);
 		this.classList.toggle('active');
 		autoSave();
 	});
-	
+
 	// Underline
 	document.getElementById('styleUnderline').addEventListener('click', function() {
 		document.execCommand('underline', false, null);
 		this.classList.toggle('active');
 		autoSave();
 	});
-	
+
 	// Alignment buttons
 	['Left', 'Center', 'Right', 'Justify'].forEach(align => {
 		document.getElementById('align' + align)?.addEventListener('click', function() {
@@ -676,19 +714,19 @@ document.addEventListener('DOMContentLoaded', function() {
 			autoSave();
 		});
 	});
-	
+
 	// Insert heading
 	document.getElementById('insertHeading')?.addEventListener('click', function() {
 		document.execCommand('formatBlock', false, 'h2');
 		autoSave();
 	});
-	
+
 	// Insert list
 	document.getElementById('insertList')?.addEventListener('click', function() {
 		document.execCommand('insertUnorderedList', false, null);
 		autoSave();
 	});
-	
+
 	// Insert image (placeholder - needs media library integration)
 	document.getElementById('insertImage')?.addEventListener('click', function() {
 		const url = prompt('<?php echo esc_js( __( 'URL da imagem:', 'apollo-social' ) ); ?>');
@@ -697,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			autoSave();
 		}
 	});
-	
+
 	// Keyboard shortcuts
 	documentPage.addEventListener('keydown', function(e) {
 		if (e.ctrlKey || e.metaKey) {
@@ -721,7 +759,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		}
 	});
-	
+
 	// Preview button
 	document.getElementById('btnPreview')?.addEventListener('click', function() {
 		const previewWindow = window.open('', '_blank');

@@ -26,19 +26,19 @@ class HelpMenuAdmin {
 	 */
 	public function register_help_menu() {
 		add_menu_page(
-			__( 'Apollo HELP', 'apollo-social' ),           
+			__( 'Apollo HELP', 'apollo-social' ),
 			// Page title
-			__( '🆘 HELP', 'apollo-social' ),                
+			__( '🆘 HELP', 'apollo-social' ),
 			// Menu title
-			'read',                                        
+			'read',
 			// Capability (todos os logados)
-			'apollo-help',                                 
+			'apollo-help',
 			// Menu slug
-			array( $this, 'render_help_page' ),                   
+			array( $this, 'render_help_page' ),
 			// Callback
-			'dashicons-sos',                               
+			'dashicons-sos',
 			// Icon
-			999                                            
+			999
 			// Position (último)
 		);
 	}

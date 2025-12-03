@@ -5,7 +5,7 @@
 
 return array(
 	'enabled'             => true,
-	'provider'            => 'badgeos', 
+	'provider'            => 'badgeos',
 	// 'badgeos', 'mycred', or 'none'
 
 		'global_toggle'   => true,

@@ -59,6 +59,11 @@ class Apollo_Events_Module {
 	 * Register REST routes
 	 */
 	public static function register_rest_routes() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
 			'/events',
@@ -122,6 +127,11 @@ class Apollo_Events_Module {
 	 * @return WP_REST_Response
 	 */
 	public static function get_events( $request ) {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
 

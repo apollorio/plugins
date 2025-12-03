@@ -63,7 +63,7 @@ class Apollo_Home_CPT {
 			'public'                       => true,
 			'publicly_queryable'           => true,
 			'show_ui'                      => true,
-			'show_in_menu'                 => false, 
+			'show_in_menu'                 => false,
 			// Hidden from admin menu
 							'show_in_rest' => true,
 			'query_var'                    => true,
@@ -97,7 +97,7 @@ class Apollo_Home_CPT {
 				'single'            => true,
 				'default'           => '{"widgets":[]}',
 				'sanitize_callback' => 'apollo_builder_sanitize_layout',
-				'show_in_rest'      => false, 
+				'show_in_rest'      => false,
 				// Security: don't expose in REST
 												'description' => 'JSON layout: {widgets: [{id, type, x, y, width, height, zIndex, config}]}',
 			)
@@ -187,7 +187,7 @@ class Apollo_Home_CPT {
 				'post_title'     => sprintf( __( '%s\'s Home', 'apollo-social' ), $user->display_name ),
 				'post_status'    => 'publish',
 				'post_author'    => $user_id,
-				'comment_status' => 'open', 
+				'comment_status' => 'open',
 			// Enable "Depoimentos"
 			),
 			true

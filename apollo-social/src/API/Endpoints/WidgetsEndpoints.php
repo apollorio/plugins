@@ -116,7 +116,7 @@ class WidgetsEndpoints {
 			'comment_content'      => $content,
 			'comment_type'         => 'apollo_depoimento',
 			'user_id'              => get_current_user_id(),
-			'comment_approved'     => 1, 
+			'comment_approved'     => 1,
 		// Auto-approve for now
 		);
 

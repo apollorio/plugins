@@ -202,7 +202,7 @@ class OnboardingService {
 
 		return array(
 			'token'                        => $token,
-			'expires_in'                   => 900, 
+			'expires_in'                   => 900,
 			// 15 minutes
 							'instructions' => $this->getVerificationInstructions( $platform, $token ),
 		);
@@ -412,7 +412,7 @@ class OnboardingService {
 	 * Calculate onboarding progress
 	 */
 	private function calculateProgress( string $current_step ): int {
-		$total_steps = count( $this->onboarding_steps ) - 1; 
+		$total_steps = count( $this->onboarding_steps ) - 1;
 		// Exclude completion step
 		$step_names    = array_keys( $this->onboarding_steps );
 		$current_index = array_search( $current_step, $step_names );

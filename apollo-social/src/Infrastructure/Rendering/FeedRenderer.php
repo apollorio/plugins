@@ -24,7 +24,7 @@ class FeedRenderer {
 
 		return array(
 			'title'                       => 'Feed',
-			'content'                     => '', 
+			'content'                     => '',
 			// Will be rendered by template
 							'breadcrumbs' => array( 'Apollo Social', 'Feed' ),
 			'data'                        => array(
@@ -155,7 +155,7 @@ class FeedRenderer {
 			'like_count'    => $like_count,
 			'comment_count' => $comment_count,
 			'user_liked'    => $user_liked,
-			'media_embeds'  => $media_embeds, 
+			'media_embeds'  => $media_embeds,
 		// P0-5: Spotify/SoundCloud embeds
 		);
 	}
@@ -278,7 +278,7 @@ class FeedRenderer {
 			'id'                        => $ad->id,
 			'title'                     => $ad->title ?? '',
 			'excerpt'                   => $ad->description ?? '',
-			'permalink'                 => '#', 
+			'permalink'                 => '#',
 			// Implementar rota se necessário
 							'thumbnail' => $ad->image_url ?? '',
 		);
@@ -293,7 +293,7 @@ class FeedRenderer {
 				'post_type'                               => 'post',
 				'posts_per_page'                          => $limit,
 				'post_status'                             => 'publish',
-				'category_name'                           => 'noticias', 
+				'category_name'                           => 'noticias',
 				// Ajustar conforme necessário
 												'orderby' => 'date',
 				'order'                                   => 'DESC',

@@ -40,7 +40,7 @@ $can_create = $docs_count < $max_documents;
 		</div>
 		<div class="ap-section-actions">
 			<?php if ( $can_create ) : ?>
-			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>" 
+			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>"
 				class="ap-btn ap-btn-primary"
 				data-ap-tooltip="Criar um novo documento">
 				<i class="ri-add-line"></i>
@@ -62,7 +62,7 @@ $can_create = $docs_count < $max_documents;
 			<i class="ri-file-text-line"></i>
 			<h3>Nenhum documento criado</h3>
 			<p>Crie seu primeiro documento para começar</p>
-			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>" 
+			<a href="<?php echo esc_url( home_url( '/doc/new' ) ); ?>"
 				class="ap-btn ap-btn-primary"
 				data-ap-tooltip="Criar seu primeiro documento">
 				<i class="ri-add-line"></i>
@@ -77,31 +77,35 @@ $can_create = $docs_count < $max_documents;
 			$doc_status    = $doc->post_status;
 			$status_config = array(
 				'publish' => array(
-					'label' => 'Publicado',
-					'class' => 'ap-badge-success',
+					'label'   => 'Publicado',
+					'class'   => 'ap-badge-success',
+					'tooltip' => __( 'Documento publicado e disponível', 'apollo-social' ),
 				),
 				'draft'   => array(
-					'label' => 'Rascunho',
-					'class' => 'ap-badge-warning',
+					'label'   => 'Rascunho',
+					'class'   => 'ap-badge-warning',
+					'tooltip' => __( 'Documento em rascunho, não publicado', 'apollo-social' ),
 				),
 				'pending' => array(
-					'label' => 'Pendente',
-					'class' => 'ap-badge-info',
+					'label'   => 'Pendente',
+					'class'   => 'ap-badge-info',
+					'tooltip' => __( 'Aguardando revisão/aprovação', 'apollo-social' ),
 				),
 			);
 			$status        = $status_config[ $doc_status ] ?? array(
-				'label' => ucfirst( $doc_status ),
-				'class' => 'ap-badge-secondary',
+				'label'   => ucfirst( $doc_status ),
+				'class'   => 'ap-badge-secondary',
+				'tooltip' => sprintf( __( 'Status: %s', 'apollo-social' ), ucfirst( $doc_status ) ),
 			);
 			?>
-		<a href="<?php echo esc_url( get_permalink( $doc->ID ) ); ?>" 
+		<a href="<?php echo esc_url( get_permalink( $doc->ID ) ); ?>"
 			class="ap-card ap-card-hover"
-			data-ap-tooltip="Clique para ver detalhes">
+			data-ap-tooltip="<?php esc_attr_e( 'Clique para ver detalhes', 'apollo-social' ); ?>">
 			<div class="ap-card-header">
-				<div class="ap-card-icon">
+				<div class="ap-card-icon" data-ap-tooltip="<?php esc_attr_e( 'Tipo: Documento', 'apollo-social' ); ?>">
 					<i class="ri-file-text-line"></i>
 				</div>
-				<span class="ap-badge <?php echo esc_attr( $status['class'] ); ?>">
+				<span class="ap-badge <?php echo esc_attr( $status['class'] ); ?>" data-ap-tooltip="<?php echo esc_attr( $status['tooltip'] ); ?>">
 					<?php echo esc_html( $status['label'] ); ?>
 				</span>
 			</div>

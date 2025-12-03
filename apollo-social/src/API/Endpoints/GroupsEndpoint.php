@@ -141,7 +141,7 @@ class GroupsEndpoint {
 				'slug'        => $slug,
 				'description' => $description,
 				'type'        => $type,
-				'status'      => 'pending_review', 
+				'status'      => 'pending_review',
 				// P0-7: Require moderation
 												'visibility' => $visibility,
 				'creator_id'  => get_current_user_id(),

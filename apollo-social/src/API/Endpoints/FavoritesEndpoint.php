@@ -81,7 +81,7 @@ class FavoritesEndpoint {
 			array(
 				'methods'                              => WP_REST_Server::READABLE,
 				'callback'                             => array( $this, 'getFavoriteStatus' ),
-				'permission_callback'                  => '__return_true', 
+				'permission_callback'                  => '__return_true',
 				// Publicly readable
 												'args' => array(
 													'content_id'   => array(

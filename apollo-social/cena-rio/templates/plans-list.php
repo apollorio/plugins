@@ -27,7 +27,7 @@ if ( ! is_array( $user_plans ) ) {
 			<p class="ap-text-muted">Gerencie seus planos e cronogramas de evento</p>
 		</div>
 		<div class="ap-section-actions">
-			<a href="<?php echo esc_url( home_url( '/pla/new' ) ); ?>" 
+			<a href="<?php echo esc_url( home_url( '/pla/new' ) ); ?>"
 				class="ap-btn ap-btn-primary"
 				data-ap-tooltip="Criar um novo plano de evento">
 				<i class="ri-add-line"></i>
@@ -43,7 +43,7 @@ if ( ! is_array( $user_plans ) ) {
 			<i class="ri-calendar-line"></i>
 			<h3>Nenhum plano criado</h3>
 			<p>Crie seu primeiro plano de evento para organizar seus projetos</p>
-			<a href="<?php echo esc_url( home_url( '/pla/new' ) ); ?>" 
+			<a href="<?php echo esc_url( home_url( '/pla/new' ) ); ?>"
 				class="ap-btn ap-btn-primary"
 				data-ap-tooltip="Criar seu primeiro plano">
 				<i class="ri-add-line"></i>
@@ -62,33 +62,38 @@ if ( ! is_array( $user_plans ) ) {
 
 			$status_config = array(
 				'active'    => array(
-					'label' => 'Ativo',
-					'class' => 'ap-badge-success',
+					'label'   => 'Ativo',
+					'class'   => 'ap-badge-success',
+					'tooltip' => __( 'Plano ativo e em execução', 'apollo-social' ),
 				),
 				'draft'     => array(
-					'label' => 'Rascunho',
-					'class' => 'ap-badge-warning',
+					'label'   => 'Rascunho',
+					'class'   => 'ap-badge-warning',
+					'tooltip' => __( 'Plano em elaboração', 'apollo-social' ),
 				),
 				'completed' => array(
-					'label' => 'Concluído',
-					'class' => 'ap-badge-info',
+					'label'   => 'Concluído',
+					'class'   => 'ap-badge-info',
+					'tooltip' => __( 'Plano finalizado com sucesso', 'apollo-social' ),
 				),
 				'archived'  => array(
-					'label' => 'Arquivado',
-					'class' => 'ap-badge-secondary',
+					'label'   => 'Arquivado',
+					'class'   => 'ap-badge-secondary',
+					'tooltip' => __( 'Plano arquivado', 'apollo-social' ),
 				),
 			);
 			$status        = $status_config[ $plan_status ] ?? array(
-				'label' => ucfirst( $plan_status ),
-				'class' => 'ap-badge-secondary',
+				'label'   => ucfirst( $plan_status ),
+				'class'   => 'ap-badge-secondary',
+				'tooltip' => sprintf( __( 'Status: %s', 'apollo-social' ), ucfirst( $plan_status ) ),
 			);
 			?>
-		<div class="ap-card ap-card-hover" data-ap-tooltip="Clique para gerenciar este plano">
+		<div class="ap-card ap-card-hover" data-ap-tooltip="<?php esc_attr_e( 'Clique para gerenciar este plano', 'apollo-social' ); ?>">
 			<div class="ap-card-header">
-				<div class="ap-card-icon" style="background: linear-gradient(135deg, #a855f7, #c084fc);">
+				<div class="ap-card-icon" style="background: linear-gradient(135deg, #a855f7, #c084fc);" data-ap-tooltip="<?php esc_attr_e( 'Tipo: Plano de evento', 'apollo-social' ); ?>">
 					<i class="ri-calendar-check-line" style="color: white;"></i>
 				</div>
-				<span class="ap-badge <?php echo esc_attr( $status['class'] ); ?>">
+				<span class="ap-badge <?php echo esc_attr( $status['class'] ); ?>" data-ap-tooltip="<?php echo esc_attr( $status['tooltip'] ); ?>">
 					<?php echo esc_html( $status['label'] ); ?>
 				</span>
 			</div>

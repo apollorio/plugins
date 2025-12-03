@@ -32,9 +32,9 @@ class CulturaRioIdentity {
 		'clubber'           => array(
 			'label'                                => 'Clubber, daqueles que participativos ou não, agora estamos juntxs!',
 			'code'                                 => 'a',
-			'locked'                               => true, 
+			'locked'                               => true,
 			// Always selected, can't be deselected
-								'membership_level' => null, 
+								'membership_level' => null,
 	// No membership required
 		),
 		'dj_amateur'        => array(

@@ -197,7 +197,9 @@ class SignaturesService {
 			// Reload signature with updated data
 			return $this->findSignatureById( $signature->id );
 		} catch ( \Exception $e ) {
-			error_log( 'Apollo Signatures Error: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Apollo Signatures Error: ' . $e->getMessage() );
+			}
 			return false;
 		}//end try
 	}
@@ -321,7 +323,9 @@ class SignaturesService {
 					return $this->govbr_api->processWebhook( $payload );
 			}
 		} catch ( \Exception $e ) {
-			error_log( 'Apollo Signatures Webhook Error: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Apollo Signatures Webhook Error: ' . $e->getMessage() );
+			}
 			return false;
 		}
 	}

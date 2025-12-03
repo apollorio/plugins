@@ -39,6 +39,11 @@ class Apollo_Cena_Rio_Submissions {
 	 * Register REST API routes
 	 */
 	public static function register_rest_routes(): void {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// Get CENA-RIO internal events (for industry calendar)
 		register_rest_route(
 			'apollo/v1',
@@ -46,7 +51,7 @@ class Apollo_Cena_Rio_Submissions {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_get_events' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ), 
+				'permission_callback' => array( __CLASS__, 'check_submission_permission' ),
 			// Only CENA members
 			)
 		);
@@ -154,6 +159,11 @@ class Apollo_Cena_Rio_Submissions {
 	 * @return WP_REST_Response Response.
 	 */
 	public static function rest_get_events( WP_REST_Request $request ): WP_REST_Response {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// CENA-RIO calendar shows ALL internal events (private + pending + draft)
 		// These are NOT public events - only for industry members
 		$query = new WP_Query(
@@ -186,7 +196,7 @@ class Apollo_Cena_Rio_Submissions {
 				$display_status = 'confirmed';
 			}
 			if ( 'publish' === $post->post_status ) {
-				$display_status = 'published'; 
+				$display_status = 'published';
 				// Already public
 			}
 
@@ -196,7 +206,7 @@ class Apollo_Cena_Rio_Submissions {
 				'description'                    => $post->post_content,
 				'post_status'                    => $post->post_status,
 				'cena_status'                    => $cena_status,
-				'status'                         => $display_status, 
+				'status'                         => $display_status,
 				// expected | confirmed | published
 									'start_date' => get_post_meta( $post->ID, '_event_start_date', true ),
 				'end_date'                       => get_post_meta( $post->ID, '_event_end_date', true ),
@@ -435,11 +445,11 @@ class Apollo_Cena_Rio_Submissions {
 					<label for="event_title" class="block text-sm font-bold text-slate-700 mb-1">
 						Nome do Evento <span class="text-red-500">*</span>
 					</label>
-					<input 
-						type="text" 
-						id="event_title" 
-						name="event_title" 
-						required 
+					<input
+						type="text"
+						id="event_title"
+						name="event_title"
+						required
 						class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						placeholder="Ex: Festival Tropicalis 2025"
 					/>
@@ -450,10 +460,10 @@ class Apollo_Cena_Rio_Submissions {
 					<label for="event_description" class="block text-sm font-bold text-slate-700 mb-1">
 						Descrição <span class="text-red-500">*</span>
 					</label>
-					<textarea 
-						id="event_description" 
-						name="event_description" 
-						required 
+					<textarea
+						id="event_description"
+						name="event_description"
+						required
 						rows="4"
 						class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						placeholder="Descreva seu evento..."
@@ -466,11 +476,11 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_start_date" class="block text-sm font-bold text-slate-700 mb-1">
 							Data Início <span class="text-red-500">*</span>
 						</label>
-						<input 
-							type="date" 
-							id="event_start_date" 
-							name="event_start_date" 
-							required 
+						<input
+							type="date"
+							id="event_start_date"
+							name="event_start_date"
+							required
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						/>
 					</div>
@@ -478,10 +488,10 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_end_date" class="block text-sm font-bold text-slate-700 mb-1">
 							Data Fim
 						</label>
-						<input 
-							type="date" 
-							id="event_end_date" 
-							name="event_end_date" 
+						<input
+							type="date"
+							id="event_end_date"
+							name="event_end_date"
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						/>
 					</div>
@@ -493,10 +503,10 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_start_time" class="block text-sm font-bold text-slate-700 mb-1">
 							Horário Início
 						</label>
-						<input 
-							type="time" 
-							id="event_start_time" 
-							name="event_start_time" 
+						<input
+							type="time"
+							id="event_start_time"
+							name="event_start_time"
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						/>
 					</div>
@@ -504,10 +514,10 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_end_time" class="block text-sm font-bold text-slate-700 mb-1">
 							Horário Fim
 						</label>
-						<input 
-							type="time" 
-							id="event_end_time" 
-							name="event_end_time" 
+						<input
+							type="time"
+							id="event_end_time"
+							name="event_end_time"
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						/>
 					</div>
@@ -518,10 +528,10 @@ class Apollo_Cena_Rio_Submissions {
 					<label for="event_venue" class="block text-sm font-bold text-slate-700 mb-1">
 						Local do Evento
 					</label>
-					<input 
-						type="text" 
-						id="event_venue" 
-						name="event_venue" 
+					<input
+						type="text"
+						id="event_venue"
+						name="event_venue"
 						class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 						placeholder="Ex: Copacabana, Rio de Janeiro"
 					/>
@@ -533,10 +543,10 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_lat" class="block text-sm font-bold text-slate-700 mb-1">
 							Latitude (opcional)
 						</label>
-						<input 
-							type="number" 
-							id="event_lat" 
-							name="event_lat" 
+						<input
+							type="number"
+							id="event_lat"
+							name="event_lat"
 							step="0.0001"
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 							placeholder="-22.9068"
@@ -546,10 +556,10 @@ class Apollo_Cena_Rio_Submissions {
 						<label for="event_lng" class="block text-sm font-bold text-slate-700 mb-1">
 							Longitude (opcional)
 						</label>
-						<input 
-							type="number" 
-							id="event_lng" 
-							name="event_lng" 
+						<input
+							type="number"
+							id="event_lng"
+							name="event_lng"
 							step="0.0001"
 							class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
 							placeholder="-43.1729"
@@ -559,8 +569,8 @@ class Apollo_Cena_Rio_Submissions {
 
 				<!-- Submit Button -->
 				<div class="pt-4">
-					<button 
-						type="submit" 
+					<button
+						type="submit"
 						class="w-full md:w-auto px-6 py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
 					>
 						<i class="ri-send-plane-fill"></i>
@@ -577,7 +587,7 @@ class Apollo_Cena_Rio_Submissions {
 
 		<style>
 			.apollo-cena-submission-form { max-width: 800px; margin: 0 auto; }
-			.apollo-cena-submission-form input:focus, 
+			.apollo-cena-submission-form input:focus,
 			.apollo-cena-submission-form textarea:focus { outline: none; }
 		</style>
 		<?php
@@ -661,7 +671,7 @@ class Apollo_Cena_Rio_Submissions {
 				'post_type'    => 'event_listing',
 				'post_title'   => $event_data['title'],
 				'post_content' => $event_data['description'],
-				'post_status'  => 'private', 
+				'post_status'  => 'private',
 				// Internal only - NOT in MOD queue
 												'post_author' => get_current_user_id(),
 			),
@@ -674,7 +684,7 @@ class Apollo_Cena_Rio_Submissions {
 
 		// Add CENA-specific meta
 		update_post_meta( $post_id, '_apollo_source', 'cena-rio' );
-		update_post_meta( $post_id, '_apollo_cena_status', 'expected' ); 
+		update_post_meta( $post_id, '_apollo_cena_status', 'expected' );
 		// Expected = awaiting industry confirmation
 		update_post_meta( $post_id, '_apollo_cena_submitted_by', get_current_user_id() );
 		update_post_meta( $post_id, '_apollo_cena_submitted_at', current_time( 'mysql' ) );

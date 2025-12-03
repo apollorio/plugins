@@ -85,7 +85,7 @@ class MediaEmbedHelper {
 		} elseif ( strpos( $url, 'spotify:playlist:' ) !== false ) {
 			return 'playlist';
 		}
-		return 'track'; 
+		return 'track';
 		// Default
 	}
 

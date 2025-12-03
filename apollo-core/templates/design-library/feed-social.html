@@ -5,7 +5,7 @@
   @description: Feed social estilo timeline com posts, eventos, comunidades, classificados e enquetes
   @author: Apollo Team
   @last_updated: 2025-11-28
-  
+
   @placeholders:
     {{user.name}}           - Nome do usuário logado
     {{user.handle}}         - @handle do usuário
@@ -23,7 +23,7 @@
     {{post.likes}}          - Contagem de likes
     {{post.comments}}       - Contagem de comentários
     {{post.created_at}}     - Data relativa (há 2h, ontem, etc)
-    
+
   @sections:
     sidebar       - Menu lateral desktop
     header        - Topbar com saudação e busca
@@ -31,7 +31,7 @@
     feed-stream   - Stream de posts
     sidebar-right - Resumo rápido e próximos eventos
     bottom-nav    - Navegação mobile
-    
+
   @features:
     - Dark mode toggle
     - Tab filters (Tudo/Eventos/Comunidades/Classificados)
@@ -42,6 +42,7 @@
 -->
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
+
 <head>
   <meta charset="UTF-8" />
   <title>Apollo :: Feed Social</title>
@@ -88,20 +89,35 @@
       --border-color-2: #374151;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       color: var(--text-main);
       font-family: var(--font-primary);
       background-color: var(--bg-main);
       min-height: 100%;
     }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .pb-safe-area { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pb-safe-area {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
 
     @media only screen and (max-width: 868px) {
-      body, html { max-width: 550px; margin: 0 auto; }
+
+      body,
+      html {
+        max-width: 550px;
+        margin: 0 auto;
+      }
     }
 
     .menutag {
@@ -117,6 +133,7 @@
       background-color: #ffffff;
       transition: all 0.18s ease;
     }
+
     .menutag[data-active="true"] {
       background-color: #0f172a;
       color: #ffffff;
@@ -130,6 +147,7 @@
       box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
       transition: all 0.18s ease;
     }
+
     .aprioEXP-card-shell:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
@@ -152,10 +170,12 @@
       text-decoration: none;
       transition: all 0.18s ease;
     }
+
     .aprio-sidebar-nav a:hover {
       background-color: #f8fafc;
       color: #0f172a;
     }
+
     .aprio-sidebar-nav a[aria-current="page"] {
       background-color: #f1f5f9;
       color: #0f172a;
@@ -171,12 +191,14 @@
       font-size: 12px;
       color: #475569;
     }
+
     .aprio-mini-pill {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: #94a3b8;
     }
+
     .aprio-mini-link {
       font-size: 11px;
       color: #64748b;
@@ -193,40 +215,81 @@
     <!-- @section:sidebar -->
     <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
         <div class="flex flex-col leading-tight">
-          <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.18em]">Apollo</span>
-          <span class="text-[15px] font-extrabold text-slate-900">Social</span>
+          <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+          <span class="text-[15px] font-extrabold text-slate-900">Apollo::rio</span>
         </div>
       </div>
 
       <nav class="aprio-sidebar-nav flex-1 px-4 pt-4 pb-2 overflow-y-auto no-scrollbar text-[13px]">
         <div class="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navegação</div>
         <a href="#" aria-current="page"><i class="ri-home-5-line text-lg"></i><span>Feed</span></a>
-        <a href="#"><i class="ri-calendar-event-line text-lg"></i><span>Agenda</span></a>
+        <a href="#"><i class="ri-calendar-event-line text-lg"></i><span>Eventos</span></a>
         <a href="#"><i class="ri-group-line text-lg"></i><span>Comunidades</span></a>
         <a href="#"><i class="ri-layout-5-line text-lg"></i><span>Núcleos</span></a>
         <a href="#"><i class="ri-ticket-line text-lg"></i><span>Classificados</span></a>
         <a href="#"><i class="ri-file-list-3-line text-lg"></i><span>Docs & Contratos</span></a>
         <a href="#"><i class="ri-user-3-line text-lg"></i><span>Perfil</span></a>
-        <div class="mt-4 px-1 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Configurações</div>
+
+        <!-- @PHP: if(current_user_can('cena-rio') || current_user_can('administrator')): -->
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+        <a href="#"><i class="ri-calendar-line text-lg"></i><span>Agenda</span></a>
+        <a href="#"><i class="ri-bar-chart-grouped-line text-lg"></i><span>Fornecedores</span></a>
+        <a href="#"><i class="ri-file-text-line text-lg"></i><span>Documentos</span></a>
+        <!-- @PHP: endif; -->
+
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido
+        </div>
         <a href="#"><i class="ri-settings-3-line text-lg"></i><span>Ajustes</span></a>
       </nav>
 
-      <div class="border-t border-slate-100 px-4 py-3">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-            <img src="{{user.avatar}}" class="h-full w-full object-cover" alt="{{user.name}}" />
+      <!-- User / footer sidebar -->
+      <div class="p-0 rounded-lg group mb-4">
+        <div class="relative flex w-full min-w-0 flex-col px-3">
+          <!-- Footer Links -->
+          <div class="w-full text-sm">
+            <ul class="flex w-full min-w-0 flex-col gap-0">
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Sobre</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Ajustes</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
+                  <span>Denúncia</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <div class="flex flex-col leading-tight">
-            <span class="text-[12px] font-semibold text-slate-900">{{user.name}}</span>
-            <span class="text-[10px] text-slate-500">@{{user.handle}}</span>
+
+          <!-- User Block -->
+          <div class="flex flex-col gap-2 p-2 mt-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-2 mt-2">
+              <div
+                class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+                {{user.initials}}
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span class="text-[14px] font-bold text-slate-900">{{user.name}}</span>
+                <span class="text-[12px] text-slate-500">{{user.email}}</span>
+              </div>
+              <button class="ml-auto text-slate-200 hover:text-slate-300" title="Logout">
+                <i class="ri-logout-box-r-line text-[18px]"></i>
+              </button>
+            </div>
           </div>
-          <button class="ml-auto text-slate-400 hover:text-slate-700">
-            <i class="ri-logout-box-r-line text-lg"></i>
-          </button>
         </div>
       </div>
     </aside>
@@ -235,10 +298,12 @@
     <div class="flex-1 flex flex-col min-h-screen">
 
       <!-- @section:header -->
-      <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
+      <header
+        class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-[6px] bg-slate-900 flex items-center justify-center md:hidden text-white">
-            <i class="ri-command-fill text-[20px]"></i>
+          <div
+            class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60 md:hidden">
+            <i class="ri-slack-fill text-white text-[22px]"></i>
           </div>
           <div class="flex flex-col leading-none">
             <h1 class="text-[15px] font-extrabold mt-2 text-slate-900">
@@ -253,13 +318,31 @@
 
         <div class="hidden md:flex items-center gap-3 text-[12px]">
           <div class="relative group">
-            <i class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs"></i>
-            <input type="text" placeholder="Buscar na cena..." class="pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-[12px] w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/10" />
+            <i
+              class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs group-focus-within:text-slate-600"></i>
+            <input type="text" placeholder="Buscar na cena..."
+              class="pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-[12px] w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all" />
           </div>
-          <button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900">
-            <i class="ri-moon-line text-lg"></i>
+          <button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900" title="Dark Mode">
+            <i class="ri-moon-line text-[14px]"></i>
           </button>
-          <button class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200">
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Messages">
+            <i class="ri-message-3-line text-[16px]"></i>
+          </button>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Notifications">
+            <i class="ri-notification-2-line text-[16px]"></i>
+          </button>
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all"
+            title="Apps">
+            <svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z">
+              </path>
+            </svg>
+          </button>
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200">
             <img src="{{user.avatar}}" alt="{{user.name}}" class="h-full w-full rounded-full object-cover" />
           </button>
         </div>
@@ -278,12 +361,14 @@
           <!-- @section:feed-stream -->
           <div class="space-y-4">
             <!-- @section:feed-controls -->
-            <section class="bg-white md:rounded-xl border-b md:border border-slate-200 p-4 sticky md:static top-14 z-30">
+            <section
+              class="bg-white md:rounded-xl border-b md:border border-slate-200 p-4 sticky md:static top-14 z-30">
               <div class="flex items-center gap-3 mb-4">
                 <div class="h-10 w-10 rounded-full bg-slate-100 overflow-hidden shrink-0">
                   <img src="{{user.avatar}}" class="h-full w-full" />
                 </div>
-                <button class="flex-1 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 text-[13px] px-4 py-2.5 rounded-full">
+                <button
+                  class="flex-1 text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 text-[13px] px-4 py-2.5 rounded-full">
                   No que você está pensando, {{user.name}}?
                 </button>
               </div>
@@ -335,16 +420,19 @@
 
                   <div class="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
                     <div class="flex gap-6">
-                      <button class="group flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-pink-600 transition-colors">
+                      <button
+                        class="group flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-pink-600 transition-colors">
                         <i class="ri-heart-3-line text-base group-hover:scale-110 transition-transform"></i>
                         <span>{{post.likes}}</span>
                       </button>
-                      <button class="group flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-orange-600 transition-colors">
+                      <button
+                        class="group flex items-center gap-1.5 text-[12px] text-slate-500 hover:text-orange-600 transition-colors">
                         <i class="ri-chat-3-line text-base group-hover:scale-110 transition-transform"></i>
                         <span>{{post.comments}}</span>
                       </button>
                     </div>
-                    <button class="text-slate-400 hover:text-slate-900"><i class="ri-bookmark-line text-base"></i></button>
+                    <button class="text-slate-400 hover:text-slate-900"><i
+                        class="ri-bookmark-line text-base"></i></button>
                   </div>
                 </div>
               </article>
@@ -368,22 +456,26 @@
 
               <div class="space-y-4 text-[12px]">
                 <section>
-                  <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
                       <span class="font-semibold text-slate-700">Eventos</span>
                       <span class="aprio-mini-pill">Interesses</span>
                     </div>
                     <button class="aprio-mini-link">ver todos <i class="ri-arrow-right-s-line text-xs"></i></button>
                   </div>
-                  <div class="space-y-1">
-                    <!-- @loop: {{#each upcoming_events}} -->
-                    <button class="w-full text-left aprio-mini-list-row">
-                      <span class="flex items-center gap-2">
-                        <span class="text-[11px] font-semibold text-slate-500">{{event.date_short}}</span>
-                        <span>{{event.title}}</span>
-                      </span>
-                      <i class="ri-arrow-right-s-line text-xs text-slate-400"></i>
-                    </button>
+                  <div class="space-y-2">
+                    <!-- @loop: {{#each upcoming_events}} (max 5) -->
+                    <a href="#" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg group">
+                      <div
+                        class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900">
+                        <span class="text-[9px] uppercase font-bold">{{event.day_name}}</span>
+                        <span class="text-[13px] font-bold">{{event.day_number}}</span>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-[12px] font-bold truncate">{{event.title}}</div>
+                        <div class="text-[10px] text-slate-500">{{event.friends_going}} amigos vão</div>
+                      </div>
+                    </a>
                     <!-- {{/each}} -->
                   </div>
                 </section>
@@ -432,7 +524,8 @@
               <div class="space-y-2">
                 <!-- @loop: {{#each next_week_events}} -->
                 <a href="#" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg group">
-                  <div class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900">
+                  <div
+                    class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900">
                     <span class="text-[9px] uppercase font-bold">{{event.day_name}}</span>
                     <span class="text-[13px] font-bold">{{event.day_number}}</span>
                   </div>
@@ -459,15 +552,19 @@
       <!-- @section:bottom-nav -->
       <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe-area z-50">
         <div class="grid grid-cols-5 h-14">
-          <button class="flex flex-col items-center justify-center text-slate-900"><i class="ri-home-5-fill text-xl"></i></button>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-search-2-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-900"><i
+              class="ri-home-5-fill text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-search-2-line text-xl"></i></button>
           <button class="flex flex-col items-center justify-center text-slate-900 -mt-6">
             <div class="h-12 w-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg">
               <i class="ri-add-line text-2xl"></i>
             </div>
           </button>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-calendar-event-line text-xl"></i></button>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-user-3-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-calendar-event-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-user-3-line text-xl"></i></button>
         </div>
       </nav>
     </div>
@@ -514,4 +611,5 @@
     }));
   </script>
 </body>
+
 </html>

@@ -14,41 +14,79 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$current_user = wp_get_current_user();
-$user_id      = $current_user->ID;
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
 
-// Get documents with proper sorting
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
+$user_obj = wp_get_current_user();
+$user_id  = $user_obj->ID;
+
+// Get documents with proper sorting.
 $documents_args = array(
 	'post_type'      => 'apollo_document',
 	'post_status'    => 'publish',
 	'posts_per_page' => 50,
 	'orderby'        => 'modified',
 	'order'          => 'DESC',
-	'author'         => $user_id, 
-// User's own documents
+	'author'         => $user_id,
+// User's own documents.
 );
 
-// If admin or cena-rio role, show all documents
-if ( current_user_can( 'manage_options' ) || in_array( 'cena-rio', (array) $current_user->roles, true ) ) {
+// If admin or cena-rio role, show all documents.
+if ( current_user_can( 'manage_options' ) || in_array( 'cena-rio', (array) $user_obj->roles, true ) ) {
 	unset( $documents_args['author'] );
 }
 
 $documents = get_posts( $documents_args );
 
-// Get filter from URL
+// Get filter from URL.
 $current_filter = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'all';
 
-// Filter documents by status
+// Filter documents by status.
 $filtered_documents = array();
 foreach ( $documents as $doc ) {
-	$status = get_post_meta( $doc->ID, '_document_status', true ) ?: 'draft';
+	$status_raw = get_post_meta( $doc->ID, '_document_status', true );
+	$status     = ! empty( $status_raw ) ? $status_raw : 'draft';
 
 	if ( $current_filter === 'all' || $status === $current_filter ) {
 		$filtered_documents[] = $doc;
 	}
 }
 
-// Count by status
+// Count by status.
 $status_counts = array(
 	'all'       => count( $documents ),
 	'draft'     => 0,
@@ -58,7 +96,8 @@ $status_counts = array(
 );
 
 foreach ( $documents as $doc ) {
-	$status = get_post_meta( $doc->ID, '_document_status', true ) ?: 'draft';
+	$status_raw = get_post_meta( $doc->ID, '_document_status', true );
+	$status     = ! empty( $status_raw ) ? $status_raw : 'draft';
 	if ( isset( $status_counts[ $status ] ) ) {
 		++$status_counts[ $status ];
 	}
@@ -70,13 +109,6 @@ foreach ( $documents as $doc ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
 	<title><?php esc_html_e( 'Documentos', 'apollo-social' ); ?> - Apollo::Rio</title>
-	
-	<!-- Apollo Design System -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-	
 	<?php wp_head(); ?>
 </head>
 <body class="apollo-canvas dark-mode">
@@ -89,7 +121,7 @@ foreach ( $documents as $doc ) {
 				<img src="https://assets.apollo.rio.br/img/logo-v2/app-512.png" alt="Apollo" class="logo-img">
 				<span class="logo-text">Apollo</span>
 			</a>
-			
+
 			<ul class="menu-h-lista">
 				<li><a href="<?php echo esc_url( home_url( '/eventos/' ) ); ?>" data-tooltip="<?php esc_attr_e( 'Descobrir eventos', 'apollo-social' ); ?>"><?php esc_html_e( 'Eventos', 'apollo-social' ); ?></a></li>
 				<li><a href="<?php echo esc_url( home_url( '/comunidades/' ) ); ?>" data-tooltip="<?php esc_attr_e( 'Ver comunidades', 'apollo-social' ); ?>"><?php esc_html_e( 'Comunidades', 'apollo-social' ); ?></a></li>
@@ -101,7 +133,7 @@ foreach ( $documents as $doc ) {
 
 <!-- Main Container -->
 <main class="main-container">
-	
+
 	<!-- Hero Section -->
 	<section class="hero-section" data-tooltip="<?php esc_attr_e( 'Seção principal', 'apollo-social' ); ?>">
 		<h1 class="title-page" data-tooltip="<?php esc_attr_e( 'Título da página', 'apollo-social' ); ?>">
@@ -111,49 +143,49 @@ foreach ( $documents as $doc ) {
 			<?php esc_html_e( 'Contratos, termos e documentos para assinar ou enviar.', 'apollo-social' ); ?>
 		</p>
 	</section>
-	
+
 	<!-- Filters and Search -->
 	<section class="filters-and-search" data-tooltip="<?php esc_attr_e( 'Filtros e busca', 'apollo-social' ); ?>">
 		<div class="menutags" data-tooltip="<?php esc_attr_e( 'Filtrar por status', 'apollo-social' ); ?>">
-			<a href="<?php echo esc_url( remove_query_arg( 'status' ) ); ?>" 
+			<a href="<?php echo esc_url( remove_query_arg( 'status' ) ); ?>"
 				class="menutag <?php echo $current_filter === 'all' ? 'active' : ''; ?>"
 				data-tooltip="<?php esc_attr_e( 'Ver todos os documentos', 'apollo-social' ); ?>">
 				<?php esc_html_e( 'Todos', 'apollo-social' ); ?>
 				<span class="count"><?php echo esc_html( $status_counts['all'] ); ?></span>
 			</a>
-			<a href="<?php echo esc_url( add_query_arg( 'status', 'draft' ) ); ?>" 
+			<a href="<?php echo esc_url( add_query_arg( 'status', 'draft' ) ); ?>"
 				class="menutag <?php echo $current_filter === 'draft' ? 'active' : ''; ?>"
 				data-tooltip="<?php esc_attr_e( 'Documentos em rascunho', 'apollo-social' ); ?>">
 				<?php esc_html_e( 'Rascunhos', 'apollo-social' ); ?>
 				<span class="count"><?php echo esc_html( $status_counts['draft'] ); ?></span>
 			</a>
-			<a href="<?php echo esc_url( add_query_arg( 'status', 'pending' ) ); ?>" 
+			<a href="<?php echo esc_url( add_query_arg( 'status', 'pending' ) ); ?>"
 				class="menutag <?php echo $current_filter === 'pending' ? 'active' : ''; ?>"
 				data-tooltip="<?php esc_attr_e( 'Aguardando assinatura', 'apollo-social' ); ?>">
 				<?php esc_html_e( 'Pendentes', 'apollo-social' ); ?>
 				<span class="count"><?php echo esc_html( $status_counts['pending'] ); ?></span>
 			</a>
-			<a href="<?php echo esc_url( add_query_arg( 'status', 'signed' ) ); ?>" 
+			<a href="<?php echo esc_url( add_query_arg( 'status', 'signed' ) ); ?>"
 				class="menutag <?php echo $current_filter === 'signed' ? 'active' : ''; ?>"
 				data-tooltip="<?php esc_attr_e( 'Documentos assinados', 'apollo-social' ); ?>">
 				<?php esc_html_e( 'Assinados', 'apollo-social' ); ?>
 				<span class="count"><?php echo esc_html( $status_counts['signed'] ); ?></span>
 			</a>
 		</div>
-		
+
 		<div class="controls-bar">
 			<div class="box-search" data-tooltip="<?php esc_attr_e( 'Buscar documentos', 'apollo-social' ); ?>">
 				<i class="ri-search-line"></i>
 				<input type="text" id="doc-search" placeholder="<?php esc_attr_e( 'Buscar documento...', 'apollo-social' ); ?>" data-tooltip="<?php esc_attr_e( 'Digite para filtrar', 'apollo-social' ); ?>">
 			</div>
-			
+
 			<a href="<?php echo esc_url( home_url( '/doc/new/' ) ); ?>" class="btn-primary" data-tooltip="<?php esc_attr_e( 'Criar novo documento', 'apollo-social' ); ?>">
 				<i class="ri-add-line"></i>
 				<span><?php esc_html_e( 'Novo Documento', 'apollo-social' ); ?></span>
 			</a>
 		</div>
 	</section>
-	
+
 	<!-- Documents Table -->
 	<section class="glass-table-card" data-tooltip="<?php esc_attr_e( 'Lista de documentos', 'apollo-social' ); ?>">
 		<div class="table-wrapper">
@@ -178,12 +210,14 @@ foreach ( $documents as $doc ) {
 				<tbody>
 					<?php
 					foreach ( $filtered_documents as $doc ) :
-						$doc_status = get_post_meta( $doc->ID, '_document_status', true ) ?: 'draft';
-						$doc_type   = get_post_meta( $doc->ID, '_document_type', true ) ?: 'contract';
-						$parties    = get_post_meta( $doc->ID, '_document_parties', true );
-						$modified   = human_time_diff( strtotime( $doc->post_modified ), current_time( 'timestamp' ) );
+						$doc_status_raw = get_post_meta( $doc->ID, '_document_status', true );
+						$doc_status     = ! empty( $doc_status_raw ) ? $doc_status_raw : 'draft';
+						$doc_type_raw   = get_post_meta( $doc->ID, '_document_type', true );
+						$doc_type       = ! empty( $doc_type_raw ) ? $doc_type_raw : 'contract';
+						$parties        = get_post_meta( $doc->ID, '_document_parties', true );
+						$modified       = human_time_diff( strtotime( $doc->post_modified ), current_time( 'timestamp' ) );
 
-						// Status badge class
+						// Status badge class.
 						$status_class  = 'badge-' . $doc_status;
 						$status_labels = array(
 							'draft'     => __( 'Rascunho', 'apollo-social' ),
@@ -191,9 +225,9 @@ foreach ( $documents as $doc ) {
 							'signed'    => __( 'Assinado', 'apollo-social' ),
 							'completed' => __( 'Concluído', 'apollo-social' ),
 						);
-						$status_label  = $status_labels[ $doc_status ] ?? ucfirst( $doc_status );
+						$status_label  = isset( $status_labels[ $doc_status ] ) ? $status_labels[ $doc_status ] : ucfirst( $doc_status );
 
-						// Type icon
+						// Type icon.
 						$type_icons = array(
 							'contract'  => 'ri-file-text-line',
 							'agreement' => 'ri-handshake-line',
@@ -202,7 +236,7 @@ foreach ( $documents as $doc ) {
 						);
 						$type_icon  = $type_icons[ $doc_type ] ?? 'ri-file-line';
 
-						// Parse parties
+						// Parse parties.
 						$parties_array = array();
 						if ( $parties ) {
 							$parties_array = is_array( $parties ) ? $parties : json_decode( $parties, true );
@@ -304,7 +338,7 @@ foreach ( $documents as $doc ) {
 			<?php endif; ?>
 		</div>
 	</section>
-	
+
 </main>
 
 <script>
@@ -312,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Search functionality
 	const searchInput = document.getElementById('doc-search');
 	const rows = document.querySelectorAll('.doc-row');
-	
+
 	if (searchInput) {
 		searchInput.addEventListener('input', function() {
 			const query = this.value.toLowerCase();
@@ -323,37 +357,37 @@ document.addEventListener('DOMContentLoaded', function() {
 			});
 		});
 	}
-	
+
 	// Gear menu toggle
 	document.querySelectorAll('.gear-btn').forEach(btn => {
 		btn.addEventListener('click', function(e) {
 			e.stopPropagation();
 			const menu = this.nextElementSibling;
-			
+
 			// Close all other menus
 			document.querySelectorAll('.gear-menu.active').forEach(m => {
 				if (m !== menu) m.classList.remove('active');
 			});
-			
+
 			menu.classList.toggle('active');
 		});
 	});
-	
+
 	// Close menus on outside click
 	document.addEventListener('click', function() {
 		document.querySelectorAll('.gear-menu.active').forEach(m => m.classList.remove('active'));
 	});
-	
+
 	// Delete document
 	document.querySelectorAll('[data-action="delete-doc"]').forEach(btn => {
 		btn.addEventListener('click', async function(e) {
 			e.preventDefault();
 			e.stopPropagation();
-			
+
 			if (!confirm('<?php echo esc_js( __( 'Tem certeza que deseja excluir este documento?', 'apollo-social' ) ); ?>')) {
 				return;
 			}
-			
+
 			const docId = this.dataset.docId;
 			try {
 				const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/documents/' ) ); ?>' + docId, {
@@ -362,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
 						'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
 					}
 				});
-				
+
 				if (response.ok) {
 					this.closest('.doc-row')?.remove();
 				} else {

@@ -43,7 +43,7 @@ class Apollo_Builder_Frontend {
 	 * Add query vars
 	 */
 	public static function add_query_vars( $vars ) {
-		$vars[] = 'editar'; 
+		$vars[] = 'editar';
 		// ?editar=pagina
 		return $vars;
 	}

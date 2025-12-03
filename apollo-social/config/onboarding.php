@@ -46,7 +46,7 @@ return array(
 		'ask_memberships'    => array(
 			'question'                  => 'É membro de algum Núcleo / Club / DJ Bar?',
 			'type'                      => 'multi_select',
-			'options'                   => array(), 
+			'options'                   => array(),
 			// Loaded dynamically from Events Manager + Núcleos
 								'field' => 'member_of',
 			'condition'                 => array( 'industry' => array( 'Yes', 'Future yes!' ) ),
@@ -90,7 +90,7 @@ return array(
 
 	'rate_limit'   => array(
 		'enabled'              => true,
-		'window'               => 60, 
+		'window'               => 60,
 		// seconds
 				'max_requests' => 1,
 	),

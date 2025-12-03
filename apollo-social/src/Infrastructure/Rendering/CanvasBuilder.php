@@ -66,8 +66,11 @@ class CanvasBuilder {
 			// Step 5: Render complete Canvas layout
 			$this->renderCanvasLayout();
 		} catch ( \Exception $e ) {
-			// Log error and render error fallback
-			error_log( 'Apollo CanvasBuilder Error: ' . $e->getMessage() );
+			// Log error and render error fallback.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+				error_log( 'Apollo CanvasBuilder Error: ' . $e->getMessage() );
+			}
 			$this->renderErrorFallback( $e );
 		}//end try
 	}
@@ -103,6 +106,7 @@ class CanvasBuilder {
 
 		// Security: Validate that handler class is in Apollo namespace
 		if ( strpos( $handler_class, 'Apollo\\' ) !== 0 ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Security audit logging.
 			error_log( 'Apollo Security: Attempted to instantiate non-Apollo class: ' . esc_html( $handler_class ) );
 			return $this->renderDefaultHandler( $template_data );
 		}
@@ -291,7 +295,7 @@ class CanvasBuilder {
 
 			// Make data available to template
 			$canvas_data = array_merge( $this->template_data, $this->handler_output );
-			$view        = $canvas_data; 
+			$view        = $canvas_data;
 			// For template compatibility
 
 			// Add PWA data

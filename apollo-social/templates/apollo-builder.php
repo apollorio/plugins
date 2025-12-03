@@ -96,20 +96,20 @@ if ( ! $home ) {
 			<main class="apollo-builder-canvas-wrapper">
 				<div class="canvas-container" id="canvas-container">
 					<div class="canvas-board" id="canvas-board">
-						<?php 
-						// Background layer for animated backgrounds. 
+						<?php
+						// Background layer for animated backgrounds.
 						?>
 						<div class="canvas-background-layer" id="canvas-background-layer"></div>
 
-						<?php 
-						// Widgets layer. 
+						<?php
+						// Widgets layer.
 						?>
 						<div class="canvas-widgets-layer" id="canvas-widgets-layer">
 							<!-- Widgets will be rendered here -->
 						</div>
 
-						<?php 
-						// Stickers layer (on top). 
+						<?php
+						// Stickers layer (on top).
 						?>
 						<div class="canvas-stickers-layer" id="canvas-stickers-layer">
 							<!-- Stickers will be rendered here -->

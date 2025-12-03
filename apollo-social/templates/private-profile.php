@@ -14,31 +14,78 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Require login
+// Require login.
 if ( ! is_user_logged_in() ) {
-	wp_redirect( wp_login_url( home_url( '/meu-perfil/' ) ) );
+	wp_safe_redirect( wp_login_url( home_url( '/meu-perfil/' ) ) );
 	exit;
 }
 
-$current_user = wp_get_current_user();
-$user_id      = $current_user->ID;
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Motion One.
+		wp_enqueue_script(
+			'motion-one',
+			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
+			array(),
+			'10.0.0',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
+// User data - avoid overriding WP globals.
+$user_obj = wp_get_current_user();
+$user_id  = $user_obj->ID;
 
 // ============================================
 // USER DATA EXTRACTION
 // ============================================
 
-$display_name = $current_user->display_name;
-$user_email   = $current_user->user_email;
-$user_login   = $current_user->user_login;
+$display_name  = $user_obj->display_name;
+$user_email    = $user_obj->user_email;
+$user_username = $user_obj->user_login;
 
-// Profile meta
+// Profile meta.
 $user_bio          = get_user_meta( $user_id, 'description', true );
 $user_avatar       = get_avatar_url( $user_id, array( 'size' => 160 ) );
 $user_location     = get_user_meta( $user_id, '_apollo_location', true );
 $user_role_display = get_user_meta( $user_id, '_apollo_role_display', true );
 $industry_access   = get_user_meta( $user_id, '_apollo_industry_access', true );
 
-// Stats
+// Stats.
 $stats = array(
 	'producer'  => (int) get_user_meta( $user_id, '_apollo_producer_count', true ),
 	'favorited' => (int) get_user_meta( $user_id, '_apollo_favorited_count', true ),
@@ -47,40 +94,40 @@ $stats = array(
 	'liked'     => (int) get_user_meta( $user_id, '_apollo_liked_count', true ),
 );
 
-// Memberships (roles/badges)
+// Memberships (roles/badges).
 $memberships = get_user_meta( $user_id, '_apollo_memberships', true );
 if ( ! is_array( $memberships ) ) {
 	$memberships = array( 'Member' );
 }
 
-// User's nucleos (private groups)
+// User's nucleos (private groups).
 $user_nucleos = get_user_meta( $user_id, '_apollo_nucleos', true );
 if ( ! is_array( $user_nucleos ) ) {
 	$user_nucleos = array();
 }
 
-// User's communities
+// User's communities.
 $user_communities = get_user_meta( $user_id, '_apollo_communities', true );
 if ( ! is_array( $user_communities ) ) {
 	$user_communities = array();
 }
 
-// Favorited events
+// Favorited events.
 $favorited_events = get_user_meta( $user_id, '_apollo_favorited_events', true );
 if ( ! is_array( $favorited_events ) ) {
 	$favorited_events = array();
 }
 
-// Pending documents
+// Pending documents.
 $pending_docs = get_user_meta( $user_id, '_apollo_pending_docs', true );
 if ( ! is_array( $pending_docs ) ) {
 	$pending_docs = array();
 }
 
-// Public page URL
-$public_page_url = home_url( '/id/' . $user_login );
+// Public page URL.
+$public_page_url = home_url( '/id/' . $user_username );
 
-// Count nucleos and communities
+// Count nucleos and communities.
 $nucleo_count    = count( $user_nucleos );
 $community_count = count( $user_communities );
 ?>
@@ -90,26 +137,13 @@ $community_count = count( $user_communities );
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Meu Perfil | Apollo</title>
-	
-	<!-- Tailwind (for layout shell only) -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	
-	<!-- UNI.CSS -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
-	<!-- RemixIcon -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css">
-	
-	<!-- Motion.dev -->
-	<script src="https://unpkg.com/@motionone/dom/dist/motion-one.umd.js"></script>
-	
 	<?php wp_head(); ?>
 </head>
 <body class="h-full bg-slate-50 text-slate-900">
 
 <section class="aprioEXP-body">
 	<div class="min-h-screen flex flex-col">
-		
+
 		<!-- ========================== -->
 		<!-- TOP HEADER                 -->
 		<!-- ========================== -->
@@ -120,17 +154,17 @@ $community_count = count( $user_communities );
 				</a>
 				<div class="flex flex-col">
 					<span class="text-[10px] uppercase tracking-[0.12em] text-slate-400">Rede Social Cultural Carioca</span>
-					<span class="text-sm font-semibold">@<?php echo esc_html( $user_login ); ?> · Apollo::rio</span>
+					<span class="text-sm font-semibold">@<?php echo esc_html( $user_username ); ?> · Apollo::rio</span>
 				</div>
 			</div>
 			<div class="flex items-center gap-2 text-[11px]">
-				<a href="<?php echo esc_url( $public_page_url ); ?>" 
+				<a href="<?php echo esc_url( $public_page_url ); ?>"
 					class="hidden md:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
 					target="_blank" data-tooltip="Ver sua página pública">
 					<i class="ri-eye-line text-xs"></i>
 					<span>Ver como visitante</span>
 				</a>
-				<a href="<?php echo esc_url( $public_page_url ); ?>" 
+				<a href="<?php echo esc_url( $public_page_url ); ?>"
 					class="inline-flex items-center gap-1 rounded-md bg-slate-900 px-3 py-1.5 font-medium text-white"
 					target="_blank">
 					<i class="ri-external-link-line text-xs"></i>
@@ -138,36 +172,36 @@ $community_count = count( $user_communities );
 				</a>
 				<button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
 					<div class="h-7 w-7 overflow-hidden rounded-full bg-slate-200">
-						<img src="<?php echo esc_url( $user_avatar ); ?>" 
-							alt="<?php echo esc_attr( $display_name ); ?>" 
+						<img src="<?php echo esc_url( $user_avatar ); ?>"
+							alt="<?php echo esc_attr( $display_name ); ?>"
 							class="h-full w-full object-cover">
 					</div>
 				</button>
 			</div>
 		</header>
-		
+
 		<!-- ========================== -->
 		<!-- MAIN CONTENT               -->
 		<!-- ========================== -->
 		<main class="flex-1 flex justify-center px-3 md:px-6 py-4 md:py-6">
 			<div class="w-full max-w-6xl grid lg:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)] gap-4">
-				
+
 				<!-- LEFT COLUMN: Profile + Tabs -->
 				<div class="space-y-4">
-					
+
 					<!-- ========================== -->
 					<!-- PROFILE CARD               -->
 					<!-- ========================== -->
 					<section class="aprioEXP-card-shell p-4 md:p-5">
 						<div class="aprioEXP-profile-header-row flex flex-col md:flex-row gap-4">
-							
+
 							<!-- USER DATA SECTION -->
 							<div class="aprioEXP-user-data-section flex items-start gap-4 flex-1">
 								<!-- Avatar -->
 								<div class="relative shrink-0">
 									<div class="h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-full bg-gradient-to-tr from-orange-500 via-rose-500 to-amber-400 aspect-square">
-										<img src="<?php echo esc_url( $user_avatar ); ?>" 
-											alt="Avatar" 
+										<img src="<?php echo esc_url( $user_avatar ); ?>"
+											alt="Avatar"
 											class="h-full w-full object-cover mix-blend-luminosity">
 									</div>
 									<!-- Badge -->
@@ -177,7 +211,7 @@ $community_count = count( $user_communities );
 									</span>
 									<?php endif; ?>
 								</div>
-								
+
 								<!-- User Info -->
 								<div class="min-w-0 flex-1">
 									<div class="flex flex-wrap items-center gap-2">
@@ -194,11 +228,11 @@ $community_count = count( $user_communities );
 										</span>
 										<?php endif; ?>
 									</div>
-									
+
 									<p class="mt-1 text-[11px] md:text-[12px] text-slate-600 line-clamp-2" data-tooltip="<?php echo empty( $user_bio ) ? 'Adicione uma bio no seu perfil' : ''; ?>">
 										<?php echo esc_html( $user_bio ?: 'Nenhuma descrição adicionada.' ); ?>
 									</p>
-									
+
 									<div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-[11px] text-slate-500">
 										<span class="aprioEXP-metric-chip" data-tooltip="<?php echo empty( $user_location ) ? 'Adicione sua localização' : ''; ?>">
 											<i class="ri-map-pin-line text-xs"></i>
@@ -217,7 +251,7 @@ $community_count = count( $user_communities );
 									</div>
 								</div>
 							</div>
-							
+
 							<!-- STATS SECTION -->
 							<div class="aprioEXP-stats-section">
 								<div class="aprioEXP-cards-container grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -255,52 +289,52 @@ $community_count = count( $user_communities );
 							</div>
 						</div>
 					</section>
-					
+
 					<!-- ========================== -->
 					<!-- TABS + CONTENT             -->
 					<!-- ========================== -->
 					<section class="aprioEXP-card-shell p-3 md:p-4">
-						
+
 						<!-- Tabs Header -->
 						<div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
 							<div class="flex flex-wrap gap-1 md:gap-2" role="tablist" aria-label="Navegação do perfil">
-								
+
 								<!-- Tab 1: Eventos favoritos -->
-								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors" 
+								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors"
 										type="button" data-tab-target="events" data-active="true" role="tab" aria-selected="true">
 									<i class="ri-heart-3-line text-[13px]"></i>
 									<span>Eventos favoritos</span>
 								</button>
-								
+
 								<!-- Tab 2: Meus números -->
-								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors" 
+								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors"
 										type="button" data-tab-target="metrics" role="tab" aria-selected="false">
 									<i class="ri-bar-chart-2-line text-[13px]"></i>
 									<span>Meus números</span>
 								</button>
-								
+
 								<!-- Tab 3: Núcleo (privado) -->
-								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors" 
+								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors"
 										type="button" data-tab-target="nucleo" role="tab" aria-selected="false">
 									<i class="ri-lock-2-line text-[13px]"></i>
 									<span>Núcleo (privado)</span>
 								</button>
-								
+
 								<!-- Tab 4: Comunidades -->
-								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors" 
+								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors"
 										type="button" data-tab-target="communities" role="tab" aria-selected="false">
 									<i class="ri-community-line text-[13px]"></i>
 									<span>Comunidades</span>
 								</button>
-								
+
 								<!-- Tab 5: Documentos -->
-								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors" 
+								<button class="aprioEXP-tab-btn px-3 py-1.5 text-[11px] font-medium rounded-md transition-colors"
 										type="button" data-tab-target="docs" role="tab" aria-selected="false">
 									<i class="ri-file-text-line text-[13px]"></i>
 									<span>Documentos</span>
 								</button>
 							</div>
-							
+
 							<div class="flex items-center gap-2 text-[11px] text-slate-500">
 								<span class="hidden sm:inline">Fluxo interno Apollo Social</span>
 								<span class="h-4 w-px bg-slate-200"></span>
@@ -310,10 +344,10 @@ $community_count = count( $user_communities );
 								</span>
 							</div>
 						</div>
-						
+
 						<!-- Tabs Content -->
 						<div class="mt-3 space-y-4">
-							
+
 							<!-- TAB: Eventos favoritos -->
 							<div data-tab-panel="events" role="tabpanel" class="space-y-3">
 								<div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -328,7 +362,7 @@ $community_count = count( $user_communities );
 										<span>Filtrar por data</span>
 									</button>
 								</div>
-								
+
 								<?php if ( ! empty( $favorited_events ) ) : ?>
 								<div class="grid gap-3 md:grid-cols-2 text-[12px]">
 									<?php foreach ( $favorited_events as $event_data ) : ?>
@@ -359,14 +393,14 @@ $community_count = count( $user_communities );
 								</div>
 								<?php endif; ?>
 							</div>
-							
+
 							<!-- TAB: Meus números -->
 							<div data-tab-panel="metrics" role="tabpanel" class="hidden space-y-3">
 								<div class="flex items-center justify-center h-32 text-slate-400 text-sm bg-slate-50 rounded-lg" data-tooltip="Dados sendo calculados">
 									<p><i class="ri-bar-chart-line mr-2"></i>Dados de performance sendo calculados...</p>
 								</div>
 							</div>
-							
+
 							<!-- TAB: Núcleo (privado) -->
 							<div data-tab-panel="nucleo" role="tabpanel" class="hidden space-y-3">
 								<div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -383,7 +417,7 @@ $community_count = count( $user_communities );
 										</button>
 									</div>
 								</div>
-								
+
 								<?php if ( ! empty( $user_nucleos ) ) : ?>
 								<div class="grid gap-3 md:grid-cols-2 text-[12px]">
 									<?php foreach ( $user_nucleos as $nucleo ) : ?>
@@ -408,7 +442,7 @@ $community_count = count( $user_communities );
 								</div>
 								<?php endif; ?>
 							</div>
-							
+
 							<!-- TAB: Comunidades -->
 							<div data-tab-panel="communities" role="tabpanel" class="hidden space-y-3">
 								<div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -423,7 +457,7 @@ $community_count = count( $user_communities );
 										<span>Criar nova comunidade</span>
 									</button>
 								</div>
-								
+
 								<?php if ( ! empty( $user_communities ) ) : ?>
 								<div class="grid gap-3 md:grid-cols-3 text-[12px]">
 									<?php foreach ( $user_communities as $community ) : ?>
@@ -446,7 +480,7 @@ $community_count = count( $user_communities );
 								</div>
 								<?php endif; ?>
 							</div>
-							
+
 							<!-- TAB: Documentos -->
 							<div data-tab-panel="docs" role="tabpanel" class="hidden space-y-3">
 								<div class="flex flex-col md:flex-row md:items-center gap-3">
@@ -463,7 +497,7 @@ $community_count = count( $user_communities );
 										</button>
 									</div>
 								</div>
-								
+
 								<?php if ( ! empty( $pending_docs ) ) : ?>
 								<div class="grid gap-3 md:grid-cols-3 text-[12px]">
 									<?php foreach ( $pending_docs as $doc ) : ?>
@@ -485,17 +519,17 @@ $community_count = count( $user_communities );
 								</div>
 								<?php endif; ?>
 							</div>
-							
+
 						</div>
 					</section>
-					
+
 				</div>
-				
+
 				<!-- ========================== -->
 				<!-- RIGHT COLUMN: Sidebar      -->
 				<!-- ========================== -->
 				<div class="space-y-4">
-					
+
 					<!-- Resumo rápido Card -->
 					<section class="aprioEXP-card-shell p-4 bg-white border border-slate-200 rounded-lg">
 						<h3 class="text-sm font-semibold mb-3">Resumo rápido</h3>
@@ -527,7 +561,7 @@ $community_count = count( $user_communities );
 							<i class="ri-arrow-right-line"></i>
 						</a>
 					</section>
-					
+
 					<!-- Status social Card -->
 					<section class="aprioEXP-card-shell p-4 bg-white border border-slate-200 rounded-lg">
 						<h3 class="text-sm font-semibold mb-3">Status social</h3>
@@ -558,12 +592,12 @@ $community_count = count( $user_communities );
 							</div>
 						</div>
 					</section>
-					
+
 				</div>
-				
+
 			</div>
 		</main>
-		
+
 	</div>
 </section>
 
@@ -592,7 +626,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			tab.setAttribute("data-active", "true");
 			tab.classList.add("bg-slate-900", "text-white");
 			tab.classList.remove("text-slate-700", "hover:bg-slate-100");
-			
+
 			const target = tab.getAttribute("data-tab-target");
 			const panel = document.querySelector(`[data-tab-panel="${target}"]`);
 			if (panel) {
@@ -612,9 +646,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 });
 </script>
-
-<!-- Base JS (tooltips, theme, etc) -->
-<script src="https://assets.apollo.rio.br/base.js"></script>
 
 <?php wp_footer(); ?>
 </body>

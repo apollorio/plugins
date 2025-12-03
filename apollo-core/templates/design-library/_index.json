@@ -1,15 +1,36 @@
 {
   "version": "2.0.0",
   "description": "Apollo Design Library - Templates de referência aprovados para o assistente AI",
-  "last_updated": "2025-11-28",
+  "last_updated": "2025-01-21",
   "templates": {
     "feed-social": {
       "file": "feed-social.html",
       "name": "Apollo Social Feed",
       "description": "Feed social estilo timeline com posts, eventos, comunidades, classificados e enquetes",
-      "sections": ["sidebar", "header", "feed-controls", "feed-stream", "sidebar-right", "bottom-nav"],
-      "components": ["post-card", "event-inline", "market-card", "poll-card", "user-avatar"],
-      "features": ["dark-mode", "responsive", "tab-filters", "infinite-scroll", "pull-to-refresh", "like-animation", "motion-animations"],
+      "sections": [
+        "sidebar",
+        "header",
+        "feed-controls",
+        "feed-stream",
+        "sidebar-right",
+        "bottom-nav"
+      ],
+      "components": [
+        "post-card",
+        "event-inline",
+        "market-card",
+        "poll-card",
+        "user-avatar"
+      ],
+      "features": [
+        "dark-mode",
+        "responsive",
+        "tab-filters",
+        "infinite-scroll",
+        "pull-to-refresh",
+        "like-animation",
+        "motion-animations"
+      ],
       "placeholders": {
         "user.name": "Nome do usuário",
         "user.handle": "@handle",
@@ -18,24 +39,64 @@
         "greeting": "Saudação baseada na hora",
         "posts[]": "Lista de posts com type, author, content, likes, comments"
       },
-      "use_cases": ["feed principal", "timeline social", "agregador de conteúdo"]
+      "use_cases": [
+        "feed principal",
+        "timeline social",
+        "agregador de conteúdo"
+      ]
     },
     "cena-rio-calendar": {
       "file": "cena-rio-calendar.html",
       "name": "CENA-RIO Calendar",
       "description": "Calendário mensal com lista de eventos e mapa integrado",
-      "sections": ["header", "sidebar-left", "calendar", "events-list", "map-footer", "bottom-nav"],
-      "components": ["calendar-grid", "event-row", "map-marker"],
-      "features": ["leaflet-map", "date-picker", "event-modal", "status-badges"],
-      "use_cases": ["calendário de eventos", "planejamento", "visualização geográfica"]
+      "sections": [
+        "header",
+        "sidebar-left",
+        "calendar",
+        "events-list",
+        "map-footer",
+        "bottom-nav"
+      ],
+      "components": [
+        "calendar-grid",
+        "event-row",
+        "map-marker"
+      ],
+      "features": [
+        "leaflet-map",
+        "date-picker",
+        "event-modal",
+        "status-badges"
+      ],
+      "use_cases": [
+        "calendário de eventos",
+        "planejamento",
+        "visualização geográfica"
+      ]
     },
     "docs-contracts": {
       "file": "docs-contracts.html",
       "name": "Apollo Docs & Contratos",
       "description": "Central de documentos, contratos, termos e checklists com status de assinatura",
-      "sections": ["sidebar", "header", "documents", "aside", "bottom-nav"],
-      "components": ["doc-row", "status-badge", "filter-tabs", "summary-card"],
-      "features": ["dark-mode", "responsive", "filter-tabs", "quick-templates"],
+      "sections": [
+        "sidebar",
+        "header",
+        "documents",
+        "aside",
+        "bottom-nav"
+      ],
+      "components": [
+        "doc-row",
+        "status-badge",
+        "filter-tabs",
+        "summary-card"
+      ],
+      "features": [
+        "dark-mode",
+        "responsive",
+        "filter-tabs",
+        "quick-templates"
+      ],
       "placeholders": {
         "user.name": "Nome do usuário",
         "user.handle": "@handle",
@@ -45,15 +106,34 @@
         "stats.signed": "Assinados",
         "stats.pending": "Pendentes"
       },
-      "use_cases": ["lista de contratos", "gestão de documentos", "assinaturas digitais"]
+      "use_cases": [
+        "lista de contratos",
+        "gestão de documentos",
+        "assinaturas digitais"
+      ]
     },
     "docs-editor": {
       "file": "docs-editor.html",
       "name": "Apollo Word Editor",
       "description": "Editor WYSIWYG estilo Word com formatação rica e exportação PDF",
-      "sections": ["navbar", "toolbar", "workspace"],
-      "components": ["font-selector", "toolbar-buttons", "paper-canvas"],
-      "features": ["rich-text-editing", "google-fonts", "auto-save", "pdf-export", "a4-simulation", "keyboard-shortcuts"],
+      "sections": [
+        "navbar",
+        "toolbar",
+        "workspace"
+      ],
+      "components": [
+        "font-selector",
+        "toolbar-buttons",
+        "paper-canvas"
+      ],
+      "features": [
+        "rich-text-editing",
+        "google-fonts",
+        "auto-save",
+        "pdf-export",
+        "a4-simulation",
+        "keyboard-shortcuts"
+      ],
       "placeholders": {
         "document.id": "ID interno",
         "document.file_id": "ID público",
@@ -68,15 +148,37 @@
         "Ctrl+I": "Itálico",
         "Ctrl+U": "Sublinhado"
       },
-      "use_cases": ["editor de documentos", "criação de contratos", "formatação de texto"]
+      "use_cases": [
+        "editor de documentos",
+        "criação de contratos",
+        "formatação de texto"
+      ]
     },
     "sign-document": {
       "file": "sign-document.html",
       "name": "Apollo Sign Document",
       "description": "Página de assinatura digital de documento com gov.br e ICP-Brasil",
-      "sections": ["sidebar", "header", "preview", "signers", "action", "bottom-nav"],
-      "components": ["pdf-preview", "signer-card", "action-panel", "progress-stepper"],
-      "features": ["gov-br-signature", "icp-brasil", "checkbox-terms", "signature-hash", "status-badges"],
+      "sections": [
+        "sidebar",
+        "header",
+        "preview",
+        "signers",
+        "action",
+        "bottom-nav"
+      ],
+      "components": [
+        "pdf-preview",
+        "signer-card",
+        "action-panel",
+        "progress-stepper"
+      ],
+      "features": [
+        "gov-br-signature",
+        "icp-brasil",
+        "checkbox-terms",
+        "signature-hash",
+        "status-badges"
+      ],
       "placeholders": {
         "user.name": "Nome do assinante",
         "user.cpf_masked": "CPF mascarado",
@@ -90,29 +192,81 @@
         "signatures.completed": "Assinaturas concluídas",
         "signatures.total": "Total necessário"
       },
-      "use_cases": ["assinatura digital", "validação de documentos", "fluxo de aprovação"]
+      "use_cases": [
+        "assinatura digital",
+        "validação de documentos",
+        "fluxo de aprovação"
+      ]
     },
     "communities": {
       "file": "communities.html",
       "name": "Apollo Comunidades",
       "description": "Grid de comunidades com cards visuais, filtros e busca",
-      "sections": ["sidebar", "header", "filters", "grid", "bottom-nav"],
-      "components": ["community-card", "filter-button", "search-input"],
-      "features": ["visual-cards", "aspect-ratio-4-5", "tag-filtering", "search", "verified-badge", "dark-mode", "responsive-grid"],
+      "sections": [
+        "sidebar",
+        "header",
+        "filters",
+        "grid",
+        "bottom-nav"
+      ],
+      "components": [
+        "community-card",
+        "filter-button",
+        "search-input"
+      ],
+      "features": [
+        "visual-cards",
+        "aspect-ratio-4-5",
+        "tag-filtering",
+        "search",
+        "verified-badge",
+        "dark-mode",
+        "responsive-grid"
+      ],
       "placeholders": {
         "user.name": "Nome do usuário",
         "user.handle": "@handle",
         "communities[]": "Lista de comunidades com name, description, cover_image, members_count, activity, verified, badge_color, tags"
       },
-      "use_cases": ["explorar comunidades", "descoberta social", "grupos temáticos"]
+      "use_cases": [
+        "explorar comunidades",
+        "descoberta social",
+        "grupos temáticos"
+      ]
     },
     "single-comunidade": {
       "file": "single-comunidade.html",
       "name": "Single Comunidade",
       "description": "Página individual de comunidade com sidebar, hero, regras, responsáveis, membros e feed de posts",
-      "sections": ["sidebar", "header", "hero", "about", "rules", "responsaveis", "members", "posts", "bottom-nav"],
-      "components": ["sidebar-nav", "hero-card", "rules-list", "moderator-card", "member-chip", "post-card", "comment-card"],
-      "features": ["two-column-layout", "sticky-sidebar", "member-posts", "featured-comment", "join-button", "hashtags", "notice-badge"],
+      "sections": [
+        "sidebar",
+        "header",
+        "hero",
+        "about",
+        "rules",
+        "responsaveis",
+        "members",
+        "posts",
+        "bottom-nav"
+      ],
+      "components": [
+        "sidebar-nav",
+        "hero-card",
+        "rules-list",
+        "moderator-card",
+        "member-chip",
+        "post-card",
+        "comment-card"
+      ],
+      "features": [
+        "two-column-layout",
+        "sticky-sidebar",
+        "member-posts",
+        "featured-comment",
+        "join-button",
+        "hashtags",
+        "notice-badge"
+      ],
       "placeholders": {
         "community.id": "ID da comunidade",
         "community.name": "Nome da comunidade",
@@ -134,15 +288,46 @@
         "current_user.is_member": "Se usuário atual é membro",
         "current_user.is_admin": "Se usuário atual é admin"
       },
-      "use_cases": ["página de comunidade", "grupo social", "fórum temático"]
+      "use_cases": [
+        "página de comunidade",
+        "grupo social",
+        "fórum temático"
+      ]
     },
     "single-nucleo": {
       "file": "single-nucleo.html",
       "name": "Single Núcleo",
       "description": "Página individual de núcleo/coletivo com perfil profissional, equipe, eventos e feed",
-      "sections": ["sidebar", "header", "hero", "stats", "about", "links", "team", "events", "posts", "bottom-nav"],
-      "components": ["sidebar-nav", "hero-card-nucleo", "stats-row", "social-link", "founder-card", "event-preview", "post-card"],
-      "features": ["two-column-layout", "verified-badge", "orange-accent", "follow-button", "genres-tags", "upcoming-events", "team-display"],
+      "sections": [
+        "sidebar",
+        "header",
+        "hero",
+        "stats",
+        "about",
+        "links",
+        "team",
+        "events",
+        "posts",
+        "bottom-nav"
+      ],
+      "components": [
+        "sidebar-nav",
+        "hero-card-nucleo",
+        "stats-row",
+        "social-link",
+        "founder-card",
+        "event-preview",
+        "post-card"
+      ],
+      "features": [
+        "two-column-layout",
+        "verified-badge",
+        "orange-accent",
+        "follow-button",
+        "genres-tags",
+        "upcoming-events",
+        "team-display"
+      ],
       "placeholders": {
         "nucleo.id": "ID do núcleo",
         "nucleo.name": "Nome do núcleo",
@@ -165,15 +350,38 @@
         "current_user.is_following": "Se usuário está seguindo",
         "current_user.is_team_member": "Se usuário faz parte da equipe"
       },
-      "use_cases": ["página de coletivo", "produtora de eventos", "perfil profissional"]
+      "use_cases": [
+        "página de coletivo",
+        "produtora de eventos",
+        "perfil profissional"
+      ]
     },
     "dj-roster": {
       "file": "dj-roster.html",
       "name": "Apollo DJ Roster",
       "description": "Página individual de DJ/artista com hero, vinyl player, bio, links de música/social/assets e modal de bio",
-      "sections": ["header", "hero", "player-block", "info-grid", "footer", "bio-modal"],
-      "components": ["vinyl-player", "dj-hero-photo", "dj-link-pill", "bio-modal", "tonearm"],
-      "features": ["soundcloud-integration", "vinyl-animation", "motion-animations", "responsive", "media-kit-link"],
+      "sections": [
+        "header",
+        "hero",
+        "player-block",
+        "info-grid",
+        "footer",
+        "bio-modal"
+      ],
+      "components": [
+        "vinyl-player",
+        "dj-hero-photo",
+        "dj-link-pill",
+        "bio-modal",
+        "tonearm"
+      ],
+      "features": [
+        "soundcloud-integration",
+        "vinyl-animation",
+        "motion-animations",
+        "responsive",
+        "media-kit-link"
+      ],
       "placeholders": {
         "dj.name": "Nome artístico do DJ",
         "dj.tagline": "Tagline/frase de efeito",
@@ -190,37 +398,141 @@
         "dj.mediakit_url": "URL do media kit",
         "dj.more_platforms": "Texto com outras plataformas"
       },
-      "use_cases": ["perfil de DJ", "roster de artistas", "press kit digital"]
+      "use_cases": [
+        "perfil de DJ",
+        "roster de artistas",
+        "press kit digital"
+      ]
+    },
+    "events-discover-portal": {
+      "file": "events-discover-portal.html",
+      "name": "Apollo Events Discover Portal",
+      "description": "Portal de descoberta de eventos com hero, filtros, busca typewriter, date picker e grid de cards com cutout mask",
+      "sections": [
+        "sidebar",
+        "header",
+        "hero",
+        "filters",
+        "search",
+        "date-picker",
+        "events-grid",
+        "highlight-banner",
+        "bottom-nav"
+      ],
+      "components": [
+        "sidebar-nav",
+        "event-card-cutout",
+        "filter-pill",
+        "search-typewriter",
+        "date-picker-inline",
+        "banner-cta"
+      ],
+      "features": [
+        "dark-mode",
+        "responsive",
+        "cutout-mask-cards",
+        "typewriter-animation",
+        "inline-date-picker",
+        "filter-tags",
+        "gradient-hero"
+      ],
+      "placeholders": {
+        "user.name": "Nome do usuário",
+        "user.handle": "@handle",
+        "user.avatar": "URL do avatar",
+        "events[]": "Lista de eventos com id, title, date, day, month, time, venue, image_url, organizer, genres[]",
+        "filters[]": "Array de filtros disponíveis com label, active",
+        "search.placeholder": "Texto placeholder animado",
+        "typewriter_words[]": "Array de palavras para animação typewriter",
+        "banner.title": "Título do banner CTA",
+        "banner.description": "Descrição do banner",
+        "banner.cta_text": "Texto do botão CTA"
+      },
+      "card_types": {
+        "TYPE-1": "event_listing.ap-type-cutout - Card com cutout mask para date box (PRIMÁRIO)",
+        "TYPE-2": "event_listing.ap-type-simple - Card básico sem cutout (secundário)"
+      },
+      "css_dependencies": {
+        "cutout_mask": "uni.css - .event_listing.ap-type-cutout com mask property usando --r, --s, --x, --y custom properties"
+      },
+      "use_cases": [
+        "descoberta de eventos",
+        "portal de eventos",
+        "agenda cultural",
+        "calendário de festas"
+      ]
     }
   },
   "components": {
     "event-card": {
       "file": "_components/event-card.html",
-      "variants": ["minimal", "full", "row", "inline"]
+      "variants": [
+        "minimal",
+        "full",
+        "row",
+        "inline"
+      ]
     },
     "user-avatar": {
       "file": "_components/user-avatar.html",
-      "variants": ["small", "medium", "large"]
+      "variants": [
+        "small",
+        "medium",
+        "large"
+      ]
     },
     "sidebar-nav": {
       "file": "_components/sidebar-nav.html",
-      "variants": ["desktop", "mobile"]
+      "variants": [
+        "desktop",
+        "mobile"
+      ]
     },
     "status-badge": {
       "file": "_components/status-badge.html",
-      "variants": ["expected", "confirmed", "published", "pending", "rejected", "draft", "signed", "waiting"]
+      "variants": [
+        "expected",
+        "confirmed",
+        "published",
+        "pending",
+        "rejected",
+        "draft",
+        "signed",
+        "waiting"
+      ]
     },
     "doc-row": {
       "file": "_components/doc-row.html",
-      "variants": ["default", "compact"]
+      "variants": [
+        "default",
+        "compact"
+      ]
     },
     "community-card": {
       "file": "_components/community-card.html",
-      "variants": ["default", "small"]
+      "variants": [
+        "default",
+        "small"
+      ]
     },
     "post-card": {
       "file": "_components/post-card.html",
-      "variants": ["default", "compact", "event", "market", "poll"]
+      "variants": [
+        "default",
+        "compact",
+        "event",
+        "market",
+        "poll"
+      ]
+    },
+    "event-card-cutout": {
+      "file": "_components/event-card-cutout.html",
+      "variants": [
+        "default",
+        "horizontal"
+      ],
+      "css_class": "event_listing ap-type-cutout",
+      "description": "Card de evento com cutout mask para date box - estilo TYPE-1 (PRIMÁRIO)"
     }
   },
   "design_tokens": {
@@ -293,8 +605,19 @@
       "https://cdn.jsdelivr.net/npm/motion@10.17.0/dist/motion.js"
     ],
     "fonts": [
-      "Urbanist", "Inter", "Poppins", "Roboto", "Open Sans", "Montserrat", "Lato",
-      "Raleway", "Nunito", "Ubuntu", "Work Sans", "DM Sans", "Manrope"
+      "Urbanist",
+      "Inter",
+      "Poppins",
+      "Roboto",
+      "Open Sans",
+      "Montserrat",
+      "Lato",
+      "Raleway",
+      "Nunito",
+      "Ubuntu",
+      "Work Sans",
+      "DM Sans",
+      "Manrope"
     ]
   },
   "common_patterns": {

@@ -285,7 +285,7 @@ if ( ! function_exists( 'apollo_sanitize_timetable' ) ) {
 						return $a_order <=> $b_order;
 					}
 					if ( $a_order !== null ) {
-						return -1; 
+						return -1;
 						// Items with order come first
 					}
 					if ( $b_order !== null ) {
@@ -625,7 +625,7 @@ class Apollo_Events_Manager_Plugin {
 		// WordPress 6.7.0+ requires translations to load at 'init' or later
 		add_action( 'init', array( $this, 'load_textdomain' ), 1 );
 		add_action( 'init', array( $this, 'ensure_events_page' ) );
-		add_action( 'admin_init', array( $this, 'init_legacy_migration' ), 5 ); 
+		add_action( 'admin_init', array( $this, 'init_legacy_migration' ), 5 );
 		// Run migration early
 		add_filter( 'template_include', array( $this, 'canvas_template' ), 99 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -877,7 +877,7 @@ class Apollo_Events_Manager_Plugin {
 		$lat = apollo_get_post_meta( $post_id, '_local_latitude', true );
 		$lng = apollo_get_post_meta( $post_id, '_local_longitude', true );
 		if ( ! empty( $lat ) && ! empty( $lng ) ) {
-			return; 
+			return;
 			// Already has coords
 		}
 
@@ -970,7 +970,7 @@ class Apollo_Events_Manager_Plugin {
 					'post_name'    => 'eventos',
 					'post_status'  => 'publish',
 					'post_type'    => 'page',
-					'post_content' => '[events]', 
+					'post_content' => '[events]',
 				// ✅ Use [events] shortcode
 				)
 			);
@@ -1092,7 +1092,7 @@ class Apollo_Events_Manager_Plugin {
 			wp_register_style(
 				'apollo-uni-css',
 				'https://assets.apollo.rio.br/uni.css',
-				array(), 
+				array(),
 				// No dependencies - UNIVERSAL CSS
 				'2.0.0',
 				'all'
@@ -1306,7 +1306,7 @@ class Apollo_Events_Manager_Plugin {
 				wp_enqueue_style(
 					'remixicon',
 					'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-					array(), 
+					array(),
 					// No dependency on uni.css (loads before it)
 					'4.7.0',
 					'all'
@@ -1348,7 +1348,7 @@ class Apollo_Events_Manager_Plugin {
 			wp_enqueue_style(
 				'remixicon',
 				'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-				array(), 
+				array(),
 				// No dependency on uni.css (loads before it)
 				'4.7.0',
 				'all'
@@ -1364,7 +1364,7 @@ class Apollo_Events_Manager_Plugin {
 		wp_enqueue_style(
 			'apollo-shadcn-components',
 			APOLLO_WPEM_URL . 'assets/css/apollo-shadcn-components.css',
-			array( 'remixicon' ), 
+			array( 'remixicon' ),
 			// Removed uni.css dependency (loads before it)
 			APOLLO_WPEM_VERSION,
 			'all'
@@ -1373,7 +1373,7 @@ class Apollo_Events_Manager_Plugin {
 		wp_enqueue_style(
 			'apollo-event-modal-css',
 			APOLLO_WPEM_URL . 'assets/css/event-modal.css',
-			array( 'apollo-shadcn-components' ), 
+			array( 'apollo-shadcn-components' ),
 			// Loads before uni.css
 			APOLLO_WPEM_VERSION,
 			'all'
@@ -1403,7 +1403,7 @@ class Apollo_Events_Manager_Plugin {
 			'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 			array(),
 			'1.9.4',
-			false 
+			false
 			// CRITICAL: Load in header to ensure it's available before inline scripts
 		);
 		wp_enqueue_style(
@@ -1439,7 +1439,7 @@ class Apollo_Events_Manager_Plugin {
 		wp_enqueue_script(
 			'apollo-motion-event-card',
 			APOLLO_WPEM_URL . 'assets/js/motion-event-card.js',
-			array( 'apollo-events-portal' ), 
+			array( 'apollo-events-portal' ),
 			// Depends on portal script
 			APOLLO_WPEM_VERSION,
 			true
@@ -1469,7 +1469,7 @@ class Apollo_Events_Manager_Plugin {
 		wp_enqueue_style(
 			'apollo-infinite-scroll-css',
 			APOLLO_WPEM_URL . 'assets/css/infinite-scroll.css',
-			array( 'apollo-shadcn-components' ), 
+			array( 'apollo-shadcn-components' ),
 			// Removed uni.css dependency
 			APOLLO_WPEM_VERSION,
 			'all'
@@ -1740,9 +1740,9 @@ class Apollo_Events_Manager_Plugin {
 			'apollo-shadcn-components',
 			'apollo-event-modal-css',
 			'apollo-infinite-scroll-css',
-			'admin-bar', 
+			'admin-bar',
 			// Keep admin bar for logged-in users
-							'dashicons', 
+							'dashicons',
 		// Keep dashicons for admin bar
 		);
 
@@ -1766,13 +1766,13 @@ class Apollo_Events_Manager_Plugin {
 			'apollo-image-modal',
 			'apollo-motion-gallery',
 			'apollo-motion-local-page',
-			'apollo-event-favorites', 
+			'apollo-event-favorites',
 			// P0-6: Unified favorites system
-							'apollo-events-favorites', 
+							'apollo-events-favorites',
 			// Legacy favorites
-							'admin-bar', 
+							'admin-bar',
 			// Keep admin bar for logged-in users
-							'hoverIntent', 
+							'hoverIntent',
 		// Keep for admin bar
 		);
 
@@ -1866,13 +1866,13 @@ class Apollo_Events_Manager_Plugin {
 			$events = get_posts(
 				array(
 					'post_type'      => $event_post_type,
-					'posts_per_page' => 50, 
+					'posts_per_page' => 50,
 					// Limit to prevent performance issues
-														'no_found_rows' => true, 
+														'no_found_rows' => true,
 					// Skip pagination count for better performance
-														'update_post_meta_cache' => true, 
+														'update_post_meta_cache' => true,
 					// Cache meta for better performance
-														'update_post_term_cache' => false, 
+														'update_post_term_cache' => false,
 					// Skip term cache if not needed
 														'meta_query' => array(
 															array(
@@ -1929,14 +1929,14 @@ class Apollo_Events_Manager_Plugin {
 		$category    = sanitize_text_field( $_POST['category'] ?? '' );
 		$search      = sanitize_text_field( $_POST['search'] ?? '' );
 		$date        = sanitize_text_field( $_POST['date'] ?? '' );
-		$local_slug  = sanitize_text_field( $_POST['local'] ?? '' ); 
+		$local_slug  = sanitize_text_field( $_POST['local'] ?? '' );
 		// Filter by local slug
-		$filter_type = sanitize_text_field( $_POST['filter_type'] ?? '' ); 
+		$filter_type = sanitize_text_field( $_POST['filter_type'] ?? '' );
 		// 'local' or 'category'
 
 		$args = array(
 			'post_type'                  => $event_post_type,
-			'posts_per_page'             => 100, 
+			'posts_per_page'             => 100,
 			// Limit AJAX results to prevent performance issues
 							'meta_query' => array(
 								array(
@@ -1988,7 +1988,7 @@ class Apollo_Events_Manager_Plugin {
 				);
 			} else {
 				// Local not found, return empty results
-				$args['post__in'] = array( 0 ); 
+				$args['post__in'] = array( 0 );
 				// Force no results
 			}//end if
 		}//end if
@@ -2026,7 +2026,7 @@ class Apollo_Events_Manager_Plugin {
 			$args['update_post_meta_cache'] = true;
 		}
 		if ( ! isset( $args['update_post_term_cache'] ) ) {
-			$args['update_post_term_cache'] = false; 
+			$args['update_post_term_cache'] = false;
 			// Skip if not needed
 		}
 
@@ -2108,11 +2108,11 @@ class Apollo_Events_Manager_Plugin {
 			'post_type'                              => $event_post_type,
 			'posts_per_page'                         => -1,
 			'post_status'                            => 'publish',
-			'no_found_rows'                          => true, 
+			'no_found_rows'                          => true,
 			// Skip pagination count for better performance
-							'update_post_meta_cache' => true, 
+							'update_post_meta_cache' => true,
 			// Cache meta for better performance
-							'update_post_term_cache' => false, 
+							'update_post_term_cache' => false,
 			// Skip term cache if not needed
 							'meta_query'             => array(
 								array(
@@ -2420,7 +2420,7 @@ class Apollo_Events_Manager_Plugin {
 			'comment_author_url'      => $user->user_url,
 			'comment_content'         => $content,
 			'comment_type'            => 'comment',
-			'comment_approved'        => 1, 
+			'comment_approved'        => 1,
 			// Auto-approve for logged-in users
 							'user_id' => $user->ID,
 		);
@@ -2443,6 +2443,11 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX handler for loading single event
 	 */
 	public function ajax_load_event_single() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		check_ajax_referer( 'apollo_events_nonce', '_ajax_nonce' );
 
 		$event_id = isset( $_POST['event_id'] ) ? intval( $_POST['event_id'] ) : 0;
@@ -2536,6 +2541,11 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Approve event (moderation)
 	 */
 	public function ajax_mod_approve_event() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// Verify nonce
 		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );
@@ -2584,6 +2594,11 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Reject event (moderation)
 	 */
 	public function ajax_mod_reject_event() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// Verify nonce
 		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );
@@ -2818,7 +2833,7 @@ class Apollo_Events_Manager_Plugin {
 		if ( isset( $fields['event']['event_country'] ) ) {
 			$fields['event']['event_country']['default'] = 'BR';
 			$fields['event']['event_country']['options'] = array( 'BR' => 'Brazil' );
-			$fields['event']['event_country']['type']    = 'hidden'; 
+			$fields['event']['event_country']['type']    = 'hidden';
 			// Hide the field since it's always Brazil
 		}
 		return $fields;
@@ -4574,7 +4589,7 @@ class Apollo_Events_Manager_Plugin {
 			// Criar ou atualizar evento
 			$post_data = array(
 				'post_type'                      => 'event_listing',
-				'post_status'                    => 'pending', 
+				'post_status'                    => 'pending',
 				// FASE 2: Sempre requer moderação
 									'post_title' => $title,
 				'post_content'                   => $content,
@@ -4780,7 +4795,7 @@ class Apollo_Events_Manager_Plugin {
 			array(
 				'orderby' => 'display_name',
 				'order'   => 'ASC',
-				'number'  => 500, 
+				'number'  => 500,
 			// Limitar para performance
 			)
 		);
@@ -6019,10 +6034,10 @@ function apollo_events_manager_activate() {
 					'post_status'    => 'publish',
 					'post_type'      => 'page',
 					'post_content'   => '[events]',
-					'page_template'  => 'canvas', 
+					'page_template'  => 'canvas',
 					// CRITICAL: Canvas template for independent display
 						'meta_input' => array(
-							'apollo_canvas_mode' => '1', 
+							'apollo_canvas_mode' => '1',
 					// Flag for canvas mode
 						),
 				)
@@ -6049,10 +6064,10 @@ function apollo_events_manager_activate() {
 						'post_status'    => 'publish',
 						'post_type'      => 'page',
 						'post_content'   => '[event_djs]',
-						'page_template'  => 'canvas', 
+						'page_template'  => 'canvas',
 						// CRITICAL: Canvas template
 							'meta_input' => array(
-								'apollo_canvas_mode' => '1', 
+								'apollo_canvas_mode' => '1',
 						// Flag for canvas mode
 							),
 					)
@@ -6077,10 +6092,10 @@ function apollo_events_manager_activate() {
 						'post_status'    => 'publish',
 						'post_type'      => 'page',
 						'post_content'   => '[event_locals]',
-						'page_template'  => 'canvas', 
+						'page_template'  => 'canvas',
 						// CRITICAL: Canvas template
 							'meta_input' => array(
-								'apollo_canvas_mode' => '1', 
+								'apollo_canvas_mode' => '1',
 						// Flag for canvas mode
 							),
 					)
@@ -6104,10 +6119,10 @@ function apollo_events_manager_activate() {
 					'post_status'    => 'publish',
 					'post_type'      => 'page',
 					'post_content'   => '[apollo_event_user_overview]',
-					'page_template'  => 'canvas', 
+					'page_template'  => 'canvas',
 					// CRITICAL: Canvas template
 						'meta_input' => array(
-							'apollo_canvas_mode' => '1', 
+							'apollo_canvas_mode' => '1',
 					// Flag for canvas mode
 						),
 				)

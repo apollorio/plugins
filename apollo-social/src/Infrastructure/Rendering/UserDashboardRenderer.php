@@ -42,10 +42,10 @@ class UserDashboardRenderer {
 
 		return array(
 			'title'                       => 'Painel - ' . $user->display_name,
-			'content'                     => '', 
+			'content'                     => '',
 			// Rendered by template
 							'breadcrumbs' => array( 'Apollo Social', 'Painel' ),
-			'template'                    => 'users/dashboard-painel.php', 
+			'template'                    => 'users/dashboard-painel.php',
 			// Specific template
 							'data'        => array(
 								'user'             => array(
@@ -105,7 +105,7 @@ class UserDashboardRenderer {
 
 		return array(
 			'title'                       => 'Perfil de ' . $user->display_name,
-			'content'                     => '', 
+			'content'                     => '',
 			// Rendered by template
 							'breadcrumbs' => array( 'Apollo Social', 'Perfil', $user->display_name ),
 			'data'                        => array(

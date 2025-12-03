@@ -113,7 +113,7 @@ get_header();
 		<i class="ri-exchange-dollar-line"></i>
 	</button>
 	</div>
-  
+
 	<div class="ap-currency-panel" id="currencyPanel">
 	<div class="ap-currency-panel-header">
 		<h4><i class="ri-exchange-funds-line"></i> Conversor USD ↔ BRL</h4>
@@ -151,13 +151,13 @@ get_header();
 		<p class="ap-brand-subtitle">Marketplace da Comunidade Apollo</p>
 		</div>
 	</div>
-	
+
 	<!-- Safety Banner -->
 	<div class="ap-safety-banner">
 		<div class="ap-safety-icon"><i class="ri-shield-check-line"></i></div>
 		<div class="ap-safety-text">
-		Apollo::rio facilita conexões e pontes, mas <mark>não vendemos</mark> e 
-		<mark>nem nos responsabilizamos</mark> por negociações e contato 
+		Apollo::rio facilita conexões e pontes, mas <mark>não vendemos</mark> e
+		<mark>nem nos responsabilizamos</mark> por negociações e contato
 		<mark>de nenhuma transação iniciada aqui</mark>!
 		</div>
 		<a href="https://dicas.apollo.rio.br" target="_blank" class="ap-safety-link" data-ap-tooltip="Dicas de segurança">
@@ -172,7 +172,7 @@ get_header();
 	<div class="ap-classifieds-search">
 		<form method="get" class="ap-search-form ap-search-lg">
 		<i class="ri-search-line"></i>
-		<input type="text" name="q" id="advertSearch" class="ap-search-input" 
+		<input type="text" name="q" id="advertSearch" class="ap-search-input"
 				value="<?php echo esc_attr( $search_query ); ?>"
 				placeholder="Buscar ingressos, quartos, equipamentos..."
 				data-ap-tooltip="Digite para buscar anúncios">
@@ -184,14 +184,14 @@ get_header();
 
 	<!-- Category Pills -->
 	<div class="ap-filter-tabs ap-filter-tabs-pills">
-		<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>" 
+		<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>"
 		class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>"
 		data-filter="all"
 		data-ap-tooltip="Mostrar todos os anúncios">
 		<i class="ri-apps-line"></i> Todos
 		</a>
 		<?php foreach ( $categories as $key => $cat ) : ?>
-		<a href="<?php echo esc_url( add_query_arg( 'cat', $key ) ); ?>" 
+		<a href="<?php echo esc_url( add_query_arg( 'cat', $key ) ); ?>"
 		class="ap-tab-pill <?php echo $category_filter === $key ? 'active' : ''; ?>"
 		data-filter="<?php echo esc_attr( $key ); ?>"
 		data-ap-tooltip="Filtrar por <?php echo esc_attr( $cat['label'] ); ?>">
@@ -230,13 +230,15 @@ get_header();
 			$author_name     = $author ? $author->display_name : 'Anunciante';
 			$author_initials = strtoupper( substr( $author_name, 0, 2 ) );
 
-			$price       = get_post_meta( $classified_id, '_classified_price', true );
-			$category    = get_post_meta( $classified_id, '_classified_category', true ) ?: 'other';
-			$location    = get_post_meta( $classified_id, '_classified_location', true );
-			$event_title = get_post_meta( $classified_id, '_classified_event_title', true );
-			$event_date  = get_post_meta( $classified_id, '_classified_event_date', true );
-			$event_venue = get_post_meta( $classified_id, '_classified_event_venue', true );
-			$quantity    = get_post_meta( $classified_id, '_classified_quantity', true ) ?: '1';
+			$price        = get_post_meta( $classified_id, '_classified_price', true );
+			$category_raw = get_post_meta( $classified_id, '_classified_category', true );
+			$category     = ! empty( $category_raw ) ? $category_raw : 'other';
+			$location     = get_post_meta( $classified_id, '_classified_location', true );
+			$event_title  = get_post_meta( $classified_id, '_classified_event_title', true );
+			$event_date   = get_post_meta( $classified_id, '_classified_event_date', true );
+			$event_venue  = get_post_meta( $classified_id, '_classified_event_venue', true );
+			$quantity_raw = get_post_meta( $classified_id, '_classified_quantity', true );
+			$quantity     = ! empty( $quantity_raw ) ? $quantity_raw : '1';
 
 			$price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
 			$thumb         = get_the_post_thumbnail_url( $classified_id, 'medium' );
@@ -275,7 +277,7 @@ get_header();
 			);
 			$avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
 			?>
-	   
+
 		<a href="<?php the_permalink(); ?>" class="ap-advert-card" data-category="<?php echo esc_attr( $category ); ?>" data-price="<?php echo esc_attr( $price ); ?>">
 		<div class="ap-advert-body">
 			<div class="ap-advert-top">
@@ -295,12 +297,12 @@ get_header();
 				<span class="ap-advert-event-meta"><?php echo esc_html( $event_date . ' @ ' . $event_venue ); ?></span>
 				<?php else : ?>
 				<span class="ap-advert-event-title"><?php the_title(); ?></span>
-				<span class="ap-advert-event-meta"><?php echo esc_html( $location ?: 'Rio de Janeiro' ); ?></span>
+				<span class="ap-advert-event-meta"><?php echo esc_html( ! empty( $location ) ? $location : 'Rio de Janeiro' ); ?></span>
 				<?php endif; ?>
 				</div>
 			</div>
 			</div>
-		   
+
 			<div class="ap-advert-image">
 			<?php if ( $thumb ) : ?>
 			<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>">
@@ -314,7 +316,7 @@ get_header();
 			</span>
 			</div>
 		</div>
-		
+
 		<div class="ap-advert-info">
 			<div class="ap-advert-quantity">
 			<i class="<?php echo esc_attr( $quantity_icon ); ?>"></i>
@@ -326,7 +328,7 @@ get_header();
 			<span class="ap-price-unit"><?php echo esc_html( $price_unit ); ?></span>
 			</div>
 		</div>
-		
+
 		<div class="ap-advert-footer">
 			<button type="button" class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor" onclick="event.preventDefault(); window.location='<?php echo esc_url( home_url( '/id/' . ( $author ? $author->user_login : '' ) ) ); ?>'">
 			<i class="ri-user-search-line"></i> Investigar
@@ -336,10 +338,10 @@ get_header();
 			</button>
 		</div>
 		</a>
-	   
+
 		<?php endwhile; ?>
 	<?php else : ?>
-	   
+
 		<!-- Empty State -->
 		<div style="grid-column: 1 / -1; text-align: center; padding: 48px 24px;">
 		<i class="ri-megaphone-line" style="font-size: 64px; color: var(--ap-text-muted);"></i>
@@ -355,7 +357,7 @@ get_header();
 			<i class="ri-add-circle-line"></i> Publicar Anúncio
 		</a>
 		</div>
-	   
+
 	<?php endif; ?>
 	<?php wp_reset_postdata(); ?>
 	</main>
@@ -377,7 +379,7 @@ get_header();
 			?>
 	</div>
 	<?php endif; ?>
-	
+
 	<a href="<?php echo esc_url( home_url( '/anunciar/' ) ); ?>" class="ap-btn ap-btn-primary">
 		<i class="ri-add-circle-line"></i> Criar Anúncio
 	</a>

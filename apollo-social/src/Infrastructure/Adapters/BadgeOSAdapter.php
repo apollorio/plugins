@@ -429,7 +429,7 @@ class BadgeOSAdapter {
 				'achievement_id' => $achievement_id,
 			)
 		) ) {
-			return false; 
+			return false;
 			// Already earned
 		}
 

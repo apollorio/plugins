@@ -53,7 +53,7 @@ class MembershipPolicy {
 	 */
 	public function canViewBadgesPanel( ?User $user = null, ?UnionEntity $union = null ): bool {
 		// Check global badges toggle setting (mock function call)
-		$global_badges_enabled = true; 
+		$global_badges_enabled = true;
 		// get_option('apollo_badges_enabled', true);
 
 		if ( ! $global_badges_enabled ) {

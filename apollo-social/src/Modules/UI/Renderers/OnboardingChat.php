@@ -47,7 +47,7 @@ class OnboardingChat {
 		4 => array(
 			'question'                  => 'É membro de algum Núcleo / Club / DJ Bar?',
 			'type'                      => 'multi_select',
-			'options'                   => array(), 
+			'options'                   => array(),
 			// Will be loaded dynamically
 								'field' => 'member_of',
 			'condition'                 => 'industry_member:Yes,Future yes!',

@@ -200,12 +200,12 @@ return array(
 		'pattern'        => '^feed/?$',
 		'query_vars'     => array( 'apollo_route' => 'feed' ),
 		'template'       => 'feed/feed.php',
-		'handler'        => 'Apollo\\Infrastructure\\Rendering\\FeedRenderer', 
+		'handler'        => 'Apollo\\Infrastructure\\Rendering\\FeedRenderer',
 		// FASE 2: Usar FeedRenderer
 				'canvas' => true,
 		'priority'       => 'bottom',
 		'raw_html'       => true,
-		'assets'         => array( 
+		'assets'         => array(
 			// FASE 2: Assets específicos do feed
 						'css' => array(
 							'apollo-feed-css' => array(

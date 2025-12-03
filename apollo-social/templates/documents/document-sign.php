@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Get document
+// Get document.
 $document_id = get_the_ID();
 $document    = get_post( $document_id );
 
@@ -22,28 +22,37 @@ if ( ! $document || $document->post_type !== 'apollo_document' ) {
 	wp_die( __( 'Documento não encontrado.', 'apollo-social' ) );
 }
 
-// Get document meta
-$document_title    = $document->post_title;
-$document_content  = $document->post_content;
-$document_status   = get_post_meta( $document_id, '_document_status', true ) ?: 'draft';
-$document_category = get_post_meta( $document_id, '_document_category', true ) ?: __( 'Geral', 'apollo-social' );
-$document_code     = get_post_meta( $document_id, '_document_code', true ) ?: sprintf( 'APR-DOC-%s-%05d', date( 'Y' ), $document_id );
-$document_created  = get_the_date( 'd \d\e M. \d\e Y', $document_id );
-$document_pages    = get_post_meta( $document_id, '_document_pages', true ) ?: 1;
+// Get document meta.
+$document_title   = $document->post_title;
+$document_content = $document->post_content;
 
-// Get signers
+$status_raw      = get_post_meta( $document_id, '_document_status', true );
+$document_status = ! empty( $status_raw ) ? $status_raw : 'draft';
+
+$category_raw      = get_post_meta( $document_id, '_document_category', true );
+$document_category = ! empty( $category_raw ) ? $category_raw : __( 'Geral', 'apollo-social' );
+
+$code_raw      = get_post_meta( $document_id, '_document_code', true );
+$document_code = ! empty( $code_raw ) ? $code_raw : sprintf( 'APR-DOC-%s-%05d', date( 'Y' ), $document_id );
+
+$document_created = get_the_date( 'd \d\e M. \d\e Y', $document_id );
+
+$pages_raw      = get_post_meta( $document_id, '_document_pages', true );
+$document_pages = ! empty( $pages_raw ) ? $pages_raw : 1;
+
+// Get signers.
 $signers = get_post_meta( $document_id, '_document_signers', true );
 if ( ! is_array( $signers ) ) {
 	$signers = array();
 }
 
-// Current user
-$current_user          = wp_get_current_user();
-$current_user_id       = $current_user->ID;
+// Current user.
+$user_obj              = wp_get_current_user();
+$current_user_id       = $user_obj->ID;
 $current_user_avatar   = get_avatar_url( $current_user_id, array( 'size' => 64 ) );
-$current_user_initials = mb_strtoupper( mb_substr( $current_user->display_name, 0, 2 ) );
+$current_user_initials = mb_strtoupper( mb_substr( $user_obj->display_name, 0, 2 ) );
 
-// Check if current user has already signed
+// Check if current user has already signed.
 $current_user_signed = false;
 $signed_count        = 0;
 foreach ( $signers as $signer ) {
@@ -62,19 +71,20 @@ $all_signed    = $signed_count === $total_signers;
 // User must have CPF to sign documents. Passport users CANNOT sign.
 $user_cpf = get_user_meta( $current_user_id, 'apollo_cpf', true );
 if ( ! $user_cpf ) {
-	// Fallback to old meta key
+	// Fallback to old meta key.
 	$user_cpf = get_user_meta( $current_user_id, '_user_cpf', true );
 }
 $user_passport      = get_user_meta( $current_user_id, 'apollo_passport', true );
-$user_doc_type      = get_user_meta( $current_user_id, 'apollo_doc_type', true ) ?: ( $user_cpf ? 'cpf' : ( $user_passport ? 'passport' : '' ) );
+$user_doc_type_raw  = get_user_meta( $current_user_id, 'apollo_doc_type', true );
+$user_doc_type      = ! empty( $user_doc_type_raw ) ? $user_doc_type_raw : ( $user_cpf ? 'cpf' : ( $user_passport ? 'passport' : '' ) );
 $can_sign_documents = get_user_meta( $current_user_id, 'apollo_can_sign_documents', true );
 
-// Determine if user can sign
+// Determine if user can sign.
 $user_has_valid_cpf     = ! empty( $user_cpf ) && strlen( preg_replace( '/[^0-9]/', '', $user_cpf ) ) === 11;
 $user_has_passport_only = ! $user_has_valid_cpf && ! empty( $user_passport );
 $user_can_sign          = $user_has_valid_cpf && $can_sign_documents !== false;
 
-// Block reason
+// Block reason.
 $sign_blocked_reason = '';
 if ( ! $user_has_valid_cpf && $user_has_passport_only ) {
 	$sign_blocked_reason = __( 'Usuários com passaporte não podem assinar documentos digitais. A assinatura digital requer CPF válido conforme legislação brasileira.', 'apollo-social' );
@@ -82,7 +92,7 @@ if ( ! $user_has_valid_cpf && $user_has_passport_only ) {
 	$sign_blocked_reason = __( 'Você precisa cadastrar um CPF válido no seu perfil para assinar documentos digitais.', 'apollo-social' );
 }
 
-// CPF mask for display
+// CPF mask for display.
 $cpf_display = __( 'CPF não cadastrado', 'apollo-social' );
 if ( $user_has_valid_cpf ) {
 	$cpf_display = 'CPF ' . preg_replace( '/^(\d{3})(\d{3})(\d{3})(\d{2})$/', '***.$2.***-**', preg_replace( '/[^0-9]/', '', $user_cpf ) );
@@ -96,13 +106,13 @@ if ( $user_has_valid_cpf ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 	<title><?php esc_html_e( 'Assinar Documento', 'apollo-social' ); ?> - Apollo::Rio</title>
-	
+
 	<!-- Apollo Design System -->
 	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
+
 	<!-- Remixicon -->
 	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-	
+
 	<?php wp_head(); ?>
 </head>
 <body class="apollo-canvas min-h-screen">
@@ -154,11 +164,11 @@ if ( $user_has_valid_cpf ) {
 		<!-- User Footer -->
 		<div class="border-t border-slate-100 px-4 py-3">
 			<div class="flex items-center gap-3">
-				<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100" data-tooltip="<?php echo esc_attr( $current_user->display_name ); ?>">
-					<img src="<?php echo esc_url( $current_user_avatar ); ?>" class="h-full w-full object-cover" alt="<?php echo esc_attr( $current_user->display_name ); ?>">
+				<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100" data-tooltip="<?php echo esc_attr( $user_obj->display_name ); ?>">
+					<img src="<?php echo esc_url( $current_user_avatar ); ?>" class="h-full w-full object-cover" alt="<?php echo esc_attr( $user_obj->display_name ); ?>">
 				</div>
 				<div class="flex flex-col leading-tight">
-					<span class="text-[12px] font-semibold text-slate-900"><?php echo esc_html( $current_user->display_name ); ?></span>
+					<span class="text-[12px] font-semibold text-slate-900"><?php echo esc_html( $user_obj->display_name ); ?></span>
 					<span class="text-[10px] text-slate-500">@<?php echo esc_html( $current_user->user_login ); ?></span>
 				</div>
 				<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="ml-auto text-slate-400 hover:text-slate-700" data-tooltip="<?php esc_attr_e( 'Sair', 'apollo-social' ); ?>">
@@ -221,7 +231,7 @@ if ( $user_has_valid_cpf ) {
 			</div>
 
 			<div class="max-w-7xl mx-auto w-full h-full flex flex-col lg:flex-row gap-6 pb-20 md:pb-0">
-				
+
 				<!-- LEFT: DOCUMENT PREVIEW -->
 				<div class="flex-1 flex flex-col gap-4 min-w-0">
 					<section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 md:p-6 flex-1 flex flex-col min-h-[500px]" data-tooltip="<?php esc_attr_e( 'Visualização do documento', 'apollo-social' ); ?>">
@@ -306,7 +316,7 @@ if ( $user_has_valid_cpf ) {
 							<!-- Current User -->
 							<div id="signer-you-card" class="flex items-center justify-between p-3 rounded-xl <?php echo $current_user_signed ? 'bg-emerald-50 border border-emerald-100' : 'bg-amber-50 border border-amber-100'; ?>" data-tooltip="<?php esc_attr_e( 'Seu status de assinatura', 'apollo-social' ); ?>">
 								<div class="flex items-center gap-3">
-									<div class="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-xs font-bold text-white shadow-sm" data-tooltip="<?php echo esc_attr( $current_user->display_name ); ?>">
+									<div class="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-xs font-bold text-white shadow-sm" data-tooltip="<?php echo esc_attr( $user_obj->display_name ); ?>">
 										<?php echo esc_html( $current_user_initials ); ?>
 									</div>
 									<div>
@@ -361,7 +371,7 @@ if ( $user_has_valid_cpf ) {
 
 					<!-- Signature Action Card -->
 					<?php if ( ! $current_user_signed ) : ?>
-					
+
 						<?php if ( ! $user_can_sign ) : ?>
 					<!-- ===== BLOCKED: User cannot sign (no CPF or passport only) ===== -->
 					<section class="bg-white rounded-3xl shadow-sm border border-red-200 p-5 flex-1 flex flex-col" style="opacity: 0.5; pointer-events: none;" data-tooltip="<?php esc_attr_e( 'Assinatura bloqueada', 'apollo-social' ); ?>">
@@ -371,7 +381,7 @@ if ( $user_has_valid_cpf ) {
 								<?php esc_html_e( 'Assinatura Bloqueada', 'apollo-social' ); ?>
 							</h3>
 						</div>
-						
+
 						<!-- Blocked Message -->
 						<div class="p-4 bg-red-50 border border-red-100 rounded-xl mb-4">
 							<p class="text-sm text-red-700 font-medium mb-2">
@@ -384,7 +394,7 @@ if ( $user_has_valid_cpf ) {
 							</p>
 							<?php endif; ?>
 						</div>
-						
+
 						<!-- Disabled Form Preview -->
 						<div class="space-y-4 flex-1">
 							<div class="space-y-3">
@@ -413,7 +423,7 @@ if ( $user_has_valid_cpf ) {
 								</button>
 							</div>
 						</div>
-						
+
 							<?php if ( ! $user_has_passport_only ) : ?>
 						<div class="mt-4 pt-4 border-t border-slate-100">
 							<a href="<?php echo esc_url( home_url( '/perfil/editar/' ) ); ?>" class="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all" style="opacity: 1; pointer-events: auto;" data-tooltip="<?php esc_attr_e( 'Atualizar seu CPF no perfil', 'apollo-social' ); ?>">
@@ -423,7 +433,7 @@ if ( $user_has_valid_cpf ) {
 						</div>
 						<?php endif; ?>
 					</section>
-					
+
 					<?php else : ?>
 					<!-- ===== ENABLED: User can sign (has valid CPF) ===== -->
 					<section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 flex-1 flex flex-col" data-tooltip="<?php esc_attr_e( 'Realizar assinatura digital', 'apollo-social' ); ?>">
@@ -576,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	async function handleSign(provider) {
 		if (!chkTerms || !chkRep) return;
-		
+
 		if (!chkTerms.checked || !chkRep.checked) {
 			if (errorEl) errorEl.classList.remove('hidden');
 			return;

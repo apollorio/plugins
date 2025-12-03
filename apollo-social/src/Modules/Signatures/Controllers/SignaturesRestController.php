@@ -79,6 +79,11 @@ class SignaturesRestController extends WP_REST_Controller {
 	 * @return void
 	 */
 	public function register_routes(): void {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// POST /documents/{id}/sign - Sign a document.
 		register_rest_route(
 			$this->namespace,
@@ -162,6 +167,11 @@ class SignaturesRestController extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response or error.
 	 */
 	public function sign_document( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		$document_id = (int) $request->get_param( 'id' );
 		$user_id     = get_current_user_id();
 

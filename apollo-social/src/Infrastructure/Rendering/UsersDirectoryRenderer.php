@@ -26,7 +26,7 @@ class UsersDirectoryRenderer {
 		$args = array(
 			'orderby' => 'registered',
 			'order'   => 'DESC',
-			'number'  => -1, 
+			'number'  => -1,
 		// Get all users
 		);
 

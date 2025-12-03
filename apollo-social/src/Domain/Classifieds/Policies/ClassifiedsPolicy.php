@@ -23,7 +23,7 @@ class ClassifiedsPolicy {
 			// For season groups, additional validation will be done by BindSeason
 			if ( $context->isSeason() ) {
 				// Season context requires special season_slug validation
-				return true; 
+				return true;
 				// Will be validated by BindSeason
 			}
 

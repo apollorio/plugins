@@ -103,7 +103,7 @@ class MigrationManager {
 						'version' => $version,
 						'error'   => $result['error'],
 					);
-					break; 
+					break;
 					// Stop on first error
 				}
 			}

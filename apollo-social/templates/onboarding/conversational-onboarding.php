@@ -13,9 +13,70 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Enqueue assets
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Onboarding-specific inline styles.
+		$onboarding_css = '
+			.ap-onboarding-page {
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 20px;
+				background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+			}
+			.ap-onboarding-container {
+				background: var(--ap-bg-card);
+				border-radius: var(--ap-radius-2xl);
+				box-shadow: var(--ap-shadow-xl);
+				max-width: 480px;
+				width: 100%;
+				height: 600px;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+			.ap-onboarding-header {
+				background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
+				color: white;
+				padding: 20px;
+			}
+		';
+		wp_add_inline_style( 'apollo-uni-css', $onboarding_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
 }
 
 $nonce = wp_create_nonce( 'apollo_onboarding' );
@@ -26,44 +87,15 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Bem-vindo ao Apollo Social - Onboarding</title>
-	
-	<!-- UNI.CSS -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
-	
+	<?php wp_head(); ?>
+
 	<style>
 	/* Onboarding specific styles extending UNI.CSS */
-	.ap-onboarding-page {
-		min-height: 100vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 20px;
-		background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
-	}
-	
-	.ap-onboarding-container {
-		background: var(--ap-bg-card);
-		border-radius: var(--ap-radius-2xl);
-		box-shadow: var(--ap-shadow-xl);
-		max-width: 480px;
-		width: 100%;
-		height: 600px;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-	}
-	
-	.ap-onboarding-header {
-		background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
-		color: white;
-		padding: 20px;
 		display: flex;
 		align-items: center;
 		gap: 15px;
 	}
-	
+
 	.ap-onboarding-avatar {
 		width: 50px;
 		height: 50px;
@@ -75,43 +107,43 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		font-size: 24px;
 		border: 3px solid rgba(255, 255, 255, 0.3);
 	}
-	
+
 	.ap-onboarding-title {
 		font-size: var(--ap-text-lg);
 		font-weight: 600;
 		margin: 0 0 4px 0;
 	}
-	
+
 	.ap-onboarding-status {
 		font-size: var(--ap-text-sm);
 		opacity: 0.9;
 	}
-	
+
 	.ap-onboarding-progress {
 		height: 4px;
 		background: rgba(255, 255, 255, 0.2);
 		overflow: hidden;
 	}
-	
+
 	.ap-onboarding-progress-fill {
 		height: 100%;
 		background: var(--ap-color-success);
 		transition: width 0.5s ease;
 		width: 0%;
 	}
-	
+
 	.ap-onboarding-messages {
 		flex: 1;
 		padding: 20px;
 		overflow-y: auto;
 		background: var(--ap-bg-surface);
 	}
-	
+
 	.ap-onboarding-message {
 		margin-bottom: 20px;
 		animation: fadeInUp 0.4s ease;
 	}
-	
+
 	.ap-onboarding-bubble {
 		background: var(--ap-bg-card);
 		border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
@@ -119,38 +151,38 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		box-shadow: var(--ap-shadow-sm);
 		max-width: 85%;
 	}
-	
+
 	.ap-onboarding-bubble h4 {
 		color: var(--ap-text-primary);
 		font-size: var(--ap-text-md);
 		margin: 0 0 8px 0;
 	}
-	
+
 	.ap-onboarding-bubble p {
 		color: var(--ap-text-secondary);
 		line-height: 1.5;
 		margin: 0;
 	}
-	
+
 	.ap-onboarding-input {
 		background: var(--ap-bg-card);
 		border-top: 1px solid var(--ap-border-light);
 		padding: 20px;
 	}
-	
+
 	.ap-onboarding-btn-grid {
 		display: grid;
 		gap: 10px;
 	}
-	
+
 	.ap-onboarding-btn-grid.two-cols {
 		grid-template-columns: 1fr 1fr;
 	}
-	
+
 	.ap-onboarding-btn-grid.three-cols {
 		grid-template-columns: repeat(3, 1fr);
 	}
-	
+
 	.ap-onboarding-choice {
 		padding: 12px 16px;
 		border: 2px solid var(--ap-border-default);
@@ -164,25 +196,25 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		text-align: center;
 		font-family: var(--ap-font-primary);
 	}
-	
+
 	.ap-onboarding-choice:hover {
 		border-color: var(--ap-orange-500);
 		background: var(--ap-orange-50);
 	}
-	
+
 	.ap-onboarding-choice.selected {
 		border-color: var(--ap-orange-500);
 		background: var(--ap-orange-500);
 		color: white;
 	}
-	
+
 	.ap-onboarding-interest-grid {
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 8px;
 		margin-bottom: 15px;
 	}
-	
+
 	.ap-onboarding-interest {
 		padding: 10px 12px;
 		border: 2px solid var(--ap-border-default);
@@ -195,18 +227,18 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		text-align: center;
 		font-family: var(--ap-font-primary);
 	}
-	
+
 	.ap-onboarding-interest:hover {
 		border-color: var(--ap-orange-500);
 		background: var(--ap-orange-50);
 	}
-	
+
 	.ap-onboarding-interest.selected {
 		border-color: var(--ap-color-success);
 		background: var(--ap-color-success);
 		color: white;
 	}
-	
+
 	.ap-onboarding-primary-btn {
 		width: 100%;
 		padding: 14px;
@@ -221,19 +253,19 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		margin-top: 10px;
 		font-family: var(--ap-font-primary);
 	}
-	
+
 	.ap-onboarding-primary-btn:hover {
 		transform: translateY(-2px);
 		box-shadow: var(--ap-shadow-lg);
 	}
-	
+
 	.ap-onboarding-primary-btn:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: none;
 	}
-	
+
 	.ap-onboarding-verification {
 		background: var(--ap-color-info-bg);
 		border: 1px solid var(--ap-color-info);
@@ -241,13 +273,13 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		padding: 16px;
 		margin-bottom: 15px;
 	}
-	
+
 	.ap-onboarding-verification h5 {
 		color: var(--ap-color-info);
 		margin: 0 0 10px 0;
 		font-size: var(--ap-text-sm);
 	}
-	
+
 	.ap-onboarding-error {
 		background: var(--ap-color-error-bg);
 		border: 1px solid var(--ap-color-error);
@@ -257,17 +289,17 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		margin-bottom: 15px;
 		font-size: var(--ap-text-sm);
 	}
-	
+
 	.ap-onboarding-completion {
 		text-align: center;
 		padding: 20px;
 	}
-	
+
 	.ap-onboarding-completion-icon {
 		font-size: 72px;
 		margin-bottom: 20px;
 	}
-	
+
 	.ap-onboarding-badges {
 		display: flex;
 		justify-content: center;
@@ -275,14 +307,14 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		margin: 20px 0;
 		flex-wrap: wrap;
 	}
-	
+
 	.ap-onboarding-loading {
 		display: none;
 		text-align: center;
 		padding: 20px;
 		color: var(--ap-text-muted);
 	}
-	
+
 	.ap-onboarding-spinner {
 		width: 32px;
 		height: 32px;
@@ -292,32 +324,32 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		animation: spin 1s linear infinite;
 		margin: 0 auto 10px;
 	}
-	
+
 	@keyframes spin {
 		0% { transform: rotate(0deg); }
 		100% { transform: rotate(360deg); }
 	}
-	
+
 	@keyframes fadeInUp {
 		from { opacity: 0; transform: translateY(20px); }
 		to { opacity: 1; transform: translateY(0); }
 	}
-	
+
 	@media (max-width: 480px) {
 		.ap-onboarding-page {
 			padding: 0;
 		}
-		
+
 		.ap-onboarding-container {
 			height: 100vh;
 			border-radius: 0;
 			max-width: none;
 		}
-		
+
 		.ap-onboarding-interest-grid {
 			grid-template-columns: 1fr;
 		}
-		
+
 		.ap-onboarding-btn-grid.three-cols {
 			grid-template-columns: 1fr;
 		}
@@ -334,7 +366,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 				<div class="ap-onboarding-status" id="chatStatus">Iniciando conversa...</div>
 			</div>
 		</div>
-		
+
 		<!-- Progress -->
 		<div class="ap-onboarding-progress">
 			<div class="ap-onboarding-progress-fill" id="progressFill"></div>
@@ -371,7 +403,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		async init() {
 			try {
 				const response = await this.apiCall('apollo_start_onboarding', {});
-				
+
 				if (response.success) {
 					this.sessionId = response.data.session_id;
 					this.loadStep(response.data.step_data, response.data.progress);
@@ -439,7 +471,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		renderTextInput(stepData) {
 			return `
 				<div class="ap-form-group">
-					<input type="text" id="textInput" class="ap-form-input" 
+					<input type="text" id="textInput" class="ap-form-input"
 							placeholder="${stepData.input_placeholder}" maxlength="100"
 							data-ap-tooltip="Digite sua resposta">
 				</div>
@@ -452,7 +484,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		renderLocationInput(stepData) {
 			return `
 				<div class="ap-form-group">
-					<input type="text" id="locationInput" class="ap-form-input" 
+					<input type="text" id="locationInput" class="ap-form-input"
 							placeholder="${stepData.input_placeholder}"
 							data-ap-tooltip="Digite sua localização">
 				</div>
@@ -470,7 +502,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 
 		renderMultiSelectInput(stepData) {
 			const options = Object.entries(stepData.options || {});
-			const optionsHTML = options.map(([key, label]) => 
+			const optionsHTML = options.map(([key, label]) =>
 				`<button class="ap-onboarding-interest" data-value="${key}" onclick="apollo.toggleInterest('${key}')">${label}</button>`
 			).join('');
 
@@ -482,7 +514,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 
 		renderSelectInput(stepData) {
 			const options = Object.entries(stepData.options || {});
-			const optionsHTML = options.map(([key, label]) => 
+			const optionsHTML = options.map(([key, label]) =>
 				`<button class="ap-onboarding-choice" data-value="${key}" onclick="apollo.selectOption('${key}')">${label}</button>`
 			).join('');
 
@@ -502,7 +534,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 				</div>
 				<div class="ap-form-group">
 					<label class="ap-form-label">Código de Verificação</label>
-					<input type="text" id="verificationCode" class="ap-form-input" 
+					<input type="text" id="verificationCode" class="ap-form-input"
 							placeholder="${stepData.input_placeholder}" maxlength="6"
 							data-ap-tooltip="Digite o código recebido">
 				</div>
@@ -512,7 +544,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 
 		renderButtonInput(stepData) {
 			const buttons = stepData.buttons || [];
-			const buttonsHTML = buttons.map(button => 
+			const buttonsHTML = buttons.map(button =>
 				`<button class="ap-onboarding-choice" onclick="apollo.handleButtonClick('${button}')">${button}</button>`
 			).join('');
 			const gridClass = buttons.length <= 2 ? 'two-cols' : 'three-cols';
@@ -615,7 +647,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 
 		showCompletion(data) {
 			const container = document.getElementById('chatMessages');
-			const badgesHTML = (data.badges_earned || []).map(badge => 
+			const badgesHTML = (data.badges_earned || []).map(badge =>
 				`<span class="ap-badge ap-badge-success"><i class="${badge.icon}"></i> ${badge.name}</span>`
 			).join('');
 
@@ -634,7 +666,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 			container.scrollTop = container.scrollHeight;
 			document.getElementById('inputSection').style.display = 'none';
 			this.updateProgress(100);
-			
+
 			setTimeout(() => { window.location.href = '/painel'; }, 3000);
 		}
 
@@ -672,12 +704,12 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 			const section = document.getElementById('inputSection');
 			const existing = section.querySelector('.ap-onboarding-error');
 			if (existing) existing.remove();
-			
+
 			const errorDiv = document.createElement('div');
 			errorDiv.className = 'ap-onboarding-error';
 			errorDiv.innerHTML = `<i class="ri-error-warning-line"></i> ${message}`;
 			section.insertBefore(errorDiv, section.firstChild);
-			
+
 			setTimeout(() => { errorDiv.remove(); }, 5000);
 		}
 

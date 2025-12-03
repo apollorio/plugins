@@ -221,7 +221,7 @@ class CompleteOnboarding {
 		$subscriber_caps = array(
 			'create_apollo_groups'               => true,
 			'create_apollo_ads'                  => true,
-			'publish_apollo_groups'              => true, 
+			'publish_apollo_groups'              => true,
 			// Social/Discussion only
 							'publish_apollo_ads' => true,
 			'read_apollo_content'                => true,
@@ -280,7 +280,7 @@ class CompleteOnboarding {
 
 		// Check if table exists
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$audit_table}'" ) != $audit_table ) {
-			return; 
+			return;
 			// Table doesn't exist yet
 		}
 

@@ -107,7 +107,7 @@ apollo_render_dashboard_page(
 		),
 		'chart'       => array(
 			'title' => 'Atividade Recente',
-			'data'  => array(), 
+			'data'  => array(),
 	// Add chart data here
 		),
 		'table'       => array(

@@ -136,7 +136,7 @@ class UploadSecurityScanner {
 
 		// Check file size (protect against decompression bombs)
 		$file_size = filesize( $file_path );
-		$max_size  = apply_filters( 'apollo_upload_max_scan_size', 10 * 1024 * 1024 ); 
+		$max_size  = apply_filters( 'apollo_upload_max_scan_size', 10 * 1024 * 1024 );
 		// 10 MB
 		if ( $file_size > $max_size ) {
 			return array(
@@ -373,7 +373,8 @@ class UploadSecurityScanner {
 			$details
 		);
 
-		// Log to WordPress error log
+		// Log to WordPress error log (security audit - always log threats).
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Security audit logging required.
 		error_log( $log_entry );
 
 		// Optional: Log to database for admin review

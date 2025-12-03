@@ -59,7 +59,7 @@ class UserPageAutoCreate {
 					'post_title'     => $user->display_name . ' - Perfil',
 					'post_status'    => 'publish',
 					'post_author'    => $user_id,
-					'comment_status' => 'open', 
+					'comment_status' => 'open',
 				// P0-8: Enable comments for depoimentos
 				)
 			);
@@ -196,7 +196,7 @@ class UserPageAutoCreate {
 					'title'          => 'Depoimentos',
 					'allow_comments' => true,
 					'max_comments'   => 50,
-					'moderation'     => true, 
+					'moderation'     => true,
 			// P0-8: Require moderation
 				),
 			),

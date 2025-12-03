@@ -15,7 +15,7 @@ abstract class BaseController {
 	 */
 	protected function validateNonce(): bool {
 		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-			return true; 
+			return true;
 			// GET requests don't need nonce
 		}
 

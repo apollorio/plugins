@@ -82,7 +82,7 @@ class DocumentSaveHandler {
 	 *
 	 * @var string
 	 */
-	const NONCE_ACTION = 'apollo_editor_image_upload'; 
+	const NONCE_ACTION = 'apollo_editor_image_upload';
 	// Same nonce as editor
 
 	/**

@@ -116,7 +116,7 @@ class AssetsManager {
 		}
 
 		$allowed_handles = array(
-			'apollo-uni-css', 
+			'apollo-uni-css',
 			// P0-4: uni.css from assets.apollo.rio.br
 							'apollo-canvas-mode',
 			'apollo-modules',
@@ -134,9 +134,9 @@ class AssetsManager {
 			'/apollo-',
 			'assets.apollo.rio.br',
 			'remixicon',
-			'cdn.jsdelivr.net/npm/motion', 
+			'cdn.jsdelivr.net/npm/motion',
 			// Motion.dev library
-							'cdn.tailwindcss.com', 
+							'cdn.tailwindcss.com',
 		// Tailwind CDN (if used)
 		);
 
@@ -195,9 +195,9 @@ class AssetsManager {
 		$allowed_patterns = array(
 			'/apollo-',
 			'assets.apollo.rio.br',
-			'cdn.jsdelivr.net/npm/motion', 
+			'cdn.jsdelivr.net/npm/motion',
 			// Motion.dev library
-							'unpkg.com/@motionone', 
+							'unpkg.com/@motionone',
 		// Motion.dev alternative CDN
 		);
 
@@ -259,7 +259,7 @@ class AssetsManager {
 			wp_enqueue_style(
 				'apollo-canvas-mode',
 				$css_file,
-				array( 'apollo-uni-css' ), 
+				array( 'apollo-uni-css' ),
 				// Depend on uni.css
 				APOLLO_SOCIAL_VERSION
 			);

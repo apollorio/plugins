@@ -63,47 +63,47 @@ get_header();
 
 		<!-- Navigation -->
 		<nav class="ap-sidebar-nav">
-			<a href="<?php echo esc_url( home_url( '/cena-rio' ) ); ?>" 
+			<a href="<?php echo esc_url( home_url( '/cena-rio' ) ); ?>"
 				class="ap-nav-item <?php echo $current_tab === 'dashboard' ? 'active' : ''; ?>"
 				data-ap-tooltip="Visão geral do dashboard">
 				<i class="ri-home-4-line"></i>
 				<span>Início</span>
 			</a>
-			
-			<a href="<?php echo esc_url( add_query_arg( 'tab', 'documents', home_url( '/cena-rio' ) ) ); ?>" 
+
+			<a href="<?php echo esc_url( add_query_arg( 'tab', 'documents', home_url( '/cena-rio' ) ) ); ?>"
 				class="ap-nav-item <?php echo $current_tab === 'documents' ? 'active' : ''; ?>"
-				data-ap-tooltip="Gerenciar documentos e contratos">
+				data-ap-tooltip="<?php esc_attr_e( 'Gerenciar documentos e contratos', 'apollo-social' ); ?>">
 				<i class="ri-file-text-line"></i>
-				<span>Documentos</span>
+				<span><?php esc_html_e( 'Documentos', 'apollo-social' ); ?></span>
 				<?php if ( ! empty( $user_documents ) ) : ?>
-				<span class="ap-badge ap-badge-primary"><?php echo count( $user_documents ); ?></span>
+				<span class="ap-badge ap-badge-primary" data-ap-tooltip="<?php echo esc_attr( sprintf( __( '%d documentos', 'apollo-social' ), count( $user_documents ) ) ); ?>"><?php echo count( $user_documents ); ?></span>
 				<?php endif; ?>
 			</a>
-			
-			<a href="<?php echo esc_url( add_query_arg( 'tab', 'plans', home_url( '/cena-rio' ) ) ); ?>" 
+
+			<a href="<?php echo esc_url( add_query_arg( 'tab', 'plans', home_url( '/cena-rio' ) ) ); ?>"
 				class="ap-nav-item <?php echo $current_tab === 'plans' ? 'active' : ''; ?>"
 				data-ap-tooltip="Planos e cronogramas de eventos">
 				<i class="ri-calendar-line"></i>
 				<span>Planos de Evento</span>
 			</a>
-			
-			<a href="<?php echo esc_url( home_url( '/chat' ) ); ?>" 
+
+			<a href="<?php echo esc_url( home_url( '/chat' ) ); ?>"
 				class="ap-nav-item"
 				data-ap-tooltip="Mensagens e conversas">
 				<i class="ri-message-3-line"></i>
 				<span>Mensagens</span>
 			</a>
-			
+
 			<div class="ap-nav-divider"></div>
-			
-			<a href="<?php echo esc_url( home_url( '/id/' . $current_user->user_login ) ); ?>" 
+
+			<a href="<?php echo esc_url( home_url( '/id/' . $current_user->user_login ) ); ?>"
 				class="ap-nav-item"
 				data-ap-tooltip="Ver seu perfil público">
 				<i class="ri-user-line"></i>
 				<span>Meu Perfil</span>
 			</a>
-			
-			<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" 
+
+			<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>"
 				class="ap-nav-item ap-nav-item-danger"
 				data-ap-tooltip="Sair da sua conta">
 				<i class="ri-logout-box-r-line"></i>
@@ -203,17 +203,17 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Notifications Modal
 	const notificationsToggle = document.getElementById('notificationsToggle');
 	const notificationsModal = document.getElementById('notificationsModal');
-	
+
 	notificationsToggle?.addEventListener('click', function() {
 		notificationsModal?.classList.add('open');
 	});
-	
+
 	notificationsModal?.querySelectorAll('[data-close-modal]').forEach(function(el) {
 		el.addEventListener('click', function() {
 			notificationsModal.classList.remove('open');
 		});
 	});
-	
+
 	// Escape to close modal
 	document.addEventListener('keydown', function(e) {
 		if (e.key === 'Escape' && notificationsModal?.classList.contains('open')) {

@@ -99,7 +99,7 @@ class DJContactsTable {
 
 		// Query DJs from Events Manager CPT (read-only integration)
 		if ( ! post_type_exists( 'event_dj' ) ) {
-			return array(); 
+			return array();
 			// Events Manager not active
 		}
 
@@ -144,7 +144,7 @@ class DJContactsTable {
 
 			// Calculate engagement score (based on events count)
 			$events_count = $this->getDJEventsCount( $dj->ID );
-			$score        = min( 10, ceil( $events_count / 5 ) ); 
+			$score        = min( 10, ceil( $events_count / 5 ) );
 			// 1 point per 5 events, max 10
 
 			$contacts[] = array(

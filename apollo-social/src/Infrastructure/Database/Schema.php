@@ -29,9 +29,9 @@ class Schema {
 		$this->createAnalyticsTable();
 		$this->createSignatureRequestsTable();
 		$this->createOnboardingProgressTable();
-		$this->createLikesTable(); 
+		$this->createLikesTable();
 		// FASE 2: Tabela de curtidas
-		$this->createDocumentsTable(); 
+		$this->createDocumentsTable();
 		// P0-9: Tabela de documentos
 
 		// P0-3: Update schema version after successful installation

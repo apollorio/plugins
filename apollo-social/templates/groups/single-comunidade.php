@@ -14,15 +14,95 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Inline comunidade-specific styles.
+		$comunidade_css = '
+			:root {
+				--font-primary: "Urbanist", system-ui, sans-serif;
+				--bg-main: #ffffff;
+				--text-main: rgba(15, 23, 42, 0.7);
+				--text-primary: rgba(15, 23, 42, 0.95);
+				--border-color-2: #e5e7eb;
+			}
+			html, body {
+				font-family: var(--font-primary);
+				background-color: var(--bg-main);
+				color: var(--text-main);
+				-webkit-tap-highlight-color: transparent;
+			}
+			.no-scrollbar::-webkit-scrollbar { display: none; }
+			.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+			.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+			.aprio-sidebar-nav a {
+				display:flex; align-items:center; gap:0.75rem;
+				padding:0.55rem 0.75rem; margin-bottom:0.1rem;
+				border-radius:10px; border-left:2px solid transparent;
+				font-size:13px; color:#64748b; text-decoration:none;
+				transition:background-color .18s,color .18s,border-color .18s;
+			}
+			.aprio-sidebar-nav a i { font-size:18px; }
+			.aprio-sidebar-nav a:hover {
+				background-color:#f8fafc; color:#0f172a; border-left-color:#e5e7eb;
+			}
+			.aprio-sidebar-nav a[aria-current="page"] {
+				background-color:#f1f5f9; color:#0f172a;
+				border-left-color:#0f172a; font-weight:600;
+			}
+			.nav-btn {
+				display:flex; flex-direction:column; align-items:center; justify-content:center;
+				gap:0.15rem; font-size:10px; color:#64748b; text-align:center;
+			}
+			.nav-btn i { font-size:20px; }
+			.nav-btn.active { color:#0f172a; font-weight:600; }
+		';
+		wp_add_inline_style( 'apollo-uni-css', $comunidade_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
 global $post;
 
-// Get group data
-$group_id    = get_the_ID();
-$title       = get_the_title();
-$content     = get_the_content();
-$description = get_post_meta( $group_id, '_group_description', true ) ?: wp_trim_words( $content, 50 );
+// Get group data.
+$group_id         = get_the_ID();
+$group_title      = get_the_title();
+$content          = get_the_content();
+$description_meta = get_post_meta( $group_id, '_group_description', true );
+$description      = ! empty( $description_meta ) ? $description_meta : wp_trim_words( $content, 50 );
 
-// Meta data
+// Meta data.
 $cover_url     = get_post_meta( $group_id, '_group_cover', true );
 $avatar_url    = get_post_meta( $group_id, '_group_avatar', true );
 $members_count = (int) get_post_meta( $group_id, '_group_members_count', true );
@@ -32,9 +112,10 @@ $category      = get_post_meta( $group_id, '_group_category', true );
 $location      = get_post_meta( $group_id, '_group_location', true );
 $tags          = get_post_meta( $group_id, '_group_tags', true );
 $rules         = get_post_meta( $group_id, '_group_rules', true );
-$subtitle      = get_post_meta( $group_id, '_group_subtitle', true ) ?: 'Comunidade';
+$subtitle_meta = get_post_meta( $group_id, '_group_subtitle', true );
+$subtitle      = ! empty( $subtitle_meta ) ? $subtitle_meta : 'Comunidade';
 
-// Founders/Moderators
+// Founders/Moderators.
 $creator_id = (int) get_post_field( 'post_author', $group_id );
 $creator    = get_userdata( $creator_id );
 $moderators = get_post_meta( $group_id, '_group_moderators', true );
@@ -42,13 +123,13 @@ if ( ! is_array( $moderators ) ) {
 	$moderators = array();
 }
 
-// Members preview
+// Members preview.
 $members_list = get_post_meta( $group_id, '_group_members', true );
 if ( ! is_array( $members_list ) ) {
 	$members_list = array();
 }
 
-// Current user membership
+// Current user membership.
 $current_user_id = get_current_user_id();
 $is_member       = false;
 $is_admin        = false;
@@ -67,12 +148,11 @@ if ( $current_user_id ) {
 	}
 }
 
-// Activity status
+// Activity status (24h threshold).
 $last_activity = get_post_meta( $group_id, '_group_last_activity', true );
-$is_active     = $last_activity && ( time() - (int) $last_activity ) < 86400; 
-// 24h
+$is_active     = $last_activity && ( time() - (int) $last_activity ) < 86400;
 
-// Default rules if empty
+// Default rules if empty.
 if ( ! is_array( $rules ) || empty( $rules ) ) {
 	$rules = array(
 		'Respeito total a todas as pessoas, independente de origem, gênero, orientação ou crença.',
@@ -82,26 +162,27 @@ if ( ! is_array( $rules ) || empty( $rules ) ) {
 	);
 }
 
-// Tags array
+// Tags array.
 if ( ! is_array( $tags ) ) {
 	$tags = $tags ? array_map( 'trim', explode( ',', $tags ) ) : array();
 }
 
-// Current user avatar
+// Current user avatar.
 $current_user_avatar = '';
 $current_user_name   = 'Você';
 if ( $current_user_id ) {
 	$current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 80 ) );
-	$current_user        = wp_get_current_user();
-	$current_user_name   = $current_user->display_name;
+	$logged_in_user      = wp_get_current_user();
+	$current_user_name   = $logged_in_user->display_name;
 }
 
-// Fetch community posts
+// Fetch community posts.
 $community_posts = get_posts(
 	array(
 		'post_type'      => 'apollo_social_post',
 		'post_status'    => 'publish',
 		'posts_per_page' => 10,
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to filter posts by community.
 		'meta_query'     => array(
 			array(
 				'key'   => '_post_community_id',
@@ -113,75 +194,14 @@ $community_posts = get_posts(
 	)
 );
 
-// NO get_header() - Canvas mode
+// NO get_header() - Canvas mode.
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
 <head>
 	<meta charset="UTF-8" />
-	<title>Apollo :: Comunidade · <?php echo esc_html( $title ); ?></title>
+	<title>Apollo :: Comunidade · <?php echo esc_html( $group_title ); ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-
-	<!-- Tailwind CSS -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script>
-	tailwind.config = {
-		theme: {
-		extend: {
-			fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-		}
-		}
-	}
-	</script>
-
-	<!-- Design system Apollo -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-
-	<style>
-	:root {
-		--font-primary: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-		--bg-main: #ffffff;
-		--text-main: rgba(15, 23, 42, 0.7);
-		--text-primary: rgba(15, 23, 42, 0.95);
-		--border-color-2: #e5e7eb;
-	}
-	html, body {
-		font-family: var(--font-primary);
-		background-color: var(--bg-main);
-		color: var(--text-main);
-		-webkit-tap-highlight-color: transparent;
-	}
-	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-	.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
-
-	.aprio-sidebar-nav a {
-		display:flex; align-items:center; gap:0.75rem;
-		padding:0.55rem 0.75rem; margin-bottom:0.1rem;
-		border-radius:10px; border-left:2px solid transparent;
-		font-size:13px; color:#64748b; text-decoration:none;
-		transition:background-color .18s,color .18s,border-color .18s;
-	}
-	.aprio-sidebar-nav a i { font-size:18px; }
-	.aprio-sidebar-nav a:hover {
-		background-color:#f8fafc; color:#0f172a; border-left-color:#e5e7eb;
-	}
-	.aprio-sidebar-nav a[aria-current="page"] {
-		background-color:#f1f5f9; color:#0f172a;
-		border-left-color:#0f172a; font-weight:600;
-	}
-
-	.nav-btn {
-		display:flex; flex-direction:column; align-items:center; justify-content:center;
-		gap:0.15rem; font-size:10px; color:#64748b; text-align:center;
-	}
-	.nav-btn i { font-size:20px; }
-	.nav-btn.active { color:#0f172a; font-weight:600; }
-	</style>
 	<?php wp_head(); ?>
 </head>
 
@@ -189,15 +209,15 @@ $community_posts = get_posts(
 	<div class="min-h-screen flex bg-slate-50">
 
 	<!-- SIDEBAR DESKTOP: APOLLO SOCIAL -->
-	<aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
+	<aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl" data-component="sidebar-social-desktop" data-type="S0">
 		<!-- Logo / topo -->
 		<div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-		<div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-			<i class="ri-command-fill text-lg"></i>
+		<div class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60" data-ap-tooltip="Apollo::Rio">
+			<i class="ri-slack-fill text-white text-[22px]"></i>
 		</div>
 		<div class="flex flex-col leading-tight">
-			<span class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.18em]">Apollo</span>
-			<span class="text-[15px] font-extrabold text-slate-900">Social</span>
+			<span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+			<span class="text-[15px] font-extrabold text-slate-900">Apollo::rio</span>
 		</div>
 		</div>
 
@@ -205,44 +225,60 @@ $community_posts = get_posts(
 		<nav class="aprio-sidebar-nav flex-1 px-4 pt-4 pb-2 overflow-y-auto no-scrollbar text-[13px]">
 		<div class="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navegação</div>
 
-		<a href="<?php echo esc_url( home_url( '/feed/' ) ); ?>">
-			<i class="ri-home-5-line"></i>
+		<a href="<?php echo esc_url( home_url( '/feed/' ) ); ?>" data-ap-tooltip="Ver feed">
+			<i class="ri-home-5-line text-lg"></i>
 			<span>Feed</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/eventos/' ) ); ?>">
-			<i class="ri-calendar-event-line"></i>
-			<span>Agenda</span>
+		<a href="<?php echo esc_url( home_url( '/eventos/' ) ); ?>" data-ap-tooltip="Ver agenda de eventos">
+			<i class="ri-calendar-event-line text-lg"></i>
+			<span>Eventos</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/comunidades/' ) ); ?>" aria-current="page">
-			<i class="ri-group-line"></i>
+		<a href="<?php echo esc_url( home_url( '/comunidades/' ) ); ?>" aria-current="page" data-ap-tooltip="Ver comunidades">
+			<i class="ri-group-line text-lg"></i>
 			<span>Comunidades</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/nucleos/' ) ); ?>">
-			<i class="ri-layout-5-line"></i>
+		<a href="<?php echo esc_url( home_url( '/nucleos/' ) ); ?>" data-ap-tooltip="Ver núcleos">
+			<i class="ri-layout-5-line text-lg"></i>
 			<span>Núcleos</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/classificados/' ) ); ?>">
-			<i class="ri-ticket-line"></i>
+		<a href="<?php echo esc_url( home_url( '/classificados/' ) ); ?>" data-ap-tooltip="Ver classificados">
+			<i class="ri-ticket-line text-lg"></i>
 			<span>Classificados</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/docs/' ) ); ?>">
-			<i class="ri-file-list-3-line"></i>
+		<a href="<?php echo esc_url( home_url( '/docs/' ) ); ?>" data-ap-tooltip="Documentos e contratos">
+			<i class="ri-file-list-3-line text-lg"></i>
 			<span>Docs & Contratos</span>
 		</a>
 
-		<a href="<?php echo esc_url( home_url( '/perfil/' ) ); ?>">
-			<i class="ri-user-3-line"></i>
+		<a href="<?php echo esc_url( home_url( '/perfil/' ) ); ?>" data-ap-tooltip="Ver perfil">
+			<i class="ri-user-3-line text-lg"></i>
 			<span>Perfil</span>
 		</a>
 
-		<div class="mt-4 px-1 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Configurações</div>
-		<a href="<?php echo esc_url( home_url( '/ajustes/' ) ); ?>">
-			<i class="ri-settings-3-line"></i>
+		<?php if ( current_user_can( 'edit_others_posts' ) || current_user_can( 'manage_options' ) ) : ?>
+		<div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+		<a href="<?php echo esc_url( home_url( '/cena-rio/' ) ); ?>" data-ap-tooltip="Calendário Cena Rio">
+			<i class="ri-calendar-line text-lg"></i>
+			<span>Agenda</span>
+		</a>
+		<a href="<?php echo esc_url( home_url( '/cena-rio/fornecedores/' ) ); ?>" data-ap-tooltip="Fornecedores">
+			<i class="ri-bar-chart-grouped-line text-lg"></i>
+			<span>Fornecedores</span>
+		</a>
+		<a href="<?php echo esc_url( home_url( '/cena-rio/docs/' ) ); ?>" data-ap-tooltip="Documentos Cena Rio">
+			<i class="ri-file-text-line text-lg"></i>
+			<span>Documentos</span>
+		</a>
+		<?php endif; ?>
+
+		<div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido</div>
+		<a href="<?php echo esc_url( home_url( '/ajustes/' ) ); ?>" data-ap-tooltip="Configurações">
+			<i class="ri-settings-3-line text-lg"></i>
 			<span>Ajustes</span>
 		</a>
 		</nav>
@@ -256,13 +292,14 @@ $community_posts = get_posts(
 				src="<?php echo esc_url( $current_user_avatar ); ?>"
 				class="h-full w-full object-cover"
 				alt="<?php echo esc_attr( $current_user_name ); ?>"
+				data-ap-tooltip="<?php echo esc_attr( $current_user_name ); ?>"
 			/>
 			</div>
 			<div class="flex flex-col leading-tight">
 			<span class="text-[12px] font-semibold text-slate-900"><?php echo esc_html( $current_user_name ); ?></span>
-			<span class="text-[10px] text-slate-500">@<?php echo esc_html( wp_get_current_user()->user_login ); ?></span>
+			<span class="text-[10px] text-slate-500">@<?php echo esc_html( $logged_in_user->user_login ?? '' ); ?></span>
 			</div>
-			<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="ml-auto text-slate-400 hover:text-slate-700">
+			<a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="ml-auto text-slate-400 hover:text-slate-700" data-ap-tooltip="Sair">
 			<i class="ri-logout-box-r-line text-lg"></i>
 			</a>
 		</div>
@@ -286,7 +323,7 @@ $community_posts = get_posts(
 
 			<div class="flex flex-col leading-none">
 			<h1 class="text-[15px] font-extrabold mt-2 text-slate-900">
-				<?php echo esc_html( $title ); ?>
+			<?php echo esc_html( $group_title ); ?>
 			</h1>
 			<p class="text-[12px] text-slate-500">
 				<?php echo esc_html( $subtitle ); ?> · <?php echo esc_html( $description ? wp_trim_words( $description, 8 ) : 'Comunidade Apollo' ); ?>
@@ -364,7 +401,7 @@ $community_posts = get_posts(
 					<?php endif; ?>
 				</div>
 				<h2 class="text-base md:text-lg font-semibold text-white leading-snug">
-					<?php echo esc_html( $title ); ?>
+					<?php echo esc_html( $group_title ); ?>
 				</h2>
 				<p class="text-[11px] text-slate-200 mt-1">
 					<?php echo esc_html( wp_trim_words( $description, 20 ) ); ?>
@@ -394,7 +431,7 @@ $community_posts = get_posts(
 				</span>
 				</div>
 				<p class="text-[13px] leading-relaxed text-slate-600">
-				<?php echo esc_html( $description ?: 'Nenhuma descrição adicionada ainda.' ); ?>
+				<?php echo esc_html( ! empty( $description ) ? $description : 'Nenhuma descrição adicionada ainda.' ); ?>
 				</p>
 			</div>
 
@@ -453,8 +490,8 @@ $community_posts = get_posts(
 					if ( ! $mod || $mod_id === $creator_id ) {
 						continue;
 					}
-					$is_online = rand( 0, 1 ); 
-					// Mock - replace with real online status
+					// Mock online status - replace with real online status.
+					$is_online = wp_rand( 0, 1 );
 					?>
 				<div class="flex items-center gap-3">
 					<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
@@ -502,7 +539,7 @@ $community_posts = get_posts(
 					<span>@<?php echo esc_html( $member->user_login ); ?></span>
 				</a>
 				<?php endforeach; ?>
-				
+
 				<button class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white text-[11px] px-2.5 py-1 hover:bg-slate-800 transition-colors" data-action="view-all-members" data-community-id="<?php echo esc_attr( $group_id ); ?>">
 					<i class="ri-user-search-line text-xs"></i>
 					<span>Ver todos</span>
@@ -529,7 +566,7 @@ $community_posts = get_posts(
 					<textarea
 					rows="2"
 					id="community-post-content"
-					placeholder="Compartilhe algo com a <?php echo esc_attr( $title ); ?>..."
+					placeholder="Compartilhe algo com a <?php echo esc_attr( $group_title ); ?>..."
 					class="w-full resize-none border border-slate-200 rounded-2xl px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900/60"
 					></textarea>
 					<div class="mt-2 flex items-center justify-between">
@@ -564,7 +601,7 @@ $community_posts = get_posts(
 					$post_author_id      = (int) $post_item->post_author;
 					$post_author         = get_userdata( $post_author_id );
 					$post_content        = $post_item->post_content;
-					$post_date           = human_time_diff( strtotime( $post_item->post_date ), current_time( 'timestamp' ) );
+					$post_date           = human_time_diff( strtotime( $post_item->post_date ), time() );
 					$post_location       = get_post_meta( $post_item->ID, '_post_location', true );
 					$post_tags           = get_post_meta( $post_item->ID, '_post_tags', true );
 					$post_image          = get_post_meta( $post_item->ID, '_post_image', true );
@@ -577,7 +614,7 @@ $community_posts = get_posts(
 						$post_tags = $post_tags ? array_map( 'trim', explode( ',', $post_tags ) ) : array();
 					}
 
-					// First featured comment
+					// First featured comment.
 					$featured_comment = get_comments(
 						array(
 							'post_id' => $post_item->ID,
@@ -641,9 +678,9 @@ $community_posts = get_posts(
 				<div class="mt-3 flex flex-wrap items-center justify-between gap-3">
 					<?php if ( ! empty( $post_tags ) ) : ?>
 				<div class="inline-flex flex-wrap gap-1.5 text-[11px]">
-						<?php foreach ( array_slice( $post_tags, 0, 3 ) as $tag ) : ?>
+						<?php foreach ( array_slice( $post_tags, 0, 3 ) as $post_tag_item ) : ?>
 					<span class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2 py-0.5">
-					<i class="ri-hashtag text-[10px]"></i> <?php echo esc_html( $tag ); ?>
+					<i class="ri-hashtag text-[10px]"></i> <?php echo esc_html( $post_tag_item ); ?>
 					</span>
 					<?php endforeach; ?>
 				</div>
@@ -666,8 +703,8 @@ $community_posts = get_posts(
 				<!-- Comentário em destaque -->
 					<?php
 					if ( ! empty( $featured_comment ) ) :
-						$comment           = $featured_comment[0];
-						$comment_author_id = (int) $comment->user_id;
+						$featured_item     = $featured_comment[0];
+						$comment_author_id = (int) $featured_item->user_id;
 						$comment_author    = $comment_author_id ? get_userdata( $comment_author_id ) : null;
 						?>
 				<div class="mt-3 border-t border-dashed border-slate-200 pt-3">
@@ -683,11 +720,11 @@ $community_posts = get_posts(
 					</div>
 					<div class="flex-1">
 					<div class="flex items-center gap-1.5">
-						<span class="text-[12px] font-semibold text-slate-900"><?php echo esc_html( $comment_author ? $comment_author->display_name : $comment->comment_author ); ?></span>
-						<span class="text-[10px] text-slate-400">há <?php echo esc_html( human_time_diff( strtotime( $comment->comment_date ), current_time( 'timestamp' ) ) ); ?></span>
+						<span class="text-[12px] font-semibold text-slate-900"><?php echo esc_html( $comment_author ? $comment_author->display_name : $featured_item->comment_author ); ?></span>
+						<span class="text-[10px] text-slate-400">há <?php echo esc_html( human_time_diff( strtotime( $featured_item->comment_date ), time() ) ); ?></span>
 					</div>
 					<p class="text-[12px] text-slate-700 leading-relaxed">
-						<?php echo esc_html( wp_trim_words( $comment->comment_content, 30 ) ); ?>
+						<?php echo esc_html( wp_trim_words( $featured_item->comment_content, 30 ) ); ?>
 					</p>
 					</div>
 				</div>

@@ -1,19 +1,21 @@
 <?php
 /**
- * Feed Template - Apollo Social
- * Based on CodePen: https://codepen.io/Rafael-Valle-the-looper/pen/OPNjrPm
+ * Feed Template - Apollo Social.
  *
- * Renders social feed with composer, filter tabs, and post cards
- * NOTE: This is a partial template included in Canvas layout - NO DOCTYPE/HTML/BODY tags
+ * Based on CodePen: https://codepen.io/Rafael-Valle-the-looper/pen/OPNjrPm
+ * Renders social feed with composer, filter tabs, and post cards.
+ * NOTE: This is a partial template included in Canvas layout - NO DOCTYPE/HTML/BODY tags.
+ *
+ * @package ApolloSocial
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder
-$posts        = $view['data']['posts'] ?? array();
-$current_user = $view['data']['current_user'] ?? array();
+// FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder.
+$feed_posts = $view['data']['posts'] ?? array();
+$user_data  = $view['data']['current_user'] ?? array();
 
 $ajax_url      = admin_url( 'admin-ajax.php' );
 $rest_url      = rest_url( 'apollo/v1' );
@@ -33,21 +35,54 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 			</div>
 			<div>
 			<h1 class="text-[16px] font-extrabold mt-2 text-slate-900">Apollo::rio</h1>
-			<p class="text-[14px] text-slate-500">@<?php echo esc_html( $current_user['name'] ?? 'user' ); ?></p>
+			<p class="text-[14px] text-slate-500">@<?php echo esc_html( $user_data['name'] ?? 'user' ); ?></p>
 			</div>
 		</div>
 		</div>
 
-		<div class="flex items-center gap-3">
-		<button class="hidden md:flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
-			<i class="ri-search-line text-slate-600"></i>
-		</button>
-		<button class="hidden md:flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
-			<i class="ri-notification-3-line text-slate-600"></i>
-		</button>
-		<button class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-			<img src="<?php echo esc_url( $current_user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $current_user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
-		</button>
+		<!-- Desktop Header Actions (from header-social-desktop-H0) -->
+		<div class="hidden md:flex items-center gap-3 text-[12px]">
+			<!-- Search Input -->
+			<div class="relative group">
+				<i class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs group-focus-within:text-slate-600"></i>
+				<input type="text" placeholder="Buscar na cena..."
+					class="pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-[12px] w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all"
+					data-action="global-search" data-ap-tooltip="Buscar conteúdo" aria-label="Buscar" />
+			</div>
+			<!-- Dark Mode Toggle -->
+			<button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900 transition-colors" title="Dark Mode" data-ap-tooltip="Alternar modo escuro" aria-label="Alternar modo escuro">
+				<i class="ri-moon-line text-[14px]"></i>
+			</button>
+			<!-- Messages Button -->
+			<button type="button" class="relative ml-1 text-slate-500 hover:text-slate-900 transition-colors" data-ap-tooltip="Mensagens" aria-label="Ver mensagens" title="Messages">
+				<i class="ri-message-3-line text-[16px]"></i>
+			</button>
+			<!-- Notifications Button -->
+			<button type="button" class="relative ml-1 text-slate-500 hover:text-slate-900 transition-colors" data-ap-tooltip="Notificações" aria-label="Ver notificações" title="Notifications">
+				<i class="ri-notification-2-line text-[16px]"></i>
+			</button>
+			<!-- App Grid Button (9-dot pattern) -->
+			<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all" data-ap-tooltip="Aplicativos" aria-label="Menu de aplicativos" title="Apps">
+				<svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z"></path>
+				</svg>
+			</button>
+			<!-- User Avatar -->
+			<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all" data-ap-tooltip="<?php echo esc_attr( $user_data['name'] ?? 'Perfil' ); ?>" aria-label="Menu do usuário">
+				<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full rounded-full object-cover" />
+			</button>
+		</div>
+		<!-- Mobile Header Actions -->
+		<div class="flex md:hidden items-center gap-2">
+			<button class="text-slate-500" data-action="mobile-search" data-ap-tooltip="Buscar" aria-label="Buscar">
+				<i class="ri-search-line text-xl"></i>
+			</button>
+			<button class="text-slate-500 relative" data-action="mobile-notifications" data-ap-tooltip="Notificações" aria-label="Notificações">
+				<i class="ri-notification-3-line text-xl"></i>
+			</button>
+			<button class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
+				<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+			</button>
 		</div>
 	</div>
 	</header>
@@ -55,25 +90,21 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 	<!-- Main Content -->
 	<main class="flex-1 flex justify-center px-4 md:px-6 py-8">
 	<div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6">
-	   
+
 		<!-- LEFT COLUMN: FEED STREAM -->
 		<div class="space-y-4">
-	   
+
 		<!-- Composer -->
 		<section class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4 mb-6">
 		<div class="flex gap-3">
 			<div class="h-10 w-10 rounded-full overflow-hidden shrink-0">
-			<img src="<?php echo esc_url( $current_user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $current_user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+			<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
 			</div>
 			<div class="flex-1">
-			<input 
-				type="text" 
+			<input
+				type="text"
 				id="apollo-feed-composer-input"
-				placeholder="O que está acontecendo na cena?" 
-				class="w-full border-0 outline-none text-[15px] text-slate-900 placeholder:text-slate-400 bg-transparent"
-			/>
-			<div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-				<div class="flex items-center gap-2">
+				placeholder="O que está acontecendo na				<div class="flex items-center gap-2">
 				<button id="ADD_IMAGE_TO_POST" class="h-8 w-8 flex items-center justify-center rounded-full hover:bg-orange-50 text-orange-600 transition-colors" title="Add Image">
 					<i class="ri-image-line text-lg"></i>
 				</button>
@@ -116,33 +147,32 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 
 		<!-- TAB: TUDO -->
 		<div data-tab-panel="feed-all" role="tabpanel" class="space-y-6">
-			<?php if ( empty( $posts ) ) : ?>
+			<?php if ( empty( $feed_posts ) ) : ?>
 			<article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-5">
 				<p class="text-[15px] text-slate-800 text-center">Nenhum post ainda. Seja o primeiro a compartilhar!</p>
 			</article>
 			<?php else : ?>
-				<?php foreach ( $posts as $post_item ) : ?>
+				<?php foreach ( $feed_posts as $post_item ) : ?>
 					<?php
-					// FASE 2: Usar partials baseado no tipo
-					$post_type = $post_item['type'] ?? 'user_post';
-					$post_data = $post_item;
+					$post_type_item = $post_item['type'] ?? 'user_post';
+					$post_data      = $post_item;
 
-					if ( $post_type === 'event' ) {
+					if ( 'event' === $post_type_item ) {
 						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
-					} elseif ( $post_type === 'ad' ) {
-						// TODO: Criar partial para anúncios
+					} elseif ( 'ad' === $post_type_item ) {
+						// TODO: Criar partial para anúncios.
 						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					} elseif ( $post_type === 'news' ) {
-						// TODO: Criar partial para notícias
+					} elseif ( 'news' === $post_type_item ) {
+						// TODO: Criar partial para notícias.
 						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
 					} else {
-						// Post de usuário (padrão)
+						// Post de usuário (padrão).
 						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
 					}
 					?>
 			<?php endforeach; ?>
 			<?php endif; ?>
-		   
+
 			<!-- Load More Button -->
 			<div class="text-center py-4">
 			<button id="apollo-feed-load-more" class="px-6 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
@@ -174,10 +204,10 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		</div>
 	</div>
 		</div><!-- /LEFT COLUMN -->
-	
+
 		<!-- RIGHT COLUMN: SIDEBAR (Sticky) - STRICT MODE DESIGN SPEC -->
 	<aside class="hidden lg:block space-y-4">
-	   
+
 		<!-- Calendar Widget: Próximos 7 dias -->
 		<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4">
 		<div class="flex items-center justify-between mb-3">
@@ -186,18 +216,20 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		</div>
 		<div class="space-y-2" id="sidebar-upcoming-events">
 			<?php
-			// SIDEBAR: Fetch próximos eventos
+			// SIDEBAR: Fetch próximos eventos.
 			$upcoming_args   = array(
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => 4,
-				'meta_key'       => '_event_start_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for date ordering.
+				'meta_key'       => '_event_start_date',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for date filtering.
 				'meta_query'     => array(
 					array(
 						'key'     => '_event_start_date',
-						'value'   => date( 'Y-m-d' ),
+						'value'   => wp_date( 'Y-m-d' ),
 						'compare' => '>=',
 						'type'    => 'DATE',
 					),
@@ -212,7 +244,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 					$day        = $date_obj ? $date_obj->format( 'd' ) : '--';
 					$day_name   = $date_obj ? strtoupper( substr( array( 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' )[ $date_obj->format( 'w' ) ], 0, 3 ) ) : '???';
 
-					// Contar favoritos como "amigos vão"
+					// Contar favoritos como "amigos vão".
 					$favorites_count = max( 0, (int) get_post_meta( $event->ID, '_favorites_count', true ) );
 					?>
 			<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg transition-colors group">
@@ -225,7 +257,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 					<?php if ( $favorites_count > 0 ) : ?>
 				<div class="text-[10px] text-slate-500"><?php echo esc_html( $favorites_count ); ?> pessoas vão</div>
 				<?php else : ?>
-				<div class="text-[10px] text-slate-500" data-tooltip="Seja o primeiro a demonstrar interesse!">Seja o primeiro!</div>
+				<div class="text-[10px] text-slate-500" data-ap-tooltip="Seja o primeiro a demonstrar interesse!">Seja o primeiro!</div>
 				<?php endif; ?>
 			</div>
 			</a>
@@ -233,7 +265,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				endforeach;
 			else :
 				?>
-			<div class="text-center py-4 text-slate-400" data-tooltip="Eventos nos próximos 7 dias aparecerão aqui">
+			<div class="text-center py-4 text-slate-400" data-ap-tooltip="Eventos nos próximos 7 dias aparecerão aqui">
 			<i class="ri-calendar-event-line text-2xl opacity-50"></i>
 			<p class="text-[11px] mt-1">Nenhum evento nos próximos dias</p>
 			</div>
@@ -246,12 +278,13 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">Comunidades em alta</h2>
 		<div class="space-y-3" id="sidebar-communities">
 			<?php
-			// SIDEBAR: Fetch grupos/comunidades
+			// SIDEBAR: Fetch grupos/comunidades.
 			$groups_args = array(
 				'post_type'      => 'apollo_group',
 				'post_status'    => 'publish',
 				'posts_per_page' => 4,
 				'orderby'        => 'meta_value_num',
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for member count ordering.
 				'meta_key'       => '_group_members_count',
 				'order'          => 'DESC',
 			);
@@ -278,9 +311,10 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				);
 				$i      = 0;
 				foreach ( $groups as $group ) :
-					$color    = $colors[ $i % count( $colors ) ];
-					$members  = (int) get_post_meta( $group->ID, '_group_members_count', true );
-					$activity = get_post_meta( $group->ID, '_group_activity_label', true ) ?: 'Ativo';
+					$color         = $colors[ $i % count( $colors ) ];
+					$members       = (int) get_post_meta( $group->ID, '_group_members_count', true );
+					$activity_meta = get_post_meta( $group->ID, '_group_activity_label', true );
+					$activity      = ! empty( $activity_meta ) ? $activity_meta : 'Ativo';
 					?>
 			<div class="flex items-center gap-3">
 			<div class="h-8 w-8 rounded <?php echo esc_attr( $color['bg'] . ' ' . $color['text'] ); ?> flex items-center justify-center">
@@ -297,7 +331,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				endforeach;
 			else :
 				?>
-			<div class="text-center py-4 text-slate-400" data-tooltip="Comunidades ativas aparecerão aqui">
+			<div class="text-center py-4 text-slate-400" data-ap-tooltip="Comunidades ativas aparecerão aqui">
 			<i class="ri-team-line text-2xl opacity-50"></i>
 			<p class="text-[11px] mt-1">Nenhuma comunidade ativa</p>
 			</div>
@@ -313,7 +347,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<span>·</span>
 		<a href="<?php echo esc_url( home_url( '/business/' ) ); ?>" class="hover:underline">Apollo Business</a>
 		<span>·</span>
-		<span>© <?php echo date( 'Y' ); ?> Apollo Rio</span>
+		<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> Apollo Rio</span>
 		</div>
 	</aside>
 	</main>
@@ -356,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	if (!animate) return;
 	const cards = panel.querySelectorAll("[data-feed-card]");
 	cards.forEach((card, index) => {
-		animate(card, 
+		animate(card,
 		{ opacity: [0, 1], transform: ["translateY(30px)", "translateY(0px)"] },
 		{ duration: 0.5, delay: index * 0.1, easing: [0.25, 0.8, 0.25, 1] }
 		);
@@ -394,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	document.querySelectorAll(".ri-heart-3-line").forEach((heart) => {
 		heart.closest('button')?.addEventListener("click", (e) => {
 		e.preventDefault();
-		animate(heart, 
+		animate(heart,
 			{ scale: [1, 1.4, 1], rotate: [0, -20, 20, 0] },
 			{ duration: 0.6, easing: "ease-in-out" }
 		);
@@ -453,11 +487,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 window.apolloFeedData = {
-	ajaxUrl: <?php echo json_encode( $ajax_url ); ?>,
-	restUrl: <?php echo json_encode( $rest_url ); ?>,
-	nonce: <?php echo json_encode( $nonce ); ?>,
-	commentNonce: <?php echo json_encode( $comment_nonce ); ?>,
-	currentUserId: <?php echo absint( $current_user['id'] ?? 0 ); ?>,
-	posts: <?php echo json_encode( $posts ); ?>
+	ajaxUrl: <?php echo wp_json_encode( $ajax_url ); ?>,
+	restUrl: <?php echo wp_json_encode( $rest_url ); ?>,
+	nonce: <?php echo wp_json_encode( $nonce ); ?>,
+	commentNonce: <?php echo wp_json_encode( $comment_nonce ); ?>,
+	currentUserId: <?php echo absint( $user_data['id'] ?? 0 ); ?>,
+	posts: <?php echo wp_json_encode( $feed_posts ); ?>
 };
 </script>

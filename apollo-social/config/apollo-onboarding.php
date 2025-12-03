@@ -13,7 +13,7 @@ return array(
 		'enabled'                    => true,
 		'require_verification'       => true,
 		'max_attempts'               => 3,
-		'session_timeout'            => 30 * MINUTE_IN_SECONDS, 
+		'session_timeout'            => 30 * MINUTE_IN_SECONDS,
 		// 30 minutes
 				'auto_save_progress' => true,
 
@@ -161,12 +161,12 @@ return array(
 		'methods'        => array( 'instagram' ),
 		'required'       => true,
 		'auto_approve'   => false,
-		'review_timeout' => 24 * HOUR_IN_SECONDS, 
+		'review_timeout' => 24 * HOUR_IN_SECONDS,
 		// 24 hours
 
 				'assets' => array(
 					'max_files'                 => 3,
-					'max_file_size'             => 5 * 1024 * 1024, 
+					'max_file_size'             => 5 * 1024 * 1024,
 					// 5MB
 								'allowed_types' => array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' ),
 					'storage_path'              => 'apollo-verification-assets',
@@ -189,22 +189,22 @@ return array(
 			'enabled'             => true,
 			'onboarding_start'    => array(
 				'requests' => 3,
-				'window'   => 10 * MINUTE_IN_SECONDS, 
+				'window'   => 10 * MINUTE_IN_SECONDS,
 // 10 minutes
 			),
 			'onboarding_complete' => array(
 				'requests' => 1,
-				'window'   => MINUTE_IN_SECONDS, 
+				'window'   => MINUTE_IN_SECONDS,
 		// 1 minute
 			),
 			'verification_upload' => array(
 				'requests' => 5,
-				'window'   => HOUR_IN_SECONDS, 
+				'window'   => HOUR_IN_SECONDS,
 		// 1 hour
 			),
 			'api_requests'        => array(
 				'requests' => 100,
-				'window'   => HOUR_IN_SECONDS, 
+				'window'   => HOUR_IN_SECONDS,
 		// 1 hour
 			),
 		),
@@ -217,9 +217,9 @@ return array(
 		),
 
 		'data_protection'  => array(
-			'encrypt_sensitive'                  => false, 
+			'encrypt_sensitive'                  => false,
 			// Would need encryption key
-								'hash_tokens'    => false, 
+								'hash_tokens'    => false,
 			// Tokens need to be readable
 								'anonymize_logs' => true,
 			'gdpr_compliant'                     => true,
@@ -231,7 +231,7 @@ return array(
 	 */
 	'analytics'      => array(
 		'enable_on_canvas'      => true,
-		'enable_external'       => false, 
+		'enable_external'       => false,
 		// No external APIs as requested
 				'local_storage' => true,
 		'retention_days'        => 90,
@@ -262,7 +262,7 @@ return array(
 		'page_title'    => 'Apollo Verificações',
 		'menu_position' => 30,
 		'capability'    => 'manage_options',
-		'auto_refresh'  => 30, 
+		'auto_refresh'  => 30,
 		// seconds
 
 				'grid'  => array(
@@ -330,9 +330,9 @@ return array(
 
 		'monitoring'   => array(
 			'track_performance'                        => true,
-			'slow_query_threshold'                     => 1.0, 
+			'slow_query_threshold'                     => 1.0,
 			// seconds
-								'memory_limit_warning' => 0.8, 
+								'memory_limit_warning' => 0.8,
 	// 80% of limit
 		),
 	),
@@ -343,9 +343,9 @@ return array(
 	'ui'             => array(
 		'theme'                => 'codepen-inspired',
 		'primary_color'        => '#007acc',
-		'animation_speed'      => 300, 
+		'animation_speed'      => 300,
 		// milliseconds
-				'typing_speed' => 50, 
+				'typing_speed' => 50,
 		// milliseconds per character
 
 				'chat'         => array(
@@ -373,7 +373,7 @@ return array(
 		'display_errors'        => false,
 		'log_errors'            => true,
 		'error_log_file'        => 'apollo-onboarding-errors.log',
-		'max_log_size'          => 10 * 1024 * 1024, 
+		'max_log_size'          => 10 * 1024 * 1024,
 		// 10MB
 
 				'user_messages' => array(

@@ -60,7 +60,7 @@ class Apollo_ShadCN_Loader {
 			'https://cdn.tailwindcss.com',
 			array(),
 			'3.4.0',
-			false 
+			false
 			// false = carrega no <head>
 		);
 

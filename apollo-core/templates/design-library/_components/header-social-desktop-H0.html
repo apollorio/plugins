@@ -1,0 +1,182 @@
+<!-- REQUIRES: https://assets.apollo.rio.br/uni.css + https://assets.apollo.rio.br/base.js -->
+<!--
+  Component: header-social-notifications-H0
+  Type: H0 (First design variant)
+  Version: 2.0.0
+  Last Updated: 2025-12-03
+  Description: Complete desktop header with search, dark mode, messages, notifications, app grid, and avatar
+  Used in: All Apollo Social pages
+
+  IMPORTANT: All elements MUST have data-tooltip for accessibility and UX
+  NOTE: NO followers/friends count displayed - Apollo is against ego/status culture
+
+  Placeholders:
+  - {{notification_count}} - Number of unread notifications
+  - {{message_count}} - Number of unread messages
+  - {{has_notifications}} - boolean for showing dot
+  - {{has_messages}} - boolean for showing message count
+  - {{user_avatar}} - Current user avatar URL
+  - {{user_name}} - Current user display name
+-->
+
+<!-- Desktop Header Actions (hidden on mobile) -->
+<div class="hidden md:flex items-center gap-3 text-[12px]" data-component="header-social-notifications" data-type="H0">
+
+    <!-- Search Input -->
+    <div class="relative group">
+        <i class="ri-search-line text-slate-400 absolute left-3 top-1.5 text-xs group-focus-within:text-slate-600"></i>
+        <input type="text" placeholder="Buscar na cena..."
+            class="pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-[12px] w-64 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:bg-white transition-all"
+            data-action="global-search" data-tooltip="Buscar conteúdo" aria-label="Buscar" />
+    </div>
+
+    <!-- Dark Mode Toggle -->
+    <button id="dark-toggle" class="ml-1 text-slate-500 hover:text-slate-900 transition-colors" title="Dark Mode"
+        data-action="toggle-dark-mode" data-tooltip="Alternar modo escuro" aria-label="Alternar modo escuro">
+        <i class="ri-moon-line text-[14px]"></i>
+    </button>
+
+    <!-- Messages Button -->
+    <button type="button" class="relative ml-1 text-slate-500 hover:text-slate-900 transition-colors"
+        data-action="open-messages" data-tooltip="Mensagens" aria-label="Ver mensagens" title="Messages">
+        <i class="ri-message-3-line text-[16px]"></i>
+
+        <!-- Message Count Badge -->
+        <template data-if="{{has_messages}}">
+            <span
+                class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-500 border border-white text-[9px] font-bold text-white flex items-center justify-center">
+                {{message_count}}
+            </span>
+        </template>
+    </button>
+
+    <!-- Notifications Button -->
+    <button type="button" class="relative ml-1 text-slate-500 hover:text-slate-900 transition-colors"
+        data-action="open-notifications" data-tooltip="Notificações" aria-label="Ver notificações"
+        title="Notifications">
+        <i class="ri-notification-2-line text-[16px]"></i>
+
+        <!-- Notification Badge with Animation -->
+        <template data-if="{{has_notifications}}">
+            <span
+                class="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-orange-500 border border-white animate-pulse"></span>
+        </template>
+    </button>
+
+    <!-- App Grid Button (9-dot pattern) -->
+    <button type="button"
+        class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all"
+        data-action="open-app-grid" data-tooltip="Aplicativos" aria-label="Menu de aplicativos" title="Apps">
+        <svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z">
+            </path>
+        </svg>
+    </button>
+
+    <!-- User Avatar -->
+    <button type="button"
+        class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all"
+        data-action="open-user-menu" data-tooltip="{{user_name}}" aria-label="Menu do usuário">
+        <img src="{{user_avatar}}" alt="{{user_name}}" class="h-full w-full rounded-full object-cover" />
+    </button>
+
+</div>
+
+<!-- Mobile Header Actions (hidden on desktop) -->
+<div class="flex md:hidden items-center gap-2" data-component="header-social-notifications-mobile"
+    data-type="H0-mobile">
+    <button class="text-slate-500" data-action="mobile-search" data-tooltip="Buscar" aria-label="Buscar">
+        <i class="ri-search-line text-xl"></i>
+    </button>
+    <button class="text-slate-500 relative" data-action="mobile-notifications" data-tooltip="Notificações"
+        aria-label="Notificações">
+        <i class="ri-notification-3-line text-xl"></i>
+        <template data-if="{{has_notifications}}">
+            <span
+                class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-orange-500 border border-white"></span>
+        </template>
+    </button>
+    <button id="dark-toggle-mobile" class="text-slate-500" data-action="toggle-dark-mode" data-tooltip="Modo escuro"
+        aria-label="Alternar modo escuro">
+        <i class="ri-moon-line text-xl"></i>
+    </button>
+</div>
+
+<style>
+    /* Header Notifications Styles */
+
+    /* Notification animations */
+    @keyframes notification-pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .animate-pulse {
+        animation: notification-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Dark Mode Icon Toggle */
+    body.dark-mode #dark-toggle i,
+    body.dark-mode #dark-toggle-mobile i {
+        --tw-rotate: 180deg;
+    }
+
+    body.dark-mode #dark-toggle i::before,
+    body.dark-mode #dark-toggle-mobile i::before {
+        content: "\eb8a";
+        /* ri-sun-line */
+    }
+
+    /* Dark mode adjustments */
+    body.dark-mode [data-component="header-social-notifications"] input {
+        background-color: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+
+    body.dark-mode [data-component="header-social-notifications"] input::placeholder {
+        color: #64748b;
+    }
+
+    body.dark-mode [data-component="header-social-notifications"] .text-slate-500 {
+        color: #94a3b8;
+    }
+
+    body.dark-mode [data-component="header-social-notifications"] .text-slate-500:hover {
+        color: #f1f5f9;
+    }
+</style>
+
+<script>
+    // Dark Mode Toggle Logic
+    document.querySelectorAll('#dark-toggle, #dark-toggle-mobile').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            // Update icon
+            document.querySelectorAll('#dark-toggle i, #dark-toggle-mobile i').forEach(icon => {
+                icon.classList.toggle('ri-moon-line', !isDark);
+                icon.classList.toggle('ri-sun-line', isDark);
+            });
+        });
+    });
+
+    // Initialize theme from localStorage
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.querySelectorAll('#dark-toggle i, #dark-toggle-mobile i').forEach(icon => {
+            icon.classList.remove('ri-moon-line');
+            icon.classList.add('ri-sun-line');
+        });
+    }
+</script>

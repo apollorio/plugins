@@ -98,7 +98,7 @@ class Apollo_Events_Bookmarks {
 
 		// Check if already bookmarked
 		if ( $this->is_bookmarked( $user_id, $event_id ) ) {
-			return true; 
+			return true;
 			// Already bookmarked
 		}
 
@@ -306,6 +306,11 @@ class Apollo_Events_Bookmarks {
 	 * Register REST API routes
 	 */
 	public function register_rest_routes() {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		register_rest_route(
 			'apollo-events/v1',
 			'/bookmarks',

@@ -227,7 +227,7 @@ class Commands {
 		// Test initial state logic
 		$test_data = array();
 		if ( $content_type === 'group' ) {
-			$test_data = array( 'type' => 'comunidade' ); 
+			$test_data = array( 'type' => 'comunidade' );
 			// Test grupo that requires approval
 		}
 

@@ -207,13 +207,16 @@ function apollo_rest_approve_content( $request ) {
 			200
 		);
 	} catch ( Exception $e ) {
-		error_log(
-			sprintf(
-				'[Apollo Core] Content approval error - Post: %d, Message: %s',
-				$post_id ?? 0,
-				$e->getMessage()
-			)
-		);
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[Apollo Core] Content approval error - Post: %d, Message: %s',
+					$post_id ?? 0,
+					$e->getMessage()
+				)
+			);
+		}
 
 		return new WP_Error(
 			'approval_failed',

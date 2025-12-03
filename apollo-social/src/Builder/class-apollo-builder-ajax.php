@@ -358,7 +358,7 @@ class Apollo_Builder_Ajax {
 		self::send_success(
 			array(
 				'html'   => $html,
-				'assets' => array(), 
+				'assets' => array(),
 			// Future: CSS/JS assets
 			)
 		);
@@ -548,7 +548,7 @@ class Apollo_Builder_Ajax {
 			'comment_post_ID'  => $post_id,
 			'comment_content'  => $content,
 			'comment_type'     => 'depoimento',
-			'comment_approved' => is_user_logged_in() ? 1 : 0, 
+			'comment_approved' => is_user_logged_in() ? 1 : 0,
 		// Auto-approve for logged in
 		);
 

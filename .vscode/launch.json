@@ -12,6 +12,9 @@
       "request": "launch",
       "port": 9003,
       "hostname": "localhost",
+      "pathMappings": {
+      "/app/public": "C:/Users/rafae/Local Sites/1212/app/public"
+      },
       // Xdebug já está configurado no php.ini do LocalWP
       // Sem necessidade de pathMappings (mesmo host)
       "log": true,

@@ -68,11 +68,11 @@ class Apollo_Cena_Rio_Roles {
 				'read'                            => true,
 
 				// Event listing capabilities (DRAFT ONLY)
-				'edit_event_listing'              => true,  
+				'edit_event_listing'              => true,
 				// Can edit own events
-												'edit_event_listings' => true,  
+												'edit_event_listings' => true,
 				// Can edit own events (plural)
-												'delete_event_listing' => true,  
+												'delete_event_listing' => true,
 				// Can delete own drafts
 
 												// CANNOT publish or edit others
@@ -175,8 +175,9 @@ class Apollo_Cena_Rio_Roles {
 			return false;
 		}
 
-		// Allow cena_role, cena_moderator, apollo, editor, administrator
-		$allowed_roles = array( 'cena_role', 'cena_moderator', 'apollo', 'editor', 'administrator' );
+		// Allow cena_role, cena-rio (legacy), cena_moderator, apollo, editor, administrator
+		// Note: cena-rio is legacy role from apollo-social, cena_role is canonical from apollo-core
+		$allowed_roles = array( 'cena_role', 'cena-rio', 'cena_moderator', 'apollo', 'editor', 'administrator' );
 
 		foreach ( $allowed_roles as $role ) {
 			if ( in_array( $role, $user->roles, true ) ) {

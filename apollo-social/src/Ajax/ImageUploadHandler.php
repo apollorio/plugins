@@ -97,7 +97,7 @@ class ImageUploadHandler {
 		// Configuration with filterable defaults
 		$this->max_file_size = apply_filters(
 			'apollo_editor_max_upload_size',
-			5 * 1024 * 1024 
+			5 * 1024 * 1024
 			// 5 MB default
 		);
 
@@ -251,7 +251,7 @@ class ImageUploadHandler {
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 
 		$upload_overrides = array(
-			'test_form'             => false, 
+			'test_form'             => false,
 			// We're not using a form, just AJAX
 							'mimes' => array(
 								'jpg|jpeg|jpe' => 'image/jpeg',

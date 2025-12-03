@@ -299,7 +299,7 @@ class BeginOnboarding {
 
 		// Check if table exists
 		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$audit_table}'" ) != $audit_table ) {
-			return; 
+			return;
 			// Table doesn't exist yet
 		}
 

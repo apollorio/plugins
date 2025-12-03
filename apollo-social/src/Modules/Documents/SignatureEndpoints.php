@@ -69,6 +69,11 @@ class SignatureEndpoints {
 	 * Register routes
 	 */
 	public function registerRoutes(): void {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// ===== DOCUMENT LIBRARY ENDPOINTS =====
 
 		// Get documents by library
@@ -399,6 +404,11 @@ class SignatureEndpoints {
 	 * Get library documents
 	 */
 	public function getLibraryDocuments( \WP_REST_Request $request ): \WP_REST_Response {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		$library = $request->get_param( 'library' );
 		$args    = array(
 			'status'   => $request->get_param( 'status' ),
@@ -515,6 +525,11 @@ class SignatureEndpoints {
 	 * Sign with certificate
 	 */
 	public function signWithCertificate( \WP_REST_Request $request ): \WP_REST_Response {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		global $wpdb;
 
 		$document_id = $request->get_param( 'document_id' );

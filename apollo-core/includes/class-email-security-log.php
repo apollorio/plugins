@@ -17,9 +17,9 @@ class EmailSecurityLog {
 
 	private const TABLE_NAME        = 'apollo_email_security_log';
 	private const MAX_LOGS          = 10000;
-	private const RATE_LIMIT_WINDOW = 3600; 
+	private const RATE_LIMIT_WINDOW = 3600;
 	// 1 hour
-	private const RATE_LIMIT_MAX = 50; 
+	private const RATE_LIMIT_MAX = 50;
 	// Max emails per user per hour
 
 	/**
@@ -162,6 +162,7 @@ class EmailSecurityLog {
 		);
 
 		if ( $result === false ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Security audit logging for DB failures.
 			error_log( '[Apollo Email Security] Failed to log: ' . $wpdb->last_error );
 			return false;
 		}
@@ -245,7 +246,7 @@ class EmailSecurityLog {
 		if ( $user_id > 0 ) {
 			$count = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$table_name} 
+					"SELECT COUNT(*) FROM {$table_name}
                  WHERE user_id = %d AND type = %s AND created_at > %s",
 					$user_id,
 					self::TYPE_SENT,
@@ -256,7 +257,7 @@ class EmailSecurityLog {
 			// Check by IP for guests
 			$count = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$table_name} 
+					"SELECT COUNT(*) FROM {$table_name}
                  WHERE ip_address = %s AND type = %s AND created_at > %s",
 					$ip,
 					self::TYPE_SENT,
@@ -293,13 +294,13 @@ class EmailSecurityLog {
 		global $wpdb;
 
 		$table_name   = $wpdb->prefix . self::TABLE_NAME;
-		$window_start = gmdate( 'Y-m-d H:i:s', time() - 300 ); 
+		$window_start = gmdate( 'Y-m-d H:i:s', time() - 300 );
 		// Last 5 minutes
 
 		// Check for rapid sending from same IP
 		$rapid_count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table_name} 
+				"SELECT COUNT(*) FROM {$table_name}
              WHERE ip_address = %s AND created_at > %s",
 				$ip,
 				$window_start
@@ -336,7 +337,7 @@ class EmailSecurityLog {
 		// Check for multiple failed attempts
 		$failed_count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table_name} 
+				"SELECT COUNT(*) FROM {$table_name}
              WHERE ip_address = %s AND type = %s AND created_at > %s",
 				$ip,
 				self::TYPE_FAILED,
@@ -530,7 +531,7 @@ class EmailSecurityLog {
 		// Total by type
 		$type_counts = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT type, COUNT(*) as count FROM {$table_name} 
+				"SELECT type, COUNT(*) as count FROM {$table_name}
              WHERE created_at >= %s GROUP BY type",
 				$date_start
 			),
@@ -547,7 +548,7 @@ class EmailSecurityLog {
 		// By severity
 		$severity_counts = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT severity, COUNT(*) as count FROM {$table_name} 
+				"SELECT severity, COUNT(*) as count FROM {$table_name}
              WHERE created_at >= %s GROUP BY severity",
 				$date_start
 			),
@@ -561,8 +562,8 @@ class EmailSecurityLog {
 		// By template
 		$template_counts = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT template_key, COUNT(*) as count FROM {$table_name} 
-             WHERE created_at >= %s AND template_key IS NOT NULL 
+				"SELECT template_key, COUNT(*) as count FROM {$table_name}
+             WHERE created_at >= %s AND template_key IS NOT NULL
              GROUP BY template_key ORDER BY count DESC LIMIT 10",
 				$date_start
 			),
@@ -576,8 +577,8 @@ class EmailSecurityLog {
 		// Top recipients
 		$stats['top_recipients'] = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT recipient_email, COUNT(*) as count FROM {$table_name} 
-             WHERE created_at >= %s 
+				"SELECT recipient_email, COUNT(*) as count FROM {$table_name}
+             WHERE created_at >= %s
              GROUP BY recipient_email ORDER BY count DESC LIMIT 10",
 				$date_start
 			),
@@ -655,7 +656,7 @@ class EmailSecurityLog {
 	 * @return string CSV content
 	 */
 	public static function exportCsv( array $args = array() ): string {
-		$args['per_page'] = 10000; 
+		$args['per_page'] = 10000;
 		// Max export
 		$logs = self::getLogs( $args );
 

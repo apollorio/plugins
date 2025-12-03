@@ -174,7 +174,7 @@ class PlaybookRunner {
 				'content'  => 'event',
 				'data'     => array(),
 				'expected' => 'published',
-			), 
+			),
 			// Direct publish
 
 							// Editor tests

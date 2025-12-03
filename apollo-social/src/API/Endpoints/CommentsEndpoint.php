@@ -50,7 +50,7 @@ class CommentsEndpoint {
 			'comment_type'         => 'comment',
 			'comment_parent'       => 0,
 			'user_id'              => $user->ID,
-			'comment_approved'     => 1, 
+			'comment_approved'     => 1,
 		// Auto-aprovar para usuários logados
 		);
 

@@ -5,7 +5,7 @@
   @description: Central de documentos, contratos, termos e checklists
   @author: Apollo Team
   @last_updated: 2025-11-28
-  
+
   @placeholders:
     {{user.name}}           - Nome do usuário logado
     {{user.handle}}         - @handle do usuário
@@ -19,14 +19,14 @@
     {{document.signatures}} - Contagem de assinaturas
     {{document.updated_at}} - Data de última atualização
     {{document.event}}      - Evento relacionado (opcional)
-    
+
   @sections:
     sidebar     - Menu lateral esquerdo (desktop)
     header      - Topbar com busca e ações
     documents   - Lista de documentos
     aside       - Sidebar direita com resumo
     bottom-nav  - Navegação mobile
-    
+
   @features:
     - Filter tabs (Todos/Rascunho/Aguardando/Assinados)
     - Quick templates
@@ -36,6 +36,7 @@
 -->
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full w-full bg-slate-50 antialiased selection:bg-neutral-500 selection:text-white">
+
 <head>
   <meta charset="UTF-8" />
   <title>Apollo :: Docs & Contratos</title>
@@ -82,17 +83,27 @@
       --border-color-2: #374151;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       color: var(--text-main);
       font-family: var(--font-primary);
       background-color: var(--bg-main);
       min-height: 100%;
     }
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .pb-safe-area { padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pb-safe-area {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
 
     .menutag {
       display: inline-flex;
@@ -107,6 +118,7 @@
       background-color: #ffffff;
       transition: all 0.18s ease;
     }
+
     .menutag[data-active="true"] {
       background-color: #0f172a;
       color: #ffffff;
@@ -120,6 +132,7 @@
       box-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
       transition: all 0.18s ease;
     }
+
     .aprioEXP-card-shell:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 40px rgba(15, 23, 42, 0.06);
@@ -142,10 +155,12 @@
       text-decoration: none;
       transition: all 0.18s ease;
     }
+
     .aprio-sidebar-nav a:hover {
       background-color: #f8fafc;
       color: #0f172a;
     }
+
     .aprio-sidebar-nav a[aria-current="page"] {
       background-color: #f1f5f9;
       color: #0f172a;
@@ -163,6 +178,7 @@
       border: 1px solid transparent;
       transition: all 0.16s ease;
     }
+
     .aprio-doc-row:hover {
       background-color: #f8fafc;
       border-color: #e5e7eb;
@@ -176,40 +192,81 @@
     <!-- @section:sidebar -->
     <aside class="hidden md:flex md:flex-col w-64 border-r border-slate-200 bg-white/95 backdrop-blur-xl">
       <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
-        <div class="h-9 w-9 rounded-[8px] bg-slate-900 flex items-center justify-center text-white">
-          <i class="ri-command-fill text-lg"></i>
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
+          <i class="ri-slack-fill text-white text-[22px]"></i>
         </div>
         <div class="flex flex-col leading-tight">
-          <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.18em]">Apollo</span>
-          <span class="text-[15px] font-extrabold text-slate-900">Social</span>
+          <span class="text-[9.5px] font-regular text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+          <span class="text-[15px] font-extrabold text-slate-900">Apollo::rio</span>
         </div>
       </div>
 
       <nav class="aprio-sidebar-nav flex-1 px-4 pt-4 pb-2 overflow-y-auto no-scrollbar text-[13px]">
         <div class="px-1 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navegação</div>
         <a href="#"><i class="ri-home-5-line text-lg"></i><span>Feed</span></a>
-        <a href="#"><i class="ri-calendar-event-line text-lg"></i><span>Agenda</span></a>
+        <a href="#"><i class="ri-calendar-event-line text-lg"></i><span>Eventos</span></a>
         <a href="#"><i class="ri-group-line text-lg"></i><span>Comunidades</span></a>
         <a href="#"><i class="ri-layout-5-line text-lg"></i><span>Núcleos</span></a>
         <a href="#"><i class="ri-ticket-line text-lg"></i><span>Classificados</span></a>
         <a href="#" aria-current="page"><i class="ri-file-list-3-line text-lg"></i><span>Docs & Contratos</span></a>
         <a href="#"><i class="ri-user-3-line text-lg"></i><span>Perfil</span></a>
-        <div class="mt-4 px-1 mb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Configurações</div>
+
+        <!-- @PHP: if(current_user_can('cena-rio') || current_user_can('administrator')): -->
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+        <a href="#"><i class="ri-calendar-line text-lg"></i><span>Agenda</span></a>
+        <a href="#"><i class="ri-bar-chart-grouped-line text-lg"></i><span>Fornecedores</span></a>
+        <a href="#"><i class="ri-file-text-line text-lg"></i><span>Documentos</span></a>
+        <!-- @PHP: endif; -->
+
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido
+        </div>
         <a href="#"><i class="ri-settings-3-line text-lg"></i><span>Ajustes</span></a>
       </nav>
 
-      <div class="border-t border-slate-100 px-4 py-3">
-        <div class="flex items-center gap-3">
-          <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{user.handle}}&backgroundColor=e5e7eb" class="h-full w-full object-cover" alt="{{user.name}}" />
+      <!-- User / footer sidebar -->
+      <div class="p-0 rounded-lg group mb-4">
+        <div class="relative flex w-full min-w-0 flex-col px-3">
+          <!-- Footer Links -->
+          <div class="w-full text-sm">
+            <ul class="flex w-full min-w-0 flex-col gap-0">
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Sobre</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 overflow-hidden rounded-md px-3 text-left text-slate-600 hover:bg-slate-100 text-[12px]">
+                  <span>Ajustes</span>
+                </a>
+              </li>
+              <li class="relative">
+                <a href="#"
+                  class="flex w-full items-center gap-0 px-3 text-left text-red-600 hover:bg-red-100 text-[12px]">
+                  <span>Denúncia</span>
+                </a>
+              </li>
+            </ul>
           </div>
-          <div class="flex flex-col leading-tight">
-            <span class="text-[12px] font-semibold text-slate-900">{{user.name}}</span>
-            <span class="text-[10px] text-slate-500">@{{user.handle}}</span>
+
+          <!-- User Block -->
+          <div class="flex flex-col gap-2 p-2 mt-3 border-t border-slate-200">
+            <div class="flex items-center gap-3 px-2 mt-2">
+              <div
+                class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600">
+                {{user.initials}}
+              </div>
+              <div class="flex flex-col leading-tight">
+                <span class="text-[14px] font-bold text-slate-900">{{user.name}}</span>
+                <span class="text-[12px] text-slate-500">{{user.email}}</span>
+              </div>
+              <button class="ml-auto text-slate-200 hover:text-slate-300" title="Logout">
+                <i class="ri-logout-box-r-line text-[18px]"></i>
+              </button>
+            </div>
           </div>
-          <button class="ml-auto text-slate-400 hover:text-slate-700">
-            <i class="ri-logout-box-r-line text-lg"></i>
-          </button>
         </div>
       </div>
     </aside>
@@ -218,26 +275,46 @@
     <div class="flex-1 flex flex-col min-h-screen">
 
       <!-- @section:header -->
-      <header class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
+      <header
+        class="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-slate-200 bg-white/90 backdrop-blur-md px-4 md:px-6">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-[6px] bg-slate-900 flex items-center justify-center md:hidden text-white">
-            <i class="ri-command-fill text-[20px]"></i>
+          <div
+            class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center md:hidden shadow-md shadow-orange-500/60">
+            <i class="ri-slack-fill text-white text-[20px]"></i>
           </div>
           <div class="flex flex-col leading-none">
             <h1 class="text-[15px] font-extrabold mt-2 text-slate-900">Docs & contratos</h1>
-            <p class="text-[12px] text-slate-500">{{documents_count}} documentos ativos · organizados por modelo da cena</p>
+            <p class="text-[12px] text-slate-500">{{documents_count}} documentos ativos · organizados por modelo da cena
+            </p>
           </div>
         </div>
 
         <div class="hidden md:flex items-center gap-3 text-[12px]">
-          <button class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50">
+          <button
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50">
             <i class="ri-search-line text-xs"></i>
             <span>Buscar doc...</span>
           </button>
-          <a href="/doc/new" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
+          <a href="/doc/new"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
             <i class="ri-add-line text-sm"></i>
             Novo documento
           </a>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Messages">
+            <i class="ri-message-3-line text-[16px]"></i>
+          </button>
+          <button class="ml-1 text-slate-500 hover:text-slate-900" title="Notifications">
+            <i class="ri-notification-2-line text-[16px]"></i>
+          </button>
+          <button
+            class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 transition-all"
+            title="Apps">
+            <svg class="w-5 h-5 text-slate-500" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM6,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM12,8c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,14c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2zM18,20c1.1,0,2,-0.9,2,-2s-0.9,-2,-2,-2,-2,0.9,-2,2,0.9,2,2,2z">
+              </path>
+            </svg>
+          </button>
         </div>
 
         <div class="flex md:hidden items-center gap-2">
@@ -258,7 +335,8 @@
                   <span class="text-[12px] font-semibold text-slate-700">Meus documentos</span>
                   <span class="text-[11px] text-slate-500">Central de contratos, termos e checklists da cena</span>
                 </div>
-                <a href="/doc/new" class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
+                <a href="/doc/new"
+                  class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[12px] font-medium hover:bg-slate-800">
                   <i class="ri-add-line text-sm"></i>
                   Novo documento
                 </a>
@@ -284,7 +362,8 @@
                 <!-- @loop: {{#each documents}} -->
                 <button class="aprio-doc-row text-left" data-id="{{document.id}}" data-status="{{document.status}}">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
+                    <div
+                      class="h-9 w-9 rounded-lg border border-slate-200 flex items-center justify-center bg-slate-50 text-slate-700">
                       {{#if (eq document.type "contrato")}}
                       <i class="ri-file-text-line text-base"></i>
                       {{else if (eq document.type "checklist")}}
@@ -297,15 +376,18 @@
                       <div class="flex items-center gap-2">
                         <span class="font-semibold text-slate-800 truncate">{{document.title}}</span>
                         {{#if (eq document.status "signed")}}
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px]">
                           <i class="ri-shield-check-line text-[10px]"></i> Assinado
                         </span>
                         {{else if (eq document.status "draft")}}
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px]">
                           <i class="ri-time-line text-[10px]"></i> Em rascunho
                         </span>
                         {{else}}
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px]">
+                        <span
+                          class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 text-[10px]">
                           <i class="ri-mail-send-line text-[10px]"></i> Aguardando
                         </span>
                         {{/if}}
@@ -413,19 +495,23 @@
       <!-- @section:bottom-nav -->
       <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe-area z-50">
         <div class="grid grid-cols-5 h-14">
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-home-5-line text-xl"></i></button>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-search-2-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-home-5-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-search-2-line text-xl"></i></button>
           <a href="/doc/new" class="flex flex-col items-center justify-center -mt-6">
             <div class="h-12 w-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg">
               <i class="ri-add-line text-2xl"></i>
             </div>
           </a>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-calendar-event-line text-xl"></i></button>
-          <button class="flex flex-col items-center justify-center text-slate-400"><i class="ri-user-3-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-calendar-event-line text-xl"></i></button>
+          <button class="flex flex-col items-center justify-center text-slate-400"><i
+              class="ri-user-3-line text-xl"></i></button>
         </div>
       </nav>
     </div>
   </div>
 </body>
-</html>
 
+</html>

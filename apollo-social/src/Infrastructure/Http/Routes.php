@@ -85,7 +85,7 @@ class Routes {
 		// Don't interfere with feeds RSS (WordPress default feeds)
 		// Only intercept /feed/ if it's explicitly an Apollo route
 		if ( is_feed() && ! get_query_var( 'apollo_route' ) ) {
-			return; 
+			return;
 			// WordPress RSS feed, not Apollo route
 		}
 
@@ -103,7 +103,7 @@ class Routes {
 		$apollo_route = get_query_var( 'apollo_route' );
 
 		if ( empty( $apollo_route ) || ! is_string( $apollo_route ) ) {
-			return; 
+			return;
 			// Not our route
 		}
 

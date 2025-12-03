@@ -14,22 +14,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Determine if showing nucleos (private) or comunidades (public)
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
+// Determine if showing nucleos (private) or comunidades (public).
 $is_nucleo     = isset( $args['type'] ) && $args['type'] === 'nucleo';
 $page_title    = $is_nucleo ? __( 'Núcleos', 'apollo-social' ) : __( 'Comunidades da Cena', 'apollo-social' );
 $page_subtitle = $is_nucleo
 	? __( 'Grupos privados para equipes, produção e projetos fechados', 'apollo-social' )
 	: __( 'Grupos públicos para discutir, organizar e fortalecer a noite', 'apollo-social' );
 
-// Get current user
-$current_user        = wp_get_current_user();
-$current_user_id     = $current_user->ID;
+// Get current user - avoid overriding WP globals.
+$user_obj            = wp_get_current_user();
+$current_user_id     = $user_obj->ID;
 $current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 64 ) );
 
-// Get filter
+// Get filter.
 $current_filter = isset( $_GET['filter'] ) ? sanitize_text_field( wp_unslash( $_GET['filter'] ) ) : 'all';
 
-// Query groups
+// Query groups.
 $groups_args = array(
 	'post_type'      => 'apollo_group',
 	'post_status'    => 'publish',
@@ -48,7 +85,7 @@ $groups_args = array(
 
 $groups = get_posts( $groups_args );
 
-// Get unique tags for filters
+// Get unique tags for filters.
 $all_tags = array();
 foreach ( $groups as $group ) {
 	$tags = get_post_meta( $group->ID, '_group_tags', true );
@@ -69,13 +106,6 @@ foreach ( $groups as $group ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 	<title><?php echo esc_html( $page_title ); ?> - Apollo::Rio</title>
-	
-	<!-- Apollo Design System -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-	
 	<?php wp_head(); ?>
 </head>
 <body class="apollo-canvas min-h-screen">
@@ -260,12 +290,12 @@ foreach ( $groups as $group ) {
 							$group_tags        = get_post_meta( $group_id, '_group_tags', true );
 							$tags_string       = is_array( $group_tags ) ? implode( ',', $group_tags ) : ( $group_tags ?: '' );
 
-							// Fallback cover
+							// Fallback cover.
 							if ( ! $group_cover ) {
 								$group_cover = 'https://images.pexels.com/photos/167404/pexels-photo-167404.jpeg';
 							}
 
-							// Check membership
+							// Check membership.
 							$is_member = false;
 							if ( $current_user_id ) {
 								$memberships = get_user_meta( $current_user_id, '_group_memberships', true );

@@ -37,12 +37,78 @@ class Apollo_Cena_Rio_Moderation {
 
 		// REST API endpoints
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+
+		// Filter: Exclude non-approved CENA-RIO events from public calendar queries
+		add_action( 'pre_get_posts', array( __CLASS__, 'filter_cena_rio_events' ), 20 );
+	}
+
+	/**
+	 * Filter out non-approved CENA-RIO events from public event listings.
+	 *
+	 * CENA-RIO events should only appear in public calendar when _apollo_cena_status = 'approved'.
+	 * Events with status 'expected' or 'confirmed' are still in moderation workflow.
+	 *
+	 * @param WP_Query $query The query object.
+	 */
+	public static function filter_cena_rio_events( $query ): void {
+		// Only filter on front-end, main queries, and event_listing post type
+		if ( is_admin() ) {
+			return;
+		}
+
+		// Check if querying event_listing
+		$post_type = $query->get( 'post_type' );
+		if ( 'event_listing' !== $post_type ) {
+			return;
+		}
+
+		// Get existing meta_query or create new
+		$meta_query = $query->get( 'meta_query' );
+		if ( ! is_array( $meta_query ) ) {
+			$meta_query = array();
+		}
+
+		// Add filter: Exclude CENA-RIO events unless approved
+		// Logic: Show event IF (not from cena-rio) OR (cena-rio AND approved)
+		$meta_query[] = array(
+			'relation' => 'OR',
+			// Regular events (no _apollo_source meta)
+			array(
+				'key'     => '_apollo_source',
+				'compare' => 'NOT EXISTS',
+			),
+			// Non-cena-rio sources
+			array(
+				'key'     => '_apollo_source',
+				'value'   => 'cena-rio',
+				'compare' => '!=',
+			),
+			// Approved CENA-RIO events only
+			array(
+				'relation' => 'AND',
+				array(
+					'key'   => '_apollo_source',
+					'value' => 'cena-rio',
+				),
+				array(
+					'key'   => '_apollo_cena_status',
+					'value' => 'approved',
+				),
+			),
+		);
+
+		$query->set( 'meta_query', $meta_query );
 	}
 
 	/**
 	 * Register REST API routes
 	 */
 	public static function register_rest_routes(): void {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		// Get moderation queue
 		register_rest_route(
 			'apollo/v1',
@@ -113,6 +179,11 @@ class Apollo_Cena_Rio_Moderation {
 	 * @return WP_REST_Response Response.
 	 */
 	public static function rest_get_queue( $request ): WP_REST_Response {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		$events = self::get_pending_events();
 
 		$formatted = array();
@@ -137,6 +208,11 @@ class Apollo_Cena_Rio_Moderation {
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
 	public static function rest_approve_event( $request ) {
+		// TEMP: Xdebug breakpoint para depuração Apollo.
+		if ( function_exists( 'xdebug_break' ) ) {
+			xdebug_break();
+		}
+
 		$post_id = absint( $request->get_param( 'id' ) );
 		$note    = $request->get_param( 'note' ) ?? '';
 
@@ -434,7 +510,7 @@ class Apollo_Cena_Rio_Moderation {
 		$result = wp_update_post(
 			array(
 				'ID'          => $post_id,
-				'post_status' => 'draft', 
+				'post_status' => 'draft',
 			// or 'trash'
 			),
 			true

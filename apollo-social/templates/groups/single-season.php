@@ -32,7 +32,8 @@ $start_date   = get_post_meta( $season_id, '_season_start_date', true );
 $end_date     = get_post_meta( $season_id, '_season_end_date', true );
 $events_count = (int) get_post_meta( $season_id, '_season_events_count', true );
 $is_active    = (bool) get_post_meta( $season_id, '_season_is_active', true );
-$theme_color  = get_post_meta( $season_id, '_season_theme_color', true ) ?: 'orange';
+$theme_raw    = get_post_meta( $season_id, '_season_theme_color', true );
+$theme_color  = ! empty( $theme_raw ) ? $theme_raw : 'orange';
 
 // Date formatting
 $start_obj  = $start_date ? DateTime::createFromFormat( 'Y-m-d', $start_date ) : null;
@@ -57,35 +58,35 @@ get_header();
 
 	<!-- Hero Cover -->
 	<div class="ap-hero ap-hero-cover ap-h-64 md:ap-h-80">
-		<img 
-			src="<?php echo esc_url( $cover_url ); ?>" 
+		<img
+			src="<?php echo esc_url( $cover_url ); ?>"
 			alt="<?php echo esc_attr( $title ); ?>"
 			class="ap-hero-bg"
 			data-ap-tooltip="<?php esc_attr_e( 'Capa da temporada', 'apollo-social' ); ?>"
 		/>
 		<div class="ap-hero-overlay ap-hero-overlay-gradient"></div>
-		
+
 		<!-- Back Button -->
-		<a href="<?php echo esc_url( home_url( '/temporadas/' ) ); ?>" 
+		<a href="<?php echo esc_url( home_url( '/temporadas/' ) ); ?>"
 			class="ap-btn ap-btn-icon ap-btn-glass ap-absolute ap-top-4 ap-left-4"
 			data-ap-tooltip="<?php esc_attr_e( 'Voltar', 'apollo-social' ); ?>">
 			<i class="ri-arrow-left-line"></i>
 		</a>
-		
+
 		<!-- Status Badge -->
 		<?php if ( $is_active ) : ?>
-		<span class="ap-badge ap-badge-success ap-badge-pulse ap-absolute ap-top-4 ap-right-4" 
+		<span class="ap-badge ap-badge-success ap-badge-pulse ap-absolute ap-top-4 ap-right-4"
 				data-ap-tooltip="<?php esc_attr_e( 'Temporada ativa agora!', 'apollo-social' ); ?>">
 			<i class="ri-live-line"></i>
 			<?php esc_html_e( 'ATIVA', 'apollo-social' ); ?>
 		</span>
 		<?php endif; ?>
-		
+
 		<!-- Title Overlay -->
 		<div class="ap-hero-content ap-absolute ap-bottom-0 ap-left-0 ap-right-0 ap-p-5">
 			<h1 class="ap-heading-2xl ap-text-white"><?php echo esc_html( $title ); ?></h1>
 			<?php if ( $date_range ) : ?>
-			<p class="ap-text-white-80 ap-mt-1 ap-flex ap-items-center ap-gap-2" 
+			<p class="ap-text-white-80 ap-mt-1 ap-flex ap-items-center ap-gap-2"
 				data-ap-tooltip="<?php esc_attr_e( 'Período da temporada', 'apollo-social' ); ?>">
 				<i class="ri-calendar-2-line"></i>
 				<?php echo esc_html( $date_range ); ?>
@@ -102,10 +103,10 @@ get_header();
 			<div class="ap-card-body">
 				<?php if ( $description || $content ) : ?>
 				<div class="ap-prose">
-					<?php echo wp_kses_post( $description ?: $content ); ?>
+					<?php echo wp_kses_post( ! empty( $description ) ? $description : $content ); ?>
 				</div>
 				<?php else : ?>
-				<p class="ap-text-muted ap-text-center ap-py-4" 
+				<p class="ap-text-muted ap-text-center ap-py-4"
 					data-ap-tooltip="<?php esc_attr_e( 'Descrição da temporada', 'apollo-social' ); ?>">
 					<?php esc_html_e( 'Uma seleção especial de eventos para você aproveitar.', 'apollo-social' ); ?>
 				</p>
@@ -127,7 +128,7 @@ get_header();
 		<!-- Events List -->
 		<div class="ap-card">
 			<div class="ap-card-header">
-				<h2 class="ap-card-title ap-flex ap-items-center ap-gap-2" 
+				<h2 class="ap-card-title ap-flex ap-items-center ap-gap-2"
 					data-ap-tooltip="<?php esc_attr_e( 'Eventos desta temporada', 'apollo-social' ); ?>">
 					<i class="ri-calendar-event-line ap-text-<?php echo esc_attr( $theme_color ); ?>-500"></i>
 					<?php esc_html_e( 'Programação', 'apollo-social' ); ?>
@@ -162,7 +163,7 @@ get_header();
 						$thumb      = get_the_post_thumbnail_url( $event->ID, 'thumbnail' );
 						$day_names  = array( 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' );
 						?>
-					<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" 
+					<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>"
 						class="ap-list-item ap-list-item-hover"
 						data-ap-tooltip="<?php echo esc_attr( $event->post_title ); ?>">
 						<div class="ap-avatar ap-avatar-md ap-avatar-square">
@@ -209,12 +210,12 @@ get_header();
 
 		<!-- Share Section -->
 		<div class="ap-flex ap-gap-2">
-			<button class="ap-btn ap-btn-primary ap-flex-1" 
+			<button class="ap-btn ap-btn-primary ap-flex-1"
 					data-ap-tooltip="<?php esc_attr_e( 'Receber notificações desta temporada', 'apollo-social' ); ?>">
 				<i class="ri-notification-3-line"></i>
 				<?php esc_html_e( 'Ativar Alertas', 'apollo-social' ); ?>
 			</button>
-			<button class="ap-btn ap-btn-outline" 
+			<button class="ap-btn ap-btn-outline"
 					data-ap-tooltip="<?php esc_attr_e( 'Compartilhar temporada', 'apollo-social' ); ?>">
 				<i class="ri-share-line"></i>
 			</button>

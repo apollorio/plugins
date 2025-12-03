@@ -57,11 +57,11 @@ class GroupPolicy {
 				return true;
 
 			case 'invite_only':
-				return false; 
+				return false;
 			// Must be invited
 
 			case 'request':
-				return true; 
+				return true;
 			// Can request to join
 
 			default:

@@ -35,7 +35,7 @@ class ModerationService {
 
 		$moderation_data = array(
 			'entity_id'                    => $entity_id,
-			'entity_type'                  => $entity_type, 
+			'entity_type'                  => $entity_type,
 			// 'group', 'nucleo', 'event', 'ad'
 							'submitter_id' => get_current_user_id(),
 			'submission_data'              => json_encode( $submission_data ),

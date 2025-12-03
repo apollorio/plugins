@@ -14,13 +14,94 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Base JS.
+		wp_enqueue_script(
+			'apollo-base-js',
+			'https://assets.apollo.rio.br/base.js',
+			array(),
+			'2.0.0',
+			true
+		);
+
+		// Inline nucleo-specific styles.
+		$nucleo_css = '
+			:root {
+				--font-primary: "Urbanist", system-ui, sans-serif;
+				--bg-main: #ffffff;
+				--text-main: rgba(15, 23, 42, 0.7);
+				--text-primary: rgba(15, 23, 42, 0.95);
+				--border-color-2: #e5e7eb;
+				--accent-color: #f97316;
+			}
+			html, body {
+				font-family: var(--font-primary);
+				background-color: var(--bg-main);
+				color: var(--text-main);
+				-webkit-tap-highlight-color: transparent;
+			}
+			.no-scrollbar::-webkit-scrollbar { display: none; }
+			.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+			.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+			.aprio-sidebar-nav a {
+				display:flex; align-items:center; gap:0.75rem;
+				padding:0.55rem 0.75rem; margin-bottom:0.1rem;
+				border-radius:10px; border-left:2px solid transparent;
+				font-size:13px; color:#64748b; text-decoration:none;
+				transition:background-color .18s,color .18s,border-color .18s;
+			}
+			.aprio-sidebar-nav a i { font-size:18px; }
+			.aprio-sidebar-nav a:hover {
+				background-color:#f8fafc; color:#0f172a; border-left-color:#e5e7eb;
+			}
+			.aprio-sidebar-nav a[aria-current="page"] {
+				background-color:#f1f5f9; color:#0f172a;
+				border-left-color:#f97316; font-weight:600;
+			}
+			.nav-btn {
+				display:flex; flex-direction:column; align-items:center; justify-content:center;
+				gap:0.15rem; font-size:10px; color:#64748b; text-align:center;
+			}
+			.nav-btn i { font-size:20px; }
+			.nav-btn.active { color:#f97316; font-weight:600; }
+		';
+		wp_add_inline_style( 'apollo-uni-css', $nucleo_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
 global $post;
 
 // Get núcleo data
-$nucleo_id   = get_the_ID();
-$title       = get_the_title();
-$content     = get_the_content();
-$description = get_post_meta( $nucleo_id, '_group_description', true ) ?: wp_trim_words( $content, 50 );
+$nucleo_id       = get_the_ID();
+$title           = get_the_title();
+$content         = get_the_content();
+$raw_description = get_post_meta( $nucleo_id, '_group_description', true );
+$description     = ! empty( $raw_description ) ? $raw_description : wp_trim_words( $content, 50 );
 
 // Meta data
 $cover_url       = get_post_meta( $nucleo_id, '_group_cover', true );
@@ -34,7 +115,8 @@ $instagram       = get_post_meta( $nucleo_id, '_nucleo_instagram', true );
 $website         = get_post_meta( $nucleo_id, '_nucleo_website', true );
 $soundcloud      = get_post_meta( $nucleo_id, '_nucleo_soundcloud', true );
 $is_verified     = (bool) get_post_meta( $nucleo_id, '_group_verified', true );
-$location        = get_post_meta( $nucleo_id, '_group_location', true ) ?: 'Rio de Janeiro';
+$raw_location    = get_post_meta( $nucleo_id, '_group_location', true );
+$location        = ! empty( $raw_location ) ? $raw_location : 'Rio de Janeiro';
 $tags            = get_post_meta( $nucleo_id, '_group_tags', true );
 
 // Founders/Team
@@ -86,8 +168,8 @@ $current_user_avatar = '';
 $current_user_name   = 'Você';
 if ( $current_user_id ) {
 	$current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 80 ) );
-	$current_user        = wp_get_current_user();
-	$current_user_name   = $current_user->display_name;
+	$user_obj            = wp_get_current_user();
+	$current_user_name   = $user_obj->display_name;
 }
 
 // Fetch núcleo posts/updates
@@ -139,68 +221,6 @@ $upcoming_events = get_posts(
 	<meta charset="UTF-8" />
 	<title>Apollo :: Núcleo · <?php echo esc_html( $title ); ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-
-	<!-- Tailwind CSS -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script>
-	tailwind.config = {
-		theme: {
-		extend: {
-			fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-		}
-		}
-	}
-	</script>
-
-	<!-- Design system Apollo -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-
-	<style>
-	:root {
-		--font-primary: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-		--bg-main: #ffffff;
-		--text-main: rgba(15, 23, 42, 0.7);
-		--text-primary: rgba(15, 23, 42, 0.95);
-		--border-color-2: #e5e7eb;
-		--accent-color: #f97316;
-	}
-	html, body {
-		font-family: var(--font-primary);
-		background-color: var(--bg-main);
-		color: var(--text-main);
-		-webkit-tap-highlight-color: transparent;
-	}
-	.no-scrollbar::-webkit-scrollbar { display: none; }
-	.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-	.pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
-
-	.aprio-sidebar-nav a {
-		display:flex; align-items:center; gap:0.75rem;
-		padding:0.55rem 0.75rem; margin-bottom:0.1rem;
-		border-radius:10px; border-left:2px solid transparent;
-		font-size:13px; color:#64748b; text-decoration:none;
-		transition:background-color .18s,color .18s,border-color .18s;
-	}
-	.aprio-sidebar-nav a i { font-size:18px; }
-	.aprio-sidebar-nav a:hover {
-		background-color:#f8fafc; color:#0f172a; border-left-color:#e5e7eb;
-	}
-	.aprio-sidebar-nav a[aria-current="page"] {
-		background-color:#fff7ed; color:#ea580c;
-		border-left-color:#f97316; font-weight:600;
-	}
-
-	.nav-btn {
-		display:flex; flex-direction:column; align-items:center; justify-content:center;
-		gap:0.15rem; font-size:10px; color:#64748b; text-align:center;
-	}
-	.nav-btn i { font-size:20px; }
-	.nav-btn.active { color:#f97316; font-weight:600; }
-	</style>
 	<?php wp_head(); ?>
 </head>
 
@@ -449,7 +469,7 @@ $upcoming_events = get_posts(
 				<p class="text-[13px] leading-relaxed text-slate-600">
 				<?php echo esc_html( $description ?: 'Nenhuma descrição adicionada ainda.' ); ?>
 				</p>
-			   
+
 				<!-- Gêneros -->
 				<?php if ( ! empty( $genres ) ) : ?>
 				<div class="flex flex-wrap gap-1.5 mt-3">
@@ -477,7 +497,7 @@ $upcoming_events = get_posts(
 					<span class="text-[13px] text-slate-700">@<?php echo esc_html( ltrim( $instagram, '@' ) ); ?></span>
 				</a>
 				<?php endif; ?>
-				
+
 				<?php if ( $soundcloud ) : ?>
 				<a href="https://soundcloud.com/<?php echo esc_attr( $soundcloud ); ?>" target="_blank" rel="noopener" class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
 					<div class="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white">
@@ -486,7 +506,7 @@ $upcoming_events = get_posts(
 					<span class="text-[13px] text-slate-700"><?php echo esc_html( $soundcloud ); ?></span>
 				</a>
 				<?php endif; ?>
-				
+
 				<?php if ( $website ) : ?>
 				<a href="<?php echo esc_url( $website ); ?>" target="_blank" rel="noopener" class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg transition-colors">
 					<div class="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center text-white">
@@ -526,7 +546,7 @@ $upcoming_events = get_posts(
 					</span>
 				</div>
 				<?php endif; ?>
-				
+
 				<?php
 				foreach ( $founders as $founder_id ) :
 					if ( $founder_id === $creator_id ) {

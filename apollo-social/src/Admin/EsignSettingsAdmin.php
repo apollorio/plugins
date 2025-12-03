@@ -56,17 +56,17 @@ class EsignSettingsAdmin {
 	public function registerAdminMenu(): void {
 		// Add as submenu under Apollo Help (or as standalone if no parent exists)
 		add_submenu_page(
-			'apollo-help',                              
+			'apollo-help',
 			// Parent slug
-			__( 'Apollo – E-signature', 'apollo-social' ), 
+			__( 'Apollo – E-signature', 'apollo-social' ),
 			// Page title
-			__( 'E-signature', 'apollo-social' ),          
+			__( 'E-signature', 'apollo-social' ),
 			// Menu title
-			'manage_options',                            
+			'manage_options',
 			// Capability
-			self::PAGE_SLUG,                             
+			self::PAGE_SLUG,
 			// Menu slug
-			array( $this, 'renderSettingsPage' )                
+			array( $this, 'renderSettingsPage' )
 			// Callback
 		);
 	}

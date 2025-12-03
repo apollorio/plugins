@@ -16,7 +16,7 @@ class CenaRenderer {
 
 		return array(
 			'title'                       => 'Cena::rio',
-			'content'                     => '', 
+			'content'                     => '',
 			// Rendered by template
 							'breadcrumbs' => array( 'Apollo Social', 'Cena::rio' ),
 			'data'                        => array(
