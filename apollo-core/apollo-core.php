@@ -23,6 +23,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Xdebug polyfill - provides stub when Xdebug is not loaded.
+ * This silences IDE "undefined function" warnings while keeping
+ * the actual xdebug_break() calls safe with function_exists() checks.
+ */
+if ( ! function_exists( 'xdebug_break' ) ) {
+	/**
+	 * Stub for xdebug_break() when Xdebug extension is not loaded.
+	 *
+	 * @return void
+	 */
+	function xdebug_break(): void {
+		// No-op when Xdebug is not available.
+	}
+}
+
 // Define plugin constants.
 define( 'APOLLO_CORE_VERSION', '1.0.0' );
 define( 'APOLLO_CORE_PLUGIN_FILE', __FILE__ );

@@ -12,22 +12,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Query classifieds
-$paged           = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
-$category_filter = isset( $_GET['cat'] ) ? sanitize_text_field( $_GET['cat'] ) : '';
-$search_query    = isset( $_GET['q'] ) ? sanitize_text_field( $_GET['q'] ) : '';
-$sort_by         = isset( $_GET['sort'] ) ? sanitize_text_field( $_GET['sort'] ) : 'recent';
+// Query classifieds.
+$current_page = get_query_var( 'paged' ) ? absint( get_query_var( 'paged' ) ) : 1;
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$category_filter = isset( $_GET['cat'] ) ? sanitize_text_field( wp_unslash( $_GET['cat'] ) ) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$search_query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$sort_by = isset( $_GET['sort'] ) ? sanitize_text_field( wp_unslash( $_GET['sort'] ) ) : 'recent';
 
 $args = array(
 	'post_type'      => 'apollo_classified',
 	'post_status'    => 'publish',
 	'posts_per_page' => 12,
-	'paged'          => $paged,
+	'paged'          => $current_page,
 	'orderby'        => 'date',
 	'order'          => 'DESC',
 );
 
-// Apply filters
+// Apply filters.
 $meta_query = array();
 
 if ( $category_filter ) {
@@ -39,6 +42,7 @@ if ( $category_filter ) {
 }
 
 if ( ! empty( $meta_query ) ) {
+	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for category filtering.
 	$args['meta_query'] = $meta_query;
 }
 
@@ -46,20 +50,22 @@ if ( $search_query ) {
 	$args['s'] = $search_query;
 }
 
-// Sort options
-if ( $sort_by === 'price-low' ) {
+// Sort options.
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for price sorting.
+if ( 'price-low' === $sort_by ) {
 	$args['meta_key'] = '_classified_price';
 	$args['orderby']  = 'meta_value_num';
 	$args['order']    = 'ASC';
-} elseif ( $sort_by === 'price-high' ) {
+} elseif ( 'price-high' === $sort_by ) {
 	$args['meta_key'] = '_classified_price';
 	$args['orderby']  = 'meta_value_num';
 	$args['order']    = 'DESC';
 }
+// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 
 $classifieds = new WP_Query( $args );
 
-// Categories configuration
+// Categories configuration.
 $categories = array(
 	'tickets'   => array(
 		'label' => 'Ingressos',
@@ -83,7 +89,7 @@ $categories = array(
 	),
 );
 
-// Enqueue UNI.CSS assets
+// Enqueue UNI.CSS assets.
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 } else {
@@ -181,42 +187,48 @@ get_header();
 		<?php endif; ?>
 		</form>
 	</div>
-
-	<!-- Category Pills -->
-	<div class="ap-filter-tabs ap-filter-tabs-pills">
-		<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>"
-		class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>"
-		data-filter="all"
-		data-ap-tooltip="Mostrar todos os anúncios">
+<!-- Category Pills -->
+<!-- phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect, Generic.WhiteSpace.ScopeIndent.IncorrectExact -->
+<div class="ap-filter-tabs ap-filter-tabs-pills">
+	<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>" class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
 		<i class="ri-apps-line"></i> Todos
-		</a>
-		<?php foreach ( $categories as $key => $cat ) : ?>
-		<a href="<?php echo esc_url( add_query_arg( 'cat', $key ) ); ?>"
-		class="ap-tab-pill <?php echo $category_filter === $key ? 'active' : ''; ?>"
-		data-filter="<?php echo esc_attr( $key ); ?>"
-		data-ap-tooltip="Filtrar por <?php echo esc_attr( $cat['label'] ); ?>">
-		<i class="<?php echo esc_attr( $cat['icon'] ); ?>"></i> <?php echo esc_html( $cat['label'] ); ?>
-		</a>
-		<?php endforeach; ?>
-	</div>
+	</a>
 
-	<!-- Sort & View Options -->
-	<div class="ap-classifieds-options">
-		<select class="ap-select-mini" id="advertSort" onchange="location.href=this.value">
-		<option value="<?php echo esc_url( add_query_arg( 'sort', 'recent' ) ); ?>" <?php selected( $sort_by, 'recent' ); ?>>Mais Recentes</option>
-		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-low' ) ); ?>" <?php selected( $sort_by, 'price-low' ); ?>>Menor Preço</option>
-		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-high' ) ); ?>" <?php selected( $sort_by, 'price-high' ); ?>>Maior Preço</option>
-		</select>
-		<div class="ap-view-toggle">
+	<?php foreach ( $categories as $category_slug => $category_data ) : ?>
+		<a href="<?php echo esc_url( add_query_arg( 'cat', $category_slug ) ); ?>" class="ap-tab-pill <?php echo $category_filter === $category_slug ? 'active' : ''; ?>" data-filter="<?php echo esc_attr( $category_slug ); ?>" data-ap-tooltip="Filtrar por <?php echo esc_attr( $category_data['label'] ); ?>">
+			<i class="<?php echo esc_attr( $category_data['icon'] ); ?>"></i>
+			<?php echo esc_html( $category_data['label'] ); ?>
+		</a>
+	<?php endforeach; ?>
+</div>
+<!-- phpcs:enable -->
+
+<!-- Sort & View Options -->
+<div class="ap-classifieds-options">
+	<select class="ap-select-mini" id="advertSort" onchange="location.href = this.value">
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'recent' ) ); ?>"
+			<?php selected( 'recent' === $sort_by ); ?>>
+			Mais Recentes
+		</option>
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-low' ) ); ?>"
+			<?php selected( 'price-low' === $sort_by ); ?>>
+			Menor Preço
+		</option>
+		<option value="<?php echo esc_url( add_query_arg( 'sort', 'price-high' ) ); ?>"
+			<?php selected( 'price-high' === $sort_by ); ?>>
+			Maior Preço
+		</option>
+	</select>
+
+	<div class="ap-view-toggle">
 		<button class="ap-btn-icon-sm active" data-view="grid" data-ap-tooltip="Visualização em grade">
 			<i class="ri-grid-fill"></i>
 		</button>
 		<button class="ap-btn-icon-sm" data-view="list" data-ap-tooltip="Visualização em lista">
 			<i class="ri-list-check"></i>
 		</button>
-		</div>
 	</div>
-	</div>
+</div>
 
 	<!-- Adverts Grid -->
 	<main class="ap-adverts-grid" id="advertsGrid">
@@ -243,14 +255,14 @@ get_header();
 			$price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
 			$thumb         = get_the_post_thumbnail_url( $classified_id, 'medium' );
 
-			// Category config
+			// Category config.
 			$cat_config = $categories[ $category ] ?? array(
 				'label' => 'Outro',
 				'icon'  => 'ri-price-tag-line',
 				'badge' => '',
 			);
 
-			// Price unit based on category
+			// Price unit based on category.
 			$price_units = array(
 				'tickets'   => '/unid',
 				'bedroom'   => '/mês',
@@ -259,7 +271,7 @@ get_header();
 			);
 			$price_unit  = $price_units[ $category ] ?? '';
 
-			// Quantity labels
+			// Quantity labels.
 			$quantity_icons = array(
 				'tickets'   => 'ri-ticket-line',
 				'bedroom'   => 'ri-door-open-line',
@@ -268,7 +280,7 @@ get_header();
 			);
 			$quantity_icon  = $quantity_icons[ $category ] ?? 'ri-price-tag-line';
 
-			// Avatar gradient colors by category
+			// Avatar gradient colors by category.
 			$avatar_colors   = array(
 				'tickets'   => '#6366f1, #8b5cf6',
 				'bedroom'   => '#ec4899, #f472b6',
@@ -292,7 +304,7 @@ get_header();
 			</div>
 			<div class="ap-advert-event">
 				<div class="ap-advert-event-info">
-				<?php if ( $category === 'tickets' && $event_title ) : ?>
+				<?php if ( 'tickets' === $category && $event_title ) : ?>
 				<span class="ap-advert-event-title"><?php echo esc_html( $event_title ); ?></span>
 				<span class="ap-advert-event-meta"><?php echo esc_html( $event_date . ' @ ' . $event_venue ); ?></span>
 				<?php else : ?>
@@ -368,12 +380,14 @@ get_header();
 		<?php if ( $classifieds->max_num_pages > 1 ) : ?>
 	<div class="ap-pagination">
 			<?php
-			echo paginate_links(
-				array(
-					'total'     => $classifieds->max_num_pages,
-					'current'   => $paged,
-					'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
-					'next_text' => '<i class="ri-arrow-right-s-line"></i>',
+			echo wp_kses_post(
+				paginate_links(
+					array(
+						'total'     => $classifieds->max_num_pages,
+						'current'   => $current_page,
+						'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
+						'next_text' => '<i class="ri-arrow-right-s-line"></i>',
+					)
 				)
 			);
 			?>
