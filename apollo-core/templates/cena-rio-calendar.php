@@ -23,6 +23,103 @@ if ( ! Apollo_Cena_Rio_Roles::user_can_submit() ) {
 $current_user = wp_get_current_user();
 $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Tailwind (CDN for dev).
+		wp_enqueue_script(
+			'tailwindcss',
+			'https://cdn.tailwindcss.com',
+			array(),
+			'3.4.0',
+			false
+		);
+
+		// Leaflet.
+		wp_enqueue_style(
+			'leaflet',
+			'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+			array(),
+			'1.9.4'
+		);
+		wp_enqueue_script(
+			'leaflet',
+			'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+			array(),
+			'1.9.4',
+			true
+		);
+
+		// Inline calendar-specific styles.
+		$calendar_css = '
+			:root{
+				--bg:#f8fafc;
+				--muted:#64748b;
+				--accent:#f97316;
+				--accent-strong:#ea580c;
+				--confirmed:#10b981;
+				--card:#ffffff;
+				--border:#e6eef6;
+				--shadow: 0 8px 30px rgba(15,23,42,0.06);
+			}
+			html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial;}
+
+			/* Layout Structure */
+			.app { display:flex; min-height:100vh; gap:0; }
+			aside.leftbar { width:18rem; background:#fff; border-right:1px solid #eef2f7; display:flex; flex-direction:column; z-index:40; position:sticky; top:0; height:100vh; }
+			@media (max-width: 980px){ aside.leftbar{display:none} }
+			main.content { flex:1; display:flex; flex-direction:column; min-height:100vh; overflow-x: hidden; }
+			/* Top header */
+			header.topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:rgba(255,255,255,0.9); border-bottom:1px solid #eef2f7; position:sticky; top:0; z-index:60; backdrop-filter: blur(6px); }
+			/* --- REFACTORED WORKSPACE: Grid Layout --- */
+			.workspace {
+				display: grid;
+				grid-template-columns: 260px 1fr; /* Fixed Calendar width, Map takes rest */
+				grid-template-rows: auto auto; /* Two rows */
+				grid-template-areas:
+				"calendar map"
+				"events events";
+				gap: 24px;
+				padding: 24px;
+				max-width: 1400px;
+				margin: 0 auto;
+				width: 100%;
+				box-sizing: border-box;
+			}
+
+			/* Calendar: Top Left */
+			.calendar-card {
+				grid-area: calendar;
+				background: var(--card);
+				border: 1px solid var(--border);
+				border-radius: 12px;
+		';
+		wp_add_inline_style( 'apollo-uni-css', $calendar_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
 ?>
 <!doctype html>
 <html lang="pt-BR" class="h-full">
@@ -31,54 +128,6 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 	<title>Cena::rio · Calendário Compacto</title>
 	<?php wp_head(); ?>
-	<!-- Tailwind for quick styling -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-	<!-- Leaflet -->
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-	<style>
-	:root{
-		--bg:#f8fafc;
-		--muted:#64748b;
-		--accent:#f97316;
-		--accent-strong:#ea580c;
-		--confirmed:#10b981;
-		--card:#ffffff;
-		--border:#e6eef6;
-		--shadow: 0 8px 30px rgba(15,23,42,0.06);
-	}
-	html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial;}
-	
-	/* Layout Structure */
-	.app { display:flex; min-height:100vh; gap:0; }
-	aside.leftbar { width:18rem; background:#fff; border-right:1px solid #eef2f7; display:flex; flex-direction:column; z-index:40; position:sticky; top:0; height:100vh; }
-	@media (max-width: 980px){ aside.leftbar{display:none} }
-	main.content { flex:1; display:flex; flex-direction:column; min-height:100vh; overflow-x: hidden; }
-	/* Top header */
-	header.topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 20px; background:rgba(255,255,255,0.9); border-bottom:1px solid #eef2f7; position:sticky; top:0; z-index:60; backdrop-filter: blur(6px); }
-	/* --- REFACTORED WORKSPACE: Grid Layout --- */
-	.workspace {
-		display: grid;
-		grid-template-columns: 260px 1fr; /* Fixed Calendar width, Map takes rest */
-		grid-template-rows: auto auto; /* Two rows */
-		grid-template-areas: 
-		"calendar map"
-		"events events";
-		gap: 24px;
-		padding: 24px;
-		max-width: 1400px;
-		margin: 0 auto;
-		width: 100%;
-		box-sizing: border-box;
-	}
-	
-	/* Calendar: Top Left */
-	.calendar-card {
-		grid-area: calendar;
-		background: var(--card);
-		border: 1px solid var(--border);
-		border-radius: 12px;
 		padding: 12px;
 		box-shadow: var(--shadow);
 		position: relative;
@@ -105,7 +154,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	/* Calendar Internals (Compact) */
 	.weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; color:var(--muted); font-weight:700; font-size:11px; margin-top:8px; }
 	.grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:4px; }
-	
+
 	.day-btn {
 		height: 36px;
 		border-radius: 8px;
@@ -123,7 +172,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	.day-btn:hover { background: #f1f5f9; }
 	.day-btn.disabled { opacity: 0.35; cursor: default; }
 	.day-btn.selected { background: #0f172a; color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
-	
+
 	.day-dot { position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:999px; opacity:0.9; }
 	.day-dot.expected { background:var(--accent); }
 	.day-dot.confirmed { background:var(--accent-strong); width:5px; height:5px; }
@@ -166,7 +215,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 		.calendar-card { width: 100%; order: 1; }
 		.events-wrapper { order: 2; }
 		.map-card { order: 3; min-height: 250px; }
-	   
+
 		.day-btn { height: 44px; }
 	}
 	@media (max-width: 640px) {
@@ -189,7 +238,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	.event-controls { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 	.event-title { font-weight: 700; font-size: 16px; color: #0f172a; }
 	.event-meta { font-size: 14px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-	
+
 	.event-actions { display: flex; gap: 8px; align-items: center; }
 	/* Bottom nav */
 	.bottom-nav { position:fixed; left:0; right:0; bottom: env(safe-area-inset-bottom, 0); display:flex; justify-content:space-around; align-items:center; height:64px; padding:8px 12px; background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.98)); backdrop-filter: blur(8px); z-index:1200; box-shadow: 0 -6px 20px rgba(0,0,0,0.06); }
@@ -204,7 +253,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	.btn.ghost { background:transparent; color:#475569; border-color:var(--border) }
 	.btn.ghost:hover { background: #f1f5f9; color: #0f172a; }
 	.btn.small { padding: 6px 12px; font-size: 12px; }
-	
+
 	:focus { outline: 3px solid rgba(99,102,241,0.12); outline-offset: 2px; }
 	</style>
 </head>
@@ -308,7 +357,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 	</div>
 	<!-- Modal root -->
 	<div id="modal-root" style="display:none"></div>
-  
+
 	<!-- Apollo REST API config -->
 	<script>
 	window.apolloCenaRio = {
@@ -321,7 +370,7 @@ $can_moderate = Apollo_Cena_Rio_Roles::user_can_moderate();
 		}
 	};
 	</script>
-  
+
 	<script src="<?php echo esc_url( APOLLO_CORE_PLUGIN_URL . 'assets/js/cena-rio-calendar.js' ); ?>?v=<?php echo esc_attr( APOLLO_CORE_VERSION ); ?>"></script>
 	<?php wp_footer(); ?>
 </body>

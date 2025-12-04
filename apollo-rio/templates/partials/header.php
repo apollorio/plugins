@@ -12,6 +12,43 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Tailwind (CDN for dev - should be removed in production).
+		wp_enqueue_script(
+			'tailwindcss',
+			'https://cdn.tailwindcss.com',
+			array(),
+			'3.4.0',
+			false
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="apollo-html">
@@ -24,11 +61,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="theme-color" content="#FFFFFF">
-
-	<!-- Design System Apollo -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	<script src="https://cdn.tailwindcss.com"></script>
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 
 	<!-- PWA Manifest - served from apollo-social plugin -->
 	<?php wp_head(); ?>

@@ -99,6 +99,34 @@ if ( $user_has_valid_cpf ) {
 } elseif ( $user_has_passport_only ) {
 	$cpf_display = __( 'Passaporte (não aceito para assinatura)', 'apollo-social' );
 }
+
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full w-full">
@@ -106,12 +134,6 @@ if ( $user_has_valid_cpf ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 	<title><?php esc_html_e( 'Assinar Documento', 'apollo-social' ); ?> - Apollo::Rio</title>
-
-	<!-- Apollo Design System -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
 
 	<?php wp_head(); ?>
 </head>
@@ -253,10 +275,10 @@ if ( $user_has_valid_cpf ) {
 
 							<div class="flex flex-wrap items-center gap-4 text-xs text-slate-500">
 								<span id="doc-meta-main" class="flex items-center gap-1.5" data-tooltip="<?php esc_attr_e( 'Data de criação', 'apollo-social' ); ?>">
-									<i class="ri-time-line"></i> <?php echo esc_html( sprintf( __( 'Criado em %s', 'apollo-social' ), $document_created ) ); ?>
+									< i class="ri-time-line"></i> <?php echo esc_html( sprintf( __( 'Criado em %s', 'apollo-social' ), $document_created ) ); ?>
 								</span>
 								<span id="doc-meta-second" class="flex items-center gap-1.5" data-tooltip="<?php esc_attr_e( 'Número de páginas', 'apollo-social' ); ?>">
-									<i class="ri-file-list-2-line"></i> <?php echo esc_html( sprintf( _n( '%d página', '%d páginas', $document_pages, 'apollo-social' ), $document_pages ) ); ?>
+								    	<i class="ri-file-list-2-line"></i> <?php echo esc_html( sprintf( _n( '%d página', '%d páginas', $document_pages, 'apollo-social' ), $document_pages ) ); ?>
 								</span>
 							</div>
 						</div>

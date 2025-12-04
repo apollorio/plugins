@@ -59,22 +59,17 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?php echo esc_html( $view['title'] ?? 'Apollo Social' ); ?></title>
-	
+
 	<!-- Preconnect to CDNs -->
 	<link rel="preconnect" href="https://cdn.jsdelivr.net">
 	<link rel="preconnect" href="https://assets.apollo.rio.br">
-	
+
 	<?php
 	// P0-4: WordPress head - OutputGuards already removed theme hooks
 	// Only essential WordPress and Apollo assets will be output
 	wp_head();
 	?>
-	
-	<!-- P0-4: Force uni.css if not already loaded -->
-	<?php if ( ! wp_style_is( 'apollo-uni-css', 'enqueued' ) ) : ?>
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-	<?php endif; ?>
-	
+
 	<!-- Apollo Canvas Mode Styles -->
 	<style>
 		/* Reset theme interference */
@@ -83,7 +78,7 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 			padding: 0 !important;
 			background: #fafafa !important;
 		}
-		
+
 		/* P0-4: Hide ALL theme elements completely */
 		body.apollo-canvas-mode header:not(.apollo-header),
 		body.apollo-canvas-mode footer:not(.apollo-footer),
@@ -99,14 +94,14 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 		body.apollo-canvas-mode .widget-area {
 			display: none !important;
 		}
-		
+
 		/* P0-4: Ensure only Apollo content is visible */
 		body.apollo-canvas-mode .apollo-header,
 		body.apollo-canvas-mode .apollo-canvas-main,
 		body.apollo-canvas-mode .apollo-footer {
 			display: block !important;
 		}
-		
+
 		/* PWA Instructions */
 		.apollo-pwa-instructions {
 			position: fixed;
@@ -121,7 +116,7 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 			justify-content: center;
 			padding: 20px;
 		}
-		
+
 		.apollo-pwa-instructions-content {
 			background: white;
 			border-radius: 12px;
@@ -130,27 +125,27 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 			max-height: 80vh;
 			overflow-y: auto;
 		}
-		
+
 		.apollo-pwa-instruction-block {
 			margin: 16px 0;
 		}
-		
+
 		.apollo-pwa-instruction-block h4 {
 			margin: 0 0 12px 0;
 			font-size: 16px;
 			font-weight: 600;
 		}
-		
+
 		.apollo-pwa-instruction-block ol {
 			margin: 8px 0;
 			padding-left: 24px;
 		}
-		
+
 		.apollo-pwa-instruction-block li {
 			margin: 4px 0;
 			font-size: 14px;
 		}
-		
+
 		.apollo-pwa-close {
 			margin-top: 16px;
 			padding: 8px 16px;

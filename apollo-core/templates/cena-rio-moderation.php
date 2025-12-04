@@ -22,6 +22,50 @@ if ( ! Apollo_Cena_Rio_Roles::user_can_moderate() ) {
 
 $current_user = wp_get_current_user();
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Tailwind (CDN for dev).
+		wp_enqueue_script(
+			'tailwindcss',
+			'https://cdn.tailwindcss.com',
+			array(),
+			'3.4.0',
+			false
+		);
+
+		// Inline moderation-specific styles.
+		$moderation_css = '
+			body { margin: 0; padding: 0; font-family: Inter, system-ui, Arial; background: #f8fafc; }
+			.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+			.topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+		';
+		wp_add_inline_style( 'apollo-uni-css', $moderation_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -30,13 +74,6 @@ $current_user = wp_get_current_user();
 	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 	<title>Moderação Cena::rio</title>
 	<?php wp_head(); ?>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet" />
-	<style>
-		body { margin: 0; padding: 0; font-family: Inter, system-ui, Arial; background: #f8fafc; }
-		.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-		.topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-	</style>
 </head>
 <body>
 	<div class="topbar">

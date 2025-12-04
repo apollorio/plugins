@@ -20,6 +20,34 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+
 // Detect if loaded inside modal
 $is_modal = defined( 'APOLLO_MODAL_CONTEXT' ) && constant( 'APOLLO_MODAL_CONTEXT' );
 
@@ -82,8 +110,6 @@ if ( ! $is_modal ) :
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
 		<title><?php echo esc_html( $event_data['title'] ); ?> - Apollo::rio</title>
 		<link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-		<link href="https://assets.apollo.rio.br/uni.css" rel="stylesheet">
-		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 		<?php if ( $event_data['coords']['valid'] ) : ?>
 			<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>

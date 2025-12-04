@@ -215,6 +215,75 @@ $dj_data_js = array(
 	'soundcloudTrack' => $dj_soundcloud_track ?: '',
 	'trackTitle'      => $dj_track_title ?: 'Featured Set',
 );
+
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Tailwind (CDN for dev).
+		wp_enqueue_script(
+			'tailwindcss',
+			'https://cdn.tailwindcss.com',
+			array(),
+			'3.4.0',
+			false
+		);
+
+		// Motion One.
+		wp_enqueue_script(
+			'motion-one',
+			'https://unpkg.com/@motionone/dom@10.16.4/dist/index.js',
+			array(),
+			'10.16.4',
+			true
+		);
+
+		// SoundCloud API.
+		wp_enqueue_script(
+			'soundcloud-api',
+			'https://w.soundcloud.com/player/api.js',
+			array(),
+			'1.0.0',
+			true
+		);
+
+		// Inline DJ-specific styles.
+		$dj_css = '
+			* { box-sizing: border-box; }
+			html, body { font-size: 16px; }
+			body {
+				margin: 0;
+				background: #ffffff;
+				color: var(--fly-strong);
+				font-family: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				font-size: 16px;
+			}
+		';
+		wp_add_inline_style( 'apollo-uni-css', $dj_css );
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -222,38 +291,13 @@ $dj_data_js = array(
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php echo esc_html( $dj_name ); ?> · Apollo Roster</title>
-	
+
 	<!-- Open Graph -->
 	<meta property="og:title" content="<?php echo esc_attr( $dj_name ); ?> · Apollo Roster">
 	<meta property="og:description" content="<?php echo esc_attr( $dj_bio_excerpt ); ?>">
 	<meta property="og:image" content="<?php echo esc_url( $dj_image ); ?>">
 	<meta property="og:type" content="profile">
-	
-	<!-- Tailwind -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	
-	<!-- Motion One + SoundCloud -->
-	<script src="https://unpkg.com/@motionone/dom@10.16.4/dist/index.js"></script>
-	<script src="https://w.soundcloud.com/player/api.js"></script>
-	
-	<!-- Design system Apollo -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
-	
-	<!-- Remixicon -->
-	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
-	
-	<style>
-	* { box-sizing: border-box; }
-	html, body { font-size: 16px; }
-	body {
-		margin: 0;
-		background: #ffffff;
-		color: var(--fly-strong);
-		font-family: "Urbanist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		font-size: 16px;
-	}
-	</style>
-	
+
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class( 'apollo-dj-roster' ); ?>>
@@ -301,7 +345,7 @@ $dj_data_js = array(
 						<?php endif; ?>
 					</div>
 				</div>
-				
+
 				<figure class="dj-hero-photo" id="djPhoto" data-tooltip="<?php echo esc_attr__( 'Foto principal do DJ', 'apollo-events-manager' ); ?>">
 					<img id="dj-avatar" src="<?php echo esc_url( $dj_image ); ?>" alt="<?php echo esc_attr( $dj_name ); ?>">
 				</figure>
@@ -376,7 +420,7 @@ $dj_data_js = array(
 					</button>
 					<?php endif; ?>
 				</div>
-				
+
 				<div class="dj-info-block">
 					<h2 data-tooltip="<?php echo esc_attr__( 'Links de redes e plataformas', 'apollo-events-manager' ); ?>">Links principais</h2>
 
@@ -396,7 +440,7 @@ $dj_data_js = array(
 							<?php endif; ?>
 						</div>
 					</div>
-					
+
 					<div>
 						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__( 'Redes sociais', 'apollo-events-manager' ); ?>">Social</div>
 						<div class="dj-links-row" id="social-links" data-tooltip="<?php echo empty( $social_links ) ? esc_attr__( 'Adicione Instagram, Twitter, etc', 'apollo-events-manager' ) : ''; ?>">
@@ -413,7 +457,7 @@ $dj_data_js = array(
 							<?php endif; ?>
 						</div>
 					</div>
-					
+
 					<div>
 						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__( 'Arquivos para download', 'apollo-events-manager' ); ?>">Assets</div>
 						<div class="dj-links-row" id="asset-links" data-tooltip="<?php echo empty( $asset_links ) ? esc_attr__( 'Adicione media kit, rider, EPK', 'apollo-events-manager' ) : ''; ?>">
@@ -430,7 +474,7 @@ $dj_data_js = array(
 							<?php endif; ?>
 						</div>
 					</div>
-					
+
 					<?php if ( $dj_more_platforms ) : ?>
 					<p class="more-platforms" id="more-platforms" data-tooltip="<?php echo esc_attr__( 'Outras plataformas onde encontrar o artista', 'apollo-events-manager' ); ?>">
 						<span>More platforms:</span> <?php echo esc_html( $dj_more_platforms ); ?>
@@ -444,7 +488,7 @@ $dj_data_js = array(
 				<span data-tooltip="<?php echo esc_attr__( 'Sistema Apollo Roster', 'apollo-events-manager' ); ?>">Apollo::rio<br>Roster preview</span>
 				<span data-tooltip="<?php echo esc_attr__( 'Público-alvo desta página', 'apollo-events-manager' ); ?>">Para bookers,<br>selos e clubes</span>
 			</footer>
-			
+
 		</div>
 	</div>
 </section>

@@ -1,3 +1,60 @@
+<?php
+/**
+ * Apollo Chat Template
+ *
+ * @package Apollo_Social
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Enqueue assets via WordPress proper methods.
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		// UNI.CSS Framework.
+		wp_enqueue_style(
+			'apollo-uni-css',
+			'https://assets.apollo.rio.br/uni.css',
+			array(),
+			'2.0.0'
+		);
+
+		// Remix Icons.
+		wp_enqueue_style(
+			'remixicon',
+			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+			array(),
+			'4.7.0'
+		);
+
+		// Tailwind (CDN for dev).
+		wp_enqueue_script(
+			'tailwindcss',
+			'https://cdn.tailwindcss.com',
+			array(),
+			'3.4.0',
+			false
+		);
+
+		// Motion.dev.
+		wp_enqueue_script(
+			'motion-one',
+			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
+			array(),
+			'10.16.4',
+			true
+		);
+	},
+	10
+);
+
+// Trigger enqueue if not already done.
+if ( ! did_action( 'wp_enqueue_scripts' ) ) {
+	do_action( 'wp_enqueue_scripts' );
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full w-full bg-white">
 <head>
@@ -5,14 +62,7 @@
   <title>Apollo :: Mensagens</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Tailwind (layout) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- UNI.CSS (tema Apollo + Remix Icons + aprioEXP-*) -->
-  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-
-  <!-- Motion.dev -->
-  <script src="https://unpkg.com/@motionone/dom/dist/motion-one.umd.js"></script>
+  <?php wp_head(); ?>
 </head>
 <body class="h-full bg-slate-50 text-slate-900">
 <section class="aprioEXP-body">
@@ -448,7 +498,7 @@
                     </div>
                     <div class="mt-1 rounded-2xl rounded-tl-sm bg-white border border-slate-200/70 px-3 py-2">
                       <p class="text-slate-800">
-                        Sua conta do Social Core foi sincronizada com o módulo de eventos.  
+                        Sua conta do Social Core foi sincronizada com o módulo de eventos.
                         A área de “Meus números” agora considera também as interações no feed.
                       </p>
                     </div>

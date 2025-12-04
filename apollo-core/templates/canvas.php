@@ -20,16 +20,13 @@ $canvas_data = apply_filters( 'apollo_canvas_template_data', array() );
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?php echo esc_html( $canvas_data['title'] ?? get_the_title() ); ?> | <?php bloginfo( 'name' ); ?></title>
-	
+
 	<!-- Preconnect to CDNs -->
 	<link rel="preconnect" href="https://cdn.jsdelivr.net">
 	<link rel="preconnect" href="https://assets.apollo.rio.br">
-	
+
 	<?php wp_head(); ?>
-	
-	<!-- Apollo uni.css (SHADCN + TAILWIND + MOTION + REMIXICON) -->
-	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" />
-	
+
 	<style>
 		/* Canvas Mode Isolation */
 		body.apollo-canvas-mode {
@@ -37,7 +34,7 @@ $canvas_data = apply_filters( 'apollo_canvas_template_data', array() );
 			padding: 0 !important;
 			background: #fafafa !important;
 		}
-		
+
 		/* Hide theme elements */
 		body.apollo-canvas-mode header:not(.apollo-header),
 		body.apollo-canvas-mode footer:not(.apollo-footer),
@@ -48,7 +45,7 @@ $canvas_data = apply_filters( 'apollo_canvas_template_data', array() );
 		body.apollo-canvas-mode .widget-area {
 			display: none !important;
 		}
-		
+
 		/* Show Apollo elements */
 		body.apollo-canvas-mode .apollo-canvas-main {
 			display: block !important;
