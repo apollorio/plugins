@@ -74,6 +74,7 @@ class BeginOnboarding {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'BeginOnboarding error: ' . $e->getMessage() );
 
 			return array(
@@ -155,9 +156,9 @@ class BeginOnboarding {
 		// Check if Instagram is already taken by another user
 		$existing_user = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT user_id FROM {$wpdb->usermeta} 
-             WHERE meta_key = 'apollo_instagram' 
-             AND meta_value = %s 
+				"SELECT user_id FROM {$wpdb->usermeta}
+             WHERE meta_key = 'apollo_instagram'
+             AND meta_value = %s
              AND user_id != %d",
 				$instagram,
 				$current_user_id
@@ -190,8 +191,8 @@ class BeginOnboarding {
 
 			$exists = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT user_id FROM {$wpdb->usermeta} 
-                 WHERE meta_key = 'apollo_instagram' 
+					"SELECT user_id FROM {$wpdb->usermeta}
+                 WHERE meta_key = 'apollo_instagram'
                  AND meta_value = %s",
 					$suggestion
 				)

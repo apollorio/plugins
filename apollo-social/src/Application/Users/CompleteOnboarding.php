@@ -46,6 +46,7 @@ class CompleteOnboarding {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'CompleteOnboarding error: ' . $e->getMessage() );
 
 			return array(

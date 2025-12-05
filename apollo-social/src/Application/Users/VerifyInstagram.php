@@ -48,6 +48,7 @@ class VerifyInstagram {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::requestDmVerification error: ' . $e->getMessage() );
 
 			return array(
@@ -92,6 +93,7 @@ class VerifyInstagram {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::confirmVerification error: ' . $e->getMessage() );
 
 			return array(
@@ -138,6 +140,7 @@ class VerifyInstagram {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::cancelVerification error: ' . $e->getMessage() );
 
 			return array(
