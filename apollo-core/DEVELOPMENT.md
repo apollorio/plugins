@@ -39,18 +39,20 @@
 
 ```yaml
 Site URL: http://localhost:10004
-WP Root: C:\Users\rafae\Local Sites\1212\app\public
-Plugin Path: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core
+WP Root: /path/to/wordpress
+Plugin Path: /path/to/wordpress/wp-content/plugins/apollo-core
 
-Database (Local MySQL):
-  Host: localhost
-  Port: 10005
-  DB Name: local
-  DB User: root
-  DB Pass: root
+Database:
+  # Store credentials in environment variables or a local .env file
+  # Never commit real credentials to the repository
+  Host: ${DB_HOST}
+  Port: ${DB_PORT}
+  DB Name: ${DB_NAME}
+  DB User: ${DB_USER}
+  DB Pass: ${DB_PASSWORD}
 ```
 
-⚠️ **Security Note**: Rotate DB credentials after debugging sessions.
+⚠️ **Security Note**: Database credentials should be stored in environment variables or a `.env` file (which must be in `.gitignore`). Never commit real credentials to version control.
 
 ---
 
@@ -288,16 +290,16 @@ Hi [Name],
 I need help debugging Apollo Core on my LocalWP site.
 
 Environment:
-- Site URL: http://localhost:10004
-- WP path: C:\Users\rafae\Local Sites\1212\app\public
-- Plugin: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core
+- Site URL: [YOUR_LOCAL_URL]
+- WP path: [YOUR_WP_PATH]
+- Plugin: [YOUR_PLUGIN_PATH]
 
-Database (Local MySQL):
-- Host: localhost
-- Port: 10005
-- DB name: local
-- DB user: root
-- DB pass: root
+Database:
+- Host: ${DB_HOST}
+- Port: ${DB_PORT}
+- DB name: ${DB_NAME}
+- DB user: ${DB_USER}
+- DB pass: [See .env file - never share credentials]
 
 Important Rules:
 1. Edit ONLY files under: wp-content\plugins\apollo-core\

@@ -16,17 +16,17 @@ I need help debugging Apollo Core on my LocalWP site. Here's everything you need
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Local Site:
-- URL: http://localhost:10004
-- WP Root: C:\Users\rafae\Local Sites\1212\app\public
-- Plugin Path: C:\Users\rafae\Local Sites\1212\app\public\wp-content\plugins\apollo-core
+- URL: [YOUR_LOCAL_URL]
+- WP Root: [YOUR_WP_PATH]
+- Plugin Path: [YOUR_PLUGIN_PATH]
 
-Database (Local MySQL):
-- Host: localhost
-- Port: 10005
-- DB Name: local
-- DB User: root
-- DB Pass: root
-- Adminer URL: http://localhost:10004/adminer (if needed)
+Database:
+- Host: ${DB_HOST}
+- Port: ${DB_PORT}
+- DB Name: ${DB_NAME}
+- DB User: ${DB_USER}
+- DB Pass: [See .env file - never share credentials in docs]
+- Adminer URL: http://localhost:[PORT]/adminer (if needed)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🚨 CRITICAL RULES (READ FIRST!)
