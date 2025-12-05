@@ -42,8 +42,11 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'meeting_participants' => array(
-						'required' => true,
-						'type'     => 'array',
+						'required'          => true,
+						'type'              => 'array',
+						'sanitize_callback' => function ( $participants ) {
+							return array_map( 'absint', (array) $participants );
+						},
 					),
 					'write_a_message'      => array(
 						'required'          => false,
@@ -138,8 +141,18 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'availability_slots'    => array(
-						'required' => true,
-						'type'     => 'object',
+						'required'          => true,
+						'type'              => 'object',
+						'sanitize_callback' => function ( $slots ) {
+							if ( ! is_object( $slots ) && ! is_array( $slots ) ) {
+								return array();
+							}
+							$sanitized = array();
+							foreach ( (array) $slots as $day => $times ) {
+								$sanitized[ sanitize_key( $day ) ] = array_map( 'sanitize_text_field', (array) $times );
+							}
+							return $sanitized;
+						},
 					),
 					'available_for_meeting' => array(
 						'required' => false,
@@ -167,8 +180,11 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 						'sanitize_callback' => 'absint',
 					),
 					'user_ids' => array(
-						'required' => true,
-						'type'     => 'array',
+						'required'          => true,
+						'type'              => 'array',
+						'sanitize_callback' => function ( $user_ids ) {
+							return array_map( 'absint', (array) $user_ids );
+						},
 					),
 					'date'     => array(
 						'required'          => true,

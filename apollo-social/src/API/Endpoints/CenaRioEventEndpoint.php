@@ -171,8 +171,8 @@ class CenaRioEventEndpoint {
 			);
 		}
 
-		// Validate date format
-		$date_obj = DateTime::createFromFormat( 'Y-m-d', $date );
+		// Validate date format.
+		$date_obj = \DateTime::createFromFormat( 'Y-m-d', $date );
 		if ( ! $date_obj ) {
 			return new WP_REST_Response(
 				array(

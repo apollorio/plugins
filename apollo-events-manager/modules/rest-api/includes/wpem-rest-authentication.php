@@ -144,19 +144,19 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		$consumer_secret   = '';
 
 		// If the $_GET parameters are present, use those first.
-		if ( ! empty( $_GET['consumer_key'] ) && ! empty( $_GET['consumer_secret'] ) ) { 
+		if ( ! empty( $_GET['consumer_key'] ) && ! empty( $_GET['consumer_secret'] ) ) {
 			// WPCS: CSRF ok.
-			$consumer_key = sanitize_text_field( $_GET['consumer_key'] ); 
+			$consumer_key = sanitize_text_field( $_GET['consumer_key'] );
 			// WPCS: CSRF ok, sanitization ok.
-			$consumer_secret = sanitize_text_field( $_GET['consumer_secret'] ); 
+			$consumer_secret = sanitize_text_field( $_GET['consumer_secret'] );
 			// WPCS: CSRF ok, sanitization ok.
 		}
 
 		// If the above is not present, we will do full basic auth.
 		if ( ! $consumer_key && ! empty( $_SERVER['PHP_AUTH_USER'] ) && ! empty( $_SERVER['PHP_AUTH_PW'] ) ) {
-			$consumer_key = sanitize_text_field( $_SERVER['PHP_AUTH_USER'] ); 
+			$consumer_key = sanitize_text_field( $_SERVER['PHP_AUTH_USER'] );
 			// WPCS: CSRF ok, sanitization ok.
-			$consumer_secret = sanitize_text_field( $_SERVER['PHP_AUTH_PW'] ); 
+			$consumer_secret = sanitize_text_field( $_SERVER['PHP_AUTH_PW'] );
 			// WPCS: CSRF ok, sanitization ok.
 		}
 
@@ -226,7 +226,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 */
 	public function get_authorization_header() {
 		if ( ! empty( $_SERVER['HTTP_AUTHORIZATION'] ) ) {
-			return wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] ); 
+			return wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] );
 			// WPCS: sanitization ok.
 		}
 		if ( function_exists( 'getallheaders' ) ) {
@@ -249,7 +249,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_oauth_parameters() {
-		$params = array_merge( $_GET, $_POST ); 
+		$params = array_merge( $_GET, $_POST );
 		// WPCS: CSRF ok.
 		$params = wp_unslash( $params );
 		$header = $this->get_authorization_header();
@@ -357,9 +357,9 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 * @return true|WP_Error
 	 */
 	private function check_oauth_signature( $user, $params ) {
-		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : ''; 
+		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 		// WPCS: sanitization ok.
-		$request_path = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : ''; 
+		$request_path = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : '';
 		// WPCS: sanitization ok.
 		$wp_base = get_home_url( null, '/', 'relative' );
 		if ( substr( $request_path, 0, strlen( $wp_base ) ) === $wp_base ) {
@@ -378,7 +378,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 
 		// Normalize parameter key/values.
 		$params         = $this->normalize_parameters( $params );
-		$query_string   = implode( '%26', $this->join_with_equals_sign( $params ) ); 
+		$query_string   = implode( '%26', $this->join_with_equals_sign( $params ) );
 		// Join with ampersand.
 		$string_to_sign = $http_method . '&' . $base_request_uri . '&' . $query_string;
 
@@ -409,13 +409,13 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	private function join_with_equals_sign( $params, $query_params = array(), $key = '' ) {
 		foreach ( $params as $param_key => $param_value ) {
 			if ( $key ) {
-				$param_key = $key . '%5B' . $param_key . '%5D'; 
+				$param_key = $key . '%5B' . $param_key . '%5D';
 				// Handle multi-dimensional array.
 			}
 			if ( is_array( $param_value ) ) {
 				$query_params = $this->join_with_equals_sign( $param_value, $query_params, $param_key );
 			} else {
-				$string = $param_key . '=' . $param_value; 
+				$string = $param_key . '=' . $param_value;
 				// Join with equals sign.
 				$query_params[] = wpem_rest_api_urlencode_rfc3986( $string );
 			}
@@ -464,7 +464,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	private function check_oauth_timestamp_and_nonce( $user, $timestamp, $nonce ) {
 		global $wpdb;
 
-		$valid_window = 15 * 60; 
+		$valid_window = 15 * 60;
 		// 15 minute window.
 
 		if ( ( $timestamp < time() - $valid_window ) || ( $timestamp > time() + $valid_window ) ) {
@@ -508,7 +508,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 */
 	private function get_user_data_by_consumer_key( $consumer_key ) {
 		global $wpdb;
-		$consumer_key = sanitize_text_field( $consumer_key ); 
+		$consumer_key = sanitize_text_field( $consumer_key );
 		// NEED TO IMPROVE LATER WITH GLOBAL API
 
 		$user = $wpdb->get_row(
@@ -766,7 +766,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 					$organization_logo = get_user_meta( $user_id, '_organization_logo', true );
 					$organization_logo = maybe_unserialize( $organization_logo );
 					if ( is_array( $organization_logo ) ) {
-						$organization_logo = reset( $organization_logo ); 
+						$organization_logo = reset( $organization_logo );
 						// get first value in the array
 					}
 					$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
