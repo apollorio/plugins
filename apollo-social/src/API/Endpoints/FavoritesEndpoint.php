@@ -42,15 +42,17 @@ class FavoritesEndpoint {
 				'permission_callback' => array( $this, 'permissionCheck' ),
 				'args'                => array(
 					'content_id'   => array(
-						'required'    => true,
-						'type'        => 'integer',
-						'description' => __( 'ID of the content to favorite.', 'apollo-social' ),
+						'required'          => true,
+						'type'              => 'integer',
+						'description'       => __( 'ID of the content to favorite.', 'apollo-social' ),
+						'sanitize_callback' => 'absint',
 					),
 					'content_type' => array(
-						'required'    => true,
-						'type'        => 'string',
-						'description' => __( 'Type of content (e.g., event_listing, apollo_social_post).', 'apollo-social' ),
-						'enum'        => array( 'event_listing', 'apollo_social_post', 'event_dj', 'event_local' ),
+						'required'          => true,
+						'type'              => 'string',
+						'description'       => __( 'Type of content (e.g., event_listing, apollo_social_post).', 'apollo-social' ),
+						'enum'              => array( 'event_listing', 'apollo_social_post', 'event_dj', 'event_local' ),
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
@@ -79,20 +81,22 @@ class FavoritesEndpoint {
 			'apollo/v1',
 			'/favorites/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)',
 			array(
-				'methods'                              => WP_REST_Server::READABLE,
-				'callback'                             => array( $this, 'getFavoriteStatus' ),
-				'permission_callback'                  => '__return_true',
-				// Publicly readable
-												'args' => array(
-													'content_id'   => array(
-														'required' => true,
-														'type' => 'integer',
-													),
-													'content_type' => array(
-														'required' => true,
-														'type' => 'string',
-													),
-												),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'getFavoriteStatus' ),
+				'permission_callback' => '__return_true',
+				// Publicly readable.
+				'args'                => array(
+					'content_id'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'content_type' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 	}

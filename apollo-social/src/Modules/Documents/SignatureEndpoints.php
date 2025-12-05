@@ -125,18 +125,24 @@ class SignatureEndpoints {
 				'permission_callback' => array( $this, 'checkAuthenticated' ),
 				'args'                => array(
 					'library' => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
 					),
 					'title'   => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'type'    => array(
-						'type'    => 'string',
-						'default' => 'document',
+						'type'              => 'string',
+						'default'           => 'document',
+						'sanitize_callback' => 'sanitize_key',
 					),
-					'content' => array( 'type' => 'string' ),
+					'content' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'wp_kses_post',
+					),
 				),
 			)
 		);
@@ -161,9 +167,18 @@ class SignatureEndpoints {
 				'callback'            => array( $this, 'updateDocument' ),
 				'permission_callback' => array( $this, 'checkAuthenticated' ),
 				'args'                => array(
-					'title'        => array( 'type' => 'string' ),
-					'content'      => array( 'type' => 'string' ),
-					'html_content' => array( 'type' => 'string' ),
+					'title'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'content'      => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'wp_kses_post',
+					),
+					'html_content' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'wp_kses_post',
+					),
 				),
 			)
 		);
@@ -189,8 +204,9 @@ class SignatureEndpoints {
 				'permission_callback' => array( $this, 'checkAuthenticated' ),
 				'args'                => array(
 					'target_library' => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
@@ -208,8 +224,9 @@ class SignatureEndpoints {
 				'permission_callback' => array( $this, 'checkAuthenticated' ),
 				'args'                => array(
 					'document_id' => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'certificate' => array(
 						'required' => true,
@@ -219,8 +236,14 @@ class SignatureEndpoints {
 						'required' => true,
 						'type'     => 'string',
 					),
-					'name'        => array( 'type' => 'string' ),
-					'cpf'         => array( 'type' => 'string' ),
+					'name'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'cpf'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 				),
 			)
 		);
@@ -230,29 +253,35 @@ class SignatureEndpoints {
 			self::NAMESPACE,
 			'/sign/canvas',
 			array(
-				'methods'                              => 'POST',
-				'callback'                             => array( $this, 'signWithCanvas' ),
-				'permission_callback'                  => '__return_true',
-				// Public for external signers
-												'args' => array(
-													'token' => array(
-														'required' => true,
-														'type' => 'string',
-													),
-													'signature' => array(
-														'required' => true,
-														'type' => 'string',
-													),
-													'name' => array(
-														'required' => true,
-														'type' => 'string',
-													),
-													'cpf'  => array(
-														'required' => true,
-														'type' => 'string',
-													),
-													'email' => array( 'type' => 'string' ),
-												),
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'signWithCanvas' ),
+				'permission_callback' => '__return_true',
+				// Public for external signers - token validated in callback.
+				'args'                => array(
+					'token'     => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'signature' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'name'      => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'cpf'       => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'email'     => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
+					),
+				),
 			)
 		);
 
@@ -266,18 +295,24 @@ class SignatureEndpoints {
 				'permission_callback' => array( $this, 'checkAuthenticated' ),
 				'args'                => array(
 					'document_id' => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'party'       => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
 					),
 					'email'       => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
 					),
-					'name'        => array( 'type' => 'string' ),
+					'name'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 				),
 			)
 		);
@@ -642,17 +677,24 @@ class SignatureEndpoints {
 
 		if ( $result['success'] ) {
 			// Update signature request
+			$ip_address = isset( $_SERVER['REMOTE_ADDR'] )
+				? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+				: '';
+			$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
+				? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+				: '';
+
 			$wpdb->update(
 				$signatures_table,
 				array(
-					'signer_name'    => $request->get_param( 'name' ),
+					'signer_name'    => sanitize_text_field( $request->get_param( 'name' ) ),
 					'signer_cpf'     => $cpf,
-					'signer_email'   => $request->get_param( 'email' ),
+					'signer_email'   => sanitize_email( $request->get_param( 'email' ) ),
 					'signature_data' => $request->get_param( 'signature' ),
 					'status'         => 'signed',
 					'signed_at'      => current_time( 'mysql' ),
-					'ip_address'     => $_SERVER['REMOTE_ADDR'] ?? '',
-					'user_agent'     => $_SERVER['HTTP_USER_AGENT'] ?? '',
+					'ip_address'     => $ip_address,
+					'user_agent'     => $user_agent,
 				),
 				array( 'id' => $signature_request['id'] )
 			);
@@ -661,9 +703,9 @@ class SignatureEndpoints {
 			$this->audit->logSignature(
 				(int) $document['id'],
 				array(
-					'name'  => $request->get_param( 'name' ),
+					'name'  => sanitize_text_field( $request->get_param( 'name' ) ),
 					'cpf'   => $cpf,
-					'email' => $request->get_param( 'email' ),
+					'email' => sanitize_email( $request->get_param( 'email' ) ),
 					'type'  => 'electronic',
 				),
 				$result['hash'],
