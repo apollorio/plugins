@@ -1,19 +1,36 @@
 <?php
+/**
+ * VerifyInstagram.
+ *
+ * Handles Instagram verification via DM (no upload).
+ *
+ * @package Apollo\Application\Users
+ *
+ * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
 
 namespace Apollo\Application\Users;
 
 /**
- * VerifyInstagram
- * Handles Instagram verification via DM (no upload)
+ * VerifyInstagram class.
+ *
+ * Handles Instagram verification via DM (no upload).
  */
 class VerifyInstagram {
 
 	/**
-	 * Request DM verification
+	 * Request DM verification.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array Result with success status.
 	 */
 	public function requestDmVerification( int $user_id ): array {
 		try {
-			// Validate user and verification status
+			// Validate user and verification status.
 			$validation = $this->validateDmRequest( $user_id );
 			if ( ! $validation['valid'] ) {
 				return array(
@@ -22,14 +39,14 @@ class VerifyInstagram {
 				);
 			}
 
-			// Get or generate token
+			// Get or generate token.
 			$instagram    = get_user_meta( $user_id, 'apollo_instagram', true );
 			$verify_token = $this->buildVerifyToken( $instagram );
 
-			// Update verification status to dm_requested
+			// Update verification status to dm_requested.
 			$this->updateVerificationStatus( $user_id, 'dm_requested', $verify_token );
 
-			// Log event
+			// Log event.
 			$this->logVerificationEvent(
 				$user_id,
 				'verification_dm_requested',
@@ -59,11 +76,15 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Confirm verification (admin/mod)
+	 * Confirm verification (admin/mod).
+	 *
+	 * @param int $user_id     The user ID.
+	 * @param int $reviewer_id The reviewer user ID.
+	 * @return array Result with success status.
 	 */
 	public function confirmVerification( int $user_id, int $reviewer_id ): array {
 		try {
-			// Validate user exists
+			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
 				return array(
@@ -72,13 +93,13 @@ class VerifyInstagram {
 				);
 			}
 
-			// Update verification status
+			// Update verification status.
 			$this->updateVerificationStatus( $user_id, 'verified', null, $reviewer_id );
 
-			// Send email
+			// Send email.
 			$this->sendAccountReleasedEmail( $user_id );
 
-			// Log event
+			// Log event.
 			$this->logVerificationEvent(
 				$user_id,
 				'verification_approved',
@@ -104,11 +125,16 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Cancel verification (admin/mod)
+	 * Cancel verification (admin/mod).
+	 *
+	 * @param int    $user_id     The user ID.
+	 * @param int    $reviewer_id The reviewer user ID.
+	 * @param string $reason      The rejection reason.
+	 * @return array Result with success status.
 	 */
 	public function cancelVerification( int $user_id, int $reviewer_id, string $reason = '' ): array {
 		try {
-			// Validate user exists
+			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
 				return array(
@@ -117,13 +143,13 @@ class VerifyInstagram {
 				);
 			}
 
-			// Determine new status
+			// Determine new status.
 			$new_status = ! empty( $reason ) ? 'rejected' : 'awaiting_instagram_verify';
 
-			// Update verification status
+			// Update verification status.
 			$this->updateVerificationStatus( $user_id, $new_status, null, $reviewer_id, $reason );
 
-			// Log event
+			// Log event.
 			$event = ! empty( $reason ) ? 'verification_rejected' : 'verification_canceled';
 			$this->logVerificationEvent(
 				$user_id,
@@ -136,7 +162,7 @@ class VerifyInstagram {
 
 			return array(
 				'success' => true,
-				'message' => $new_status === 'rejected' ? 'Verificação rejeitada' : 'Verificação cancelada',
+				'message' => 'rejected' === $new_status ? 'Verificação rejeitada' : 'Verificação cancelada',
 			);
 
 		} catch ( \Exception $e ) {
@@ -151,16 +177,20 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Get verification status for user
+	 * Get verification status for user.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array The verification status data.
 	 */
 	public function getVerificationStatus( int $user_id ): array {
 		global $wpdb;
 
 		$verification_table = $wpdb->prefix . 'apollo_verifications';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Performance critical status check.
 		$verification = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$verification_table} WHERE user_id = %d ORDER BY id DESC LIMIT 1",
+				'SELECT * FROM ' . $wpdb->prefix . 'apollo_verifications WHERE user_id = %d ORDER BY id DESC LIMIT 1',
 				$user_id
 			),
 			ARRAY_A
@@ -189,10 +219,13 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Validate DM request
+	 * Validate DM request.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array Validation result.
 	 */
 	private function validateDmRequest( int $user_id ): array {
-		// Check if user exists and is onboarded
+		// Check if user exists and is onboarded.
 		$user = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
 			return array(
@@ -201,7 +234,7 @@ class VerifyInstagram {
 			);
 		}
 
-		// Check if onboarding is completed
+		// Check if onboarding is completed.
 		$onboarded = get_user_meta( $user_id, 'apollo_onboarded', true );
 		if ( ! $onboarded ) {
 			return array(
@@ -210,13 +243,13 @@ class VerifyInstagram {
 			);
 		}
 
-		// Check verification record exists
+		// Check verification record exists.
 		global $wpdb;
-		$verification_table = $wpdb->prefix . 'apollo_verifications';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Performance critical status check.
 		$verification = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT verify_status FROM {$verification_table} WHERE user_id = %d ORDER BY id DESC LIMIT 1",
+				'SELECT verify_status FROM ' . $wpdb->prefix . 'apollo_verifications WHERE user_id = %d ORDER BY id DESC LIMIT 1',
 				$user_id
 			)
 		);
@@ -228,8 +261,8 @@ class VerifyInstagram {
 			);
 		}
 
-		// Check if already verified
-		if ( $verification->verify_status === 'verified' ) {
+		// Check if already verified.
+		if ( 'verified' === $verification->verify_status ) {
 			return array(
 				'valid'   => false,
 				'message' => 'Conta já verificada',
@@ -240,7 +273,14 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Update verification status
+	 * Update verification status.
+	 *
+	 * @param int         $user_id     The user ID.
+	 * @param string      $status      The new status.
+	 * @param string|null $token       The verification token.
+	 * @param int|null    $reviewer_id The reviewer user ID.
+	 * @param string      $reason      The rejection reason.
+	 * @return void
 	 */
 	private function updateVerificationStatus( int $user_id, string $status, ?string $token = null, ?int $reviewer_id = null, string $reason = '' ): void {
 		global $wpdb;
@@ -251,35 +291,36 @@ class VerifyInstagram {
 			'verify_status' => $status,
 		);
 
-		if ( $token !== null ) {
+		if ( null !== $token ) {
 			$update_data['verify_token'] = $token;
 		}
 
-		if ( $status === 'verified' || $status === 'rejected' ) {
+		if ( 'verified' === $status || 'rejected' === $status ) {
 			$update_data['reviewed_at'] = current_time( 'mysql' );
 			if ( $reviewer_id ) {
 				$update_data['reviewer_id'] = $reviewer_id;
 			}
 		}
 
-		if ( $status === 'rejected' && ! empty( $reason ) ) {
+		if ( 'rejected' === $status && ! empty( $reason ) ) {
 			$update_data['rejection_reason'] = $reason;
 		}
 
-		if ( $status === 'dm_requested' ) {
+		if ( 'dm_requested' === $status ) {
 			$update_data['submitted_at'] = current_time( 'mysql' );
 		}
 
-		// Build format array for each field
+		// Build format array for each field.
 		$formats = array();
 		foreach ( $update_data as $key => $value ) {
-			if ( $key === 'reviewer_id' ) {
+			if ( 'reviewer_id' === $key ) {
 				$formats[] = '%d';
 			} else {
 				$formats[] = '%s';
 			}
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Status update.
 		$wpdb->update(
 			$verification_table,
 			$update_data,
@@ -288,7 +329,7 @@ class VerifyInstagram {
 			array( '%d' )
 		);
 
-		// Update user meta
+		// Update user meta.
 		update_user_meta( $user_id, 'apollo_verify_status', $status );
 		if ( $token ) {
 			update_user_meta( $user_id, 'apollo_verify_token', $token );
@@ -296,7 +337,10 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Build verification token (deterministic: YYYYMMDD_username)
+	 * Build verification token (deterministic: YYYYMMDD_username).
+	 *
+	 * @param string $instagram The Instagram username.
+	 * @return string The verification token.
 	 */
 	private function buildVerifyToken( string $instagram ): string {
 		$now      = new \DateTimeImmutable( 'now', new \DateTimeZone( 'America/Sao_Paulo' ) );
@@ -307,7 +351,11 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Build verification phrase
+	 * Build verification phrase.
+	 *
+	 * @param string $instagram The Instagram username.
+	 * @param string $token     The verification token.
+	 * @return string The verification phrase.
 	 */
 	private function buildVerificationPhrase( string $instagram, string $token ): string {
 		$username = trim( $instagram, '@' );
@@ -315,7 +363,10 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Send account released email
+	 * Send account released email.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return void
 	 */
 	private function sendAccountReleasedEmail( int $user_id ): void {
 		$user = get_user_by( 'ID', $user_id );
@@ -331,28 +382,41 @@ class VerifyInstagram {
 
 		wp_mail( $user->user_email, $subject, $message );
 
-		// Log email sent
+		// Log email sent.
 		$this->logVerificationEvent( $user_id, 'account_released_email_sent', array() );
 	}
 
 	/**
-	 * Log verification event
+	 * Log verification event.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param string $event   The event name.
+	 * @param array  $data    Additional event data.
+	 * @return void
 	 */
 	private function logVerificationEvent( int $user_id, string $event, array $data ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$audit_table}'" ) != $audit_table ) {
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check.
+		$table_check = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $audit_table )
+			)
+		);
+		if ( $table_check !== $audit_table ) {
 			return;
 		}
 
 		$ip      = $this->getClientIp();
 		$ip_hash = hash( 'sha256', $ip );
-		$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$ua_hash = hash( 'sha256', $ua );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
 			array(
@@ -360,7 +424,7 @@ class VerifyInstagram {
 				'action'      => $event,
 				'entity_type' => 'verification',
 				'entity_id'   => $user_id,
-				'metadata'    => json_encode(
+				'metadata'    => wp_json_encode(
 					array(
 						'ip_hash' => $ip_hash,
 						'ua_hash' => $ua_hash,
@@ -373,7 +437,9 @@ class VerifyInstagram {
 	}
 
 	/**
-	 * Get client IP address
+	 * Get client IP address.
+	 *
+	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
 		$ip_headers = array(
@@ -387,8 +453,9 @@ class VerifyInstagram {
 		);
 
 		foreach ( $ip_headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				return $_SERVER[ $header ];
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
+				return sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			}
 		}
 

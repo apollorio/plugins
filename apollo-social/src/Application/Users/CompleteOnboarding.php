@@ -1,19 +1,37 @@
 <?php
+/**
+ * CompleteOnboarding.
+ *
+ * Finalizes the onboarding process and marks user as onboarded.
+ *
+ * @package Apollo\Application\Users
+ *
+ * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
 
 namespace Apollo\Application\Users;
 
 /**
- * CompleteOnboarding
- * Finalizes the onboarding process and marks user as onboarded
+ * CompleteOnboarding class.
+ *
+ * Finalizes the onboarding process and marks user as onboarded.
  */
 class CompleteOnboarding {
 
 	/**
-	 * Complete onboarding process for user
+	 * Complete onboarding process for user.
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $data    The completion data.
+	 * @return array Result with success status.
 	 */
 	public function handle( int $user_id, array $data ): array {
 		try {
-			// Validate user and current progress
+			// Validate user and current progress.
 			$validation = $this->validateCompletion( $user_id, $data );
 			if ( ! $validation['valid'] ) {
 				return array(
@@ -23,19 +41,19 @@ class CompleteOnboarding {
 				);
 			}
 
-			// Mark onboarding as completed
+			// Mark onboarding as completed.
 			$this->markOnboardingComplete( $user_id );
 
-			// Create verification record
+			// Create verification record.
 			$this->createVerificationRecord( $user_id, $data );
 
-			// Set initial user role/permissions
+			// Set initial user role/permissions.
 			$this->setupUserPermissions( $user_id );
 
-			// Log completion
+			// Log completion.
 			$this->logOnboardingEvent( $user_id, 'onboarding_completed', $data );
 
-			// Send analytics event (if enabled)
+			// Send analytics event (if enabled).
 			$this->trackAnalyticsEvent( $user_id, 'onboarding_completed', $data );
 
 			return array(
@@ -57,12 +75,18 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Validate that onboarding can be completed
+	 * Validate that onboarding can be completed.
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $data    The completion data (reserved for future use).
+	 * @return array Validation result.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	private function validateCompletion( int $user_id, array $data ): array {
+	private function validateCompletion( int $user_id, array $data ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Reserved for future use.
 		$errors = array();
 
-		// Check if user exists
+		// Check if user exists.
 		$user = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
 			return array(
@@ -71,7 +95,7 @@ class CompleteOnboarding {
 			);
 		}
 
-		// Check if user has onboarding progress
+		// Check if user has onboarding progress.
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
 		if ( ! $progress || ! is_array( $progress ) ) {
 			return array(
@@ -80,7 +104,7 @@ class CompleteOnboarding {
 			);
 		}
 
-		// Check if already completed
+		// Check if already completed.
 		if ( isset( $progress['completed'] ) && $progress['completed'] ) {
 			return array(
 				'valid'   => false,
@@ -88,7 +112,7 @@ class CompleteOnboarding {
 			);
 		}
 
-		// Validate required fields are present
+		// Validate required fields are present.
 		$required_fields = array( 'name', 'industry', 'whatsapp', 'instagram' );
 		foreach ( $required_fields as $field ) {
 			$value = get_user_meta( $user_id, "apollo_{$field}", true );
@@ -97,7 +121,7 @@ class CompleteOnboarding {
 			}
 		}
 
-		// Validate verification token exists
+		// Validate verification token exists.
 		$verify_token = get_user_meta( $user_id, 'apollo_verify_token', true );
 		if ( empty( $verify_token ) ) {
 			$errors['verification'] = 'Token de verificação não encontrado';
@@ -111,7 +135,10 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Mark onboarding as completed
+	 * Mark onboarding as completed.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return void
 	 */
 	private function markOnboardingComplete( int $user_id ): void {
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
@@ -126,27 +153,41 @@ class CompleteOnboarding {
 
 		update_user_meta( $user_id, 'apollo_onboarding_progress', $progress );
 
-		// Set user as onboarded
+		// Set user as onboarded.
 		update_user_meta( $user_id, 'apollo_onboarded', true );
 		update_user_meta( $user_id, 'apollo_onboarded_at', current_time( 'mysql' ) );
 	}
 
 	/**
-	 * Create verification record in database
+	 * Create verification record in database.
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $data    The completion data (reserved for future use).
+	 * @return void
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	private function createVerificationRecord( int $user_id, array $data ): void {
+	private function createVerificationRecord( int $user_id, array $data ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Reserved for future use.
 		global $wpdb;
 
 		$verification_table = $wpdb->prefix . 'apollo_verifications';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$verification_table}'" ) != $verification_table ) {
-			// Create table if it doesn't exist
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check.
+		$table_check = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $verification_table )
+			)
+		);
+		if ( $table_check !== $verification_table ) {
+			// Create table if it doesn't exist.
 			$this->createVerificationTable();
 		}
 
 		$user_meta = $this->getUserOnboardingMeta( $user_id );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Verification record creation.
 		$wpdb->insert(
 			$verification_table,
 			array(
@@ -156,13 +197,13 @@ class CompleteOnboarding {
 				'verify_token'       => $user_meta['verify_token'],
 				'verify_status'      => 'awaiting_instagram_verify',
 				'submitted_at'       => current_time( 'mysql' ),
-				'metadata'           => json_encode(
+				'metadata'           => wp_json_encode(
 					array(
 						'name'       => $user_meta['name'],
 						'industry'   => $user_meta['industry'],
 						'roles'      => $user_meta['roles'],
 						'member_of'  => $user_meta['member_of'],
-						'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address' => $this->getClientIp(),
 					)
 				),
@@ -171,7 +212,9 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Create verification table if it doesn't exist
+	 * Create verification table if it doesn't exist.
+	 *
+	 * @return void
 	 */
 	private function createVerificationTable(): void {
 		global $wpdb;
@@ -205,7 +248,10 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Setup initial user permissions and role
+	 * Setup initial user permissions and role.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return void
 	 */
 	private function setupUserPermissions( int $user_id ): void {
 		$user = get_user_by( 'ID', $user_id );
@@ -213,19 +259,18 @@ class CompleteOnboarding {
 			return;
 		}
 
-		// Assign subscriber role if user has no role
+		// Assign subscriber role if user has no role.
 		if ( empty( $user->roles ) ) {
 			$user->set_role( 'subscriber' );
 		}
 
-		// Add Apollo-specific capabilities for subscribers
+		// Add Apollo-specific capabilities for subscribers.
 		$subscriber_caps = array(
-			'create_apollo_groups'               => true,
-			'create_apollo_ads'                  => true,
-			'publish_apollo_groups'              => true,
-			// Social/Discussion only
-							'publish_apollo_ads' => true,
-			'read_apollo_content'                => true,
+			'create_apollo_groups'  => true,
+			'create_apollo_ads'     => true,
+			'publish_apollo_groups' => true,
+			'publish_apollo_ads'    => true,
+			'read_apollo_content'   => true,
 		);
 
 		foreach ( $subscriber_caps as $cap => $grant ) {
@@ -234,21 +279,27 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Get redirect URL after completion
+	 * Get redirect URL after completion.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return string The redirect URL.
 	 */
 	private function getRedirectUrl( int $user_id ): string {
-		// Check if there's a custom redirect in user meta
+		// Check if there's a custom redirect in user meta.
 		$custom_redirect = get_user_meta( $user_id, 'apollo_onboarding_redirect', true );
 		if ( $custom_redirect ) {
 			return $custom_redirect;
 		}
 
-		// Default to verification page
+		// Default to verification page.
 		return '/verificacao/';
 	}
 
 	/**
-	 * Get user onboarding meta
+	 * Get user onboarding meta.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array The user meta.
 	 */
 	private function getUserOnboardingMeta( int $user_id ): array {
 		$meta_keys = array(
@@ -272,19 +323,32 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Log onboarding event
+	 * Log onboarding event.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param string $event   The event name.
+	 * @param array  $data    Additional event data.
+	 * @return void
 	 */
 	private function logOnboardingEvent( int $user_id, string $event, array $data = array() ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$audit_table}'" ) != $audit_table ) {
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check.
+		$table_check = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $audit_table )
+			)
+		);
+		if ( $table_check !== $audit_table ) {
+			// Table doesn't exist yet.
 			return;
-			// Table doesn't exist yet
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
 			array(
@@ -292,9 +356,9 @@ class CompleteOnboarding {
 				'action'      => $event,
 				'entity_type' => 'user',
 				'entity_id'   => $user_id,
-				'metadata'    => json_encode(
+				'metadata'    => wp_json_encode(
 					array(
-						'user_agent'      => $_SERVER['HTTP_USER_AGENT'] ?? '',
+						'user_agent'      => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address'      => $this->getClientIp(),
 						'completion_data' => $data,
 					)
@@ -305,10 +369,15 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Track analytics event
+	 * Track analytics event.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param string $event   The event name.
+	 * @param array  $data    Additional event data.
+	 * @return void
 	 */
 	private function trackAnalyticsEvent( int $user_id, string $event, array $data ): void {
-		// Check if analytics is enabled
+		// Check if analytics is enabled.
 		$config_file = plugin_dir_path( __FILE__ ) . '../../../config/analytics.php';
 		if ( ! file_exists( $config_file ) ) {
 			return;
@@ -319,10 +388,10 @@ class CompleteOnboarding {
 			return;
 		}
 
-		// Get user meta for event properties
+		// Get user meta for event properties.
 		$user_meta = $this->getUserOnboardingMeta( $user_id );
 
-		// Prepare event data
+		// Prepare event data.
 		$event_data = array(
 			'user_id'    => $user_id,
 			'event'      => $event,
@@ -334,34 +403,45 @@ class CompleteOnboarding {
 				'onboarding_flow'     => 'chat',
 			),
 			'timestamp'  => current_time( 'mysql' ),
-			'session_id' => session_id() ?: 'unknown',
-			'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+			'session_id' => session_id() ? session_id() : 'unknown',
+			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 			'ip_address' => $this->getClientIp(),
 		);
 
-		// Store in local analytics if no external service
+		// Store in local analytics if no external service.
 		$this->storeLocalAnalyticsEvent( $event_data );
 	}
 
 	/**
-	 * Store analytics event locally
+	 * Store analytics event locally.
+	 *
+	 * @param array $event_data The event data.
+	 * @return void
 	 */
 	private function storeLocalAnalyticsEvent( array $event_data ): void {
 		global $wpdb;
 
 		$analytics_table = $wpdb->prefix . 'apollo_analytics_events';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$analytics_table}'" ) != $analytics_table ) {
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check.
+		$table_check = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $analytics_table )
+			)
+		);
+		if ( $table_check !== $analytics_table ) {
 			$this->createAnalyticsTable();
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Analytics logging.
 		$wpdb->insert(
 			$analytics_table,
 			array(
 				'user_id'          => $event_data['user_id'],
 				'event_name'       => $event_data['event'],
-				'event_properties' => json_encode( $event_data['properties'] ),
+				'event_properties' => wp_json_encode( $event_data['properties'] ),
 				'session_id'       => $event_data['session_id'],
 				'user_agent'       => $event_data['user_agent'],
 				'ip_address'       => $event_data['ip_address'],
@@ -371,7 +451,9 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Create analytics table
+	 * Create analytics table.
+	 *
+	 * @return void
 	 */
 	private function createAnalyticsTable(): void {
 		global $wpdb;
@@ -399,7 +481,9 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Get client IP address
+	 * Get client IP address.
+	 *
+	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
 		$ip_headers = array(
@@ -413,8 +497,9 @@ class CompleteOnboarding {
 		);
 
 		foreach ( $ip_headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				return $_SERVER[ $header ];
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
+				return sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			}
 		}
 
@@ -422,7 +507,10 @@ class CompleteOnboarding {
 	}
 
 	/**
-	 * Rate limiting check (1 submit per 60s per user/IP)
+	 * Rate limiting check (1 submit per 60s per user/IP).
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array Rate limit check result.
 	 */
 	public function checkRateLimit( int $user_id ): array {
 		$cache_key   = "apollo_onboarding_rate_limit_{$user_id}";
@@ -435,7 +523,7 @@ class CompleteOnboarding {
 			);
 		}
 
-		// Set rate limit
+		// Set rate limit.
 		wp_cache_set( $cache_key, time(), '', 60 );
 
 		return array( 'allowed' => true );

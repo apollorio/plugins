@@ -1,28 +1,51 @@
 <?php
+/**
+ * BeginOnboarding.
+ *
+ * Handles initial onboarding data collection and validation.
+ *
+ * @package Apollo\Application\Users
+ *
+ * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
 
 namespace Apollo\Application\Users;
 
-// UserProfileRepository is in the same namespace
-// use Apollo\Application\Users\UserProfileRepository; // not needed, same namespace
-
 /**
- * BeginOnboarding
- * Handles initial onboarding data collection and validation
+ * BeginOnboarding class.
+ *
+ * Handles initial onboarding data collection and validation.
  */
 class BeginOnboarding {
 
+	/**
+	 * User profile repository.
+	 *
+	 * @var UserProfileRepository
+	 */
 	private UserProfileRepository $userRepo;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->userRepo = new UserProfileRepository();
 	}
 
 	/**
-	 * Start onboarding process for user
+	 * Start onboarding process for user.
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $data    The onboarding data.
+	 * @return array Result with success status.
 	 */
 	public function handle( int $user_id, array $data ): array {
 		try {
-			// Validate user exists
+			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
 				return array(
@@ -31,7 +54,7 @@ class BeginOnboarding {
 				);
 			}
 
-			// Validate required data
+			// Validate required data.
 			$validation = $this->validateOnboardingData( $data );
 			if ( ! $validation['valid'] ) {
 				return array(
@@ -41,10 +64,10 @@ class BeginOnboarding {
 				);
 			}
 
-			// Sanitize and normalize data
+			// Sanitize and normalize data.
 			$sanitized_data = $this->sanitizeOnboardingData( $data );
 
-			// Check for Instagram username conflicts
+			// Check for Instagram username conflicts.
 			$instagram_check = $this->checkInstagramAvailability( $sanitized_data['instagram'], $user_id );
 			if ( ! $instagram_check['available'] ) {
 				return array(
@@ -54,16 +77,16 @@ class BeginOnboarding {
 				);
 			}
 
-			// Generate verification token
+			// Generate verification token.
 			$verify_token = $this->generateVerificationToken( $sanitized_data['instagram'] );
 
-			// Save onboarding progress
+			// Save onboarding progress.
 			$this->saveOnboardingProgress( $user_id, $sanitized_data, $verify_token );
 
-			// Update username if needed
+			// Update username if needed.
 			$this->updateUsername( $user, $sanitized_data['instagram'] );
 
-			// Log onboarding start
+			// Log onboarding start.
 			$this->logOnboardingEvent( $user_id, 'onboarding_started', $sanitized_data );
 
 			return array(
@@ -85,29 +108,32 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Validate onboarding data
+	 * Validate onboarding data.
+	 *
+	 * @param array $data The data to validate.
+	 * @return array Validation result with valid flag and errors.
 	 */
 	private function validateOnboardingData( array $data ): array {
 		$errors = array();
 
-		// Name validation
+		// Name validation.
 		if ( empty( $data['name'] ) || strlen( trim( $data['name'] ) ) < 2 ) {
 			$errors['name'] = 'Nome deve ter pelo menos 2 caracteres';
 		}
 
-		// Industry validation
-		if ( empty( $data['industry'] ) || ! in_array( $data['industry'], array( 'Yes', 'No', 'Future yes!' ) ) ) {
+		// Industry validation.
+		if ( empty( $data['industry'] ) || ! in_array( $data['industry'], array( 'Yes', 'No', 'Future yes!' ), true ) ) {
 			$errors['industry'] = 'Selecione uma opção válida para indústria';
 		}
 
-		// Roles validation (if industry member)
-		if ( in_array( $data['industry'], array( 'Yes', 'Future yes!' ) ) ) {
+		// Roles validation (if industry member).
+		if ( in_array( $data['industry'], array( 'Yes', 'Future yes!' ), true ) ) {
 			if ( empty( $data['roles'] ) || ! is_array( $data['roles'] ) ) {
 				$errors['roles'] = 'Selecione pelo menos um role';
 			}
 		}
 
-		// WhatsApp validation
+		// WhatsApp validation.
 		if ( empty( $data['whatsapp'] ) ) {
 			$errors['whatsapp'] = 'WhatsApp é obrigatório';
 		} else {
@@ -117,7 +143,7 @@ class BeginOnboarding {
 			}
 		}
 
-		// Instagram validation
+		// Instagram validation.
 		if ( empty( $data['instagram'] ) ) {
 			$errors['instagram'] = 'Instagram é obrigatório';
 		} else {
@@ -134,7 +160,10 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Sanitize onboarding data
+	 * Sanitize onboarding data.
+	 *
+	 * @param array $data The data to sanitize.
+	 * @return array Sanitized data.
 	 */
 	private function sanitizeOnboardingData( array $data ): array {
 		return array(
@@ -148,12 +177,17 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Check Instagram username availability
+	 * Check Instagram username availability.
+	 *
+	 * @param string $instagram       The Instagram username.
+	 * @param int    $current_user_id The current user ID to exclude.
+	 * @return array Availability result with suggestion if taken.
 	 */
 	private function checkInstagramAvailability( string $instagram, int $current_user_id ): array {
 		global $wpdb;
 
-		// Check if Instagram is already taken by another user
+		// Check if Instagram is already taken by another user.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Performance critical unique check.
 		$existing_user = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT user_id FROM {$wpdb->usermeta}
@@ -166,7 +200,7 @@ class BeginOnboarding {
 		);
 
 		if ( $existing_user ) {
-			// Suggest variations
+			// Suggest variations.
 			$suggestion = $this->suggestUsernameVariation( $instagram );
 
 			return array(
@@ -179,7 +213,10 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Suggest username variation
+	 * Suggest username variation.
+	 *
+	 * @param string $base_username The base username.
+	 * @return string Suggested variation.
 	 */
 	private function suggestUsernameVariation( string $base_username ): string {
 		global $wpdb;
@@ -189,6 +226,7 @@ class BeginOnboarding {
 		do {
 			$suggestion = $base_username . $counter;
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Performance critical unique check.
 			$exists = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT user_id FROM {$wpdb->usermeta}
@@ -205,12 +243,15 @@ class BeginOnboarding {
 			++$counter;
 		} while ( $counter <= 999 );
 
-		// Fallback with timestamp
+		// Fallback with timestamp.
 		return $base_username . time();
 	}
 
 	/**
-	 * Generate verification token
+	 * Generate verification token.
+	 *
+	 * @param string $instagram The Instagram username.
+	 * @return string The verification token.
 	 */
 	private function generateVerificationToken( string $instagram ): string {
 		$now = new \DateTimeImmutable( 'now', new \DateTimeZone( 'America/Sao_Paulo' ) );
@@ -218,10 +259,15 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Save onboarding progress
+	 * Save onboarding progress.
+	 *
+	 * @param int    $user_id      The user ID.
+	 * @param array  $data         The onboarding data.
+	 * @param string $verify_token The verification token.
+	 * @return void
 	 */
 	private function saveOnboardingProgress( int $user_id, array $data, string $verify_token ): void {
-		// Save individual meta fields
+		// Save individual meta fields.
 		update_user_meta( $user_id, 'apollo_name', $data['name'] );
 		update_user_meta( $user_id, 'apollo_industry', $data['industry'] );
 		update_user_meta( $user_id, 'apollo_roles', $data['roles'] );
@@ -232,7 +278,7 @@ class BeginOnboarding {
 		update_user_meta( $user_id, 'apollo_verify_status', 'awaiting_instagram_verify' );
 		update_user_meta( $user_id, 'apollo_verify_assets', array() );
 
-		// Save progress state
+		// Save progress state.
 		update_user_meta(
 			$user_id,
 			'apollo_onboarding_progress',
@@ -252,19 +298,23 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Update WordPress username based on Instagram
+	 * Update WordPress username based on Instagram.
+	 *
+	 * @param \WP_User $user      The user object.
+	 * @param string   $instagram The Instagram username.
+	 * @return void
 	 */
 	private function updateUsername( \WP_User $user, string $instagram ): void {
 		$desired_username = $instagram;
 
-		// Check if username is already the same
+		// Check if username is already the same.
 		if ( $user->user_login === $desired_username ) {
 			return;
 		}
 
-		// Check if desired username is available
+		// Check if desired username is available.
 		if ( ! username_exists( $desired_username ) ) {
-			// Update username
+			// Update username.
 			wp_update_user(
 				array(
 					'ID'         => $user->ID,
@@ -272,8 +322,9 @@ class BeginOnboarding {
 				)
 			);
 
-			// Update user_nicename as well
+			// Update user_nicename as well.
 			global $wpdb;
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Core user update.
 			$wpdb->update(
 				$wpdb->users,
 				array( 'user_nicename' => $desired_username ),
@@ -283,7 +334,10 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Get user progress
+	 * Get user progress.
+	 *
+	 * @param int $user_id The user ID.
+	 * @return array The user progress.
 	 */
 	private function getUserProgress( int $user_id ): array {
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
@@ -291,19 +345,32 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Log onboarding event
+	 * Log onboarding event.
+	 *
+	 * @param int    $user_id The user ID.
+	 * @param string $event   The event name.
+	 * @param array  $data    Additional event data.
+	 * @return void
 	 */
 	private function logOnboardingEvent( int $user_id, string $event, array $data = array() ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
 
-		// Check if table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$audit_table}'" ) != $audit_table ) {
+		// Check if table exists.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check.
+		$table_check = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $audit_table )
+			)
+		);
+		if ( $table_check !== $audit_table ) {
+			// Table doesn't exist yet.
 			return;
-			// Table doesn't exist yet
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
 			array(
@@ -311,9 +378,9 @@ class BeginOnboarding {
 				'action'      => $event,
 				'entity_type' => 'user',
 				'entity_id'   => $user_id,
-				'metadata'    => json_encode(
+				'metadata'    => wp_json_encode(
 					array(
-						'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address' => $this->getClientIp(),
 						'data'       => $data,
 					)
@@ -324,12 +391,15 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Normalize WhatsApp number
+	 * Normalize WhatsApp number.
+	 *
+	 * @param string $whatsapp The WhatsApp number.
+	 * @return string Normalized number.
 	 */
 	private function normalizeWhatsapp( string $whatsapp ): string {
 		$digits = preg_replace( '/\D+/', '', $whatsapp );
 
-		// Add country code if needed
+		// Add country code if needed.
 		if ( strlen( $digits ) === 11 ) {
 			$digits = '55' . $digits;
 		}
@@ -338,7 +408,10 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Normalize Instagram username
+	 * Normalize Instagram username.
+	 *
+	 * @param string $instagram The Instagram username.
+	 * @return string Normalized username.
 	 */
 	private function normalizeInstagram( string $instagram ): string {
 		$instagram = trim( $instagram );
@@ -347,23 +420,31 @@ class BeginOnboarding {
 	}
 
 	/**
-	 * Validate WhatsApp format
+	 * Validate WhatsApp format.
+	 *
+	 * @param string $whatsapp The WhatsApp number.
+	 * @return bool True if valid.
 	 */
 	private function isValidWhatsapp( string $whatsapp ): bool {
-		// Remove + and check if all digits
+		// Remove + and check if all digits.
 		$digits = ltrim( $whatsapp, '+' );
 		return ctype_digit( $digits ) && strlen( $digits ) >= 10 && strlen( $digits ) <= 15;
 	}
 
 	/**
-	 * Validate Instagram username
+	 * Validate Instagram username.
+	 *
+	 * @param string $instagram The Instagram username.
+	 * @return bool True if valid.
 	 */
 	private function isValidInstagram( string $instagram ): bool {
 		return preg_match( '/^[a-zA-Z0-9._]{1,30}$/', $instagram );
 	}
 
 	/**
-	 * Get client IP address
+	 * Get client IP address.
+	 *
+	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
 		$ip_headers = array(
@@ -377,8 +458,9 @@ class BeginOnboarding {
 		);
 
 		foreach ( $ip_headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				return $_SERVER[ $header ];
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
+				return sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			}
 		}
 

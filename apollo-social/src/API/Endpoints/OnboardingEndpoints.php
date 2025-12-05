@@ -67,9 +67,11 @@ class OnboardingEndpoints {
 
 	/**
 	 * Register all onboarding endpoints.
+	 *
+	 * @return void
 	 */
 	public function registerEndpoints(): void {
-		// Get onboarding options (industries, roles, memberships)
+		// Get onboarding options (industries, roles, memberships).
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/options',
@@ -80,7 +82,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Begin onboarding process
+		// Begin onboarding process.
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/begin',
@@ -92,7 +94,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Complete onboarding process
+		// Complete onboarding process.
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/complete',
@@ -104,7 +106,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Request DM verification (user)
+		// Request DM verification (user).
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/verify/request-dm',
@@ -115,7 +117,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Get verification status
+		// Get verification status.
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/verify/status',
@@ -126,7 +128,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Confirm verification (admin/mod)
+		// Confirm verification (admin/mod).
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/verify/confirm',
@@ -137,7 +139,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Cancel verification (admin/mod)
+		// Cancel verification (admin/mod).
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/verify/cancel',
@@ -148,7 +150,7 @@ class OnboardingEndpoints {
 			)
 		);
 
-		// Get user profile
+		// Get user profile.
 		register_rest_route(
 			'apollo/v1',
 			'/onboarding/profile',
@@ -161,9 +163,14 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get onboarding options (industries, roles, memberships)
+	 * Get onboarding options (industries, roles, memberships).
+	 *
+	 * @param \WP_REST_Request $request REST request object (unused).
+	 * @return \WP_REST_Response REST response.
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getOnboardingOptions( \WP_REST_Request $request ): \WP_REST_Response {
+	public function getOnboardingOptions( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
 		try {
 			$options = array(
 				'industries'  => $this->userRepo->getIndustryOptions(),
@@ -194,7 +201,10 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Begin onboarding process
+	 * Begin onboarding process.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 * @return \WP_REST_Response REST response.
 	 */
 	public function beginOnboardingProcess( \WP_REST_Request $request ): \WP_REST_Response {
 		try {
@@ -211,7 +221,7 @@ class OnboardingEndpoints {
 
 			$data = $request->get_json_params();
 
-			// Validate required fields
+			// Validate required fields.
 			$validation = $this->validateBeginOnboardingData( $data );
 			if ( ! $validation['valid'] ) {
 				return new \WP_REST_Response(
@@ -224,7 +234,7 @@ class OnboardingEndpoints {
 				);
 			}
 
-			// Process onboarding
+			// Process onboarding.
 			$result = $this->beginOnboarding->handle( $user_id, $data );
 
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
@@ -244,7 +254,10 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Complete onboarding process
+	 * Complete onboarding process.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 * @return \WP_REST_Response REST response.
 	 */
 	public function completeOnboardingProcess( \WP_REST_Request $request ): \WP_REST_Response {
 		try {
@@ -261,7 +274,7 @@ class OnboardingEndpoints {
 
 			$data = $request->get_json_params();
 
-			// Rate limiting check
+			// Rate limiting check.
 			$rate_check = $this->completeOnboarding->checkRateLimit( $user_id );
 			if ( ! $rate_check['allowed'] ) {
 				return new \WP_REST_Response(
@@ -273,7 +286,7 @@ class OnboardingEndpoints {
 				);
 			}
 
-			// Process completion
+			// Process completion.
 			$result = $this->completeOnboarding->handle( $user_id, $data );
 
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
@@ -293,9 +306,12 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Request DM verification (user)
+	 * Request DM verification (user).
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return \WP_REST_Response The REST API response.
 	 */
-	public function requestDmVerification( \WP_REST_Request $request ): \WP_REST_Response {
+	public function requestDmVerification( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -308,7 +324,7 @@ class OnboardingEndpoints {
 				);
 			}
 
-			// Rate limiting: 1 request per minute
+			// Rate limiting: 1 request per minute.
 			$rate_check = $this->checkDmRequestRateLimit( $user_id );
 			if ( ! $rate_check['allowed'] ) {
 				return new \WP_REST_Response(
@@ -320,7 +336,7 @@ class OnboardingEndpoints {
 				);
 			}
 
-			// Request DM verification
+			// Request DM verification.
 			$result = $this->verifyInstagram->requestDmVerification( $user_id );
 
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
@@ -340,9 +356,12 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get verification status
+	 * Get verification status.
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return \WP_REST_Response The REST API response.
 	 */
-	public function getVerificationStatus( \WP_REST_Request $request ): \WP_REST_Response {
+	public function getVerificationStatus( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -380,7 +399,10 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Confirm verification (admin/mod)
+	 * Confirm verification (admin/mod).
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return \WP_REST_Response The REST API response.
 	 */
 	public function confirmVerification( \WP_REST_Request $request ): \WP_REST_Response {
 		try {
@@ -426,7 +448,10 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Cancel verification (admin/mod)
+	 * Cancel verification (admin/mod).
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return \WP_REST_Response The REST API response.
 	 */
 	public function cancelVerification( \WP_REST_Request $request ): \WP_REST_Response {
 		try {
@@ -473,9 +498,12 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get user profile
+	 * Get user profile.
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return \WP_REST_Response The REST API response.
 	 */
-	public function getUserProfile( \WP_REST_Request $request ): \WP_REST_Response {
+	public function getUserProfile( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -513,18 +541,22 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Check user permission for API access
+	 * Check user permission for API access.
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return bool Whether user has permission.
 	 */
-	public function checkUserPermission( \WP_REST_Request $request ): bool {
-		// Must be logged in
+	public function checkUserPermission( \WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+		// Must be logged in.
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}
 
-		// Rate limiting per IP (100 requests per hour)
+		// Rate limiting per IP (100 requests per hour).
 		$ip        = $this->getClientIp();
 		$cache_key = "apollo_api_rate_limit_{$ip}";
-		$requests  = wp_cache_get( $cache_key ) ?: 0;
+		$requests  = wp_cache_get( $cache_key );
+		$requests  = ( false !== $requests ) ? $requests : 0;
 
 		if ( $requests >= 100 ) {
 			return false;
@@ -536,14 +568,20 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Check admin/mod permission for API access
+	 * Check admin/mod permission for API access.
+	 *
+	 * @param \WP_REST_Request $request The REST API request object.
+	 * @return bool Whether user has admin permission.
 	 */
-	public function checkAdminPermission( \WP_REST_Request $request ): bool {
+	public function checkAdminPermission( \WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
 		return current_user_can( 'manage_options' ) || current_user_can( 'edit_users' );
 	}
 
 	/**
-	 * Check DM request rate limit (1 per minute)
+	 * Check DM request rate limit (1 per minute).
+	 *
+	 * @param int $user_id The user ID to check.
+	 * @return array Rate limit check result with allowed and wait_time.
 	 */
 	private function checkDmRequestRateLimit( int $user_id ): array {
 		$cache_key    = "apollo_dm_request_rate_limit_{$user_id}";
@@ -562,12 +600,15 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Validate begin onboarding data
+	 * Validate begin onboarding data.
+	 *
+	 * @param array $data The onboarding data to validate.
+	 * @return array Validation result with valid flag and errors.
 	 */
 	private function validateBeginOnboardingData( array $data ): array {
 		$errors = array();
 
-		// Required fields
+		// Required fields.
 		$required_fields = array( 'name', 'industry' );
 		foreach ( $required_fields as $field ) {
 			if ( empty( $data[ $field ] ) ) {
@@ -575,7 +616,7 @@ class OnboardingEndpoints {
 			}
 		}
 
-		// Validate industry
+		// Validate industry.
 		if ( ! empty( $data['industry'] ) ) {
 			$industries = $this->userRepo->getIndustryOptions();
 			if ( ! isset( $industries[ $data['industry'] ] ) ) {
@@ -583,22 +624,22 @@ class OnboardingEndpoints {
 			}
 		}
 
-		// Validate roles
+		// Validate roles.
 		if ( ! empty( $data['roles'] ) && is_array( $data['roles'] ) ) {
 			$valid_roles = array_keys( $this->userRepo->getRoleOptions() );
 			foreach ( $data['roles'] as $role ) {
-				if ( ! in_array( $role, $valid_roles ) ) {
+				if ( ! in_array( $role, $valid_roles, true ) ) {
 					$errors['roles'] = 'Função inválida detectada';
 					break;
 				}
 			}
 		}
 
-		// Validate memberships
+		// Validate memberships.
 		if ( ! empty( $data['member_of'] ) && is_array( $data['member_of'] ) ) {
 			$valid_memberships = array_keys( $this->userRepo->getMembershipOptions() );
 			foreach ( $data['member_of'] as $membership ) {
-				if ( ! in_array( $membership, $valid_memberships ) ) {
+				if ( ! in_array( $membership, $valid_memberships, true ) ) {
 					$errors['member_of'] = 'Membro inválido detectado';
 					break;
 				}
@@ -612,7 +653,9 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get client IP address
+	 * Get client IP address.
+	 *
+	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
 		$ip_headers = array(
@@ -626,8 +669,9 @@ class OnboardingEndpoints {
 		);
 
 		foreach ( $ip_headers as $header ) {
-			if ( ! empty( $_SERVER[ $header ] ) ) {
-				return $_SERVER[ $header ];
+			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
+				return sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			}
 		}
 
@@ -635,7 +679,9 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get args for begin onboarding endpoint
+	 * Get args for begin onboarding endpoint.
+	 *
+	 * @return array The endpoint arguments configuration.
 	 */
 	private function getBeginOnboardingArgs(): array {
 		return array(
@@ -674,7 +720,9 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Get args for complete onboarding endpoint
+	 * Get args for complete onboarding endpoint.
+	 *
+	 * @return array The endpoint arguments configuration.
 	 */
 	private function getCompleteOnboardingArgs(): array {
 		return array(
