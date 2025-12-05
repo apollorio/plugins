@@ -196,8 +196,25 @@ class Apollo_Admin_Dashboard {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_analytics' ),
-				'permission_callback' => '__return_true', 
-			// Public endpoint
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'event_id'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'event_type' => array(
+						'required'          => false,
+						'type'              => 'string',
+						'default'           => 'pageview',
+						'sanitize_callback' => 'sanitize_key',
+					),
+					'event_name' => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
 			)
 		);
 
@@ -217,8 +234,14 @@ class Apollo_Admin_Dashboard {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_like' ),
-				'permission_callback' => '__return_true', 
-			// Public endpoint
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'event_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 
@@ -304,9 +327,9 @@ class Apollo_Admin_Dashboard {
 
 		$params     = $request->get_json_params();
 		$event_id   = isset( $params['event_id'] ) ? absint( $params['event_id'] ) : 0;
-		$event_type = isset( $params['event_type'] ) ? sanitize_text_field( $params['event_type'] ) : 'pageview';
+		$event_type = isset( $params['event_type'] ) ? sanitize_key( $params['event_type'] ) : 'pageview';
 		$event_name = isset( $params['event_name'] ) ? sanitize_text_field( $params['event_name'] ) : null;
-		$properties = isset( $params['properties'] ) ? json_encode( $params['properties'] ) : null;
+		$properties = isset( $params['properties'] ) ? wp_json_encode( $params['properties'] ) : null;
 
 		if ( ! $event_id ) {
 			return new WP_Error( 'missing_event_id', 'Event ID is required', array( 'status' => 400 ) );
@@ -315,7 +338,8 @@ class Apollo_Admin_Dashboard {
 		$user_id = is_user_logged_in() ? get_current_user_id() : 0;
 		$ip      = $this->get_client_ip();
 		$ip_hash = $ip ? hash( 'sha256', $ip ) : null;
-		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only used for hashing.
+		$ua      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) : '';
 		$ua_hash = $ua ? hash( 'sha256', $ua ) : null;
 
 		// Detect country and device (simplified)
@@ -551,14 +575,14 @@ class Apollo_Admin_Dashboard {
 		?>
 		<div class="wrap apollo-dashboard-wrap">
 			<h1><?php echo esc_html__( 'Apollo Events Dashboard', 'apollo-events-manager' ); ?></h1>
-			
+
 			<div class="apollo-tabs">
 				<button class="apollo-tab-btn active" data-tab="events"><?php esc_html_e( 'Events', 'apollo-events-manager' ); ?></button>
 				<button class="apollo-tab-btn" data-tab="analytics"><?php esc_html_e( 'Analytics', 'apollo-events-manager' ); ?></button>
 				<button class="apollo-tab-btn" data-tab="likes"><?php esc_html_e( 'Likes', 'apollo-events-manager' ); ?></button>
 				<button class="apollo-tab-btn" data-tab="technotes"><?php esc_html_e( 'Tech Notes', 'apollo-events-manager' ); ?></button>
 			</div>
-			
+
 			<div id="apollo-tab-events" class="apollo-tab active">
 				<table id="apollo-events-table" class="display" style="width:100%">
 					<thead>
@@ -574,7 +598,7 @@ class Apollo_Admin_Dashboard {
 					<tbody></tbody>
 				</table>
 			</div>
-			
+
 			<div id="apollo-tab-analytics" class="apollo-tab">
 				<div class="apollo-charts-container">
 					<canvas id="apollo-chart-views"></canvas>
@@ -582,7 +606,7 @@ class Apollo_Admin_Dashboard {
 					<canvas id="apollo-chart-devices"></canvas>
 				</div>
 			</div>
-			
+
 			<div id="apollo-tab-likes" class="apollo-tab">
 				<table id="apollo-likes-table" class="display" style="width:100%">
 					<thead>
@@ -595,7 +619,7 @@ class Apollo_Admin_Dashboard {
 					<tbody></tbody>
 				</table>
 			</div>
-			
+
 			<div id="apollo-tab-technotes" class="apollo-tab">
 				<p><?php esc_html_e( 'Tech notes management coming soon...', 'apollo-events-manager' ); ?></p>
 			</div>
@@ -621,7 +645,7 @@ class Apollo_Admin_Dashboard {
 	 */
 	private function detect_country() {
 		// Simplified - in production, use GeoIP service
-		return 'BR'; 
+		return 'BR';
 		// Default to Brazil
 	}
 
