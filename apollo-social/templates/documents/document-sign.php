@@ -278,7 +278,7 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 									< i class="ri-time-line"></i> <?php echo esc_html( sprintf( __( 'Criado em %s', 'apollo-social' ), $document_created ) ); ?>
 								</span>
 								<span id="doc-meta-second" class="flex items-center gap-1.5" data-tooltip="<?php esc_attr_e( 'Número de páginas', 'apollo-social' ); ?>">
-								    	<i class="ri-file-list-2-line"></i> <?php echo esc_html( sprintf( _n( '%d página', '%d páginas', $document_pages, 'apollo-social' ), $document_pages ) ); ?>
+										<i class="ri-file-list-2-line"></i> <?php echo esc_html( sprintf( _n( '%d página', '%d páginas', $document_pages, 'apollo-social' ), $document_pages ) ); ?>
 								</span>
 							</div>
 						</div>

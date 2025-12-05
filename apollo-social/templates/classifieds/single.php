@@ -25,7 +25,7 @@ $author_login    = $author ? $author->user_login : '';
 $author_initials = strtoupper( substr( $author_name, 0, 2 ) );
 $author_since    = $author ? date( 'M Y', strtotime( $author->user_registered ) ) : '';
 
-// Meta data
+// Meta data.
 $price            = get_post_meta( $classified_id, '_classified_price', true );
 $condition        = get_post_meta( $classified_id, '_classified_condition', true );
 $category_raw     = get_post_meta( $classified_id, '_classified_category', true );
@@ -50,10 +50,10 @@ if ( ! is_array( $gallery ) ) {
 	$gallery = array();
 }
 
-// Format price
+// Format price.
 $price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
 
-// Condition labels
+// Condition labels.
 $condition_labels = array(
 	'new'       => array(
 		'label' => 'Novo',
@@ -77,7 +77,7 @@ $condition_config = $condition_labels[ $condition ] ?? array(
 	'color' => '#6b7280',
 );
 
-// Categories configuration
+// Categories configuration.
 $categories = array(
 	'tickets'   => array(
 		'label' => 'Ingresso',
@@ -111,7 +111,7 @@ $cat_config = $categories[ $category ] ?? array(
 	'unit'  => '',
 );
 
-// Avatar gradient colors by category
+// Avatar gradient colors by category.
 $avatar_colors   = array(
 	'tickets'   => '#6366f1, #8b5cf6',
 	'bedroom'   => '#ec4899, #f472b6',
@@ -120,7 +120,7 @@ $avatar_colors   = array(
 );
 $avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
 
-// Enqueue UNI.CSS assets
+// Enqueue UNI.CSS assets.
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 } else {
@@ -238,14 +238,14 @@ get_header();
 		<i class="ri-eye-line"></i> <?php echo esc_html( $views_count + 1 ); ?> views
 		</span>
 
-		<?php if ( $quantity && $quantity !== '1' ) : ?>
+		<?php if ( ! empty( $quantity ) && '1' !== $quantity ) : ?>
 		<span style="display: flex; align-items: center; gap: 4px;" data-ap-tooltip="Quantidade disponível">
 		<i class="ri-stack-line"></i> <?php echo esc_html( $quantity ); ?>x disponível
 		</span>
 		<?php endif; ?>
 	</div>
 
-	<?php if ( $category === 'tickets' && $event_title ) : ?>
+	<?php if ( 'tickets' === $category && $event_title ) : ?>
 	<!-- Event Info for Tickets -->
 	<div style="margin-top: 16px; padding: 12px; background: var(--ap-bg-muted); border-radius: var(--ap-radius-lg);">
 		<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
@@ -306,38 +306,40 @@ get_header();
 	</h2>
 
 	<div style="display: flex; flex-direction: column; gap: 8px;">
-		<?php
-		if ( $contact_whatsapp ) :
-			$whatsapp_number  = preg_replace( '/\D/', '', $contact_whatsapp );
-			$whatsapp_message = urlencode( 'Olá! Vi seu anúncio "' . $title . '" no Apollo e gostaria de mais informações.' );
-			?>
-		<a href="https://wa.me/55<?php echo esc_attr( $whatsapp_number ); ?>?text=<?php echo $whatsapp_message; ?>"
-		target="_blank" rel="noopener"
-		class="ap-btn"
-		style="background: #25D366; color: white; justify-content: center; padding: 14px;"
-		data-ap-tooltip="Enviar mensagem via WhatsApp">
-		<i class="ri-whatsapp-line" style="font-size: 20px;"></i>
-		Chamar no WhatsApp
+	<?php
+	if ( $contact_whatsapp ) :
+		$whatsapp_number_raw = preg_replace( '/\D/', '', $contact_whatsapp );
+		$safe_title          = wp_strip_all_tags( $title );
+		$whatsapp_message    = 'Olá! Vi seu anúncio "' . $safe_title . '" no Apollo e gostaria de mais informações.';
+		$wa_url              = 'https://wa.me/55' . $whatsapp_number_raw . '?text=' . rawurlencode( $whatsapp_message );
+		?>
+		<a href="<?php echo esc_url( $wa_url ); ?>"
+			target="_blank" rel="noopener noreferrer"
+			class="ap-btn"
+			style="background: #25D366; color: white; justify-content: center; padding: 14px;"
+			data-ap-tooltip="<?php echo esc_attr( 'Enviar mensagem via WhatsApp' ); ?>">
+			<i class="ri-whatsapp-line" style="font-size: 20px;"></i>
+			<?php echo esc_html( 'Chamar no WhatsApp' ); ?>
 		</a>
 		<?php endif; ?>
 
 		<?php if ( $contact_phone ) : ?>
 		<a href="tel:+55<?php echo esc_attr( preg_replace( '/\D/', '', $contact_phone ) ); ?>"
-		class="ap-btn ap-btn-outline"
-		style="justify-content: center; padding: 14px;"
-		data-ap-tooltip="Ligar para o anunciante">
-		<i class="ri-phone-line" style="font-size: 20px;"></i>
+			class="ap-btn ap-btn-outline"
+			style="justify-content: center; padding: 14px;"
+			data-ap-tooltip="Ligar para o anunciante">
+			<i class="ri-phone-line" style="font-size: 20px;"></i>
 			<?php echo esc_html( $contact_phone ); ?>
 		</a>
 		<?php endif; ?>
 
 		<?php if ( ! $contact_whatsapp && ! $contact_phone ) : ?>
 		<button class="ap-btn ap-btn-primary"
-				style="justify-content: center; padding: 14px;"
-				data-ap-tooltip="Enviar mensagem pelo chat interno"
-				onclick="apolloChat?.open(<?php echo esc_attr( $author_id ); ?>);">
-		<i class="ri-mail-send-line" style="font-size: 20px;"></i>
-		Enviar Mensagem
+			style="justify-content: center; padding: 14px;"
+			data-ap-tooltip="Enviar mensagem pelo chat interno"
+			onclick="apolloChat?.open(<?php echo esc_attr( $author_id ); ?>);">
+			<i class="ri-mail-send-line" style="font-size: 20px;"></i>
+			Enviar Mensagem
 		</button>
 		<?php endif; ?>
 	</div>

@@ -6,6 +6,7 @@
  *
  * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
  * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
  */
 
 namespace Apollo\Modules\Signatures\Controllers;
@@ -19,12 +20,20 @@ use Apollo\Modules\Signatures\Adapters\LocalSignatureAdapter;
  */
 class LocalSignatureController {
 
+	/**
+	 * Local signature adapter instance.
+	 *
+	 * @var LocalSignatureAdapter
+	 */
 	private LocalSignatureAdapter $adapter;
 
+	/**
+	 * Constructor - register AJAX handlers.
+	 */
 	public function __construct() {
 		$this->adapter = new LocalSignatureAdapter();
 
-		// Register AJAX handlers
+		// Register AJAX handlers.
 		add_action( 'wp_ajax_apollo_process_local_signature', array( $this, 'processSignature' ) );
 		add_action( 'wp_ajax_nopriv_apollo_process_local_signature', array( $this, 'processSignature' ) );
 
@@ -34,6 +43,8 @@ class LocalSignatureController {
 
 	/**
 	 * Process local signature via AJAX.
+	 *
+	 * @return void
 	 */
 	public function processSignature() {
 		// Verify nonce.
@@ -43,6 +54,7 @@ class LocalSignatureController {
 		}
 
 		try {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON data sanitized after decode.
 			$raw_data       = isset( $_POST['signature_data'] ) ? wp_unslash( $_POST['signature_data'] ) : '{}';
 			$signature_data = json_decode( $raw_data, true );
 
@@ -50,7 +62,7 @@ class LocalSignatureController {
 				wp_send_json_error( array( 'errors' => array( 'Dados de assinatura inválidos' ) ) );
 			}
 
-			// Process signature
+			// Process signature via adapter.
 			$result = $this->adapter->processSignature( $signature_data );
 
 			if ( $result['success'] ) {
@@ -65,15 +77,16 @@ class LocalSignatureController {
 
 	/**
 	 * Verify signature via AJAX.
+	 *
+	 * @return void
 	 */
 	public function verifySignature() {
-		// Nonce verification - skip for public verification links.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Public verification endpoint for certificate validation.
 		$nonce          = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 		$certificate_id = isset( $_POST['certificate_id'] ) ? sanitize_text_field( wp_unslash( $_POST['certificate_id'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// Allow public verification without nonce (read-only operation).
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public verification endpoint for certificate validation.
-
 		if ( empty( $certificate_id ) ) {
 			wp_send_json_error( array( 'error' => 'ID do certificado é obrigatório' ) );
 		}
@@ -88,31 +101,37 @@ class LocalSignatureController {
 	}
 
 	/**
-	 * Render signature canvas page
+	 * Render signature canvas page.
+	 *
+	 * @return void
 	 */
 	public function renderSignatureCanvas() {
-		// Security headers
+		// Security headers.
 		header( 'X-Frame-Options: SAMEORIGIN' );
 		header( 'X-Content-Type-Options: nosniff' );
 
-		// Get template parameters
-		$template_id  = sanitize_text_field( $_GET['template_id'] ?? '' );
-		$signer_email = sanitize_email( $_GET['signer_email'] ?? '' );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Public signature canvas page.
+		$template_id  = isset( $_GET['template_id'] ) ? sanitize_text_field( wp_unslash( $_GET['template_id'] ) ) : '';
+		$signer_email = isset( $_GET['signer_email'] ) ? sanitize_email( wp_unslash( $_GET['signer_email'] ) ) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		// Load template
-		$template_path = APOLLO_PLUGIN_PATH . '/templates/signatures/local-signature-canvas.php';
+		// Load template.
+		$template_path = defined( 'APOLLO_SOCIAL_PLUGIN_DIR' ) ? APOLLO_SOCIAL_PLUGIN_DIR . 'templates/signatures/local-signature-canvas.php' : '';
 
-		if ( file_exists( $template_path ) ) {
+		if ( $template_path && file_exists( $template_path ) ) {
 			include $template_path;
 		} else {
-			wp_die( 'Template não encontrado' );
+			wp_die( esc_html__( 'Template não encontrado', 'apollo-social' ) );
 		}
 
 		exit;
 	}
 
 	/**
-	 * Render signature verification page
+	 * Render signature verification page.
+	 *
+	 * @param string $certificate_id The certificate ID to verify.
+	 * @return void
 	 */
 	public function renderVerificationPage( $certificate_id ) {
 		$result = $this->adapter->verifySignature( $certificate_id );
@@ -233,7 +252,7 @@ class LocalSignatureController {
 							</div>
 							<div class="info-item">
 								<span class="info-label">Data/Hora:</span>
-								<span class="info-value"><?php echo esc_html( date( 'd/m/Y H:i:s', strtotime( $signature_info['signed_at'] ) ) ); ?></span>
+								<span class="info-value"><?php echo esc_html( wp_date( 'd/m/Y H:i:s', strtotime( $signature_info['signed_at'] ) ) ); ?></span>
 							</div>
 							<div class="info-item">
 								<span class="info-label">IP Address:</span>
