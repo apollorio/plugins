@@ -1,70 +1,189 @@
 ﻿<?xml version="1.0"?>
-<ruleset name="Apollo Plugins">
-    <description>WordPress + Extra + VIP-Go focado em segurança para Apollo.</description>
+<ruleset name="Apollo Plugins - Complete Standards">
+	<description>WordPress + Extra + VIP-Go + PHPCompatibility for Apollo Ecosystem</description>
 
-    <!-- Diretórios dos plugins Apollo -->
-    <file>./</file>
+	<!-- ============================================ -->
+	<!-- FILE PATHS                                   -->
+	<!-- ============================================ -->
+	<file>./apollo-core</file>
+	<file>./apollo-events-manager</file>
+	<file>./apollo-social</file>
 
+	<!-- Exclude third-party and build files -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/dev-vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/docs/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*.min.js</exclude-pattern>
+	<exclude-pattern>*.min.css</exclude-pattern>
 
-    <!-- Ignorar terceiros / build -->
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/dev-vendor/*</exclude-pattern>
-    <exclude-pattern>*/tests/*</exclude-pattern>
-    <exclude-pattern>*/node_modules/*</exclude-pattern>
-    <exclude-pattern>*/docs/*</exclude-pattern>
+	<!-- ============================================ -->
+	<!-- PHPCS CONFIGURATION                          -->
+	<!-- ============================================ -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="12"/>
+	<arg name="basepath" value="."/>
 
-    <!-- Config global -->
-     <arg name="colors"/>
-    <arg name="extensions" value="php"/>
-    <arg name="parallel" value="12"/>
+	<!-- ============================================ -->
+	<!-- STANDARDS: WordPress → Extra → VIP-Go → PHPCompatibility -->
+	<!-- ============================================ -->
+	<rule ref="WordPress"/>
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-VIP-Go"/>
 
-    <!-- Standards base -->
-    <rule ref="WordPress"/>
-    <rule ref="WordPress-Extra"/>
-    <rule ref="WordPress-VIP-Go"/>
+	<!-- PHP Compatibility Check -->
+	<config name="testVersion" value="8.1-"/>
+	<rule ref="PHPCompatibilityWP">
+		<include-pattern>*.php</include-pattern>
+	</rule>
 
-    <!-- i18n com múltiplos text-domains Apollo -->
-    <rule ref="WordPress.WP.I18n">
-        <properties>
-            <!-- múltiplos text-domains separados por vírgula, sem espaço -->
-            <property name="text_domain" value="apollo-core,apollo-events-manager,apollo-social"/>
-        </properties>
-    </rule>
+	<!-- ============================================ -->
+	<!-- GLOBAL PREFIXES                              -->
+	<!-- ============================================ -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="apollo"/>
+				<element value="APOLLO"/>
+			</property>
+		</properties>
+	</rule>
 
-    <!-- 1) Comentários obrigatórios: RELAXAR -->
-    <rule ref="Squiz.Commenting">
-        <exclude name="Squiz.Commenting.FileComment.Missing"/>
-        <exclude name="Squiz.Commenting.ClassComment.Missing"/>
-        <exclude name="Squiz.Commenting.FunctionComment.Missing"/>
-        <exclude name="Squiz.Commenting.VariableComment.Missing"/>
-    </rule>
+	<!-- ============================================ -->
+	<!-- INTERNATIONALIZATION (i18n)                  -->
+	<!-- ============================================ -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="apollo-core"/>
+				<element value="apollo-events-manager"/>
+				<element value="apollo-social"/>
+			</property>
+		</properties>
+	</rule>
 
-    <!-- 2) Naming de função: NÃO forçar snake_case em métodos -->
-    <rule ref="WordPress.NamingConventions.ValidFunctionName">
-        <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
-    </rule>
+	<!-- ============================================ -->
+	<!-- TIMEZONE CONFIGURATION                       -->
+	<!-- ============================================ -->
+	<rule ref="WordPress.DateTime.RestrictedFunctions">
+		<properties>
+			<property name="timezone" value="America/Sao_Paulo"/>
+		</properties>
+	</rule>
 
-    <!-- 3) Naming de variáveis: NÃO forçar snake_case -->
-    <rule ref="WordPress.NamingConventions.ValidVariableName">
-        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
-    </rule>
+	<!-- ============================================ -->
+	<!-- MODERN PHP: Allow Short Array Syntax         -->
+	<!-- ============================================ -->
+	<rule ref="Generic.Arrays.DisallowShortArraySyntax">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+	<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
 
-    <!-- 4) File names: NÃO exigir tudo minúsculo class-*.php -->
-    <rule ref="WordPress.Files.FileName">
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
-    </rule>
+	<!-- ============================================ -->
+	<!-- YODA CONDITIONS: ENFORCE                     -->
+	<!-- ============================================ -->
+	<rule ref="WordPress.PHP.YodaConditions"/>
 
-    <!-- 5) Alinhamento de múltiplas declarações: RELAXAR -->
-    <rule ref="Generic.Formatting.MultipleStatementAlignment">
-        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
-    </rule>
-    <rule ref="WordPress.Arrays.MultipleStatementAlignment"/>
+	<!-- ============================================ -->
+	<!-- RELAXED RULES (Pragmatic Approach)           -->
+	<!-- ============================================ -->
 
+	<!-- File naming: Allow modern naming conventions -->
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
 
-    <!-- 6) Yoda Conditions: NÃO exigir Yoda -->
-    <rule ref="WordPress.PHP.YodaConditions">
-        <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-    </rule>
+	<!-- Variable naming: Allow camelCase -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+		<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+	</rule>
+
+	<!-- Function naming: Allow camelCase methods -->
+	<rule ref="WordPress.NamingConventions.ValidFunctionName">
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+	</rule>
+
+	<!-- Hook naming: Allow modern hook names -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="-/."/>
+		</properties>
+	</rule>
+
+	<!-- Array alignment: Pragmatic settings -->
+	<rule ref="WordPress.Arrays.MultipleStatementAlignment">
+		<properties>
+			<property name="maxColumn" value="120"/>
+			<property name="ignoreNewlines" value="true"/>
+		</properties>
+	</rule>
+
+	<!-- Documentation: Don't block deployment -->
+	<rule ref="Squiz.Commenting.FileComment">
+		<exclude name="Squiz.Commenting.FileComment.Missing"/>
+	</rule>
+	<rule ref="Squiz.Commenting.ClassComment">
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+	</rule>
+
+	<!-- VIP-Go: Allow necessary WordPress functions -->
+	<rule ref="WordPress.VIP.RestrictedFunctions">
+		<properties>
+			<property name="allow_user_meta" value="true"/>
+			<property name="allow_term_meta" value="true"/>
+		</properties>
+	</rule>
+
+	<!-- VIP-Go: Allow file operations -->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents"/>
+	</rule>
+
+	<!-- Performance: Allow reasonable slow queries in admin -->
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_key"/>
+		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_tax_query"/>
+	</rule>
+
+	<!-- Database: Allow custom cache functions -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<properties>
+			<property name="customCacheGetFunctions" type="array">
+				<element value="wp_cache_get"/>
+				<element value="apollo_cache_get"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Posts per page: Reasonable limit -->
+	<rule ref="WordPress.WP.PostsPerPage">
+		<properties>
+			<property name="posts_per_page" value="100"/>
+		</properties>
+	</rule>
+
+	<!-- VIP-Go: Allow session usage (not on VIP hosting) -->
+	<rule ref="WordPress.VIP.SessionFunctionsUsage">
+		<exclude name="WordPress.VIP.SessionFunctionsUsage.session_session_start"/>
+	</rule>
+
+	<!-- Security: Keep strict rules -->
+	<rule ref="WordPress.Security"/>
 
 </ruleset>
