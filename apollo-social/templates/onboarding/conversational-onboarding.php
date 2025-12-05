@@ -91,6 +91,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 
 	<style>
 	/* Onboarding specific styles extending UNI.CSS */
+	.ap-onboarding-header {
 		display: flex;
 		align-items: center;
 		gap: 15px;
