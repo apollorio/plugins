@@ -10,8 +10,49 @@ class AssetsManager {
 
 	private $config;
 
+	/**
+	 * External domains that need preconnect hints for performance.
+	 *
+	 * @var array
+	 */
+	private static $preconnect_domains = array(
+		'https://assets.apollo.rio.br',
+		'https://cdn.jsdelivr.net',
+		'https://fonts.googleapis.com',
+		'https://fonts.gstatic.com',
+	);
+
 	public function __construct() {
 		$this->loadConfig();
+		$this->registerPreconnectHints();
+	}
+
+	/**
+	 * Register preconnect hints for external domains.
+	 * Fires early in wp_head for maximum performance benefit.
+	 */
+	private function registerPreconnectHints(): void {
+		add_action( 'wp_head', array( $this, 'outputPreconnectHints' ), 1 );
+	}
+
+	/**
+	 * Output preconnect link tags for external domains.
+	 */
+	public function outputPreconnectHints(): void {
+		// Only output on Apollo routes for performance.
+		if ( ! $this->isApolloRoute() ) {
+			return;
+		}
+
+		foreach ( self::$preconnect_domains as $domain ) {
+			printf(
+				'<link rel="preconnect" href="%s" crossorigin>' . "\n",
+				esc_url( $domain )
+			);
+		}
+
+		// Preload critical CSS.
+		echo '<link rel="preload" href="https://assets.apollo.rio.br/uni.css" as="style">' . "\n";
 	}
 
 	/**

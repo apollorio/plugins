@@ -473,6 +473,11 @@ class Apollo_PWA_Page_Builders {
 		$template         = get_post_meta( $post->ID, '_wp_page_template', true );
 		$apollo_templates = apollo_rio_get_templates();
 
+		// Skip enqueuing for pwa-redirector - it outputs its own complete HTML.
+		if ( 'pwa-redirector.php' === $template ) {
+			return;
+		}
+
 		if ( array_key_exists( $template, $apollo_templates ) ) {
 			// Global Apollo CSS - required for ALL canvas pages
 			wp_enqueue_style(
@@ -527,6 +532,7 @@ function apollo_rio_register_templates(): void {
 	apollo_rio_add_template( 'pagx_site.php', __( 'Site::rio', 'apollo-rio' ) );
 	apollo_rio_add_template( 'pagx_app.php', __( 'App::rio', 'apollo-rio' ) );
 	apollo_rio_add_template( 'pagx_appclean.php', __( 'App::rio clean', 'apollo-rio' ) );
+	apollo_rio_add_template( 'pwa-redirector.php', __( 'PWA Redirector', 'apollo-rio' ) );
 }
 add_action( 'init', 'apollo_rio_register_templates', 1 ); 
 // Priority 1: early in init, after translations loaded

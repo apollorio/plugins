@@ -765,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		const previewWindow = window.open('', '_blank');
 		previewWindow.document.write(`
 			<!DOCTYPE html>
-			<html>
+			<html lang="pt-BR">
 			<head>
 				<title>${documentTitle.textContent}</title>
 				<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">

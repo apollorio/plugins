@@ -455,7 +455,7 @@ $documents = $wpdb->get_results(
 			<div class="document-card" data-status="<?php echo esc_attr( $doc['status'] ); ?>">
 				<div class="document-header">
 					<span class="document-type type-<?php echo esc_attr( $doc['type'] ); ?>">
-						<?php echo $doc['type'] === 'documento' ? '📄 DOC' : '📊 PLAN'; ?>
+						<?php echo esc_html( 'documento' === $doc['type'] ? '📄 DOC' : '📊 PLAN' ); ?>
 					</span>
 					<h3 class="document-title" title="<?php echo esc_attr( $doc['title'] ); ?>">
 						<?php echo esc_html( $doc['title'] ); ?>
@@ -467,11 +467,11 @@ $documents = $wpdb->get_results(
 					<div class="progress-section">
 						<div class="progress-label">
 							<span>Progresso</span>
-							<span><?php echo number_format( $completion, 0 ); ?>%</span>
+							<span><?php echo esc_html( number_format( $completion, 0 ) ); ?>%</span>
 						</div>
 						<div class="progress-bar">
 							<div class="progress-fill <?php echo $is_partial ? 'partial' : ''; ?>"
-								style="width: <?php echo $completion; ?>%;">
+								style="width: <?php echo esc_attr( $completion ); ?>%;">
 							</div>
 						</div>
 					</div>
@@ -532,7 +532,7 @@ $documents = $wpdb->get_results(
 						$status_tooltip  = $status_tooltips[ $doc['status'] ] ?? $doc['status'];
 						?>
 						<span class="status-badge status-<?php echo esc_attr( $doc['status'] ); ?>" data-ap-tooltip="<?php echo esc_attr( $status_tooltip ); ?>">
-							<?php echo $status_labels[ $doc['status'] ] ?? $doc['status']; ?>
+							<?php echo esc_html( $status_labels[ $doc['status'] ] ?? $doc['status'] ); ?>
 						</span>
 					</div>
 

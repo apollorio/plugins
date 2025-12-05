@@ -560,7 +560,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 			<span class="save-status saved" id="save-status"
 					data-ap-tooltip="<?php echo esc_attr( $tooltips['save_status'] ); ?>">
 				<span class="material-symbols-rounded" style="font-size: 16px;">cloud_done</span>
-				<span id="save-text"><?php echo $is_new ? 'Novo' : 'Salvo'; ?></span>
+				<span id="save-text"><?php echo esc_html( $is_new ? 'Novo' : 'Salvo' ); ?></span>
 			</span>
 
 			<button class="btn-navbar" onclick="window.location.href='/sign'"
@@ -739,20 +739,20 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 						<tr>
 							<th style="width: 40px;">#</th>
 							<?php for ( $col = 0; $col < 10; $col++ ) : ?>
-								<th><?php echo chr( 65 + $col ); ?></th>
+								<th><?php echo esc_html( chr( 65 + $col ) ); ?></th>
 							<?php endfor; ?>
 						</tr>
 					</thead>
 					<tbody id="spreadsheet-body">
 						<?php for ( $row = 1; $row <= 20; $row++ ) : ?>
 							<tr>
-								<th><?php echo $row; ?></th>
+								<th><?php echo esc_html( $row ); ?></th>
 								<?php for ( $col = 0; $col < 10; $col++ ) : ?>
 									<td>
 										<input type="text"
 											class="spreadsheet-cell"
-											data-row="<?php echo $row; ?>"
-											data-col="<?php echo $col; ?>">
+											data-row="<?php echo esc_attr( $row ); ?>"
+											data-col="<?php echo esc_attr( $col ); ?>">
 									</td>
 								<?php endfor; ?>
 							</tr>
