@@ -41,8 +41,135 @@ function apollo_settings_init() {
 		'apollo_settings',
 		'apollo_settings_section'
 	);
+
+	// SEO Enhancement Settings.
+	$seo_content_types = apollo_get_seo_content_types();
+	foreach ( $seo_content_types as $type_key => $type_label ) {
+		register_setting(
+			'apollo_settings',
+			'apollo_seo_' . $type_key,
+			array(
+				'type'              => 'boolean',
+				'default'           => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			)
+		);
+	}
+
+	add_settings_section(
+		'apollo_seo_section',
+		__( 'SEO Enhancement Settings', 'apollo-rio' ),
+		'apollo_seo_section_callback',
+		'apollo_settings'
+	);
+
+	add_settings_field(
+		'apollo_seo_toggles',
+		__( 'Enable SEO for Content Types', 'apollo-rio' ),
+		'apollo_seo_toggles_render',
+		'apollo_settings',
+		'apollo_seo_section'
+	);
 }
 add_action( 'admin_init', 'apollo_settings_init' );
+
+/**
+ * Get the list of content types that support SEO enhancements.
+ *
+ * @return array Associative array of type_key => type_label.
+ */
+function apollo_get_seo_content_types() {
+	return array(
+		'user'        => __( 'User Profiles', 'apollo-rio' ),
+		'comunidade'  => __( 'Comunidades (Groups)', 'apollo-rio' ),
+		'nucleo'      => __( 'Núcleos (Groups)', 'apollo-rio' ),
+		'dj'          => __( 'DJs', 'apollo-rio' ),
+		'local'       => __( 'Locais (Venues)', 'apollo-rio' ),
+		'event'       => __( 'Events', 'apollo-rio' ),
+		'classifieds' => __( 'Classifieds', 'apollo-rio' ),
+	);
+}
+
+/**
+ * SEO section description callback.
+ */
+function apollo_seo_section_callback() {
+	?>
+	<p><?php esc_html_e( 'Control SEO enhancements (meta title, description, Open Graph tags) for each content type. Enabled types will have automatic SEO meta tags injected into page headers.', 'apollo-rio' ); ?></p>
+	<?php
+}
+
+/**
+ * Render SEO toggle checkboxes for each content type.
+ */
+function apollo_seo_toggles_render() {
+	$content_types = apollo_get_seo_content_types();
+	?>
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'SEO Enhancement Toggles', 'apollo-rio' ); ?></legend>
+		<table class="form-table apollo-seo-toggles" role="presentation" style="margin-top: 0;">
+			<tbody>
+			<?php foreach ( $content_types as $type_key => $type_label ) : ?>
+				<?php
+				$option_name  = 'apollo_seo_' . $type_key;
+				$option_value = get_option( $option_name, true );
+				?>
+				<tr>
+					<td style="padding: 8px 0; width: 250px;">
+						<label for="<?php echo esc_attr( $option_name ); ?>">
+							<input
+								type="checkbox"
+								id="<?php echo esc_attr( $option_name ); ?>"
+								name="<?php echo esc_attr( $option_name ); ?>"
+								value="1"
+								<?php checked( $option_value, true ); ?>
+							>
+							<strong><?php echo esc_html( $type_label ); ?></strong>
+						</label>
+					</td>
+					<td style="padding: 8px 0;">
+						<?php echo esc_html( apollo_get_seo_type_description( $type_key ) ); ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
+	</fieldset>
+	<p class="description" style="margin-top: 15px;">
+		<?php esc_html_e( 'When enabled, Apollo::Rio will automatically generate meta tags including og:title, og:description, og:image, and structured data for better search engine visibility and social sharing.', 'apollo-rio' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Get description text for each SEO content type.
+ *
+ * @param string $type_key The content type key.
+ * @return string Description text.
+ */
+function apollo_get_seo_type_description( $type_key ) {
+	$descriptions = array(
+		'user'        => __( 'User profile pages (/u/username)', 'apollo-rio' ),
+		'comunidade'  => __( 'Community group pages (/comunidade/slug)', 'apollo-rio' ),
+		'nucleo'      => __( 'Núcleo group pages (/nucleo/slug)', 'apollo-rio' ),
+		'dj'          => __( 'DJ profile pages (/dj/slug)', 'apollo-rio' ),
+		'local'       => __( 'Venue pages (/local/slug)', 'apollo-rio' ),
+		'event'       => __( 'Event listing pages (/event/slug)', 'apollo-rio' ),
+		'classifieds' => __( 'Classified ad pages', 'apollo-rio' ),
+	);
+	return isset( $descriptions[ $type_key ] ) ? $descriptions[ $type_key ] : '';
+}
+
+/**
+ * Check if SEO is enabled for a specific content type.
+ *
+ * @param string $type_key The content type key (user, comunidade, nucleo, dj, local, event, classifieds).
+ * @return bool Whether SEO is enabled for this type.
+ */
+function apollo_is_seo_enabled( $type_key ) {
+	$option_name = 'apollo_seo_' . sanitize_key( $type_key );
+	return (bool) get_option( $option_name, true );
+}
 
 function apollo_settings_section_callback() {
 	esc_html_e( 'Configure PWA and app download settings', 'apollo-rio' );
@@ -76,9 +203,9 @@ function apollo_settings_page() {
 			submit_button();
 			?>
 		</form>
-		
+
 		<hr>
-		
+
 		<h2><?php esc_html_e( 'Como Associar Templates PWA às Páginas', 'apollo-rio' ); ?></h2>
 		<div class="card" style="max-width: 800px; margin-top: 20px;">
 			<ol style="line-height: 1.8;">
@@ -104,7 +231,7 @@ function apollo_settings_page() {
 				</li>
 			</ol>
 		</div>
-		
+
 		<h2><?php esc_html_e( 'Guia de Templates PWA', 'apollo-rio' ); ?></h2>
 		<table class="widefat" style="margin-top: 20px;">
 			<thead>
@@ -140,7 +267,7 @@ function apollo_settings_page() {
 				</tr>
 			</tbody>
 		</table>
-		
+
 		<div class="notice notice-info" style="margin-top: 20px;">
 			<p>
 				<strong><?php esc_html_e( 'Nota:', 'apollo-rio' ); ?></strong>

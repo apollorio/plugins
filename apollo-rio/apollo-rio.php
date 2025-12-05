@@ -38,15 +38,23 @@ if ( file_exists( $template_functions_file ) ) {
 	error_log( 'Apollo::Rio: Missing file: ' . esc_html( $template_functions_file ) );
 }
 
-// Load admin settings
-if ( is_admin() ) {
-	$admin_settings_file = APOLLO_PATH . 'includes/admin-settings.php';
-	if ( file_exists( $admin_settings_file ) ) {
-		require_once $admin_settings_file;
+// Load admin settings (always - contains helper functions like apollo_is_seo_enabled() used on frontend)
+$admin_settings_file = APOLLO_PATH . 'includes/admin-settings.php';
+if ( file_exists( $admin_settings_file ) ) {
+	require_once $admin_settings_file;
+	if ( is_admin() ) {
 		add_action( 'admin_notices', 'apollo_rio_admin_notices' );
-	} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( 'Apollo::Rio: Missing file: ' . esc_html( $admin_settings_file ) );
 	}
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	error_log( 'Apollo::Rio: Missing file: ' . esc_html( $admin_settings_file ) );
+}
+
+// Load SEO handler (outputs meta tags for Apollo content types)
+$seo_handler_file = APOLLO_PATH . 'includes/class-apollo-seo-handler.php';
+if ( file_exists( $seo_handler_file ) ) {
+	require_once $seo_handler_file;
+} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+	error_log( 'Apollo::Rio: Missing file: ' . esc_html( $seo_handler_file ) );
 }
 
 /**
@@ -58,7 +66,7 @@ function apollo_rio_admin_notices() {
 		?>
 		<div class="notice notice-warning is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>: 
+				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>:
 				<?php esc_html_e( 'O plugin "Apollo Core" não está ativo. Algumas funcionalidades podem não funcionar corretamente.', 'apollo-rio' ); ?>
 			</p>
 		</div>
@@ -71,7 +79,7 @@ function apollo_rio_admin_notices() {
 		?>
 		<div class="notice notice-info is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>: 
+				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>:
 				<?php esc_html_e( 'Se você encontrar erros 404 em páginas com templates PWA, vá em Configurações → Links Permanentes e clique em "Salvar alterações" para atualizar as regras de reescrita.', 'apollo-rio' ); ?>
 			</p>
 		</div>
@@ -86,7 +94,7 @@ function apollo_rio_admin_notices() {
 		?>
 		<div class="notice notice-warning is-dismissible">
 			<p>
-				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>: 
+				<strong><?php esc_html_e( 'Apollo::Rio', 'apollo-rio' ); ?></strong>:
 				<?php esc_html_e( 'Permalinks estão configurados como "Simples". Para que os templates PWA funcionem corretamente, recomenda-se usar uma estrutura de permalinks personalizada. Vá em Configurações → Links Permanentes.', 'apollo-rio' ); ?>
 			</p>
 		</div>
@@ -100,6 +108,12 @@ register_activation_hook( __FILE__, 'apollo_activate' );
 function apollo_activate() {
 	// Set default options
 	add_option( 'apollo_android_app_url', esc_url_raw( 'https://play.google.com/store/apps/details?id=br.rio.apollo' ) );
+
+	// Set default SEO options (all enabled by default)
+	$seo_content_types = array( 'user', 'comunidade', 'nucleo', 'dj', 'local', 'event', 'classifieds' );
+	foreach ( $seo_content_types as $type ) {
+		add_option( 'apollo_seo_' . $type, true );
+	}
 
 	flush_rewrite_rules();
 
