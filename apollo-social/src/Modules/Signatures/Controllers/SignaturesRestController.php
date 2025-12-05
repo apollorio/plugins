@@ -427,8 +427,19 @@ class SignaturesRestController extends WP_REST_Controller {
 				'sanitize_callback' => 'absint',
 			),
 			'position'         => array(
-				'type'    => 'object',
-				'default' => array(),
+				'type'              => 'object',
+				'default'           => array(),
+				'sanitize_callback' => function ( $position ) {
+					if ( ! is_array( $position ) ) {
+						return array();
+					}
+					return array(
+						'x'      => isset( $position['x'] ) ? (float) $position['x'] : 0,
+						'y'      => isset( $position['y'] ) ? (float) $position['y'] : 0,
+						'width'  => isset( $position['width'] ) ? (float) $position['width'] : 0,
+						'height' => isset( $position['height'] ) ? (float) $position['height'] : 0,
+					);
+				},
 			),
 		);
 	}

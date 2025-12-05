@@ -620,6 +620,18 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'perform_user_authentication' ),
 					'permission_callback' => '__return_true',
+					'args'                => array(
+						'username' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_user',
+						),
+						'password' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
 				),
 			)
 		);
@@ -631,6 +643,18 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'perform_login_authentication' ),
 					'permission_callback' => '__return_true',
+					'args'                => array(
+						'username' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_user',
+						),
+						'password' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
 				),
 			)
 		);

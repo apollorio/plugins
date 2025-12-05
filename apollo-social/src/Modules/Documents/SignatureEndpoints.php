@@ -87,7 +87,7 @@ class SignatureEndpoints {
 				'args'                => array(
 					'library'  => array(
 						'required'          => true,
-						'validate_callback' => fn( $v ) => in_array( $v, array( 'apollo', 'cenario', 'private' ) ),
+						'validate_callback' => fn( $v ) => in_array( $v, array( 'apollo', 'cenario', 'private' ), true ),
 					),
 					'status'   => array( 'type' => 'string' ),
 					'type'     => array( 'type' => 'string' ),
@@ -727,7 +727,7 @@ class SignatureEndpoints {
 				)
 			);
 
-			if ( $pending == 0 ) {
+			if ( 0 === (int) $pending ) {
 				$wpdb->update( $documents_table, array( 'status' => 'completed' ), array( 'id' => $document['id'] ) );
 			}
 		}//end if

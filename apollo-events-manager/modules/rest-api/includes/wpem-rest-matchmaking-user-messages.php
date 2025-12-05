@@ -22,13 +22,30 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'wpem_send_matchmaking_messages' ),
-				'args'     => array(
-					'senderId'   => array( 'required' => true ),
-					'receiverId' => array( 'required' => true ),
-					'message'    => array( 'required' => false ),
-					'image'      => array( 'required' => false ),
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'wpem_send_matchmaking_messages' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
+					'senderId'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'receiverId' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'message'    => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'image'      => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'esc_url_raw',
+					),
 				),
 			)
 		);
@@ -37,26 +54,31 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/get-messages',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'wpem_get_matchmaking_messages' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'wpem_get_matchmaking_messages' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
 					'senderId'   => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'receiverId' => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'page'       => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 1,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
 					),
 					'per_page'   => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 20,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 20,
+						'sanitize_callback' => 'absint',
 					),
 				),
 			)
@@ -66,32 +88,54 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/get-conversation-list',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'wpem_get_matchmaking_conversation_list' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'wpem_get_matchmaking_conversation_list' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
 					'user_id'   => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'event_ids' => array(
-						'required' => true,
-						'type'     => 'array',
-						'items'    => array( 'type' => 'integer' ),
+						'required'          => true,
+						'type'              => 'array',
+						'items'             => array( 'type' => 'integer' ),
+						'sanitize_callback' => function( $arr ) { return array_map( 'absint', (array) $arr ); },
 					),
 					'paged'     => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 1,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
 					),
 					'per_page'  => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 10,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 10,
+						'sanitize_callback' => 'absint',
 					),
 				),
 			)
 		);
 	}
+
+	/**
+	 * Check user permission for messaging endpoints.
+	 *
+	 * @return bool|WP_Error True if user is logged in, WP_Error otherwise.
+	 */
+	public function check_user_permission() {
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_not_logged_in',
+				__( 'You must be logged in to send messages.', 'apollo-events-manager' ),
+				array( 'status' => 401 )
+			);
+		}
+		return true;
+	}
+
 	/**
 	 * Handles sending a message to a user.
 	 *
@@ -196,7 +240,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			$table            = $wpdb->prefix . 'wpem_matchmaking_users_messages';
 			$first_message_id = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT id FROM $table 
+					"SELECT id FROM $table
 				WHERE (sender_id = %d AND receiver_id = %d)
 					OR (sender_id = %d AND receiver_id = %d)
 				ORDER BY created_at ASC LIMIT 1",
@@ -329,8 +373,8 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			// Get total message count
 			$total_messages = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM $table 
-				WHERE (sender_id = %d AND receiver_id = %d) 
+					"SELECT COUNT(*) FROM $table
+				WHERE (sender_id = %d AND receiver_id = %d)
 					OR (sender_id = %d AND receiver_id = %d)",
 					$sender_id,
 					$receiver_id,
@@ -342,8 +386,8 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			// Get paginated messages
 			$messages = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM $table 
-				WHERE (sender_id = %d AND receiver_id = %d) 
+					"SELECT * FROM $table
+				WHERE (sender_id = %d AND receiver_id = %d)
 					OR (sender_id = %d AND receiver_id = %d)
 				ORDER BY created_at DESC
 				LIMIT %d OFFSET %d",

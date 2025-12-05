@@ -22,16 +22,19 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/matchmaking-attendee-settings',
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_matchmaking_attendee_settings' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_matchmaking_attendee_settings' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
 					'user_id'  => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'event_id' => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 				),
 			)
@@ -42,32 +45,65 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/update-matchmaking-attendee-settings',
 			array(
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'update_matchmaking_attendee_settings' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_matchmaking_attendee_settings' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
 					'user_id'              => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'enable_matchmaking'   => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'message_notification' => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'meeting_request_mode' => array(
-						'required' => false,
-						'type'     => 'string',
+						'required'          => false,
+						'type'              => 'string',
+						'enum'              => array( 'approval', 'auto_accept' ),
+						'sanitize_callback' => 'sanitize_key',
 					),
 					'event_participation'  => array(
-						'required' => false,
-						'type'     => 'array',
+						'required'          => false,
+						'type'              => 'array',
+						'sanitize_callback' => function( $arr ) {
+							if ( ! is_array( $arr ) ) {
+								return array();
+							}
+							return array_map( function( $item ) {
+								return array(
+									'event_id'           => isset( $item['event_id'] ) ? absint( $item['event_id'] ) : 0,
+									'create_matchmaking' => isset( $item['create_matchmaking'] ) ? (bool) $item['create_matchmaking'] : false,
+								);
+							}, $arr );
+						},
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Check user permission for settings endpoints.
+	 *
+	 * @return bool|WP_Error True if user is logged in, WP_Error otherwise.
+	 */
+	public function check_user_permission() {
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_not_logged_in',
+				__( 'You must be logged in to manage settings.', 'apollo-events-manager' ),
+				array( 'status' => 401 )
+			);
+		}
+		return true;
 	}
 
 	/**

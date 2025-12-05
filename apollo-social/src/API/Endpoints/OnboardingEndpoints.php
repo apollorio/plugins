@@ -165,12 +165,13 @@ class OnboardingEndpoints {
 	/**
 	 * Get onboarding options (industries, roles, memberships).
 	 *
-	 * @param \WP_REST_Request $request REST request object (unused).
+	 * @param \WP_REST_Request $_request REST request object (unused, required by REST API).
 	 * @return \WP_REST_Response REST response.
 	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getOnboardingOptions( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function getOnboardingOptions( \WP_REST_Request $_request ): \WP_REST_Response {
 		try {
 			$options = array(
 				'industries'  => $this->userRepo->getIndustryOptions(),
@@ -308,10 +309,12 @@ class OnboardingEndpoints {
 	/**
 	 * Request DM verification (user).
 	 *
-	 * @param \WP_REST_Request $request The REST API request object.
+	 * @param \WP_REST_Request $_request The REST API request object (unused, required by REST API).
 	 * @return \WP_REST_Response The REST API response.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function requestDmVerification( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function requestDmVerification( \WP_REST_Request $_request ): \WP_REST_Response {
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -358,10 +361,12 @@ class OnboardingEndpoints {
 	/**
 	 * Get verification status.
 	 *
-	 * @param \WP_REST_Request $request The REST API request object.
+	 * @param \WP_REST_Request $_request The REST API request object (unused, required by REST API).
 	 * @return \WP_REST_Response The REST API response.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function getVerificationStatus( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function getVerificationStatus( \WP_REST_Request $_request ): \WP_REST_Response {
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -500,10 +505,12 @@ class OnboardingEndpoints {
 	/**
 	 * Get user profile.
 	 *
-	 * @param \WP_REST_Request $request The REST API request object.
+	 * @param \WP_REST_Request $_request The REST API request object (unused, required by REST API).
 	 * @return \WP_REST_Response The REST API response.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function getUserProfile( \WP_REST_Request $request ): \WP_REST_Response { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function getUserProfile( \WP_REST_Request $_request ): \WP_REST_Response {
 		try {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
@@ -543,10 +550,12 @@ class OnboardingEndpoints {
 	/**
 	 * Check user permission for API access.
 	 *
-	 * @param \WP_REST_Request $request The REST API request object.
+	 * @param \WP_REST_Request $_request The REST API request object (unused, required by REST API).
 	 * @return bool Whether user has permission.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function checkUserPermission( \WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function checkUserPermission( \WP_REST_Request $_request ): bool {
 		// Must be logged in.
 		if ( ! is_user_logged_in() ) {
 			return false;
@@ -570,10 +579,12 @@ class OnboardingEndpoints {
 	/**
 	 * Check admin/mod permission for API access.
 	 *
-	 * @param \WP_REST_Request $request The REST API request object.
+	 * @param \WP_REST_Request $_request The REST API request object (unused, required by REST API).
 	 * @return bool Whether user has admin permission.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function checkAdminPermission( \WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass -- Required by REST API.
+	public function checkAdminPermission( \WP_REST_Request $_request ): bool {
 		return current_user_can( 'manage_options' ) || current_user_can( 'edit_users' );
 	}
 

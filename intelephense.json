@@ -1,0 +1,6 @@
+{
+    "diagnostics.undefinedFunctions": false,
+    "diagnostics.undefinedConstants": false,
+    "diagnostics.undefinedClassConstants": false,
+    "diagnostics.unusedParameters": false
+}

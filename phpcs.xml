@@ -69,11 +69,11 @@
 	<!-- ============================================ -->
 	<!-- TIMEZONE CONFIGURATION                       -->
 	<!-- ============================================ -->
-	<rule ref="WordPress.DateTime.RestrictedFunctions">
-		<properties>
-			<property name="timezone" value="America/Sao_Paulo"/>
-		</properties>
-	</rule>
+<rule ref="WordPress.DateTime.RestrictedFunctions">
+  <properties>
+    <property name="timezone" value="America/Sao_Paulo"/>
+  </properties>
+</rule>
 
 	<!-- ============================================ -->
 	<!-- MODERN PHP: Allow Short Array Syntax         -->
@@ -185,5 +185,8 @@
 
 	<!-- Security: Keep strict rules -->
 	<rule ref="WordPress.Security"/>
+
+
+
 
 </ruleset>

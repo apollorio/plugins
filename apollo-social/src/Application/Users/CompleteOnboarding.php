@@ -373,10 +373,12 @@ class CompleteOnboarding {
 	 *
 	 * @param int    $user_id The user ID.
 	 * @param string $event   The event name.
-	 * @param array  $data    Additional event data.
+	 * @param array  $_data   Additional event data (reserved for future use).
 	 * @return void
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	private function trackAnalyticsEvent( int $user_id, string $event, array $data ): void {
+	private function trackAnalyticsEvent( int $user_id, string $event, array $_data ): void {
 		// Check if analytics is enabled.
 		$config_file = plugin_dir_path( __FILE__ ) . '../../../config/analytics.php';
 		if ( ! file_exists( $config_file ) ) {

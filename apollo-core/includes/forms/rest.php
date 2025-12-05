@@ -37,6 +37,7 @@ function apollo_register_forms_rest_routes() {
 											'data'      => array(
 												'required' => true,
 												'type'     => 'object',
+												'sanitize_callback' => 'apollo_sanitize_form_data',
 											),
 										),
 		)
@@ -61,6 +62,48 @@ function apollo_register_forms_rest_routes() {
 	);
 }
 add_action( 'rest_api_init', 'apollo_register_forms_rest_routes' );
+
+/**
+ * Recursively sanitize form data.
+ *
+ * @param mixed $data The form data to sanitize.
+ * @return mixed Sanitized data.
+ */
+function apollo_sanitize_form_data( $data ) {
+	if ( is_array( $data ) ) {
+		return array_map( 'apollo_sanitize_form_data', $data );
+	}
+
+	if ( is_string( $data ) ) {
+		// Check if it looks like HTML content.
+		if ( preg_match( '/<[^>]+>/', $data ) ) {
+			return wp_kses_post( $data );
+		}
+		// Check if it looks like a URL.
+		if ( filter_var( $data, FILTER_VALIDATE_URL ) ) {
+			return esc_url_raw( $data );
+		}
+		// Check if it looks like an email.
+		if ( filter_var( $data, FILTER_VALIDATE_EMAIL ) ) {
+			return sanitize_email( $data );
+		}
+		return sanitize_text_field( $data );
+	}
+
+	if ( is_int( $data ) ) {
+		return absint( $data );
+	}
+
+	if ( is_float( $data ) ) {
+		return (float) $data;
+	}
+
+	if ( is_bool( $data ) ) {
+		return (bool) $data;
+	}
+
+	return $data;
+}
 
 /**
  * REST callback: Submit form

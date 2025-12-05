@@ -1,12 +1,19 @@
 <?php
 /**
- * P0-6: Favorites REST API Endpoint
+ * P0-6: Favorites REST API Endpoint.
  *
  * Unified endpoint for toggling favorites on events and other content types.
  *
  * @package Apollo_Social
  * @version 2.0.0
+ *
+ * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery
  */
+
+declare( strict_types=1 );
 
 namespace Apollo\API\Endpoints;
 
@@ -19,20 +26,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * FavoritesEndpoint Class.
+ *
+ * Handles REST API endpoints for user favorites functionality.
+ */
 class FavoritesEndpoint {
 
 	/**
-	 * Register REST routes
+	 * Register REST routes hook.
+	 *
+	 * @return void
 	 */
 	public function register(): void {
 		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
 	}
 
 	/**
-	 * Register routes
+	 * Register all favorites routes.
+	 *
+	 * @return void
 	 */
 	public function registerRoutes(): void {
-		// Toggle favorite
+		// Toggle favorite endpoint.
 		register_rest_route(
 			'apollo/v1',
 			'/favorites',
@@ -58,7 +74,7 @@ class FavoritesEndpoint {
 			)
 		);
 
-		// Get favorites for current user
+		// Get favorites for current user endpoint.
 		register_rest_route(
 			'apollo/v1',
 			'/favorites',
@@ -68,15 +84,16 @@ class FavoritesEndpoint {
 				'permission_callback' => array( $this, 'permissionCheck' ),
 				'args'                => array(
 					'content_type' => array(
-						'required'    => false,
-						'type'        => 'string',
-						'description' => __( 'Filter by content type.', 'apollo-social' ),
+						'required'          => false,
+						'type'              => 'string',
+						'description'       => __( 'Filter by content type.', 'apollo-social' ),
+						'sanitize_callback' => 'sanitize_key',
 					),
 				),
 			)
 		);
 
-		// Get favorite status for specific content
+		// Get favorite status for specific content endpoint.
 		register_rest_route(
 			'apollo/v1',
 			'/favorites/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)',
@@ -84,7 +101,6 @@ class FavoritesEndpoint {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'getFavoriteStatus' ),
 				'permission_callback' => '__return_true',
-				// Publicly readable.
 				'args'                => array(
 					'content_id'   => array(
 						'required'          => true,
@@ -102,9 +118,14 @@ class FavoritesEndpoint {
 	}
 
 	/**
-	 * Permission check
+	 * Permission check for authenticated endpoints.
+	 *
+	 * @param WP_REST_Request $_request REST request object (unused, required by REST API).
+	 * @return bool|WP_Error True if allowed, WP_Error otherwise.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	public function permissionCheck( WP_REST_Request $request ): bool {
+	public function permissionCheck( WP_REST_Request $_request ) {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
 				'rest_not_logged_in',
@@ -116,17 +137,20 @@ class FavoritesEndpoint {
 	}
 
 	/**
-	 * P0-6: Toggle favorite status
+	 * Toggle favorite status for content.
+	 *
+	 * @param WP_REST_Request $request REST request object.
+	 * @return WP_REST_Response REST response.
 	 */
 	public function toggleFavorite( WP_REST_Request $request ): WP_REST_Response {
 		$user_id      = get_current_user_id();
 		$content_id   = $request->get_param( 'content_id' );
 		$content_type = $request->get_param( 'content_type' );
 
-		// Validate content exists
-		if ( $content_type === 'event_listing' ) {
+		// Validate content exists for events.
+		if ( 'event_listing' === $content_type ) {
 			$post = get_post( $content_id );
-			if ( ! $post || $post->post_type !== 'event_listing' ) {
+			if ( ! $post || 'event_listing' !== $post->post_type ) {
 				return new WP_REST_Response(
 					array(
 						'success' => false,
@@ -137,13 +161,13 @@ class FavoritesEndpoint {
 			}
 		}
 
-		// Get user favorites
+		// Get user favorites from meta.
 		$user_favorites = get_user_meta( $user_id, 'apollo_favorites', true );
 		if ( ! is_array( $user_favorites ) ) {
 			$user_favorites = array();
 		}
 
-		// Structure: ['event_listing' => [1, 2, 3], 'apollo_social_post' => [5, 6]]
+		// Initialize content type array if needed.
 		if ( ! isset( $user_favorites[ $content_type ] ) ) {
 			$user_favorites[ $content_type ] = array();
 		}
@@ -151,25 +175,25 @@ class FavoritesEndpoint {
 		$is_favorited = in_array( $content_id, $user_favorites[ $content_type ], true );
 
 		if ( $is_favorited ) {
-			// Remove favorite
+			// Remove from favorites.
 			$user_favorites[ $content_type ] = array_values(
 				array_diff( $user_favorites[ $content_type ], array( $content_id ) )
 			);
 		} else {
-			// Add favorite
+			// Add to favorites.
 			$user_favorites[ $content_type ][] = $content_id;
 			$user_favorites[ $content_type ]   = array_values( array_unique( $user_favorites[ $content_type ] ) );
 		}
 
-		// Update user meta
+		// Update user meta with new favorites.
 		update_user_meta( $user_id, 'apollo_favorites', $user_favorites );
 
-		// Update post meta count (for events)
-		if ( $content_type === 'event_listing' ) {
+		// Update post meta count for events.
+		if ( 'event_listing' === $content_type ) {
 			$this->updateEventFavoriteCount( $content_id );
 		}
 
-		// Get updated count
+		// Get updated count for response.
 		$favorite_count = $this->getFavoriteCount( $content_id, $content_type );
 
 		return new WP_REST_Response(
@@ -183,7 +207,10 @@ class FavoritesEndpoint {
 	}
 
 	/**
-	 * P0-6: Get user favorites
+	 * Get user favorites list.
+	 *
+	 * @param WP_REST_Request $request REST request object.
+	 * @return WP_REST_Response REST response.
 	 */
 	public function getUserFavorites( WP_REST_Request $request ): WP_REST_Response {
 		$user_id             = get_current_user_id();
@@ -206,14 +233,17 @@ class FavoritesEndpoint {
 			array(
 				'success'   => true,
 				'favorites' => $favorites,
-				'total'     => array_sum( array_map( 'count', $favorites ) ),
+				'total'     => is_array( $favorites ) ? array_sum( array_map( 'count', $favorites ) ) : 0,
 			),
 			200
 		);
 	}
 
 	/**
-	 * P0-6: Get favorite status for content
+	 * Get favorite status for specific content.
+	 *
+	 * @param WP_REST_Request $request REST request object.
+	 * @return WP_REST_Response REST response.
 	 */
 	public function getFavoriteStatus( WP_REST_Request $request ): WP_REST_Response {
 		$content_id   = $request->get_param( 'content_id' );
@@ -241,25 +271,17 @@ class FavoritesEndpoint {
 	}
 
 	/**
-	 * P0-6: Update event favorite count in post meta
+	 * Update event favorite count in post meta.
+	 *
+	 * @param int $event_id The event ID to update.
+	 * @return void
 	 */
 	private function updateEventFavoriteCount( int $event_id ): void {
 		global $wpdb;
 
-		// Count users who favorited this event
-		$count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->usermeta} 
-            WHERE meta_key = 'apollo_favorites' 
-            AND meta_value LIKE %s",
-				'%"event_listing";a:%' . $wpdb->esc_like( ':' . $event_id . ';' ) . '%'
-			)
-		);
-
-		// Also check serialized format
+		// Get all users with favorites meta.
 		$users = $wpdb->get_results(
-			"SELECT user_id, meta_value FROM {$wpdb->usermeta} 
-            WHERE meta_key = 'apollo_favorites'"
+			"SELECT user_id, meta_value FROM {$wpdb->usermeta} WHERE meta_key = 'apollo_favorites'"
 		);
 
 		$actual_count = 0;
@@ -276,25 +298,28 @@ class FavoritesEndpoint {
 	}
 
 	/**
-	 * P0-6: Get favorite count for content
+	 * Get favorite count for content.
+	 *
+	 * @param int    $content_id   The content ID.
+	 * @param string $content_type The content type.
+	 * @return int The favorite count.
 	 */
 	private function getFavoriteCount( int $content_id, string $content_type ): int {
-		// For events, use cached meta
-		if ( $content_type === 'event_listing' ) {
+		// For events, use cached meta value.
+		if ( 'event_listing' === $content_type ) {
 			$cached_count = get_post_meta( $content_id, '_favorites_count', true );
-			if ( $cached_count !== '' ) {
+			if ( '' !== $cached_count ) {
 				return (int) $cached_count;
 			}
-			// Recalculate if not cached
+			// Recalculate if not cached.
 			$this->updateEventFavoriteCount( $content_id );
 			return (int) get_post_meta( $content_id, '_favorites_count', true );
 		}
 
-		// For other types, count directly
+		// For other types, count directly from usermeta.
 		global $wpdb;
 		$users = $wpdb->get_results(
-			"SELECT meta_value FROM {$wpdb->usermeta} 
-            WHERE meta_key = 'apollo_favorites'"
+			"SELECT meta_value FROM {$wpdb->usermeta} WHERE meta_key = 'apollo_favorites'"
 		);
 
 		$count = 0;

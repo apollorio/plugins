@@ -21,60 +21,91 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'wpem_matchmaking_filter_users' ),
-				'args'     => array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'wpem_matchmaking_filter_users' ),
+				'permission_callback' => array( $this, 'check_user_permission' ),
+				'args'                => array(
 					'profession'   => array(
-						'required' => false,
-						'type'     => 'string',
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'company_name' => array(
-						'required' => false,
-						'type'     => 'string',
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'country'      => array(
-						'required' => false,
-						'type'     => 'array',
+						'required'          => false,
+						'type'              => 'array',
+						'sanitize_callback' => function( $arr ) { return array_map( 'sanitize_text_field', (array) $arr ); },
 					),
 					'city'         => array(
-						'required' => false,
-						'type'     => 'string',
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'experience'   => array( 'required' => false ),
+					'experience'   => array(
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 					'skills'       => array(
-						'required' => false,
-						'type'     => 'array',
+						'required'          => false,
+						'type'              => 'array',
+						'sanitize_callback' => function( $arr ) { return array_map( 'sanitize_text_field', (array) $arr ); },
 					),
 					'interests'    => array(
-						'required' => false,
-						'type'     => 'array',
+						'required'          => false,
+						'type'              => 'array',
+						'sanitize_callback' => function( $arr ) { return array_map( 'sanitize_text_field', (array) $arr ); },
 					),
 					'event_id'     => array(
-						'required' => false,
-						'type'     => 'integer',
+						'required'          => false,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'user_id'      => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 					'search'       => array(
-						'required' => false,
-						'type'     => 'string',
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'per_page'     => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 5,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 5,
+						'sanitize_callback' => 'absint',
 					),
 					'page'         => array(
-						'required' => false,
-						'type'     => 'integer',
-						'default'  => 1,
+						'required'          => false,
+						'type'              => 'integer',
+						'default'           => 1,
+						'sanitize_callback' => 'absint',
 					),
 
 				),
 			)
 		);
+	}
+
+	/**
+	 * Check user permission for matchmaking endpoints.
+	 *
+	 * @return bool|WP_Error True if user is logged in, WP_Error otherwise.
+	 */
+	public function check_user_permission() {
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_not_logged_in',
+				__( 'You must be logged in to use matchmaking.', 'apollo-events-manager' ),
+				array( 'status' => 401 )
+			);
+		}
+		return true;
 	}
 
 	/**
@@ -169,7 +200,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 			}
 
 			// Step 2: Build user data
-			$profession_terms = get_event_registration_taxonomy_list( 'event_registration_professions' ); 
+			$profession_terms = get_event_registration_taxonomy_list( 'event_registration_professions' );
 			// [slug => name]
 			$skills_terms     = get_event_registration_taxonomy_list( 'event_registration_skills' );
 			$interests_terms  = get_event_registration_taxonomy_list( 'event_registration_interests' );
@@ -219,7 +250,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 						}
 					}
 				}
-				$skills_slugs = array_filter( $skills_slugs ); 
+				$skills_slugs = array_filter( $skills_slugs );
 				// remove blanks
 				$skills_serialized = serialize( $skills_slugs );
 
