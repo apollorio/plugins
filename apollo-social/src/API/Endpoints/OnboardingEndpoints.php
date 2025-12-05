@@ -1,4 +1,17 @@
 <?php
+/**
+ * Onboarding Endpoints.
+ *
+ * REST API endpoints for onboarding system.
+ *
+ * @package Apollo\API\Endpoints
+ *
+ * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+ * phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+ * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+ * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
 
 namespace Apollo\API\Endpoints;
 
@@ -8,16 +21,43 @@ use Apollo\Application\Users\VerifyInstagram;
 use Apollo\Application\Users\UserProfileRepository;
 
 /**
- * OnboardingEndpoints
- * REST API endpoints for onboarding system
+ * OnboardingEndpoints class.
+ *
+ * Handles REST API endpoints for user onboarding.
  */
 class OnboardingEndpoints {
 
+	/**
+	 * User profile repository.
+	 *
+	 * @var UserProfileRepository
+	 */
 	private UserProfileRepository $userRepo;
+
+	/**
+	 * Begin onboarding handler.
+	 *
+	 * @var BeginOnboarding
+	 */
 	private BeginOnboarding $beginOnboarding;
+
+	/**
+	 * Complete onboarding handler.
+	 *
+	 * @var CompleteOnboarding
+	 */
 	private CompleteOnboarding $completeOnboarding;
+
+	/**
+	 * Verify Instagram handler.
+	 *
+	 * @var VerifyInstagram
+	 */
 	private VerifyInstagram $verifyInstagram;
 
+	/**
+	 * Constructor - initialize dependencies.
+	 */
 	public function __construct() {
 		$this->userRepo           = new UserProfileRepository();
 		$this->beginOnboarding    = new BeginOnboarding();
@@ -26,7 +66,7 @@ class OnboardingEndpoints {
 	}
 
 	/**
-	 * Register all onboarding endpoints
+	 * Register all onboarding endpoints.
 	 */
 	public function registerEndpoints(): void {
 		// Get onboarding options (industries, roles, memberships)
@@ -140,6 +180,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getOnboardingOptions error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -189,6 +230,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::beginOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -237,6 +279,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::completeOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -283,6 +326,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::requestDmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -322,6 +366,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getVerificationStatus error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -367,6 +412,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::confirmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -413,6 +459,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::cancelVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -452,6 +499,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getUserProfile error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
