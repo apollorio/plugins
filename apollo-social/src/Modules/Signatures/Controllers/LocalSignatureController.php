@@ -2,6 +2,9 @@
 /**
  * Local Signature Controller.
  *
+ * Handles AJAX requests for local signature processing.
+ * This file uses PSR-4 autoloading conventions.
+ *
  * @package Apollo\Modules\Signatures\Controllers
  *
  * phpcs:disable WordPress.Files.FileName.InvalidClassFileName
