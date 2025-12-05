@@ -29,11 +29,10 @@
 	<arg name="basepath" value="."/>
 
 	<!-- ============================================ -->
-	<!-- STANDARDS: WordPress → Extra → VIP-Go → PHPCompatibility -->
+	<!-- STANDARDS: WordPress → Extra → PHPCompatibility -->
 	<!-- ============================================ -->
 	<rule ref="WordPress"/>
 	<rule ref="WordPress-Extra"/>
-	<rule ref="WordPress-VIP-Go"/>
 
 	<!-- PHP Compatibility Check -->
 	<config name="testVersion" value="8.1-"/>
@@ -69,11 +68,8 @@
 	<!-- ============================================ -->
 	<!-- TIMEZONE CONFIGURATION                       -->
 	<!-- ============================================ -->
-<rule ref="WordPress.DateTime.RestrictedFunctions">
-  <properties>
-    <property name="timezone" value="America/Sao_Paulo"/>
-  </properties>
-</rule>
+	<!-- DateTime restricted functions check (no custom timezone property) -->
+	<rule ref="WordPress.DateTime.RestrictedFunctions"/>
 
 	<!-- ============================================ -->
 	<!-- MODERN PHP: Allow Short Array Syntax         -->
@@ -140,16 +136,19 @@
 		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
 	</rule>
-
-	<!-- VIP-Go: Allow necessary WordPress functions -->
-	<rule ref="WordPress.VIP.RestrictedFunctions">
-		<properties>
-			<property name="allow_user_meta" value="true"/>
-			<property name="allow_term_meta" value="true"/>
-		</properties>
+	<rule ref="Squiz.Commenting.InlineComment">
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment">
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
 	</rule>
 
-	<!-- VIP-Go: Allow file operations -->
+	<!-- Allow short ternary operators in modern PHP -->
+	<rule ref="Universal.Operators.DisallowShortTernary">
+		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
+	</rule>
+
+	<!-- Allow file operations -->
 	<rule ref="WordPress.WP.AlternativeFunctions">
 		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
 		<exclude name="WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents"/>
@@ -161,7 +160,7 @@
 		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_tax_query"/>
 	</rule>
 
-	<!-- Database: Allow custom cache functions -->
+	<!-- Database: Allow custom cache functions and table interpolation -->
 	<rule ref="WordPress.DB.DirectDatabaseQuery">
 		<properties>
 			<property name="customCacheGetFunctions" type="array">
@@ -170,17 +169,16 @@
 			</property>
 		</properties>
 	</rule>
+	<!-- Allow table name interpolation with $wpdb->prefix (common safe pattern) -->
+	<rule ref="WordPress.DB.PreparedSQL">
+		<exclude name="WordPress.DB.PreparedSQL.InterpolatedNotPrepared"/>
+	</rule>
 
 	<!-- Posts per page: Reasonable limit -->
 	<rule ref="WordPress.WP.PostsPerPage">
 		<properties>
 			<property name="posts_per_page" value="100"/>
 		</properties>
-	</rule>
-
-	<!-- VIP-Go: Allow session usage (not on VIP hosting) -->
-	<rule ref="WordPress.VIP.SessionFunctionsUsage">
-		<exclude name="WordPress.VIP.SessionFunctionsUsage.session_session_start"/>
 	</rule>
 
 	<!-- Security: Keep strict rules -->

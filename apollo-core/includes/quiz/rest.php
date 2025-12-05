@@ -1,13 +1,12 @@
 <?php
-// phpcs:ignoreFile
-declare(strict_types=1);
-
 /**
  * Apollo Core - Quiz REST API
  *
  * @package Apollo_Core
  * @since 3.0.0
  */
+
+declare(strict_types=1);
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,8 +31,14 @@ function apollo_register_quiz_rest_routes() {
 					'sanitize_callback' => 'absint',
 				),
 				'answers'     => array(
-					'required' => true,
-					'type'     => 'array',
+					'required'          => true,
+					'type'              => 'array',
+					'sanitize_callback' => function ( $value ) {
+						return array_map( 'sanitize_text_field', (array) $value );
+					},
+					'validate_callback' => function ( $value ) {
+						return is_array( $value ) && ! empty( $value );
+					},
 				),
 				'form_type'   => array(
 					'required'          => true,
@@ -129,7 +134,7 @@ function apollo_rest_quiz_attempt( $request ) {
 		$answers = array_map( 'sanitize_text_field', $answers );
 
 		// Rate limit check.
-		$ip      = $_SERVER['REMOTE_ADDR'] ?? '';
+		$ip      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 		$user_id = get_current_user_id();
 
 		if ( ! apollo_check_quiz_rate_limit( $ip, $user_id ) ) {
@@ -219,7 +224,7 @@ function apollo_rest_quiz_attempt( $request ) {
 			);
 		}
 
-		// Return user-friendly error
+		// Return user-friendly error.
 		return new WP_Error(
 			'quiz_attempt_failed',
 			__( 'Quiz attempt failed. Please try again or contact support if the problem persists.', 'apollo-core' ),

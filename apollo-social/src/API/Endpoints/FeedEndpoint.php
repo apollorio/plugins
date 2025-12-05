@@ -43,22 +43,22 @@ class FeedEndpoint {
 				'permission_callback'                  => '__return_true',
 				// Publicly readable
 												'args' => array(
-													'page' => array(
-														'default' => 1,
-														'type' => 'integer',
+													'page'     => array(
+														'default'     => 1,
+														'type'        => 'integer',
 														'description' => __( 'Page number for pagination.', 'apollo-social' ),
 													),
 													'per_page' => array(
-														'default' => 20,
-														'type' => 'integer',
+														'default'     => 20,
+														'type'        => 'integer',
 														'description' => __( 'Number of items per page.', 'apollo-social' ),
-														'minimum' => 1,
-														'maximum' => 100,
+														'minimum'     => 1,
+														'maximum'     => 100,
 													),
-													'type' => array(
-														'default' => 'all',
-														'type' => 'string',
-														'enum' => array( 'all', 'user_post', 'event', 'ad', 'news' ),
+													'type'     => array(
+														'default'     => 'all',
+														'type'        => 'string',
+														'enum'        => array( 'all', 'user_post', 'event', 'ad', 'news' ),
 														'description' => __( 'Filter by content type.', 'apollo-social' ),
 													),
 												),

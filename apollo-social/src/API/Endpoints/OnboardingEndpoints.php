@@ -136,6 +136,16 @@ class OnboardingEndpoints {
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'confirmVerification' ),
 				'permission_callback' => array( $this, 'checkAdminPermission' ),
+				'args'                => array(
+					'user_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param ) && $param > 0;
+						},
+					),
+				),
 			)
 		);
 
@@ -147,6 +157,21 @@ class OnboardingEndpoints {
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'cancelVerification' ),
 				'permission_callback' => array( $this, 'checkAdminPermission' ),
+				'args'                => array(
+					'user_id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param ) && $param > 0;
+						},
+					),
+					'reason'  => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+				),
 			)
 		);
 
@@ -221,6 +246,9 @@ class OnboardingEndpoints {
 			}
 
 			$data = $request->get_json_params();
+
+			// Sanitize data from JSON params (in addition to REST arg sanitization).
+			$data = $this->sanitizeOnboardingData( $data );
 
 			// Validate required fields.
 			$validation = $this->validateBeginOnboardingData( $data );
@@ -421,8 +449,8 @@ class OnboardingEndpoints {
 				);
 			}
 
-			$params  = $request->get_json_params();
-			$user_id = isset( $params['user_id'] ) ? intval( $params['user_id'] ) : 0;
+			// Get sanitized user_id from REST args.
+			$user_id = $request->get_param( 'user_id' );
 
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
@@ -470,9 +498,9 @@ class OnboardingEndpoints {
 				);
 			}
 
-			$params  = $request->get_json_params();
-			$user_id = isset( $params['user_id'] ) ? intval( $params['user_id'] ) : 0;
-			$reason  = isset( $params['reason'] ) ? sanitize_textarea_field( $params['reason'] ) : '';
+			// Get sanitized params from REST args.
+			$user_id = $request->get_param( 'user_id' );
+			$reason  = $request->get_param( 'reason' ) ?? '';
 
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
@@ -611,6 +639,39 @@ class OnboardingEndpoints {
 	}
 
 	/**
+	 * Sanitize onboarding data from JSON params.
+	 *
+	 * @param array $data The raw onboarding data.
+	 * @return array The sanitized onboarding data.
+	 */
+	private function sanitizeOnboardingData( array $data ): array {
+		$sanitized = array();
+
+		// Sanitize string fields.
+		$string_fields = array( 'name', 'industry', 'whatsapp', 'instagram' );
+		foreach ( $string_fields as $field ) {
+			if ( isset( $data[ $field ] ) ) {
+				$sanitized[ $field ] = sanitize_text_field( $data[ $field ] );
+			}
+		}
+
+		// Sanitize array fields (roles, member_of).
+		$array_fields = array( 'roles', 'member_of' );
+		foreach ( $array_fields as $field ) {
+			if ( isset( $data[ $field ] ) && is_array( $data[ $field ] ) ) {
+				$sanitized[ $field ] = array_map( 'sanitize_key', $data[ $field ] );
+			}
+		}
+
+		// Sanitize email if present.
+		if ( isset( $data['email'] ) ) {
+			$sanitized['email'] = sanitize_email( $data['email'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Validate begin onboarding data.
 	 *
 	 * @param array $data The onboarding data to validate.
@@ -707,15 +768,36 @@ class OnboardingEndpoints {
 			'industry'  => array(
 				'required'          => true,
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => 'sanitize_key',
+				'validate_callback' => function ( $param ) {
+					return ! empty( $param );
+				},
 			),
 			'roles'     => array(
-				'required' => false,
-				'type'     => 'array',
+				'required'          => false,
+				'type'              => 'array',
+				'sanitize_callback' => function ( $value ) {
+					if ( ! is_array( $value ) ) {
+						return array();
+					}
+					return array_map( 'sanitize_key', $value );
+				},
+				'validate_callback' => function ( $value ) {
+					return is_array( $value ) || empty( $value );
+				},
 			),
 			'member_of' => array(
-				'required' => false,
-				'type'     => 'array',
+				'required'          => false,
+				'type'              => 'array',
+				'sanitize_callback' => function ( $value ) {
+					if ( ! is_array( $value ) ) {
+						return array();
+					}
+					return array_map( 'sanitize_key', $value );
+				},
+				'validate_callback' => function ( $value ) {
+					return is_array( $value ) || empty( $value );
+				},
 			),
 			'whatsapp'  => array(
 				'required'          => false,
@@ -738,8 +820,12 @@ class OnboardingEndpoints {
 	private function getCompleteOnboardingArgs(): array {
 		return array(
 			'confirm' => array(
-				'required' => true,
-				'type'     => 'boolean',
+				'required'          => true,
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'validate_callback' => function ( $param ) {
+					return is_bool( $param ) || 'true' === $param || 'false' === $param || 1 === $param || 0 === $param;
+				},
 			),
 		);
 	}

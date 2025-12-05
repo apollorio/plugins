@@ -93,11 +93,11 @@ class Apollo_Home_CPT {
 			self::POST_TYPE,
 			APOLLO_BUILDER_META_CONTENT,
 			array(
-				'type'              => 'string',
-				'single'            => true,
-				'default'           => '{"widgets":[]}',
-				'sanitize_callback' => 'apollo_builder_sanitize_layout',
-				'show_in_rest'      => false,
+				'type'                                        => 'string',
+				'single'                                      => true,
+				'default'                                     => '{"widgets":[]}',
+				'sanitize_callback'                           => 'apollo_builder_sanitize_layout',
+				'show_in_rest'                                => false,
 				// Security: don't expose in REST
 												'description' => 'JSON layout: {widgets: [{id, type, x, y, width, height, zIndex, config}]}',
 			)

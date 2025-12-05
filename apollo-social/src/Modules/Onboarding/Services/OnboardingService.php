@@ -194,7 +194,7 @@ class OnboardingService {
 			'user_id'    => $user_id,
 			'platform'   => $platform,
 			'token'      => $token,
-			'expires_at' => date( 'Y-m-d H:i:s', strtotime( '+15 minutes' ) ),
+			'expires_at' => gmdate( 'Y-m-d H:i:s', strtotime( '+15 minutes' ) ),
 			'used'       => false,
 		);
 
@@ -259,6 +259,7 @@ class OnboardingService {
 
 		$table_name = $wpdb->prefix . 'apollo_verification_tokens';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe from $wpdb->prefix.
 		$token = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM {$table_name} WHERE token = %s AND platform = %s AND used = 0 AND expires_at > NOW()",
@@ -269,7 +270,8 @@ class OnboardingService {
 		);
 
 		if ( $token ) {
-			// Mark as used
+			// Mark as used.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Token update, no caching needed.
 			$wpdb->update(
 				$table_name,
 				array(
@@ -413,9 +415,9 @@ class OnboardingService {
 	 */
 	private function calculateProgress( string $current_step ): int {
 		$total_steps = count( $this->onboarding_steps ) - 1;
-		// Exclude completion step
+		// Exclude completion step.
 		$step_names    = array_keys( $this->onboarding_steps );
-		$current_index = array_search( $current_step, $step_names );
+		$current_index = array_search( $current_step, $step_names, true );
 
 		return min( 100, round( ( $current_index / $total_steps ) * 100 ) );
 	}
@@ -441,14 +443,14 @@ class OnboardingService {
 		$rules = explode( '|', $validation );
 
 		foreach ( $rules as $rule ) {
-			if ( $rule === 'required' && empty( $response_data['value'] ) ) {
+			if ( 'required' === $rule && empty( $response_data['value'] ) ) {
 				return array(
 					'valid'   => false,
 					'message' => 'Este campo é obrigatório',
 				);
 			}
 
-			if ( strpos( $rule, 'min:' ) === 0 ) {
+			if ( 0 === strpos( $rule, 'min:' ) ) {
 				$min_length = (int) str_replace( 'min:', '', $rule );
 				if ( strlen( $response_data['value'] ?? '' ) < $min_length ) {
 					return array(
@@ -458,7 +460,7 @@ class OnboardingService {
 				}
 			}
 
-			if ( $rule === 'digits:6' && ! preg_match( '/^\d{6}$/', $response_data['value'] ?? '' ) ) {
+			if ( 'digits:6' === $rule && ! preg_match( '/^\d{6}$/', $response_data['value'] ?? '' ) ) {
 				return array(
 					'valid'   => false,
 					'message' => 'Digite um código de 6 dígitos',
@@ -484,6 +486,7 @@ class OnboardingService {
 
 		$table_name = $wpdb->prefix . 'apollo_onboarding_sessions';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe from $wpdb->prefix.
 		$existing = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT id FROM {$table_name} WHERE session_id = %s",
@@ -492,26 +495,28 @@ class OnboardingService {
 		);
 
 		if ( $existing ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Session update, no caching needed.
 			$wpdb->update(
 				$table_name,
 				array(
 					'current_step'    => $session_data['current_step'],
-					'completed_steps' => json_encode( $session_data['completed_steps'] ),
-					'user_data'       => json_encode( $session_data['user_data'] ),
+					'completed_steps' => wp_json_encode( $session_data['completed_steps'] ),
+					'user_data'       => wp_json_encode( $session_data['user_data'] ),
 					'last_activity'   => $session_data['last_activity'],
 					'status'          => $session_data['status'] ?? 'active',
 				),
 				array( 'session_id' => $session_data['session_id'] )
 			);
 		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Session insert.
 			$wpdb->insert(
 				$table_name,
 				array(
 					'user_id'         => $session_data['user_id'],
 					'session_id'      => $session_data['session_id'],
 					'current_step'    => $session_data['current_step'],
-					'completed_steps' => json_encode( $session_data['completed_steps'] ),
-					'user_data'       => json_encode( $session_data['user_data'] ),
+					'completed_steps' => wp_json_encode( $session_data['completed_steps'] ),
+					'user_data'       => wp_json_encode( $session_data['user_data'] ),
 					'started_at'      => $session_data['started_at'],
 					'last_activity'   => $session_data['last_activity'],
 					'status'          => 'active',
@@ -528,14 +533,15 @@ class OnboardingService {
 
 		$table_name = $wpdb->prefix . 'apollo_onboarding_sessions';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe from $wpdb->prefix.
 		$session = $wpdb->get_row(
 			$wpdb->prepare( "SELECT * FROM {$table_name} WHERE session_id = %s", $session_id ),
 			ARRAY_A
 		);
 
 		if ( $session ) {
-			$session['completed_steps'] = json_decode( $session['completed_steps'], true ) ?: array();
-			$session['user_data']       = json_decode( $session['user_data'], true ) ?: array();
+			$session['completed_steps'] = json_decode( $session['completed_steps'], true ) ? : array();
+			$session['user_data']       = json_decode( $session['user_data'], true ) ? : array();
 		}
 
 		return $session;
@@ -549,6 +555,7 @@ class OnboardingService {
 
 		$table_name = $wpdb->prefix . 'apollo_verification_tokens';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Token insert.
 		$wpdb->insert(
 			$table_name,
 			array(
@@ -572,7 +579,7 @@ class OnboardingService {
 			'platform'     => $platform,
 			'token'        => $token_data['token'],
 			'instructions' => $token_data['instructions'],
-			'expires_at'   => date( 'Y-m-d H:i:s', strtotime( '+15 minutes' ) ),
+			'expires_at'   => gmdate( 'Y-m-d H:i:s', strtotime( '+15 minutes' ) ),
 		);
 	}
 }

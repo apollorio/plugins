@@ -140,15 +140,15 @@ class GroupsEndpoint {
 		$result = $wpdb->insert(
 			$table_name,
 			array(
-				'title'       => $title,
-				'slug'        => $slug,
-				'description' => $description,
-				'type'        => $type,
-				'status'      => 'pending_review',
+				'title'                                      => $title,
+				'slug'                                       => $slug,
+				'description'                                => $description,
+				'type'                                       => $type,
+				'status'                                     => 'pending_review',
 				// P0-7: Require moderation
 												'visibility' => $visibility,
-				'creator_id'  => get_current_user_id(),
-				'created_at'  => current_time( 'mysql' ),
+				'creator_id'                                 => get_current_user_id(),
+				'created_at'                                 => current_time( 'mysql' ),
 			),
 			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
 		);

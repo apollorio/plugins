@@ -68,9 +68,9 @@ class LikesEndpoint {
 				// Público, mas retorna false se não logado
 												'args' => array(
 													'content_type' => array(
-														'required' => true,
-														'type' => 'string',
-														'description' => __( 'Content type.', 'apollo-social' ),
+														'required'          => true,
+														'type'              => 'string',
+														'description'       => __( 'Content type.', 'apollo-social' ),
 														'sanitize_callback' => function ( $param ) {
 															return sanitize_text_field( wp_unslash( $param ) );
 														},
@@ -80,9 +80,9 @@ class LikesEndpoint {
 														},
 													),
 													'content_id'   => array(
-														'required' => true,
-														'type' => 'integer',
-														'description' => __( 'Content ID.', 'apollo-social' ),
+														'required'          => true,
+														'type'              => 'integer',
+														'description'       => __( 'Content ID.', 'apollo-social' ),
 														'sanitize_callback' => 'absint',
 														'validate_callback' => function ( $param ) {
 															return absint( $param ) > 0;
