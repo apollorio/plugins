@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<ruleset name="Apollo - Pass 4: PHP Compatibility">
+	<description>PHPCompatibilityWP for PHP 8.1+</description>
+	
+	<file>./apollo-core</file>
+	<file>./apollo-events-manager</file>
+	<file>./apollo-social</file>
+	
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="12"/>
+	<arg name="basepath" value="."/>
+	
+	<!-- Test for PHP 8.1 and above -->
+	<config name="testVersion" value="8.1-"/>
+	
+	<rule ref="PHPCompatibilityWP">
+		<include-pattern>*.php</include-pattern>
+	</rule>
+</ruleset>

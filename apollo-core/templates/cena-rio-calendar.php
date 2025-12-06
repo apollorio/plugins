@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 /**
  * Cena::Rio - Calendar Template (Canvas Mode)

@@ -186,10 +186,10 @@ class CenaRioEventEndpoint {
 		// P0-10: Create event as draft
 		$event_id = wp_insert_post(
 			array(
-				'post_type'                                   => 'event_listing',
-				'post_title'                                  => $title,
-				'post_content'                                => $description ?: '',
-				'post_status'                                 => 'draft',
+				'post_type'    => 'event_listing',
+				'post_title'   => $title,
+				'post_content' => $description ?: '',
+				'post_status'  => 'draft',
 				// P0-10: Always draft for moderation
 												'post_author' => get_current_user_id(),
 			)

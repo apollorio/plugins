@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -21,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function apollo_register_forms_admin_menu() {
 	add_submenu_page(
-		'apollo-moderation', 
+		'apollo-moderation',
 		// Parent slug (assuming moderation is parent).
 		__( 'Forms', 'apollo-core' ),
 		__( 'Formulários', 'apollo-core' ),

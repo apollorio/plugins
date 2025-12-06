@@ -4,14 +4,14 @@
  * ============================================
  * FILE: templates/pwa-redirector.php
  * PAGE BUILDER: PWA Redirector
- * 
+ *
  * Blank canvas template for PWA redirection.
  * Does NOT use get_header() or get_footer().
  * Outputs a complete HTML page with:
  * - Device/PWA detection
  * - Meta tag extraction from target URL
  * - Iframe loading of appropriate content
- * 
+ *
  * Usage: /pwa-redirector/?target=https://example.com/page
  * Or POST with 'target' parameter
  * ============================================
@@ -154,22 +154,22 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 	<meta property="og:title" content="<?php echo esc_attr( $title ); ?>">
 	<meta property="og:url" content="<?php echo esc_url( $requested_url ); ?>">
 	<meta property="og:type" content="website">
-	
+
 	<!-- PWA Meta Tags -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="theme-color" content="#000000">
-	
+
 	<!-- Preconnect for performance -->
 	<link rel="preconnect" href="https://assets.apollo.rio.br" crossorigin>
 	<link rel="preconnect" href="https://assets.apollo.rio" crossorigin>
-	
+
 	<!-- Only load Apollo assets - no theme CSS/JS -->
 	<link rel="preload" href="https://assets.apollo.rio.br/uni.css" as="style">
 	<link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
 	<script src="https://assets.apollo.rio.br/base.js" defer></script>
-	
+
 	<style>
 		/* Reset and full-viewport iframe */
 		*, *::before, *::after {
@@ -190,7 +190,7 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 			border: 0;
 			display: block;
 		}
-		
+
 		/* Safari iOS safe area support */
 		@supports (padding: env(safe-area-inset-top)) {
 			#apollo-frame {
@@ -198,13 +198,13 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 				padding-top: env(safe-area-inset-top);
 			}
 		}
-		
+
 		/* PWA mask compatibility for iOS Safari */
 		.pwa-install-mask {
 			-webkit-clip-path: url(#phone_clip);
 			clip-path: url(#phone_clip);
 		}
-		
+
 		/* Loading state */
 		.apollo-loading {
 			position: fixed;
@@ -231,7 +231,7 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 		@keyframes spin {
 			to { transform: rotate(360deg); }
 		}
-		
+
 		/* Focus outline for accessibility */
 		:focus-visible {
 			outline: 2px solid #fff;
@@ -246,10 +246,10 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 			<span class="sr-only"><?php esc_html_e( 'Carregando...', 'apollo-rio' ); ?></span>
 		</div>
 	</div>
-	
+
 	<!-- Main iframe -->
-	<iframe 
-		id="apollo-frame" 
+	<iframe
+		id="apollo-frame"
 		src="<?php echo esc_url( $frame_src ); ?>"
 		title="<?php echo esc_attr( $title ); ?>"
 		allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
@@ -257,14 +257,14 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 		loading="eager"
 		aria-label="<?php echo esc_attr( $title ); ?>"
 	></iframe>
-	
+
 	<script>
 	(function() {
 		'use strict';
-		
+
 		var frame = document.getElementById('apollo-frame');
 		var loading = document.getElementById('apollo-loading');
-		
+
 		// Hide loading when iframe loads
 		if (frame && loading) {
 			frame.addEventListener('load', function() {
@@ -274,7 +274,7 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 					loading.style.display = 'none';
 				}, 300);
 			});
-			
+
 			// Fallback: hide loading after 10 seconds
 			setTimeout(function() {
 				if (!loading.classList.contains('hidden')) {
@@ -282,7 +282,7 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 				}
 			}, 10000);
 		}
-		
+
 		// Pass messages between iframe and parent
 		window.addEventListener('message', function(event) {
 			// Validate origin if needed
@@ -293,15 +293,15 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 				}
 			}
 		});
-		
+
 		// Detect standalone mode and set cookie
-		if (window.matchMedia('(display-mode: standalone)').matches || 
+		if (window.matchMedia('(display-mode: standalone)').matches ||
 			window.navigator.standalone === true) {
 			document.cookie = 'apollo_display_mode=standalone; path=/; max-age=31536000; SameSite=Lax';
 		}
 	})();
 	</script>
-	
+
 	<!-- Screen reader only class -->
 	<style>
 		.sr-only {

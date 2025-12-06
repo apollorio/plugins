@@ -227,16 +227,16 @@ class LuckysheetConverter {
 		$this->sheet_config = wp_parse_args(
 			$config,
 			array(
-				'sheet_name'                                 => 'Planilha 1',
-				'default_col_width'                          => self::DEFAULT_COL_WIDTH,
-				'default_row_height'                         => self::DEFAULT_ROW_HEIGHT,
-				'freeze_row'                                 => 0,
+				'sheet_name'         => 'Planilha 1',
+				'default_col_width'  => self::DEFAULT_COL_WIDTH,
+				'default_row_height' => self::DEFAULT_ROW_HEIGHT,
+				'freeze_row'         => 0,
 				// Freeze first N rows (header)
 												'freeze_col' => 0,
 				// Freeze first N columns
-												'show_grid'  => true,
-				'show_row_header'                            => true,
-				'show_col_header'                            => true,
+												'show_grid' => true,
+				'show_row_header'    => true,
+				'show_col_header'    => true,
 			)
 		);
 	}

@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -184,9 +183,9 @@ class Apollo_Moderation_Roles {
 		// Get all CPTs that have pending/draft posts
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$cpts_with_pending = $wpdb->get_col(
-			"SELECT DISTINCT post_type FROM {$wpdb->posts} 
-			 WHERE post_status IN ('pending', 'draft') 
-			 AND post_title != '' 
+			"SELECT DISTINCT post_type FROM {$wpdb->posts}
+			 WHERE post_status IN ('pending', 'draft')
+			 AND post_title != ''
 			 AND post_type NOT IN ('revision', 'attachment', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_global_styles', 'wp_navigation')"
 		);
 

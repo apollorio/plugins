@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 /**
  * Apollo Global Assets Manager
  *
@@ -74,9 +73,9 @@ class Apollo_Global_Assets {
 	 * Updated: 2025-12-01 (UNI.CSS Refactor)
 	 */
 	private static $asset_versions = array(
-		'uni.css'                 => '5.2.0',      
+		'uni.css'                 => '5.2.0',
 		// UNI.CSS v5.2 - Classifieds/Marketplace (advert cards, currency widget)
-					'base.js'     => '4.2.0',      
+					'base.js'     => '4.2.0',
 		// base.js v4.2 - Classifieds utilities, currency converter
 					'animate.css' => '1.0.0',
 		'event-page.js'           => '1.0.0',

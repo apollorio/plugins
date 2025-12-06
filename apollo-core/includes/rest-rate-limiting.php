@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -58,15 +57,15 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 
 	// Different limits for different endpoint types
 	$limits = array(
-		'/apollo/v1/forms/submit'                   => 10,  
+		'/apollo/v1/forms/submit'                   => 10,
 		// 10 submissions per minute
-					'/apollo/v1/quiz/attempt'       => 5,   
+					'/apollo/v1/quiz/attempt'       => 5,
 		// 5 quiz attempts per minute
-					'/apollo/v1/memberships/set'    => 20,  
+					'/apollo/v1/memberships/set'    => 20,
 		// 20 membership changes per minute
-					'/apollo/v1/moderation/approve' => 30,  
+					'/apollo/v1/moderation/approve' => 30,
 		// 30 approvals per minute
-					'default'                       => 100, 
+					'default'                       => 100,
 	// 100 requests per minute for other endpoints
 	);
 
@@ -110,7 +109,7 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 			array(
 				'status' => 429,
 				'limit'  => $limit,
-				'reset'  => 60, 
+				'reset'  => 60,
 			// Seconds until reset
 			)
 		);
@@ -202,7 +201,7 @@ function apollo_get_rate_limit_status( string $endpoint, int $user_id = 0 ): arr
 	$ip       = apollo_get_client_ip();
 	$key      = 'apollo_rate_limit_' . md5( $endpoint . '_' . $user_id . '_' . $ip );
 	$attempts = (int) get_transient( $key );
-	$limit    = 100; 
+	$limit    = 100;
 	// Default
 
 	return array(

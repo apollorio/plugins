@@ -63,12 +63,12 @@ class DefaultGroups {
 
 		$this->repository->create(
 			array(
-				'title'                                      => 'PROJECT TEAM',
-				'slug'                                       => 'project-team',
-				'description'                                => 'Núcleo de produtores e equipe de trabalho Apollo',
-				'type'                                       => 'nucleo',
-				'status'                                     => 'published',
-				'visibility'                                 => 'members_only',
+				'title'       => 'PROJECT TEAM',
+				'slug'        => 'project-team',
+				'description' => 'Núcleo de produtores e equipe de trabalho Apollo',
+				'type'        => 'nucleo',
+				'status'      => 'published',
+				'visibility'  => 'members_only',
 				// Private group for producers
 												'creator_id' => 1,
 			// System user

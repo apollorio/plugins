@@ -503,47 +503,47 @@ class AssetsManager {
                 }
                 console.log('Apollo Analytics:', eventName, props);
             },
-            
+
             trackGroupView: function(groupType, groupSlug) {
                 this.track('group_view', {
                     group_type: groupType,
                     group_slug: groupSlug
                 });
             },
-            
+
             trackGroupJoin: function(groupType, groupSlug) {
                 this.track('group_join', {
                     group_type: groupType,
                     group_slug: groupSlug
                 });
             },
-            
+
             trackInviteSent: function(groupType, inviteType) {
                 this.track('invite_sent', {
                     group_type: groupType,
                     invite_type: inviteType
                 });
             },
-            
+
             trackInviteApproved: function(groupType, inviteType) {
                 this.track('invite_approved', {
                     group_type: groupType,
                     invite_type: inviteType
                 });
             },
-            
+
             trackUnionBadgesToggle: function(action) {
                 this.track('union_badges_toggle', {
                     action: action
                 });
             },
-            
+
             trackChatMessage: function(groupType) {
                 this.track('chat_message_sent', {
                     group_type: groupType
                 });
             },
-            
+
             trackAdView: function(adId, category, groupType) {
                 this.track('ad_view', {
                     ad_id: adId,
@@ -551,35 +551,35 @@ class AssetsManager {
                     group_type: groupType
                 });
             },
-            
+
             trackAdCreate: function(category, groupType) {
                 this.track('ad_create', {
                     category: category,
                     group_type: groupType
                 });
             },
-            
+
             trackAdPublish: function(category, groupType) {
                 this.track('ad_publish', {
                     category: category,
                     group_type: groupType
                 });
             },
-            
+
             trackAdReject: function(category, reason) {
                 this.track('ad_reject', {
                     category: category,
                     reason: reason
                 });
             },
-            
+
             trackAdCreateInvalidSeason: function(attemptedSeason, userSeason) {
                 this.track('ad_create_invalid_season', {
                     attempted_season: attemptedSeason,
                     user_season: userSeason
                 });
             },
-            
+
             trackEventView: function(eventId, seasonSlug, groupType) {
                 this.track('event_view', {
                     event_id: eventId,
@@ -587,7 +587,7 @@ class AssetsManager {
                     group_type: groupType
                 });
             },
-            
+
             trackEventFilterApplied: function(filterType, seasonSlug) {
                 this.track('event_filter_applied', {
                     filter_type: filterType,
@@ -595,12 +595,12 @@ class AssetsManager {
                 });
             }
         };
-        
+
         // Auto-track page views with additional context
         document.addEventListener('DOMContentLoaded', function() {
             var path = window.location.pathname;
             var apolloRoutes = ['/a/', '/comunidade/', '/nucleo/', '/season/', '/membership', '/uniao/', '/anuncio/'];
-            
+
             for (var i = 0; i < apolloRoutes.length; i++) {
                 if (path.indexOf(apolloRoutes[i]) !== -1) {
                     if (path.indexOf('/comunidade/') !== -1) {

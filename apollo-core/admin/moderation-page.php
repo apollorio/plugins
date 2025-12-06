@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -280,17 +279,17 @@ function apollo_render_queue_tab(): void {
 
 		<!-- Source filter tabs -->
 		<div class="apollo-queue-source-filter" style="margin: 16px 0; display: flex; gap: 8px;">
-			<a href="?page=apollo-moderation&tab=queue&source=all" 
+			<a href="?page=apollo-moderation&tab=queue&source=all"
 				class="button <?php echo 'all' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Todos (%d)', 'apollo-core' ), $query->found_posts ) ); ?>
 			</a>
-			<a href="?page=apollo-moderation&tab=queue&source=cena-rio" 
+			<a href="?page=apollo-moderation&tab=queue&source=cena-rio"
 				class="button <?php echo 'cena-rio' === $current_filter ? 'button-primary' : ''; ?>"
 				style="<?php echo $cena_rio_count > 0 ? 'background: #f97316; border-color: #f97316; color: #fff;' : ''; ?>">
 				<span class="dashicons dashicons-calendar-alt" style="margin-top: 3px;"></span>
 				<?php echo esc_html( sprintf( __( 'CENA-RIO (%d)', 'apollo-core' ), $cena_rio_count ) ); ?>
 			</a>
-			<a href="?page=apollo-moderation&tab=queue&source=other" 
+			<a href="?page=apollo-moderation&tab=queue&source=other"
 				class="button <?php echo 'other' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Outros (%d)', 'apollo-core' ), $other_count ) ); ?>
 			</a>

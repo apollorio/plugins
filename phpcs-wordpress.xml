@@ -1,0 +1,40 @@
+﻿<?xml version="1.0"?>
+<ruleset name="Apollo - Pass 1: WordPress Core">
+	<description>WordPress Core Standards only</description>
+	
+	<file>./apollo-core</file>
+	<file>./apollo-events-manager</file>
+	<file>./apollo-social</file>
+	
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="12"/>
+	<arg name="basepath" value="."/>
+	
+	<rule ref="WordPress"/>
+	
+	<!-- Essential customizations -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="apollo"/>
+				<element value="APOLLO"/>
+			</property>
+		</properties>
+	</rule>
+	
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="apollo-core"/>
+				<element value="apollo-events-manager"/>
+				<element value="apollo-social"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

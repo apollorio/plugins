@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 /**
  * Cena::Rio - Moderation Template (Canvas Mode)

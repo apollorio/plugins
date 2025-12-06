@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -178,7 +177,7 @@ function apollo_save_quiz_question( $form_type, $question, $id = null ) {
 		}
 
 		if ( $active_count >= 5 ) {
-			return false; 
+			return false;
 			// Max 5 active.
 		}
 	}

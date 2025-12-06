@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -88,9 +87,9 @@ class Apollo_Moderation_Audit_Log {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $table 
-				WHERE target_type = %s AND target_id = %d 
-				ORDER BY created_at DESC 
+				"SELECT * FROM $table
+				WHERE target_type = %s AND target_id = %d
+				ORDER BY created_at DESC
 				LIMIT %d",
 				$target_type,
 				$target_id,
@@ -120,9 +119,9 @@ class Apollo_Moderation_Audit_Log {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $table 
-				WHERE actor_id = %d 
-				ORDER BY created_at DESC 
+				"SELECT * FROM $table
+				WHERE actor_id = %d
+				ORDER BY created_at DESC
 				LIMIT %d",
 				$actor_id,
 				$limit
@@ -150,8 +149,8 @@ class Apollo_Moderation_Audit_Log {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $table 
-				ORDER BY created_at DESC 
+				"SELECT * FROM $table
+				ORDER BY created_at DESC
 				LIMIT %d",
 				$limit
 			)

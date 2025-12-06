@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 /**
  * Apollo Core - Admin Hub Page
  *

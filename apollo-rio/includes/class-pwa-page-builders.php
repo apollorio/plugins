@@ -190,7 +190,7 @@ class Apollo_PWA_Page_Builders {
 		$apollo_templates = apollo_rio_get_templates();
 
 		if ( ! array_key_exists( $template, $apollo_templates ) ) {
-			return; 
+			return;
 			// Not an Apollo canvas page
 		}
 
@@ -381,7 +381,7 @@ class Apollo_PWA_Page_Builders {
 	 * Prevent theme header from loading
 	 */
 	public function prevent_theme_header( $name = null ) {
-		return false; 
+		return false;
 		// Return false to prevent theme header
 	}
 
@@ -389,7 +389,7 @@ class Apollo_PWA_Page_Builders {
 	 * Prevent theme footer from loading
 	 */
 	public function prevent_theme_footer( $name = null ) {
-		return false; 
+		return false;
 		// Return false to prevent theme footer
 	}
 
@@ -397,7 +397,7 @@ class Apollo_PWA_Page_Builders {
 	 * Prevent theme sidebar from loading
 	 */
 	public function prevent_theme_sidebar( $name = null ) {
-		return false; 
+		return false;
 		// Return false to prevent theme sidebar
 	}
 
@@ -415,7 +415,7 @@ class Apollo_PWA_Page_Builders {
 		$apollo_templates = apollo_rio_get_templates();
 
 		if ( array_key_exists( $template, $apollo_templates ) ) {
-			return ''; 
+			return '';
 			// Remove title completely
 		}
 
@@ -483,9 +483,9 @@ class Apollo_PWA_Page_Builders {
 			wp_enqueue_style(
 				'apollo-uni-css',
 				'https://assets.apollo.rio.br/uni.css',
-				array(), 
+				array(),
 				// No dependencies - loads FIRST
-				'2.0.0' 
+				'2.0.0'
 				// Version for cache busting
 			);
 
@@ -500,7 +500,7 @@ class Apollo_PWA_Page_Builders {
 			wp_enqueue_style(
 				'apollo-pwa-templates',
 				plugins_url( 'assets/css/pwa-templates.css', __DIR__ ),
-				array( 'apollo-uni-css' ), 
+				array( 'apollo-uni-css' ),
 				// Depend on global CSS
 				defined( 'APOLLO_VERSION' ) ? APOLLO_VERSION : '1.0.0'
 			);
@@ -534,7 +534,7 @@ function apollo_rio_register_templates(): void {
 	apollo_rio_add_template( 'pagx_appclean.php', __( 'App::rio clean', 'apollo-rio' ) );
 	apollo_rio_add_template( 'pwa-redirector.php', __( 'PWA Redirector', 'apollo-rio' ) );
 }
-add_action( 'init', 'apollo_rio_register_templates', 1 ); 
+add_action( 'init', 'apollo_rio_register_templates', 1 );
 // Priority 1: early in init, after translations loaded
 
 /**
@@ -543,5 +543,5 @@ add_action( 'init', 'apollo_rio_register_templates', 1 );
 function apollo_pwa_page_builders() {
 	return Apollo_PWA_Page_Builders::get_instance();
 }
-add_action( 'plugins_loaded', 'apollo_pwa_page_builders', 10 ); 
+add_action( 'plugins_loaded', 'apollo_pwa_page_builders', 10 );
 // Priority 10: after template registration

@@ -107,7 +107,7 @@ class APIRegister {
 			'name'           => 'Apollo Onboarding API',
 			'description'    => 'REST API for Apollo conversational onboarding system',
 			'endpoints'      => array(
-				'GET /apollo/v1/onboarding/options'          => array(
+				'GET /apollo/v1/onboarding/options'        => array(
 					'description'    => 'Get available industries, roles, and membership options',
 					'authentication' => 'required',
 					'response'       => array(
@@ -116,7 +116,7 @@ class APIRegister {
 						'memberships' => 'object',
 					),
 				),
-				'POST /apollo/v1/onboarding/begin'           => array(
+				'POST /apollo/v1/onboarding/begin'         => array(
 					'description'    => 'Begin onboarding process and validate user data',
 					'authentication' => 'required',
 					'parameters'     => array(
@@ -128,21 +128,21 @@ class APIRegister {
 						'instagram' => 'string (optional)',
 					),
 				),
-				'POST /apollo/v1/onboarding/complete'        => array(
+				'POST /apollo/v1/onboarding/complete'      => array(
 					'description'    => 'Complete onboarding and create verification record',
 					'authentication' => 'required',
 					'parameters'     => array(
 						'confirm' => 'boolean (required)',
 					),
 				),
-				'POST /apollo/v1/onboarding/verify/upload'   => array(
+				'POST /apollo/v1/onboarding/verify/upload' => array(
 					'description'    => 'Upload Instagram verification images',
 					'authentication' => 'required',
 					'parameters'     => array(
 						'verification_images' => 'file[] (1-3 images, max 5MB each)',
 					),
 				),
-				'GET /apollo/v1/onboarding/verify/status'    => array(
+				'GET /apollo/v1/onboarding/verify/status'  => array(
 					'description'    => 'Get current verification status',
 					'authentication' => 'required',
 				),
@@ -150,7 +150,7 @@ class APIRegister {
 					'description'    => 'Delete verification assets for re-upload',
 					'authentication' => 'required',
 				),
-				'GET /apollo/v1/onboarding/profile'          => array(
+				'GET /apollo/v1/onboarding/profile'        => array(
 					'description'    => 'Get user onboarding profile data',
 					'authentication' => 'required',
 				),

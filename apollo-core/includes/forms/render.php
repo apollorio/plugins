@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -50,10 +49,10 @@ function apollo_render_form( $form_type, $args = array() ) {
 
 	ob_start();
 	?>
-	<form 
-		id="<?php echo esc_attr( $args['id'] ); ?>" 
-		class="<?php echo esc_attr( $args['css_class'] ); ?>" 
-		method="<?php echo esc_attr( $args['method'] ); ?>" 
+	<form
+		id="<?php echo esc_attr( $args['id'] ); ?>"
+		class="<?php echo esc_attr( $args['css_class'] ); ?>"
+		method="<?php echo esc_attr( $args['method'] ); ?>"
 		action="<?php echo esc_url( $args['action'] ); ?>"
 		data-form-type="<?php echo esc_attr( $form_type ); ?>"
 	>
@@ -101,9 +100,9 @@ function apollo_render_field( $field, $values = array() ) {
 		switch ( $field['type'] ) {
 			case 'textarea':
 				?>
-				<textarea 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<textarea
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-textarea"
 					<?php echo esc_attr( $required_attr ); ?>
 					rows="5"
@@ -114,15 +113,15 @@ function apollo_render_field( $field, $values = array() ) {
 			case 'select':
 				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
 				?>
-			<select 
-				id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-				name="<?php echo esc_attr( $field['key'] ); ?>" 
+			<select
+				id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+				name="<?php echo esc_attr( $field['key'] ); ?>"
 				class="apollo-input apollo-select"
 				<?php echo esc_attr( $required_attr ); ?>
 			>
 				<option value=""><?php esc_html_e( 'Select...', 'apollo-core' ); ?></option>
 				<?php foreach ( $options as $option_value => $option_label ) : ?>
-					<option 
+					<option
 						value="<?php echo esc_attr( $option_value ); ?>"
 						<?php selected( $value, $option_value ); ?>
 					>
@@ -140,10 +139,10 @@ function apollo_render_field( $field, $values = array() ) {
 					// Single checkbox
 					?>
 				<label class="apollo-checkbox-label">
-					<input 
-						type="checkbox" 
-						id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-						name="<?php echo esc_attr( $field['key'] ); ?>" 
+					<input
+						type="checkbox"
+						id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+						name="<?php echo esc_attr( $field['key'] ); ?>"
 						class="apollo-checkbox"
 						value="1"
 						<?php checked( $value, 1 ); ?>
@@ -159,9 +158,9 @@ function apollo_render_field( $field, $values = array() ) {
 				<div class="apollo-checkbox-group">
 					<?php foreach ( $options as $option_value => $option_label ) : ?>
 						<label class="apollo-checkbox-label">
-							<input 
-								type="checkbox" 
-								name="<?php echo esc_attr( $field['key'] ); ?>[]" 
+							<input
+								type="checkbox"
+								name="<?php echo esc_attr( $field['key'] ); ?>[]"
 								class="apollo-checkbox"
 								value="<?php echo esc_attr( $option_value ); ?>"
 								<?php checked( in_array( $option_value, $selected_values, true ) ); ?>
@@ -180,9 +179,9 @@ function apollo_render_field( $field, $values = array() ) {
 			<div class="apollo-radio-group">
 				<?php foreach ( $options as $option_value => $option_label ) : ?>
 					<label class="apollo-radio-label">
-						<input 
-							type="radio" 
-							name="<?php echo esc_attr( $field['key'] ); ?>" 
+						<input
+							type="radio"
+							name="<?php echo esc_attr( $field['key'] ); ?>"
 							class="apollo-radio"
 							value="<?php echo esc_attr( $option_value ); ?>"
 							<?php checked( $value, $option_value ); ?>
@@ -199,10 +198,10 @@ function apollo_render_field( $field, $values = array() ) {
 				?>
 				<div class="apollo-instagram-field">
 					<span class="apollo-instagram-prefix">@</span>
-					<input 
-						type="text" 
-						id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-						name="<?php echo esc_attr( $field['key'] ); ?>" 
+					<input
+						type="text"
+						id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+						name="<?php echo esc_attr( $field['key'] ); ?>"
 						class="apollo-input apollo-instagram-input"
 						value="<?php echo esc_attr( $value ); ?>"
 						placeholder="<?php esc_attr_e( 'username', 'apollo-core' ); ?>"
@@ -219,10 +218,10 @@ function apollo_render_field( $field, $values = array() ) {
 
 			case 'password':
 				?>
-				<input 
-					type="password" 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<input
+					type="password"
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-password"
 					value="<?php echo esc_attr( $value ); ?>"
 					<?php echo esc_attr( $required_attr ); ?>
@@ -232,10 +231,10 @@ function apollo_render_field( $field, $values = array() ) {
 
 			case 'number':
 				?>
-				<input 
-					type="number" 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<input
+					type="number"
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-number"
 					value="<?php echo esc_attr( $value ); ?>"
 					<?php echo esc_attr( $required_attr ); ?>
@@ -245,10 +244,10 @@ function apollo_render_field( $field, $values = array() ) {
 
 			case 'date':
 				?>
-				<input 
-					type="date" 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<input
+					type="date"
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-date"
 					value="<?php echo esc_attr( $value ); ?>"
 					<?php echo esc_attr( $required_attr ); ?>
@@ -258,10 +257,10 @@ function apollo_render_field( $field, $values = array() ) {
 
 			case 'email':
 				?>
-				<input 
-					type="email" 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<input
+					type="email"
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-email"
 					value="<?php echo esc_attr( $value ); ?>"
 					<?php echo esc_attr( $required_attr ); ?>
@@ -269,13 +268,13 @@ function apollo_render_field( $field, $values = array() ) {
 				<?php
 				break;
 
-			default: 
+			default:
 				// text
 				?>
-				<input 
-					type="text" 
-					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>" 
-					name="<?php echo esc_attr( $field['key'] ); ?>" 
+				<input
+					type="text"
+					id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
+					name="<?php echo esc_attr( $field['key'] ); ?>"
 					class="apollo-input apollo-text"
 					value="<?php echo esc_attr( $value ); ?>"
 					<?php echo esc_attr( $required_attr ); ?>
@@ -384,11 +383,11 @@ function apollo_add_instagram_field_to_profile( $user ) {
 			<td>
 				<div style="display: flex; align-items: center;">
 					<span style="margin-right: 5px;">@</span>
-					<input 
-						type="text" 
-						name="instagram_user_id" 
-						id="instagram_user_id" 
-						value="<?php echo esc_attr( $instagram_id ); ?>" 
+					<input
+						type="text"
+						name="instagram_user_id"
+						id="instagram_user_id"
+						value="<?php echo esc_attr( $instagram_id ); ?>"
 						class="regular-text"
 						pattern="[A-Za-z0-9_]{1,30}"
 						maxlength="30"

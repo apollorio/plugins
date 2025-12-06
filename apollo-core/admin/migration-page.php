@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 /**
  * Apollo Core - Migration Page
  *

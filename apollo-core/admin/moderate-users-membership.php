@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 declare(strict_types=1);
 
 /**
@@ -112,7 +111,7 @@ function apollo_render_membership_types_manager() {
 				<?php wp_nonce_field( 'apollo_membership_admin', 'apollo_membership_nonce' ); ?>
 				<input type="hidden" id="membership-action" value="create">
 				<input type="hidden" id="membership-original-slug" value="">
-					
+
 					<p>
 						<label for="membership-slug"><strong><?php esc_html_e( 'Slug', 'apollo-core' ); ?></strong> <span style="color: red;">*</span></label><br>
 						<input type="text" id="membership-slug" class="widefat" placeholder="ex: vip-member" required pattern="[a-z0-9\-]+" />
@@ -228,7 +227,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 			$(".apollo-edit-membership-btn").on("click", function() {
 				const slug = $(this).data("slug");
 				const row = $("tr[data-membership-slug=\"" + slug + "\"]");
-				
+
 				$("#membership-action").val("update");
 				$("#membership-original-slug").val(slug);
 				$("#membership-slug").val(slug).prop("disabled", true);
@@ -248,7 +247,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 			// Submit membership form
 			$("#apollo-membership-form").on("submit", function(e) {
 				e.preventDefault();
-				
+
 				const action = $("#membership-action").val();
 				const slug = $("#membership-slug").val();
 				const label = $("#membership-label").val();
@@ -292,7 +291,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 			// Delete membership
 			$(".apollo-delete-membership-btn").on("click", function() {
 				const slug = $(this).data("slug");
-				
+
 				if (!confirm("' . esc_js( __( 'Are you sure you want to delete this membership type? All users with this membership will be reassigned to Não Verificado.', 'apollo-core' ) ) . '")) {
 					return;
 				}
@@ -346,7 +345,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 			// Submit import
 			$("#apollo-import-form").on("submit", function(e) {
 				e.preventDefault();
-				
+
 				const json = $("#import-json").val();
 
 				$.ajax({
