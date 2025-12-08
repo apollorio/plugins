@@ -401,28 +401,15 @@
 
 ---
 
-#### Venues Controller (aprio-rest-venues-controller.php)
+#### ❌ Venues Controller (DEPRECATED - Not Registered)
 
-| Endpoint | Method | Purpose | Dependencies | Permission |
-|----------|--------|---------|--------------|------------|
-| `/locals` | GET | Get venues list (locais in Portuguese) | Collection params | View permission |
-| `/venues` | POST | Create venue | Venue data | Create permission |
-| `/venues/{id}` | GET | Get single venue | `id` (int, path) | View permission |
-| `/venues/{id}` | PUT/PATCH | Update venue | `id` (path), venue data | Update permission |
-| `/venues/{id}` | DELETE | Delete venue | `id` (path), `force` | Delete permission |
-| `/venues/batch` | PUT/PATCH | Batch update venues | Batch data | Batch permission |
+**⚠️ NOTE:** Venues endpoints are NOT registered in REST API. Use Events Manager taxonomies instead.
 
 ---
 
-#### Organizers Controller (aprio-rest-organizers-controller.php)
+#### ❌ Organizers Controller (DEPRECATED - Not Registered)
 
-| Endpoint | Method | Purpose | Dependencies | Permission |
-|----------|--------|---------|--------------|------------|
-| `/djs` | GET | Get organizers list (DJs in Portuguese) | Collection params | View permission |
-| `/organizers` | POST | Create organizer | Organizer data | Create permission |
-| `/organizers/{id}` | GET | Get single organizer | `id` (int, path) | View permission |
-| `/organizers/{id}` | PUT/PATCH | Update organizer | `id` (path), organizer data | Update permission |
-| `/organizers/{id}` | DELETE | Delete organizer | `id` (path) | Delete permission |
+**⚠️ NOTE:** Organizers endpoints are NOT registered in REST API. Use Events Manager taxonomies instead.
 
 ---
 
@@ -570,10 +557,12 @@
 |--------|-----------------|----------------|
 | Apollo Core | 1 (apollo/v1) | ~35 endpoints |
 | Apollo Social | 3 (apollo/v1, apollo-docs/v1, apollo-social/v1) | ~55 endpoints |
-| Apollo Events Manager | 3 (apollo/v1, aprio/v1, aprio) | ~50 endpoints |
+| Apollo Events Manager | 3 (apollo/v1, aprio/v1, aprio) | ~37 endpoints |
 | Apollo Rio | 1 (wp/v2) | 1 endpoint |
 
-**Total: ~141 REST API endpoints across the Apollo ecosystem**
+**Total: ~128 REST API endpoints across the Apollo ecosystem**
+
+**Note:** Venues (`/venues`, `/locals`) and Organizers (`/organizers`, `/djs`) endpoints are NOT registered. These modules were deprecated in favor of taxonomy-based management.
 
 ---
 
