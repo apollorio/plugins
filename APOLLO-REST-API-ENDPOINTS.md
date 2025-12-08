@@ -21,35 +21,49 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/health` | GET | Health check - returns plugin version and active modules | None | Public |
+| `/testando` | GET | Health check - returns plugin version and active modules | None | Public |
 
 ---
 
-#### Membership Management
+#### Membership Management (Membros - Portuguese Naming)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/memberships` | GET | Get all membership types | None | Public |
-| `/memberships/set` | POST | Set user membership type | `user_id` (int, required), `membership_slug` (string, required) | `edit_apollo_users` |
-| `/memberships/create` | POST | Create new membership type | `slug`, `label`, `frontend_label`, `color`, `text_color` (all required) | `manage_options` |
-| `/memberships/update` | POST | Update existing membership type | `slug` (required), `label`, `frontend_label`, `color`, `text_color` (optional) | `manage_options` |
-| `/memberships/delete` | POST | Delete membership type | `slug` (required) | `manage_options` |
-| `/memberships/export` | GET | Export memberships as JSON | None | `manage_options` |
-| `/memberships/import` | POST | Import memberships from JSON | `data` (string, required) | `manage_options` |
+| `/membros` | GET | Listar todos os tipos de membro | None | Public |
+| `/membros/definir` | POST | Definir tipo de membro do usuário | `user_id` (int, required), `membership_slug` (string, required) | `edit_apollo_users` |
+| `/membros/criar` | POST | Criar novo tipo de membro | `slug`, `label`, `frontend_label`, `color`, `text_color` (all required) | `manage_options` |
+| `/membros/atualizar` | POST | Atualizar tipo de membro existente | `slug` (required), `label`, `frontend_label`, `color`, `text_color` (optional) | `manage_options` |
+| `/membros/excluir` | POST | Excluir tipo de membro | `slug` (required) | `manage_options` |
+| `/membros/exportar` | GET | Exportar membros como JSON | None | `manage_options` |
+| `/membros/importar` | POST | Importar membros de JSON | `data` (string, required) | `manage_options` |
+
+**Legacy Aliases (Deprecated - backward compatibility):**
+
+| Endpoint | Method | Purpose | Maps To |
+|----------|--------|---------|---------|
+| `/memberships` | GET | Get all membership types | `/membros` |
+| `/memberships/set` | POST | Set user membership type | `/membros/definir` |
+| `/memberships/create` | POST | Create new membership type | `/membros/criar` |
+| `/memberships/update` | POST | Update existing membership type | `/membros/atualizar` |
+| `/memberships/delete` | POST | Delete membership type | `/membros/excluir` |
+| `/memberships/export` | GET | Export memberships as JSON | `/membros/exportar` |
+| `/memberships/import` | POST | Import memberships from JSON | `/membros/importar` |
 
 ---
 
-#### Moderation (rest-moderation.php)
+#### Moderation - Simple API (rest-moderation.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/moderation/approve` | POST | Approve pending content | `post_id` (int, required), `note` (optional) | `moderate_apollo_content` |
+| `/mod/approve` | POST | Approve pending content (shortened route) | `post_id` (int, required), `note` (optional) | `moderate_apollo_content` |
 | `/users/suspend` | POST | Suspend a user temporarily | `user_id` (int, required), `days` (int, required), `reason` (optional) | `suspend_users` |
 | `/users/block` | POST | Block a user permanently | `user_id` (int, required), `reason` (optional) | `block_users` |
 
 ---
 
-#### Moderation Module (class-rest-api.php)
+#### Moderation - Full Module (modules/moderation/includes/class-rest-api.php)
+
+**⚠️ NOTE:** This module still uses legacy `/moderation/*` routes (not yet refactored to `/mod/*`)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -66,8 +80,8 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/moderation/unified-queue` | GET | Get unified moderation queue | `post_type` (optional), `source` (optional) | `view_moderation_queue` or `apollo_cena_moderate_events` or `moderate_apollo_content` or `manage_options` |
-| `/moderation/pending-count` | GET | Get count of pending items | None | Same as above |
+| `/mod/unified-queue` | GET | Get unified moderation queue | `post_type` (optional), `source` (optional) | `view_moderation_queue` or `apollo_cena_moderate_events` or `moderate_apollo_content` or `manage_options` |
+| `/mod/pending-count` | GET | Get count of pending items | None | Same as above |
 
 ---
 
@@ -85,10 +99,10 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/cena-rio/events` | GET | Get CENA-RIO internal events (for industry calendar) | None | CENA-RIO submission permission |
-| `/cena-rio/submit` | POST | Submit new event (creates as 'expected') | `event_title` (required), `event_start_date` (required), `event_description`, `event_end_date`, `event_start_time`, `event_end_time`, `event_venue`, `event_lat`, `event_lng` | CENA-RIO submission permission |
-| `/cena-rio/confirm/{id}` | POST | Confirm event → goes to MOD queue | `id` (int, path, required) | CENA-RIO submission permission |
-| `/cena-rio/unconfirm/{id}` | POST | Unconfirm event (revert to expected) | `id` (int, path, required) | CENA-RIO submission permission |
+| `/cena-rio/eventos` | GET | Get CENA-RIO internal events (for industry calendar) | None | CENA-RIO submission permission |
+| `/cena-rio/add` | POST | Submit new event (creates as 'expected') | `event_title` (required), `event_start_date` (required), `event_description`, `event_end_date`, `event_start_time`, `event_end_time`, `event_venue`, `event_lat`, `event_lng` | CENA-RIO submission permission |
+| `/cena-rio/confirmar/{id}` | POST | Confirm event → goes to MOD queue | `id` (int, path, required) | CENA-RIO submission permission |
+| `/cena-rio/cancelar/{id}` | POST | Unconfirm event (revert to expected) | `id` (int, path, required) | CENA-RIO submission permission |
 
 ---
 
@@ -96,9 +110,9 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/feed` | GET | Get unified feed (social posts + events) | `per_page` (default: 20) | Public |
+| `/explore` | GET | Get unified feed (social posts + events) | `per_page` (default: 20) | Public |
 | `/posts` | POST | Create social post | `content` (required) | Logged in |
-| `/like` | POST | Toggle like on content | `content_id` (int, required), `content_type` (string, required) | Logged in |
+| `/wow` | POST | Toggle like on content | `content_id` (int, required), `content_type` (string, required) | Logged in |
 
 ---
 
@@ -106,9 +120,9 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/events` | GET | Get list of events | `per_page` (default: 10), `page` (default: 1) | Public |
-| `/events/{id}` | GET | Get single event details | `id` (int, path, required) | Public |
-| `/events` | POST | Create new event | `title` (required), `content` (optional) | Logged in |
+| `/eventos` | GET | Get list of events | `per_page` (default: 10), `page` (default: 1) | Public |
+| `/evento/{id}` | GET | Get single event details | `id` (int, path, required) | Public |
+| `/eventos` | POST | Create new event | `title` (required), `content` (optional) | Logged in |
 
 ---
 
@@ -140,7 +154,7 @@
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
 | `/docs` | GET | Get API documentation | None | Public |
-| `/health` | GET | Health check endpoint | None | Public |
+| `/testando` | GET | Health check endpoint | None | Public |
 
 ---
 
@@ -171,9 +185,9 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/favorites` | POST | Toggle favorite status | `content_id` (int, required), `content_type` (enum: event_listing, apollo_social_post, event_dj, event_local, required) | Logged in |
-| `/favorites` | GET | Get user favorites | `content_type` (optional filter) | Logged in |
-| `/favorites/{content_type}/{content_id}` | GET | Get favorite status for content | `content_type` (path), `content_id` (path) | Public |
+| `/favs` | POST | Toggle favorite status (shortened from /favorites) | `content_id` (int, required), `content_type` (enum: event_listing, apollo_social_post, event_dj, event_local, required) | Logged in |
+| `/favs` | GET | Get user favorites | `content_type` (optional filter) | Logged in |
+| `/favs/{content_type}/{content_id}` | GET | Get favorite status for content | `content_type` (path), `content_id` (path) | Public |
 
 ---
 
@@ -190,24 +204,31 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/groups` | GET | Get list of groups | None | Public |
-| `/groups` | POST | Create a group | `title` (required), `type` (enum: comunidade, nucleo, required), `description` (optional), `visibility` (enum: public, private, members_only) | Logged in |
-| `/groups/{id}/join` | POST | Join a group | `id` (int, path) | Logged in |
-| `/groups/{id}/invite` | POST | Invite user to group | `id` (int, path) | Logged in |
-| `/groups/{id}/approve-invite` | POST | Approve group invite | `id` (int, path) | Logged in |
-| `/groups/{id}/approve` | POST | Approve group (moderation) | `id` (int, path) | Moderator |
-| `/groups/{id}/reject` | POST | Reject group (moderation) | `id` (int, path), `reason` (required) | Moderator |
-| `/groups/{id}/resubmit` | POST | Resubmit group for review | `id` (int, path) | Owner |
-| `/groups/{id}/status` | GET | Get group status | `id` (int, path) | Public |
+| `/comunas` | GET | Get list of groups (comunas in Portuguese) | None | Public |
+| `/comunas` | POST | Create a group | `title` (required), `type` (enum: comunidade, nucleo, required), `description` (optional), `visibility` (enum: public, private, members_only) | Logged in |
+| `/comunas/{id}/join` | POST | Join a group | `id` (int, path) | Logged in |
+| `/comunas/{id}/invite` | POST | Invite user to group | `id` (int, path) | Logged in |
+| `/comunas/{id}/approve-invite` | POST | Approve group invite | `id` (int, path) | Logged in |
+| `/comunas/{id}/approve` | POST | Approve group (moderation) | `id` (int, path) | Moderator |
+| `/comunas/{id}/reject` | POST | Reject group (moderation) | `id` (int, path), `reason` (required) | Moderator |
+| `/comunas/{id}/resubmit` | POST | Resubmit group for review | `id` (int, path) | Owner |
+| `/comunas/{id}/status` | GET | Get group status | `id` (int, path) | Public |
 
 ---
 
-#### Unions/Memberships (RestRoutes.php)
+#### Membros (RestRoutes.php - Portuguese Naming)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/unions` | GET | Get list of unions | None | Public |
-| `/unions/{id}/toggle-badges` | POST | Toggle union badges | `id` (int, path) | Logged in |
+| `/membro` | GET | Listar membros | None | Public |
+| `/membro/{id}/toggle-badges` | POST | Alternar emblemas do membro | `id` (int, path) | Logged in |
+
+**Legacy Aliases (Deprecated - backward compatibility):**
+
+| Endpoint | Method | Purpose | Maps To |
+|----------|--------|---------|---------|
+| `/uniao` | GET | Get list of unions | `/membro` |
+| `/uniao/{id}/toggle-badges` | POST | Toggle union badges | `/membro/{id}/toggle-badges` |
 
 ---
 
@@ -215,9 +236,9 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/classifieds` | GET | Get classifieds list (WPAdverts) | `per_page`, `page`, `search` | Public |
-| `/classifieds/{id}` | GET | Get single classified | `id` (int, path) | Public |
-| `/classifieds` | POST | Create classified | Classified data | Logged in |
+| `/anuncios` | GET | Get classifieds list (anúncios in Portuguese - WPAdverts) | `per_page`, `page`, `search` | Public |
+| `/anuncio/{id}` | GET | Get single classified | `id` (int, path) | Public |
+| `/anuncios` | POST | Create classified | Classified data | Logged in |
 
 ---
 
@@ -225,7 +246,7 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/users/{id}` | GET | Get user profile | `id` (alphanumeric, path) | Public |
+| `/id/{id}` | GET | Get user profile (shortened from /users) | `id` (alphanumeric, path) | Public |
 
 ---
 
@@ -233,9 +254,9 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/documents` | GET | Get documents list | Collection params | Logged in |
-| `/documents/{id}` | GET | Get single document | `id` (int, path) | Logged in |
-| `/documents/{id}/export` | GET | Export document | `id` (int, path), `format` (enum: pdf, xlsx, csv) | Logged in |
+| `/doc` | GET | Get documents list (shortened from /documents) | Collection params | Logged in |
+| `/doc/{id}` | GET | Get single document | `id` (int, path) | Logged in |
+| `/doc/{id}/export` | GET | Export document | `id` (int, path), `format` (enum: pdf, xlsx, csv) | Logged in |
 
 ---
 
@@ -332,10 +353,10 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/events` | GET | Get list of events | `per_page`, `page`, `search`, `category`, `location`, `date_from`, `date_to` | Public |
-| `/events/{id}` | GET | Get single event | `id` (int, path) | Public |
-| `/categories` | GET | Get event categories | None | Public |
-| `/locations` | GET | Get event locations | None | Public |
+| `/eventos` | GET | Get list of events (eventos in Portuguese) | `per_page`, `page`, `search`, `category`, `location`, `date_from`, `date_to` | Public |
+| `/evento/{id}` | GET | Get single event | `id` (int, path) | Public |
+| `/categorias` | GET | Get event categories | None | Public |
+| `/locais` | GET | Get event locations | None | Public |
 | `/my-events` | GET | Get current user's events | None | Logged in |
 
 ---
@@ -344,8 +365,8 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/analytics` | GET | Get analytics data | `event_id`, `start_date`, `end_date` | `view_apollo_event_stats` or `manage_options` |
-| `/analytics` | POST | Record analytics event | `event_id` (int, required), `event_type` (default: pageview), `event_name` | Public |
+| `/estatisticas` | GET | Get analytics data | `event_id`, `start_date`, `end_date` | `view_apollo_event_stats` or `manage_options` |
+| `/estatisticas` | POST | Record analytics event | `event_id` (int, required), `event_type` (default: pageview), `event_name` | Public |
 | `/likes` | GET | Get likes data | None | `view_apollo_event_stats` or `manage_options` |
 | `/likes` | POST | Like an event | `event_id` (int, required) | Public |
 | `/technotes/{venue_id}` | GET | Get tech notes for venue | `venue_id` (int, path) | `view_apollo_event_stats` or `manage_options` |
@@ -353,7 +374,7 @@
 
 ---
 
-### Namespace: `apollo-events/v1`
+### Namespace: `apollo/v1`
 
 #### Bookmarks (class-bookmarks.php)
 
@@ -364,27 +385,27 @@
 
 ---
 
-### Namespace: `wpem/v1`
+### Namespace: `aprio/v1`
 
-#### Events Controller (wpem-rest-events-controller.php)
+#### Events Controller (aprio-rest-events-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/events` | GET | Get events list | Collection params | View permission |
-| `/events` | POST | Create event | Event data | Create permission |
-| `/events/{id}` | GET | Get single event | `id` (int, path) | View permission |
-| `/events/{id}` | PUT/PATCH | Update event | `id` (path), event data | Update permission |
-| `/events/{id}` | DELETE | Delete event | `id` (path), `force` | Delete permission |
-| `/events/batch` | PUT/PATCH | Batch update events | Batch data | Batch permission |
-| `/events/fields` | GET | Get event fields schema | None | View permission |
+| `/eventos` | GET | Get events list | Collection params | View permission |
+| `/eventos` | POST | Create event | Event data | Create permission |
+| `/evento/{id}` | GET | Get single event | `id` (int, path) | View permission |
+| `/evento/{id}` | PUT/PATCH | Update event | `id` (path), event data | Update permission |
+| `/evento/{id}` | DELETE | Delete event | `id` (path), `force` | Delete permission |
+| `/eventos/batch` | PUT/PATCH | Batch update events | Batch data | Batch permission |
+| `/eventos/fields` | GET | Get event fields schema | None | View permission |
 
 ---
 
-#### Venues Controller (wpem-rest-venues-controller.php)
+#### Venues Controller (aprio-rest-venues-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/venues` | GET | Get venues list | Collection params | View permission |
+| `/locals` | GET | Get venues list (locais in Portuguese) | Collection params | View permission |
 | `/venues` | POST | Create venue | Venue data | Create permission |
 | `/venues/{id}` | GET | Get single venue | `id` (int, path) | View permission |
 | `/venues/{id}` | PUT/PATCH | Update venue | `id` (path), venue data | Update permission |
@@ -393,11 +414,11 @@
 
 ---
 
-#### Organizers Controller (wpem-rest-organizers-controller.php)
+#### Organizers Controller (aprio-rest-organizers-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/organizers` | GET | Get organizers list | Collection params | View permission |
+| `/djs` | GET | Get organizers list (DJs in Portuguese) | Collection params | View permission |
 | `/organizers` | POST | Create organizer | Organizer data | Create permission |
 | `/organizers/{id}` | GET | Get single organizer | `id` (int, path) | View permission |
 | `/organizers/{id}` | PUT/PATCH | Update organizer | `id` (path), organizer data | Update permission |
@@ -405,7 +426,7 @@
 
 ---
 
-#### Ecosystem (wpem-rest-ecosystem-controller.php)
+#### Ecosystem (aprio-rest-ecosystem-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -413,7 +434,7 @@
 
 ---
 
-#### User Registered Events (wpem-rest-user-registered-events-controller.php)
+#### User Registered Events (aprio-rest-user-registered-events-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -421,7 +442,7 @@
 
 ---
 
-#### App Branding (wpem-rest-app-branding.php)
+#### App Branding (aprio-rest-app-branding.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -429,7 +450,7 @@
 
 ---
 
-#### Authentication (wpem-rest-authentication.php)
+#### Authentication (aprio-rest-authentication.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -438,22 +459,22 @@
 
 ---
 
-### Namespace: `wpem` (Matchmaking)
+### Namespace: `aprio` (Matchmaking)
 
-#### Attendee Profile (wpem-rest-matchmaking-profile.php & wpem-rest-matchmaking-profile-controller.php)
+#### Attendee Profile (aprio-rest-matchmaking-profile.php & aprio-rest-matchmaking-profile-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/attendee-profile` | GET | Get matchmaking profile | `attendeeId` (optional), `user_id` (optional) | Authorized |
-| `/attendee-profile` | PUT/PATCH | Update matchmaking profile | Profile data | Authorized |
-| `/attendee-profile/update` | PUT/PATCH | Update matchmaking profile (alt) | `user_id` (required), profile data | Authorized |
-| `/attendee-profile/search` | GET | Search/filter matchmaking users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `search`, `per_page`, `page` | Authorized |
-| `/attendee-profile/filter` | GET/POST | Filter matchmaking users (alias) | Same as search | Authorized |
-| `/upload-user-file` | POST | Upload user file (profile photo) | `user_id` (required), file | Authorized |
+| `/preferencias` | GET | Get matchmaking profile | `attendeeId` (optional), `user_id` (optional) | Authorized |
+| `/preferencias` | PUT/PATCH | Update matchmaking profile | Profile data | Authorized |
+| `/preferencias/update` | PUT/PATCH | Update matchmaking profile (alt) | `user_id` (required), profile data | Authorized |
+| `/preferencias/search` | GET | Search/filter matchmaking users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `search`, `per_page`, `page` | Authorized |
+| `/preferencias/filter` | GET/POST | Filter matchmaking users (alias) | Same as search | Authorized |
+| `/upload-photo` | POST | Upload user file (profile photo) | `user_id` (required), file | Authorized |
 
 ---
 
-#### Matchmaking Settings (wpem-rest-matchmaking-settings-controller.php)
+#### Matchmaking Settings (aprio-rest-matchmaking-settings-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -461,7 +482,7 @@
 
 ---
 
-#### User Settings (wpem-rest-matchmaking-user-settings.php)
+#### User Settings (aprio-rest-matchmaking-user-settings.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -470,7 +491,7 @@
 
 ---
 
-#### Profile Settings (wpem-rest-matchmaking-profile-controller.php)
+#### Profile Settings (aprio-rest-matchmaking-profile-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -479,7 +500,7 @@
 
 ---
 
-#### Filter Users (wpem-rest-matchmaking-filter-users.php)
+#### Filter Users (aprio-rest-matchmaking-filter-users.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -487,7 +508,7 @@
 
 ---
 
-#### Meetings (wpem-rest-matchmaking-create-meetings.php)
+#### Meetings (aprio-rest-matchmaking-create-meetings.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -501,7 +522,7 @@
 
 ---
 
-#### Meetings Controller (wpem-rest-matchmaking-meetings-controller.php)
+#### Meetings Controller (aprio-rest-matchmaking-meetings-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -515,7 +536,7 @@
 
 ---
 
-#### Messages (wpem-rest-matchmaking-user-messages.php)
+#### Messages (aprio-rest-matchmaking-user-messages.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -525,7 +546,7 @@
 
 ---
 
-#### Taxonomy (wpem-rest-matchmaking-get-texonomy.php)
+#### Taxonomy (aprio-rest-matchmaking-get-texonomy.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -548,8 +569,8 @@
 | Plugin | Namespace Count | Endpoint Count |
 |--------|-----------------|----------------|
 | Apollo Core | 1 (apollo/v1) | ~35 endpoints |
-| Apollo Social | 4 (apollo/v1, apollo-docs/v1, apollo-social/v1, apollo-events/v1) | ~55 endpoints |
-| Apollo Events Manager | 4 (apollo/v1, apollo-events/v1, wpem/v1, wpem) | ~50 endpoints |
+| Apollo Social | 3 (apollo/v1, apollo-docs/v1, apollo-social/v1) | ~55 endpoints |
+| Apollo Events Manager | 3 (apollo/v1, aprio/v1, aprio) | ~50 endpoints |
 | Apollo Rio | 1 (wp/v2) | 1 endpoint |
 
 **Total: ~141 REST API endpoints across the Apollo ecosystem**
@@ -568,8 +589,8 @@
 - **Moderators**: Content approval/rejection, user suspension
 - **Admins**: Membership management, system settings
 - **CENA-RIO Role**: Industry calendar and event submissions
-- **WPEM Authorized**: Matchmaking functionality (requires API key)
+- **APRIO Authorized**: Matchmaking functionality (requires API key)
 
-### API Key Authentication (WPEM)
-- Uses custom API key system via `wpem_rest_api_keys` table
-- Endpoints check `wpem_check_authorized_user()` for authorization
+### API Key Authentication (APRIO)
+- Uses custom API key system via `aprio_rest_api_keys` table
+- Endpoints check `aprio_check_authorized_user()` for authorization
