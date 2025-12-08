@@ -247,7 +247,7 @@ register_activation_hook(
 				'<p>' . esc_html__( 'Apollo Social Core requires Apollo Core to be active.', 'apollo-social' ) . '</p>' .
 				'<p>' . esc_html__( 'Please activate the "Apollo Core" plugin first, then activate Apollo Social Core.', 'apollo-social' ) . '</p>',
 				esc_html__( 'Dependency Error', 'apollo-social' ),
-				array( 'back_link' => true )
+				[ 'back_link' => true ]
 			);
 			return;
 		}
@@ -337,13 +337,13 @@ add_action( 'wp_ajax_apollo_submit_depoimento', 'apollo_social_handle_depoimento
 function apollo_social_handle_depoimento_submit() {
 	// Verify nonce.
 	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'apollo_depoimento_nonce' ) ) {
-		wp_send_json_error( array( 'message' => 'Nonce inválido.' ), 403 );
+		wp_send_json_error( [ 'message' => 'Nonce inválido.' ], 403 );
 		return;
 	}
 
 	// Check user is logged in.
 	if ( ! is_user_logged_in() ) {
-		wp_send_json_error( array( 'message' => 'Você precisa estar logado.' ), 401 );
+		wp_send_json_error( [ 'message' => 'Você precisa estar logado.' ], 401 );
 		return;
 	}
 
@@ -352,24 +352,24 @@ function apollo_social_handle_depoimento_submit() {
 	$content = isset( $_POST['content'] ) ? sanitize_textarea_field( $_POST['content'] ) : '';
 
 	if ( ! $post_id ) {
-		wp_send_json_error( array( 'message' => 'ID do post inválido.' ), 400 );
+		wp_send_json_error( [ 'message' => 'ID do post inválido.' ], 400 );
 		return;
 	}
 
 	if ( empty( $content ) || strlen( $content ) < 5 ) {
-		wp_send_json_error( array( 'message' => 'O depoimento deve ter pelo menos 5 caracteres.' ), 400 );
+		wp_send_json_error( [ 'message' => 'O depoimento deve ter pelo menos 5 caracteres.' ], 400 );
 		return;
 	}
 
 	if ( strlen( $content ) > 1000 ) {
-		wp_send_json_error( array( 'message' => 'O depoimento não pode exceder 1000 caracteres.' ), 400 );
+		wp_send_json_error( [ 'message' => 'O depoimento não pode exceder 1000 caracteres.' ], 400 );
 		return;
 	}
 
 	// Check post exists and is a user_page.
 	$post = get_post( $post_id );
 	if ( ! $post || $post->post_type !== 'user_page' ) {
-		wp_send_json_error( array( 'message' => 'Página de usuário não encontrada.' ), 404 );
+		wp_send_json_error( [ 'message' => 'Página de usuário não encontrada.' ], 404 );
 		return;
 	}
 
@@ -378,7 +378,7 @@ function apollo_social_handle_depoimento_submit() {
 	$current_user_id = get_current_user_id();
 
 	if ( $page_owner_id === $current_user_id ) {
-		wp_send_json_error( array( 'message' => 'Você não pode deixar depoimento na sua própria página.' ), 400 );
+		wp_send_json_error( [ 'message' => 'Você não pode deixar depoimento na sua própria página.' ], 400 );
 		return;
 	}
 
@@ -387,7 +387,7 @@ function apollo_social_handle_depoimento_submit() {
 	$today_count = (int) get_transient( $today_key );
 
 	if ( $today_count >= 3 ) {
-		wp_send_json_error( array( 'message' => 'Limite diário de depoimentos atingido (3 por dia).' ), 429 );
+		wp_send_json_error( [ 'message' => 'Limite diário de depoimentos atingido (3 por dia).' ], 429 );
 		return;
 	}
 
@@ -395,7 +395,7 @@ function apollo_social_handle_depoimento_submit() {
 	$current_user = wp_get_current_user();
 
 	// Insert comment.
-	$comment_data = array(
+	$comment_data = [
 		'comment_post_ID'      => $post_id,
 		'comment_author'       => $current_user->display_name,
 		'comment_author_email' => $current_user->user_email,
@@ -408,12 +408,12 @@ function apollo_social_handle_depoimento_submit() {
 		'comment_date_gmt'     => current_time( 'mysql', true ),
 		'comment_approved'     => 1,
 	// Auto-approve for logged-in users.
-	);
+	];
 
 	$comment_id = wp_insert_comment( $comment_data );
 
 	if ( ! $comment_id ) {
-		wp_send_json_error( array( 'message' => 'Erro ao salvar depoimento.' ), 500 );
+		wp_send_json_error( [ 'message' => 'Erro ao salvar depoimento.' ], 500 );
 		return;
 	}
 
@@ -424,9 +424,9 @@ function apollo_social_handle_depoimento_submit() {
 	update_user_meta( $current_user_id, '_last_depoimento_time', time() );
 
 	wp_send_json_success(
-		array(
+		[
 			'message'    => 'Depoimento publicado com sucesso!',
 			'comment_id' => $comment_id,
-		)
+		]
 	);
 }

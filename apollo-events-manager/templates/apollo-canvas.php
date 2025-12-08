@@ -4,4 +4,4 @@
 defined( 'ABSPATH' ) || exit;
 
 // Use the complete portal discover template
-require APOLLO_WPEM_PATH . 'templates/portal-discover.php';
+require APOLLO_APRIO_PATH . 'templates/portal-discover.php';

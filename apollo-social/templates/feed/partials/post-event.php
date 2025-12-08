@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$post = $post_data ?? array();
-$data = $post['data'] ?? array();
+$post = $post_data ?? [];
+$data = $post['data'] ?? [];
 ?>
 <article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-all apollo-feed-card apollo-event-card" 
 		data-feed-card 

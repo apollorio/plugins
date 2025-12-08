@@ -34,4 +34,4 @@ class Apollo_User_Page_Template_Loader {
 		return $template;
 	}
 }
-add_filter( 'template_include', array( 'Apollo_User_Page_Template_Loader', 'intercept' ) );
+add_filter( 'template_include', [ 'Apollo_User_Page_Template_Loader', 'intercept' ] );

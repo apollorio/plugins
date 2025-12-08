@@ -26,11 +26,11 @@ defined( 'ABSPATH' ) || exit;
 function apollo_load_shadcn_components( $plugin_url = null, $plugin_version = null ) {
 	// Default to apollo-events-manager if not specified
 	if ( ! $plugin_url ) {
-		$plugin_url = defined( 'APOLLO_WPEM_URL' ) ? APOLLO_WPEM_URL : plugin_dir_url( __FILE__ ) . '../';
+		$plugin_url = defined( 'APOLLO_APRIO_URL' ) ? APOLLO_APRIO_URL : plugin_dir_url( __FILE__ ) . '../';
 	}
 
 	if ( ! $plugin_version ) {
-		$plugin_version = defined( 'APOLLO_WPEM_VERSION' ) ? APOLLO_WPEM_VERSION : '2.0.0';
+		$plugin_version = defined( 'APOLLO_APRIO_VERSION' ) ? APOLLO_APRIO_VERSION : '2.0.0';
 	}
 
 	// Only enqueue if not already enqueued

@@ -47,7 +47,7 @@ define( 'APOLLO_DELTA_CONVERTER_CLASS', 'ApolloSocial\\Converters\\DeltaToHtmlCo
  *                              - 'strict_mode' (bool): Throw on invalid Delta. Default false.
  * @return string Sanitized HTML output.
  */
-function apollo_delta_to_html( $delta, array $options = array() ) {
+function apollo_delta_to_html( $delta, array $options = [] ) {
 	// Check if the converter class is available (Composer autoload)
 	if ( ! class_exists( APOLLO_DELTA_CONVERTER_CLASS ) ) {
 		// Log warning and return fallback
@@ -69,7 +69,7 @@ function apollo_delta_to_html( $delta, array $options = array() ) {
 		return '';
 	}
 
-	return call_user_func_array( array( APOLLO_DELTA_CONVERTER_CLASS, 'toHtml' ), array( $delta, $options ) );
+	return call_user_func_array( [ APOLLO_DELTA_CONVERTER_CLASS, 'toHtml' ], [ $delta, $options ] );
 }
 
 /**
@@ -110,7 +110,7 @@ function apollo_delta_to_text( $delta ) {
 		return '';
 	}
 
-	return call_user_func( array( APOLLO_DELTA_CONVERTER_CLASS, 'toText' ), $delta );
+	return call_user_func( [ APOLLO_DELTA_CONVERTER_CLASS, 'toText' ], $delta );
 }
 
 /**
@@ -235,11 +235,11 @@ function apollo_get_document_content( $document_id, $as_html = true ) {
  *                           - 'class' (string): Additional CSS classes.
  * @return string|void HTML output if echo is false.
  */
-function apollo_render_document( $document_id, array $options = array() ) {
-	$defaults = array(
+function apollo_render_document( $document_id, array $options = [] ) {
+	$defaults = [
 		'echo'  => true,
 		'class' => '',
-	);
+	];
 	$options  = array_merge( $defaults, $options );
 
 	$html = apollo_get_document_content( $document_id, true );

@@ -47,87 +47,87 @@ update_post_meta( $classified_id, '_classified_views', $views_count + 1 );
 $featured_image = get_the_post_thumbnail_url( $classified_id, 'large' );
 $gallery        = get_post_meta( $classified_id, '_classified_gallery', true );
 if ( ! is_array( $gallery ) ) {
-	$gallery = array();
+	$gallery = [];
 }
 
 // Format price.
 $price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
 
 // Condition labels.
-$condition_labels = array(
-	'new'       => array(
+$condition_labels = [
+	'new'       => [
 		'label' => 'Novo',
 		'color' => '#22c55e',
-	),
-	'like_new'  => array(
+	],
+	'like_new'  => [
 		'label' => 'Seminovo',
 		'color' => '#3b82f6',
-	),
-	'used'      => array(
+	],
+	'used'      => [
 		'label' => 'Usado',
 		'color' => '#f97316',
-	),
-	'for_parts' => array(
+	],
+	'for_parts' => [
 		'label' => 'Para peças',
 		'color' => '#ef4444',
-	),
-);
-$condition_config = $condition_labels[ $condition ] ?? array(
+	],
+];
+$condition_config = $condition_labels[ $condition ] ?? [
 	'label' => 'Não especificado',
 	'color' => '#6b7280',
-);
+];
 
 // Categories configuration.
-$categories = array(
-	'tickets'   => array(
+$categories = [
+	'tickets'   => [
 		'label' => 'Ingresso',
 		'icon'  => 'ri-ticket-2-fill',
 		'badge' => '',
 		'unit'  => '/unid',
-	),
-	'bedroom'   => array(
+	],
+	'bedroom'   => [
 		'label' => 'Quarto',
 		'icon'  => 'ri-home-heart-fill',
 		'badge' => 'ap-badge-bedroom',
 		'unit'  => '/mês',
-	),
-	'equipment' => array(
+	],
+	'equipment' => [
 		'label' => 'Equipamento',
 		'icon'  => 'ri-sound-module-fill',
 		'badge' => 'ap-badge-equipment',
 		'unit'  => '/dia',
-	),
-	'services'  => array(
+	],
+	'services'  => [
 		'label' => 'Serviço',
 		'icon'  => 'ri-briefcase-fill',
 		'badge' => 'ap-badge-service',
 		'unit'  => '/evento',
-	),
-);
-$cat_config = $categories[ $category ] ?? array(
+	],
+];
+$cat_config = $categories[ $category ] ?? [
 	'label' => 'Outro',
 	'icon'  => 'ri-price-tag-fill',
 	'badge' => '',
 	'unit'  => '',
-);
+];
 
 // Avatar gradient colors by category.
-$avatar_colors   = array(
+$avatar_colors   = [
 	'tickets'   => '#6366f1, #8b5cf6',
 	'bedroom'   => '#ec4899, #f472b6',
 	'equipment' => '#22c55e, #4ade80',
 	'services'  => '#3b82f6, #60a5fa',
-);
+];
 $avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
 
 // Enqueue UNI.CSS assets.
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 } else {
-	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '5.2.0' );
-	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', array(), '4.2.0', true );
+	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '5.2.0' );
+	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', [], '4.2.0', true );
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 get_header();
 ?>
@@ -197,7 +197,7 @@ get_header();
 		<?php foreach ( $gallery as $image_id ) : ?>
 		<div style="width: 60px; height: 60px; flex-shrink: 0; border-radius: 8px; overflow: hidden; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;"
 			onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
-			<?php echo wp_get_attachment_image( $image_id, 'thumbnail', false, array( 'style' => 'width:100%;height:100%;object-fit:cover;' ) ); ?>
+			<?php echo wp_get_attachment_image( $image_id, 'thumbnail', false, [ 'style' => 'width:100%;height:100%;object-fit:cover;' ] ); ?>
 		</div>
 		<?php endforeach; ?>
 	</div>
@@ -363,19 +363,19 @@ get_header();
 
 	<!-- Related Classifieds -->
 	<?php
-	$related_args = array(
+	$related_args = [
 		'post_type'      => 'apollo_classified',
 		'post_status'    => 'publish',
 		'posts_per_page' => 4,
-		'post__not_in'   => array( $classified_id ),
-		'meta_query'     => array(
-			array(
+		'post__not_in'   => [ $classified_id ],
+		'meta_query'     => [
+			[
 				'key'     => '_classified_category',
 				'value'   => $category,
 				'compare' => '=',
-			),
-		),
-	);
+			],
+		],
+	];
 	$related      = new WP_Query( $related_args );
 
 	if ( $related->have_posts() ) :

@@ -4,14 +4,14 @@
  */
 class Apollo_User_Page_Widgets {
 	public static function get_widgets() {
-		$widgets = array(
-			'about'       => array(
+		$widgets = [
+			'about'       => [
 				'title'       => 'Sobre',
 				'icon'        => 'user',
-				'propsSchema' => array(
+				'propsSchema' => [
 					'bio'    => 'string',
 					'avatar' => 'string',
-				),
+				],
 				'render'      => function ( $props, $ctx ) {
 					return '<div class="card bg-white rounded-lg p-3 mb-2">'
 						. '<img src="' . esc_url( $props['avatar'] ) . '" class="w-16 h-16 rounded-full mb-2">'
@@ -19,21 +19,21 @@ class Apollo_User_Page_Widgets {
 						. '<div class="text-sm text-gray-600">' . esc_html( $props['bio'] ) . '</div>'
 						. '</div>';
 				},
-			),
-			'depoimentos' => array(
+			],
+			'depoimentos' => [
 				'title'       => 'Depoimentos',
 				'icon'        => 'comments',
-				'propsSchema' => array(),
+				'propsSchema' => [],
 				'render'      => function ( $props, $ctx ) {
 					$post_id  = $ctx['post_id'] ?? 0;
 					$comments = get_comments(
-						array(
+						[
 							'post_id' => $post_id,
 							'status'  => 'approve',
 							'number'  => 10,
 							'orderby' => 'comment_date',
 							'order'   => 'DESC',
-						)
+						]
 					);
 
 					$comments_count = get_comments_number( $post_id );
@@ -54,7 +54,7 @@ class Apollo_User_Page_Widgets {
 						$html .= '<div class="apollo-depoimentos-list space-y-4" data-motion-list="true">';
 
 						foreach ( $comments as $index => $comment ) {
-							$avatar = get_avatar_url( $comment->user_id ?: $comment->comment_author_email, array( 'size' => 48 ) );
+							$avatar = get_avatar_url( $comment->user_id ?: $comment->comment_author_email, [ 'size' => 48 ] );
 							$author = $comment->comment_author ?: 'Anônimo';
 							$date   = human_time_diff( strtotime( $comment->comment_date ), current_time( 'timestamp' ) ) . ' atrás';
 
@@ -124,19 +124,19 @@ class Apollo_User_Page_Widgets {
 
 					return $html;
 				},
-			),
-			'image'       => array(
+			],
+			'image'       => [
 				'title'       => 'Imagem',
 				'icon'        => 'image',
-				'propsSchema' => array(
+				'propsSchema' => [
 					'src' => 'string',
 					'alt' => 'string',
-				),
+				],
 				'render'      => function ( $props, $ctx ) {
 					return '<img src="' . esc_url( $props['src'] ) . '" alt="' . esc_attr( $props['alt'] ) . '" class="rounded-lg mb-2">';
 				},
-			),
-		);
+			],
+		];
 		return apply_filters( 'apollo_userpage_widgets', $widgets );
 	}
 }

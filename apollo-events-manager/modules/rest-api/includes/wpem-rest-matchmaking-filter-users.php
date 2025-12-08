@@ -1,8 +1,8 @@
 <?php
 // phpcs:ignoreFile
-class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 	protected $rest_base = 'filter-users';
 
 	public function __construct() {
@@ -15,14 +15,14 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 		// General filter
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_matchmaking_filter_users' ),
+				'callback'            => array( $this, 'aprio_matchmaking_filter_users' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'profession'   => array(
@@ -115,7 +115,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 	 * @param $request
 	 * @return WP_REST_Response
 	 */
-	public function wpem_matchmaking_filter_users( $request ) {
+	public function aprio_matchmaking_filter_users( $request ) {
 		global $wpdb;
 
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
@@ -129,7 +129,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -214,7 +214,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 					continue;
 				}
 
-				$photo = get_wpem_user_profile_photo( $uid ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+				$photo = get_aprio_user_profile_photo( $uid ) ?: plugins_url( 'apollo-events-manager/assets/images/user-profile-photo.png' );
 
 				// Normalize organization logo
 				$organization_logo = get_user_meta( $uid, '_organization_logo', true );
@@ -222,7 +222,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 				if ( is_array( $organization_logo ) ) {
 					$organization_logo = reset( $organization_logo );
 				}
-				$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
+				$organization_logo = $organization_logo ?: plugins_url( 'apollo-events-manager/assets/images/organisation-icon.jpg' );
 				// Profession
 				$profession_value = get_user_meta( $uid, '_profession', true );
 				$profession_slug  = $profession_value;
@@ -274,7 +274,7 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 				$interests_slugs      = array_filter( $interests_slugs );
 				$interests_serialized = serialize( $interests_slugs );
 
-				$countries     = wpem_get_all_countries();
+				$countries     = aprio_get_all_countries();
 				$country_value = get_user_meta( $uid, '_country', true );
 				$country_code  = '';
 				if ( $country_value ) {
@@ -391,4 +391,4 @@ class WPEM_REST_Filter_Users_Controller extends WPEM_REST_CRUD_Controller {
 		}//end if
 	}
 }
-new WPEM_REST_Filter_Users_Controller();
+new APRIO_REST_Filter_Users_Controller();

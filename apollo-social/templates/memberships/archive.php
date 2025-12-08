@@ -21,43 +21,43 @@ $user_obj = wp_get_current_user();
 $user_id  = get_current_user_id();
 
 // Membership levels
-$membership_levels = array(
-	'clubber'  => array(
+$membership_levels = [
+	'clubber'  => [
 		'icon'        => 'ri-user-line',
 		'label'       => 'Clubber',
 		'description' => 'Acesso básico à comunidade Apollo',
 		'color'       => 'var(--ap-text-muted)',
-		'features'    => array( 'Perfil público', 'Feed social', 'Favoritar eventos' ),
-	),
-	'dj'       => array(
+		'features'    => [ 'Perfil público', 'Feed social', 'Favoritar eventos' ],
+	],
+	'dj'       => [
 		'icon'        => 'ri-disc-line',
 		'label'       => 'DJ',
 		'description' => 'Artista verificado na plataforma',
 		'color'       => 'var(--ap-orange-500)',
-		'features'    => array( 'Página de artista', 'Agenda pública', 'Booking requests', 'Analytics' ),
-	),
-	'producer' => array(
+		'features'    => [ 'Página de artista', 'Agenda pública', 'Booking requests', 'Analytics' ],
+	],
+	'producer' => [
 		'icon'        => 'ri-music-2-line',
 		'label'       => 'Producer',
 		'description' => 'Produtor musical verificado',
 		'color'       => '#a855f7',
-		'features'    => array( 'Portfolio de tracks', 'Colaborações', 'Releases', 'Analytics' ),
-	),
-	'promoter' => array(
+		'features'    => [ 'Portfolio de tracks', 'Colaborações', 'Releases', 'Analytics' ],
+	],
+	'promoter' => [
 		'icon'        => 'ri-megaphone-line',
 		'label'       => 'Promoter',
 		'description' => 'Produtor de eventos verificado',
 		'color'       => '#3b82f6',
-		'features'    => array( 'Criar eventos', 'Gestão de lineup', 'Contratos', 'Vendas' ),
-	),
-	'venue'    => array(
+		'features'    => [ 'Criar eventos', 'Gestão de lineup', 'Contratos', 'Vendas' ],
+	],
+	'venue'    => [
 		'icon'        => 'ri-building-2-line',
 		'label'       => 'Venue',
 		'description' => 'Local/club verificado',
 		'color'       => '#10b981',
-		'features'    => array( 'Página do local', 'Calendário', 'Booking', 'Analytics' ),
-	),
-);
+		'features'    => [ 'Página do local', 'Calendário', 'Booking', 'Analytics' ],
+	],
+];
 
 // Get user's current membership
 $user_membership_raw   = get_user_meta( $user_id, 'membership_level', true );

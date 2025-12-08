@@ -71,7 +71,7 @@ function apollo_builder_get_widgets() {
 	if ( $widgets === null ) {
 		$widgets = apply_filters(
 			'apollo_builder_widgets',
-			array(
+			[
 				'Apollo_Widget_Profile_Card',
 				'Apollo_Widget_Badges',
 				'Apollo_Widget_Groups',
@@ -79,7 +79,7 @@ function apollo_builder_get_widgets() {
 				'Apollo_Widget_Trax_Player',
 				'Apollo_Widget_Sticker',
 				'Apollo_Widget_Note',
-			)
+			]
 		);
 	}
 
@@ -125,8 +125,8 @@ function apollo_builder_render_widget( $widget_data, $post_id = 0 ) {
 	}
 
 	return $instance->render(
-		array(
-			'settings'  => $widget_data['config'] ?? array(),
+		[
+			'settings'  => $widget_data['config'] ?? [],
 			'post_id'   => $post_id,
 			'widget_id' => $widget_data['id'] ?? '',
 			'x'         => $widget_data['x'] ?? 0,
@@ -134,7 +134,7 @@ function apollo_builder_render_widget( $widget_data, $post_id = 0 ) {
 			'width'     => $widget_data['width'] ?? 200,
 			'height'    => $widget_data['height'] ?? 150,
 			'zIndex'    => $widget_data['zIndex'] ?? 1,
-		)
+		]
 	);
 }
 
@@ -188,7 +188,7 @@ function apollo_builder_tooltip( $text, $context = 'admin' ) {
  * @param array  $options Extra options (for select)
  * @return string HTML
  */
-function apollo_builder_field( $type, $name, $label, $tooltip, $value = '', $options = array() ) {
+function apollo_builder_field( $type, $name, $label, $tooltip, $value = '', $options = [] ) {
 	$tooltip_html = apollo_builder_tooltip( $tooltip, 'admin' );
 	$id           = sanitize_key( $name );
 	$value        = is_string( $value ) ? esc_attr( $value ) : $value;
@@ -248,15 +248,15 @@ function apollo_builder_sanitize_layout( $json ) {
 	$data = json_decode( $json, true );
 
 	if ( json_last_error() !== JSON_ERROR_NONE || ! is_array( $data ) ) {
-		return wp_json_encode( array( 'widgets' => array() ) );
+		return wp_json_encode( [ 'widgets' => [] ] );
 	}
 
 	if ( ! isset( $data['widgets'] ) || ! is_array( $data['widgets'] ) ) {
-		$data['widgets'] = array();
+		$data['widgets'] = [];
 	}
 
-	$allowed_types     = array( 'profile-card', 'badges', 'groups', 'guestbook', 'trax-player', 'sticker', 'note' );
-	$sanitized_widgets = array();
+	$allowed_types     = [ 'profile-card', 'badges', 'groups', 'guestbook', 'trax-player', 'sticker', 'note' ];
+	$sanitized_widgets = [];
 
 	foreach ( $data['widgets'] as $widget ) {
 		if ( ! is_array( $widget ) ) {
@@ -269,7 +269,7 @@ function apollo_builder_sanitize_layout( $json ) {
 			continue;
 		}
 
-		$sanitized = array(
+		$sanitized = [
 			'id'     => sanitize_key( $widget['id'] ),
 			'type'   => sanitize_key( $widget['type'] ),
 			'x'      => max( 0, intval( $widget['x'] ?? 0 ) ),
@@ -277,8 +277,8 @@ function apollo_builder_sanitize_layout( $json ) {
 			'width'  => max( 48, min( 800, intval( $widget['width'] ?? 200 ) ) ),
 			'height' => max( 48, min( 600, intval( $widget['height'] ?? 150 ) ) ),
 			'zIndex' => max( 1, min( 100, intval( $widget['zIndex'] ?? 1 ) ) ),
-			'config' => array(),
-		);
+			'config' => [],
+		];
 
 		// Sanitize config based on type
 		if ( isset( $widget['config'] ) && is_array( $widget['config'] ) ) {
@@ -291,7 +291,7 @@ function apollo_builder_sanitize_layout( $json ) {
 	// Max 50 widgets
 	$sanitized_widgets = array_slice( $sanitized_widgets, 0, 50 );
 
-	return wp_json_encode( array( 'widgets' => $sanitized_widgets ) );
+	return wp_json_encode( [ 'widgets' => $sanitized_widgets ] );
 }
 
 /**
@@ -302,7 +302,7 @@ function apollo_builder_sanitize_layout( $json ) {
  * @return array Sanitized config
  */
 function apollo_builder_sanitize_widget_config( $type, $config ) {
-	$sanitized = array();
+	$sanitized = [];
 
 	switch ( $type ) {
 		case 'sticker':
@@ -371,7 +371,7 @@ function apollo_builder_sanitize_widget_config( $type, $config ) {
 
 		case 'badges':
 			if ( isset( $config['layout'] ) ) {
-				$sanitized['layout'] = in_array( $config['layout'], array( 'row', 'grid', 'stack' ) ) ? $config['layout'] : 'row';
+				$sanitized['layout'] = in_array( $config['layout'], [ 'row', 'grid', 'stack' ] ) ? $config['layout'] : 'row';
 			}
 			if ( isset( $config['badge_size'] ) ) {
 				$sanitized['badge_size'] = max( 24, min( 80, intval( $config['badge_size'] ) ) );
@@ -386,7 +386,7 @@ function apollo_builder_sanitize_widget_config( $type, $config ) {
 				$sanitized['max_groups'] = max( 1, min( 20, intval( $config['max_groups'] ) ) );
 			}
 			if ( isset( $config['layout'] ) ) {
-				$sanitized['layout'] = in_array( $config['layout'], array( 'grid', 'list' ) ) ? $config['layout'] : 'grid';
+				$sanitized['layout'] = in_array( $config['layout'], [ 'grid', 'list' ] ) ? $config['layout'] : 'grid';
 			}
 			if ( isset( $config['show_names'] ) ) {
 				$sanitized['show_names'] = ! empty( $config['show_names'] );

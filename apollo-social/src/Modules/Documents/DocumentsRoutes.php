@@ -28,9 +28,9 @@ class DocumentsRoutes {
 
 
 	public function __construct() {
-		add_action( 'init', array( $this, 'registerRoutes' ) );
-		add_action( 'template_redirect', array( $this, 'handleRoutes' ) );
-		add_filter( 'query_vars', array( $this, 'registerQueryVars' ) );
+		add_action( 'init', [ $this, 'registerRoutes' ] );
+		add_action( 'template_redirect', [ $this, 'handleRoutes' ] );
+		add_filter( 'query_vars', [ $this, 'registerQueryVars' ] );
 	}
 
 	/**
@@ -141,10 +141,10 @@ class DocumentsRoutes {
 		// Carregar template de criação
 		$this->loadTemplate(
 			'documents/editor',
-			array(
+			[
 				'type' => 'documento',
 				'mode' => 'new',
-			)
+			]
 		);
 	}
 
@@ -165,7 +165,7 @@ class DocumentsRoutes {
 		);
 
 		if ( ! $document ) {
-			wp_die( 'Documento não encontrado', 'Erro 404', array( 'response' => 404 ) );
+			wp_die( 'Documento não encontrado', 'Erro 404', [ 'response' => 404 ] );
 		}
 
 		// Se POST, atualizar documento
@@ -175,28 +175,28 @@ class DocumentsRoutes {
 
 			$wpdb->update(
 				$documents_table,
-				array(
+				[
 					'title'      => $title,
 					'content'    => $content,
 					'updated_at' => current_time( 'mysql' ),
-				),
-				array( 'file_id' => $file_id )
+				],
+				[ 'file_id' => $file_id ]
 			);
 
 			// Retornar JSON se AJAX
 			if ( ! empty( $_POST['ajax'] ) ) {
-				wp_send_json_success( array( 'message' => 'Salvo com sucesso' ) );
+				wp_send_json_success( [ 'message' => 'Salvo com sucesso' ] );
 			}
 		}
 
 		// Carregar template de edição
 		$this->loadTemplate(
 			'documents/editor',
-			array(
+			[
 				'type'     => 'documento',
 				'mode'     => 'edit',
 				'document' => $document,
-			)
+			]
 		);
 	}
 
@@ -222,10 +222,10 @@ class DocumentsRoutes {
 		// Carregar template de criação
 		$this->loadTemplate(
 			'documents/editor',
-			array(
+			[
 				'type' => 'planilha',
 				'mode' => 'new',
-			)
+			]
 		);
 	}
 
@@ -246,7 +246,7 @@ class DocumentsRoutes {
 		);
 
 		if ( ! $document ) {
-			wp_die( 'Planilha não encontrada', 'Erro 404', array( 'response' => 404 ) );
+			wp_die( 'Planilha não encontrada', 'Erro 404', [ 'response' => 404 ] );
 		}
 
 		// Se POST, atualizar planilha
@@ -256,28 +256,28 @@ class DocumentsRoutes {
 
 			$wpdb->update(
 				$documents_table,
-				array(
+				[
 					'title'      => $title,
 					'content'    => $content,
 					'updated_at' => current_time( 'mysql' ),
-				),
-				array( 'file_id' => $file_id )
+				],
+				[ 'file_id' => $file_id ]
 			);
 
 			// Retornar JSON se AJAX
 			if ( ! empty( $_POST['ajax'] ) ) {
-				wp_send_json_success( array( 'message' => 'Salvo com sucesso' ) );
+				wp_send_json_success( [ 'message' => 'Salvo com sucesso' ] );
 			}
 		}
 
 		// Carregar template de edição
 		$this->loadTemplate(
 			'documents/editor',
-			array(
+			[
 				'type'     => 'planilha',
 				'mode'     => 'edit',
 				'document' => $document,
-			)
+			]
 		);
 	}
 
@@ -298,7 +298,7 @@ class DocumentsRoutes {
 	/**
 	 * Load template
 	 */
-	private function loadTemplate( $template, $data = array() ) {
+	private function loadTemplate( $template, $data = [] ) {
 		extract( $data );
 
 		$template_path = ( defined( 'APOLLO_SOCIAL_PATH' ) ? constant( 'APOLLO_SOCIAL_PATH' ) : plugin_dir_path( dirname( dirname( __DIR__ ) ) ) ) . '/templates/' . $template . '.php';
@@ -308,7 +308,7 @@ class DocumentsRoutes {
 			exit;
 		}
 
-		wp_die( 'Template não encontrado: ' . $template, 'Erro', array( 'response' => 404 ) );
+		wp_die( 'Template não encontrado: ' . $template, 'Erro', [ 'response' => 404 ] );
 	}
 }
 

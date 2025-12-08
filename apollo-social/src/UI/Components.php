@@ -11,8 +11,8 @@ namespace Apollo\UI;
  * Button Component
  */
 class Button {
-	public static function render( $text, $variant = 'primary', $size = 'md', $attrs = array() ) {
-		$classes = array( 'apollo-btn', "apollo-btn-{$variant}", "apollo-btn-{$size}" );
+	public static function render( $text, $variant = 'primary', $size = 'md', $attrs = [] ) {
+		$classes = [ 'apollo-btn', "apollo-btn-{$variant}", "apollo-btn-{$size}" ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -25,7 +25,7 @@ class Button {
 	}
 
 	public static function buildAttributes( $attrs ) {
-		$attr_strings = array();
+		$attr_strings = [];
 		foreach ( $attrs as $key => $value ) {
 			if ( $value !== null && $value !== false ) {
 				$attr_strings[] = $key . '="' . htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' ) . '"';
@@ -39,8 +39,8 @@ class Button {
  * Input Component
  */
 class Input {
-	public static function render( $name, $value = '', $type = 'text', $placeholder = '', $attrs = array() ) {
-		$classes = array( 'apollo-input' );
+	public static function render( $name, $value = '', $type = 'text', $placeholder = '', $attrs = [] ) {
+		$classes = [ 'apollo-input' ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -48,13 +48,13 @@ class Input {
 		}
 
 		$attrs = array_merge(
-			array(
+			[
 				'type'        => $type,
 				'name'        => $name,
 				'value'       => $value,
 				'placeholder' => $placeholder,
 				'class'       => implode( ' ', $classes ),
-			),
+			],
 			$attrs
 		);
 
@@ -68,8 +68,8 @@ class Input {
  * Form Field Component
  */
 class Field {
-	public static function render( $label, $control, $helper = '', $orientation = 'vertical', $attrs = array() ) {
-		$classes = array( 'apollo-field', "apollo-field-{$orientation}" );
+	public static function render( $label, $control, $helper = '', $orientation = 'vertical', $attrs = [] ) {
+		$classes = [ 'apollo-field', "apollo-field-{$orientation}" ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -96,11 +96,11 @@ class Field {
 class Dialog {
 	private static $instance_count = 0;
 
-	public static function render( $trigger, $content, $title = '', $attrs = array() ) {
+	public static function render( $trigger, $content, $title = '', $attrs = [] ) {
 		++self::$instance_count;
 		$id = 'apollo-dialog-' . self::$instance_count;
 
-		$classes = array( 'apollo-dialog' );
+		$classes = [ 'apollo-dialog' ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -130,8 +130,8 @@ class Dialog {
  * Table Component
  */
 class Table {
-	public static function render( $headers, $rows, $attrs = array() ) {
-		$classes = array( 'apollo-table' );
+	public static function render( $headers, $rows, $attrs = [] ) {
+		$classes = [ 'apollo-table' ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -164,8 +164,8 @@ class Table {
  * Badge Component
  */
 class Badge {
-	public static function render( $text, $variant = 'default', $attrs = array() ) {
-		$classes = array( 'apollo-badge', "apollo-badge-{$variant}" );
+	public static function render( $text, $variant = 'default', $attrs = [] ) {
+		$classes = [ 'apollo-badge', "apollo-badge-{$variant}" ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -182,8 +182,8 @@ class Badge {
  * Avatar Component
  */
 class Avatar {
-	public static function render( $src, $alt = '', $size = 'md', $attrs = array() ) {
-		$classes = array( 'apollo-avatar', "apollo-avatar-{$size}" );
+	public static function render( $src, $alt = '', $size = 'md', $attrs = [] ) {
+		$classes = [ 'apollo-avatar', "apollo-avatar-{$size}" ];
 
 		if ( isset( $attrs['class'] ) ) {
 			$classes[] = $attrs['class'];
@@ -191,11 +191,11 @@ class Avatar {
 		}
 
 		$attrs = array_merge(
-			array(
+			[
 				'src'   => $src,
 				'alt'   => $alt,
 				'class' => implode( ' ', $classes ),
-			),
+			],
 			$attrs
 		);
 

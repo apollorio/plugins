@@ -1,9 +1,9 @@
 <?php
 // phpcs:ignoreFile
 
-class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 	protected $rest_base = 'create-meeting';
 
 	public function __construct() {
@@ -11,14 +11,14 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	}
 
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_create_matchmaking_meeting' ),
+				'callback'            => array( $this, 'aprio_create_matchmaking_meeting' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'              => array(
@@ -62,7 +62,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/get-meetings',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_get_matchmaking_user_meetings' ),
+				'callback'            => array( $this, 'aprio_get_matchmaking_user_meetings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 			)
 		);
@@ -72,7 +72,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/cancel-meeting',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_cancel_matchmaking_meetings' ),
+				'callback'            => array( $this, 'aprio_cancel_matchmaking_meetings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'meeting_id' => array(
@@ -94,7 +94,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/update-meeting-status',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_update_matchmaking_meeting_status' ),
+				'callback'            => array( $this, 'aprio_update_matchmaking_meeting_status' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'meeting_id' => array(
@@ -121,7 +121,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/get-availability-slots',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'wpem_get_available_matchmaking_meeting_slots' ),
+				'callback'            => array( $this, 'aprio_get_available_matchmaking_meeting_slots' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id' => array(
@@ -137,7 +137,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/update-availability-slots',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_update_matchmaking_availability_slots' ),
+				'callback'            => array( $this, 'aprio_update_matchmaking_availability_slots' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'availability_slots'    => array(
@@ -171,7 +171,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			'/common-availability-slots',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_get_common_availability_slots' ),
+				'callback'            => array( $this, 'aprio_get_common_availability_slots' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'event_id' => array(
@@ -208,17 +208,17 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_Error(
 				'matchmaking_disabled',
-				__( 'Matchmaking functionality is not enabled.', 'wpem-rest-api' ),
+				__( 'Matchmaking functionality is not enabled.', 'aprio-rest-api' ),
 				array( 'status' => 403 )
 			);
 		}
 
 		// Check if user is authenticated.
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You must be logged in to access this endpoint.', 'wpem-rest-api' ),
+				__( 'You must be logged in to access this endpoint.', 'aprio-rest-api' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -237,7 +237,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function wpem_create_matchmaking_meeting( WP_REST_Request $request ) {
+	public function aprio_create_matchmaking_meeting( WP_REST_Request $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -250,7 +250,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -283,7 +283,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			$participants = array_fill_keys( $participants, -1 );
 			// -1 = pending
 
-			$table    = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+			$table    = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 			$inserted = $wpdb->insert(
 				$table,
 				array(
@@ -335,7 +335,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 
 					$participant_name  = $participant_user->display_name ?? 'User';
 					$participant_email = $participant_user->user_email ?? '';
-					$profile_picture   = $participant_meta['_profile_photo'][0] ?? EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+					$profile_picture   = $participant_meta['_profile_photo'][0] ?? plugins_url( 'apollo-events-manager/assets/images/user-profile-photo.png' );
 
 					// Get all profession terms [slug => name]
 					$profession_terms = get_event_registration_taxonomy_list( 'event_registration_professions' );
@@ -359,7 +359,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 					$host_meta           = get_user_meta( $user_id );
 					$host_company        = $host_meta['_company_name'][0] ?? '';
 					$host_city           = $host_meta['_city'][0] ?? '';
-					$all_countries       = wpem_get_all_countries();
+					$all_countries       = aprio_get_all_countries();
 					$host_country        = $all_countries[ $host_meta['_country'][0] ] ?? '';
 					$event_name          = get_the_title( $event_id ) ?: '';
 					$status_text         = 'Pending';
@@ -450,7 +450,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 
 					// Allow custom filter
 					$body = apply_filters(
-						'wpem_registration_meeting_request_email_body',
+						'aprio_registration_meeting_request_email_body',
 						$body,
 						$sender_user,
 						$participant_user,
@@ -495,7 +495,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response The response object.
 	 * @since 1.1.0
 	 */
-	public function wpem_get_matchmaking_user_meetings( WP_REST_Request $request ) {
+	public function aprio_get_matchmaking_user_meetings( WP_REST_Request $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -509,7 +509,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			);
 		}
 
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -528,7 +528,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				);
 			}
 
-			$table = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 
 			// Fetch ALL meetings for this event
 			$all_meetings = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table WHERE event_id = %d", $event_id ), ARRAY_A );
@@ -569,7 +569,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 					}
 
 					// Get profile data from user meta (assuming these are stored as meta)
-					$profile_photo    = get_wpem_user_profile_photo( $pid ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+					$profile_photo    = get_aprio_user_profile_photo( $pid ) ?: plugins_url( 'apollo-events-manager/assets/images/user-profile-photo.png' );
 					$company_name     = get_user_meta( $pid, '_company_name', true );
 					$profession_terms = get_event_registration_taxonomy_list( 'event_registration_professions' );
 					$profession_value = get_user_meta( $pid, '_profession', true );
@@ -600,7 +600,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				}
 
 				// Get host profile data from user meta
-				$host_profile_photo    = get_wpem_user_profile_photo( $host_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+				$host_profile_photo    = get_aprio_user_profile_photo( $host_id ) ?: plugins_url( 'apollo-events-manager/assets/images/user-profile-photo.png' );
 				$host_profession_value = get_user_meta( $host_id, '_profession', true );
 				$host_profession_slug  = $host_profession_value;
 				if ( $host_profession_value && ! isset( $profession_terms[ $host_profession_value ] ) ) {
@@ -661,7 +661,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
 	 */
-	public function wpem_cancel_matchmaking_meetings( WP_REST_Request $request ) {
+	public function aprio_cancel_matchmaking_meetings( WP_REST_Request $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -674,7 +674,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -692,7 +692,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				);
 			}
 
-			$table   = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+			$table   = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 			$meeting = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $meeting_id ), ARRAY_A );
 
 			if ( ! $meeting ) {
@@ -811,7 +811,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 		 * @return WP_REST_Response
 		 * @since 1.1.0
 		 */
-	public function wpem_update_matchmaking_meeting_status( WP_REST_Request $request ) {
+	public function aprio_update_matchmaking_meeting_status( WP_REST_Request $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -824,7 +824,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -842,7 +842,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				);
 			}
 
-			$table = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 
 			$meeting = $wpdb->get_row(
 				$wpdb->prepare(
@@ -977,7 +977,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function wpem_get_available_matchmaking_meeting_slots( WP_REST_Request $request ) {
+	public function aprio_get_available_matchmaking_meeting_slots( WP_REST_Request $request ) {
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
 				array(
@@ -989,12 +989,12 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
 			$user_id           = intval( $request->get_param( 'user_id' ) ) ?: get_current_user_id();
-			$default_slots     = get_wpem_default_meeting_slots_for_user( $user_id );
+			$default_slots     = get_aprio_default_meeting_slots_for_user( $user_id );
 			$meta              = get_user_meta( $user_id, '_available_for_meeting', true );
 			$meeting_available = ( $meta !== '' && $meta !== null ) ? ( (int) $meta === 0 ? 0 : 1 ) : 1;
 
@@ -1019,7 +1019,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function wpem_update_matchmaking_availability_slots( WP_REST_Request $request ) {
+	public function aprio_update_matchmaking_availability_slots( WP_REST_Request $request ) {
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
 				array(
@@ -1031,7 +1031,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -1081,7 +1081,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @throws Exception
 	 */
-	public function wpem_get_common_availability_slots( $request ) {
+	public function aprio_get_common_availability_slots( $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -1094,7 +1094,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -1118,7 +1118,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 
 			// Step 1: Get available slots for each user (value === 1)
 			foreach ( $user_ids as $user_id ) {
-				$raw_data = get_wpem_default_meeting_slots_for_user( $user_id, $date );
+				$raw_data = get_aprio_default_meeting_slots_for_user( $user_id, $date );
 
 				$available_slots = array_keys(
 					array_filter(
@@ -1150,7 +1150,7 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 			sort( $common_slots );
 
 			// Step 3: Find booked slots for given date
-			$table = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 			$rows  = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT meeting_start_time, participant_ids, user_id
@@ -1214,4 +1214,4 @@ class WPEM_REST_Create_Meeting_Controller extends WPEM_REST_CRUD_Controller {
 	}
 }
 
-new WPEM_REST_Create_Meeting_Controller();
+new APRIO_REST_Create_Meeting_Controller();

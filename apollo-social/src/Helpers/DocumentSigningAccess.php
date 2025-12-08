@@ -26,11 +26,11 @@ class DocumentSigningAccess {
 		}
 
 		if ( ! $user_id ) {
-			return array(
+			return [
 				'can_sign' => false,
 				'reason'   => __( 'Você precisa estar logado para assinar documentos.', 'apollo-social' ),
 				'code'     => 'not_logged_in',
-			);
+			];
 		}
 
 		// Get user document data
@@ -53,27 +53,27 @@ class DocumentSigningAccess {
 
 		// Determine result
 		if ( $has_valid_cpf ) {
-			return array(
+			return [
 				'can_sign'   => true,
 				'reason'     => '',
 				'code'       => 'cpf_valid',
 				'cpf_masked' => self::maskCpf( $cpf_clean ),
-			);
+			];
 		}
 
 		if ( $has_passport_only ) {
-			return array(
+			return [
 				'can_sign' => false,
 				'reason'   => __( 'Usuários com passaporte não podem assinar documentos digitais. A assinatura digital requer CPF válido conforme legislação brasileira (Lei 14.063/2020).', 'apollo-social' ),
 				'code'     => 'passport_only',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'can_sign' => false,
 			'reason'   => __( 'Você precisa cadastrar um CPF válido no seu perfil para assinar documentos digitais.', 'apollo-social' ),
 			'code'     => 'no_cpf',
-		);
+		];
 	}
 
 	/**

@@ -6,36 +6,36 @@ namespace Apollo\Infrastructure\Rendering;
  */
 class AdDirectoryRenderer {
 
-	public function render( $template_data ) {
+	public function render() {
 		$ads = $this->getAdsData();
 
-		return array(
+		return [
 			'title'       => 'Anúncios - Apollo Social',
 			'content'     => $this->renderAdDirectory( $ads ),
-			'breadcrumbs' => array( 'Apollo Social', 'Anúncios' ),
+			'breadcrumbs' => [ 'Apollo Social', 'Anúncios' ],
 			'ads'         => $ads,
-		);
+		];
 	}
 
 	private function getAdsData() {
-		return array(
-			array(
+		return [
+			[
 				'id'       => 1,
 				'title'    => 'Casa para Venda',
 				'slug'     => 'casa-venda-centro',
 				'price'    => 'R$ 350.000',
 				'category' => 'Imóveis',
 				'date'     => '2025-01-15',
-			),
-			array(
+			],
+			[
 				'id'       => 2,
 				'title'    => 'Carro Usado',
 				'slug'     => 'carro-usado-2020',
 				'price'    => 'R$ 45.000',
 				'category' => 'Veículos',
 				'date'     => '2025-01-14',
-			),
-		);
+			],
+		];
 	}
 
 	private function renderAdDirectory( $ads ) {

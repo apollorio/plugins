@@ -29,7 +29,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 /**
  * WP_Event_Manager_Rest_API class.
  */
-class WPEM_Rest_API {
+class APRIO_Rest_API {
 
 	/**
 	 * __construct function.
@@ -50,11 +50,11 @@ class WPEM_Rest_API {
 		}
 
 		// Define constants
-		define( 'WPEM_REST_API_VERSION', '1.2.0' );
-		define( 'WPEM_REST_API_FILE', __FILE__ );
-		define( 'WPEM_REST_API_PLUGIN_DIR', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-		define( 'WPEM_REST_API_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
-		define( 'WPEM_PLUGIN_ACTIVATION_API_URL', 'https://wp-eventmanager.com/?wc-api=wpemstore_licensing_expire_license' );
+		define( 'APRIO_REST_API_VERSION', '1.2.0' );
+		define( 'APRIO_REST_API_FILE', __FILE__ );
+		define( 'APRIO_REST_API_PLUGIN_DIR', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
+		define( 'APRIO_REST_API_PLUGIN_URL', untrailingslashit( plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) ) );
+		define( 'APRIO_PLUGIN_ACTIVATION_API_URL', 'https://wp-eventmanager.com/?wc-api=apriostore_licensing_expire_license' );
 
 		// Compatibility: Define EVENT_MANAGER_PLUGIN_URL if not already defined
 		if ( ! defined( 'EVENT_MANAGER_PLUGIN_URL' ) ) {
@@ -69,31 +69,31 @@ class WPEM_Rest_API {
 			define( 'JWT_ALGO', 'HS256' );
 		}
 		if ( is_admin() ) {
-			include 'admin/wpem-rest-api-admin.php';
+			include 'admin/aprio-rest-api-admin.php';
 		}
 		// include
-		include 'wpem-rest-api-functions.php';
+		include 'aprio-rest-api-functions.php';
 
-		include 'includes/wpem-rest-api-dashboard.php';
-		include 'includes/wpem-rest-conroller.php';
-		include 'includes/wpem-rest-posts-conroller.php';
-		include 'includes/wpem-rest-crud-controller.php';
-		include 'includes/wpem-rest-authentication.php';
-		include 'includes/wpem-rest-events-controller.php';
-		include 'includes/wpem-rest-app-branding.php';
-		include 'includes/wpem-rest-ecosystem-controller.php';
+		include 'includes/aprio-rest-api-dashboard.php';
+		include 'includes/aprio-rest-conroller.php';
+		include 'includes/aprio-rest-posts-conroller.php';
+		include 'includes/aprio-rest-crud-controller.php';
+		include 'includes/aprio-rest-authentication.php';
+		include 'includes/aprio-rest-events-controller.php';
+		include 'includes/aprio-rest-app-branding.php';
+		include 'includes/aprio-rest-ecosystem-controller.php';
 
 		// match making api
-		include 'includes/wpem-rest-matchmaking-profile.php';
-		include 'includes/wpem-rest-matchmaking-get-texonomy.php';
-		include 'includes/wpem-rest-matchmaking-user-messages.php';
-		include 'includes/wpem-rest-matchmaking-filter-users.php';
-		include 'includes/wpem-rest-matchmaking-user-settings.php';
-		include 'includes/wpem-rest-matchmaking-create-meetings.php';
-		include 'includes/wpem-rest-matchmaking-meetings-controller.php';
-		include 'includes/wpem-rest-matchmaking-profile-controller.php';
-		include 'includes/wpem-rest-matchmaking-settings-controller.php';
-		include 'includes/wpem-rest-user-registered-events-controller.php';
+		include 'includes/aprio-rest-matchmaking-profile.php';
+		include 'includes/aprio-rest-matchmaking-get-texonomy.php';
+		include 'includes/aprio-rest-matchmaking-user-messages.php';
+		include 'includes/aprio-rest-matchmaking-filter-users.php';
+		include 'includes/aprio-rest-matchmaking-user-settings.php';
+		include 'includes/aprio-rest-matchmaking-create-meetings.php';
+		include 'includes/aprio-rest-matchmaking-meetings-controller.php';
+		include 'includes/aprio-rest-matchmaking-profile-controller.php';
+		include 'includes/aprio-rest-matchmaking-settings-controller.php';
+		include 'includes/aprio-rest-user-registered-events-controller.php';
 
 		// Activate
 		register_activation_hook( __FILE__, array( $this, 'install' ) );
@@ -113,9 +113,9 @@ class WPEM_Rest_API {
 	 * Localisation
 	 **/
 	public function load_plugin_textdomain() {
-		$domain = 'wpem-rest-api';
+		$domain = 'aprio-rest-api';
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
-		load_textdomain( $domain, WP_LANG_DIR . '/wpem-rest-api/' . $domain . '-' . $locale . '.mo' );
+		load_textdomain( $domain, WP_LANG_DIR . '/aprio-rest-api/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
@@ -125,11 +125,11 @@ class WPEM_Rest_API {
 	 * @since 1.1.2
 	 */
 	public function updater() {
-		if ( version_compare( get_option( 'wpem_rest_api_version', WPEM_REST_API_VERSION ), '1.0.9', '<' ) ) {
+		if ( version_compare( get_option( 'aprio_rest_api_version', APRIO_REST_API_VERSION ), '1.0.9', '<' ) ) {
 			$this->check_rest_api_table();
 			flush_rewrite_rules();
 		}
-		if ( version_compare( WPEM_REST_API_VERSION, get_option( 'wpem_rest_api_version' ), '>' ) ) {
+		if ( version_compare( APRIO_REST_API_VERSION, get_option( 'aprio_rest_api_version' ), '>' ) ) {
 			// Ensure roles/capabilities exist on admin init (covers updates)
 			$this->init_user_roles();
 			flush_rewrite_rules();
@@ -161,7 +161,7 @@ class WPEM_Rest_API {
 
 		// Table for storing licence keys for purchases
 		$sql = "
-            CREATE TABLE {$wpdb->prefix}wpem_rest_api_keys (
+            CREATE TABLE {$wpdb->prefix}aprio_rest_api_keys (
             key_id BIGINT UNSIGNED NOT NULL auto_increment,
             app_key varchar(200) NOT NULL,	
             user_id BIGINT UNSIGNED NOT NULL,
@@ -185,7 +185,7 @@ class WPEM_Rest_API {
 		dbDelta( $sql );
 
 		// Check if we need to alter existing table
-		$table_name = $wpdb->prefix . 'wpem_rest_api_keys';
+		$table_name = $wpdb->prefix . 'aprio_rest_api_keys';
 
 		// Verify table exists before attempting ALTER
 		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" );
@@ -197,7 +197,7 @@ class WPEM_Rest_API {
 			if ( ! in_array( 'event_show_by', $columns ) ) {
 				$result = $wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN event_show_by varchar(20) NULL DEFAULT 'loggedin'" );
 				if ( $result === false ) {
-					error_log( 'WPEM REST API: Failed to add event_show_by column - ' . $wpdb->last_error );
+					error_log( 'APRIO REST API: Failed to add event_show_by column - ' . $wpdb->last_error );
 				}
 			}
 
@@ -205,16 +205,16 @@ class WPEM_Rest_API {
 			if ( ! in_array( 'selected_events', $columns ) ) {
 				$result = $wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN selected_events longtext NULL" );
 				if ( $result === false ) {
-					error_log( 'WPEM REST API: Failed to add selected_events column - ' . $wpdb->last_error );
+					error_log( 'APRIO REST API: Failed to add selected_events column - ' . $wpdb->last_error );
 				}
 			}
 		}
 
-		update_option( 'wpem_rest_api_version', WPEM_REST_API_VERSION );
+		update_option( 'aprio_rest_api_version', APRIO_REST_API_VERSION );
 
 		// check for Application Name is already defined
-		if ( empty( get_option( 'wpem_rest_api_app_name' ) ) ) {
-			update_option( 'wpem_rest_api_app_name', 'WP Event Manager' );
+		if ( empty( get_option( 'aprio_rest_api_app_name' ) ) ) {
+			update_option( 'aprio_rest_api_app_name', 'WP Event Manager' );
 		}
 	}
 
@@ -231,8 +231,8 @@ class WPEM_Rest_API {
 		if ( is_object( $wp_roles ) ) {
 			// Create Scanner role if not exists with minimal base caps.
 			add_role(
-				'wpem-scanner',
-				__( 'Ticket Scanner', 'wpem-rest-api' ),
+				'aprio-scanner',
+				__( 'Ticket Scanner', 'aprio-rest-api' ),
 				array(
 					'read'         => true,
 					'edit_posts'   => false,
@@ -249,7 +249,7 @@ class WPEM_Rest_API {
 			}
 
 			// Grant Scanner role same capabilities as WooCommerce 'customer' and add registration caps.
-			if ( $role = get_role( 'wpem-scanner' ) ) {
+			if ( $role = get_role( 'aprio-scanner' ) ) {
 				// Mirror WooCommerce customer capabilities if role exists.
 				if ( $customer = get_role( 'customer' ) ) {
 					if ( is_array( $customer->capabilities ) ) {
@@ -319,7 +319,7 @@ class WPEM_Rest_API {
 			return;
 		}
 		$user = wp_get_current_user();
-		if ( $user && is_array( $user->roles ) && in_array( 'wpem-scanner', $user->roles, true ) ) {
+		if ( $user && is_array( $user->roles ) && in_array( 'aprio-scanner', $user->roles, true ) ) {
 			wp_safe_redirect( home_url() );
 			exit;
 		}
@@ -358,7 +358,7 @@ class WPEM_Rest_API {
 		}
 
 		// If the user is a Scanner and is trying to manage someone else's registration, deny.
-		if ( in_array( 'wpem-scanner', (array) $user->roles, true ) && (int) $post->post_author !== (int) $user_id ) {
+		if ( in_array( 'aprio-scanner', (array) $user->roles, true ) && (int) $post->post_author !== (int) $user_id ) {
 			return array( 'do_not_allow' );
 		}
 
@@ -376,7 +376,7 @@ class WPEM_Rest_API {
 
 // Check for Apollo Events Manager is active
 if ( is_plugin_active( 'apollo-events-manager/apollo-events-manager.php' ) ) {
-	$GLOBALS['wpem_rest_api'] = new WPEM_Rest_API();
+	$GLOBALS['aprio_rest_api'] = new APRIO_Rest_API();
 }
 
 /**
@@ -384,7 +384,7 @@ if ( is_plugin_active( 'apollo-events-manager/apollo-events-manager.php' ) ) {
  *
  * @since 1.0.0
  */
-function wpem_rest_api_pre_check_before_installing_event_rest_api() {
+function aprio_rest_api_pre_check_before_installing_event_rest_api() {
 	/*
 	* Check weather WP Event Manager is installed or not
 	*/
@@ -398,4 +398,4 @@ function wpem_rest_api_pre_check_before_installing_event_rest_api() {
 		return false;
 	}
 }
-add_action( 'admin_notices', 'wpem_rest_api_pre_check_before_installing_event_rest_api' );
+add_action( 'admin_notices', 'aprio_rest_api_pre_check_before_installing_event_rest_api' );

@@ -40,7 +40,7 @@ class PdfGenerator {
 	private string $temp_dir;
 
 	/** @var array Default PDF options */
-	private array $default_options = array(
+	private array $default_options = [
 		'format'                  => 'A4',
 		'orientation'             => 'P',
 		// Portrait
@@ -53,7 +53,7 @@ class PdfGenerator {
 		'title'                   => 'Documento Apollo',
 		'author'                  => 'Apollo Social',
 		'creator'                 => 'Apollo PDF Generator',
-	);
+	];
 
 	/** @var string|null Last error message */
 	private ?string $last_error = null;
@@ -80,7 +80,7 @@ class PdfGenerator {
 	 * @param array  $options PDF generation options
 	 * @return string|false Path to generated PDF or false on failure
 	 */
-	public function generateFromHtml( string $html, string $filename = '', array $options = array() ): string|false {
+	public function generateFromHtml( string $html, string $filename = '', array $options = [] ): string|false {
 		$this->last_error   = null;
 		$this->library_used = null;
 
@@ -147,9 +147,9 @@ class PdfGenerator {
 			return false;
 		}
 
-		$options = array(
+		$options = [
 			'title' => $document['title'] ?? 'Documento',
-		);
+		];
 
 		$filename = $document['file_id'] ?? 'doc_' . $document_id;
 
@@ -160,8 +160,8 @@ class PdfGenerator {
 			$relative_path = str_replace( ABSPATH, '/', $pdf_path );
 			$wpdb->update(
 				$documents_table,
-				array( 'pdf_path' => $relative_path ),
-				array( 'id' => $document_id )
+				[ 'pdf_path' => $relative_path ],
+				[ 'id' => $document_id ]
 			);
 		}
 
@@ -328,11 +328,11 @@ HTML;
 				// Fallback: calculate path to main plugin file
 				$plugin_file = dirname( dirname( dirname( __DIR__ ) ) ) . '/apollo-social.php';
 			}
-			$autoload_paths = array(
+			$autoload_paths = [
 				ABSPATH . 'vendor/autoload.php',
 				WP_CONTENT_DIR . '/vendor/autoload.php',
 				dirname( $plugin_file ) . '/vendor/autoload.php',
-			);
+			];
 
 			foreach ( $autoload_paths as $path ) {
 				if ( file_exists( $path ) ) {
@@ -348,7 +348,7 @@ HTML;
 
 		try {
 			$mpdf = new \Mpdf\Mpdf(
-				array(
+				[
 					'tempDir'       => $this->temp_dir,
 					'mode'          => 'utf-8',
 					'format'        => $options['format'] ?? 'A4',
@@ -358,7 +358,7 @@ HTML;
 					'margin_top'    => $options['margin_top'] ?? 20,
 					'margin_bottom' => $options['margin_bottom'] ?? 20,
 					'default_font'  => 'dejavusans',
-				)
+				]
 			);
 
 			// Set document info
@@ -448,13 +448,13 @@ HTML;
 
 		try {
 			$dompdf = new \Dompdf\Dompdf(
-				array(
+				[
 					'tempDir'                 => $this->temp_dir,
 					'chroot'                  => ABSPATH,
 					'isRemoteEnabled'         => true,
 					'isHtml5ParserEnabled'    => true,
 					'isFontSubsettingEnabled' => true,
-				)
+				]
 			);
 
 			// Load HTML
@@ -531,7 +531,7 @@ HTML;
 	 * @return array Available libraries
 	 */
 	public function getAvailableLibraries(): array {
-		$available = array();
+		$available = [];
 
 		if ( class_exists( 'Mpdf\\Mpdf' ) ) {
 			$available[] = 'mPDF';

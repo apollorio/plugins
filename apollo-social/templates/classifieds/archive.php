@@ -21,24 +21,24 @@ $search_query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
 $sort_by = isset( $_GET['sort'] ) ? sanitize_text_field( wp_unslash( $_GET['sort'] ) ) : 'recent';
 
-$args = array(
+$args = [
 	'post_type'      => 'apollo_classified',
 	'post_status'    => 'publish',
 	'posts_per_page' => 12,
 	'paged'          => $current_page,
 	'orderby'        => 'date',
 	'order'          => 'DESC',
-);
+];
 
 // Apply filters.
-$meta_query = array();
+$meta_query = [];
 
 if ( $category_filter ) {
-	$meta_query[] = array(
+	$meta_query[] = [
 		'key'     => '_classified_category',
 		'value'   => $category_filter,
 		'compare' => '=',
-	);
+	];
 }
 
 if ( ! empty( $meta_query ) ) {
@@ -66,37 +66,37 @@ if ( 'price-low' === $sort_by ) {
 $classifieds = new WP_Query( $args );
 
 // Categories configuration.
-$categories = array(
-	'tickets'   => array(
+$categories = [
+	'tickets'   => [
 		'label' => 'Ingressos',
 		'icon'  => 'ri-ticket-2-line',
 		'badge' => '',
-	),
-	'bedroom'   => array(
+	],
+	'bedroom'   => [
 		'label' => 'Quartos',
 		'icon'  => 'ri-home-heart-line',
 		'badge' => 'ap-badge-bedroom',
-	),
-	'equipment' => array(
+	],
+	'equipment' => [
 		'label' => 'Equipamentos',
 		'icon'  => 'ri-sound-module-line',
 		'badge' => 'ap-badge-equipment',
-	),
-	'services'  => array(
+	],
+	'services'  => [
 		'label' => 'Serviços',
 		'icon'  => 'ri-service-line',
 		'badge' => 'ap-badge-service',
-	),
-);
+	],
+];
 
 // Enqueue UNI.CSS assets.
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 } else {
-	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '5.2.0' );
-	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', array(), '4.2.0', true );
+	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '5.2.0' );
+	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', [], '4.2.0', true );
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 get_header();
 ?>
@@ -190,7 +190,7 @@ get_header();
 <!-- Category Pills -->
 <!-- phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect, Generic.WhiteSpace.ScopeIndent.IncorrectExact -->
 <div class="ap-filter-tabs ap-filter-tabs-pills">
-	<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>" class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
+	<a href="<?php echo esc_url( remove_query_arg( [ 'cat', 'sort' ] ) ); ?>" class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
 		<i class="ri-apps-line"></i> Todos
 	</a>
 
@@ -256,37 +256,37 @@ get_header();
 			$thumb         = get_the_post_thumbnail_url( $classified_id, 'medium' );
 
 			// Category config.
-			$cat_config = $categories[ $category ] ?? array(
+			$cat_config = $categories[ $category ] ?? [
 				'label' => 'Outro',
 				'icon'  => 'ri-price-tag-line',
 				'badge' => '',
-			);
+			];
 
 			// Price unit based on category.
-			$price_units = array(
+			$price_units = [
 				'tickets'   => '/unid',
 				'bedroom'   => '/mês',
 				'equipment' => '/dia',
 				'services'  => '/evento',
-			);
+			];
 			$price_unit  = $price_units[ $category ] ?? '';
 
 			// Quantity labels.
-			$quantity_icons = array(
+			$quantity_icons = [
 				'tickets'   => 'ri-ticket-line',
 				'bedroom'   => 'ri-door-open-line',
 				'equipment' => 'ri-box-3-line',
 				'services'  => 'ri-briefcase-line',
-			);
+			];
 			$quantity_icon  = $quantity_icons[ $category ] ?? 'ri-price-tag-line';
 
 			// Avatar gradient colors by category.
-			$avatar_colors   = array(
+			$avatar_colors   = [
 				'tickets'   => '#6366f1, #8b5cf6',
 				'bedroom'   => '#ec4899, #f472b6',
 				'equipment' => '#22c55e, #4ade80',
 				'services'  => '#3b82f6, #60a5fa',
-			);
+			];
 			$avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
 			?>
 
@@ -382,12 +382,12 @@ get_header();
 			<?php
 			echo wp_kses_post(
 				paginate_links(
-					array(
+					[
 						'total'     => $classifieds->max_num_pages,
 						'current'   => $current_page,
 						'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
 						'next_text' => '<i class="ri-arrow-right-s-line"></i>',
-					)
+					]
 				)
 			);
 			?>

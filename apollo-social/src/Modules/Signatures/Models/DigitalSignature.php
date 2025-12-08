@@ -98,7 +98,7 @@ class DigitalSignature {
 	/**
 	 * Constructor
 	 */
-	public function __construct( array $data = array() ) {
+	public function __construct( array $data = [] ) {
 		foreach ( $data as $key => $value ) {
 			if ( property_exists( $this, $key ) ) {
 				$this->$key = $value;
@@ -107,7 +107,7 @@ class DigitalSignature {
 
 		// Ensure metadata is array
 		if ( is_string( $this->metadata ) ) {
-			$this->metadata = json_decode( $this->metadata, true ) ?: array();
+			$this->metadata = json_decode( $this->metadata, true ) ?: [];
 		}
 	}
 
@@ -197,9 +197,9 @@ class DigitalSignature {
 	 * @param string $status
 	 * @param array  $metadata
 	 */
-	public function updateStatus( string $status, array $metadata = array() ): void {
+	public function updateStatus( string $status, array $metadata = [] ): void {
 		$this->status     = $status;
-		$this->metadata   = array_merge( $this->metadata ?: array(), $metadata );
+		$this->metadata   = array_merge( $this->metadata ?: [], $metadata );
 		$this->updated_at = current_time( 'mysql' );
 
 		if ( $status === self::STATUS_SIGNED && ! $this->signed_at ) {
@@ -215,31 +215,31 @@ class DigitalSignature {
 	public function getLegalValidity(): array {
 		switch ( $this->signature_level ) {
 			case self::LEVEL_SIMPLE:
-				return array(
+				return [
 					'validity'     => 'Válida para documentos privados',
 					'legal_basis'  => 'Art. 10, § 1º da Lei 14.063/2020',
 					'requirements' => 'Aceita pelas partes e identificação do signatário',
-					'use_cases'    => array( 'Contratos privados', 'Termos de uso', 'Acordos comerciais' ),
-				);
+					'use_cases'    => [ 'Contratos privados', 'Termos de uso', 'Acordos comerciais' ],
+				];
 
 			case self::LEVEL_ADVANCED:
-				return array(
+				return [
 					'validity'     => 'Presunção de autenticidade e integridade',
 					'legal_basis'  => 'Art. 10, § 2º da Lei 14.063/2020',
 					'requirements' => 'Dados de criação vinculados ao signatário',
-					'use_cases'    => array( 'Documentos públicos', 'Contratos relevantes', 'Licitações' ),
-				);
+					'use_cases'    => [ 'Documentos públicos', 'Contratos relevantes', 'Licitações' ],
+				];
 
 			case self::LEVEL_QUALIFIED:
-				return array(
+				return [
 					'validity'     => 'Equivale à assinatura manuscrita',
 					'legal_basis'  => 'Art. 10, § 2º da Lei 14.063/2020 e MP 2.200-2/2001',
 					'requirements' => 'Certificado digital ICP-Brasil',
-					'use_cases'    => array( 'Documentos oficiais', 'Cartórios', 'Órgãos públicos' ),
-				);
+					'use_cases'    => [ 'Documentos oficiais', 'Cartórios', 'Órgãos públicos' ],
+				];
 
 			default:
-				return array( 'validity' => 'Indefinida' );
+				return [ 'validity' => 'Indefinida' ];
 		}//end switch
 	}
 
@@ -249,7 +249,7 @@ class DigitalSignature {
 	 * @return array
 	 */
 	public function toArray(): array {
-		return array(
+		return [
 			'id'                   => $this->id,
 			'template_id'          => $this->template_id,
 			'document_hash'        => $this->document_hash,
@@ -266,6 +266,6 @@ class DigitalSignature {
 			'created_at'           => $this->created_at,
 			'updated_at'           => $this->updated_at,
 			'created_by'           => $this->created_by,
-		);
+		];
 	}
 }

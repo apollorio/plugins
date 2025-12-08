@@ -46,7 +46,7 @@ class Apollo_Cena_Rio_Submissions {
 		// Get CENA-RIO internal events (for industry calendar)
 		register_rest_route(
 			'apollo/v1',
-			'/cena-rio/events',
+			'/cena-rio/eventos',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_get_events' ),
@@ -58,7 +58,7 @@ class Apollo_Cena_Rio_Submissions {
 		// Submit new event (creates as 'expected')
 		register_rest_route(
 			'apollo/v1',
-			'/cena-rio/submit',
+			'/cena-rio/add',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_submit_event' ),
@@ -107,7 +107,7 @@ class Apollo_Cena_Rio_Submissions {
 		// CENA-RIO internal confirm (industry confirms event → goes to MOD queue)
 		register_rest_route(
 			'apollo/v1',
-			'/cena-rio/confirm/(?P<id>\d+)',
+			'/cena-rio/confirmar/(?P<id>\d+)',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_confirm_event' ),
@@ -124,7 +124,7 @@ class Apollo_Cena_Rio_Submissions {
 		// CENA-RIO internal unconfirm (revert back to expected)
 		register_rest_route(
 			'apollo/v1',
-			'/cena-rio/unconfirm/(?P<id>\d+)',
+			'/cena-rio/cancelar/(?P<id>\d+)',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'rest_unconfirm_event' ),

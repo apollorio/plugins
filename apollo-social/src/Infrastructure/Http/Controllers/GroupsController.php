@@ -24,7 +24,7 @@ class GroupsController extends BaseController {
 	public function index(): void {
 		$params = $this->sanitizeParams( $_GET );
 
-		$filters = array();
+		$filters = [];
 		if ( ! empty( $params['type'] ) ) {
 			$filters['type'] = sanitize_text_field( $params['type'] );
 		}
@@ -50,7 +50,7 @@ class GroupsController extends BaseController {
 
 		// Apply view permissions
 		$user            = $this->getCurrentUser();
-		$filtered_groups = array();
+		$filtered_groups = [];
 
 		foreach ( $groups as $group ) {
 			if ( $this->groupPolicy->canView( $group, $user ) ) {
@@ -86,7 +86,7 @@ class GroupsController extends BaseController {
 		}
 
 		// Validate type
-		$valid_types = array( 'comunidade', 'nucleo', 'season' );
+		$valid_types = [ 'comunidade', 'nucleo', 'season' ];
 		if ( ! in_array( $params['type'], $valid_types ) ) {
 			$this->validationError( 'Invalid group type' );
 		}
@@ -98,11 +98,11 @@ class GroupsController extends BaseController {
 
 		// Determine initial status based on workflow
 		$workflow       = new \Apollo\Infrastructure\Workflows\ContentWorkflow();
-		$context        = array( 'group_type' => $params['type'] );
+		$context        = [ 'group_type' => $params['type'] ];
 		$initial_status = $workflow->resolveStatus( $user, 'group', $context );
 
 		// Create group
-		$group_data = array(
+		$group_data = [
 			'title'       => sanitize_text_field( $params['title'] ),
 			'type'        => sanitize_text_field( $params['type'] ),
 			'season_slug' => ! empty( $params['season_slug'] ) ? sanitize_text_field( $params['season_slug'] ) : null,
@@ -110,7 +110,7 @@ class GroupsController extends BaseController {
 			'status'      => $initial_status,
 			'visibility'  => sanitize_text_field( $params['visibility'] ?? 'public' ),
 			'creator_id'  => $user->id,
-		);
+		];
 
 		$group_id = $this->repository->create( $group_data );
 
@@ -120,16 +120,16 @@ class GroupsController extends BaseController {
 		}
 
 		// If needs moderation, submit to queue
-		if ( in_array( $initial_status, array( 'pending', 'pending_review' ) ) ) {
+		if ( in_array( $initial_status, [ 'pending', 'pending_review' ] ) ) {
 			$moderation = new \Apollo\Application\Groups\Moderation();
 			$moderation->submitForReview(
 				$group_id,
 				$user->id,
 				'group',
-				array(
+				[
 					'title' => $group_data['title'],
 					'type'  => $group_data['type'],
-				)
+				]
 			);
 		}
 
@@ -172,10 +172,10 @@ class GroupsController extends BaseController {
 		// Check if already a member
 		if ( $this->repository->isMember( $group_id, $user->id ) ) {
 			$this->success(
-				array(
+				[
 					'joined'         => true,
 					'already_member' => true,
-				),
+				],
 				'You are already a member of this group'
 			);
 			return;
@@ -189,7 +189,7 @@ class GroupsController extends BaseController {
 			return;
 		}
 
-		$this->success( array( 'joined' => true ), 'Successfully joined group' );
+		$this->success( [ 'joined' => true ], 'Successfully joined group' );
 	}
 
 	/**
@@ -226,7 +226,7 @@ class GroupsController extends BaseController {
 
 		// TODO: Implement actual invite logic
 		// For now, mock success
-		$this->success( array( 'invited' => true ), 'Invitation sent successfully' );
+		$this->success( [ 'invited' => true ], 'Invitation sent successfully' );
 	}
 
 	/**
@@ -249,7 +249,7 @@ class GroupsController extends BaseController {
 
 		// TODO: Implement invite approval logic
 		// For now, placeholder
-		$this->success( array( 'approved' => true ), 'Invite approved successfully' );
+		$this->success( [ 'approved' => true ], 'Invite approved successfully' );
 	}
 
 	/**
@@ -270,7 +270,7 @@ class GroupsController extends BaseController {
 	 * Convert GroupEntity to array for API response
 	 */
 	private function groupToArray( GroupEntity $group ): array {
-		return array(
+		return [
 			'id'            => $group->id,
 			'title'         => $group->title,
 			'slug'          => $group->slug,
@@ -284,6 +284,6 @@ class GroupsController extends BaseController {
 			'updated_at'    => $group->updated_at ?? null,
 			'published_at'  => $group->published_at ?? null,
 			'members_count' => $group->members_count ?? 0,
-		);
+		];
 	}
 }

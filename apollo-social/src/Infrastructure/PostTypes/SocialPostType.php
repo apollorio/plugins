@@ -18,14 +18,14 @@ class SocialPostType {
 	 * Register the post type
 	 */
 	public function register(): void {
-		add_action( 'init', array( $this, 'registerPostType' ), 10 );
+		add_action( 'init', [ $this, 'registerPostType' ], 10 );
 	}
 
 	/**
 	 * Register apollo_social_post CPT
 	 */
 	public function registerPostType(): void {
-		$labels = array(
+		$labels = [
 			'name'                  => __( 'Posts Sociais', 'apollo-social' ),
 			'singular_name'         => __( 'Post Social', 'apollo-social' ),
 			'menu_name'             => __( 'Posts Sociais', 'apollo-social' ),
@@ -43,9 +43,9 @@ class SocialPostType {
 			'set_featured_image'    => __( 'Definir imagem do post', 'apollo-social' ),
 			'remove_featured_image' => __( 'Remover imagem do post', 'apollo-social' ),
 			'use_featured_image'    => __( 'Usar como imagem do post', 'apollo-social' ),
-		);
+		];
 
-		$args = array(
+		$args = [
 			'labels'                       => $labels,
 			'public'                       => true,
 			'publicly_queryable'           => true,
@@ -54,28 +54,28 @@ class SocialPostType {
 			'show_in_rest'                 => true,
 			// Gutenberg support
 							'query_var'    => true,
-			'rewrite'                      => array( 'slug' => 'post-social' ),
+			'rewrite'                      => [ 'slug' => 'post-social' ],
 			'capability_type'              => 'post',
 			'has_archive'                  => false,
 			'hierarchical'                 => false,
 			'menu_position'                => 5,
 			'menu_icon'                    => 'dashicons-format-status',
-			'supports'                     => array(
+			'supports'                     => [
 				'title',
 				'editor',
 				'author',
 				'thumbnail',
 				'comments',
 				'custom-fields',
-			),
+			],
 			'comment_status'               => 'open',
 			// FASE 2: Permitir comentários
 							'map_meta_cap' => true,
-			'capabilities'                 => array(
+			'capabilities'                 => [
 				'create_posts' => 'publish_posts',
 		// Apenas usuários que podem publicar podem criar
-			),
-		);
+			],
+		];
 
 		register_post_type( 'apollo_social_post', $args );
 
@@ -87,7 +87,7 @@ class SocialPostType {
 	 * Register taxonomy for social posts
 	 */
 	private function registerTaxonomy(): void {
-		$labels = array(
+		$labels = [
 			'name'          => __( 'Categorias de Post', 'apollo-social' ),
 			'singular_name' => __( 'Categoria', 'apollo-social' ),
 			'search_items'  => __( 'Buscar Categorias', 'apollo-social' ),
@@ -97,20 +97,20 @@ class SocialPostType {
 			'add_new_item'  => __( 'Adicionar Nova Categoria', 'apollo-social' ),
 			'new_item_name' => __( 'Nome da Nova Categoria', 'apollo-social' ),
 			'menu_name'     => __( 'Categorias', 'apollo-social' ),
-		);
+		];
 
 		register_taxonomy(
 			'apollo_post_category',
-			array( 'apollo_social_post' ),
-			array(
+			[ 'apollo_social_post' ],
+			[
 				'hierarchical'      => true,
 				'labels'            => $labels,
 				'show_ui'           => true,
 				'show_admin_column' => true,
 				'query_var'         => true,
-				'rewrite'           => array( 'slug' => 'categoria-post' ),
+				'rewrite'           => [ 'slug' => 'categoria-post' ],
 				'show_in_rest'      => true,
-			)
+			]
 		);
 	}
 }

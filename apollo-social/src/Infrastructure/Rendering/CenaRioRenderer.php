@@ -22,69 +22,69 @@ class CenaRioRenderer {
 	/**
 	 * P0-10: Render CENA RIO page
 	 */
-	public function render( $template_data ) {
+	public function render() {
 		$current_user_id = get_current_user_id();
 
 		if ( ! $current_user_id ) {
-			return array(
+			return [
 				'title'       => 'Acesso Negado',
 				'content'     => '<p>Você precisa estar logado para acessar esta página.</p>',
-				'breadcrumbs' => array( 'Apollo Social', 'CENA RIO' ),
-				'data'        => array(),
-			);
+				'breadcrumbs' => [ 'Apollo Social', 'CENA RIO' ],
+				'data'        => [],
+			];
 		}
 
 		// P0-10: Check if user has cena-rio role
 		$user                = wp_get_current_user();
-		$has_cena_rio_access = in_array( 'cena-rio', $user->roles ) || current_user_can( 'manage_options' );
+		$has_cena_rio_access = in_array( 'cena-rio', $user->roles, true ) || current_user_can( 'manage_options' );
 
 		if ( ! $has_cena_rio_access ) {
-			return array(
+			return [
 				'title'       => 'Acesso Restrito',
 				'content'     => '<p>Acesso restrito à indústria. Você precisa da permissão "cena-rio" para acessar esta página.</p>',
-				'breadcrumbs' => array( 'Apollo Social', 'CENA RIO' ),
-				'data'        => array(),
-			);
+				'breadcrumbs' => [ 'Apollo Social', 'CENA RIO' ],
+				'data'        => [],
+			];
 		}
 
 		// P0-10: Get current month (from query var or default to current month)
-		$current_month = isset( $_GET['month'] ) ? sanitize_text_field( $_GET['month'] ) : date( 'Y-m' );
+		$current_month = isset( $_GET['month'] ) ? sanitize_text_field( wp_unslash( $_GET['month'] ) ) : gmdate( 'Y-m' );
 
 		// P0-10: Get events for calendar (draft + publish)
 		$calendar_events = $this->getCalendarEvents( $current_month );
 
 		// P0-10: Get pending events for moderation (if user is MOD/ADMIN)
-		$pending_events = array();
+		$pending_events = [];
 		if ( current_user_can( 'edit_others_posts' ) ) {
 			$pending_events = $this->getPendingEvents();
 		}
 
 		// P0-10: Get event plans (cena_event_plan CPT)
-		$event_plans = array();
+		$event_plans = [];
 		if ( class_exists( '\Apollo\CenaRio\CenaRioModule' ) ) {
 			$event_plans = \Apollo\CenaRio\CenaRioModule::getEventPlans( $current_user_id, 10 );
 		}
 
-		return array(
+		return [
 			'title'       => 'CENA::rio',
 			'content'     => '',
-			'breadcrumbs' => array( 'Apollo Social', 'CENA RIO' ),
-			'data'        => array(
-				'user'           => array(
+			'breadcrumbs' => [ 'Apollo Social', 'CENA RIO' ],
+			'data'        => [
+				'user'           => [
 					'id'                => $current_user_id,
 					'name'              => $user->display_name,
 					'avatar'            => get_avatar_url( $current_user_id ),
 					'has_cena_rio_role' => $has_cena_rio_access,
 					'is_mod'            => current_user_can( 'edit_others_posts' ),
-				),
-				'calendar'       => array(
+				],
+				'calendar'       => [
 					'current_month' => $current_month,
 					'events'        => $calendar_events,
-				),
+				],
 				'pending_events' => $pending_events,
 				'event_plans'    => $event_plans,
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -92,32 +92,32 @@ class CenaRioRenderer {
 	 */
 	private function getCalendarEvents( $month ) {
 		if ( ! post_type_exists( 'event_listing' ) ) {
-			return array();
+			return [];
 		}
 
 		$start_date = $month . '-01';
-		$end_date   = date( 'Y-m-t', strtotime( $start_date ) );
+		$end_date   = gmdate( 'Y-m-t', strtotime( $start_date ) );
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => -1,
-				'post_status'    => array( 'publish', 'draft', 'pending' ),
-				'meta_query'     => array(
-					array(
+				'post_status'    => [ 'publish', 'draft', 'pending' ],
+				'meta_query'     => [
+					[
 						'key'     => '_event_start_date',
-						'value'   => array( $start_date, $end_date ),
+						'value'   => [ $start_date, $end_date ],
 						'compare' => 'BETWEEN',
 						'type'    => 'DATE',
-					),
-				),
+					],
+				],
 				'orderby'        => 'meta_value',
 				'meta_key'       => '_event_start_date',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
-		$events_by_date = array();
+		$events_by_date = [];
 
 		foreach ( $query->posts as $event ) {
 			$start_date_meta = get_post_meta( $event->ID, '_event_start_date', true );
@@ -133,13 +133,13 @@ class CenaRioRenderer {
 				continue;
 			}
 
-			$date_key = date( 'Y-m-d', strtotime( $start_date_meta ) );
+			$date_key = gmdate( 'Y-m-d', strtotime( $start_date_meta ) );
 
 			if ( ! isset( $events_by_date[ $date_key ] ) ) {
-				$events_by_date[ $date_key ] = array();
+				$events_by_date[ $date_key ] = [];
 			}
 
-			$events_by_date[ $date_key ][] = array(
+			$events_by_date[ $date_key ][] = [
 				'id'               => $event->ID,
 				'title'            => $event->post_title,
 				'status'           => $event->post_status,
@@ -149,7 +149,7 @@ class CenaRioRenderer {
 				'ticket_url'       => $ticket_url,
 				'ticket_confirmed' => (bool) $ticket_confirmed,
 				'permalink'        => get_permalink( $event->ID ),
-			);
+			];
 		}//end foreach
 
 		return $events_by_date;
@@ -160,39 +160,39 @@ class CenaRioRenderer {
 	 */
 	private function getPendingEvents() {
 		if ( ! post_type_exists( 'event_listing' ) ) {
-			return array();
+			return [];
 		}
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => 20,
-				'post_status'    => array( 'draft', 'pending' ),
+				'post_status'    => [ 'draft', 'pending' ],
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
-		$events = array();
+		$events = [];
 
 		foreach ( $query->posts as $event ) {
 			$start_date       = get_post_meta( $event->ID, '_event_start_date', true );
 			$ticket_url       = get_post_meta( $event->ID, '_event_ticket_url', true );
 			$ticket_confirmed = get_post_meta( $event->ID, '_event_ticket_confirmed', true );
 
-			$events[] = array(
+			$events[] = [
 				'id'               => $event->ID,
 				'title'            => $event->post_title,
 				'status'           => $event->post_status,
 				'date'             => $start_date,
 				'ticket_url'       => $ticket_url,
 				'ticket_confirmed' => (bool) $ticket_confirmed,
-				'author'           => array(
+				'author'           => [
 					'id'   => $event->post_author,
 					'name' => get_the_author_meta( 'display_name', $event->post_author ),
-				),
+				],
 				'created'          => $event->post_date,
-			);
+			];
 		}
 
 		return $events;

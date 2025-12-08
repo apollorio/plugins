@@ -22,17 +22,17 @@ class RegistrationServiceProvider {
 		$routes->register();
 
 		// Add custom fields to registration form
-		add_action( 'register_form', array( $this, 'addRegistrationFields' ) );
+		add_action( 'register_form', [ $this, 'addRegistrationFields' ] );
 
 		// Validate registration fields
-		add_action( 'registration_errors', array( $this, 'validateRegistrationFields' ), 10, 3 );
+		add_action( 'registration_errors', [ $this, 'validateRegistrationFields' ], 10, 3 );
 
 		// Save custom fields after registration
-		add_action( 'user_register', array( $this, 'saveRegistrationFields' ), 10, 1 );
+		add_action( 'user_register', [ $this, 'saveRegistrationFields' ], 10, 1 );
 
 		// Add registration form script
-		add_action( 'login_enqueue_scripts', array( $this, 'enqueueRegistrationAssets' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueueRegistrationAssets' ) );
+		add_action( 'login_enqueue_scripts', [ $this, 'enqueueRegistrationAssets' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueueRegistrationAssets' ] );
 	}
 
 	/**
@@ -209,7 +209,7 @@ class RegistrationServiceProvider {
 				<div class="apollo-identity-options" style="display: flex; flex-direction: column; gap: 10px;">
 					<?php
 					$identities          = CulturaRioIdentity::getIdentities();
-					$selected_identities = isset( $_POST['apollo_cultura_identity'] ) ? (array) $_POST['apollo_cultura_identity'] : array( 'clubber' );
+					$selected_identities = isset( $_POST['apollo_cultura_identity'] ) ? (array) $_POST['apollo_cultura_identity'] : [ 'clubber' ];
 
 					foreach ( $identities as $key => $identity ) :
 						$is_locked   = $identity['locked'] ?? false;
@@ -342,11 +342,11 @@ class RegistrationServiceProvider {
 				} else {
 					// Check if CPF already exists
 					$existing_user = get_users(
-						array(
+						[
 							'meta_key'   => 'apollo_cpf',
 							'meta_value' => $cpf,
 							'number'     => 1,
-						)
+						]
 					);
 					if ( ! empty( $existing_user ) ) {
 						$errors->add( 'apollo_cpf_exists', '<strong>Erro:</strong> Este CPF já está cadastrado.' );
@@ -364,11 +364,11 @@ class RegistrationServiceProvider {
 				} else {
 					// Check if passport already exists
 					$existing_user = get_users(
-						array(
+						[
 							'meta_key'   => 'apollo_passport',
 							'meta_value' => $passport,
 							'number'     => 1,
-						)
+						]
 					);
 					if ( ! empty( $existing_user ) ) {
 						$errors->add( 'apollo_passport_exists', '<strong>Erro:</strong> Este passaporte já está cadastrado.' );
@@ -482,7 +482,7 @@ class RegistrationServiceProvider {
 
 		// Save QUIZZ answers
 		if ( ! empty( $_POST['apollo_quizz'] ) && is_array( $_POST['apollo_quizz'] ) ) {
-			$quizz_answers = array();
+			$quizz_answers = [];
 			foreach ( $_POST['apollo_quizz'] as $index => $answer ) {
 				$quizz_answers[ $index ] = sanitize_textarea_field( $answer );
 			}
@@ -497,7 +497,7 @@ class RegistrationServiceProvider {
 			CulturaRioIdentity::saveUserIdentity( $user_id, $identities );
 		} else {
 			// Default to clubber only
-			CulturaRioIdentity::saveUserIdentity( $user_id, array( 'clubber' ) );
+			CulturaRioIdentity::saveUserIdentity( $user_id, [ 'clubber' ] );
 		}
 
 		// Mark registration as complete
@@ -508,11 +508,11 @@ class RegistrationServiceProvider {
 		do_action(
 			'apollo_user_registration_complete',
 			$user_id,
-			array(
+			[
 				'doc_type'         => $doc_type,
-				'sounds'           => $_POST['apollo_sounds'] ?? array(),
-				'cultura_identity' => $_POST['apollo_cultura_identity'] ?? array( 'clubber' ),
-			)
+				'sounds'           => $_POST['apollo_sounds'] ?? [],
+				'cultura_identity' => $_POST['apollo_cultura_identity'] ?? [ 'clubber' ],
+			]
 		);
 	}
 
@@ -524,7 +524,7 @@ class RegistrationServiceProvider {
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -552,14 +552,14 @@ class RegistrationServiceProvider {
 		// Fallback if Core not loaded yet
 		if ( taxonomy_exists( 'event_sounds' ) ) {
 			$terms = get_terms(
-				array(
+				[
 					'taxonomy'   => 'event_sounds',
 					'hide_empty' => false,
-				)
+				]
 			);
 
 			if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-				$sounds = array();
+				$sounds = [];
 				foreach ( $terms as $term ) {
 					$sounds[ $term->slug ] = $term->name;
 				}
@@ -568,7 +568,7 @@ class RegistrationServiceProvider {
 		}
 
 		// Final fallback: Default sounds list
-		return array(
+		return [
 			'house'       => 'House',
 			'techno'      => 'Techno',
 			'trance'      => 'Trance',
@@ -581,7 +581,7 @@ class RegistrationServiceProvider {
 			'funk'        => 'Funk',
 			'disco'       => 'Disco',
 			'tribal'      => 'Tribal',
-		);
+		];
 	}
 
 	/**
@@ -590,35 +590,35 @@ class RegistrationServiceProvider {
 	 * @return array Array of quiz question definitions
 	 */
 	private function getQuizQuestions(): array {
-		return array(
-			array(
+		return [
+			[
 				'question' => 'Como você conheceu o Apollo::Rio?',
 				'type'     => 'select',
-				'options'  => array(
+				'options'  => [
 					'redes-sociais' => 'Redes Sociais',
 					'amigos'        => 'Indicação de Amigos',
 					'evento'        => 'Em um Evento',
 					'busca-online'  => 'Busca Online',
 					'outro'         => 'Outro',
-				),
-			),
-			array(
+				],
+			],
+			[
 				'question' => 'Qual seu principal interesse na plataforma?',
 				'type'     => 'select',
-				'options'  => array(
+				'options'  => [
 					'eventos'  => 'Participar de Eventos',
 					'network'  => 'Networking',
 					'conteudo' => 'Criar Conteúdo',
 					'apoiar'   => 'Apoiar a Cena',
 					'outro'    => 'Outro',
-				),
-			),
-			array(
+				],
+			],
+			[
 				'question'    => 'Conte-nos um pouco sobre você e sua relação com a música eletrônica:',
 				'type'        => 'textarea',
 				'placeholder' => 'Descreva sua experiência, interesses e objetivos...',
-			),
-		);
+			],
+		];
 	}
 }
 

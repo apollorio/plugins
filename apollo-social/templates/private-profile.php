@@ -28,7 +28,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -36,7 +36,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -44,7 +44,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -53,7 +53,7 @@ add_action(
 		wp_enqueue_script(
 			'motion-one',
 			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			array(),
+			[],
 			'10.0.0',
 			true
 		);
@@ -80,48 +80,48 @@ $user_username = $user_obj->user_login;
 
 // Profile meta.
 $user_bio          = get_user_meta( $user_id, 'description', true );
-$user_avatar       = get_avatar_url( $user_id, array( 'size' => 160 ) );
+$user_avatar       = get_avatar_url( $user_id, [ 'size' => 160 ] );
 $user_location     = get_user_meta( $user_id, '_apollo_location', true );
 $user_role_display = get_user_meta( $user_id, '_apollo_role_display', true );
 $industry_access   = get_user_meta( $user_id, '_apollo_industry_access', true );
 
 // Stats.
-$stats = array(
+$stats = [
 	'producer'  => (int) get_user_meta( $user_id, '_apollo_producer_count', true ),
 	'favorited' => (int) get_user_meta( $user_id, '_apollo_favorited_count', true ),
 	'posts'     => (int) count_user_posts( $user_id ),
 	'comments'  => (int) get_user_meta( $user_id, '_apollo_comment_count', true ),
 	'liked'     => (int) get_user_meta( $user_id, '_apollo_liked_count', true ),
-);
+];
 
 // Memberships (roles/badges).
 $memberships = get_user_meta( $user_id, '_apollo_memberships', true );
 if ( ! is_array( $memberships ) ) {
-	$memberships = array( 'Member' );
+	$memberships = [ 'Member' ];
 }
 
 // User's nucleos (private groups).
 $user_nucleos = get_user_meta( $user_id, '_apollo_nucleos', true );
 if ( ! is_array( $user_nucleos ) ) {
-	$user_nucleos = array();
+	$user_nucleos = [];
 }
 
 // User's communities.
 $user_communities = get_user_meta( $user_id, '_apollo_communities', true );
 if ( ! is_array( $user_communities ) ) {
-	$user_communities = array();
+	$user_communities = [];
 }
 
 // Favorited events.
 $favorited_events = get_user_meta( $user_id, '_apollo_favorited_events', true );
 if ( ! is_array( $favorited_events ) ) {
-	$favorited_events = array();
+	$favorited_events = [];
 }
 
 // Pending documents.
 $pending_docs = get_user_meta( $user_id, '_apollo_pending_docs', true );
 if ( ! is_array( $pending_docs ) ) {
-	$pending_docs = array();
+	$pending_docs = [];
 }
 
 // Public page URL.

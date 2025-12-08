@@ -42,7 +42,7 @@ class IcpBrasilSigner {
 	private ?string $last_error = null;
 
 	/** @var array ICP-Brasil root certificates (encoded in base64) */
-	private array $icp_roots = array();
+	private array $icp_roots = [];
 
 	/**
 	 * Constructor
@@ -121,20 +121,20 @@ class IcpBrasilSigner {
 		// Build evidence pack
 		$evidence = $this->buildEvidencePack( $signed_path, $cert_info, $signer_data );
 
-		return array(
+		return [
 			'success'         => true,
 			'signed_pdf_path' => $signed_path,
 			'signed_pdf_url'  => $this->getUrl( $signed_path ),
 			'hash'            => $hash,
-			'signer'          => array(
+			'signer'          => [
 				'name'               => $validation['subject']['CN'] ?? $signer_data['name'] ?? '',
 				'cpf'                => $cert_cpf ?? $signer_data['cpf'] ?? '',
 				'certificate_issuer' => $validation['issuer']['O'] ?? '',
 				'certificate_serial' => $validation['serial'] ?? '',
-			),
+			],
 			'timestamp'       => current_time( 'mysql' ),
 			'evidence'        => $evidence,
-		);
+		];
 	}
 
 	/**
@@ -186,20 +186,20 @@ class IcpBrasilSigner {
 		// Build evidence pack
 		$evidence = $this->buildElectronicEvidencePack( $signed_path, $signer_data, $signature_data );
 
-		return array(
+		return [
 			'success'         => true,
 			'signed_pdf_path' => $signed_path,
 			'signed_pdf_url'  => $this->getUrl( $signed_path ),
 			'hash'            => $hash,
-			'signer'          => array(
+			'signer'          => [
 				'name'  => $signer_data['name'],
 				'cpf'   => $this->maskCpf( $signer_data['cpf'] ),
 				'email' => $signer_data['email'] ?? '',
-			),
+			],
 			'signature_type'  => 'electronic_canvas',
 			'timestamp'       => current_time( 'mysql' ),
 			'evidence'        => $evidence,
-		);
+		];
 	}
 
 	/**
@@ -210,10 +210,10 @@ class IcpBrasilSigner {
 	 */
 	public function verifySignature( string $pdf_path ): array {
 		if ( ! file_exists( $pdf_path ) ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'PDF não encontrado',
-			);
+			];
 		}
 
 		// Read PDF content
@@ -229,10 +229,10 @@ class IcpBrasilSigner {
 			return $this->verifyElectronicSignature( $pdf_path, $content );
 		}
 
-		return array(
+		return [
 			'valid' => false,
 			'error' => 'Nenhuma assinatura encontrada',
-		);
+		];
 	}
 
 	/**
@@ -243,29 +243,29 @@ class IcpBrasilSigner {
 	 * @return array Certificate info
 	 */
 	private function extractCertificate( string $pfx_data, string $password ): array {
-		$certs = array();
+		$certs = [];
 
 		// Extract certificate and private key
 		if ( ! openssl_pkcs12_read( $pfx_data, $certs, $password ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Senha do certificado incorreta ou certificado inválido',
-			);
+			];
 		}
 
 		if ( empty( $certs['cert'] ) || empty( $certs['pkey'] ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Certificado ou chave privada não encontrados',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success'     => true,
 			'certificate' => $certs['cert'],
 			'private_key' => $certs['pkey'],
-			'extra_certs' => $certs['extracerts'] ?? array(),
-		);
+			'extra_certs' => $certs['extracerts'] ?? [],
+		];
 	}
 
 	/**
@@ -278,26 +278,26 @@ class IcpBrasilSigner {
 		$cert_data = openssl_x509_parse( $certificate );
 
 		if ( ! $cert_data ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Certificado inválido',
-			);
+			];
 		}
 
 		// Check validity period
 		$now = time();
 		if ( $now < $cert_data['validFrom_time_t'] || $now > $cert_data['validTo_time_t'] ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Certificado expirado ou ainda não válido',
-			);
+			];
 		}
 
 		// Check if certificate is from ICP-Brasil hierarchy
-		$issuer  = $cert_data['issuer'] ?? array();
-		$subject = $cert_data['subject'] ?? array();
+		$issuer  = $cert_data['issuer'] ?? [];
+		$subject = $cert_data['subject'] ?? [];
 
-		$icp_identifiers = array(
+		$icp_identifiers = [
 			'AC SERASA',
 			'AC CERTISIGN',
 			'AC VALID',
@@ -305,7 +305,7 @@ class IcpBrasilSigner {
 			'AC SAFEWEB',
 			'ICP-Brasil',
 			'Autoridade Certificadora',
-		);
+		];
 
 		$issuer_str = implode( ' ', array_values( $issuer ) );
 		$is_icp     = false;
@@ -323,7 +323,7 @@ class IcpBrasilSigner {
 		// return ['valid' => false, 'error' => 'Certificado não pertence à cadeia ICP-Brasil'];
 		// }
 
-		return array(
+		return [
 			'valid'         => true,
 			'subject'       => $subject,
 			'issuer'        => $issuer,
@@ -331,7 +331,7 @@ class IcpBrasilSigner {
 			'valid_from'    => date( 'Y-m-d H:i:s', $cert_data['validFrom_time_t'] ),
 			'valid_to'      => date( 'Y-m-d H:i:s', $cert_data['validTo_time_t'] ),
 			'is_icp_brasil' => $is_icp,
-		);
+		];
 	}
 
 	/**
@@ -437,7 +437,7 @@ class IcpBrasilSigner {
 				for ( $i = 1; $i <= $page_count; $i++ ) {
 					$template_id = $pdf->importPage( $i );
 					$size        = $pdf->getTemplateSize( $template_id );
-					$pdf->AddPage( $size['orientation'], array( $size['width'], $size['height'] ) );
+					$pdf->AddPage( $size['orientation'], [ $size['width'], $size['height'] ] );
 					$pdf->useTemplate( $template_id );
 				}
 			} else {
@@ -459,12 +459,12 @@ class IcpBrasilSigner {
 				// extra certs
 				2,
 				// certification level
-				array(
+				[
 					'Name'        => $signer_name,
 					'Location'    => $signer_data['location'] ?? 'Brasil',
 					'Reason'      => $signer_data['reason'] ?? 'Concordância com o documento',
 					'ContactInfo' => $signer_data['email'] ?? '',
-				)
+				]
 			);
 
 			// Output signed PDF
@@ -564,7 +564,7 @@ class IcpBrasilSigner {
 				for ( $i = 1; $i <= $page_count; $i++ ) {
 					$template_id = $pdf->importPage( $i );
 					$size        = $pdf->getTemplateSize( $template_id );
-					$pdf->AddPage( $size['orientation'], array( $size['width'], $size['height'] ) );
+					$pdf->AddPage( $size['orientation'], [ $size['width'], $size['height'] ] );
 					$pdf->useTemplate( $template_id );
 				}
 
@@ -665,47 +665,47 @@ class IcpBrasilSigner {
 	private function buildEvidencePack( string $signed_path, array $cert_info, array $signer_data ): array {
 		$cert_data = openssl_x509_parse( $cert_info['certificate'] );
 
-		return array(
+		return [
 			'type'           => 'digital_icp_brasil',
 			'timestamp'      => current_time( 'mysql' ),
 			'timestamp_unix' => time(),
 			'document_hash'  => hash_file( 'sha256', $signed_path ),
-			'certificate'    => array(
+			'certificate'    => [
 				'serial'     => $cert_data['serialNumberHex'] ?? '',
-				'subject'    => $cert_data['subject'] ?? array(),
-				'issuer'     => $cert_data['issuer'] ?? array(),
+				'subject'    => $cert_data['subject'] ?? [],
+				'issuer'     => $cert_data['issuer'] ?? [],
 				'valid_from' => date( 'Y-m-d H:i:s', $cert_data['validFrom_time_t'] ?? 0 ),
 				'valid_to'   => date( 'Y-m-d H:i:s', $cert_data['validTo_time_t'] ?? 0 ),
-			),
-			'environment'    => array(
+			],
+			'environment'    => [
 				'ip'          => $_SERVER['REMOTE_ADDR'] ?? '',
 				'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
 				'server_time' => date( 'Y-m-d H:i:s' ),
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Build evidence pack for electronic signature
 	 */
 	private function buildElectronicEvidencePack( string $signed_path, array $signer_data, string $signature_image ): array {
-		return array(
+		return [
 			'type'           => 'electronic_canvas',
 			'timestamp'      => current_time( 'mysql' ),
 			'timestamp_unix' => time(),
 			'document_hash'  => hash_file( 'sha256', $signed_path ),
-			'signer'         => array(
+			'signer'         => [
 				'name'     => $signer_data['name'] ?? '',
 				'cpf_hash' => hash( 'sha256', $signer_data['cpf'] ?? '' ),
 				'email'    => $signer_data['email'] ?? '',
-			),
+			],
 			'signature_hash' => hash( 'sha256', $signature_image ),
-			'environment'    => array(
+			'environment'    => [
 				'ip'          => $_SERVER['REMOTE_ADDR'] ?? '',
 				'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
 				'server_time' => date( 'Y-m-d H:i:s' ),
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -725,24 +725,24 @@ class IcpBrasilSigner {
 
 			// Compare hashes
 			if ( $calculated_hash === $stored_hash ) {
-				return array(
+				return [
 					'valid'   => true,
 					'type'    => 'digital',
 					'hash'    => $stored_hash,
 					'message' => 'Assinatura digital válida',
-				);
+				];
 			}
 
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Hash não confere - documento pode ter sido alterado',
-			);
+			];
 		}//end if
 
-		return array(
+		return [
 			'valid' => false,
 			'error' => 'Formato de assinatura não reconhecido',
-		);
+		];
 	}
 
 	/**
@@ -757,24 +757,24 @@ class IcpBrasilSigner {
 			$calculated_hash  = hash( 'sha256', $original_content );
 
 			if ( $calculated_hash === $stored_hash ) {
-				return array(
+				return [
 					'valid'   => true,
 					'type'    => 'electronic',
 					'hash'    => $stored_hash,
 					'message' => 'Assinatura eletrônica válida',
-				);
+				];
 			}
 
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Hash não confere - documento pode ter sido alterado',
-			);
+			];
 		}//end if
 
-		return array(
+		return [
 			'valid' => false,
 			'error' => 'Formato de assinatura não reconhecido',
-		);
+		];
 	}
 
 	/**
@@ -850,10 +850,10 @@ class IcpBrasilSigner {
 	 */
 	private function error( string $message ): array {
 		$this->last_error = $message;
-		return array(
+		return [
 			'success' => false,
 			'error'   => $message,
-		);
+		];
 	}
 
 	/**

@@ -59,7 +59,7 @@ class DocumentTemplate {
 	/**
 	 * Constructor
 	 */
-	public function __construct( array $data = array() ) {
+	public function __construct( array $data = [] ) {
 		foreach ( $data as $key => $value ) {
 			if ( property_exists( $this, $key ) ) {
 				$this->$key = $value;
@@ -68,7 +68,7 @@ class DocumentTemplate {
 
 		// Ensure placeholders is array
 		if ( is_string( $this->placeholders ) ) {
-			$this->placeholders = json_decode( $this->placeholders, true ) ?: array();
+			$this->placeholders = json_decode( $this->placeholders, true ) ?: [];
 		}
 	}
 
@@ -79,21 +79,21 @@ class DocumentTemplate {
 	 */
 	public function extractPlaceholders(): array {
 		if ( empty( $this->content ) ) {
-			return array();
+			return [];
 		}
 
 		// Extract {{placeholder}} patterns
 		preg_match_all( '/\{\{([^}]+)\}\}/', $this->content, $matches );
 
-		$placeholders = array();
+		$placeholders = [];
 		foreach ( $matches[1] as $placeholder ) {
 			$key                  = trim( $placeholder );
-			$placeholders[ $key ] = array(
+			$placeholders[ $key ] = [
 				'key'      => $key,
 				'label'    => ucfirst( str_replace( '_', ' ', $key ) ),
 				'type'     => $this->guessPlaceholderType( $key ),
 				'required' => true,
-			);
+			];
 		}
 
 		return $placeholders;
@@ -151,7 +151,7 @@ class DocumentTemplate {
 	 * @return array Validation errors
 	 */
 	public function validateData( array $data ): array {
-		$errors       = array();
+		$errors       = [];
 		$placeholders = $this->extractPlaceholders();
 
 		foreach ( $placeholders as $key => $config ) {
@@ -169,7 +169,7 @@ class DocumentTemplate {
 	 * @return array
 	 */
 	public function toArray(): array {
-		return array(
+		return [
 			'id'           => $this->id,
 			'name'         => $this->name,
 			'description'  => $this->description,
@@ -180,6 +180,6 @@ class DocumentTemplate {
 			'created_at'   => $this->created_at,
 			'updated_at'   => $this->updated_at,
 			'created_by'   => $this->created_by,
-		);
+		];
 	}
 }

@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $user_id    = get_current_user_id();
 $user_plans = get_user_meta( $user_id, 'cena_rio_event_plans', true );
 if ( ! is_array( $user_plans ) ) {
-	$user_plans = array();
+	$user_plans = [];
 }
 ?>
 
@@ -60,33 +60,33 @@ if ( ! is_array( $user_plans ) ) {
 			$plan_status = $plan['status'] ?? 'draft';
 			$plan_date   = $plan['date'] ?? '';
 
-			$status_config = array(
-				'active'    => array(
+			$status_config = [
+				'active'    => [
 					'label'   => 'Ativo',
 					'class'   => 'ap-badge-success',
 					'tooltip' => __( 'Plano ativo e em execução', 'apollo-social' ),
-				),
-				'draft'     => array(
+				],
+				'draft'     => [
 					'label'   => 'Rascunho',
 					'class'   => 'ap-badge-warning',
 					'tooltip' => __( 'Plano em elaboração', 'apollo-social' ),
-				),
-				'completed' => array(
+				],
+				'completed' => [
 					'label'   => 'Concluído',
 					'class'   => 'ap-badge-info',
 					'tooltip' => __( 'Plano finalizado com sucesso', 'apollo-social' ),
-				),
-				'archived'  => array(
+				],
+				'archived'  => [
 					'label'   => 'Arquivado',
 					'class'   => 'ap-badge-secondary',
 					'tooltip' => __( 'Plano arquivado', 'apollo-social' ),
-				),
-			);
-			$status        = $status_config[ $plan_status ] ?? array(
+				],
+			];
+			$status        = $status_config[ $plan_status ] ?? [
 				'label'   => ucfirst( $plan_status ),
 				'class'   => 'ap-badge-secondary',
 				'tooltip' => sprintf( __( 'Status: %s', 'apollo-social' ), ucfirst( $plan_status ) ),
-			);
+			];
 			?>
 		<div class="ap-card ap-card-hover" data-ap-tooltip="<?php esc_attr_e( 'Clique para gerenciar este plano', 'apollo-social' ); ?>">
 			<div class="ap-card-header">

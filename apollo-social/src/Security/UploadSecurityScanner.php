@@ -36,7 +36,7 @@ class UploadSecurityScanner {
 	 *
 	 * @var array
 	 */
-	private static $dangerous_strings = array(
+	private static $dangerous_strings = [
 		'<?php',
 		'<?=',
 		'<script',
@@ -83,14 +83,14 @@ class UploadSecurityScanner {
 		'chgrp(',
 		'symlink(',
 		'link(',
-	);
+	];
 
 	/**
 	 * Dangerous file signatures (magic bytes) that indicate executable content.
 	 *
 	 * @var array Key = hex signature, Value = description
 	 */
-	private static $dangerous_signatures = array(
+	private static $dangerous_signatures = [
 		'4D5A'       => 'Windows executable (MZ)',
 		'7F454C46'   => 'Linux ELF executable',
 		'504B0304'   => 'ZIP archive (could contain malware)',
@@ -99,19 +99,19 @@ class UploadSecurityScanner {
 		'25504446'   => 'PDF (will be scanned separately)',
 		'CAFEBABE'   => 'Java class file',
 		'213C617263' => 'Linux archive',
-	);
+	];
 
 	/**
 	 * Allowed magic signatures for images.
 	 *
 	 * @var array Key = hex signature, Value = description
 	 */
-	private static $allowed_image_signatures = array(
+	private static $allowed_image_signatures = [
 		'FFD8FF'   => 'JPEG',
 		'89504E47' => 'PNG',
 		'47494638' => 'GIF (GIF87a or GIF89a)',
 		'52494646' => 'RIFF (WebP container)',
-	);
+	];
 
 	/**
 	 * Scan a file for security threats.
@@ -127,11 +127,11 @@ class UploadSecurityScanner {
 	public static function scan( string $file_path, string $file_type = 'image' ): array {
 		// File must exist
 		if ( ! file_exists( $file_path ) ) {
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'Arquivo não encontrado.', 'apollo-social' ),
 				'code'    => 'file_not_found',
-			);
+			];
 		}
 
 		// Check file size (protect against decompression bombs)
@@ -139,21 +139,21 @@ class UploadSecurityScanner {
 		$max_size  = apply_filters( 'apollo_upload_max_scan_size', 10 * 1024 * 1024 );
 		// 10 MB
 		if ( $file_size > $max_size ) {
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'Arquivo muito grande para verificação de segurança.', 'apollo-social' ),
 				'code'    => 'file_too_large',
-			);
+			];
 		}
 
 		// Read file contents for analysis
 		$content = file_get_contents( $file_path );
 		if ( $content === false ) {
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'Não foi possível ler o arquivo.', 'apollo-social' ),
 				'code'    => 'read_error',
-			);
+			];
 		}
 
 		// Check 1: Scan for dangerous strings (case-insensitive)
@@ -162,11 +162,11 @@ class UploadSecurityScanner {
 			// Log the attempt
 			self::logSecurityThreat( $file_path, 'dangerous_string', $dangerous_found );
 
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'O arquivo contém conteúdo potencialmente malicioso.', 'apollo-social' ),
 				'code'    => 'malicious_content',
-			);
+			];
 		}
 
 		// Check 2: Verify magic bytes for images
@@ -175,11 +175,11 @@ class UploadSecurityScanner {
 			if ( ! $valid_image ) {
 				self::logSecurityThreat( $file_path, 'invalid_signature', 'Not a valid image' );
 
-				return array(
+				return [
 					'safe'    => false,
 					'message' => __( 'O arquivo não é uma imagem válida.', 'apollo-social' ),
 					'code'    => 'invalid_image',
-				);
+				];
 			}
 		}
 
@@ -188,22 +188,22 @@ class UploadSecurityScanner {
 		if ( self::hasDoubleExtension( $file_name ) ) {
 			self::logSecurityThreat( $file_path, 'double_extension', $file_name );
 
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'Nome de arquivo suspeito detectado.', 'apollo-social' ),
 				'code'    => 'suspicious_filename',
-			);
+			];
 		}
 
 		// Check 4: Look for hidden executable content
 		if ( self::hasHiddenExecutable( $content ) ) {
 			self::logSecurityThreat( $file_path, 'hidden_executable', 'Executable content detected' );
 
-			return array(
+			return [
 				'safe'    => false,
 				'message' => __( 'Conteúdo executável oculto detectado.', 'apollo-social' ),
 				'code'    => 'hidden_executable',
-			);
+			];
 		}
 
 		// Check 5: For PDFs, scan for JavaScript
@@ -216,11 +216,11 @@ class UploadSecurityScanner {
 		}
 
 		// All checks passed
-		return array(
+		return [
 			'safe'    => true,
 			'message' => __( 'Arquivo verificado e seguro.', 'apollo-social' ),
 			'code'    => 'ok',
-		);
+		];
 	}
 
 	/**
@@ -271,7 +271,7 @@ class UploadSecurityScanner {
 	 * @return bool True if suspicious double extension found.
 	 */
 	private static function hasDoubleExtension( string $filename ): bool {
-		$dangerous_extensions = array( 'php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'exe', 'sh', 'bat', 'cmd', 'js', 'vbs' );
+		$dangerous_extensions = [ 'php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'exe', 'sh', 'bat', 'cmd', 'js', 'vbs' ];
 		$parts                = explode( '.', strtolower( $filename ) );
 
 		// Need at least 3 parts for double extension
@@ -325,7 +325,7 @@ class UploadSecurityScanner {
 	 */
 	private static function scanPdfForThreats( string $content ): array {
 		// Dangerous PDF elements
-		$pdf_threats = array(
+		$pdf_threats = [
 			'/JavaScript',
 			'/JS ',
 			'/Launch',
@@ -334,23 +334,23 @@ class UploadSecurityScanner {
 			'/AcroForm',
 			'/EmbeddedFile',
 			'/XFA',
-		);
+		];
 
 		foreach ( $pdf_threats as $threat ) {
 			if ( stripos( $content, $threat ) !== false ) {
-				return array(
+				return [
 					'safe'    => false,
 					'message' => __( 'O PDF contém elementos potencialmente perigosos.', 'apollo-social' ),
 					'code'    => 'pdf_threat',
-				);
+				];
 			}
 		}
 
-		return array(
+		return [
 			'safe'    => true,
 			'message' => __( 'PDF verificado.', 'apollo-social' ),
 			'code'    => 'ok',
-		);
+		];
 	}
 
 	/**
@@ -378,15 +378,15 @@ class UploadSecurityScanner {
 		error_log( $log_entry );
 
 		// Optional: Log to database for admin review
-		$threats   = get_option( 'apollo_security_threats', array() );
-		$threats[] = array(
+		$threats   = get_option( 'apollo_security_threats', [] );
+		$threats[] = [
 			'timestamp' => current_time( 'mysql' ),
 			'type'      => $threat_type,
 			'file'      => basename( $file_path ),
 			'user_id'   => $user_id,
 			'ip'        => $ip,
 			'details'   => $details,
-		);
+		];
 
 		// Keep only last 100 threats
 		$threats = array_slice( $threats, -100 );
@@ -402,7 +402,7 @@ class UploadSecurityScanner {
 	 * @return string Client IP.
 	 */
 	private static function getClientIp(): string {
-		$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+		$ip_keys = [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
 
 		foreach ( $ip_keys as $key ) {
 			if ( ! empty( $_SERVER[ $key ] ) ) {

@@ -72,18 +72,18 @@ class EventsManagerIntegration {
 	 * @param array $args WP_Query arguments
 	 * @return array Array of DJ posts
 	 */
-	public static function getDJs( array $args = array() ): array {
+	public static function getDJs( array $args = [] ): array {
 		if ( ! self::isEventsManagerActive() ) {
-			return array();
+			return [];
 		}
 
-		$defaults = array(
+		$defaults = [
 			'post_type'      => 'event_dj',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'orderby'        => 'title',
 			'order'          => 'ASC',
-		);
+		];
 
 		$query_args = wp_parse_args( $args, $defaults );
 		$query      = new \WP_Query( $query_args );
@@ -97,18 +97,18 @@ class EventsManagerIntegration {
 	 * @param array $args WP_Query arguments
 	 * @return array Array of Local posts
 	 */
-	public static function getLocals( array $args = array() ): array {
+	public static function getLocals( array $args = [] ): array {
 		if ( ! self::isEventsManagerActive() ) {
-			return array();
+			return [];
 		}
 
-		$defaults = array(
+		$defaults = [
 			'post_type'      => 'event_local',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'orderby'        => 'title',
 			'order'          => 'ASC',
-		);
+		];
 
 		$query_args = wp_parse_args( $args, $defaults );
 		$query      = new \WP_Query( $query_args );

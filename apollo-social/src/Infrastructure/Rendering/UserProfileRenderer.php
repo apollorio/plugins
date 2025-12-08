@@ -11,40 +11,40 @@ class UserProfileRenderer {
 		$user_id = isset( $template_data['user_id'] ) ? absint( $template_data['user_id'] ) : 0;
 
 		if ( ! $user_id ) {
-			return array(
+			return [
 				'title'       => 'Perfil - Usuário não encontrado',
 				'content'     => '<p>Usuário não encontrado.</p>',
-				'breadcrumbs' => array( 'Apollo Social', 'Perfil' ),
-				'data'        => array(),
-			);
+				'breadcrumbs' => [ 'Apollo Social', 'Perfil' ],
+				'data'        => [],
+			];
 		}
 
 		$user = get_user_by( 'ID', $user_id );
 
 		if ( ! $user ) {
-			return array(
+			return [
 				'title'       => 'Perfil - Usuário não encontrado',
 				'content'     => '<p>Usuário não encontrado.</p>',
-				'breadcrumbs' => array( 'Apollo Social', 'Perfil' ),
-				'data'        => array(),
-			);
+				'breadcrumbs' => [ 'Apollo Social', 'Perfil' ],
+				'data'        => [],
+			];
 		}
 
 		// Get user data
 		$user_data = $this->getUserData( $user );
 
-		return array(
+		return [
 			'title'       => 'Perfil de ' . $user->display_name,
 			'content'     => '',
-			'breadcrumbs' => array( 'Apollo Social', 'Perfil', $user->display_name ),
-			'data'        => array(
+			'breadcrumbs' => [ 'Apollo Social', 'Perfil', $user->display_name ],
+			'data'        => [
 				'user' => $user_data,
-			),
-		);
+			],
+		];
 	}
 
 	private function getUserData( $user ) {
-		return array(
+		return [
 			'id'         => $user->ID,
 			'login'      => $user->user_login,
 			'name'       => $user->display_name,
@@ -53,6 +53,6 @@ class UserProfileRenderer {
 			'registered' => $user->user_registered,
 			'roles'      => $user->roles,
 			'bio'        => get_user_meta( $user->ID, 'description', true ),
-		);
+		];
 	}
 }

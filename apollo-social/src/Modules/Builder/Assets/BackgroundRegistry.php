@@ -77,7 +77,7 @@ class BackgroundRegistry {
 
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
 		return array_filter(
@@ -109,13 +109,13 @@ class BackgroundRegistry {
 	 * @return array<string, string> Category slug => label pairs.
 	 */
 	public static function get_categories(): array {
-		return array(
+		return [
 			'solid'    => __( 'Cores Sólidas', 'apollo-social' ),
 			'gradient' => __( 'Gradientes', 'apollo-social' ),
 			'pattern'  => __( 'Padrões', 'apollo-social' ),
 			'image'    => __( 'Imagens', 'apollo-social' ),
 			'premium'  => __( 'Premium', 'apollo-social' ),
-		);
+		];
 	}
 
 	/**
@@ -126,11 +126,11 @@ class BackgroundRegistry {
 	private static function get_core_backgrounds(): array {
 		$cdn_base = 'https://assets.apollo.rio.br/builder/backgrounds';
 
-		return array(
+		return [
 			// ─────────────────────────────────────────────────────────────
 			// Solid Colors
 			// ─────────────────────────────────────────────────────────────
-			'solid-white'       => array(
+			'solid-white'       => [
 				'id'                  => 'solid-white',
 				'label'               => __( 'Branco', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/solid-white.png",
@@ -138,8 +138,8 @@ class BackgroundRegistry {
 				'category'            => 'solid',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'solid-slate-50'    => array(
+			],
+			'solid-slate-50'    => [
 				'id'                  => 'solid-slate-50',
 				'label'               => __( 'Cinza Claro', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/solid-slate-50.png",
@@ -147,8 +147,8 @@ class BackgroundRegistry {
 				'category'            => 'solid',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'solid-slate-900'   => array(
+			],
+			'solid-slate-900'   => [
 				'id'                  => 'solid-slate-900',
 				'label'               => __( 'Escuro', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/solid-slate-900.png",
@@ -156,8 +156,8 @@ class BackgroundRegistry {
 				'category'            => 'solid',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'solid-orange-500'  => array(
+			],
+			'solid-orange-500'  => [
 				'id'                  => 'solid-orange-500',
 				'label'               => __( 'Apollo Orange', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/solid-orange-500.png",
@@ -165,12 +165,12 @@ class BackgroundRegistry {
 				'category'            => 'solid',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Gradients
 			// ─────────────────────────────────────────────────────────────
-			'gradient-sunset'   => array(
+			'gradient-sunset'   => [
 				'id'                  => 'gradient-sunset',
 				'label'               => __( 'Pôr do Sol', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/gradient-sunset.png",
@@ -178,8 +178,8 @@ class BackgroundRegistry {
 				'category'            => 'gradient',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'gradient-ocean'    => array(
+			],
+			'gradient-ocean'    => [
 				'id'                  => 'gradient-ocean',
 				'label'               => __( 'Oceano', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/gradient-ocean.png",
@@ -187,8 +187,8 @@ class BackgroundRegistry {
 				'category'            => 'gradient',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'gradient-aurora'   => array(
+			],
+			'gradient-aurora'   => [
 				'id'                  => 'gradient-aurora',
 				'label'               => __( 'Aurora Boreal', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/gradient-aurora.png",
@@ -196,8 +196,8 @@ class BackgroundRegistry {
 				'category'            => 'gradient',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'gradient-midnight' => array(
+			],
+			'gradient-midnight' => [
 				'id'                  => 'gradient-midnight',
 				'label'               => __( 'Meia-Noite', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/gradient-midnight.png",
@@ -205,12 +205,12 @@ class BackgroundRegistry {
 				'category'            => 'gradient',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Patterns (CSS patterns using repeating gradients)
 			// ─────────────────────────────────────────────────────────────
-			'pattern-dots'      => array(
+			'pattern-dots'      => [
 				'id'                  => 'pattern-dots',
 				'label'               => __( 'Pontos', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/pattern-dots.png",
@@ -219,8 +219,8 @@ class BackgroundRegistry {
 				'category'            => 'pattern',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
-			'pattern-grid'      => array(
+			],
+			'pattern-grid'      => [
 				'id'                  => 'pattern-grid',
 				'label'               => __( 'Grade', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/pattern-grid.png",
@@ -229,12 +229,12 @@ class BackgroundRegistry {
 				'category'            => 'pattern',
 				'is_limited'          => false,
 				'required_capability' => '',
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Premium / Limited Edition
 			// ─────────────────────────────────────────────────────────────
-			'premium-neon'      => array(
+			'premium-neon'      => [
 				'id'                  => 'premium-neon',
 				'label'               => __( 'Neon Nights', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/premium-neon.png",
@@ -242,8 +242,8 @@ class BackgroundRegistry {
 				'category'            => 'premium',
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
-			),
-			'premium-hologram'  => array(
+			],
+			'premium-hologram'  => [
 				'id'                  => 'premium-hologram',
 				'label'               => __( 'Holograma', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/premium-hologram.png",
@@ -251,8 +251,8 @@ class BackgroundRegistry {
 				'category'            => 'premium',
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
-			),
-			'premium-gold'      => array(
+			],
+			'premium-gold'      => [
 				'id'                  => 'premium-gold',
 				'label'               => __( 'Ouro', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/previews/premium-gold.png",
@@ -260,7 +260,7 @@ class BackgroundRegistry {
 				'category'            => 'premium',
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
-			),
-		);
+			],
+		];
 	}
 }

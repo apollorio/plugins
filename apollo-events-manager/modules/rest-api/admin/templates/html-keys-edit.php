@@ -3,21 +3,21 @@
 defined( 'ABSPATH' ) || exit; ?>
 
 <div id="key-fields" class="settings-panel">
-	<h3 class="wpem-admin-tab-title"><?php esc_html_e( 'Key details', 'wpem-rest-api' ); ?></h3>
+	<h3 class="aprio-admin-tab-title"><?php esc_html_e( 'Key details', 'aprio-rest-api' ); ?></h3>
 
 	<input type="hidden" id="key_id" value="<?php echo esc_attr( $key_id ); ?>" />
-	<div class="wpem-admin-body">
+	<div class="aprio-admin-body">
 		<table id="api-keys-options" class="form-table">
 			<tbody>
 				<tr valign="top">
 					<th scope="row" class="titledesc">
 						<label for="key_description">
-							<?php esc_html_e( 'Description', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Description', 'aprio-rest-api' ); ?>
 						</label>
 					</th>
 					<td class="forminp">
 						<input id="key_description" type="text" class="input-text regular-input" value="<?php echo esc_attr( $key_data['description'] ); ?>" />
-						<p class="description"><?php esc_html_e( 'Friendly name for identifying this key.', 'wpem-rest-api' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Friendly name for identifying this key.', 'aprio-rest-api' ); ?></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -34,22 +34,22 @@ defined( 'ABSPATH' ) || exit; ?>
 				<tr valign="top">
 					<th scope="row" class="titledesc">
 						<label for="key_user">
-							<?php esc_html_e( 'User', 'wpem-rest-api' ); ?>
-							<?php esc_html_e( 'Owner of these keys.', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'User', 'aprio-rest-api' ); ?>
+							<?php esc_html_e( 'Owner of these keys.', 'aprio-rest-api' ); ?>
 						</label>
 					</th>
 					<td class="forminp">
 						<?php
 						$disabled  = '';
-						$all_users = get_wpem_event_users();
+						$all_users = get_aprio_event_users();
 						global $wpdb;
-						$app_user = $wpdb->get_col( "SELECT user_id FROM {$wpdb->prefix}wpem_rest_api_keys" );
+						$app_user = $wpdb->get_col( "SELECT user_id FROM {$wpdb->prefix}aprio_rest_api_keys" );
 						$user_id  = ! empty( $key_data['user_id'] ) ? absint( $key_data['user_id'] ) : '';
 						if ( $user_id > 0 ) {
 							$disabled = 'disabled';
 						}
 						?>
-						<select class="food-manager-select-chosen" id="key_user" data-placeholder="<?php esc_attr_e( 'Search for a user&hellip;', 'wpem-rest-api' ); ?>" data-allow_clear="true" <?php echo $disabled; ?>>
+						<select class="food-manager-select-chosen" id="key_user" data-placeholder="<?php esc_attr_e( 'Search for a user&hellip;', 'aprio-rest-api' ); ?>" data-allow_clear="true" <?php echo $disabled; ?>>
 							<?php
 							foreach ( $all_users as $user ) {
 								if ( ! in_array( $user['ID'], $app_user ) || $user_id == $user['ID'] ) {
@@ -62,9 +62,9 @@ defined( 'ABSPATH' ) || exit; ?>
 								>
 									<?php
 									echo '#';
-									printf( __( '%d', 'wpem-rest-api' ), $user['ID'] );
+									printf( __( '%d', 'aprio-rest-api' ), $user['ID'] );
 									echo ' ';
-									printf( __( '%s', 'wpem-rest-api' ), $user['username'] ); 
+									printf( __( '%s', 'aprio-rest-api' ), $user['username'] ); 
 									// htmlspecialchars to prfood XSS when rendered by chosen.
 									?>
 									</option>
@@ -73,13 +73,13 @@ defined( 'ABSPATH' ) || exit; ?>
 							}
 							?>
 						</select>
-						<p class="description"><?php _e( 'Name of the owner of the Key.', 'wpem-rest-api' ); ?></p> 
+						<p class="description"><?php _e( 'Name of the owner of the Key.', 'aprio-rest-api' ); ?></p> 
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row" class="titledesc">
 						<label for="key_description">
-							<?php esc_html_e( 'Expiry date', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Expiry date', 'aprio-rest-api' ); ?>
 						</label>
 					</th>
 					<td class="forminp">
@@ -93,23 +93,23 @@ defined( 'ABSPATH' ) || exit; ?>
 						?>
 						<input id="date_expires" type="text" class="input-text regular-input" value="<?php echo esc_attr( $expiry_date ); ?>" />
 						<p class="description">
-							<?php esc_html_e( 'Set an expiry date till which the key should be activated.', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Set an expiry date till which the key should be activated.', 'aprio-rest-api' ); ?>
 						</p>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row" class="titledesc">
 						<label for="key_permissions">
-							<?php esc_html_e( 'Permissions', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Permissions', 'aprio-rest-api' ); ?>
 						</label>
 					</th>
 					<td class="forminp">
-						<select id="key_permissions" class="wpem-enhanced-select">
+						<select id="key_permissions" class="aprio-enhanced-select">
 							<?php
 							$permissions = array(
-								'read'       => __( 'Read', 'wpem-rest-api' ),
-								'write'      => __( 'Write', 'wpem-rest-api' ),
-								'read_write' => __( 'Read/Write', 'wpem-rest-api' ),
+								'read'       => __( 'Read', 'aprio-rest-api' ),
+								'write'      => __( 'Write', 'aprio-rest-api' ),
+								'read_write' => __( 'Read/Write', 'aprio-rest-api' ),
 							);
 							foreach ( $permissions as $permission_id => $permission_name ) :
 								?>
@@ -117,7 +117,7 @@ defined( 'ABSPATH' ) || exit; ?>
 							<?php endforeach; ?>
 						</select>
 						<p class="description">
-						<?php esc_html_e( 'Select the access type of these keys.', 'wpem-rest-api' ); ?></p>
+						<?php esc_html_e( 'Select the access type of these keys.', 'aprio-rest-api' ); ?></p>
 					</td>
 				</tr>
 				<?php
@@ -127,23 +127,23 @@ defined( 'ABSPATH' ) || exit; ?>
 				<tr valign="top">
 					<th scope="row" class="titledesc">
 						<label for="dashboard_menu">
-							<?php esc_html_e( 'Mobile Menu', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Mobile Menu', 'aprio-rest-api' ); ?>
 						</label>
 					</th>
 					<td class="forminp">
-						<label><input type="checkbox" name="mobile_menu[]" value="dashboard" <?php checked( in_array( 'dashboard', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Dashboard', 'wpem-rest-api' ); ?></label><br>
-						<label><input type="checkbox" name="mobile_menu[]" value="attendees" <?php checked( in_array( 'attendees', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Attendees', 'wpem-rest-api' ); ?></label><br>
-						<label><input type="checkbox" name="mobile_menu[]" value="guest_list" <?php checked( in_array( 'guest_list', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Guest List', 'wpem-rest-api' ); ?></label><br>
-						<label><input type="checkbox" name="mobile_menu[]" value="orders" <?php checked( in_array( 'orders', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Orders', 'wpem-rest-api' ); ?></label><br>
-						<label><input type="checkbox" name="mobile_menu[]" value="arrivals" <?php checked( in_array( 'arrivals', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Arrivals', 'wpem-rest-api' ); ?></label>
+						<label><input type="checkbox" name="mobile_menu[]" value="dashboard" <?php checked( in_array( 'dashboard', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Dashboard', 'aprio-rest-api' ); ?></label><br>
+						<label><input type="checkbox" name="mobile_menu[]" value="attendees" <?php checked( in_array( 'attendees', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Attendees', 'aprio-rest-api' ); ?></label><br>
+						<label><input type="checkbox" name="mobile_menu[]" value="guest_list" <?php checked( in_array( 'guest_list', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Guest List', 'aprio-rest-api' ); ?></label><br>
+						<label><input type="checkbox" name="mobile_menu[]" value="orders" <?php checked( in_array( 'orders', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Orders', 'aprio-rest-api' ); ?></label><br>
+						<label><input type="checkbox" name="mobile_menu[]" value="arrivals" <?php checked( in_array( 'arrivals', $saved_mobile_menu ) ); ?>> <?php esc_html_e( 'Arrivals', 'aprio-rest-api' ); ?></label>
 						<p class="description">
-							<?php esc_html_e( 'Choose which pages this key can access in the mobile app. Only the selected pages will be visible to the user.', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Choose which pages this key can access in the mobile app. Only the selected pages will be visible to the user.', 'aprio-rest-api' ); ?>
 						</p>
 					</td>
 				</tr>
 				<tr valign="top">
 						<th scope="row" class="titledesc">
-							<label for="event_display_option"><?php esc_html_e( 'Event Show By', 'wpem-rest-api' ); ?></label>
+							<label for="event_display_option"><?php esc_html_e( 'Event Show By', 'aprio-rest-api' ); ?></label>
 						</th>
 						<td class="forminp">
 							<?php
@@ -152,18 +152,18 @@ defined( 'ABSPATH' ) || exit; ?>
 							?>
 							<label>
 								<input type="radio"  name="event_show_by" value="loggedin" <?php checked( $event_show_by, 'loggedin' ); ?> />
-								<?php esc_html_e( 'Show logged-in user events', 'wpem-rest-api' ); ?>
+								<?php esc_html_e( 'Show logged-in user events', 'aprio-rest-api' ); ?>
 							</label><br/>
 							<label>
 								<input type="radio"  name="event_show_by" value="selected" <?php checked( $event_show_by, 'selected' ); ?> />
-								<?php esc_html_e( 'Show selected events', 'wpem-rest-api' ); ?>
+								<?php esc_html_e( 'Show selected events', 'aprio-rest-api' ); ?>
 							</label>
-							<p class="description"><?php esc_html_e( 'Choose how events are loaded for this key.', 'wpem-rest-api' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Choose how events are loaded for this key.', 'aprio-rest-api' ); ?></p>
 						</td>
 					</tr>
 					<tr valign="top" id="select-events-row" style="display:none">
 					<th scope="row" class="titledesc">
-						<label for="select_events"><?php esc_html_e( 'Select Events', 'wpem-rest-api' ); ?></label>
+						<label for="select_events"><?php esc_html_e( 'Select Events', 'aprio-rest-api' ); ?></label>
 					</th>
 					<td class="forminp">
 						<?php
@@ -187,21 +187,21 @@ defined( 'ABSPATH' ) || exit; ?>
 								)
 							);
 							?>
-						<select id="select_events" name="select_events[]" class="event-manager-select-chosen" multiple data-placeholder="<?php esc_attr_e( 'Choose events&hellip;', 'wpem-rest-api' ); ?>">
+						<select id="select_events" name="select_events[]" class="event-manager-select-chosen" multiple data-placeholder="<?php esc_attr_e( 'Choose events&hellip;', 'aprio-rest-api' ); ?>">
 							<?php foreach ( $events as $event ) : ?>
 								<option value="<?php echo esc_attr( $event->ID ); ?>" <?php selected( in_array( $event->ID, $selected_events ), true ); ?>>
 									<?php echo esc_html( $event->post_title ); ?>
 								</option>
 							<?php endforeach; ?>
 						</select>
-						<p class="description"><?php esc_html_e( 'Select one or more events to associate with this key.', 'wpem-rest-api' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Select one or more events to associate with this key.', 'aprio-rest-api' ); ?></p>
 					</td>
 				</tr>
 
 				<?php if ( 0 !== $key_id ) : ?>
 					<tr valign="top">
 						<th scope="row" class="titledesc">
-							<?php esc_html_e( 'Consumer key ending in', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Consumer key ending in', 'aprio-rest-api' ); ?>
 						</th>
 						<td class="forminp">
 							<code>&hellip;<?php echo esc_html( $key_data['truncated_key'] ); ?></code>
@@ -209,7 +209,7 @@ defined( 'ABSPATH' ) || exit; ?>
 					</tr>
 					<tr valign="top">
 						<th scope="row" class="titledesc">
-							<?php esc_html_e( 'Last access', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Last access', 'aprio-rest-api' ); ?>
 						</th>
 						<td class="forminp">
 							<span>
@@ -218,9 +218,9 @@ defined( 'ABSPATH' ) || exit; ?>
 									/* translators: 1: last access date 2: last access time */
 									$date = sprintf( __( '%1$s at %2$s', 'wp-event-manager-dj-app-access' ), date_i18n( get_option( 'date_format' ), strtotime( $key_data['last_access'] ) ), date_i18n( get_option( 'time_format' ), strtotime( $key_data['last_access'] ) ) );
 
-									echo esc_html( apply_filters( 'wpem_api_key_last_access_datetime', $date, $key_data['last_access'] ) );
+									echo esc_html( apply_filters( 'aprio_api_key_last_access_datetime', $date, $key_data['last_access'] ) );
 								} else {
-									esc_html_e( 'Unknown', 'wpem-rest-api' );
+									esc_html_e( 'Unknown', 'aprio-rest-api' );
 								}
 								?>
 							</span>
@@ -228,7 +228,7 @@ defined( 'ABSPATH' ) || exit; ?>
 					</tr>
 					<tr valign="top">
 						<th scope="row" class="titledesc">
-							<?php esc_html_e( 'Restrict Check-in', 'wpem-rest-api' ); ?>
+							<?php esc_html_e( 'Restrict Check-in', 'aprio-rest-api' ); ?>
 						</th>
 						<?php
 						$restrict = get_user_meta( $key_data['user_id'], '_restrict_check_in', true );
@@ -244,16 +244,16 @@ defined( 'ABSPATH' ) || exit; ?>
 	</div>
 
 	<?php
-	do_action( 'wpem_admin_key_fields', $key_data );
+	do_action( 'aprio_admin_key_fields', $key_data );
 
 	if ( 0 === intval( $key_id ) ) {
-		submit_button( __( 'Generate API key', 'wp-event-manager-dj-app-access' ), 'primary wpem-backend-theme-button', 'update_api_key' );
+		submit_button( __( 'Generate API key', 'wp-event-manager-dj-app-access' ), 'primary aprio-backend-theme-button', 'update_api_key' );
 		echo '<div id="api_key_loader" class="loader" style="display:none;margin-left: 20px;"></div>';
 	} else {
 		?>
 		<p class="submit">
-			<?php submit_button( __( 'Save changes', 'wp-event-manager-dj-app-access' ), 'primary wpem-backend-theme-button', 'update_api_key', false ); ?>
-			<a class="wpem-backend-theme-button wpem-revoke-button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'revoke-key' => $key_id ), admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=api-access' ) ), 'revoke' ) ); ?>"><?php esc_html_e( 'Revoke key', 'wpem-rest-api' ); ?></a>
+			<?php submit_button( __( 'Save changes', 'wp-event-manager-dj-app-access' ), 'primary aprio-backend-theme-button', 'update_api_key', false ); ?>
+			<a class="aprio-backend-theme-button aprio-revoke-button" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'revoke-key' => $key_id ), admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=api-access' ) ), 'revoke' ) ); ?>"><?php esc_html_e( 'Revoke key', 'aprio-rest-api' ); ?></a>
 		</p>
 		<?php
 	}
@@ -261,34 +261,34 @@ defined( 'ABSPATH' ) || exit; ?>
 </div>
 
 <script type="text/template" id="tmpl-api-keys-template">
-	<div class="wpem-admin-body">
+	<div class="aprio-admin-body">
 	<table class="form-table">
 		<tbody>
 			<tr valign="top">
 				<th scope="row" class="titledesc">
-					<?php esc_html_e( 'App key', 'wpem-rest-api' ); ?>
+					<?php esc_html_e( 'App key', 'aprio-rest-api' ); ?>
 				</th>
 				<td class="forminp">
 					<input id="app_key" type="text" value="{{ data.app_key }}" size="55" readonly="readonly">
-					<button class="wpem-backend-theme-button" type="button" onClick="app_key_copy_fun()" style="cursor:pointer">Copy App Key</button>
+					<button class="aprio-backend-theme-button" type="button" onClick="app_key_copy_fun()" style="cursor:pointer">Copy App Key</button>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row" class="titledesc">
-					<?php esc_html_e( 'Consumer key', 'wpem-rest-api' ); ?>
+					<?php esc_html_e( 'Consumer key', 'aprio-rest-api' ); ?>
 				</th>
 				<td class="forminp">
 					<input id="key_consumer_key" type="text" value="{{ data.consumer_key }}" size="55" readonly="readonly">
-					<button class="wpem-backend-theme-button" type="button" onClick="consumer_copy_fun()" style="cursor:pointer">Copy Consumer Key</button>
+					<button class="aprio-backend-theme-button" type="button" onClick="consumer_copy_fun()" style="cursor:pointer">Copy Consumer Key</button>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row" class="titledesc">
-					<?php esc_html_e( 'Consumer secret', 'wpem-rest-api' ); ?>
+					<?php esc_html_e( 'Consumer secret', 'aprio-rest-api' ); ?>
 				</th>
 				<td class="forminp">
 					<input id="key_consumer_secret" type="text" value="{{ data.consumer_secret }}" size="55" readonly="readonly">
-					<button class="wpem-backend-theme-button" type="button" onClick="secret_copy_fun()" style="cursor:pointer">Copy Consumer Secret</button>
+					<button class="aprio-backend-theme-button" type="button" onClick="secret_copy_fun()" style="cursor:pointer">Copy Consumer Secret</button>
 				</td>
 			</tr>
 			

@@ -11,30 +11,30 @@ class UsersDirectoryRenderer {
 		// Get all registered users
 		$users = $this->getAllUsers();
 
-		return array(
+		return [
 			'title'       => 'Diretório de Usuários',
 			'content'     => '',
-			'breadcrumbs' => array( 'Apollo Social', 'Usuários' ),
-			'data'        => array(
+			'breadcrumbs' => [ 'Apollo Social', 'Usuários' ],
+			'data'        => [
 				'users' => $users,
 				'total' => count( $users ),
-			),
-		);
+			],
+		];
 	}
 
 	private function getAllUsers() {
-		$args = array(
+		$args = [
 			'orderby' => 'registered',
 			'order'   => 'DESC',
 			'number'  => -1,
 		// Get all users
-		);
+		];
 
 		$users_query = new \WP_User_Query( $args );
-		$users       = array();
+		$users       = [];
 
 		foreach ( $users_query->get_results() as $user ) {
-			$users[] = array(
+			$users[] = [
 				'id'          => $user->ID,
 				'login'       => $user->user_login,
 				'name'        => $user->display_name,
@@ -44,7 +44,7 @@ class UsersDirectoryRenderer {
 				'roles'       => $user->roles,
 				'bio'         => get_user_meta( $user->ID, 'description', true ),
 				'profile_url' => '/id/' . $user->ID,
-			);
+			];
 		}
 
 		return $users;

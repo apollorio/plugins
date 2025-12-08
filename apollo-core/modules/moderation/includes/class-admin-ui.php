@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 /**
- * Moderation Admin UI (3 Tabs)
+ * Moderation Admin UI (4 Tabs)
+ *
+ * Tabs: Settings, Moderation Queue, Moderate Users, Co-autores
  *
  * @package Apollo_Core
  */
@@ -10,6 +12,9 @@ declare(strict_types=1);
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Load co-authors settings.
+require_once __DIR__ . '/class-coauthors-settings.php';
 
 /**
  * Admin UI class
@@ -82,8 +87,13 @@ class Apollo_Moderation_Admin_UI {
 		$current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings';
 		$can_manage  = current_user_can( 'manage_apollo_mod_settings' );
 
-		if ( ! $can_manage && 'settings' === $current_tab ) {
+		if ( ! $can_manage && in_array( $current_tab, array( 'settings', 'coauthors' ), true ) ) {
 			$current_tab = 'queue';
+		}
+
+		// Show update notice.
+		if ( isset( $_GET['updated'] ) && '1' === $_GET['updated'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Configurações salvas com sucesso!', 'apollo-core' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap apollo-moderation-wrap">
@@ -101,6 +111,11 @@ class Apollo_Moderation_Admin_UI {
 				<a href="?page=apollo-moderation&tab=users" class="nav-tab <?php echo 'users' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Moderate Users', 'apollo-core' ); ?>
 				</a>
+				<?php if ( $can_manage ) : ?>
+				<a href="?page=apollo-moderation&tab=coauthors" class="nav-tab <?php echo 'coauthors' === $current_tab ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Co-autores', 'apollo-core' ); ?>
+				</a>
+				<?php endif; ?>
 			</nav>
 
 			<div class="apollo-moderation-content">
@@ -114,6 +129,9 @@ class Apollo_Moderation_Admin_UI {
 						break;
 					case 'users':
 						self::render_tab_users();
+						break;
+					case 'coauthors':
+						Apollo_Coauthors_Settings::render_tab();
 						break;
 				}
 				?>

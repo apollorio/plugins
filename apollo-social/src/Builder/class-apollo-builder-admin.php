@@ -20,7 +20,7 @@ class Apollo_Builder_Admin {
 	 * Initialize
 	 */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_menu_pages' ) );
+		add_action( 'admin_menu', [ __CLASS__, 'add_menu_pages' ] );
 	}
 
 	/**
@@ -35,7 +35,7 @@ class Apollo_Builder_Admin {
 			'read',
 			// Allow subscribers to see the menu, access control handled in render
 			'apollo-builder',
-			array( __CLASS__, 'render_launcher_page' )
+			[ __CLASS__, 'render_launcher_page' ]
 		);
 	}
 

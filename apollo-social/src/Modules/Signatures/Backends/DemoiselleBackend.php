@@ -127,7 +127,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 	 * {@inheritDoc}
 	 */
 	public function get_capabilities(): array {
-		return array(
+		return [
 			// PAdES-B, PAdES-T formats.
 			'pades'          => true,
 			// CAdES-B, CAdES-T formats.
@@ -144,7 +144,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			'certificate_a1' => true,
 			// A3 hardware tokens.
 			'certificate_a3' => true,
-		);
+		];
 	}
 
 	/**
@@ -156,13 +156,13 @@ class DemoiselleBackend implements SignatureBackendInterface {
 	 * @param int   $user_id     The user ID performing the signature.
 	 * @param array $options     Additional signing options.
 	 */
-	public function sign( int $document_id, int $user_id, array $options = array() ): array|WP_Error {
+	public function sign( int $document_id, int $user_id, array $options = [] ): array|WP_Error {
 		// Check availability.
 		if ( ! $this->is_available() ) {
 			return new WP_Error(
 				'apollo_sign_backend_unavailable',
 				__( 'Backend Demoiselle não está disponível. Verifique a configuração.', 'apollo-social' ),
-				array( 'status' => 503 )
+				[ 'status' => 503 ]
 			);
 		}
 
@@ -174,7 +174,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_sign_document_not_found',
 				__( 'Documento não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -184,7 +184,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_sign_pdf_not_found',
 				__( 'PDF do documento não encontrado. Gere o PDF primeiro.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -197,7 +197,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 				return new WP_Error(
 					'apollo_sign_cert_not_found',
 					__( 'Certificado A1 não encontrado.', 'apollo-social' ),
-					array( 'status' => 400 )
+					[ 'status' => 400 ]
 				);
 			}
 		}
@@ -226,15 +226,15 @@ class DemoiselleBackend implements SignatureBackendInterface {
 		return new WP_Error(
 			'apollo_sign_not_configured',
 			__( 'Backend Demoiselle ainda não está configurado. Configure APOLLO_DEMOISELLE_JAR_PATH.', 'apollo-social' ),
-			array(
+			[
 				'status'      => 501,
-				'setup_guide' => array(
+				'setup_guide' => [
 					'step_1' => 'Download Demoiselle Signer: https://demoiselle.sourceforge.io/',
 					'step_2' => 'Set APOLLO_DEMOISELLE_JAR_PATH in wp-config.php',
 					'step_3' => 'Ensure Java 8+ is installed',
 					'step_4' => 'Configure TSA URL if needed',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -248,7 +248,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 	 * @return string Shell command.
 	 */
 	private function build_sign_command( string $input_path, string $output_path, array $options ): string {
-		$args = array(
+		$args = [
 			escapeshellcmd( $this->java_path ),
 			'-jar',
 			escapeshellarg( $this->jar_path ),
@@ -260,7 +260,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			escapeshellarg( $input_path ),
 			'-o',
 			escapeshellarg( $output_path ),
-		);
+		];
 
 		// Certificate.
 		if ( ! empty( $options['certificate_path'] ) ) {
@@ -308,12 +308,12 @@ class DemoiselleBackend implements SignatureBackendInterface {
 	 * @param string $pdf_path Path to the PDF file.
 	 * @param array  $options  Additional verification options.
 	 */
-	public function verify( string $pdf_path, array $options = array() ): array|WP_Error {
+	public function verify( string $pdf_path, array $options = [] ): array|WP_Error {
 		if ( ! $this->is_available() ) {
 			return new WP_Error(
 				'apollo_verify_backend_unavailable',
 				__( 'Backend Demoiselle não está disponível.', 'apollo-social' ),
-				array( 'status' => 503 )
+				[ 'status' => 503 ]
 			);
 		}
 
@@ -321,7 +321,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_verify_file_not_found',
 				__( 'Arquivo PDF não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -334,7 +334,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 		return new WP_Error(
 			'apollo_verify_not_configured',
 			__( 'Verificação Demoiselle não configurada.', 'apollo-social' ),
-			array( 'status' => 501 )
+			[ 'status' => 501 ]
 		);
 	}
 
@@ -351,7 +351,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_cert_not_found',
 				__( 'Arquivo de certificado não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -360,20 +360,20 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_cert_openssl_missing',
 				__( 'Extensão OpenSSL não disponível.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		// Read PKCS#12 certificate.
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local file read.
 		$pkcs12_content = file_get_contents( $certificate_path );
-		$certs          = array();
+		$certs          = [];
 
 		if ( ! openssl_pkcs12_read( $pkcs12_content, $certs, $password ) ) {
 			return new WP_Error(
 				'apollo_cert_invalid',
 				__( 'Não foi possível ler o certificado. Verifique a senha.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -385,7 +385,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_cert_parse_failed',
 				__( 'Falha ao analisar o certificado.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
@@ -393,7 +393,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 		$cpf = $this->extract_cpf_from_certificate( $cert_data );
 
 		// PKCS#12 is always A1 type.
-		return array(
+		return [
 			'name'       => $cert_data['subject']['CN'] ?? '',
 			'cpf'        => $cpf,
 			'email'      => $cert_data['subject']['emailAddress'] ?? '',
@@ -402,7 +402,7 @@ class DemoiselleBackend implements SignatureBackendInterface {
 			'valid_to'   => gmdate( 'Y-m-d', $cert_data['validTo_time_t'] ),
 			'serial'     => $cert_data['serialNumberHex'] ?? $cert_data['serialNumber'] ?? '',
 			'type'       => 'A1',
-		);
+		];
 	}
 
 	/**

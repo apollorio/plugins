@@ -1,103 +1,69 @@
 ﻿<?xml version="1.0"?>
-<ruleset name="Apollo Plugins">
-    <description>WordPress + Extra + VIP-Go focado em segurança para Apollo.</description>
+<ruleset name="Apollo Plugins - Unified PHPCS Configuration">
+	<description>Professional WordPress Plugin Architecture - Security-Focused Standards for All Apollo Plugins</description>
 
-    <!-- Diretórios dos plugins Apollo -->
-    <file>./</file>
+	<!-- Target all Apollo plugins -->
+	<file>apollo-core</file>
+	<file>apollo-email-newsletter</file>
+	<file>apollo-email-templates</file>
+	<file>apollo-events-manager</file>
+	<file>apollo-rio</file>
+	<file>apollo-social</file>
 
+	<!-- Base path for relative paths -->
+	<arg name="basepath" value="."/>
 
-  <rule ref="WordPress-Extra">
-        <!-- Permitir arrays curtos (preferência moderna) -->
-        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
-        <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
-    </rule>
+	<!-- Output format -->
+	<arg name="colors"/>
+	<arg value="ps"/>
+	<arg name="extensions" value="php"/>
 
+	<!-- Performance Optimization -->
+	<arg name="parallel" value="20"/>
+	<arg name="cache" value=".phpcs-cache"/>
+	<ini name="memory_limit" value="512M"/>
 
-<!-- Verificar apenas arquivos PHP -->
-    <arg name="extensions" value="php"/>
-    
-    <!-- Mostrar progresso -->
-    <arg value="ps"/>
-    
-    <!-- Cores no terminal -->
-    <arg name="colors"/>
+	<!-- Intelligent Exclusions -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<exclude-pattern>*.asset.php</exclude-pattern>
+	<exclude-pattern>*.min.js</exclude-pattern>
+	<exclude-pattern>*.min.css</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
 
+	<!-- PHP Compatibility - Match plugins' Requires PHP: 8.0 -->
+	<config name="testVersion" value="8.0-"/>
 
-    <!-- Ignorar terceiros / build -->
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/dev-vendor/*</exclude-pattern>
-    <exclude-pattern>*/tests/*</exclude-pattern>
-    <exclude-pattern>*/node_modules/*</exclude-pattern>
-    <exclude-pattern>*/docs/*</exclude-pattern>
+	<!-- CRITICAL: Security and Escaping -->
+	<rule ref="WordPress.Security.EscapeOutput" />
+	<rule ref="WordPress.Security.ValidatedSanitizedInput" />
+	<rule ref="WordPress.DB.PreparedSQL" />
+	<rule ref="WordPress.DB.SlowDBQuery" />
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" value="apollo-plugins" />
+		</properties>
+	</rule>
 
-    <!-- Config global -->
-     <arg name="colors"/>
-    <arg name="extensions" value="php"/>
-    <arg name="parallel" value="12"/>
+	<!-- CRITICAL: Modern PHP Syntax -->
+	<rule ref="Generic.Arrays.DisallowLongArraySyntax" />
+	<rule ref="Generic.ControlStructures.DisallowYodaConditions" />
 
-    <!-- Standards base -->
-    <rule ref="WordPress"/>
-    <rule ref="WordPress-Extra"/>
-    <rule ref="WordPress-VIP-Go"/>
+	<!-- IMPORTANT: Variable Analysis for undefined variables -->
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<property name="allowUnusedParametersBeforeUsed" value="true" />
+		<property name="allowUndefinedVariablesInFileScope" value="true" />
+	</rule>
 
-    <!-- i18n com múltiplos text-domains Apollo -->
-    <rule ref="WordPress.WP.I18n">
-        <properties>
-            <!-- múltiplos text-domains separados por vírgula, sem espaço -->
-            <property name="text_domain" value="apollo-core,apollo-events-manager,apollo-social"/>
-        </properties>
-    </rule>
+	<!-- IMPORTANT: Namespace Prefix Validation -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" value="apollo,Apollo,APOLLO" />
+		</properties>
+	</rule>
 
-    <!-- 1) Comentários obrigatórios: RELAXAR -->
-    <rule ref="Squiz.Commenting">
-        <exclude name="Squiz.Commenting.FileComment.Missing"/>
-        <exclude name="Squiz.Commenting.ClassComment.Missing"/>
-        <exclude name="Squiz.Commenting.FunctionComment.Missing"/>
-        <exclude name="Squiz.Commenting.VariableComment.Missing"/>
-    </rule>
-
-
- <!-- Prefixo do plugin -->
-    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
-        <properties>
-            <property name="prefixes" type="array">
-                <element value="apollo"/>
-                <element value="APOLLO"/>
-            </property>
-        </properties>
-    </rule>
-
-
-    <!-- 2) Naming de função: NÃO forçar snake_case em métodos -->
-    <rule ref="WordPress.NamingConventions.ValidFunctionName">
-        <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
-    </rule>
-
-    <!-- 3) Naming de variáveis: NÃO forçar snake_case -->
-    <rule ref="WordPress.NamingConventions.ValidVariableName">
-        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
-    </rule>
-
-    <!-- 4) File names: NÃO exigir tudo minúsculo class-*.php -->
-    <rule ref="WordPress.Files.FileName">
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
-    </rule>
-
-    <!-- 5) Alinhamento de múltiplas declarações: RELAXAR -->
-    <rule ref="Generic.Formatting.MultipleStatementAlignment">
-        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning"/>
-    </rule>
-    <rule ref="WordPress.Arrays.MultipleStatementAlignment"/>
-
-
-    <!-- 6) Yoda Conditions: NÃO exigir Yoda -->
-    <rule ref="WordPress.PHP.YodaConditions">
-        <exclude name="WordPress.PHP.YodaConditions.NotYoda"/>
-    </rule>
-<rule ref="WordPress.DateTime.RestrictedFunctions">
-        <properties>
-            <property name="timezone" value="America/Sao_Paulo"/>
-        </properties>
-    </rule>
 </ruleset>
+
+

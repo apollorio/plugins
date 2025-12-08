@@ -37,11 +37,11 @@ class LocalSignatureController {
 		$this->adapter = new LocalSignatureAdapter();
 
 		// Register AJAX handlers.
-		add_action( 'wp_ajax_apollo_process_local_signature', array( $this, 'processSignature' ) );
-		add_action( 'wp_ajax_nopriv_apollo_process_local_signature', array( $this, 'processSignature' ) );
+		add_action( 'wp_ajax_apollo_process_local_signature', [ $this, 'processSignature' ] );
+		add_action( 'wp_ajax_nopriv_apollo_process_local_signature', [ $this, 'processSignature' ] );
 
-		add_action( 'wp_ajax_apollo_verify_signature', array( $this, 'verifySignature' ) );
-		add_action( 'wp_ajax_nopriv_apollo_verify_signature', array( $this, 'verifySignature' ) );
+		add_action( 'wp_ajax_apollo_verify_signature', [ $this, 'verifySignature' ] );
+		add_action( 'wp_ajax_nopriv_apollo_verify_signature', [ $this, 'verifySignature' ] );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class LocalSignatureController {
 			$signature_data = json_decode( $raw_data, true );
 
 			if ( empty( $signature_data ) ) {
-				wp_send_json_error( array( 'errors' => array( 'Dados de assinatura inválidos' ) ) );
+				wp_send_json_error( [ 'errors' => [ 'Dados de assinatura inválidos' ] ] );
 			}
 
 			// Process signature via adapter.
@@ -74,7 +74,7 @@ class LocalSignatureController {
 				wp_send_json_error( $result );
 			}
 		} catch ( \Exception $e ) {
-			wp_send_json_error( array( 'errors' => array( 'Erro interno: ' . $e->getMessage() ) ) );
+			wp_send_json_error( [ 'errors' => [ 'Erro interno: ' . $e->getMessage() ] ] );
 		}
 	}
 
@@ -91,7 +91,7 @@ class LocalSignatureController {
 
 		// Allow public verification without nonce (read-only operation).
 		if ( empty( $certificate_id ) ) {
-			wp_send_json_error( array( 'error' => 'ID do certificado é obrigatório' ) );
+			wp_send_json_error( [ 'error' => 'ID do certificado é obrigatório' ] );
 		}
 
 		try {
@@ -99,7 +99,7 @@ class LocalSignatureController {
 			wp_send_json_success( $result );
 
 		} catch ( \Exception $e ) {
-			wp_send_json_error( array( 'error' => 'Erro interno: ' . $e->getMessage() ) );
+			wp_send_json_error( [ 'error' => 'Erro interno: ' . $e->getMessage() ] );
 		}
 	}
 

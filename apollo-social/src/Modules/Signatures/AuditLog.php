@@ -114,13 +114,13 @@ class AuditLog {
 	 * @param array  $data Additional data
 	 * @return int|false Log ID or false
 	 */
-	public function log( int $document_id, string $action, array $data = array() ): int|false {
+	public function log( int $document_id, string $action, array $data = [] ): int|false {
 		global $wpdb;
 
 		$user_id = get_current_user_id();
 		$user    = $user_id ? get_userdata( $user_id ) : null;
 
-		$insert_data = array(
+		$insert_data = [
 			'document_id'    => $document_id,
 			'action'         => $action,
 			'actor_id'       => $data['actor_id'] ?? $user_id,
@@ -135,7 +135,7 @@ class AuditLog {
 			'user_agent'     => $_SERVER['HTTP_USER_AGENT'] ?? null,
 			'geo_location'   => $this->getGeoLocation(),
 			'timestamp_unix' => time(),
-		);
+		];
 
 		$result = $wpdb->insert( $this->table_name, $insert_data );
 
@@ -160,18 +160,18 @@ class AuditLog {
 		return $this->log(
 			$document_id,
 			'signed',
-			array(
+			[
 				'actor_name'     => $signer['name'] ?? '',
 				'actor_cpf'      => $signer['cpf'] ?? '',
 				'actor_email'    => $signer['email'] ?? '',
 				'signature_hash' => $signature_hash,
 				'document_hash'  => $document_hash,
-				'details'        => array(
+				'details'        => [
 					'signature_type'     => $signer['type'] ?? 'electronic',
 					'certificate_serial' => $signer['certificate_serial'] ?? null,
 					'timestamp'          => current_time( 'mysql' ),
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -196,11 +196,11 @@ class AuditLog {
 		);
 
 		if ( $existing ) {
-			return array(
+			return [
 				'success'       => true,
 				'protocol_code' => $existing['protocol_code'],
 				'existing'      => true,
-			);
+			];
 		}
 
 		// Generate unique protocol code
@@ -227,20 +227,20 @@ class AuditLog {
 
 		$result = $wpdb->insert(
 			$this->protocol_table,
-			array(
+			[
 				'protocol_code' => $protocol_code,
 				'document_id'   => $document_id,
 				'document_hash' => $document_hash,
 				'created_unix'  => $now,
 				'expires_at'    => date( 'Y-m-d H:i:s', $expires ),
 				'metadata'      => json_encode(
-					array(
+					[
 						'created_by'  => get_current_user_id(),
 						'server_time' => date( 'Y-m-d H:i:s' ),
 						'timezone'    => wp_timezone_string(),
-					)
+					]
 				),
-			)
+			]
 		);
 
 		if ( $result ) {
@@ -248,25 +248,25 @@ class AuditLog {
 			$this->log(
 				$document_id,
 				'created',
-				array(
-					'details'       => array( 'protocol_code' => $protocol_code ),
+				[
+					'details'       => [ 'protocol_code' => $protocol_code ],
 					'document_hash' => $document_hash,
-				)
+				]
 			);
 
-			return array(
+			return [
 				'success'          => true,
 				'protocol_code'    => $protocol_code,
 				'created_at'       => date( 'Y-m-d H:i:s' ),
 				'expires_at'       => date( 'Y-m-d H:i:s', $expires ),
 				'verification_url' => site_url( "/verificar/{$protocol_code}" ),
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Falha ao gerar protocolo',
-		);
+		];
 	}
 
 	/**
@@ -288,27 +288,27 @@ class AuditLog {
 		);
 
 		if ( ! $protocol ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Protocolo não encontrado',
-			);
+			];
 		}
 
 		// Check status
 		if ( $protocol['status'] === 'revoked' ) {
-			return array(
+			return [
 				'valid'    => false,
 				'error'    => 'Protocolo foi revogado',
 				'protocol' => $protocol_code,
-			);
+			];
 		}
 
 		if ( $protocol['status'] === 'expired' || strtotime( $protocol['expires_at'] ) < time() ) {
-			return array(
+			return [
 				'valid'    => false,
 				'error'    => 'Protocolo expirado',
 				'protocol' => $protocol_code,
-			);
+			];
 		}
 
 		// Get document info
@@ -324,20 +324,20 @@ class AuditLog {
 		// Update verification count
 		$wpdb->update(
 			$this->protocol_table,
-			array(
+			[
 				'verification_count' => $protocol['verification_count'] + 1,
 				'last_verified_at'   => current_time( 'mysql' ),
-			),
-			array( 'id' => $protocol['id'] )
+			],
+			[ 'id' => $protocol['id'] ]
 		);
 
 		// Log verification
 		$this->log(
 			$protocol['document_id'],
 			'verified',
-			array(
-				'details' => array( 'protocol_code' => $protocol_code ),
-			)
+			[
+				'details' => [ 'protocol_code' => $protocol_code ],
+			]
 		);
 
 		// Get signature history
@@ -349,28 +349,28 @@ class AuditLog {
 			$hash_valid = $provided_hash === $protocol['document_hash'];
 		}
 
-		return array(
+		return [
 			'valid'       => true,
-			'protocol'    => array(
+			'protocol'    => [
 				'code'               => $protocol['protocol_code'],
 				'created_at'         => $protocol['created_at'],
 				'expires_at'         => $protocol['expires_at'],
 				'verification_count' => $protocol['verification_count'] + 1,
-			),
-			'document'    => array(
+			],
+			'document'    => [
 				'id'      => $document['id'] ?? null,
 				'file_id' => $document['file_id'] ?? null,
 				'title'   => $document['title'] ?? 'Documento não encontrado',
 				'status'  => $document['status'] ?? 'unknown',
-			),
-			'hash'        => array(
+			],
+			'hash'        => [
 				'stored'   => $protocol['document_hash'],
 				'provided' => $provided_hash,
 				'match'    => $hash_valid,
-			),
+			],
 			'signatures'  => $signatures,
 			'verified_at' => current_time( 'mysql' ),
-		);
+		];
 	}
 
 	/**
@@ -406,26 +406,26 @@ class AuditLog {
 		);
 
 		if ( $document ) {
-			return array(
+			return [
 				'valid'    => true,
-				'document' => array(
+				'document' => [
 					'id'      => $document['id'],
 					'file_id' => $document['file_id'],
 					'title'   => $document['title'],
 					'status'  => $document['status'],
-				),
-				'hash'     => array(
+				],
+				'hash'     => [
 					'stored' => $document['pdf_hash'],
 					'match'  => true,
-				),
+				],
 				'note'     => 'Documento encontrado mas sem protocolo de verificação',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'valid' => false,
 			'error' => 'Nenhum documento encontrado com este hash',
-		);
+		];
 	}
 
 	/**
@@ -465,11 +465,11 @@ class AuditLog {
 	 * @param array $args Query args
 	 * @return array Logs
 	 */
-	public function getDocumentLogs( int $document_id, array $args = array() ): array {
+	public function getDocumentLogs( int $document_id, array $args = [] ): array {
 		global $wpdb;
 
-		$where  = array( 'document_id = %d' );
-		$params = array( $document_id );
+		$where  = [ 'document_id = %d' ];
+		$params = [ $document_id ];
 
 		// Action filter
 		if ( ! empty( $args['action'] ) ) {
@@ -501,7 +501,7 @@ class AuditLog {
                  WHERE {$where_sql}
                  ORDER BY timestamp DESC
                  LIMIT %d OFFSET %d",
-				array( ...$params, $per_page, $offset )
+				[ ...$params, $per_page, $offset ]
 			),
 			ARRAY_A
 		);
@@ -534,10 +534,10 @@ class AuditLog {
 		);
 
 		if ( ! $document ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento não encontrado',
-			);
+			];
 		}
 
 		// Get protocol
@@ -556,10 +556,10 @@ class AuditLog {
 		$logs = $this->getDocumentLogs( $document_id );
 
 		// Build report
-		return array(
+		return [
 			'success'                          => true,
 			'generated_at'                     => current_time( 'mysql' ),
-			'document'                         => array(
+			'document'                         => [
 				'id'           => $document['id'],
 				'file_id'      => $document['file_id'],
 				'title'        => $document['title'],
@@ -568,17 +568,17 @@ class AuditLog {
 				'created_at'   => $document['created_at'],
 				'finalized_at' => $document['finalized_at'],
 				'pdf_hash'     => $document['pdf_hash'],
-			),
-			'protocol'                         => $protocol ? array(
+			],
+			'protocol'                         => $protocol ? [
 				'code'               => $protocol['protocol_code'],
 				'created_at'         => $protocol['created_at'],
 				'expires_at'         => $protocol['expires_at'],
 				'status'             => $protocol['status'],
 				'verification_count' => $protocol['verification_count'],
-			) : null,
+			] : null,
 			'signatures'                       => array_map(
 				function ( $sig ) {
-					return array(
+					return [
 						'party'      => $sig['signer_party'],
 						'name'       => $sig['signer_name'],
 						'cpf_masked' => $sig['signer_cpf_masked'] ?? '',
@@ -586,19 +586,19 @@ class AuditLog {
 						'status'     => $sig['status'],
 						'signed_at'  => $sig['signed_at'],
 						'ip_address' => $sig['ip_address'],
-					);
+					];
 				},
 				$signatures
 			),
-			'signatures_summary'               => array(
+			'signatures_summary'               => [
 				'total'   => count( $signatures ),
 				'signed'  => count( array_filter( $signatures, fn( $s ) => $s['status'] === 'signed' ) ),
 				'pending' => count( array_filter( $signatures, fn( $s ) => $s['status'] === 'pending' ) ),
-			),
+			],
 			'audit_trail'                      => array_slice( $logs, 0, 20 ),
 			// Last 20 events
 							'verification_url' => $protocol ? site_url( "/verificar/{$protocol['protocol_code']}" ) : null,
-		);
+		];
 	}
 
 	/**
@@ -620,23 +620,23 @@ class AuditLog {
 		);
 
 		if ( ! $protocol ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Protocolo não encontrado',
-			);
+			];
 		}
 
 		if ( $protocol['status'] === 'revoked' ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Protocolo já foi revogado',
-			);
+			];
 		}
 
 		$result = $wpdb->update(
 			$this->protocol_table,
-			array( 'status' => 'revoked' ),
-			array( 'id' => $protocol['id'] )
+			[ 'status' => 'revoked' ],
+			[ 'id' => $protocol['id'] ]
 		);
 
 		if ( $result !== false ) {
@@ -644,31 +644,31 @@ class AuditLog {
 			$this->log(
 				$protocol['document_id'],
 				'revoked',
-				array(
-					'details' => array(
+				[
+					'details' => [
 						'protocol_code' => $protocol_code,
 						'reason'        => $reason,
-					),
-				)
+					],
+				]
 			);
 
-			return array(
+			return [
 				'success' => true,
 				'message' => 'Protocolo revogado',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Erro ao revogar protocolo',
-		);
+		];
 	}
 
 	/**
 	 * Get client IP
 	 */
 	private function getClientIp(): string {
-		$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+		$ip_keys = [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
 
 		foreach ( $ip_keys as $key ) {
 			if ( ! empty( $_SERVER[ $key ] ) ) {

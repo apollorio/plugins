@@ -52,19 +52,19 @@ class Apollo_Widget_Trax_Player extends Apollo_Widget_Base {
 	 * Tooltip: Controls for autoplay, visual player, etc.
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'url'          => $this->field(
 				'text',
 				__( 'SoundCloud/Spotify URL', 'apollo-social' ),
 				'',
-				array(
+				[
 					'description' => __( 'Paste a SoundCloud track/playlist or Spotify URL', 'apollo-social' ),
-				)
+				]
 			),
 			'autoplay'     => $this->field( 'switch', __( 'Auto Play', 'apollo-social' ), false ),
 			'show_artwork' => $this->field( 'switch', __( 'Show Artwork', 'apollo-social' ), true ),
 			'color'        => $this->field( 'color', __( 'Player Color', 'apollo-social' ), '#ff5500' ),
-		);
+		];
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Apollo_Widget_Trax_Player extends Apollo_Widget_Base {
 	 * Data source: _apollo_trax_url post meta or widget config
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 		$post_id  = $data['post_id'] ?? 0;
 
 		// Get URL from settings or post meta
@@ -103,7 +103,7 @@ class Apollo_Widget_Trax_Player extends Apollo_Widget_Base {
 				<?php
 				// Pattern: WOW SoundCloud iframe params
 				$params = http_build_query(
-					array(
+					[
 						'url'           => $url,
 						'auto_play'     => $autoplay,
 						'color'         => $color_clean,
@@ -111,7 +111,7 @@ class Apollo_Widget_Trax_Player extends Apollo_Widget_Base {
 						'show_user'     => 'true',
 						'show_comments' => 'false',
 						'show_reposts'  => 'false',
-					)
+					]
 				);
 				?>
 				<iframe 

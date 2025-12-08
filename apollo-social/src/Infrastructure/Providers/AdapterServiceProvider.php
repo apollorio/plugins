@@ -15,7 +15,7 @@ use Apollo\Infrastructure\Adapters\BadgeOSAdapter;
 class AdapterServiceProvider {
 
 
-	private $adapters = array();
+	private $adapters = [];
 
 	public function __construct() {
 		$this->register_adapters();
@@ -26,12 +26,12 @@ class AdapterServiceProvider {
 	 * Register all available adapters
 	 */
 	private function register_adapters() {
-		$this->adapters = array(
+		$this->adapters = [
 			'groups'        => GroupsAdapter::class,
 			'event_manager' => EventManagerAdapter::class,
 			'wpadverts'     => WPAdvertsAdapter::class,
 			'badgeos'       => BadgeOSAdapter::class,
-		);
+		];
 	}
 
 	/**
@@ -103,7 +103,7 @@ class AdapterServiceProvider {
 	 * Get all initialized adapters
 	 */
 	public function get_all_adapters(): array {
-		$initialized = array();
+		$initialized = [];
 
 		foreach ( $this->adapters as $key => $adapter ) {
 			if ( is_object( $adapter ) ) {
@@ -131,15 +131,15 @@ class AdapterServiceProvider {
 	 * Get adapter availability status for all adapters
 	 */
 	public function get_adapter_status(): array {
-		$status = array();
+		$status = [];
 
 		foreach ( $this->adapters as $key => $adapter ) {
-			$status[ $key ] = array(
+			$status[ $key ] = [
 				'enabled'     => $this->is_adapter_enabled( $key ),
 				'initialized' => is_object( $adapter ),
 				'available'   => $this->is_plugin_available( $key ),
 				'class'       => is_object( $adapter ) ? get_class( $adapter ) : $adapter,
-			);
+			];
 		}
 
 		return $status;
@@ -205,15 +205,15 @@ class AdapterServiceProvider {
 	 */
 	public function register_hooks() {
 		// Admin hooks for adapter management
-		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 25 );
-		add_action( 'admin_post_apollo_toggle_adapter', array( $this, 'admin_toggle_adapter' ) );
-		add_action( 'admin_post_apollo_test_adapter', array( $this, 'admin_test_adapter' ) );
+		add_action( 'admin_menu', [ $this, 'add_admin_menu' ], 25 );
+		add_action( 'admin_post_apollo_toggle_adapter', [ $this, 'admin_toggle_adapter' ] );
+		add_action( 'admin_post_apollo_test_adapter', [ $this, 'admin_test_adapter' ] );
 
 		// AJAX hooks for adapter status checks
-		add_action( 'wp_ajax_apollo_check_adapter_status', array( $this, 'ajax_check_adapter_status' ) );
+		add_action( 'wp_ajax_apollo_check_adapter_status', [ $this, 'ajax_check_adapter_status' ] );
 
 		// Hook for displaying adapter status in admin
-		add_action( 'apollo_admin_dashboard_widgets', array( $this, 'add_adapter_status_widget' ) );
+		add_action( 'apollo_admin_dashboard_widgets', [ $this, 'add_adapter_status_widget' ] );
 	}
 
 	/**
@@ -226,7 +226,7 @@ class AdapterServiceProvider {
 			'Integrações',
 			'manage_options',
 			'apollo-integrations',
-			array( $this, 'admin_integrations_page' )
+			[ $this, 'admin_integrations_page' ]
 		);
 	}
 
@@ -261,12 +261,12 @@ class AdapterServiceProvider {
 	 * Render adapter status card
 	 */
 	private function render_adapter_card( $adapter_key, $status ) {
-		$adapter_names = array(
+		$adapter_names = [
 			'groups'        => 'itthinx Groups',
 			'event_manager' => 'WP Event Manager',
 			'wpadverts'     => 'WPAdverts',
 			'badgeos'       => 'BadgeOS',
-		);
+		];
 
 		$adapter_name = $adapter_names[ $adapter_key ] ?? ucfirst( $adapter_key );
 		$status_class = $status['available'] ? 'available' : ( $status['enabled'] ? 'enabled-unavailable' : 'disabled' );
@@ -457,12 +457,12 @@ class AdapterServiceProvider {
 
 		foreach ( $status as $key => $adapter_status ) {
 			$icon          = $adapter_status['available'] ? '✅' : '❌';
-			$adapter_names = array(
+			$adapter_names = [
 				'groups'        => 'Groups',
 				'event_manager' => 'Events',
 				'wpadverts'     => 'Adverts',
 				'badgeos'       => 'Badges',
-			);
+			];
 			$name          = $adapter_names[ $key ] ?? ucfirst( $key );
 
 			echo '<div>' . $icon . ' ' . esc_html( $name ) . '</div>';
@@ -484,7 +484,7 @@ class AdapterServiceProvider {
 			default => $adapter_key
 		};
 
-		$integrations_config                           = get_option( 'apollo_integrations_config', array() );
+		$integrations_config                           = get_option( 'apollo_integrations_config', [] );
 		$integrations_config[ $config_key ]['enabled'] = $enabled;
 
 		update_option( 'apollo_integrations_config', $integrations_config );

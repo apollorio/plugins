@@ -12,7 +12,7 @@ class Moderation {
 	/**
 	 * Submit group for review
 	 */
-	public function submitForReview( int $group_id, array $data = array() ): array {
+	public function submitForReview( int $group_id, array $data = [] ): array {
 		global $wpdb;
 
 		$groups_table     = $wpdb->prefix . 'apollo_groups';
@@ -21,17 +21,17 @@ class Moderation {
 		// Update group status
 		$wpdb->update(
 			$groups_table,
-			array(
+			[
 				'status'     => 'pending_review',
 				'updated_at' => \current_time( 'mysql' ),
-			),
-			array( 'id' => $group_id )
+			],
+			[ 'id' => $group_id ]
 		);
 
 		// Add to moderation queue
 		$wpdb->insert(
 			$moderation_table,
-			array(
+			[
 				'entity_id'       => $group_id,
 				'entity_type'     => 'group',
 				'submitter_id'    => \get_current_user_id(),
@@ -40,23 +40,23 @@ class Moderation {
 				'priority'        => $this->calculatePriority( $data ),
 				'submitted_at'    => \current_time( 'mysql' ),
 				'metadata'        => json_encode(
-					array(
+					[
 						'ip_address'        => $this->getClientIp(),
 						'user_agent'        => $_SERVER['HTTP_USER_AGENT'] ?? '',
 						'submission_reason' => $data['reason'] ?? 'Criação de grupo',
-					)
+					]
 				),
-			)
+			]
 		);
 
 		// Notify moderators
 		$this->notifyModerators( $group_id, 'group', $data );
 
-		return array(
+		return [
 			'success' => true,
 			'message' => 'Grupo enviado para moderação',
 			'status'  => 'pending_review',
-		);
+		];
 	}
 
 	/**
@@ -71,28 +71,28 @@ class Moderation {
 		// Update group status
 		$wpdb->update(
 			$groups_table,
-			array(
+			[
 				'status'       => 'published',
 				'published_at' => \current_time( 'mysql' ),
 				'updated_at'   => \current_time( 'mysql' ),
-			),
-			array( 'id' => $group_id )
+			],
+			[ 'id' => $group_id ]
 		);
 
 		// Update moderation record
 		$wpdb->update(
 			$moderation_table,
-			array(
+			[
 				'status'          => 'approved',
 				'moderator_id'    => $moderator_id,
 				'reviewed_at'     => \current_time( 'mysql' ),
 				'moderator_notes' => $notes,
-			),
-			array(
+			],
+			[
 				'entity_id'   => $group_id,
 				'entity_type' => 'group',
 				'status'      => 'pending',
-			)
+			]
 		);
 
 		// Get group data for notifications
@@ -107,10 +107,10 @@ class Moderation {
 		// Award badges
 		$this->awardApprovalBadges( $group['creator_id'], 'group' );
 
-		return array(
+		return [
 			'success' => true,
 			'message' => 'Grupo aprovado com sucesso',
-		);
+		];
 	}
 
 	/**
@@ -131,38 +131,38 @@ class Moderation {
 			// Update group status
 			$group_updated = $wpdb->update(
 				$groups_table,
-				array(
+				[
 					'status'     => 'rejected',
 					'updated_at' => \current_time( 'mysql' ),
-				),
-				array( 'id' => $group_id ),
-				array( '%s', '%s' ),
-				array( '%d' )
+				],
+				[ 'id' => $group_id ],
+				[ '%s', '%s' ],
+				[ '%d' ]
 			);
 
 			// Update moderation record
 			$queue_updated = $wpdb->update(
 				$moderation_table,
-				array(
+				[
 					'status'          => 'rejected',
 					'moderator_id'    => $moderator_id,
 					'reviewed_at'     => \current_time( 'mysql' ),
 					'moderator_notes' => $sanitized_reason,
 					'metadata'        => json_encode(
-						array(
+						[
 							'rejection_reason' => $sanitized_reason,
 							'moderator_ip'     => $this->getClientIp(),
 							'action_timestamp' => time(),
-						)
+						]
 					),
-				),
-				array(
+				],
+				[
 					'entity_id'   => $group_id,
 					'entity_type' => 'group',
 					'status'      => 'pending',
-				),
-				array( '%s', '%d', '%s', '%s', '%s' ),
-				array( '%d', '%s', '%s' )
+				],
+				[ '%s', '%d', '%s', '%s', '%s' ],
+				[ '%d', '%s', '%s' ]
 			);
 
 			if ( $group_updated !== false && $queue_updated !== false ) {
@@ -177,33 +177,33 @@ class Moderation {
 				// Notify submitter with standard rejection message
 				$this->notifyRejection( $group['creator_id'], $group['name'], $sanitized_reason );
 
-				return array(
+				return [
 					'success' => true,
 					'message' => 'Grupo rejeitado',
 					'reason'  => $sanitized_reason,
-				);
+				];
 			} else {
 				$wpdb->query( 'ROLLBACK' );
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Erro ao rejeitar grupo',
-				);
+				];
 			}//end if
 		} catch ( Exception $e ) {
 			$wpdb->query( 'ROLLBACK' );
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno: ' . $e->getMessage(),
-			);
+			];
 		}//end try
 	}
 
 	/**
 	 * Check if group requires approval
 	 */
-	public function requiresApproval( string $group_type, array $data = array() ): bool {
+	public function requiresApproval( string $group_type, array $data = [] ): bool {
 		// Community and Núcleo always require approval
-		if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
+		if ( in_array( $group_type, [ 'comunidade', 'nucleo' ] ) ) {
 			return true;
 		}
 
@@ -247,22 +247,22 @@ class Moderation {
 	private function notifyModerators( int $entity_id, string $entity_type, array $data ): void {
 		// Get moderators
 		$moderators = \get_users(
-			array(
+			[
 				'capability' => 'apollo_moderate_groups',
 				'fields'     => 'ID',
-			)
+			]
 		);
 
 		foreach ( $moderators as $moderator_id ) {
 			$this->createNotification(
 				$moderator_id,
-				array(
+				[
 					'type'        => 'moderation_request',
 					'entity_id'   => $entity_id,
 					'entity_type' => $entity_type,
 					'message'     => 'Novo ' . $entity_type . ' aguardando aprovação',
 					'action_url'  => '/apollo/admin/moderation',
-				)
+				]
 			);
 		}
 	}
@@ -284,13 +284,13 @@ class Moderation {
 
 		$this->createNotification(
 			$user_id,
-			array(
+			[
 				'type'        => 'moderation_result',
 				'decision'    => $decision,
 				'entity_name' => $entity_name,
 				'message'     => $message,
 				'action_url'  => $decision === 'approved' ? '/apollo/groups/' . urlencode( $entity_name ) : '/apollo/groups/create',
-			)
+			]
 		);
 	}
 
@@ -298,20 +298,20 @@ class Moderation {
 	 * Award approval badges
 	 */
 	private function awardApprovalBadges( int $user_id, string $entity_type ): void {
-		$badge_map = array(
+		$badge_map = [
 			'group'  => 'community_builder',
 			'nucleo' => 'nucleo_founder',
-		);
+		];
 
 		if ( isset( $badge_map[ $entity_type ] ) ) {
 			\do_action(
 				'apollo_award_badge',
 				$user_id,
 				$badge_map[ $entity_type ],
-				array(
+				[
 					'reason'      => 'group_approved',
 					'entity_type' => $entity_type,
-				)
+				]
 			);
 		}
 	}
@@ -326,7 +326,7 @@ class Moderation {
 
 		$wpdb->insert(
 			$table_name,
-			array(
+			[
 				'user_id'    => $user_id,
 				'type'       => $data['type'],
 				'title'      => $data['message'],
@@ -334,7 +334,7 @@ class Moderation {
 				'data'       => json_encode( $data ),
 				'read'       => 0,
 				'created_at' => \current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -342,7 +342,7 @@ class Moderation {
 	 * Get client IP
 	 */
 	private function getClientIp(): string {
-		$ip_headers = array(
+		$ip_headers = [
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -350,7 +350,7 @@ class Moderation {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		);
+		];
 
 		foreach ( $ip_headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
@@ -366,10 +366,10 @@ class Moderation {
 	 */
 	private function sanitizeRejectionReason( string $reason ): string {
 		// Allow only <br> and <span class="apollo-reason">
-		$allowed_tags = array(
-			'br'   => array(),
-			'span' => array( 'class' => true ),
-		);
+		$allowed_tags = [
+			'br'   => [],
+			'span' => [ 'class' => true ],
+		];
 
 		$sanitized = \wp_kses( $reason, $allowed_tags );
 
@@ -395,7 +395,7 @@ class Moderation {
 
 		$this->createNotification(
 			$user_id,
-			array(
+			[
 				'type'         => 'group_rejected',
 				'title'        => 'Grupo rejeitado',
 				'message'      => $message,
@@ -403,18 +403,18 @@ class Moderation {
 				'reason'       => $reason,
 				'timestamp'    => current_time( 'mysql' ),
 				'can_resubmit' => true,
-			)
+			]
 		);
 
 		// Also store in user meta for immediate display
 		update_user_meta(
 			$user_id,
 			'apollo_latest_rejection',
-			array(
+			[
 				'message'    => $message,
 				'group_name' => $group_name,
 				'timestamp'  => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -438,11 +438,11 @@ class Moderation {
 			return null;
 		}
 
-		return array(
+		return [
 			'message'      => "Apollo rejeitou sua inclusão..<br>Motivo: <span class=\"apollo-reason\">{$rejection->reason}</span>",
 			'reviewed_at'  => $rejection->reviewed_at,
 			'moderator_id' => $rejection->moderator_id,
 			'can_resubmit' => true,
-		);
+		];
 	}
 }

@@ -23,26 +23,26 @@ class EventManagerAdapter {
 	 */
 	private function init_hooks() {
 		// Event lifecycle hooks
-		add_action( 'post_updated', array( $this, 'on_event_updated' ), 10, 3 );
-		add_action( 'before_delete_post', array( $this, 'on_event_deleted' ), 10, 1 );
-		add_action( 'transition_post_status', array( $this, 'on_event_status_changed' ), 10, 3 );
+		add_action( 'post_updated', [ $this, 'on_event_updated' ], 10, 3 );
+		add_action( 'before_delete_post', [ $this, 'on_event_deleted' ], 10, 1 );
+		add_action( 'transition_post_status', [ $this, 'on_event_status_changed' ], 10, 3 );
 
 		// Event submission hooks
-		add_action( 'event_manager_save_event_listing', array( $this, 'on_event_saved' ), 10, 2 );
-		add_filter( 'submit_event_form_fields', array( $this, 'add_apollo_fields' ), 10, 1 );
-		add_filter( 'event_manager_event_listing_data', array( $this, 'process_apollo_data' ), 10, 2 );
+		add_action( 'event_manager_save_event_listing', [ $this, 'on_event_saved' ], 10, 2 );
+		add_filter( 'submit_event_form_fields', [ $this, 'add_apollo_fields' ], 10, 1 );
+		add_filter( 'event_manager_event_listing_data', [ $this, 'process_apollo_data' ], 10, 2 );
 
 		// Event display hooks
-		add_action( 'single_event_listing_meta_start', array( $this, 'add_apollo_meta' ), 10, 1 );
-		add_filter( 'the_event_description', array( $this, 'enhance_event_description' ), 10, 2 );
+		add_action( 'single_event_listing_meta_start', [ $this, 'add_apollo_meta' ], 10, 1 );
+		add_filter( 'the_event_description', [ $this, 'enhance_event_description' ], 10, 2 );
 
 		// Event query modifications
-		add_action( 'pre_get_posts', array( $this, 'modify_event_queries' ), 10, 1 );
-		add_filter( 'event_manager_get_listings_args', array( $this, 'add_apollo_filters' ), 10, 1 );
+		add_action( 'pre_get_posts', [ $this, 'modify_event_queries' ], 10, 1 );
+		add_filter( 'event_manager_get_listings_args', [ $this, 'add_apollo_filters' ], 10, 1 );
 
 		// Featured events
 		if ( $this->config['featured_events'] ?? false ) {
-			add_filter( 'event_manager_featured_event_listings', array( $this, 'get_featured_events' ), 10, 2 );
+			add_filter( 'event_manager_featured_event_listings', [ $this, 'get_featured_events' ], 10, 2 );
 		}
 	}
 
@@ -129,64 +129,64 @@ class EventManagerAdapter {
 	 * Add Apollo-specific fields to event submission form
 	 */
 	public function add_apollo_fields( $fields ) {
-		$apollo_fields = array(
-			'apollo_group_type' => array(
+		$apollo_fields = [
+			'apollo_group_type' => [
 				'label'    => 'Tipo de Grupo',
 				'type'     => 'select',
 				'required' => false,
-				'options'  => array(
+				'options'  => [
 					''           => 'Selecione...',
 					'comunidade' => 'Comunidade',
 					'nucleo'     => 'Núcleo',
 					'season'     => 'Season',
-				),
+				],
 				'priority' => 1,
-			),
-			'apollo_group_id'   => array(
+			],
+			'apollo_group_id'   => [
 				'label'    => 'Grupo Apollo',
 				'type'     => 'select',
 				'required' => false,
 				'options'  => $this->get_apollo_groups_options(),
 				'priority' => 2,
-			),
-			'apollo_visibility' => array(
+			],
+			'apollo_visibility' => [
 				'label'    => 'Visibilidade',
 				'type'     => 'select',
 				'required' => false,
-				'options'  => array(
+				'options'  => [
 					'public'  => 'Público',
 					'members' => 'Apenas Membros',
 					'private' => 'Privado',
-				),
+				],
 				'default'  => 'public',
 				'priority' => 3,
-			),
-			'apollo_tags'       => array(
+			],
+			'apollo_tags'       => [
 				'label'       => 'Tags Apollo',
 				'type'        => 'text',
 				'required'    => false,
 				'placeholder' => 'Separado por vírgulas',
 				'priority'    => 4,
-			),
-			'apollo_capacity'   => array(
+			],
+			'apollo_capacity'   => [
 				'label'       => 'Capacidade Máxima',
 				'type'        => 'number',
 				'required'    => false,
 				'placeholder' => '0 = ilimitado',
 				'priority'    => 5,
-			),
-		);
+			],
+		];
 
 		// Merge with existing fields
 		return array_merge(
 			$fields,
-			array(
-				'apollo' => array(
+			[
+				'apollo' => [
 					'label'    => 'Configurações Apollo',
 					'fields'   => $apollo_fields,
 					'priority' => 25,
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -194,7 +194,7 @@ class EventManagerAdapter {
 	 * Process Apollo data during event submission
 	 */
 	public function process_apollo_data( $data, $post_id ) {
-		$apollo_fields = array( 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' );
+		$apollo_fields = [ 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' ];
 
 		foreach ( $apollo_fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
@@ -225,11 +225,11 @@ class EventManagerAdapter {
 
 		// Visibility
 		if ( ! empty( $apollo_meta['visibility'] ) ) {
-			$visibility_labels = array(
+			$visibility_labels = [
 				'public'  => 'Público',
 				'members' => 'Apenas Membros',
 				'private' => 'Privado',
-			);
+			];
 			echo '<div class="apollo-visibility">';
 			echo '<strong>Visibilidade:</strong> ' . esc_html( $visibility_labels[ $apollo_meta['visibility'] ] ?? $apollo_meta['visibility'] );
 			echo '</div>';
@@ -287,12 +287,12 @@ class EventManagerAdapter {
 			// Add Apollo meta query if needed
 			$apollo_filter = $query->get( 'apollo_filter' );
 			if ( $apollo_filter ) {
-				$meta_query   = $query->get( 'meta_query' ) ?: array();
-				$meta_query[] = array(
+				$meta_query   = $query->get( 'meta_query' ) ?: [];
+				$meta_query[] = [
 					'key'     => '_apollo_group_type',
 					'value'   => $apollo_filter,
 					'compare' => '=',
-				);
+				];
 				$query->set( 'meta_query', $meta_query );
 			}
 		}
@@ -304,19 +304,19 @@ class EventManagerAdapter {
 	public function add_apollo_filters( $args ) {
 		// Add Apollo-specific filters if needed
 		if ( isset( $_GET['apollo_group_type'] ) ) {
-			$args['meta_query'][] = array(
+			$args['meta_query'][] = [
 				'key'     => '_apollo_group_type',
 				'value'   => sanitize_text_field( $_GET['apollo_group_type'] ),
 				'compare' => '=',
-			);
+			];
 		}
 
 		if ( isset( $_GET['apollo_visibility'] ) ) {
-			$args['meta_query'][] = array(
+			$args['meta_query'][] = [
 				'key'     => '_apollo_visibility',
 				'value'   => sanitize_text_field( $_GET['apollo_visibility'] ),
 				'compare' => '=',
-			);
+			];
 		}
 
 		return $args;
@@ -328,17 +328,17 @@ class EventManagerAdapter {
 	public function get_featured_events( $events, $args ) {
 		// Get Apollo featured events
 		$apollo_featured = get_posts(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => 5,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'     => '_apollo_featured',
 						'value'   => '1',
 						'compare' => '=',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		return array_merge( $events, $apollo_featured );
@@ -352,17 +352,17 @@ class EventManagerAdapter {
 			return null;
 		}
 
-		$defaults = array(
+		$defaults = [
 			'post_type'   => 'event_listing',
 			'post_status' => $this->config['default_status'] ?? 'pending',
-			'meta_input'  => array(),
-		);
+			'meta_input'  => [],
+		];
 
 		$event_data = array_merge( $defaults, $event_data );
 
 		// Extract Apollo meta
-		$apollo_meta   = array();
-		$apollo_fields = array( 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' );
+		$apollo_meta   = [];
+		$apollo_fields = [ 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' ];
 
 		foreach ( $apollo_fields as $field ) {
 			if ( isset( $event_data[ $field ] ) ) {
@@ -389,28 +389,28 @@ class EventManagerAdapter {
 	/**
 	 * Get Apollo events by group
 	 */
-	public function get_events_by_group( $group_type, $group_id = null, $args = array() ): array {
+	public function get_events_by_group( $group_type, $group_id = null, $args = [] ): array {
 		$query_args = array_merge(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => -1,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'     => '_apollo_group_type',
 						'value'   => $group_type,
 						'compare' => '=',
-					),
-				),
-			),
+					],
+				],
+			],
 			$args
 		);
 
 		if ( $group_id ) {
-			$query_args['meta_query'][] = array(
+			$query_args['meta_query'][] = [
 				'key'     => '_apollo_group_id',
 				'value'   => $group_id,
 				'compare' => '=',
-			);
+			];
 		}
 
 		return get_posts( $query_args );
@@ -452,14 +452,14 @@ class EventManagerAdapter {
 	}
 
 	private function get_apollo_event_meta( $post_id ): array {
-		return array(
+		return [
 			'group_type' => get_post_meta( $post_id, '_apollo_group_type', true ),
 			'group_id'   => get_post_meta( $post_id, '_apollo_group_id', true ),
 			'visibility' => get_post_meta( $post_id, '_apollo_visibility', true ),
 			'tags'       => get_post_meta( $post_id, '_apollo_tags', true ),
 			'capacity'   => get_post_meta( $post_id, '_apollo_capacity', true ),
 			'featured'   => get_post_meta( $post_id, '_apollo_featured', true ),
-		);
+		];
 	}
 
 	private function save_apollo_event_meta( $post_id, $apollo_data ) {
@@ -469,8 +469,8 @@ class EventManagerAdapter {
 	}
 
 	private function extract_apollo_data( $values ): array {
-		$apollo_fields = array( 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' );
-		$apollo_data   = array();
+		$apollo_fields = [ 'apollo_group_type', 'apollo_group_id', 'apollo_visibility', 'apollo_tags', 'apollo_capacity' ];
+		$apollo_data   = [];
 
 		foreach ( $apollo_fields as $field ) {
 			if ( isset( $values[ $field ] ) ) {
@@ -484,7 +484,7 @@ class EventManagerAdapter {
 	private function get_apollo_groups_options(): array {
 		// This would be implemented to get actual Apollo groups
 		// For now, return empty array as placeholder
-		return apply_filters( 'apollo_event_groups_options', array() );
+		return apply_filters( 'apollo_event_groups_options', [] );
 	}
 
 	/**

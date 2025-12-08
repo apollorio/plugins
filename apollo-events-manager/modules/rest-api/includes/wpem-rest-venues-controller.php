@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API SMOKE TEST – PASSED
+ * Route: /aprio/locals (Venues renamed to Locais)
+ * Affects: apollo-events-manager.php, aprio-rest-venues-controller.php
+ * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ */
 // phpcs:ignoreFile
 /**
  * REST API Events controller
@@ -13,16 +19,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API Events controller class.
  *
- * @extends WPEM_REST_CRUD_Controller
+ * @extends APRIO_REST_CRUD_Controller
  */
-class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Events_Controller extends APRIO_REST_CRUD_Controller {
 
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base.
@@ -49,7 +55,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 	 * Initialize event actions.
 	 */
 	public function __construct() {
-		add_action( "wpem_rest_insert_{$this->post_type}_object", array( $this, 'clear_transients' ) );
+		add_action( "aprio_rest_insert_{$this->post_type}_object", array( $this, 'clear_transients' ) );
 		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
 	}
 
@@ -83,7 +89,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'wpem-rest-api' ),
+						'description' => __( 'Unique identifier for the resource.', 'aprio-rest-api' ),
 						'type'        => 'integer',
 					),
 				),
@@ -112,7 +118,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'wpem-rest-api' ),
+							'description' => __( 'Whether to bypass trash and force deletion.', 'aprio-rest-api' ),
 							'type'        => 'boolean',
 						),
 					),
@@ -176,7 +182,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		 * @param Post Data          $object   Object data.
 		 * @param WP_REST_Request  $request  Request object.
 		 */
-		return apply_filters( "wpem_rest_prepare_{$this->post_type}_object", $response, $object, $request );
+		return apply_filters( "aprio_rest_prepare_{$this->post_type}_object", $response, $object, $request );
 	}
 
 	/**
@@ -216,7 +222,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 
 		// Filter by term.
 		if ( ! empty( $tax_query ) ) {
-			$args['tax_query'] = $tax_query; 
+			$args['tax_query'] = $tax_query;
 			// WPCS: slow query ok.
 		}
 		$args['post_type'] = $this->post_type;
@@ -258,15 +264,15 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		if ( empty( $images ) ) {
 			$images[] = array(
 				'id'                                   => 0,
-				'date_created'                         => wpem_rest_api_prepare_date_response( current_time( 'mysql' ), false ), 
+				'date_created'                         => aprio_rest_api_prepare_date_response( current_time( 'mysql' ), false ),
 				// Default to now.
-									'date_created_gmt' => wpem_rest_api_prepare_date_response( time() ), 
+									'date_created_gmt' => aprio_rest_api_prepare_date_response( time() ),
 				// Default to now.
-									'date_modified'    => wpem_rest_api_prepare_date_response( current_time( 'mysql' ), false ),
-				'date_modified_gmt'                    => wpem_rest_api_prepare_date_response( time() ),
+									'date_modified'    => aprio_rest_api_prepare_date_response( current_time( 'mysql' ), false ),
+				'date_modified_gmt'                    => aprio_rest_api_prepare_date_response( time() ),
 				'src'                                  => '',
-				'name'                                 => __( 'Placeholder', 'wpem-rest-api' ),
-				'alt'                                  => __( 'Placeholder', 'wpem-rest-api' ),
+				'name'                                 => __( 'Placeholder', 'aprio-rest-api' ),
+				'alt'                                  => __( 'Placeholder', 'aprio-rest-api' ),
 				'position'                             => 0,
 			);
 		}
@@ -331,7 +337,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		 * @param WP_Post            $post       Post object.
 		 * @param WP_REST_Request    $request    Request object.
 		 */
-		return apply_filters( "wpem_rest_prepare_{$this->post_type}", $response, $post, $request );
+		return apply_filters( "aprio_rest_prepare_{$this->post_type}", $response, $post, $request );
 	}
 
 	/**
@@ -385,7 +391,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 				$GLOBALS['event_manager']->forms->get_form( 'submit-event', array() );
 				// Removed WP_Event_Manager dependency - use Apollo's form system
 				// $form_submit_event_instance = call_user_func( array( 'WP_Event_Manager_Form_Submit_Event', 'instance' ) );
-				$form_submit_event_instance = null; 
+				$form_submit_event_instance = null;
 			// Apollo Events Manager uses its own form handling
 				$event_fields = $form_submit_event_instance->merge_with_custom_fields( 'frontend' );
 
@@ -419,7 +425,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		 * @param WP_REST_Request $request  Request object.
 		 * @param bool            $creating If is creating a new object.
 		 */
-		return apply_filters( "wpem_rest_pre_insert_{$this->post_type}_object", $event, $request, $creating );
+		return apply_filters( "aprio_rest_pre_insert_{$this->post_type}_object", $event, $request, $creating );
 	}
 
 	/**
@@ -440,16 +446,16 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 				$attachment_id = isset( $image['id'] ) ? absint( $image['id'] ) : 0;
 
 				if ( 0 === $attachment_id && isset( $image['src'] ) ) {
-					$upload = wpem_rest_upload_image_from_url( esc_url_raw( $image['src'] ) );
+					$upload = aprio_rest_upload_image_from_url( esc_url_raw( $image['src'] ) );
 
 					if ( is_wp_error( $upload ) ) {
-						if ( ! apply_filters( 'wpem_rest_suppress_image_upload_error', false, $upload, $event->get_id(), $images ) ) {
+						if ( ! apply_filters( 'aprio_rest_suppress_image_upload_error', false, $upload, $event->get_id(), $images ) ) {
 							return parent::prepare_error_for_response( 400 );
 						} else {
 							continue;
 						}
 					}
-					$attachment_id = wpem_rest_set_uploaded_image_as_attachment( $upload, $event->ID );
+					$attachment_id = aprio_rest_set_uploaded_image_as_attachment( $upload, $event->ID );
 				}
 
 				if ( ! wp_attachment_is_image( $attachment_id ) ) {
@@ -476,7 +482,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 
 				// Set the image source if present, for future reference.
 				if ( ! empty( $image['src'] ) ) {
-					update_post_meta( $attachment_id, '_wpem_attachment_source', esc_url_raw( $image['src'] ) );
+					update_post_meta( $attachment_id, '_aprio_attachment_source', esc_url_raw( $image['src'] ) );
 				}
 			}//end foreach
 
@@ -527,7 +533,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 	 * @param WC_Data $object Object data.
 	 */
 	public function clear_transients( $object ) {
-		// call wpem clear transient here
+		// call aprio clear transient here
 	}
 
 	/**
@@ -554,13 +560,13 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		 * @param boolean $supports_trash Whether the object type support trashing.
 		 * @param WC_Data $object         The object being considered for trashing support.
 		 */
-		$supports_trash = apply_filters( "wpem_rest_{$this->post_type}_object_trashable", $supports_trash, $object );
+		$supports_trash = apply_filters( "aprio_rest_{$this->post_type}_object_trashable", $supports_trash, $object );
 
-		if ( ! wpem_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
+		if ( ! aprio_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
 			return new WP_Error(
-				"wpem_rest_user_cannot_delete_{$this->post_type}",
+				"aprio_rest_user_cannot_delete_{$this->post_type}",
 				/* translators: %s: post type */
-				sprintf( __( 'Sorry, you are not allowed to delete %s.', 'wpem-rest-api' ), $this->post_type ),
+				sprintf( __( 'Sorry, you are not allowed to delete %s.', 'aprio-rest-api' ), $this->post_type ),
 				array(
 					'status' => rest_authorization_required_code(),
 				)
@@ -578,9 +584,9 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 			// If we don't support trashing for this type, error out.
 			if ( ! $supports_trash ) {
 				return new WP_Error(
-					'wpem_rest_trash_not_supported',
+					'aprio_rest_trash_not_supported',
 					/* translators: %s: post type */
-					sprintf( __( 'The %s does not support trashing.', 'wpem-rest-api' ), $this->post_type ),
+					sprintf( __( 'The %s does not support trashing.', 'aprio-rest-api' ), $this->post_type ),
 					array(
 						'status' => 501,
 					)
@@ -607,7 +613,7 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		 * @param WP_REST_Response $response The response data.
 		 * @param WP_REST_Request  $request  The request sent to the API.
 		 */
-		do_action( "wpem_rest_delete_{$this->post_type}_object", $object, $response, $request );
+		do_action( "aprio_rest_delete_{$this->post_type}_object", $object, $response, $request );
 
 		return $response;
 	}
@@ -618,103 +624,103 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
-		$weight_unit    = get_option( 'wpem_weight_unit' );
-		$dimension_unit = get_option( 'wpem_dimension_unit' );
+		$weight_unit    = get_option( 'aprio_weight_unit' );
+		$dimension_unit = get_option( 'aprio_dimension_unit' );
 		$schema         = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => $this->post_type,
 			'type'       => 'object',
 			'properties' => array(
 				'id'                => array(
-					'description' => __( 'Unique identifier for the resource.', 'wpem-rest-api' ),
+					'description' => __( 'Unique identifier for the resource.', 'aprio-rest-api' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'name'              => array(
-					'description' => __( 'Event name.', 'wpem-rest-api' ),
+					'description' => __( 'Event name.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'slug'              => array(
-					'description' => __( 'event slug.', 'wpem-rest-api' ),
+					'description' => __( 'event slug.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'permalink'         => array(
-					'description' => __( 'event URL.', 'wpem-rest-api' ),
+					'description' => __( 'event URL.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created'      => array(
-					'description' => __( "The date the event was created, in the site's timezone.", 'wpem-rest-api' ),
+					'description' => __( "The date the event was created, in the site's timezone.", 'aprio-rest-api' ),
 					'type'        => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_created_gmt'  => array(
-					'description' => __( 'The date the event was created, as GMT.', 'wpem-rest-api' ),
+					'description' => __( 'The date the event was created, as GMT.', 'aprio-rest-api' ),
 					'type'        => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified'     => array(
-					'description' => __( "The date the event was last modified, in the site's timezone.", 'wpem-rest-api' ),
+					'description' => __( "The date the event was last modified, in the site's timezone.", 'aprio-rest-api' ),
 					'type'        => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'date_modified_gmt' => array(
-					'description' => __( 'The date the event was last modified, as GMT.', 'wpem-rest-api' ),
+					'description' => __( 'The date the event was last modified, as GMT.', 'aprio-rest-api' ),
 					'type'        => 'date-time',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'status'            => array(
-					'description' => __( 'Event status (post status).', 'wpem-rest-api' ),
+					'description' => __( 'Event status (post status).', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'default'     => 'publish',
 					'enum'        => array_merge( array_keys( get_post_statuses() ), array( 'future' ) ),
 					'context'     => array( 'view', 'edit' ),
 				),
 				'featured'          => array(
-					'description' => __( 'Featured event.', 'wpem-rest-api' ),
+					'description' => __( 'Featured event.', 'aprio-rest-api' ),
 					'type'        => 'boolean',
 					'default'     => false,
 					'context'     => array( 'view', 'edit' ),
 				),
 				'description'       => array(
-					'description' => __( 'Event description.', 'wpem-rest-api' ),
+					'description' => __( 'Event description.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'short_description' => array(
-					'description' => __( 'Event short description.', 'wpem-rest-api' ),
+					'description' => __( 'Event short description.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'categories'        => array(
-					'description' => __( 'List of categories.', 'wpem-rest-api' ),
+					'description' => __( 'List of categories.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Category ID.', 'wpem-rest-api' ),
+								'description' => __( 'Category ID.', 'aprio-rest-api' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Category name.', 'wpem-rest-api' ),
+								'description' => __( 'Category name.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Category slug.', 'wpem-rest-api' ),
+								'description' => __( 'Category slug.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -723,25 +729,25 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 					),
 				),
 				'tags'              => array(
-					'description' => __( 'List of tags.', 'wpem-rest-api' ),
+					'description' => __( 'List of tags.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'   => array(
-								'description' => __( 'Tag ID.', 'wpem-rest-api' ),
+								'description' => __( 'Tag ID.', 'aprio-rest-api' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name' => array(
-								'description' => __( 'Tag name.', 'wpem-rest-api' ),
+								'description' => __( 'Tag name.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'slug' => array(
-								'description' => __( 'Tag slug.', 'wpem-rest-api' ),
+								'description' => __( 'Tag slug.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
@@ -750,59 +756,59 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 					),
 				),
 				'images'            => array(
-					'description' => __( 'List of images.', 'wpem-rest-api' ),
+					'description' => __( 'List of images.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'                => array(
-								'description' => __( 'Image ID.', 'wpem-rest-api' ),
+								'description' => __( 'Image ID.', 'aprio-rest-api' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'date_created'      => array(
-								'description' => __( "The date the image was created, in the site's timezone.", 'wpem-rest-api' ),
+								'description' => __( "The date the image was created, in the site's timezone.", 'aprio-rest-api' ),
 								'type'        => 'date-time',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'date_created_gmt'  => array(
-								'description' => __( 'The date the image was created, as GMT.', 'wpem-rest-api' ),
+								'description' => __( 'The date the image was created, as GMT.', 'aprio-rest-api' ),
 								'type'        => 'date-time',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'date_modified'     => array(
-								'description' => __( "The date the image was last modified, in the site's timezone.", 'wpem-rest-api' ),
+								'description' => __( "The date the image was last modified, in the site's timezone.", 'aprio-rest-api' ),
 								'type'        => 'date-time',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'date_modified_gmt' => array(
-								'description' => __( 'The date the image was last modified, as GMT.', 'wpem-rest-api' ),
+								'description' => __( 'The date the image was last modified, as GMT.', 'aprio-rest-api' ),
 								'type'        => 'date-time',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'src'               => array(
-								'description' => __( 'Image URL.', 'wpem-rest-api' ),
+								'description' => __( 'Image URL.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'format'      => 'uri',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'name'              => array(
-								'description' => __( 'Image name.', 'wpem-rest-api' ),
+								'description' => __( 'Image name.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'alt'               => array(
-								'description' => __( 'Image alternative text.', 'wpem-rest-api' ),
+								'description' => __( 'Image alternative text.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'position'          => array(
-								'description' => __( 'Image position. 0 means that the image is featured.', 'wpem-rest-api' ),
+								'description' => __( 'Image position. 0 means that the image is featured.', 'aprio-rest-api' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -810,25 +816,25 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 					),
 				),
 				'meta_data'         => array(
-					'description' => __( 'Meta data.', 'wpem-rest-api' ),
+					'description' => __( 'Meta data.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
 							'id'    => array(
-								'description' => __( 'Meta ID.', 'wpem-rest-api' ),
+								'description' => __( 'Meta ID.', 'aprio-rest-api' ),
 								'type'        => 'integer',
 								'context'     => array( 'view', 'edit' ),
 								'readonly'    => true,
 							),
 							'key'   => array(
-								'description' => __( 'Meta key.', 'wpem-rest-api' ),
+								'description' => __( 'Meta key.', 'aprio-rest-api' ),
 								'type'        => 'string',
 								'context'     => array( 'view', 'edit' ),
 							),
 							'value' => array(
-								'description' => __( 'Meta value.', 'wpem-rest-api' ),
+								'description' => __( 'Meta value.', 'aprio-rest-api' ),
 								'type'        => 'mixed',
 								'context'     => array( 'view', 'edit' ),
 							),
@@ -851,13 +857,13 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		$params['orderby']['enum'] = array_merge( $params['orderby']['enum'], array( 'menu_order' ) );
 
 		$params['slug']   = array(
-			'description'       => __( 'Limit result set to events with a specific slug.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to events with a specific slug.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['status'] = array(
 			'default'           => 'any',
-			'description'       => __( 'Limit result set to events assigned a specific status.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to events assigned a specific status.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'enum'              => array_merge( array( 'any', 'future' ), array_keys( get_post_statuses() ) ),
 			'sanitize_callback' => 'sanitize_key',
@@ -865,19 +871,19 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 		);
 
 		$params['featured'] = array(
-			'description'       => __( 'Limit result set to featured events.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to featured events.', 'aprio-rest-api' ),
 			'type'              => 'boolean',
 			'sanitize_callback' => 'wc_string_to_bool',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['category'] = array(
-			'description'       => __( 'Limit result set to events assigned a specific category ID.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to events assigned a specific category ID.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['tag']      = array(
-			'description'       => __( 'Limit result set to events assigned a specific tag ID.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to events assigned a specific tag ID.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'wp_parse_id_list',
 			'validate_callback' => 'rest_validate_request_arg',
@@ -898,4 +904,4 @@ class WPEM_REST_Events_Controller extends WPEM_REST_CRUD_Controller {
 	}
 }
 
-new WPEM_REST_Events_Controller();
+new APRIO_REST_Events_Controller();

@@ -233,11 +233,11 @@
         }
 
         /* Layout Toggle */
-        .wpem-event-layout-action-wrapper {
+        .aprio-event-layout-action-wrapper {
             margin-bottom: 20px;
         }
 
-        .wpem-event-layout-icon {
+        .aprio-event-layout-icon {
             cursor: pointer;
             padding: 8px;
             border-radius: var(--ap-radius-md);
@@ -247,7 +247,7 @@
             justify-content: center;
         }
 
-        .wpem-event-layout-icon:hover {
+        .aprio-event-layout-icon:hover {
             background: var(--ap-bg-muted);
         }
 
@@ -369,12 +369,12 @@
             <!-- ===================== END FILTERS & SEARCH ===================== -->
 
             <!-- Layout Toggle -->
-            <div class="wpem-col wpem-col-12 wpem-col-sm-6 wpem-col-md-6 wpem-col-lg-4">
-                <div class="wpem-event-layout-action-wrapper">
-                    <div class="wpem-event-layout-action">
-                        <div class="wpem-event-layout-icon wpem-event-list-layout wpem-active-layout"
-                            title="Events List View" id="wpem-event-toggle-layout" onclick="toggleLayout(this)">
-                            <i class="wpem-icon-menu"></i>
+            <div class="aprio-col aprio-col-12 aprio-col-sm-6 aprio-col-md-6 aprio-col-lg-4">
+                <div class="aprio-event-layout-action-wrapper">
+                    <div class="aprio-event-layout-action">
+                        <div class="aprio-event-layout-icon aprio-event-list-layout aprio-active-layout"
+                            title="Events List View" id="aprio-event-toggle-layout" onclick="toggleLayout(this)">
+                            <i class="aprio-icon-menu"></i>
                         </div>
                     </div>
                 </div>
@@ -688,20 +688,20 @@
         // Layout Toggle
         function toggleLayout(element) {
             const listings = document.querySelector('.event_listings');
-            if (element.classList.contains('wpem-event-list-layout')) {
-                element.classList.remove('wpem-event-list-layout');
-                element.classList.add('wpem-event-box-layout');
+            if (element.classList.contains('aprio-event-list-layout')) {
+                element.classList.remove('aprio-event-list-layout');
+                element.classList.add('aprio-event-box-layout');
                 element.title = 'Events Box View';
-                element.innerHTML = '<i class="wpem-icon-stop2"></i>';
+                element.innerHTML = '<i class="aprio-icon-stop2"></i>';
                 listings.classList.remove('list-view');
             } else {
-                element.classList.remove('wpem-event-box-layout');
-                element.classList.add('wpem-event-list-layout');
+                element.classList.remove('aprio-event-box-layout');
+                element.classList.add('aprio-event-list-layout');
                 element.title = 'Events List View';
-                element.innerHTML = '<i class="wpem-icon-menu"></i>';
+                element.innerHTML = '<i class="aprio-icon-menu"></i>';
                 listings.classList.add('list-view');
             }
-            element.classList.toggle('wpem-active-layout');
+            element.classList.toggle('aprio-active-layout');
         }
     </script>
 </body>

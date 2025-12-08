@@ -21,8 +21,8 @@ class Commands {
 	public function register(): void {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'apollo', $this );
-			\WP_CLI::add_command( 'apollo-social verify', array( $this, 'verify' ) );
-			\WP_CLI::add_command( 'apollo-social adverts', array( $this, 'adverts' ) );
+			\WP_CLI::add_command( 'apollo-social verify', [ $this, 'verify' ] );
+			\WP_CLI::add_command( 'apollo-social adverts', [ $this, 'adverts' ] );
 		}
 	}
 
@@ -214,7 +214,7 @@ class Commands {
 		$content_type = $args[0] ?? 'group';
 		$user_role    = $assoc_args['user-role'] ?? 'subscriber';
 
-		if ( ! in_array( $content_type, array( 'group', 'event', 'ad' ) ) ) {
+		if ( ! in_array( $content_type, [ 'group', 'event', 'ad' ] ) ) {
 			\WP_CLI::error( 'Content type must be: group, event, or ad' );
 			return;
 		}
@@ -225,9 +225,9 @@ class Commands {
 		$workflow = new ContentWorkflow();
 
 		// Test initial state logic
-		$test_data = array();
+		$test_data = [];
 		if ( $content_type === 'group' ) {
-			$test_data = array( 'type' => 'comunidade' );
+			$test_data = [ 'type' => 'comunidade' ];
 			// Test grupo that requires approval
 		}
 
@@ -479,14 +479,14 @@ class Commands {
 		$workflow = new ContentWorkflow();
 
 		// Test matrix
-		$roles         = array( 'subscriber', 'contributor', 'author', 'editor', 'administrator' );
-		$content_types = array(
-			'post'       => array( 'type' => 'post' ),
-			'classified' => array(),
-			'event'      => array(),
-			'nucleo'     => array( 'type' => 'nucleo' ),
-			'comunidade' => array( 'type' => 'comunidade' ),
-		);
+		$roles         = [ 'subscriber', 'contributor', 'author', 'editor', 'administrator' ];
+		$content_types = [
+			'post'       => [ 'type' => 'post' ],
+			'classified' => [],
+			'event'      => [],
+			'nucleo'     => [ 'type' => 'nucleo' ],
+			'comunidade' => [ 'type' => 'comunidade' ],
+		];
 
 		\WP_CLI::log( 'Role\t\tPost\tClassified\tEvent\tNúcleo\tComunidade' );
 		\WP_CLI::log( '----------------------------------------------------------------' );
@@ -495,7 +495,7 @@ class Commands {
 			$line = ucfirst( $role ) . str_repeat( ' ', 12 - strlen( $role ) );
 
 			foreach ( $content_types as $name => $data ) {
-				$content_type = in_array( $name, array( 'post', 'nucleo', 'comunidade' ) ) ? 'group' :
+				$content_type = in_array( $name, [ 'post', 'nucleo', 'comunidade' ] ) ? 'group' :
 								( $name === 'classified' ? 'ad' : $name );
 
 				$status = $this->simulateUserRole(
@@ -532,89 +532,89 @@ class Commands {
 		\WP_CLI::log( 'Running Apollo Social Workflow Test Matrix...' );
 		\WP_CLI::log( '===========================================' );
 
-		$tests = array(
-			array(
+		$tests = [
+			[
 				'role'     => 'subscriber',
 				'type'     => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'type'     => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'type'     => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'type'     => 'group',
-				'data'     => array( 'type' => 'nucleo' ),
+				'data'     => [ 'type' => 'nucleo' ],
 				'expected' => 'pending_review',
-			),
+			],
 
-			array(
+			[
 				'role'     => 'contributor',
 				'type'     => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'draft',
-			),
-			array(
+			],
+			[
 				'role'     => 'contributor',
 				'type'     => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'draft',
-			),
-			array(
+			],
+			[
 				'role'     => 'contributor',
 				'type'     => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'draft',
-			),
+			],
 
-			array(
+			[
 				'role'     => 'author',
 				'type'     => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'author',
 				'type'     => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'author',
 				'type'     => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
+			],
 
-			array(
+			[
 				'role'     => 'editor',
 				'type'     => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'editor',
 				'type'     => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'editor',
 				'type'     => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-		);
+			],
+		];
 
 		$passed = 0;
 		$failed = 0;
@@ -681,7 +681,7 @@ class Commands {
 	private function seedUsers(): void {
 		\WP_CLI::log( 'Creating test users...' );
 
-		$roles = array( 'subscriber', 'contributor', 'author', 'editor' );
+		$roles = [ 'subscriber', 'contributor', 'author', 'editor' ];
 
 		foreach ( $roles as $role ) {
 			$username = "{$role}_test";
@@ -715,22 +715,22 @@ class Commands {
 
 		global $wpdb;
 
-		$seasons = array(
-			array(
+		$seasons = [
+			[
 				'slug'       => 'verao-2026',
 				'name'       => 'Verão 2026',
 				'start_date' => '2025-12-01',
 				'end_date'   => '2026-03-15',
 				'status'     => 'active',
-			),
-			array(
+			],
+			[
 				'slug'       => 'inverno-2025',
 				'name'       => 'Inverno 2025',
 				'start_date' => '2025-06-01',
 				'end_date'   => '2025-09-15',
 				'status'     => 'archived',
-			),
-		);
+			],
+		];
 
 		foreach ( $seasons as $season ) {
 			// Check if season exists
@@ -749,7 +749,7 @@ class Commands {
 			$result = $wpdb->insert(
 				$wpdb->prefix . 'apollo_seasons',
 				$season,
-				array( '%s', '%s', '%s', '%s', '%s' )
+				[ '%s', '%s', '%s', '%s', '%s' ]
 			);
 
 			if ( $result ) {
@@ -767,29 +767,29 @@ class Commands {
 		\WP_CLI::log( 'Creating test content...' );
 
 		// Create test content for different scenarios
-		$content_items = array(
-			array(
+		$content_items = [
+			[
 				'type'  => 'post',
 				'user'  => 'subscriber_test',
 				'title' => 'Post Social do Subscriber',
-			),
-			array(
+			],
+			[
 				'type'  => 'ad',
 				'user'  => 'subscriber_test',
 				'title' => 'Mesa de Som - Venda',
-			),
-			array(
+			],
+			[
 				'type'  => 'event',
 				'user'  => 'author_test',
 				'title' => 'Workshop de Música',
-			),
-			array(
+			],
+			[
 				'type'       => 'group',
 				'user'       => 'subscriber_test',
 				'title'      => 'Núcleo de Teste',
 				'group_type' => 'nucleo',
-			),
-		);
+			],
+		];
 
 		foreach ( $content_items as $item ) {
 			try {
@@ -808,10 +808,10 @@ class Commands {
 					'ad' => $this->createTestAd( $item['title'], 'verao-2026', new ContentWorkflow() ),
 					'event' => $this->createTestEvent( $item['title'], new ContentWorkflow() ),
 					'group' => $this->createTestGroup( $item['title'], $item['group_type'] ?? 'post', new ContentWorkflow() ),
-					default => array(
+					default => [
 						'success' => false,
 						'message' => 'Unknown type',
-					)
+					]
 				};
 
 				if ( $result['success'] ) {
@@ -831,13 +831,13 @@ class Commands {
 	 * Create test post
 	 */
 	private function createTestPost( string $title, ContentWorkflow $workflow ): array {
-		$initial_state = $workflow->getInitialState( 'group', array( 'type' => 'post' ) );
+		$initial_state = $workflow->getInitialState( 'group', [ 'type' => 'post' ] );
 
 		global $wpdb;
 
 		$result = $wpdb->insert(
 			$wpdb->prefix . 'apollo_groups',
-			array(
+			[
 				'title'       => $title,
 				'description' => 'Post de teste criado automaticamente',
 				'type'        => 'post',
@@ -845,35 +845,35 @@ class Commands {
 				'status'      => $initial_state,
 				'author_id'   => get_current_user_id(),
 				'created_at'  => current_time( 'mysql' ),
-			),
-			array( '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
+			],
+			[ '%s', '%s', '%s', '%s', '%s', '%d', '%s' ]
 		);
 
 		if ( $result ) {
-			return array(
+			return [
 				'success' => true,
 				'id'      => $wpdb->insert_id,
 				'status'  => $initial_state,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'message' => 'Database insert failed',
-		);
+		];
 	}
 
 	/**
 	 * Create test ad
 	 */
 	private function createTestAd( string $title, string $season, ContentWorkflow $workflow ): array {
-		$initial_state = $workflow->getInitialState( 'ad', array() );
+		$initial_state = $workflow->getInitialState( 'ad', [] );
 
 		global $wpdb;
 
 		$result = $wpdb->insert(
 			$wpdb->prefix . 'apollo_ads',
-			array(
+			[
 				'title'       => $title,
 				'description' => 'Anúncio de teste criado automaticamente',
 				'category'    => 'equipamentos',
@@ -882,65 +882,65 @@ class Commands {
 				'status'      => $initial_state,
 				'author_id'   => get_current_user_id(),
 				'created_at'  => current_time( 'mysql' ),
-			),
-			array( '%s', '%s', '%s', '%f', '%s', '%s', '%d', '%s' )
+			],
+			[ '%s', '%s', '%s', '%f', '%s', '%s', '%d', '%s' ]
 		);
 
 		if ( $result ) {
-			return array(
+			return [
 				'success' => true,
 				'id'      => $wpdb->insert_id,
 				'status'  => $initial_state,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'message' => 'Database insert failed',
-		);
+		];
 	}
 
 	/**
 	 * Create test event
 	 */
 	private function createTestEvent( string $title, ContentWorkflow $workflow ): array {
-		$initial_state = $workflow->getInitialState( 'event', array() );
+		$initial_state = $workflow->getInitialState( 'event', [] );
 
-		$post_data = array(
+		$post_data = [
 			'post_title'   => $title,
 			'post_content' => 'Evento de teste criado automaticamente',
 			'post_type'    => 'eva_event',
 			'post_status'  => $initial_state,
 			'post_author'  => get_current_user_id(),
-		);
+		];
 
 		$post_id = wp_insert_post( $post_data );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
-			return array(
+			return [
 				'success' => true,
 				'id'      => $post_id,
 				'status'  => $initial_state,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'message' => 'Failed to create post',
-		);
+		];
 	}
 
 	/**
 	 * Create test group
 	 */
 	private function createTestGroup( string $title, string $group_type, ContentWorkflow $workflow ): array {
-		$initial_state = $workflow->getInitialState( 'group', array( 'type' => $group_type ) );
+		$initial_state = $workflow->getInitialState( 'group', [ 'type' => $group_type ] );
 
 		global $wpdb;
 
 		$result = $wpdb->insert(
 			$wpdb->prefix . 'apollo_groups',
-			array(
+			[
 				'title'       => $title,
 				'description' => "Grupo de teste do tipo {$group_type}",
 				'type'        => $group_type,
@@ -948,22 +948,22 @@ class Commands {
 				'status'      => $initial_state,
 				'author_id'   => get_current_user_id(),
 				'created_at'  => current_time( 'mysql' ),
-			),
-			array( '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
+			],
+			[ '%s', '%s', '%s', '%s', '%s', '%d', '%s' ]
 		);
 
 		if ( $result ) {
-			return array(
+			return [
 				'success' => true,
 				'id'      => $wpdb->insert_id,
 				'status'  => $initial_state,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'message' => 'Database insert failed',
-		);
+		];
 	}
 
 	/**
@@ -982,9 +982,9 @@ class Commands {
 			$group_id,
 			'group',
 			'published',
-			array(
+			[
 				'reason' => 'Aprovado via CLI',
-			)
+			]
 		);
 
 		if ( $result['success'] ) {
@@ -1011,9 +1011,9 @@ class Commands {
 			$group_id,
 			'group',
 			'rejected',
-			array(
+			[
 				'reason' => $reason,
-			)
+			]
 		);
 
 		if ( $result['success'] ) {
@@ -1182,10 +1182,10 @@ class Commands {
 		$page     = intval( $assoc_args['page'] ?? 1 );
 
 		$result = WPAdvertsAdapter::listAds(
-			array(
+			[
 				'posts_per_page' => $per_page,
 				'paged'          => $page,
-			)
+			]
 		);
 
 		if ( empty( $result['ads'] ) ) {

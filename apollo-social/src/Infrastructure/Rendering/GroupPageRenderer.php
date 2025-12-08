@@ -19,19 +19,19 @@ class GroupPageRenderer {
 
 		$group_data = $this->getGroupData( $type, $slug );
 
-		return array(
+		return [
 			'title'       => $group_data['name'],
 			'content'     => $this->renderGroupPage( $group_data ),
-			'breadcrumbs' => array( 'Apollo Social', ucfirst( $type ) . 's', $group_data['name'] ),
+			'breadcrumbs' => [ 'Apollo Social', ucfirst( $type ) . 's', $group_data['name'] ],
 			'group'       => $group_data,
-		);
+		];
 	}
 
 	private function getGroupData( $type, $slug ) {
 		$group = $this->repository->findBySlug( $slug );
 
 		if ( ! $group || $group->type !== $type ) {
-			return array(
+			return [
 				'id'            => 0,
 				'name'          => 'Grupo não encontrado',
 				'slug'          => $slug,
@@ -39,12 +39,12 @@ class GroupPageRenderer {
 				'description'   => 'O grupo solicitado não foi encontrado.',
 				'members_count' => 0,
 				'created'       => '',
-			);
+			];
 		}
 
 		// Check if user can view (published or admin)
 		if ( $group->status !== 'published' && ! current_user_can( 'manage_options' ) ) {
-			return array(
+			return [
 				'id'            => 0,
 				'name'          => 'Grupo não disponível',
 				'slug'          => $slug,
@@ -52,10 +52,10 @@ class GroupPageRenderer {
 				'description'   => 'Este grupo não está disponível no momento.',
 				'members_count' => 0,
 				'created'       => '',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'id'            => $group->id,
 			'name'          => $group->title,
 			'slug'          => $group->slug,
@@ -66,7 +66,7 @@ class GroupPageRenderer {
 			'status'        => $group->status,
 			'visibility'    => $group->visibility ?? 'public',
 			'creator_id'    => $group->creator_id ?? $group->created_by,
-		);
+		];
 	}
 
 	private function renderGroupPage( $group_data ) {

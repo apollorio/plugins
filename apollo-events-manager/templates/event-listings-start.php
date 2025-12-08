@@ -79,7 +79,7 @@ $sounds_terms = is_wp_error( $sounds_terms ) ? array() : $sounds_terms;
 			
 			<!-- Layout Toggle -->
 			<button class="layout-toggle ap-btn ap-btn-icon ap-btn-ghost" 
-					id="wpem-event-toggle-layout" 
+					id="aprio-event-toggle-layout" 
 					type="button" 
 					aria-pressed="true" 
 					data-layout="list"
@@ -159,16 +159,16 @@ $sounds_terms = is_wp_error( $sounds_terms ) ? array() : $sounds_terms;
 					// Use appropriate template based on layout
 					if ( $layout_mode === 'list' ) {
 						// List view template
-						$list_view_path = defined( 'APOLLO_WPEM_PATH' )
-						? APOLLO_WPEM_PATH . 'templates/event-list-view.php'
+						$list_view_path = defined( 'APOLLO_APRIO_PATH' )
+						? APOLLO_APRIO_PATH . 'templates/event-list-view.php'
 						: plugin_dir_path( __FILE__ ) . 'event-list-view.php';
 
 						if ( file_exists( $list_view_path ) ) {
 							include $list_view_path;
 						} else {
 							// Fallback to card view if list template doesn't exist
-							$event_card_path = defined( 'APOLLO_WPEM_PATH' )
-							? APOLLO_WPEM_PATH . 'templates/event-card.php'
+							$event_card_path = defined( 'APOLLO_APRIO_PATH' )
+							? APOLLO_APRIO_PATH . 'templates/event-card.php'
 							: plugin_dir_path( __FILE__ ) . 'event-card.php';
 							if ( file_exists( $event_card_path ) ) {
 								include $event_card_path;
@@ -176,8 +176,8 @@ $sounds_terms = is_wp_error( $sounds_terms ) ? array() : $sounds_terms;
 						}
 					} else {
 						// Grid view template (default)
-						$event_card_path = defined( 'APOLLO_WPEM_PATH' )
-						? APOLLO_WPEM_PATH . 'templates/event-card.php'
+						$event_card_path = defined( 'APOLLO_APRIO_PATH' )
+						? APOLLO_APRIO_PATH . 'templates/event-card.php'
 						: plugin_dir_path( __FILE__ ) . 'event-card.php';
 
 						if ( file_exists( $event_card_path ) ) {

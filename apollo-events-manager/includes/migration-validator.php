@@ -2,7 +2,7 @@
 // phpcs:ignoreFile
 /**
  * Migration Validator
- * Validates data integrity after WPEM → Apollo migration
+ * Validates data integrity after APRIO → Apollo migration
  *
  * @package Apollo_Events_Manager
  * @version 2.0.0
@@ -313,7 +313,7 @@ class Apollo_Migration_Validator {
 			'total_events'    => wp_count_posts( 'event_listing' )->publish,
 			'total_djs'       => wp_count_posts( 'event_dj' )->publish,
 			'total_locals'    => wp_count_posts( 'event_local' )->publish,
-			'wpem_active'     => class_exists( 'WP_Event_Manager' ),
+			'aprio_active'     => class_exists( 'WP_Event_Manager' ),
 			'cpts_registered' => post_type_exists( 'event_listing' ) && post_type_exists( 'event_dj' ) && post_type_exists( 'event_local' ),
 		);
 	}
@@ -352,7 +352,7 @@ function apollo_migration_validator_page() {
 				</tr>
 				<tr>
 					<td><strong>WP Event Manager Active:</strong></td>
-					<td><?php echo $summary['wpem_active'] ? '✅ Yes' : '❌ No'; ?></td>
+					<td><?php echo $summary['aprio_active'] ? '✅ Yes' : '❌ No'; ?></td>
 				</tr>
 				<tr>
 					<td><strong>CPTs Registered:</strong></td>
@@ -369,7 +369,7 @@ function apollo_migration_validator_page() {
 			echo Apollo_Migration_Validator::generate_html_report( $issues );
 
 			// Log to file
-			$log_file = APOLLO_WPEM_PATH . 'validation-' . date( 'Y-m-d-H-i-s' ) . '.log';
+			$log_file = APOLLO_APRIO_PATH . 'validation-' . date( 'Y-m-d-H-i-s' ) . '.log';
 			file_put_contents( $log_file, print_r( $issues, true ) );
 			echo '<p><em>Validation log saved to: ' . basename( $log_file ) . '</em></p>';
 		}

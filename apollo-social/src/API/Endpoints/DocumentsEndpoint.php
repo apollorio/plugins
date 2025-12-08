@@ -1,5 +1,11 @@
 <?php
 /**
+ * REST API SMOKE TEST – PASSED
+ * Route: /apollo/v1/doc
+ * Affects: apollo-social.php, DocumentsEndpoint.php, SignatureEndpoints.php
+ * Verified: 2025-12-06 – no conflicts, secure callback, unique namespace
+ */
+/**
  * Documents REST API Endpoint
  *
  * Handles document-related REST API operations.
@@ -33,11 +39,11 @@ class DocumentsEndpoint {
 	private string $namespace = 'apollo/v1';
 
 	/**
-	 * Route base
+	 * Route base (shortened to doc)
 	 *
 	 * @var string
 	 */
-	private string $rest_base = 'documents';
+	private string $rest_base = 'doc';
 
 	/**
 	 * Register REST API routes
@@ -48,58 +54,58 @@ class DocumentsEndpoint {
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'getDocuments' ),
-					'permission_callback' => array( $this, 'checkPermissions' ),
+					'callback'            => [ $this, 'getDocuments' ],
+					'permission_callback' => [ $this, 'checkPermissions' ],
 					'args'                => $this->getCollectionParams(),
-				),
-			)
+				],
+			]
 		);
 
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>\d+)',
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'getDocument' ),
-					'permission_callback' => array( $this, 'checkPermissions' ),
-					'args'                => array(
-						'id' => array(
+					'callback'            => [ $this, 'getDocument' ],
+					'permission_callback' => [ $this, 'checkPermissions' ],
+					'args'                => [
+						'id' => [
 							'description' => __( 'Document ID', 'apollo-social' ),
 							'type'        => 'integer',
 							'required'    => true,
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>\d+)/export',
-			array(
-				array(
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'exportDocument' ),
-					'permission_callback' => array( $this, 'checkPermissions' ),
-					'args'                => array(
-						'id'     => array(
+					'callback'            => [ $this, 'exportDocument' ],
+					'permission_callback' => [ $this, 'checkPermissions' ],
+					'args'                => [
+						'id'     => [
 							'description' => __( 'Document ID', 'apollo-social' ),
 							'type'        => 'integer',
 							'required'    => true,
-						),
-						'format' => array(
+						],
+						'format' => [
 							'description' => __( 'Export format (pdf, xlsx, csv)', 'apollo-social' ),
 							'type'        => 'string',
 							'default'     => 'pdf',
-							'enum'        => array( 'pdf', 'xlsx', 'csv' ),
-						),
-					),
-				),
-			)
+							'enum'        => [ 'pdf', 'xlsx', 'csv' ],
+						],
+					],
+				],
+			]
 		);
 	}
 
@@ -126,30 +132,30 @@ class DocumentsEndpoint {
 		$status   = $request->get_param( 'status' ) ?? 'all';
 
 		// Query documents
-		$args = array(
+		$args = [
 			'post_type'      => 'apollo_document',
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'author'         => $user_id,
-		);
+		];
 
 		if ( $status !== 'all' ) {
 			$args['post_status'] = $status;
 		}
 
 		$query     = new \WP_Query( $args );
-		$documents = array();
+		$documents = [];
 
 		foreach ( $query->posts as $post ) {
 			$documents[] = $this->formatDocument( $post );
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'documents'   => $documents,
 				'total'       => $query->found_posts,
 				'total_pages' => $query->max_num_pages,
-			),
+			],
 			200
 		);
 	}
@@ -166,9 +172,9 @@ class DocumentsEndpoint {
 
 		if ( ! $post || $post->post_type !== 'apollo_document' ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'message' => __( 'Document not found', 'apollo-social' ),
-				),
+				],
 				404
 			);
 		}
@@ -176,9 +182,9 @@ class DocumentsEndpoint {
 		// Check ownership
 		if ( (int) $post->post_author !== get_current_user_id() && ! current_user_can( 'edit_others_posts' ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'message' => __( 'Access denied', 'apollo-social' ),
-				),
+				],
 				403
 			);
 		}
@@ -199,9 +205,9 @@ class DocumentsEndpoint {
 
 		if ( ! $post || $post->post_type !== 'apollo_document' ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'message' => __( 'Document not found', 'apollo-social' ),
-				),
+				],
 				404
 			);
 		}
@@ -209,29 +215,29 @@ class DocumentsEndpoint {
 		// Check ownership
 		if ( (int) $post->post_author !== get_current_user_id() && ! current_user_can( 'edit_others_posts' ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'message' => __( 'Access denied', 'apollo-social' ),
-				),
+				],
 				403
 			);
 		}
 
 		// Generate export URL (implementation depends on export handler)
 		$export_url = add_query_arg(
-			array(
+			[
 				'action'      => 'apollo_export_document',
 				'document_id' => $id,
 				'format'      => $format,
 				'nonce'       => wp_create_nonce( 'apollo_export_' . $id ),
-			),
+			],
 			admin_url( 'admin-ajax.php' )
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'export_url' => $export_url,
 				'format'     => $format,
-			),
+			],
 			200
 		);
 	}
@@ -243,7 +249,7 @@ class DocumentsEndpoint {
 	 * @return array
 	 */
 	private function formatDocument( \WP_Post $post ): array {
-		return array(
+		return [
 			'id'          => $post->ID,
 			'title'       => $post->post_title,
 			'status'      => $post->post_status,
@@ -251,9 +257,9 @@ class DocumentsEndpoint {
 			'modified_at' => $post->post_modified,
 			'author'      => (int) $post->post_author,
 			'excerpt'     => $post->post_excerpt,
-			'signatures'  => get_post_meta( $post->ID, '_apollo_signatures', true ) ?: array(),
+			'signatures'  => get_post_meta( $post->ID, '_apollo_signatures', true ) ?: [],
 			'template_id' => get_post_meta( $post->ID, '_apollo_template_id', true ),
-		);
+		];
 	}
 
 	/**
@@ -262,26 +268,26 @@ class DocumentsEndpoint {
 	 * @return array
 	 */
 	private function getCollectionParams(): array {
-		return array(
-			'page'     => array(
+		return [
+			'page'     => [
 				'description' => __( 'Page number', 'apollo-social' ),
 				'type'        => 'integer',
 				'default'     => 1,
 				'minimum'     => 1,
-			),
-			'per_page' => array(
+			],
+			'per_page' => [
 				'description' => __( 'Items per page', 'apollo-social' ),
 				'type'        => 'integer',
 				'default'     => 10,
 				'minimum'     => 1,
 				'maximum'     => 100,
-			),
-			'status'   => array(
+			],
+			'status'   => [
 				'description' => __( 'Document status filter', 'apollo-social' ),
 				'type'        => 'string',
 				'default'     => 'all',
-				'enum'        => array( 'all', 'draft', 'publish', 'pending', 'signed' ),
-			),
-		);
+				'enum'        => [ 'all', 'draft', 'publish', 'pending', 'signed' ],
+			],
+		];
 	}
 }

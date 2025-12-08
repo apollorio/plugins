@@ -13,8 +13,8 @@ class Caps {
 	 * Initialize capabilities
 	 */
 	public function init(): void {
-		\add_action( 'init', array( $this, 'registerCapabilities' ) );
-		\add_action( 'admin_init', array( $this, 'assignCapabilitiesToRoles' ) );
+		\add_action( 'init', [ $this, 'registerCapabilities' ] );
+		\add_action( 'admin_init', [ $this, 'assignCapabilitiesToRoles' ] );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class Caps {
 	 * Register group capabilities
 	 */
 	private function registerGroupCapabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			// Read capabilities
 			'read_apollo_group',
 			'read_private_apollo_groups',
@@ -63,7 +63,7 @@ class Caps {
 			// Management capabilities
 			'manage_apollo_group_members',
 			'moderate_apollo_group_content',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$this->addCapabilityIfNotExists( $cap );
@@ -74,7 +74,7 @@ class Caps {
 	 * Register event capabilities
 	 */
 	private function registerEventCapabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			// Read capabilities
 			'read_eva_event',
 			'read_private_eva_events',
@@ -96,7 +96,7 @@ class Caps {
 			// Management capabilities
 			'manage_eva_event_categories',
 			'manage_eva_event_locations',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$this->addCapabilityIfNotExists( $cap );
@@ -107,7 +107,7 @@ class Caps {
 	 * Register ads/classifieds capabilities
 	 */
 	private function registerAdCapabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			// Read capabilities
 			'read_apollo_ad',
 			'read_private_apollo_ads',
@@ -128,7 +128,7 @@ class Caps {
 
 			// Management capabilities
 			'moderate_apollo_ads',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$this->addCapabilityIfNotExists( $cap );
@@ -139,7 +139,7 @@ class Caps {
 	 * Register moderation capabilities
 	 */
 	private function registerModerationCapabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			// General moderation
 			'apollo_moderate',
 
@@ -153,7 +153,7 @@ class Caps {
 			'apollo_moderate_all',
 			'apollo_view_moderation_queue',
 			'apollo_manage_moderators',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$this->addCapabilityIfNotExists( $cap );
@@ -164,11 +164,11 @@ class Caps {
 	 * Register analytics capabilities
 	 */
 	private function registerAnalyticsCapabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			'apollo_view_analytics',
 			'apollo_manage_analytics',
 			'apollo_export_analytics',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$this->addCapabilityIfNotExists( $cap );
@@ -195,7 +195,7 @@ class Caps {
 			return;
 		}
 
-		$capabilities = array(
+		$capabilities = [
 			// Groups - Full access
 			'read_apollo_group',
 			'read_private_apollo_groups',
@@ -251,7 +251,7 @@ class Caps {
 			'apollo_view_analytics',
 			'apollo_manage_analytics',
 			'apollo_export_analytics',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$admin->add_cap( $cap );
@@ -267,7 +267,7 @@ class Caps {
 			return;
 		}
 
-		$capabilities = array(
+		$capabilities = [
 			// Groups - Edit all, publish directly
 			'read_apollo_group',
 			'read_private_apollo_groups',
@@ -319,7 +319,7 @@ class Caps {
 			// Analytics - View and manage
 			'apollo_view_analytics',
 			'apollo_manage_analytics',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$editor->add_cap( $cap );
@@ -335,7 +335,7 @@ class Caps {
 			return;
 		}
 
-		$capabilities = array(
+		$capabilities = [
 			// Groups - Create own, edit own, requires approval for non-user posts
 			'read_apollo_group',
 			'create_apollo_groups',
@@ -357,7 +357,7 @@ class Caps {
 
 			// Analytics - View only
 			'apollo_view_analytics',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$author->add_cap( $cap );
@@ -373,7 +373,7 @@ class Caps {
 			return;
 		}
 
-		$capabilities = array(
+		$capabilities = [
 			// Groups - Create, edit own drafts, NO publish, NO delete published
 			'read_apollo_group',
 			'create_apollo_groups',
@@ -391,7 +391,7 @@ class Caps {
 
 			// Analytics - View basic stats only
 			'apollo_view_analytics',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$contributor->add_cap( $cap );
@@ -407,7 +407,7 @@ class Caps {
 			return;
 		}
 
-		$capabilities = array(
+		$capabilities = [
 			// Groups - Can create but NO publish (drafts only, except community/nucleo)
 			'read_apollo_group',
 			'create_apollo_groups',
@@ -420,7 +420,7 @@ class Caps {
 			'read_apollo_ad',
 			'create_apollo_ads',
 			'publish_apollo_ads',
-		);
+		];
 
 		foreach ( $capabilities as $cap ) {
 			$subscriber->add_cap( $cap );
@@ -450,43 +450,43 @@ class Caps {
 	/**
 	 * Get approval workflow status for content creation
 	 */
-	public function getApprovalWorkflow( string $content_type, array $data = array() ): array {
+	public function getApprovalWorkflow( string $content_type, array $data = [] ): array {
 		$user = \wp_get_current_user();
 
 		if ( ! $user->exists() ) {
-			return array(
+			return [
 				'requires_approval' => true,
 				'initial_status'    => 'draft',
 				'message'           => 'Usuário não autenticado',
-			);
+			];
 		}
 
 		// Administrator and Editor - always publish directly
 		if ( in_array( 'administrator', $user->roles ) || in_array( 'editor', $user->roles ) ) {
-			return array(
+			return [
 				'requires_approval' => false,
 				'initial_status'    => 'published',
 				'message'           => 'Conteúdo publicado diretamente',
-			);
+			];
 		}
 
 		// Author rules
 		if ( in_array( 'author', $user->roles ) ) {
 			// Authors can publish events directly
 			if ( $content_type === 'event' ) {
-				return array(
+				return [
 					'requires_approval' => false,
 					'initial_status'    => 'published',
 					'message'           => 'Eventos de autores são publicados diretamente',
-				);
+				];
 			}
 
 			// Other content requires approval
-			return array(
+			return [
 				'requires_approval' => true,
 				'initial_status'    => 'pending_review',
 				'message'           => 'Conteúdo de autor será revisado antes da publicação',
-			);
+			];
 		}
 
 		// Subscriber rules
@@ -495,65 +495,65 @@ class Caps {
 				$group_type = $data['type'] ?? '';
 
 				// User posts can be published directly
-				if ( in_array( $group_type, array( 'post', 'discussion', 'question' ) ) ) {
-					return array(
+				if ( in_array( $group_type, [ 'post', 'discussion', 'question' ] ) ) {
+					return [
 						'requires_approval' => false,
 						'initial_status'    => 'published',
 						'message'           => 'Posts de usuários são publicados diretamente',
-					);
+					];
 				}
 
 				// Community/Núcleo groups need approval
-				if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
-					return array(
+				if ( in_array( $group_type, [ 'comunidade', 'nucleo' ] ) ) {
+					return [
 						'requires_approval' => true,
 						'initial_status'    => 'pending_review',
 						'message'           => 'Grupos do tipo Comunidade e Núcleo requerem aprovação',
-					);
+					];
 				}
 
 				// Default for other group types - published
-				return array(
+				return [
 					'requires_approval' => false,
 					'initial_status'    => 'published',
 					'message'           => 'Grupo publicado diretamente',
-				);
+				];
 			}//end if
 
 			// Classifieds (ads) - contract & published directly
 			if ( $content_type === 'ad' ) {
-				return array(
+				return [
 					'requires_approval' => false,
 					'initial_status'    => 'published',
 					'message'           => 'Classificados são publicados diretamente (contrato & publicação)',
-				);
+				];
 			}
 
 			// Events from subscribers need approval
 			if ( $content_type === 'event' ) {
-				return array(
+				return [
 					'requires_approval' => true,
 					'initial_status'    => 'pending_review',
 					'message'           => 'Eventos de usuários requerem aprovação',
-				);
+				];
 			}
 		}//end if
 
 		// Contributor - only creates drafts
 		if ( in_array( 'contributor', $user->roles ) ) {
-			return array(
+			return [
 				'requires_approval' => true,
 				'initial_status'    => 'draft',
 				'message'           => 'Colaboradores podem apenas criar rascunhos',
-			);
+			];
 		}
 
 		// Default fallback
-		return array(
+		return [
 			'requires_approval' => true,
 			'initial_status'    => 'pending_review',
 			'message'           => 'Seu conteúdo será revisado antes da publicação',
-		);
+		];
 	}
 
 	/**
@@ -582,9 +582,9 @@ class Caps {
 	 * Remove all Apollo capabilities (for uninstall)
 	 */
 	public function removeAllCapabilities(): void {
-		$roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
+		$roles = [ 'administrator', 'editor', 'author', 'contributor', 'subscriber' ];
 
-		$all_caps = array(
+		$all_caps = [
 			// Groups
 			'read_apollo_group',
 			'read_private_apollo_groups',
@@ -640,7 +640,7 @@ class Caps {
 			'apollo_view_analytics',
 			'apollo_manage_analytics',
 			'apollo_export_analytics',
-		);
+		];
 
 		foreach ( $roles as $role_name ) {
 			$role = \get_role( $role_name );

@@ -10,25 +10,25 @@ class AdPageRenderer {
 		$slug    = $template_data['param'];
 		$ad_data = $this->getAdData( $slug );
 
-		return array(
+		return [
 			'title'       => $ad_data['title'],
 			'content'     => $this->renderAdPage( $ad_data ),
-			'breadcrumbs' => array( 'Apollo Social', 'Anúncios', $ad_data['title'] ),
+			'breadcrumbs' => [ 'Apollo Social', 'Anúncios', $ad_data['title'] ],
 			'ad'          => $ad_data,
-		);
+		];
 	}
 
 	private function getAdData( $slug ) {
-		return array(
+		return [
 			'id'          => 1,
 			'title'       => ucfirst( str_replace( '-', ' ', $slug ) ),
 			'slug'        => $slug,
 			'description' => 'Descrição detalhada do anúncio ' . $slug,
-			'price'       => 'R$ ' . number_format( rand( 1000, 100000 ), 0, ',', '.' ),
+			'price'       => 'R$ ' . number_format( wp_rand( 1000, 100000 ), 0, ',', '.' ),
 			'category'    => 'Categoria Principal',
 			'contact'     => 'contato@exemplo.com',
 			'date'        => '2025-01-15',
-		);
+		];
 	}
 
 	private function renderAdPage( $ad_data ) {

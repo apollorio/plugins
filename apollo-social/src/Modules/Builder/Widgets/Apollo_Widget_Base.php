@@ -6,15 +6,15 @@ use WP_Widget;
 
 abstract class Apollo_Widget_Base extends WP_Widget {
 
-	public function __construct( string $idBase, string $name, array $widgetOptions = array(), array $controlOptions = array() ) {
+	public function __construct( string $idBase, string $name, array $widgetOptions = [], array $controlOptions = [] ) {
 		parent::__construct(
 			$idBase,
 			$name,
 			array_merge(
-				array(
+				[
 					'classname'   => $idBase,
 					'description' => __( 'Widget personalizado Apollo', 'apollo-social' ),
-				),
+				],
 				$widgetOptions
 			),
 			$controlOptions

@@ -19,10 +19,10 @@ class AnalyticsAdmin {
 	 * Initialize WordPress hooks
 	 */
 	private function init_hooks() {
-		add_action( 'admin_menu', array( $this, 'add_admin_menu' ), 30 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
-		add_action( 'wp_ajax_apollo_analytics_stats', array( $this, 'ajax_get_analytics_stats' ) );
-		add_action( 'admin_post_apollo_save_analytics_config', array( $this, 'save_analytics_config' ) );
+		add_action( 'admin_menu', [ $this, 'add_admin_menu' ], 30 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+		add_action( 'wp_ajax_apollo_analytics_stats', [ $this, 'ajax_get_analytics_stats' ] );
+		add_action( 'admin_post_apollo_save_analytics_config', [ $this, 'save_analytics_config' ] );
 	}
 
 	/**
@@ -35,7 +35,7 @@ class AnalyticsAdmin {
 			'Analytics',
 			'manage_options',
 			'apollo-analytics',
-			array( $this, 'render_analytics_page' )
+			[ $this, 'render_analytics_page' ]
 		);
 	}
 
@@ -51,7 +51,7 @@ class AnalyticsAdmin {
 		wp_enqueue_script(
 			'apollo-analytics-admin',
 			APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/admin/analytics.js',
-			array( 'jquery' ),
+			[ 'jquery' ],
 			APOLLO_SOCIAL_VERSION,
 			true
 		);
@@ -59,17 +59,17 @@ class AnalyticsAdmin {
 		wp_localize_script(
 			'apollo-analytics-admin',
 			'apolloAnalyticsAdmin',
-			array(
+			[
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'apollo_analytics_admin' ),
 				'config'  => $this->config,
-			)
+			]
 		);
 
 		wp_enqueue_style(
 			'apollo-analytics-admin',
 			APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/admin/analytics.css',
-			array(),
+			[],
 			APOLLO_SOCIAL_VERSION
 		);
 	}
@@ -80,7 +80,7 @@ class AnalyticsAdmin {
 	public function render_analytics_page() {
 		$analytics_enabled = $this->config['enabled'] ?? false;
 		$driver            = $this->config['driver'] ?? 'plausible';
-		$plausible_config  = $this->config['plausible'] ?? array();
+		$plausible_config  = $this->config['plausible'] ?? [];
 
 		echo '<div class="wrap apollo-analytics-admin">';
 		echo '<h1>Analytics Apollo</h1>';
@@ -129,7 +129,7 @@ class AnalyticsAdmin {
 	 * Render configuration form
 	 */
 	private function render_configuration_form() {
-		$plausible_config = $this->config['plausible'] ?? array();
+		$plausible_config = $this->config['plausible'] ?? [];
 
 		echo '<div class="apollo-analytics-config">';
 		echo '<h2>Configuração do Analytics</h2>';
@@ -212,7 +212,7 @@ class AnalyticsAdmin {
 	 * Render analytics dashboard
 	 */
 	private function render_analytics_dashboard() {
-		$plausible_config     = $this->config['plausible'] ?? array();
+		$plausible_config     = $this->config['plausible'] ?? [];
 		$shared_dashboard_url = $plausible_config['shared_dashboard_url'] ?? '';
 
 		echo '<div class="apollo-analytics-dashboard">';
@@ -241,14 +241,14 @@ class AnalyticsAdmin {
 	 * Render events tracking status
 	 */
 	private function render_events_tracking_status() {
-		$events_config = $this->config['events'] ?? array();
+		$events_config = $this->config['events'] ?? [];
 
 		echo '<div class="apollo-analytics-events">';
 		echo '<h3>Status dos Eventos Personalizados</h3>';
 
 		echo '<div class="events-grid">';
 
-		$categories = array( 'social', 'classifieds', 'events' );
+		$categories = [ 'social', 'classifieds', 'events' ];
 
 		foreach ( $categories as $category ) {
 			if ( ! isset( $events_config[ $category ] ) ) {
@@ -298,7 +298,7 @@ class AnalyticsAdmin {
 			wp_die( 'Insufficient permissions' );
 		}
 
-		$analytics_config = $_POST['analytics'] ?? array();
+		$analytics_config = $_POST['analytics'] ?? [];
 
 		// Sanitize configuration
 		$sanitized_config = $this->sanitize_analytics_config( $analytics_config );
@@ -314,51 +314,51 @@ class AnalyticsAdmin {
 	 * Get configuration status
 	 */
 	private function get_configuration_status(): array {
-		$plausible_config = $this->config['plausible'] ?? array();
+		$plausible_config = $this->config['plausible'] ?? [];
 
-		return array(
-			'enabled'   => array(
+		return [
+			'enabled'   => [
 				'status'      => $this->config['enabled'] ?? false,
 				'label'       => 'Analytics Habilitado',
 				'description' => $this->config['enabled'] ? 'Analytics está ativo' : 'Analytics está desabilitado',
-			),
-			'domain'    => array(
+			],
+			'domain'    => [
 				'status'      => ! empty( $plausible_config['domain'] ),
 				'label'       => 'Domínio Configurado',
 				'description' => ! empty( $plausible_config['domain'] ) ? 'Domínio: ' . $plausible_config['domain'] : 'Domínio não configurado',
-			),
-			'script'    => array(
+			],
+			'script'    => [
 				'status'      => ! empty( $plausible_config['script_url'] ),
 				'label'       => 'Script do Plausible',
 				'description' => ! empty( $plausible_config['script_url'] ) ? 'Script configurado' : 'URL do script não configurada',
-			),
-			'api'       => array(
+			],
+			'api'       => [
 				'status'      => ! empty( $plausible_config['api_key'] ),
 				'label'       => 'API Key',
 				'description' => ! empty( $plausible_config['api_key'] ) ? 'API key configurada' : 'API key não configurada (estatísticas limitadas)',
-			),
-			'dashboard' => array(
+			],
+			'dashboard' => [
 				'status'      => ! empty( $plausible_config['shared_dashboard_url'] ),
 				'label'       => 'Dashboard Público',
 				'description' => ! empty( $plausible_config['shared_dashboard_url'] ) ? 'Dashboard público configurado' : 'Dashboard público não configurado',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Fetch analytics stats from Plausible API
 	 */
 	private function fetch_analytics_stats(): array {
-		$plausible_config = $this->config['plausible'] ?? array();
+		$plausible_config = $this->config['plausible'] ?? [];
 		$api_key          = $plausible_config['api_key'] ?? '';
 		$domain           = $plausible_config['domain'] ?? '';
 		$api_base         = $plausible_config['api_base'] ?? 'https://plausible.io';
 
 		if ( empty( $api_key ) || empty( $domain ) ) {
-			return array(
+			return [
 				'error' => 'API key ou domínio não configurados',
-				'stats' => array(),
-			);
+				'stats' => [],
+			];
 		}
 
 		// Fetch basic stats for last 30 days
@@ -366,59 +366,59 @@ class AnalyticsAdmin {
 
 		$response = wp_remote_get(
 			$stats_url,
-			array(
-				'headers' => array(
+			[
+				'headers' => [
 					'Authorization' => 'Bearer ' . $api_key,
-				),
+				],
 				'timeout' => 10,
-			)
+			]
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return array(
+			return [
 				'error' => 'Erro ao conectar com a API: ' . $response->get_error_message(),
-				'stats' => array(),
-			);
+				'stats' => [],
+			];
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
 		if ( ! $data || isset( $data['error'] ) ) {
-			return array(
+			return [
 				'error' => 'Erro na resposta da API: ' . ( $data['error'] ?? 'Resposta inválida' ),
-				'stats' => array(),
-			);
+				'stats' => [],
+			];
 		}
 
 		// Format stats for display
-		$formatted_stats = array(
-			'visitors'       => array(
+		$formatted_stats = [
+			'visitors'       => [
 				'label' => 'Visitantes Únicos',
 				'value' => $data['results']['visitors']['value'] ?? 0,
 				'icon'  => '👥',
-			),
-			'pageviews'      => array(
+			],
+			'pageviews'      => [
 				'label' => 'Visualizações',
 				'value' => $data['results']['pageviews']['value'] ?? 0,
 				'icon'  => '📄',
-			),
-			'bounce_rate'    => array(
+			],
+			'bounce_rate'    => [
 				'label' => 'Taxa de Rejeição',
 				'value' => ( $data['results']['bounce_rate']['value'] ?? 0 ) . '%',
 				'icon'  => '📊',
-			),
-			'visit_duration' => array(
+			],
+			'visit_duration' => [
 				'label' => 'Duração Média',
 				'value' => $this->format_duration( $data['results']['visit_duration']['value'] ?? 0 ),
 				'icon'  => '⏱️',
-			),
-		);
+			],
+		];
 
-		return array(
+		return [
 			'error' => null,
 			'stats' => $formatted_stats,
-		);
+		];
 	}
 
 	/**
@@ -438,16 +438,16 @@ class AnalyticsAdmin {
 	 * Sanitize analytics configuration
 	 */
 	private function sanitize_analytics_config( $config ): array {
-		return array(
+		return [
 			'enabled'   => ! empty( $config['enabled'] ),
 			'driver'    => sanitize_text_field( $config['driver'] ?? 'plausible' ),
-			'plausible' => array(
+			'plausible' => [
 				'domain'               => sanitize_text_field( $config['plausible']['domain'] ?? '' ),
 				'api_base'             => esc_url_raw( $config['plausible']['api_base'] ?? 'https://plausible.io' ),
 				'script_url'           => esc_url_raw( $config['plausible']['script_url'] ?? 'https://plausible.io/js/plausible.js' ),
 				'shared_dashboard_url' => esc_url_raw( $config['plausible']['shared_dashboard_url'] ?? '' ),
 				'api_key'              => sanitize_text_field( $config['plausible']['api_key'] ?? '' ),
-			),
-		);
+			],
+		];
 	}
 }

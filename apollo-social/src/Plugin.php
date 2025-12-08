@@ -4,16 +4,27 @@ namespace Apollo;
 use Apollo\Modules\Core\CoreServiceProvider;
 use Apollo\Infrastructure\Http\Routes;
 use Apollo\Core\RoleManager;
-use Apollo\Core\PWADetector;
+use Apollo\Core\PwaDetector;
 
 /**
- * Main Plugin class
+ * Main plugin class
  *
  * Handles plugin lifecycle and service providers registration.
  */
 class Plugin {
 
-	private $providers   = array();
+	/**
+	 * List of registered service providers.
+	 *
+	 * @var array
+	 */
+	private $providers   = [];
+
+	/**
+	 * Whether plugin has been initialized.
+	 *
+	 * @var bool
+	 */
 	private $initialized = false;
 
 	/**
@@ -37,16 +48,16 @@ class Plugin {
 		$this->bootstrap();
 
 		// Initialize Canvas pages.
-		$this->initializeCanvasPages();
+		$this->initialize_canvas_pages();
 	}
 
 	/**
 	 * Initialize Canvas pages on plugin activation/construction
 	 * Creates all Apollo pages independently from theme
 	 */
-	private function initializeCanvasPages() {
-		// Hook into init to ensure WordPress is ready
-		add_action( 'init', array( $this, 'createCanvasPages' ), 20 );
+	private function initialize_canvas_pages() {
+		// Hook into init to ensure WordPress is ready.
+		add_action( 'init', [ $this, 'create_canvas_pages' ], 20 );
 	}
 
 	/**
@@ -54,8 +65,8 @@ class Plugin {
 	 * FASE 1: Inclui páginas faltantes (Documentos e Enviar Evento)
 	 * Melhora idempotência verificando páginas individualmente
 	 */
-	public function createCanvasPages() {
-		// Bug fix: Early return para evitar execução desnecessária em cada request
+	public function create_canvas_pages() {
+		// Bug fix: Early return para evitar execução desnecessária em cada request.
 		$pages_created   = get_option( 'apollo_social_canvas_pages_created', false );
 		$pages_version   = get_option( 'apollo_social_canvas_pages_version', '1.0' );
 		$current_version = '2.0';
@@ -69,43 +80,43 @@ class Plugin {
 		// FASE 1: Verificar versão da opção para upgrades futuros.
 
 		// Pages to create.
-		$pages = array(
-			'feed'       => array(
+		$pages = [
+			'feed'       => [
 				'title'    => 'Feed Social',
 				'slug'     => 'feed',
 				'template' => 'feed/feed.php',
-			),
-			'chat'       => array(
+			],
+			'chat'       => [
 				'title'    => 'Chat',
 				'slug'     => 'chat',
 				'template' => 'chat/chat-list.php',
-			),
-			'painel'     => array(
+			],
+			'painel'     => [
 				'title'    => 'Painel',
 				'slug'     => 'painel',
 				'template' => 'users/dashboard.php',
-			),
-			'cena-rio'   => array(
+			],
+			'cena-rio'   => [
 				'title'    => 'Cena::rio',
 				'slug'     => 'cena-rio',
 				'template' => 'cena/cena.php',
-			),
+			],
 			// Note: '/cena' route is handled by Routes.php for backward compatibility.
 			// Both /cena and /cena-rio point to the same template, but only one page is created.
 			// FASE 1: Páginas faltantes.
-			'documentos' => array(
+			'documentos' => [
 				'title'    => 'Documentos',
 				'slug'     => 'documentos',
 				'template' => 'documents/documents-page.php',
-			),
-			'enviar'     => array(
+			],
+			'enviar'     => [
 				'title'    => 'Enviar Conteúdo',
 				'slug'     => 'enviar',
 				'template' => 'users/submit-content.php',
 				// Only add event submit shortcode if Apollo Events Manager is active.
 				'content'  => ( shortcode_exists( 'apollo_event_submit' ) ) ? '[apollo_event_submit]' : '<!-- Apollo Canvas Page -->',
-			),
-		);
+			],
+		];
 
 		$created_count  = 0;
 		$existing_count = 0;
@@ -131,13 +142,13 @@ class Plugin {
 				$page_content = isset( $page_data['content'] ) ? $page_data['content'] : '<!-- Apollo Canvas Page -->';
 
 				$page_id = wp_insert_post(
-					array(
+					[
 						'post_title'   => $page_data['title'],
 						'post_name'    => $page_data['slug'],
 						'post_status'  => 'publish',
 						'post_type'    => 'page',
 						'post_content' => $page_content,
-					)
+					]
 				);
 
 				if ( $page_id && ! is_wp_error( $page_id ) ) {
@@ -174,24 +185,23 @@ class Plugin {
 	 * Bootstrap the plugin (register providers, hooks)
 	 */
 	public function bootstrap() {
-		.
 		// Register service providers.
-		$this->registerProviders();
+		$this->register_providers();
 
 		// Initialize core functionality.
-		$this->initializeCore();
+		$this->initialize_core();
 	}
 
 	/**
 	 * Register all service providers
 	 */
-	private function registerProviders() {
+	private function register_providers() {
 		// Load helper functions.
 		if ( ! function_exists( 'config' ) ) {
 			require_once APOLLO_SOCIAL_PLUGIN_DIR . 'src/helpers.php';
 		}
 
-		$this->providers = array(
+		$this->providers = [
 			new CoreServiceProvider(),
 			new \Apollo\Modules\Auth\AuthServiceProvider(),
 			new \Apollo\Modules\Registration\RegistrationServiceProvider(),
@@ -199,7 +209,7 @@ class Plugin {
 			new \Apollo\Modules\Shortcodes\ShortcodeServiceProvider(),
 			new \Apollo\Modules\Pwa\PwaServiceProvider(),
 			new \Apollo\Infrastructure\Providers\AnalyticsServiceProvider(),
-		);
+		];
 
 		// Load Events Manager Integration (read-only access to event_dj and event_local CPTs).
 		$integration_file = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Infrastructure/Integration/EventsManagerIntegration.php';
@@ -281,18 +291,18 @@ class Plugin {
 	/**
 	 * Initialize core functionality.
 	 */
-	private function initializeCore() {
+	private function initialize_core() {
 		// Register routes.
-		add_action( 'init', array( $this, 'registerRoutes' ) );
+		add_action( 'init', [ $this, 'register_routes' ] );
 
-		// Handle plugin requests
-		add_action( 'template_redirect', array( $this, 'handlePluginRequests' ) );
+		// Handle plugin requests.
+		add_action( 'template_redirect', [ $this, 'handle_plugin_requests' ] );
 	}
 
 	/**
 	 * Register plugin routes.
 	 */
-	public function registerRoutes() {
+	public function register_routes() {
 		$routes = new Routes();
 		$routes->register();
 	}
@@ -301,7 +311,7 @@ class Plugin {
 	 * P0-4: Handle plugin requests and Canvas Mode with template_redirect
 	 * This ensures Canvas Mode pages are rendered before theme template selection
 	 */
-	public function handlePluginRequests() {
+	public function handle_plugin_requests() {
 		// Check if this is an Apollo Canvas route.
 		$routes        = new Routes();
 		$current_route = $routes->getCurrentRoute();
@@ -311,7 +321,7 @@ class Plugin {
 			// P0-4: Force Canvas Mode - prevent theme template loading.
 			add_filter(
 				'template_include',
-				function ( $template ) {
+				function () {
 					// Return empty string to prevent theme template
 					// CanvasBuilder will handle full rendering via wp_die().
 					return '';

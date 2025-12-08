@@ -773,7 +773,7 @@ $engagement_rate = $total_user_views > 0 ? round( ( $popup_views / $total_user_v
 	<!-- Events Tab -->
 	<div class="tab-panel" data-panel="events">
 		<?php
-		$template_path = APOLLO_WPEM_PATH . 'templates/user-event-dashboard.php';
+		$template_path = APOLLO_APRIO_PATH . 'templates/user-event-dashboard.php';
 		if ( file_exists( $template_path ) ) {
 			include $template_path;
 		}

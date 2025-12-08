@@ -42,7 +42,7 @@ class Renderer {
 	 * @param array $args    Optional render arguments.
 	 * @return string Rendered HTML.
 	 */
-	public function renderForUser( int $user_id, array $args = array() ): string {
+	public function renderForUser( int $user_id, array $args = [] ): string {
 		$layout = $this->repository->getLayout( $user_id );
 
 		// Enqueue background scripts if needed.
@@ -219,7 +219,7 @@ class Renderer {
 	 * @return string Rendered HTML.
 	 */
 	private function renderStickersLayer( array $layout ): string {
-		$stickers = $layout['stickers'] ?? array();
+		$stickers = $layout['stickers'] ?? [];
 
 		if ( empty( $stickers ) ) {
 			return '';
@@ -320,7 +320,7 @@ class Renderer {
 				continue;
 			}
 
-			$position = $widget['position'] ?? array();
+			$position = $widget['position'] ?? [];
 			$style    = sprintf(
 				'left:%spx;top:%spx;width:%spx;height:%spx;position:absolute;z-index:%s;',
 				isset( $position['x'] ) ? (float) $position['x'] : 0,
@@ -331,7 +331,7 @@ class Renderer {
 			);
 
 			$output .= '<div class="apollo-widget-instance" style="' . esc_attr( $style ) . '">';
-			$output .= $this->renderWidgetManually( $widget['id_base'], $widget['settings'] ?? array() );
+			$output .= $this->renderWidgetManually( $widget['id_base'], $widget['settings'] ?? [] );
 			$output .= '</div>';
 		}
 
@@ -372,10 +372,10 @@ class Renderer {
 				the_widget(
 					$id_base,
 					$settings,
-					array(
+					[
 						'before_widget' => '',
 						'after_widget'  => '',
-					)
+					]
 				);
 				return (string) ob_get_clean();
 		}//end switch

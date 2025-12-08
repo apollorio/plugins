@@ -85,7 +85,7 @@ class TemplatesRepository {
 		$template     = new DocumentTemplate( $data );
 		$placeholders = $template->extractPlaceholders();
 
-		$insert_data = array(
+		$insert_data = [
 			'name'         => $data['name'],
 			'description'  => $data['description'] ?? '',
 			'content'      => $data['content'],
@@ -93,7 +93,7 @@ class TemplatesRepository {
 			'category'     => $data['category'] ?? 'general',
 			'is_active'    => $data['is_active'] ?? 1,
 			'created_by'   => get_current_user_id(),
-		);
+		];
 
 		$result = $wpdb->insert( $this->table_name, $insert_data );
 
@@ -129,11 +129,11 @@ class TemplatesRepository {
 	 * @param int   $offset
 	 * @return array
 	 */
-	public function findAll( array $filters = array(), int $limit = 20, int $offset = 0 ): array {
+	public function findAll( array $filters = [], int $limit = 20, int $offset = 0 ): array {
 		global $wpdb;
 
-		$where_clauses = array( '1=1' );
-		$values        = array();
+		$where_clauses = [ '1=1' ];
+		$values        = [];
 
 		if ( ! empty( $filters['category'] ) ) {
 			$where_clauses[] = 'category = %s';
@@ -172,7 +172,7 @@ class TemplatesRepository {
 			function ( $row ) {
 				return new DocumentTemplate( $row );
 			},
-			$results ?: array()
+			$results ?: []
 		);
 	}
 
@@ -198,7 +198,7 @@ class TemplatesRepository {
 		$result = $wpdb->update(
 			$this->table_name,
 			$data,
-			array( 'id' => $id )
+			[ 'id' => $id ]
 		);
 
 		if ( $result === false ) {
@@ -217,7 +217,7 @@ class TemplatesRepository {
 	public function delete( int $id ): bool {
 		global $wpdb;
 
-		$result = $wpdb->delete( $this->table_name, array( 'id' => $id ) );
+		$result = $wpdb->delete( $this->table_name, [ 'id' => $id ] );
 
 		return $result !== false;
 	}
@@ -228,11 +228,11 @@ class TemplatesRepository {
 	 * @param array $filters
 	 * @return int
 	 */
-	public function count( array $filters = array() ): int {
+	public function count( array $filters = [] ): int {
 		global $wpdb;
 
-		$where_clauses = array( '1=1' );
-		$values        = array();
+		$where_clauses = [ '1=1' ];
+		$values        = [];
 
 		if ( ! empty( $filters['category'] ) ) {
 			$where_clauses[] = 'category = %s';
@@ -270,10 +270,10 @@ class TemplatesRepository {
 	 */
 	public function findByCategory( string $category ): array {
 		return $this->findAll(
-			array(
+			[
 				'category'  => $category,
 				'is_active' => 1,
-			)
+			]
 		);
 	}
 
@@ -310,6 +310,6 @@ class TemplatesRepository {
 			"SELECT DISTINCT category FROM {$this->table_name} ORDER BY category"
 		);
 
-		return $results ?: array();
+		return $results ?: [];
 	}
 }

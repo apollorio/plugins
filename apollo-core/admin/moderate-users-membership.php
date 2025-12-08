@@ -255,7 +255,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				const color = $("#membership-color").val();
 				const textColor = $("#membership-text-color").val();
 
-				let endpoint = restUrl + "memberships/create";
+				let endpoint = restUrl + "membros/criar";
 				let data = {
 					slug: slug,
 					label: label,
@@ -265,7 +265,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				};
 
 				if (action === "update") {
-					endpoint = restUrl + "memberships/update";
+					endpoint = restUrl + "membros/atualizar";
 					data.slug = $("#membership-original-slug").val();
 				}
 
@@ -297,7 +297,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				}
 
 				$.ajax({
-					url: restUrl + "memberships/delete",
+					url: restUrl + "membros/excluir",
 					method: "POST",
 					headers: { "X-WP-Nonce": nonce },
 					data: { slug: slug },
@@ -314,7 +314,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 			// Export memberships
 			$("#apollo-export-memberships-btn").on("click", function() {
 				$.ajax({
-					url: restUrl + "memberships/export",
+					url: restUrl + "membros/exportar",
 					method: "GET",
 					headers: { "X-WP-Nonce": nonce },
 					success: function(response) {
@@ -349,7 +349,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				const json = $("#import-json").val();
 
 				$.ajax({
-					url: restUrl + "memberships/import",
+					url: restUrl + "membros/importar",
 					method: "POST",
 					headers: { "X-WP-Nonce": nonce },
 					data: { data: json },
@@ -379,7 +379,7 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				}
 
 				$.ajax({
-					url: restUrl + "memberships/set",
+					url: restUrl + "membros/definir",
 					method: "POST",
 					headers: { "X-WP-Nonce": nonce },
 					data: {

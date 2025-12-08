@@ -2,7 +2,7 @@
 // phpcs:ignoreFile
 /**
  * Bookmarks System for Apollo Events Manager
- * Integrated from wpem-bookmarks functionality
+ * Integrated from aprio-bookmarks functionality
  *
  * @package ApolloEventsManager
  * @since 1.0.0
@@ -312,7 +312,7 @@ class Apollo_Events_Bookmarks {
 		}
 
 		register_rest_route(
-			'apollo-events/v1',
+			'apollo/v1',
 			'/bookmarks',
 			array(
 				'methods'             => 'GET',
@@ -322,7 +322,7 @@ class Apollo_Events_Bookmarks {
 		);
 
 		register_rest_route(
-			'apollo-events/v1',
+			'apollo/v1',
 			'/bookmarks/(?P<id>\d+)',
 			array(
 				'methods'             => 'POST',

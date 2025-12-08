@@ -31,7 +31,7 @@ function apollo_add_statistics_submenu() {
  * Render statistics page
  */
 function apollo_render_statistics_page() {
-	$template_path = APOLLO_WPEM_PATH . 'templates/admin-event-statistics.php';
+	$template_path = APOLLO_APRIO_PATH . 'templates/admin-event-statistics.php';
 
 	if ( file_exists( $template_path ) ) {
 		include $template_path;

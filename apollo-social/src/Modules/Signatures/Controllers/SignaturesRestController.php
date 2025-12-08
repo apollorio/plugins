@@ -49,7 +49,7 @@ class SignaturesRestController extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'documents';
+	protected $rest_base = 'docs';
 
 	/**
 	 * Signature service instance.
@@ -84,78 +84,78 @@ class SignaturesRestController extends WP_REST_Controller {
 			xdebug_break();
 		}
 
-		// POST /documents/{id}/sign - Sign a document.
+		// POST /docs/{id}/assinar - Sign a document.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<id>[\d]+)/sign',
-			array(
-				array(
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/assinar',
+			[
+				[
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'sign_document' ),
-					'permission_callback' => array( $this, 'sign_permission_check' ),
+					'callback'            => [ $this, 'sign_document' ],
+					'permission_callback' => [ $this, 'sign_permission_check' ],
 					'args'                => $this->get_sign_args(),
-				),
-			)
+				],
+			]
 		);
 
-		// GET /documents/{id}/signatures - Get document signatures.
+		// GET /docs/{id}/assinaturas - Get document signatures.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<id>[\d]+)/signatures',
-			array(
-				array(
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/assinaturas',
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_signatures' ),
-					'permission_callback' => array( $this, 'read_permission_check' ),
-				),
-			)
+					'callback'            => [ $this, 'get_signatures' ],
+					'permission_callback' => [ $this, 'read_permission_check' ],
+				],
+			]
 		);
 
-		// POST /documents/{id}/verify - Verify document signature.
+		// POST /docs/{id}/verificar - Verify document signature.
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<id>[\d]+)/verify',
-			array(
-				array(
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/verificar',
+			[
+				[
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'verify_document' ),
+					'callback'            => [ $this, 'verify_document' ],
 					// Public verification.
 					'permission_callback' => '__return_true',
-				),
-			)
+				],
+			]
 		);
 
-		// GET /signatures/backends - Get available backends.
+		// GET /assinaturas/backends - Get available backends.
 		register_rest_route(
 			$this->namespace,
-			'/signatures/backends',
-			array(
-				array(
+			'/assinaturas/backends',
+			[
+				[
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_backends' ),
-					'permission_callback' => array( $this, 'admin_permission_check' ),
-				),
-			)
+					'callback'            => [ $this, 'get_backends' ],
+					'permission_callback' => [ $this, 'admin_permission_check' ],
+				],
+			]
 		);
 
-		// POST /signatures/backends/set - Set active backend.
+		// POST /assinaturas/backends/set - Set active backend.
 		register_rest_route(
 			$this->namespace,
-			'/signatures/backends/set',
-			array(
-				array(
+			'/assinaturas/backends/set',
+			[
+				[
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'set_backend' ),
-					'permission_callback' => array( $this, 'admin_permission_check' ),
-					'args'                => array(
-						'backend' => array(
+					'callback'            => [ $this, 'set_backend' ],
+					'permission_callback' => [ $this, 'admin_permission_check' ],
+					'args'                => [
+						'backend' => [
 							'required'          => true,
 							'type'              => 'string',
 							'sanitize_callback' => 'sanitize_text_field',
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 	}
 
@@ -181,7 +181,7 @@ class SignaturesRestController extends WP_REST_Controller {
 		$reason    = $request->get_param( 'reason' );
 		$location  = $request->get_param( 'location' );
 
-		$options = array(
+		$options = [
 			'certificate_type' => $cert_type ? $cert_type : 'A1',
 			'certificate_path' => $cert_path ? $cert_path : '',
 			'certificate_pass' => $cert_pass ? $cert_pass : '',
@@ -189,8 +189,8 @@ class SignaturesRestController extends WP_REST_Controller {
 			'location'         => $location ? $location : get_bloginfo( 'name' ),
 			'visible'          => (bool) $request->get_param( 'visible' ),
 			'page'             => (int) $request->get_param( 'page' ) ? (int) $request->get_param( 'page' ) : 1,
-			'position'         => $request->get_param( 'position' ) ? $request->get_param( 'position' ) : array(),
-		);
+			'position'         => $request->get_param( 'position' ) ? $request->get_param( 'position' ) : [],
+		];
 
 		$result = $this->signature_service->sign_document( $document_id, $user_id, $options );
 
@@ -204,15 +204,15 @@ class SignaturesRestController extends WP_REST_Controller {
 
 		$last_sig_data = null;
 		if ( $last_signature ) {
-			$last_sig_data = array(
+			$last_sig_data = [
 				'user_name'        => $last_signature['user_name'] ?? '',
 				'timestamp'        => $last_signature['timestamp'] ?? '',
 				'certificate_type' => $last_signature['certificate_type'] ?? '',
-			);
+			];
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'        => true,
 				'message'        => __( 'Documento assinado com sucesso.', 'apollo-social' ),
 				'signature_id'   => $result['signature_id'] ?? '',
@@ -220,7 +220,7 @@ class SignaturesRestController extends WP_REST_Controller {
 				'backend'        => $result['backend'] ?? '',
 				'is_stub'        => $result['is_stub'] ?? false,
 				'last_signature' => $last_sig_data,
-			),
+			],
 			200
 		);
 	}
@@ -255,11 +255,11 @@ class SignaturesRestController extends WP_REST_Controller {
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'document_id' => $document_id,
 				'count'       => count( $safe_signatures ),
 				'signatures'  => $safe_signatures,
-			),
+			],
 			200
 		);
 	}
@@ -289,7 +289,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_document_not_found',
 				__( 'Documento não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -299,7 +299,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_pdf_not_found',
 				__( 'PDF do documento não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -314,19 +314,19 @@ class SignaturesRestController extends WP_REST_Controller {
 		$report = $this->audit->generateVerificationReport( $document_id );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'valid'            => $result['valid'] ?? false,
-				'document'         => array(
+				'document'         => [
 					'id'      => $document['id'],
 					'file_id' => $document['file_id'],
 					'title'   => $document['title'],
 					'status'  => $document['status'],
-				),
+				],
 				'verification'     => $result,
 				'protocol'         => $report['protocol'] ?? null,
 				'signatures_count' => $report['signatures_summary']['signed'] ?? 0,
 				'verified_at'      => gmdate( 'Y-m-d\TH:i:s\Z' ),
-			),
+			],
 			200
 		);
 	}
@@ -343,10 +343,10 @@ class SignaturesRestController extends WP_REST_Controller {
 		$active   = $this->signature_service->get_active_backend();
 
 		return new WP_REST_Response(
-			array(
+			[
 				'backends' => $backends,
 				'active'   => $active ? $active->get_identifier() : null,
-			),
+			],
 			200
 		);
 	}
@@ -367,14 +367,14 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_backend_not_available',
 				__( 'Backend não disponível ou não encontrado.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		update_option( 'apollo_signature_backend', $backend_id );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'active'  => $backend_id,
 				'message' => sprintf(
@@ -382,7 +382,7 @@ class SignaturesRestController extends WP_REST_Controller {
 					__( 'Backend "%s" ativado com sucesso.', 'apollo-social' ),
 					$backend_id
 				),
-			),
+			],
 			200
 		);
 	}
@@ -393,55 +393,55 @@ class SignaturesRestController extends WP_REST_Controller {
 	 * @return array Endpoint arguments.
 	 */
 	private function get_sign_args(): array {
-		return array(
-			'certificate_type' => array(
+		return [
+			'certificate_type' => [
 				'type'              => 'string',
-				'enum'              => array( 'A1', 'A3' ),
+				'enum'              => [ 'A1', 'A3' ],
 				'default'           => 'A1',
 				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'certificate_path' => array(
+			],
+			'certificate_path' => [
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'certificate_pass' => array(
+			],
+			'certificate_pass' => [
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'reason'           => array(
+			],
+			'reason'           => [
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'default'           => '',
-			),
-			'location'         => array(
+			],
+			'location'         => [
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'visible'          => array(
+			],
+			'visible'          => [
 				'type'    => 'boolean',
 				'default' => false,
-			),
-			'page'             => array(
+			],
+			'page'             => [
 				'type'              => 'integer',
 				'default'           => 1,
 				'sanitize_callback' => 'absint',
-			),
-			'position'         => array(
+			],
+			'position'         => [
 				'type'              => 'object',
-				'default'           => array(),
+				'default'           => [],
 				'sanitize_callback' => function ( $position ) {
 					if ( ! is_array( $position ) ) {
-						return array();
+						return [];
 					}
-					return array(
+					return [
 						'x'      => isset( $position['x'] ) ? (float) $position['x'] : 0,
 						'y'      => isset( $position['y'] ) ? (float) $position['y'] : 0,
 						'width'  => isset( $position['width'] ) ? (float) $position['width'] : 0,
 						'height' => isset( $position['height'] ) ? (float) $position['height'] : 0,
-					);
+					];
 				},
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -456,7 +456,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_rest_not_logged_in',
 				__( 'Você precisa estar logado para assinar documentos.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -466,7 +466,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_rest_forbidden',
 				__( 'Você não tem permissão para assinar este documento.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -485,7 +485,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_rest_not_logged_in',
 				__( 'Você precisa estar logado para ver assinaturas.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -504,7 +504,7 @@ class SignaturesRestController extends WP_REST_Controller {
 			return new WP_Error(
 				'apollo_rest_forbidden',
 				__( 'Acesso restrito a administradores.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 

@@ -22,10 +22,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants
-define( 'APOLLO_WPEM_VERSION', '1.0.0' );
-// APOLLO_AEM_VERSION removido - usar apenas APOLLO_WPEM_VERSION
-define( 'APOLLO_WPEM_PATH', plugin_dir_path( __FILE__ ) );
-define( 'APOLLO_WPEM_URL', plugin_dir_url( __FILE__ ) );
+define( 'APOLLO_APRIO_VERSION', '1.0.0' );
+// APOLLO_AEM_VERSION removido - usar apenas APOLLO_APRIO_VERSION
+define( 'APOLLO_APRIO_PATH', plugin_dir_path( __FILE__ ) );
+define( 'APOLLO_APRIO_URL', plugin_dir_url( __FILE__ ) );
 
 // Debug mode (enable in wp-config.php with: define('APOLLO_DEBUG', true);)
 if ( ! defined( 'APOLLO_DEBUG' ) ) {
@@ -188,18 +188,18 @@ if ( ! function_exists( 'apollo_cfg' ) ) {
 
 if ( ! function_exists( 'apollo_aem_bootstrap_versioning' ) ) {
 	function apollo_aem_bootstrap_versioning() {
-		$stored_version = get_option( 'apollo_wpem_version' );
+		$stored_version = get_option( 'apollo_aprio_version' );
 
-		if ( $stored_version !== APOLLO_WPEM_VERSION ) {
+		if ( $stored_version !== APOLLO_APRIO_VERSION ) {
 			/**
 			 * Fires when the Apollo Events Manager version changes.
 			 *
 			 * @param string|null $stored_version Previously stored version (null on first run).
 			 * @param string      $target_version Target plugin version.
 			 */
-			do_action( 'apollo_wpem_version_upgrade', $stored_version, APOLLO_WPEM_VERSION );
+			do_action( 'apollo_aprio_version_upgrade', $stored_version, APOLLO_APRIO_VERSION );
 
-			update_option( 'apollo_wpem_version', APOLLO_WPEM_VERSION, false );
+			update_option( 'apollo_aprio_version', APOLLO_APRIO_VERSION, false );
 		}
 	}
 
@@ -355,7 +355,7 @@ if ( file_exists( $ajax_favorites_file ) ) {
 	apollo_log_missing_file( $ajax_favorites_file );
 }
 
-// Include REST API system (integrated from wpem-rest-api)
+// Include REST API system (integrated from aprio-rest-api)
 $rest_api_file = plugin_dir_path( __FILE__ ) . 'includes/class-rest-api.php';
 if ( file_exists( $rest_api_file ) ) {
 	require_once $rest_api_file;
@@ -686,14 +686,14 @@ class Apollo_Events_Manager_Plugin {
 		// Validate custom fields
 		add_filter( 'submit_event_form_validate_fields', array( $this, 'validate_custom_event_fields' ) );
 
-		// Save custom fields (using native WordPress hook instead of WPEM hook)
+		// Save custom fields (using native WordPress hook instead of APRIO hook)
 		add_action( 'save_post_event_listing', array( $this, 'save_custom_event_fields' ), 10, 2 );
 
 		// Auto-geocoding for event_local posts
 		add_action( 'save_post_event_local', array( $this, 'auto_geocode_local' ), 10, 2 );
 
 		// Load post types registration (INDEPENDENT)
-		$post_types_file = APOLLO_WPEM_PATH . 'includes/post-types.php';
+		$post_types_file = APOLLO_APRIO_PATH . 'includes/post-types.php';
 		if ( file_exists( $post_types_file ) ) {
 			require_once $post_types_file;
 		} else {
@@ -701,7 +701,7 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		// Load dashboards
-		$dashboards_file = APOLLO_WPEM_PATH . 'includes/dashboards.php';
+		$dashboards_file = APOLLO_APRIO_PATH . 'includes/dashboards.php';
 		if ( file_exists( $dashboards_file ) ) {
 			require_once $dashboards_file;
 		} else {
@@ -715,7 +715,7 @@ class Apollo_Events_Manager_Plugin {
 		add_action( 'admin_init', array( $this, 'migrate_legacy_meta_keys' ), 5 );
 
 		// Load data migration utilities (for WP-CLI and maintenance)
-		$data_migration_file = APOLLO_WPEM_PATH . 'includes/data-migration.php';
+		$data_migration_file = APOLLO_APRIO_PATH . 'includes/data-migration.php';
 		if ( file_exists( $data_migration_file ) ) {
 			require_once $data_migration_file;
 		} else {
@@ -723,7 +723,7 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		// FASE 4: Load event stats class
-		$stats_file = APOLLO_WPEM_PATH . 'includes/class-event-stats.php';
+		$stats_file = APOLLO_APRIO_PATH . 'includes/class-event-stats.php';
 		if ( file_exists( $stats_file ) ) {
 			require_once $stats_file;
 		}
@@ -742,7 +742,7 @@ class Apollo_Events_Manager_Plugin {
 
 		// Load admin metaboxes
 		if ( is_admin() ) {
-			$admin_file = APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php';
+			$admin_file = APOLLO_APRIO_PATH . 'includes/admin-metaboxes.php';
 			if ( file_exists( $admin_file ) ) {
 				require_once $admin_file;
 			}
@@ -752,20 +752,20 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		// Load authentication shortcodes
-		$auth_shortcodes_file = APOLLO_WPEM_PATH . 'includes/shortcodes-auth.php';
+		$auth_shortcodes_file = APOLLO_APRIO_PATH . 'includes/shortcodes-auth.php';
 		if ( file_exists( $auth_shortcodes_file ) ) {
 			require_once $auth_shortcodes_file;
 		}
 
 		// Load My Apollo dashboard shortcode
-		$my_apollo_file = APOLLO_WPEM_PATH . 'includes/shortcodes-my-apollo.php';
+		$my_apollo_file = APOLLO_APRIO_PATH . 'includes/shortcodes-my-apollo.php';
 		if ( file_exists( $my_apollo_file ) ) {
 			require_once $my_apollo_file;
 		}
 
-		// Backward compatibility layer (prevents fatal errors if WPEM reactivated)
-		add_filter( 'event_manager_event_listing_templates', array( $this, 'wpem_compatibility_notice' ), 1 );
-		add_filter( 'event_manager_single_event_templates', array( $this, 'wpem_compatibility_notice' ), 1 );
+		// Backward compatibility layer (prevents fatal errors if APRIO reactivated)
+		add_filter( 'event_manager_event_listing_templates', array( $this, 'aprio_compatibility_notice' ), 1 );
+		add_filter( 'event_manager_single_event_templates', array( $this, 'aprio_compatibility_notice' ), 1 );
 
 		// Admin notices
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -787,10 +787,10 @@ class Apollo_Events_Manager_Plugin {
 	}
 
 	/**
-	 * WPEM Compatibility Notice
-	 * Prevents fatal errors if WPEM is accidentally reactivated
+	 * APRIO Compatibility Notice
+	 * Prevents fatal errors if APRIO is accidentally reactivated
 	 */
-	public function wpem_compatibility_notice( $templates ) {
+	public function aprio_compatibility_notice( $templates ) {
 		// Apollo Events Manager is now standalone - no WP Event Manager dependency
 		return $templates;
 	}
@@ -799,7 +799,7 @@ class Apollo_Events_Manager_Plugin {
 	 * Admin Notices
 	 */
 	public function admin_notices() {
-		// Notice if WPEM is still active
+		// Notice if APRIO is still active
 		if ( class_exists( 'WP_Event_Manager' ) ) {
 			echo '<div class="notice notice-warning is-dismissible">';
 			echo '<p><strong>⚠️ Apollo Events Manager</strong> is now independent and no longer requires WP Event Manager.</p>';
@@ -1002,7 +1002,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE EVENT DASHBOARD TEMPLATE
 		// Intercept page with slug 'event-dashboard'
 		if ( is_page( 'event-dashboard' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/page-event-dashboard.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/page-event-dashboard.php';
 			if ( file_exists( $plugin_template ) ) {
 				return $plugin_template;
 			}
@@ -1011,7 +1011,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE SINGLE DJ TEMPLATE
 		// Any single event_dj MUST use our DJ template
 		if ( is_singular( 'event_dj' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/single-event_dj.php';
 			if ( file_exists( $plugin_template ) ) {
 				error_log( '🎯 Apollo: Forcing single-event_dj.php for DJ: ' . get_the_ID() );
 				return $plugin_template;
@@ -1021,7 +1021,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE SINGLE LOCAL TEMPLATE
 		// Any single event_local MUST use our Local template
 		if ( is_singular( 'event_local' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/single-event_local.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/single-event_local.php';
 			if ( file_exists( $plugin_template ) ) {
 				error_log( '🎯 Apollo: Forcing single-event_local.php for Local: ' . get_the_ID() );
 				return $plugin_template;
@@ -1031,7 +1031,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE SINGLE EVENT TEMPLATE
 		// Any single event_listing MUST use our standalone template
 		if ( is_singular( 'event_listing' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/single-event-standalone.php';
 			if ( file_exists( $plugin_template ) ) {
 				// Log for debugging
 				error_log( '🎯 Apollo: Forcing single-event-standalone.php for event: ' . get_the_ID() );
@@ -1042,7 +1042,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE ARCHIVE/LIST TEMPLATE
 		// /eventos/ page OR event_listing archive MUST use portal-discover
 		if ( is_page( 'eventos' ) || is_post_type_archive( 'event_listing' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/portal-discover.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/portal-discover.php';
 			if ( file_exists( $plugin_template ) ) {
 				// Log for debugging
 				error_log( '🎯 Apollo: Forcing portal-discover.php for /eventos/' );
@@ -1053,7 +1053,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE CENARIO NEW EVENT TEMPLATE
 		// Page with slug 'cenario-new-event' uses custom template
 		if ( is_page( 'cenario-new-event' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/page-cenario-new-event.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/page-cenario-new-event.php';
 			if ( file_exists( $plugin_template ) ) {
 				error_log( '🎯 Apollo: Forcing page-cenario-new-event.php' );
 				return $plugin_template;
@@ -1063,7 +1063,7 @@ class Apollo_Events_Manager_Plugin {
 		// FORCE MOD EVENTS TEMPLATE
 		// Page with slug 'mod-events' uses moderation template
 		if ( is_page( 'mod-events' ) ) {
-			$plugin_template = APOLLO_WPEM_PATH . 'templates/page-mod-events.php';
+			$plugin_template = APOLLO_APRIO_PATH . 'templates/page-mod-events.php';
 			if ( file_exists( $plugin_template ) ) {
 				error_log( '🎯 Apollo: Forcing page-mod-events.php' );
 				return $plugin_template;
@@ -1106,9 +1106,9 @@ class Apollo_Events_Manager_Plugin {
 		if ( is_singular( 'event_dj' ) ) {
 			wp_enqueue_style(
 				'apollo-dj-template',
-				APOLLO_WPEM_URL . 'assets/dj-template.css',
+				APOLLO_APRIO_URL . 'assets/dj-template.css',
 				array(),
-				APOLLO_WPEM_VERSION
+				APOLLO_APRIO_VERSION
 			);
 		}
 
@@ -1137,9 +1137,9 @@ class Apollo_Events_Manager_Plugin {
 			// FORCE LOAD: Loading Animation JS
 			wp_enqueue_script(
 				'apollo-loading-animation',
-				APOLLO_WPEM_URL . 'assets/js/apollo-loading-animation.js',
+				APOLLO_APRIO_URL . 'assets/js/apollo-loading-animation.js',
 				array(),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 
@@ -1363,19 +1363,19 @@ class Apollo_Events_Manager_Plugin {
 		// ============================================
 		wp_enqueue_style(
 			'apollo-shadcn-components',
-			APOLLO_WPEM_URL . 'assets/css/apollo-shadcn-components.css',
+			APOLLO_APRIO_URL . 'assets/css/apollo-shadcn-components.css',
 			array( 'remixicon' ),
 			// Removed uni.css dependency (loads before it)
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			'all'
 		);
 
 		wp_enqueue_style(
 			'apollo-event-modal-css',
-			APOLLO_WPEM_URL . 'assets/css/event-modal.css',
+			APOLLO_APRIO_URL . 'assets/css/event-modal.css',
 			array( 'apollo-shadcn-components' ),
 			// Loads before uni.css
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			'all'
 		);
 
@@ -1416,9 +1416,9 @@ class Apollo_Events_Manager_Plugin {
 		// Portal modal handler (local JS) - ALWAYS ENQUEUE FOR PORTAL
 		wp_enqueue_script(
 			'apollo-events-portal',
-			APOLLO_WPEM_URL . 'assets/js/apollo-events-portal.js',
+			APOLLO_APRIO_URL . 'assets/js/apollo-events-portal.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
@@ -1438,28 +1438,28 @@ class Apollo_Events_Manager_Plugin {
 		// Motion.dev animations for event cards
 		wp_enqueue_script(
 			'apollo-motion-event-card',
-			APOLLO_WPEM_URL . 'assets/js/motion-event-card.js',
+			APOLLO_APRIO_URL . 'assets/js/motion-event-card.js',
 			array( 'apollo-events-portal' ),
 			// Depends on portal script
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Motion.dev modal animations
 		wp_enqueue_script(
 			'apollo-motion-modal',
-			APOLLO_WPEM_URL . 'assets/js/motion-modal.js',
+			APOLLO_APRIO_URL . 'assets/js/motion-modal.js',
 			array( 'apollo-events-portal' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Infinite scroll for list view
 		wp_enqueue_script(
 			'apollo-infinite-scroll',
-			APOLLO_WPEM_URL . 'assets/js/infinite-scroll.js',
+			APOLLO_APRIO_URL . 'assets/js/infinite-scroll.js',
 			array( 'apollo-events-portal' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
@@ -1468,64 +1468,64 @@ class Apollo_Events_Manager_Plugin {
 		// uni.css handles ALL universal styles (.event_listings, .event_listing, etc.)
 		wp_enqueue_style(
 			'apollo-infinite-scroll-css',
-			APOLLO_WPEM_URL . 'assets/css/infinite-scroll.css',
+			APOLLO_APRIO_URL . 'assets/css/infinite-scroll.css',
 			array( 'apollo-shadcn-components' ),
 			// Removed uni.css dependency
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			'all'
 		);
 
 		// Motion.dev dashboard tabs
 		wp_enqueue_script(
 			'apollo-motion-dashboard',
-			APOLLO_WPEM_URL . 'assets/js/motion-dashboard.js',
+			APOLLO_APRIO_URL . 'assets/js/motion-dashboard.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Line graph for statistics (TODO 98)
 		wp_enqueue_script(
 			'apollo-chart-line-graph',
-			APOLLO_WPEM_URL . 'assets/js/chart-line-graph.js',
+			APOLLO_APRIO_URL . 'assets/js/chart-line-graph.js',
 			array(),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Context menu
 		wp_enqueue_script(
 			'apollo-motion-context-menu',
-			APOLLO_WPEM_URL . 'assets/js/motion-context-menu.js',
+			APOLLO_APRIO_URL . 'assets/js/motion-context-menu.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Character counter
 		wp_enqueue_script(
 			'apollo-character-counter',
-			APOLLO_WPEM_URL . 'assets/js/character-counter.js',
+			APOLLO_APRIO_URL . 'assets/js/character-counter.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Form validation
 		wp_enqueue_script(
 			'apollo-form-validation',
-			APOLLO_WPEM_URL . 'assets/js/form-validation.js',
+			APOLLO_APRIO_URL . 'assets/js/form-validation.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
 		// Image modal (fullscreen with zoom/pan)
 		wp_enqueue_script(
 			'apollo-image-modal',
-			APOLLO_WPEM_URL . 'assets/js/image-modal.js',
+			APOLLO_APRIO_URL . 'assets/js/image-modal.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
@@ -1533,17 +1533,17 @@ class Apollo_Events_Manager_Plugin {
 		if ( $is_single_event ) {
 			wp_enqueue_script(
 				'apollo-motion-gallery',
-				APOLLO_WPEM_URL . 'assets/js/motion-gallery.js',
+				APOLLO_APRIO_URL . 'assets/js/motion-gallery.js',
 				array( 'jquery' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 
 			wp_enqueue_script(
 				'apollo-motion-local-page',
-				APOLLO_WPEM_URL . 'assets/js/motion-local-page.js',
+				APOLLO_APRIO_URL . 'assets/js/motion-local-page.js',
 				array( 'jquery' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 		}
@@ -1552,15 +1552,15 @@ class Apollo_Events_Manager_Plugin {
 		if ( ! $is_single_event ) {
 			wp_enqueue_style(
 				'apollo-event-favorites',
-				APOLLO_WPEM_URL . 'assets/css/apollo-event-favorites.css',
+				APOLLO_APRIO_URL . 'assets/css/apollo-event-favorites.css',
 				array(),
-				APOLLO_WPEM_VERSION
+				APOLLO_APRIO_VERSION
 			);
 			wp_enqueue_script(
 				'apollo-event-favorites',
-				APOLLO_WPEM_URL . 'assets/js/apollo-event-favorites.js',
+				APOLLO_APRIO_URL . 'assets/js/apollo-event-favorites.js',
 				array( 'apollo-events-portal' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 			wp_localize_script(
@@ -1576,9 +1576,9 @@ class Apollo_Events_Manager_Plugin {
 			// Legacy favorites script (keep for backward compatibility)
 			wp_enqueue_script(
 				'apollo-events-favorites',
-				APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
+				APOLLO_APRIO_URL . 'assets/js/apollo-favorites.js',
 				array( 'apollo-events-portal' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 
@@ -1609,15 +1609,15 @@ class Apollo_Events_Manager_Plugin {
 			// P0-6: Unified favorites system (REST API) - for single event pages
 			wp_enqueue_style(
 				'apollo-event-favorites',
-				APOLLO_WPEM_URL . 'assets/css/apollo-event-favorites.css',
+				APOLLO_APRIO_URL . 'assets/css/apollo-event-favorites.css',
 				array(),
-				APOLLO_WPEM_VERSION
+				APOLLO_APRIO_VERSION
 			);
 			wp_enqueue_script(
 				'apollo-event-favorites',
-				APOLLO_WPEM_URL . 'assets/js/apollo-event-favorites.js',
+				APOLLO_APRIO_URL . 'assets/js/apollo-event-favorites.js',
 				array( 'apollo-event-page-js' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 			wp_localize_script(
@@ -1633,9 +1633,9 @@ class Apollo_Events_Manager_Plugin {
 			// Legacy favorites script (keep for backward compatibility)
 			wp_enqueue_script(
 				'apollo-events-favorites',
-				APOLLO_WPEM_URL . 'assets/js/apollo-favorites.js',
+				APOLLO_APRIO_URL . 'assets/js/apollo-favorites.js',
 				array( 'apollo-event-page-js' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 
@@ -1893,20 +1893,20 @@ class Apollo_Events_Manager_Plugin {
 		}//end if
 
 		// Include template parts
-		include APOLLO_WPEM_PATH . 'templates/event-listings-start.php';
+		include APOLLO_APRIO_PATH . 'templates/event-listings-start.php';
 
 		if ( $events ) {
 			global $post;
 			foreach ( $events as $post ) {
 				setup_postdata( $post );
-				include APOLLO_WPEM_PATH . 'templates/event-card.php';
+				include APOLLO_APRIO_PATH . 'templates/event-card.php';
 			}
 			wp_reset_postdata();
 		} else {
 			echo '<p class="no-events-found">Nenhum evento encontrado.</p>';
 		}
 
-		include APOLLO_WPEM_PATH . 'templates/event-listings-end.php';
+		include APOLLO_APRIO_PATH . 'templates/event-listings-end.php';
 
 		return ob_get_clean();
 	}
@@ -2038,7 +2038,7 @@ class Apollo_Events_Manager_Plugin {
 				global $post;
 				$post = $event;
 				setup_postdata( $post );
-				include APOLLO_WPEM_PATH . 'templates/content-event_listing.php';
+				include APOLLO_APRIO_PATH . 'templates/content-event_listing.php';
 			}
 			wp_reset_postdata();
 		} else {
@@ -2083,7 +2083,7 @@ class Apollo_Events_Manager_Plugin {
 			return '<p>' . esc_html__( 'Configuration error.', 'apollo-events-manager' ) . '</p>';
 		}
 
-		$template = APOLLO_WPEM_PATH . 'templates/portal-discover.php';
+		$template = APOLLO_APRIO_PATH . 'templates/portal-discover.php';
 		if ( file_exists( $template ) ) {
 			ob_start();
 
@@ -2206,11 +2206,11 @@ class Apollo_Events_Manager_Plugin {
 			</div>
 
 			<!-- Layout Toggle -->
-			<div class="wpem-col wpem-col-12 wpem-col-sm-6 wpem-col-md-6 wpem-col-lg-4">
-				<div class="wpem-event-layout-action-wrapper">
-					<div class="wpem-event-layout-action">
-						<div class="wpem-event-layout-icon wpem-event-list-layout wpem-active-layout" title="Events List View" id="wpem-event-toggle-layout" onclick="toggleLayout(this)">
-							<i class="wpem-icon-menu"></i>
+			<div class="aprio-col aprio-col-12 aprio-col-sm-6 aprio-col-md-6 aprio-col-lg-4">
+				<div class="aprio-event-layout-action-wrapper">
+					<div class="aprio-event-layout-action">
+						<div class="aprio-event-layout-icon aprio-event-list-layout aprio-active-layout" title="Events List View" id="aprio-event-toggle-layout" onclick="toggleLayout(this)">
+							<i class="aprio-icon-menu"></i>
 						</div>
 					</div>
 				</div>
@@ -2222,7 +2222,7 @@ class Apollo_Events_Manager_Plugin {
 				if ( $events_query->have_posts() ) {
 					while ( $events_query->have_posts() ) {
 						$events_query->the_post();
-						include APOLLO_WPEM_PATH . 'templates/event-card.php';
+						include APOLLO_APRIO_PATH . 'templates/event-card.php';
 					}
 					wp_reset_postdata();
 				} else {
@@ -2465,7 +2465,7 @@ class Apollo_Events_Manager_Plugin {
 
 		setup_postdata( $post );
 
-		include APOLLO_WPEM_PATH . 'templates/single-event.php';
+		include APOLLO_APRIO_PATH . 'templates/single-event.php';
 
 		wp_reset_postdata();
 		wp_die();
@@ -2662,7 +2662,7 @@ class Apollo_Events_Manager_Plugin {
 
 			// Load helper if not already loaded
 			if ( ! class_exists( 'Apollo_Event_Data_Helper' ) ) {
-				require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+				require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
 			}
 
 			// Build local context for template overrides using helper
@@ -2739,7 +2739,7 @@ class Apollo_Events_Manager_Plugin {
 			echo '<i class="ri-close-line"></i>';
 			echo '</button>';
 
-			$template_file = APOLLO_WPEM_PATH . 'templates/single-event-page.php';
+			$template_file = APOLLO_APRIO_PATH . 'templates/single-event-page.php';
 			if ( file_exists( $template_file ) ) {
 				include $template_file;
 			} else {
@@ -3462,7 +3462,7 @@ class Apollo_Events_Manager_Plugin {
 			: array();
 
 		// Load dashboard widgets
-		$dashboard_widgets_file = APOLLO_WPEM_PATH . 'includes/dashboard-widgets.php';
+		$dashboard_widgets_file = APOLLO_APRIO_PATH . 'includes/dashboard-widgets.php';
 		if ( file_exists( $dashboard_widgets_file ) ) {
 			require_once $dashboard_widgets_file;
 		} else {
@@ -4462,7 +4462,7 @@ class Apollo_Events_Manager_Plugin {
 	public function render_submit_form( $atts = array() ) {
 		// Carregar helper se necessário
 		if ( ! class_exists( 'Apollo_Event_Data_Helper' ) ) {
-			require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+			require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
 		}
 
 		// FASE 2: Verificar se usuário está logado
@@ -4502,7 +4502,7 @@ class Apollo_Events_Manager_Plugin {
 
 			// FASE 2: Usar função helper para verificar permissões
 			if ( ! function_exists( 'apollo_can_user_edit_event' ) ) {
-				require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+				require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
 			}
 
 			if ( ! apollo_can_user_edit_event( $event_id, $current_user_id ) ) {
@@ -5439,7 +5439,7 @@ class Apollo_Events_Manager_Plugin {
 		$top_locals          = call_user_func_array( array( $stats_class, 'get_top_locals' ), array( $user_id, 5 ) );
 
 		ob_start();
-		include APOLLO_WPEM_PATH . 'templates/industry-overview.php';
+		include APOLLO_APRIO_PATH . 'templates/industry-overview.php';
 		return ob_get_clean();
 	}
 
@@ -5726,7 +5726,7 @@ class Apollo_Events_Manager_Plugin {
 		);
 
 		ob_start();
-		include APOLLO_WPEM_PATH . 'templates/shortcode-dj-profile.php';
+		include APOLLO_APRIO_PATH . 'templates/shortcode-dj-profile.php';
 		return ob_get_clean();
 	}
 
@@ -5744,7 +5744,7 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		ob_start();
-		include APOLLO_WPEM_PATH . 'templates/shortcode-user-dashboard.php';
+		include APOLLO_APRIO_PATH . 'templates/shortcode-user-dashboard.php';
 		return ob_get_clean();
 	}
 
@@ -5754,7 +5754,7 @@ class Apollo_Events_Manager_Plugin {
 	 */
 	public function apollo_cena_rio_shortcode( $atts ) {
 		ob_start();
-		include APOLLO_WPEM_PATH . 'templates/shortcode-cena-rio.php';
+		include APOLLO_APRIO_PATH . 'templates/shortcode-cena-rio.php';
 		return ob_get_clean();
 	}
 
@@ -5838,7 +5838,7 @@ if ( ! function_exists( 'apollo_events_shortcode_handler' ) ) {
 
 // Log verification completion (only in debug mode)
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'APOLLO_DEBUG' ) && APOLLO_DEBUG ) {
-	error_log( 'Apollo Events Manager ' . APOLLO_WPEM_VERSION . ': Plugin loaded successfully - ' . date( 'Y-m-d H:i:s' ) );
+	error_log( 'Apollo Events Manager ' . APOLLO_APRIO_VERSION . ': Plugin loaded successfully - ' . date( 'Y-m-d H:i:s' ) );
 }
 
 /**
@@ -5915,7 +5915,7 @@ function apollo_events_manager_activate() {
 	}
 
 	// Check if already activated recently (prevent double runs)
-	$activation_key  = 'apollo_events_manager_activation_' . APOLLO_WPEM_VERSION;
+	$activation_key  = 'apollo_events_manager_activation_' . APOLLO_APRIO_VERSION;
 	$last_activation = get_option( $activation_key, false );
 
 	// If activated in last 5 minutes, skip (might be double-click or refresh)
@@ -6173,11 +6173,11 @@ function apollo_events_manager_activate() {
 		}
 
 		// Mark activation complete
-		update_option( 'apollo_events_manager_activated_version', APOLLO_WPEM_VERSION );
+		update_option( 'apollo_events_manager_activated_version', APOLLO_APRIO_VERSION );
 
 		// Log activation (only in debug mode)
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( '✅ Apollo Events Manager ' . APOLLO_WPEM_VERSION . ' activated successfully' );
+			error_log( '✅ Apollo Events Manager ' . APOLLO_APRIO_VERSION . ' activated successfully' );
 		}
 	} catch ( \Exception $e ) {
 		// Log error but don't break activation

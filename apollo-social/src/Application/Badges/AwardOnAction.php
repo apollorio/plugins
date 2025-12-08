@@ -13,7 +13,7 @@ class AwardOnAction {
 	 * Execute badge awarding
 	 * TODO: implement badge awarding logic
 	 */
-	public function execute( $action, $user, $context = array() ) {
+	public function execute( $action, $user, $context = [] ) {
 		// TODO: implement badge awarding logic
 		// 1. Check if badges are enabled (globally and for user's unions)
 		// 2. Find badges triggered by action

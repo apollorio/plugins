@@ -233,19 +233,19 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 <script type="application/json" id="apollo-signature-config">
 <?php
 echo wp_json_encode(
-	array(
+	[
 		'documentId'  => $document_id,
 		'restUrl'     => $rest_url,
 		'backendsUrl' => $backends_url,
 		'nonce'       => $rest_nonce,
-		'i18n'        => array(
+		'i18n'        => [
 			'signing'         => __( 'Assinando...', 'apollo-social' ),
 			'signed'          => __( 'Assinado', 'apollo-social' ),
 			'error'           => __( 'Erro ao assinar', 'apollo-social' ),
 			'checkTerms'      => __( 'Marque as opções acima para continuar.', 'apollo-social' ),
 			'connectionError' => __( 'Erro de conexão. Tente novamente.', 'apollo-social' ),
-		),
-	)
+		],
+	]
 );
 ?>
 </script>

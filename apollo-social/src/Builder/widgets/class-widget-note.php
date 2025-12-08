@@ -51,15 +51,15 @@ class Apollo_Widget_Note extends Apollo_Widget_Base {
 	 * Settings
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'text'       => $this->field(
 				'textarea',
 				__( 'Text', 'apollo-social' ),
 				__( 'My note...', 'apollo-social' ),
-				array(
+				[
 					'rows'      => 4,
 					'maxlength' => 500,
-				)
+				]
 			),
 			'color'      => $this->field( 'color', __( 'Note Color', 'apollo-social' ), '#ffff88' ),
 			'text_color' => $this->field( 'color', __( 'Text Color', 'apollo-social' ), '#333333' ),
@@ -67,30 +67,30 @@ class Apollo_Widget_Note extends Apollo_Widget_Base {
 				'slider',
 				__( 'Font Size', 'apollo-social' ),
 				14,
-				array(
+				[
 					'min'  => 10,
 					'max'  => 24,
 					'unit' => 'px',
-				)
+				]
 			),
 			'rotation'   => $this->field(
 				'slider',
 				__( 'Rotation', 'apollo-social' ),
 				0,
-				array(
+				[
 					'min'  => -15,
 					'max'  => 15,
 					'unit' => '°',
-				)
+				]
 			),
-		);
+		];
 	}
 
 	/**
 	 * Render widget
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 
 		$text       = sanitize_textarea_field( substr( $settings['text'] ?? __( 'My note...', 'apollo-social' ), 0, 500 ) );
 		$color      = sanitize_hex_color( $settings['color'] ?? '#ffff88' ) ?: '#ffff88';
@@ -99,11 +99,11 @@ class Apollo_Widget_Note extends Apollo_Widget_Base {
 		$rotation   = max( -15, min( 15, intval( $settings['rotation'] ?? 0 ) ) );
 
 		// Build styles
-		$styles = array(
+		$styles = [
 			'background-color: ' . $color,
 			'color: ' . $text_color,
 			'font-size: ' . $font_size . 'px',
-		);
+		];
 
 		if ( $rotation ) {
 			$styles[] = 'transform: rotate(' . $rotation . 'deg)';

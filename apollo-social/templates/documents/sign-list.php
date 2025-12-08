@@ -519,16 +519,16 @@ $documents = $wpdb->get_results(
 					<!-- Status badge -->
 					<div style="margin-bottom: 15px;">
 						<?php
-						$status_labels   = array(
+						$status_labels   = [
 							'ready'     => '🔵 Pronto',
 							'signing'   => '🟡 Em assinatura',
 							'completed' => '🟢 Concluído',
-						);
-						$status_tooltips = array(
+						];
+						$status_tooltips = [
 							'ready'     => __( 'Documento pronto para assinatura', 'apollo-social' ),
 							'signing'   => __( 'Documento em processo de assinatura', 'apollo-social' ),
 							'completed' => __( 'Todas as assinaturas foram concluídas', 'apollo-social' ),
-						);
+						];
 						$status_tooltip  = $status_tooltips[ $doc['status'] ] ?? $doc['status'];
 						?>
 						<span class="status-badge status-<?php echo esc_attr( $doc['status'] ); ?>" data-ap-tooltip="<?php echo esc_attr( $status_tooltip ); ?>">

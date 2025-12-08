@@ -51,7 +51,7 @@ class BuilderRestController {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
@@ -69,191 +69,191 @@ class BuilderRestController {
 		register_rest_route(
 			self::NAMESPACE,
 			'/builder/layout',
-			array(
-				array(
+			[
+				[
 					'methods'             => 'GET',
-					'callback'            => array( $this, 'show' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'user_id' => array(
+					'callback'            => [ $this, 'show' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'user_id' => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-				array(
+						],
+					],
+				],
+				[
 					'methods'             => 'POST',
-					'callback'            => array( $this, 'store' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'layout'  => array(
+					'callback'            => [ $this, 'store' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'layout'  => [
 							'required' => true,
-						),
-						'user_id' => array(
+						],
+						'user_id' => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 
 		// Asset catalogs (backgrounds + stickers).
 		register_rest_route(
 			self::NAMESPACE,
 			'/builder/assets',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getAssets' ),
-				'permission_callback' => array( $this, 'canAccess' ),
-			)
+				'callback'            => [ $this, 'getAssets' ],
+				'permission_callback' => [ $this, 'canAccess' ],
+			]
 		);
 
 		// Background selection.
 		register_rest_route(
 			self::NAMESPACE,
 			'/builder/background',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'setBackground' ),
-				'permission_callback' => array( $this, 'canAccess' ),
-				'args'                => array(
-					'background_id' => array(
+				'callback'            => [ $this, 'setBackground' ],
+				'permission_callback' => [ $this, 'canAccess' ],
+				'args'                => [
+					'background_id' => [
 						'type'              => 'string',
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_key',
-					),
-					'user_id'       => array(
+					],
+					'user_id'       => [
 						'type'              => 'integer',
 						'required'          => false,
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Sticker management.
 		register_rest_route(
 			self::NAMESPACE,
 			'/builder/stickers',
-			array(
-				array(
+			[
+				[
 					'methods'             => 'GET',
-					'callback'            => array( $this, 'getStickers' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'user_id' => array(
+					'callback'            => [ $this, 'getStickers' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'user_id' => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-				array(
+						],
+					],
+				],
+				[
 					'methods'             => 'POST',
-					'callback'            => array( $this, 'addSticker' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'asset'   => array(
+					'callback'            => [ $this, 'addSticker' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'asset'   => [
 							'type'              => 'string',
 							'required'          => true,
 							'sanitize_callback' => 'sanitize_key',
-						),
-						'x'       => array(
+						],
+						'x'       => [
 							'type'              => 'integer',
 							'required'          => false,
 							'default'           => 0,
 							'sanitize_callback' => 'intval',
-						),
-						'y'       => array(
+						],
+						'y'       => [
 							'type'              => 'integer',
 							'required'          => false,
 							'default'           => 0,
 							'sanitize_callback' => 'intval',
-						),
-						'scale'   => array(
+						],
+						'scale'   => [
 							'type'              => 'number',
 							'required'          => false,
 							'default'           => 1.0,
 							'sanitize_callback' => 'floatval',
-						),
-						'user_id' => array(
+						],
+						'user_id' => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 
 		// Single sticker update/delete.
 		register_rest_route(
 			self::NAMESPACE,
 			'/builder/stickers/(?P<instance_id>[a-z0-9_-]+)',
-			array(
-				array(
+			[
+				[
 					'methods'             => 'PATCH',
-					'callback'            => array( $this, 'updateSticker' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'instance_id' => array(
+					'callback'            => [ $this, 'updateSticker' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'instance_id' => [
 							'type'              => 'string',
 							'required'          => true,
 							'sanitize_callback' => 'sanitize_key',
-						),
-						'x'           => array(
+						],
+						'x'           => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'intval',
-						),
-						'y'           => array(
+						],
+						'y'           => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'intval',
-						),
-						'scale'       => array(
+						],
+						'scale'       => [
 							'type'              => 'number',
 							'required'          => false,
 							'sanitize_callback' => 'floatval',
-						),
-						'rotation'    => array(
+						],
+						'rotation'    => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'intval',
-						),
-						'z_index'     => array(
+						],
+						'z_index'     => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-						'user_id'     => array(
+						],
+						'user_id'     => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-				array(
+						],
+					],
+				],
+				[
 					'methods'             => 'DELETE',
-					'callback'            => array( $this, 'deleteSticker' ),
-					'permission_callback' => array( $this, 'canAccess' ),
-					'args'                => array(
-						'instance_id' => array(
+					'callback'            => [ $this, 'deleteSticker' ],
+					'permission_callback' => [ $this, 'canAccess' ],
+					'args'                => [
+						'instance_id' => [
 							'type'              => 'string',
 							'required'          => true,
 							'sanitize_callback' => 'sanitize_key',
-						),
-						'user_id'     => array(
+						],
+						'user_id'     => [
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
-						),
-					),
-				),
-			)
+						],
+					],
+				],
+			]
 		);
 	}
 
@@ -277,10 +277,10 @@ class BuilderRestController {
 		$layout  = $this->repository->getLayout( $user_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'user_id' => $user_id,
 				'layout'  => $layout,
-			)
+			]
 		);
 	}
 
@@ -296,24 +296,24 @@ class BuilderRestController {
 
 		if ( is_string( $layout ) ) {
 			$decoded = json_decode( $layout, true );
-			$layout  = is_array( $decoded ) ? $decoded : array();
+			$layout  = is_array( $decoded ) ? $decoded : [];
 		}
 
 		if ( ! is_array( $layout ) ) {
 			return new WP_Error(
 				'apollo_invalid_layout',
 				__( 'Estrutura de layout inválida.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		$this->repository->saveLayout( $user_id, $layout );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'layout'  => $this->repository->getLayout( $user_id ),
-			)
+			]
 		);
 	}
 
@@ -336,12 +336,12 @@ class BuilderRestController {
 		$stickers    = StickerRegistry::get_available_for_user( $user_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'backgrounds'           => array_values( $backgrounds ),
 				'background_categories' => BackgroundRegistry::get_categories(),
 				'stickers'              => array_values( $stickers ),
 				'sticker_categories'    => StickerRegistry::get_categories(),
-			)
+			]
 		);
 	}
 
@@ -365,7 +365,7 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_background_not_available',
 				__( 'Este background não está disponível para você.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -375,15 +375,15 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_background_save_failed',
 				__( 'Falha ao salvar background.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success'    => true,
 				'background' => $this->repository->getBackground( $user_id ),
-			)
+			]
 		);
 	}
 
@@ -412,10 +412,10 @@ class BuilderRestController {
 		);
 
 		return rest_ensure_response(
-			array(
+			[
 				'user_id'  => $user_id,
 				'stickers' => $enriched,
-			)
+			]
 		);
 	}
 
@@ -435,16 +435,16 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_sticker_not_available',
 				__( 'Este sticker não está disponível para você.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
-		$sticker_data = array(
+		$sticker_data = [
 			'asset' => $asset_id,
 			'x'     => $request->get_param( 'x' ),
 			'y'     => $request->get_param( 'y' ),
 			'scale' => $request->get_param( 'scale' ),
-		);
+		];
 
 		$instance_id = $this->repository->addSticker( $user_id, $sticker_data );
 
@@ -452,16 +452,16 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_sticker_add_failed',
 				__( 'Falha ao adicionar sticker.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success'     => true,
 				'instance_id' => $instance_id,
 				'stickers'    => $this->repository->getStickers( $user_id ),
-			)
+			]
 		);
 	}
 
@@ -476,13 +476,13 @@ class BuilderRestController {
 		$instance_id = $request->get_param( 'instance_id' );
 
 		$updates = array_filter(
-			array(
+			[
 				'x'        => $request->get_param( 'x' ),
 				'y'        => $request->get_param( 'y' ),
 				'scale'    => $request->get_param( 'scale' ),
 				'rotation' => $request->get_param( 'rotation' ),
 				'z_index'  => $request->get_param( 'z_index' ),
-			),
+			],
 			function ( $value ): bool {
 				return null !== $value;
 			}
@@ -492,7 +492,7 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_sticker_no_updates',
 				__( 'Nenhuma atualização fornecida.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -502,15 +502,15 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_sticker_update_failed',
 				__( 'Sticker não encontrado ou falha ao atualizar.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success'  => true,
 				'stickers' => $this->repository->getStickers( $user_id ),
-			)
+			]
 		);
 	}
 
@@ -530,15 +530,15 @@ class BuilderRestController {
 			return new WP_Error(
 				'apollo_sticker_delete_failed',
 				__( 'Sticker não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success'  => true,
 				'stickers' => $this->repository->getStickers( $user_id ),
-			)
+			]
 		);
 	}
 

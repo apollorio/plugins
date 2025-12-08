@@ -31,15 +31,15 @@ final class UserPageRepository {
 		}
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => UserPageRegistrar::POST_TYPE,
-				'post_status'    => array( 'publish', 'draft', 'private' ),
+				'post_status'    => [ 'publish', 'draft', 'private' ],
 				'meta_key'       => UserPageRegistrar::META_KEY,
 				'meta_value'     => $userId,
 				'posts_per_page' => 1,
 				'fields'         => 'all',
 				'no_found_rows'  => true,
-			)
+			]
 		);
 
 		if ( ! $query->have_posts() ) {
@@ -72,7 +72,7 @@ final class UserPageRepository {
 		}
 
 		$postId = wp_insert_post(
-			array(
+			[
 				'post_type'    => UserPageRegistrar::POST_TYPE,
 				'post_status'  => 'publish',
 				'post_author'  => $userId,
@@ -81,7 +81,7 @@ final class UserPageRepository {
 					$user->display_name
 				),
 				'post_content' => '',
-			),
+			],
 			true
 		);
 

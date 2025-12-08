@@ -29,13 +29,13 @@ if ( get_current_user_id() != $user_id && ! current_user_can( 'edit_post', $post
 
 $layout = get_post_meta( $post_id, 'apollo_userpage_layout_v1', true );
 if ( ! is_array( $layout ) ) {
-	$layout = array( 'grid' => array() );
+	$layout = [ 'grid' => [] ];
 }
 
 // Enqueue assets
-wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '2.0.0' );
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
-wp_enqueue_script( 'sortablejs', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', array(), '1.15.0', true );
+wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
+wp_enqueue_script( 'sortablejs', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', [], '1.15.0', true );
 // Load Motion.dev if available
 if ( function_exists( 'apollo_shadcn_init' ) ) {
 	apollo_shadcn_init();

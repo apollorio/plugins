@@ -482,7 +482,7 @@ $dj_meta_fields = array(
 ```php
 // apollo-events-manager.php:1014
 if ( is_singular( 'event_dj' ) ) {
-    $plugin_template = APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+    $plugin_template = APOLLO_APRIO_PATH . 'templates/single-event_dj.php';
 }
 ```
 

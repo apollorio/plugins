@@ -27,79 +27,79 @@ class DocumentsHelpers {
 	 *
 	 * @var array<string, array{label: string, icon: string, color: string, tooltip: string}>
 	 */
-	private static array $statuses = array(
-		'draft'     => array(
+	private static array $statuses = [
+		'draft'     => [
 			'label'   => 'Rascunho',
 			'icon'    => 'ri-draft-line',
 			'color'   => 'slate',
 			'tooltip' => 'Documento em edição. Não está visível para outros usuários e pode ser modificado livremente.',
-		),
-		'ready'     => array(
+		],
+		'ready'     => [
 			'label'   => 'Pronto',
 			'icon'    => 'ri-checkbox-circle-line',
 			'color'   => 'blue',
 			'tooltip' => 'Documento finalizado e pronto para assinatura ou publicação.',
-		),
-		'signing'   => array(
+		],
+		'signing'   => [
 			'label'   => 'Em Assinatura',
 			'icon'    => 'ri-quill-pen-line',
 			'color'   => 'amber',
 			'tooltip' => 'Documento aguardando assinaturas das partes envolvidas.',
-		),
-		'completed' => array(
+		],
+		'completed' => [
 			'label'   => 'Concluído',
 			'icon'    => 'ri-verified-badge-line',
 			'color'   => 'emerald',
 			'tooltip' => 'Documento completamente assinado e finalizado. Não pode ser alterado.',
-		),
-		'archived'  => array(
+		],
+		'archived'  => [
 			'label'   => 'Arquivado',
 			'icon'    => 'ri-archive-line',
 			'color'   => 'gray',
 			'tooltip' => 'Documento arquivado. Mantido para histórico mas não está ativo.',
-		),
-		'cancelled' => array(
+		],
+		'cancelled' => [
 			'label'   => 'Cancelado',
 			'icon'    => 'ri-close-circle-line',
 			'color'   => 'red',
 			'tooltip' => 'Documento cancelado. O processo de assinatura foi interrompido.',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Document type definitions
 	 *
 	 * @var array<string, array{label: string, icon: string, tooltip: string}>
 	 */
-	private static array $types = array(
-		'documento'   => array(
+	private static array $types = [
+		'documento'   => [
 			'label'   => 'Documento',
 			'icon'    => 'ri-file-text-line',
 			'tooltip' => 'Documento de texto com formatação rica. Ideal para contratos, termos e declarações.',
-		),
-		'planilha'    => array(
+		],
+		'planilha'    => [
 			'label'   => 'Planilha',
 			'icon'    => 'ri-table-line',
 			'tooltip' => 'Planilha com células e fórmulas. Ideal para orçamentos, tabelas e cálculos.',
-		),
-		'text'        => array(
+		],
+		'text'        => [
 			'label'   => 'Documento',
 			'icon'    => 'ri-file-text-line',
 			'tooltip' => 'Documento de texto com formatação rica. Ideal para contratos, termos e declarações.',
-		),
-		'spreadsheet' => array(
+		],
+		'spreadsheet' => [
 			'label'   => 'Planilha',
 			'icon'    => 'ri-table-line',
 			'tooltip' => 'Planilha com células e fórmulas. Ideal para orçamentos, tabelas e cálculos.',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Field tooltips for editor UI
 	 *
 	 * @var array<string, string>
 	 */
-	private static array $field_tooltips = array(
+	private static array $field_tooltips = [
 		'title'        => 'Título do documento. Será exibido na listagem e no cabeçalho do PDF.',
 		'type'         => 'Tipo define o formato de edição: texto formatado ou planilha.',
 		'status'       => 'Status indica a etapa atual do documento no fluxo de trabalho.',
@@ -119,7 +119,7 @@ class DocumentsHelpers {
 		'save_status'  => 'Indica se o documento está salvo, salvando ou com erro.',
 		'export_pdf'   => 'Gera um arquivo PDF a partir do conteúdo atual.',
 		'prepare_sign' => 'Prepara o documento para coleta de assinaturas digitais.',
-	);
+	];
 
 	/**
 	 * Get status label.
@@ -168,12 +168,12 @@ class DocumentsHelpers {
 	 * @return array{label: string, icon: string, color: string, tooltip: string} Status data.
 	 */
 	public static function get_status_info( string $status ): array {
-		return self::$statuses[ $status ] ?? array(
+		return self::$statuses[ $status ] ?? [
 			'label'   => ucfirst( $status ),
 			'icon'    => 'ri-file-line',
 			'color'   => 'gray',
 			'tooltip' => '',
-		);
+		];
 	}
 
 	/**
@@ -222,11 +222,11 @@ class DocumentsHelpers {
 	 * @return array{label: string, icon: string, tooltip: string} Type data.
 	 */
 	public static function get_type_info( string $type ): array {
-		return self::$types[ $type ] ?? array(
+		return self::$types[ $type ] ?? [
 			'label'   => ucfirst( $type ),
 			'icon'    => 'ri-file-line',
 			'tooltip' => '',
-		);
+		];
 	}
 
 	/**
@@ -360,7 +360,7 @@ class DocumentsHelpers {
 	 * @return bool True if editable.
 	 */
 	public static function can_edit( string $status ): bool {
-		return in_array( $status, array( 'draft', 'ready' ), true );
+		return in_array( $status, [ 'draft', 'ready' ], true );
 	}
 
 	/**
@@ -370,7 +370,7 @@ class DocumentsHelpers {
 	 * @return bool True if can be signed.
 	 */
 	public static function can_sign( string $status ): bool {
-		return in_array( $status, array( 'ready', 'signing' ), true );
+		return in_array( $status, [ 'ready', 'signing' ], true );
 	}
 
 	/**
@@ -380,7 +380,7 @@ class DocumentsHelpers {
 	 * @return bool True if finalized.
 	 */
 	public static function is_finalized( string $status ): bool {
-		return in_array( $status, array( 'completed', 'archived', 'cancelled' ), true );
+		return in_array( $status, [ 'completed', 'archived', 'cancelled' ], true );
 	}
 
 	/**
@@ -390,16 +390,16 @@ class DocumentsHelpers {
 	 * @return array<string> Possible next statuses.
 	 */
 	public static function get_next_statuses( string $current_status ): array {
-		$transitions = array(
-			'draft'     => array( 'ready', 'archived' ),
-			'ready'     => array( 'signing', 'draft', 'archived' ),
-			'signing'   => array( 'completed', 'cancelled' ),
-			'completed' => array( 'archived' ),
-			'archived'  => array(),
-			'cancelled' => array( 'archived' ),
-		);
+		$transitions = [
+			'draft'     => [ 'ready', 'archived' ],
+			'ready'     => [ 'signing', 'draft', 'archived' ],
+			'signing'   => [ 'completed', 'cancelled' ],
+			'completed' => [ 'archived' ],
+			'archived'  => [],
+			'cancelled' => [ 'archived' ],
+		];
 
-		return $transitions[ $current_status ] ?? array();
+		return $transitions[ $current_status ] ?? [];
 	}
 
 	/**
@@ -409,11 +409,11 @@ class DocumentsHelpers {
 	 */
 	public static function export_tooltips_json(): string {
 		return wp_json_encode(
-			array(
+			[
 				'statuses' => self::$statuses,
 				'types'    => self::$types,
 				'fields'   => self::$field_tooltips,
-			),
+			],
 			JSON_UNESCAPED_UNICODE
 		);
 	}

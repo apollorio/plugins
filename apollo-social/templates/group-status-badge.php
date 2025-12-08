@@ -8,51 +8,51 @@
  * @version 2.0.0 - Design Library Conformance
  */
 
-$status_configs = array(
-	'draft'          => array(
+$status_configs = [
+	'draft'          => [
 		'bg'      => 'bg-slate-100',
 		'text'    => 'text-slate-600',
 		'icon'    => 'ri-edit-box-line',
 		'label'   => 'Rascunho',
 		'tooltip' => __( 'Grupo ainda não publicado', 'apollo-social' ),
-	),
-	'pending'        => array(
+	],
+	'pending'        => [
 		'bg'      => 'bg-amber-50',
 		'text'    => 'text-amber-700',
 		'icon'    => 'ri-time-line',
 		'label'   => 'Aguardando',
 		'tooltip' => __( 'Aguardando aprovação da moderação', 'apollo-social' ),
-	),
-	'pending_review' => array(
+	],
+	'pending_review' => [
 		'bg'      => 'bg-sky-50',
 		'text'    => 'text-sky-700',
 		'icon'    => 'ri-search-eye-line',
 		'label'   => 'Em Análise',
 		'tooltip' => __( 'Grupo em análise pela equipe', 'apollo-social' ),
-	),
-	'published'      => array(
+	],
+	'published'      => [
 		'bg'      => 'bg-emerald-50',
 		'text'    => 'text-emerald-700',
 		'icon'    => 'ri-checkbox-circle-line',
 		'label'   => 'Publicado',
 		'tooltip' => __( 'Grupo ativo e visível', 'apollo-social' ),
-	),
-	'rejected'       => array(
+	],
+	'rejected'       => [
 		'bg'      => 'bg-red-50',
 		'text'    => 'text-red-700',
 		'icon'    => 'ri-close-circle-line',
 		'label'   => 'Rejeitado',
 		'tooltip' => __( 'Grupo rejeitado pela moderação', 'apollo-social' ),
-	),
-);
+	],
+];
 
-$config = $status_configs[ $status ] ?? array(
+$config = $status_configs[ $status ] ?? [
 	'bg'      => 'bg-slate-100',
 	'text'    => 'text-slate-600',
 	'icon'    => 'ri-question-line',
 	'label'   => 'Desconhecido',
 	'tooltip' => __( 'Status desconhecido', 'apollo-social' ),
-);
+];
 ?>
 
 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold <?php echo esc_attr( $config['bg'] . ' ' . $config['text'] ); ?>"
@@ -69,11 +69,11 @@ $config = $status_configs[ $status ] ?? array(
 		<?php
 		echo wp_kses(
 			$rejection_notice['message'],
-			array(
-				'br'     => array(),
-				'span'   => array( 'class' => true ),
-				'strong' => array(),
-			)
+			[
+				'br'     => [],
+				'span'   => [ 'class' => true ],
+				'strong' => [],
+			]
 		);
 		?>
 	</div>

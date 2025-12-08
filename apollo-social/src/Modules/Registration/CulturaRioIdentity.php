@@ -28,82 +28,82 @@ class CulturaRioIdentity {
 	 *
 	 * @var array
 	 */
-	private static array $identities = array(
-		'clubber'           => array(
+	private static array $identities = [
+		'clubber'           => [
 			'label'                                => 'Clubber, daqueles que participativos ou não, agora estamos juntxs!',
 			'code'                                 => 'a',
 			'locked'                               => true,
 			// Always selected, can't be deselected
 								'membership_level' => null,
 	// No membership required
-		),
-		'dj_amateur'        => array(
+		],
+		'dj_amateur'        => [
 			'label'            => 'DJ, aspirante/amador',
 			'code'             => 'b',
 			'locked'           => false,
 			'membership_level' => 'dj_amateur',
-		),
-		'dj_pro'            => array(
+		],
+		'dj_pro'            => [
 			'label'            => 'DJ, profissional',
 			'code'             => 'c',
 			'locked'           => false,
 			'membership_level' => 'dj_professional',
-		),
-		'producer_dreamer'  => array(
+		],
+		'producer_dreamer'  => [
 			'label'            => 'Producer de Eventos, quero iniciar meu sonho (evento)',
 			'code'             => 'd',
 			'locked'           => false,
 			'membership_level' => 'event_producer_starter',
-		),
-		'producer_starter'  => array(
+		],
+		'producer_starter'  => [
 			'label'            => 'Producer de Eventos, iniciando eventos',
 			'code'             => 'e',
 			'locked'           => false,
 			'membership_level' => 'event_producer_active',
-		),
-		'producer_pro'      => array(
+		],
+		'producer_pro'      => [
 			'label'            => 'Producer de Eventos, profissional',
 			'code'             => 'f',
 			'locked'           => false,
 			'membership_level' => 'event_producer_professional',
-		),
-		'music_producer'    => array(
+		],
+		'music_producer'    => [
 			'label'            => 'Producer de Música',
 			'code'             => 'j',
 			'locked'           => false,
 			'membership_level' => 'music_producer',
-		),
-		'cultural_producer' => array(
+		],
+		'cultural_producer' => [
 			'label'            => 'Producer Cultural',
 			'code'             => 'k',
 			'locked'           => false,
 			'membership_level' => 'cultural_producer',
-		),
-		'business'          => array(
+		],
+		'business'          => [
 			'label'            => 'Business Person',
 			'code'             => 'l',
 			'locked'           => false,
 			'membership_level' => 'business',
-		),
-		'government'        => array(
+		],
+		'government'        => [
 			'label'            => 'Government',
 			'code'             => 'm',
 			'locked'           => false,
 			'membership_level' => 'government',
-		),
-		'promoter'          => array(
+		],
+		'promoter'          => [
 			'label'            => 'Promoter',
 			'code'             => 'n',
 			'locked'           => false,
 			'membership_level' => 'promoter',
-		),
-		'visual_artist'     => array(
+		],
+		'visual_artist'     => [
 			'label'            => 'Visual Artist',
 			'code'             => 'p',
 			'locked'           => false,
 			'membership_level' => 'visual_artist',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Get all identity options
@@ -120,10 +120,10 @@ class CulturaRioIdentity {
 	 * @return array
 	 */
 	public static function getRemarks(): array {
-		return array(
+		return [
 			'business'      => 'Vendo Produto / Serviço para eventos e artistas cariocas, de equipamento de sistema de som, luz; materiao gráfico / filmagens; gravadora / stúdio de música; cursos de DJ; bar consignado; entre diversos outros.',
 			'visual_artist' => 'Designer; Photographer; Artistas Plásticos; Video Motion; entre diversos outros.',
-		);
+		];
 	}
 
 	/**
@@ -164,7 +164,7 @@ class CulturaRioIdentity {
 		}
 
 		// Determine membership requests (exclude clubber)
-		$membership_requests = array();
+		$membership_requests = [];
 		foreach ( $selected_identities as $identity_key ) {
 			if ( $identity_key === 'clubber' ) {
 				continue;
@@ -209,7 +209,7 @@ class CulturaRioIdentity {
 	 */
 	public static function getUserIdentities( int $user_id ): array {
 		$identities = get_user_meta( $user_id, 'apollo_cultura_identities', true );
-		return is_array( $identities ) ? $identities : array( 'clubber' );
+		return is_array( $identities ) ? $identities : [ 'clubber' ];
 	}
 
 	/**
@@ -220,7 +220,7 @@ class CulturaRioIdentity {
 	 */
 	public static function getUserOriginalIdentities( int $user_id ): array {
 		$identities = get_user_meta( $user_id, 'apollo_cultura_original_identities', true );
-		return is_array( $identities ) ? $identities : array();
+		return is_array( $identities ) ? $identities : [];
 	}
 
 	/**
@@ -230,13 +230,13 @@ class CulturaRioIdentity {
 	 * @return array
 	 */
 	public static function getMembershipStatus( int $user_id ): array {
-		return array(
-			'requested'    => get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: array(),
+		return [
+			'requested'    => get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: [],
 			'status'       => get_user_meta( $user_id, 'apollo_membership_status', true ) ?: 'none',
 			'requested_at' => get_user_meta( $user_id, 'apollo_membership_requested_at', true ) ?: null,
 			'approved_at'  => get_user_meta( $user_id, 'apollo_membership_approved_at', true ) ?: null,
 			'approved_by'  => get_user_meta( $user_id, 'apollo_membership_approved_by', true ) ?: null,
-		);
+		];
 	}
 
 	/**
@@ -252,7 +252,7 @@ class CulturaRioIdentity {
 			return false;
 		}
 
-		$requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: array();
+		$requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: [];
 
 		// If specific memberships provided, use those; otherwise approve all
 		$to_approve = $approved_memberships ?? $requested;
@@ -311,12 +311,12 @@ class CulturaRioIdentity {
 		}
 
 		// Build journey data
-		$journey = array(
+		$journey = [
 			'started_as'        => $original,
 			'current'           => $current,
 			'membership_status' => $status['status'],
 			'registered_at'     => get_user_meta( $user_id, 'apollo_cultura_registered_at', true ),
-		);
+		];
 
 		// Add progression messages
 		if ( $status['status'] === 'approved' && in_array( 'dj_amateur', $original, true ) ) {
@@ -346,7 +346,7 @@ class CulturaRioIdentity {
 	 * @return array
 	 */
 	public static function getIdentityLabels( array $keys ): array {
-		$labels = array();
+		$labels = [];
 		foreach ( $keys as $key ) {
 			$labels[ $key ] = self::getIdentityLabel( $key );
 		}

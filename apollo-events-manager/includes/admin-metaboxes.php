@@ -79,9 +79,9 @@ class Apollo_Events_Admin_Metaboxes {
 		}
 
 		// ShadCN components for admin
-		wp_enqueue_style( 'apollo-shadcn-admin', APOLLO_WPEM_URL . 'assets/css/apollo-shadcn-components.css', array(), APOLLO_WPEM_VERSION );
+		wp_enqueue_style( 'apollo-shadcn-admin', APOLLO_APRIO_URL . 'assets/css/apollo-shadcn-components.css', array(), APOLLO_APRIO_VERSION );
 		wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
-		wp_enqueue_style( 'apollo-admin-metabox', APOLLO_WPEM_URL . 'assets/admin-metabox.css', array( 'apollo-shadcn-admin' ), APOLLO_WPEM_VERSION );
+		wp_enqueue_style( 'apollo-admin-metabox', APOLLO_APRIO_URL . 'assets/admin-metabox.css', array( 'apollo-shadcn-admin' ), APOLLO_APRIO_VERSION );
 
 		if ( $post_type === 'event_listing' ) {
 			// Motion.dev for smooth animations
@@ -92,9 +92,9 @@ class Apollo_Events_Admin_Metaboxes {
 
 			wp_enqueue_script(
 				'apollo-admin-metabox',
-				APOLLO_WPEM_URL . 'assets/admin-metabox.js',
+				APOLLO_APRIO_URL . 'assets/admin-metabox.js',
 				array( 'jquery', 'jquery-ui-dialog', 'media-upload', 'media-views' ),
-				APOLLO_WPEM_VERSION,
+				APOLLO_APRIO_VERSION,
 				true
 			);
 

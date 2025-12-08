@@ -9,9 +9,9 @@ namespace Apollo\Infrastructure\Workflows;
  */
 class ContentWorkflow {
 
-	private array $workflows   = array();
-	private array $states      = array();
-	private array $transitions = array();
+	private array $workflows   = [];
+	private array $states      = [];
+	private array $transitions = [];
 
 	public function __construct() {
 		$this->initializeWorkflows();
@@ -21,91 +21,91 @@ class ContentWorkflow {
 	 * Initialize default workflows
 	 */
 	private function initializeWorkflows(): void {
-		$this->workflows = array(
-			'group' => array(
+		$this->workflows = [
+			'group' => [
 				'name'          => 'Aprovação de Grupos',
-				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'suspended' ),
+				'states'        => [ 'draft', 'pending_review', 'published', 'rejected', 'suspended' ],
 				'default_state' => 'draft',
-			),
-			'event' => array(
+			],
+			'event' => [
 				'name'          => 'Aprovação de Eventos',
-				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'cancelled' ),
+				'states'        => [ 'draft', 'pending_review', 'published', 'rejected', 'cancelled' ],
 				'default_state' => 'draft',
-			),
-			'ad'    => array(
+			],
+			'ad'    => [
 				'name'          => 'Aprovação de Anúncios',
-				'states'        => array( 'draft', 'pending_review', 'published', 'rejected', 'expired' ),
+				'states'        => [ 'draft', 'pending_review', 'published', 'rejected', 'expired' ],
 				'default_state' => 'draft',
-			),
-		);
+			],
+		];
 
-		$this->states = array(
-			'draft'          => array(
+		$this->states = [
+			'draft'          => [
 				'label'       => 'Rascunho',
 				'description' => 'Conteúdo em edição, não visível publicamente',
 				'color'       => '#6b7280',
 				'icon'        => '📝',
 				'public'      => false,
-			),
-			'pending_review' => array(
+			],
+			'pending_review' => [
 				'label'       => 'Aguardando Aprovação',
 				'description' => 'Conteúdo enviado para moderação',
 				'color'       => '#f59e0b',
 				'icon'        => '⏳',
 				'public'      => false,
-			),
-			'published'      => array(
+			],
+			'published'      => [
 				'label'       => 'Publicado',
 				'description' => 'Conteúdo aprovado e visível publicamente',
 				'color'       => '#10b981',
 				'icon'        => '✅',
 				'public'      => true,
-			),
-			'rejected'       => array(
+			],
+			'rejected'       => [
 				'label'       => 'Rejeitado',
 				'description' => 'Conteúdo rejeitado na moderação',
 				'color'       => '#ef4444',
 				'icon'        => '❌',
 				'public'      => false,
-			),
-			'suspended'      => array(
+			],
+			'suspended'      => [
 				'label'       => 'Suspenso',
 				'description' => 'Conteúdo temporariamente suspenso',
 				'color'       => '#f97316',
 				'icon'        => '⏸️',
 				'public'      => false,
-			),
-			'cancelled'      => array(
+			],
+			'cancelled'      => [
 				'label'       => 'Cancelado',
 				'description' => 'Evento cancelado',
 				'color'       => '#6b7280',
 				'icon'        => '🚫',
 				'public'      => true,
-			),
-			'expired'        => array(
+			],
+			'expired'        => [
 				'label'       => 'Expirado',
 				'description' => 'Anúncio expirado',
 				'color'       => '#9ca3af',
 				'icon'        => '⌛',
 				'public'      => false,
-			),
-		);
+			],
+		];
 
-		$this->transitions = array(
-			'draft'          => array( 'pending_review', 'published' ),
-			'pending_review' => array( 'published', 'rejected', 'draft' ),
-			'published'      => array( 'suspended', 'rejected', 'cancelled', 'expired' ),
-			'rejected'       => array( 'draft', 'pending_review' ),
-			'suspended'      => array( 'published', 'rejected' ),
-			'cancelled'      => array(),
-			'expired'        => array( 'published' ),
-		);
+		$this->transitions = [
+			'draft'          => [ 'pending_review', 'published' ],
+			'pending_review' => [ 'published', 'rejected', 'draft' ],
+			'published'      => [ 'suspended', 'rejected', 'cancelled', 'expired' ],
+			'rejected'       => [ 'draft', 'pending_review' ],
+			'suspended'      => [ 'published', 'rejected' ],
+			'cancelled'      => [],
+			'expired'        => [ 'published' ],
+		];
 	}
 
 	/**
 	 * Get initial state for new content (FINAL MATRIX)
 	 */
-	public function getInitialState( string $content_type, array $data = array() ): string {
+	public function getInitialState( string $content_type, array $data = [] ): string {
 		$user = wp_get_current_user();
 
 		if ( ! $user->exists() ) {
@@ -118,7 +118,7 @@ class ContentWorkflow {
 	/**
 	 * Resolve status based on final matrix
 	 */
-	public function resolveStatus( \WP_User $user, string $content_type, array $ctx = array() ): string {
+	public function resolveStatus( \WP_User $user, string $content_type, array $ctx = [] ): string {
 		// Editor/Administrator - always published
 		if ( in_array( 'administrator', $user->roles ) || in_array( 'editor', $user->roles ) ) {
 			return 'published';
@@ -127,7 +127,7 @@ class ContentWorkflow {
 		// Special rules for Community/Núcleo groups - always pending_review for non-editors
 		if ( $content_type === 'group' ) {
 			$group_type = $ctx['type'] ?? '';
-			if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
+			if ( in_array( $group_type, [ 'comunidade', 'nucleo' ] ) ) {
 				return 'pending_review';
 			}
 		}
@@ -171,7 +171,7 @@ class ContentWorkflow {
 		if ( in_array( 'contributor', $user->roles ) ) {
 			if ( $content_type === 'group' ) {
 				$group_type = $ctx['type'] ?? '';
-				if ( in_array( $group_type, array( 'comunidade', 'nucleo' ) ) ) {
+				if ( in_array( $group_type, [ 'comunidade', 'nucleo' ] ) ) {
 					return 'pending_review';
 				}
 			}
@@ -199,23 +199,23 @@ class ContentWorkflow {
 	/**
 	 * Transition content to new state
 	 */
-	public function transition( int $content_id, string $content_type, string $new_state, array $data = array() ): array {
+	public function transition( int $content_id, string $content_type, string $new_state, array $data = [] ): array {
 		$current_state = $this->getCurrentState( $content_id, $content_type );
 
 		// Validate transition
 		if ( ! $this->canTransition( $current_state, $new_state ) ) {
-			return array(
+			return [
 				'success' => false,
 				'message' => "Transição de '{$current_state}' para '{$new_state}' não é permitida",
-			);
+			];
 		}
 
 		// Check permissions for transition
 		if ( ! $this->canUserTransition( $content_type, $current_state, $new_state ) ) {
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Você não tem permissão para esta transição',
-			);
+			];
 		}
 
 		// Execute transition
@@ -236,7 +236,7 @@ class ContentWorkflow {
 	 * Check if transition is allowed
 	 */
 	private function canTransition( string $from_state, string $to_state ): bool {
-		return in_array( $to_state, $this->transitions[ $from_state ] ?? array() );
+		return in_array( $to_state, $this->transitions[ $from_state ] ?? [] );
 	}
 
 	/**
@@ -251,10 +251,10 @@ class ContentWorkflow {
 		}
 
 		// Transitions that require moderation capabilities
-		$moderation_transitions = array(
+		$moderation_transitions = [
 			'pending_review' => 'published',
 			'pending_review' => 'rejected',
-		);
+		];
 		$transition_key         = "{$from_state} => {$to_state}";
 
 		if ( in_array( $transition_key, $moderation_transitions ) ) {
@@ -288,29 +288,29 @@ class ContentWorkflow {
 
 			$updated = $wpdb->update(
 				$table,
-				array( $status_column => $to_state ),
-				array( 'id' => $content_id ),
-				array( '%s' ),
-				array( '%d' )
+				[ $status_column => $to_state ],
+				[ 'id' => $content_id ],
+				[ '%s' ],
+				[ '%d' ]
 			);
 
 			if ( $updated === false ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Erro ao atualizar status no banco de dados',
-				);
+				];
 			}
 
-			return array(
+			return [
 				'success' => true,
 				'message' => "Status alterado para '{$this->states[$to_state]['label']}'",
-			);
+			];
 
 		} catch ( Exception $e ) {
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno: ' . $e->getMessage(),
-			);
+			];
 		}//end try
 	}
 
@@ -339,11 +339,11 @@ class ContentWorkflow {
 	private function getContentTable( string $content_type ): string {
 		global $wpdb;
 
-		$tables = array(
+		$tables = [
 			'group' => $wpdb->prefix . 'apollo_groups',
 			'event' => $wpdb->prefix . 'eva_events',
 			'ad'    => $wpdb->prefix . 'apollo_ads',
-		);
+		];
 
 		return $tables[ $content_type ] ?? $wpdb->posts;
 	}
@@ -363,7 +363,7 @@ class ContentWorkflow {
 
 		$wpdb->insert(
 			$wpdb->prefix . 'apollo_workflow_log',
-			array(
+			[
 				'content_id'   => $content_id,
 				'content_type' => $content_type,
 				'from_state'   => $from_state,
@@ -372,8 +372,8 @@ class ContentWorkflow {
 				'reason'       => $data['reason'] ?? '',
 				'metadata'     => json_encode( $data ),
 				'created_at'   => current_time( 'mysql' ),
-			),
-			array( '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s' )
+			],
+			[ '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s' ]
 		);
 	}
 
@@ -406,28 +406,28 @@ class ContentWorkflow {
 	public function getStatusDisplay( string $state ): array {
 		$state_info = $this->states[ $state ] ?? $this->states['draft'];
 
-		return array(
+		return [
 			'label'       => $state_info['label'],
 			'description' => $state_info['description'],
 			'color'       => $state_info['color'],
 			'icon'        => $state_info['icon'],
 			'public'      => $state_info['public'],
-		);
+		];
 	}
 
 	/**
 	 * Get available transitions for current state
 	 */
 	public function getAvailableTransitions( string $current_state, string $content_type ): array {
-		$available       = array();
-		$possible_states = $this->transitions[ $current_state ] ?? array();
+		$available       = [];
+		$possible_states = $this->transitions[ $current_state ] ?? [];
 
 		foreach ( $possible_states as $state ) {
 			if ( $this->canUserTransition( $content_type, $current_state, $state ) ) {
-				$available[] = array(
+				$available[] = [
 					'state'   => $state,
 					'display' => $this->getStatusDisplay( $state ),
-				);
+				];
 			}
 		}
 
@@ -442,12 +442,12 @@ class ContentWorkflow {
 		$status_display        = $this->getStatusDisplay( $current_state );
 		$available_transitions = $this->getAvailableTransitions( $current_state, $content_type );
 
-		return array(
+		return [
 			'current_state'         => $current_state,
 			'status_display'        => $status_display,
 			'available_transitions' => $available_transitions,
 			'workflow_name'         => $this->workflows[ $content_type ]['name'] ?? 'Workflow Padrão',
-		);
+		];
 	}
 
 	/**

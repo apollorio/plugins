@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Get configuration
 $auth_config = apply_filters(
 	'apollo_auth_config',
-	array(
+	[
 		'ajax_url'             => admin_url( 'admin-ajax.php' ),
 		'nonce'                => wp_create_nonce( 'apollo_auth_nonce' ),
 		'max_failed_attempts'  => 3,
@@ -46,13 +46,13 @@ $auth_config = apply_filters(
 		'bug_report_url'       => 'https://apollo.rio.br/bug/',
 		'show_instagram'       => true,
 		'require_cpf'          => true,
-	)
+	]
 );
 
 // Get available sounds/genres for registration
 $available_sounds = apply_filters(
 	'apollo_registration_sounds',
-	array(
+	[
 		'techno'      => 'Techno',
 		'house'       => 'House',
 		'trance'      => 'Trance',
@@ -65,11 +65,11 @@ $available_sounds = apply_filters(
 		'hard'        => 'Hard',
 		'psy'         => 'Psy',
 		'ambient'     => 'Ambient',
-	)
+	]
 );
 
 // Localize script configuration
-$js_config = array(
+$js_config = [
 	'ajaxUrl'            => $auth_config['ajax_url'],
 	'nonce'              => $auth_config['nonce'],
 	'maxFailedAttempts'  => $auth_config['max_failed_attempts'],
@@ -77,7 +77,7 @@ $js_config = array(
 	'simonLevels'        => $auth_config['simon_levels'],
 	'reactionTargets'    => $auth_config['reaction_targets'],
 	'redirectAfterLogin' => $auth_config['redirect_after_login'],
-	'strings'            => array(
+	'strings'            => [
 		'loginSuccess'   => __( 'Acesso autorizado. Redirecionando...', 'apollo-social' ),
 		'loginFailed'    => __( 'Credenciais incorretas. Tente novamente.', 'apollo-social' ),
 		'warningState'   => __( 'Atenção: última tentativa antes do bloqueio.', 'apollo-social' ),
@@ -86,8 +86,8 @@ $js_config = array(
 		'quizFailed'     => __( 'Resposta incorreta. Reiniciando pergunta...', 'apollo-social' ),
 		'patternCorrect' => '♫♫♫',
 		'ethicsCorrect'  => __( 'É trabalho, renda, a sonoridade e arte favorita de alguem.', 'apollo-social' ),
-	),
-);
+	],
+];
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>

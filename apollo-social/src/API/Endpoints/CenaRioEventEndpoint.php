@@ -25,7 +25,7 @@ class CenaRioEventEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
@@ -36,60 +36,60 @@ class CenaRioEventEndpoint {
 		register_rest_route(
 			'apollo/v1',
 			'/cena-rio/event',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'createEvent' ),
-				'permission_callback' => array( $this, 'permissionCheck' ),
-				'args'                => array(
-					'title'       => array(
+				'callback'            => [ $this, 'createEvent' ],
+				'permission_callback' => [ $this, 'permissionCheck' ],
+				'args'                => [
+					'title'       => [
 						'required'          => true,
 						'type'              => 'string',
 						'description'       => __( 'Event title.', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'date'        => array(
+					],
+					'date'        => [
 						'required'          => true,
 						'type'              => 'string',
 						'description'       => __( 'Event date (Y-m-d).', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'time'        => array(
+					],
+					'time'        => [
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Event time (H:i).', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'ticket_url'  => array(
+					],
+					'ticket_url'  => [
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Ticket URL.', 'apollo-social' ),
 						'sanitize_callback' => 'esc_url_raw',
-					),
-					'local_id'    => array(
+					],
+					'local_id'    => [
 						'required'          => false,
 						'type'              => 'integer',
 						'description'       => __( 'Local ID.', 'apollo-social' ),
 						'sanitize_callback' => 'absint',
-					),
-					'description' => array(
+					],
+					'description' => [
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Event description.', 'apollo-social' ),
 						'sanitize_callback' => 'wp_kses_post',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Approve event (MOD/ADMIN only)
 		register_rest_route(
 			'apollo/v1',
 			'/cena-rio/event/(?P<id>\d+)/approve',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'approveEvent' ),
-				'permission_callback' => array( $this, 'modPermissionCheck' ),
-			)
+				'callback'            => [ $this, 'approveEvent' ],
+				'permission_callback' => [ $this, 'modPermissionCheck' ],
+			]
 		);
 	}
 
@@ -101,7 +101,7 @@ class CenaRioEventEndpoint {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -110,7 +110,7 @@ class CenaRioEventEndpoint {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Only CENA RIO members can create events.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -125,7 +125,7 @@ class CenaRioEventEndpoint {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -133,7 +133,7 @@ class CenaRioEventEndpoint {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Only moderators can approve events.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -146,10 +146,10 @@ class CenaRioEventEndpoint {
 	public function createEvent( WP_REST_Request $request ): WP_REST_Response {
 		if ( ! post_type_exists( 'event_listing' ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Event post type not available.', 'apollo-social' ),
-				),
+				],
 				400
 			);
 		}
@@ -163,10 +163,10 @@ class CenaRioEventEndpoint {
 
 		if ( empty( $title ) || empty( $date ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Title and date are required.', 'apollo-social' ),
-				),
+				],
 				400
 			);
 		}
@@ -175,32 +175,32 @@ class CenaRioEventEndpoint {
 		$date_obj = \DateTime::createFromFormat( 'Y-m-d', $date );
 		if ( ! $date_obj ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Invalid date format. Use Y-m-d.', 'apollo-social' ),
-				),
+				],
 				400
 			);
 		}
 
 		// P0-10: Create event as draft
 		$event_id = wp_insert_post(
-			array(
+			[
 				'post_type'    => 'event_listing',
 				'post_title'   => $title,
 				'post_content' => $description ?: '',
 				'post_status'  => 'draft',
 				// P0-10: Always draft for moderation
 												'post_author' => get_current_user_id(),
-			)
+			]
 		);
 
 		if ( is_wp_error( $event_id ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Error creating event.', 'apollo-social' ),
-				),
+				],
 				500
 			);
 		}
@@ -224,15 +224,15 @@ class CenaRioEventEndpoint {
 		update_post_meta( $event_id, '_cena_event_status', 'previsto' );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
-				'data'    => array(
+				'data'    => [
 					'id'     => $event_id,
 					'title'  => $title,
 					'status' => 'draft',
-				),
+				],
 				'message' => __( 'Event created successfully. It will be reviewed before publication.', 'apollo-social' ),
-			),
+			],
 			201
 		);
 	}
@@ -245,10 +245,10 @@ class CenaRioEventEndpoint {
 
 		if ( ! $event_id ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Invalid event ID.', 'apollo-social' ),
-				),
+				],
 				400
 			);
 		}
@@ -256,28 +256,28 @@ class CenaRioEventEndpoint {
 		$event = get_post( $event_id );
 		if ( ! $event || $event->post_type !== 'event_listing' ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Event not found.', 'apollo-social' ),
-				),
+				],
 				404
 			);
 		}
 
 		// P0-10: Publish event
 		$result = wp_update_post(
-			array(
+			[
 				'ID'          => $event_id,
 				'post_status' => 'publish',
-			)
+			]
 		);
 
 		if ( is_wp_error( $result ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Error approving event.', 'apollo-social' ),
-				),
+				],
 				500
 			);
 		}
@@ -286,14 +286,14 @@ class CenaRioEventEndpoint {
 		update_post_meta( $event_id, '_cena_event_status', 'approved' );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
-				'data'    => array(
+				'data'    => [
 					'id'     => $event_id,
 					'status' => 'publish',
-				),
+				],
 				'message' => __( 'Event approved and published.', 'apollo-social' ),
-			),
+			],
 			200
 		);
 	}

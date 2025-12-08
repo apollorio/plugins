@@ -2,9 +2,9 @@
 // phpcs:ignoreFile
 defined( 'ABSPATH' ) || exit;
 /**
- * WPEM_Rest_API_Admin class used to create rest api tab in wp event manager plugin.
+ * APRIO_Rest_API_Admin class used to create rest api tab in wp event manager plugin.
  */
-class WPEM_Rest_API_Admin {
+class APRIO_Rest_API_Admin {
 
 	public $settings_page;
 
@@ -17,17 +17,17 @@ class WPEM_Rest_API_Admin {
 	 */
 	public function __construct() {
 
-		include 'wpem-rest-api-settings.php';
-		include 'wpem-rest-api-keys.php';
-		include 'wpem-rest-app-branding.php';
-		include 'wpem-rest-api-keys-table-list.php';
+		include 'aprio-rest-api-settings.php';
+		include 'aprio-rest-api-keys.php';
+		include 'aprio-rest-app-branding.php';
+		include 'aprio-rest-api-keys-table-list.php';
 
-		$this->settings_page = new WPEM_Rest_API_Settings();
+		$this->settings_page = new APRIO_Rest_API_Settings();
 
 		// add actions
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 10 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_filter( 'event_manager_admin_screen_ids', array( $this, 'wpem_rest_api_add_admin_screen' ) );
+		add_filter( 'event_manager_admin_screen_ids', array( $this, 'aprio_rest_api_add_admin_screen' ) );
 
 		add_action( 'wp_ajax_save_rest_api_keys', array( $this, 'update_api_key' ) );
 	}
@@ -40,14 +40,14 @@ class WPEM_Rest_API_Admin {
 	 * @return void
 	 */
 	public function admin_enqueue_scripts() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] == 'wpem-rest-api-settings' ) {
+		if ( isset( $_GET['page'] ) && $_GET['page'] == 'aprio-rest-api-settings' ) {
 
 			wp_enqueue_media();
 
-			wp_register_script( 'wpem-rest-api-admin-js', WPEM_REST_API_PLUGIN_URL . '/assets/js/admin.min.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-datepicker', 'wp-util', 'wp-color-picker' ), WPEM_REST_API_VERSION, true );
+			wp_register_script( 'aprio-rest-api-admin-js', APRIO_REST_API_PLUGIN_URL . '/assets/js/admin.min.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-datepicker', 'wp-util', 'wp-color-picker' ), APRIO_REST_API_VERSION, true );
 			wp_localize_script(
-				'wpem-rest-api-admin-js',
-				'wpem_rest_api_admin',
+				'aprio-rest-api-admin-js',
+				'aprio_rest_api_admin',
 				array(
 					'ajaxUrl'                 => admin_url( 'admin-ajax.php' ),
 					'save_api_nonce'          => wp_create_nonce( 'save-api-key' ),
@@ -67,8 +67,8 @@ class WPEM_Rest_API_Admin {
 	 * @access public
 	 * @return void
 	 */
-	public function wpem_rest_api_add_admin_screen( $screen_ids ) {
-		$screen_ids[] = 'event_listing_page_wpem-rest-api-settings';
+	public function aprio_rest_api_add_admin_screen( $screen_ids ) {
+		$screen_ids[] = 'event_listing_page_aprio-rest-api-settings';
 		return $screen_ids;
 	}
 
@@ -80,7 +80,7 @@ class WPEM_Rest_API_Admin {
 	 * @return void
 	 */
 	public function admin_menu() {
-		add_submenu_page( 'edit.php?post_type=event_listing', __( 'Rest API Settings', 'wpem-rest-api' ), __( 'Rest API', 'wpem-rest-api' ), 'manage_options', 'wpem-rest-api-settings', array( $this->settings_page, 'output' ) );
+		add_submenu_page( 'edit.php?post_type=event_listing', __( 'Rest API Settings', 'aprio-rest-api' ), __( 'Rest API', 'aprio-rest-api' ), 'manage_options', 'aprio-rest-api-settings', array( $this->settings_page, 'output' ) );
 	}
 
 	/**
@@ -97,13 +97,13 @@ class WPEM_Rest_API_Admin {
 		$response = array();
 		try {
 			if ( empty( $_POST['description'] ) ) {
-				throw new Exception( __( 'Description is missing.', 'wpem-rest-api' ) );
+				throw new Exception( __( 'Description is missing.', 'aprio-rest-api' ) );
 			}
 			if ( empty( $_POST['user'] ) ) {
-				throw new Exception( __( 'User is missing.', 'wpem-rest-api' ) );
+				throw new Exception( __( 'User is missing.', 'aprio-rest-api' ) );
 			}
 			if ( empty( $_POST['permissions'] ) ) {
-				throw new Exception( __( 'Permissions is missing.', 'wpem-rest-api' ) );
+				throw new Exception( __( 'Permissions is missing.', 'aprio-rest-api' ) );
 			}
 
 			$key_id            = isset( $_POST['key_id'] ) ? absint( $_POST['key_id'] ) : 0;
@@ -122,7 +122,7 @@ class WPEM_Rest_API_Admin {
 			// Check if current user can edit other users.
 			if ( $user_id && ! current_user_can( 'edit_user', $user_id ) ) {
 				if ( get_current_user_id() !== $user_id ) {
-					throw new Exception( __( 'You do not have permission to assign API Keys to the selected user.', 'wpem-rest-api' ) );
+					throw new Exception( __( 'You do not have permission to assign API Keys to the selected user.', 'aprio-rest-api' ) );
 				}
 			}
 
@@ -138,7 +138,7 @@ class WPEM_Rest_API_Admin {
 				);
 
 				$wpdb->update(
-					$wpdb->prefix . 'wpem_rest_api_keys',
+					$wpdb->prefix . 'aprio_rest_api_keys',
 					$data,
 					array( 'key_id' => $key_id ),
 					array(
@@ -156,7 +156,7 @@ class WPEM_Rest_API_Admin {
 				$response                    = $data;
 				$response['consumer_key']    = '';
 				$response['consumer_secret'] = '';
-				$response['message']         = __( 'API Key updated successfully.', 'wpem-rest-api' );
+				$response['message']         = __( 'API Key updated successfully.', 'aprio-rest-api' );
 				$response['selected_events'] = maybe_unserialize( $select_events );
 			} else {
 				$app_key         = wp_rand();
@@ -178,7 +178,7 @@ class WPEM_Rest_API_Admin {
 					'selected_events' => $select_events,
 				);
 				$wpdb->insert(
-					$wpdb->prefix . 'wpem_rest_api_keys',
+					$wpdb->prefix . 'aprio_rest_api_keys',
 					$data,
 					array(
 						'%d',
@@ -200,8 +200,8 @@ class WPEM_Rest_API_Admin {
 				$response['consumer_key']    = $consumer_key;
 				$response['consumer_secret'] = $consumer_secret;
 				$response['app_key']         = $app_key;
-				$response['message']         = __( 'API Key generated successfully. Make sure to copy your new keys now as the secret key will be hidden once you leave this page.', 'wpem-rest-api' );
-				$response['revoke_url']      = '<a class="wpem-backend-theme-button" href="' . esc_url( admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=api-access' ) ) . '">' . __( 'I have Copied the Keys', 'wpem-rest-api' ) . '</a> <br/><br/> <a class="wpem-backend-theme-button wpem-revoke-button" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'revoke-key' => $key_id ), admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=api-access' ) ), 'revoke' ) ) . '">' . __( 'Revoke key', 'wpem-rest-api' ) . '</a>';
+				$response['message']         = __( 'API Key generated successfully. Make sure to copy your new keys now as the secret key will be hidden once you leave this page.', 'aprio-rest-api' );
+				$response['revoke_url']      = '<a class="aprio-backend-theme-button" href="' . esc_url( admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=api-access' ) ) . '">' . __( 'I have Copied the Keys', 'aprio-rest-api' ) . '</a> <br/><br/> <a class="aprio-backend-theme-button aprio-revoke-button" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'revoke-key' => $key_id ), admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=api-access' ) ), 'revoke' ) ) . '">' . __( 'Revoke key', 'aprio-rest-api' ) . '</a>';
 				$response['event_show_by']   = $event_show_by;
 				$response['selected_events'] = maybe_unserialize( $select_events );
 			}//end if
@@ -212,4 +212,4 @@ class WPEM_Rest_API_Admin {
 		wp_send_json_success( $response );
 	}
 }
-new WPEM_Rest_API_Admin();
+new APRIO_Rest_API_Admin();

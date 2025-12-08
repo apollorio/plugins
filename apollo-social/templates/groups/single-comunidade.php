@@ -22,7 +22,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -30,7 +30,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -38,7 +38,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -120,13 +120,13 @@ $creator_id = (int) get_post_field( 'post_author', $group_id );
 $creator    = get_userdata( $creator_id );
 $moderators = get_post_meta( $group_id, '_group_moderators', true );
 if ( ! is_array( $moderators ) ) {
-	$moderators = array();
+	$moderators = [];
 }
 
 // Members preview.
 $members_list = get_post_meta( $group_id, '_group_members', true );
 if ( ! is_array( $members_list ) ) {
-	$members_list = array();
+	$members_list = [];
 }
 
 // Current user membership.
@@ -154,44 +154,44 @@ $is_active     = $last_activity && ( time() - (int) $last_activity ) < 86400;
 
 // Default rules if empty.
 if ( ! is_array( $rules ) || empty( $rules ) ) {
-	$rules = array(
+	$rules = [
 		'Respeito total a todas as pessoas, independente de origem, gênero, orientação ou crença.',
 		'Zero tolerância a assédio, exposição de terceiros ou discurso de ódio.',
 		'Divulgação é bem-vinda, mas sem spam: máximo 1 post promocional por semana.',
 		'Mantenha o conteúdo relevante para a comunidade.',
-	);
+	];
 }
 
 // Tags array.
 if ( ! is_array( $tags ) ) {
-	$tags = $tags ? array_map( 'trim', explode( ',', $tags ) ) : array();
+	$tags = $tags ? array_map( 'trim', explode( ',', $tags ) ) : [];
 }
 
 // Current user avatar.
 $current_user_avatar = '';
 $current_user_name   = 'Você';
 if ( $current_user_id ) {
-	$current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 80 ) );
+	$current_user_avatar = get_avatar_url( $current_user_id, [ 'size' => 80 ] );
 	$logged_in_user      = wp_get_current_user();
 	$current_user_name   = $logged_in_user->display_name;
 }
 
 // Fetch community posts.
 $community_posts = get_posts(
-	array(
+	[
 		'post_type'      => 'apollo_social_post',
 		'post_status'    => 'publish',
 		'posts_per_page' => 10,
 		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to filter posts by community.
-		'meta_query'     => array(
-			array(
+		'meta_query'     => [
+			[
 				'key'   => '_post_community_id',
 				'value' => $group_id,
-			),
-		),
+			],
+		],
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-	)
+	]
 );
 
 // NO get_header() - Canvas mode.
@@ -471,7 +471,7 @@ $community_posts = get_posts(
 				<?php if ( $creator ) : ?>
 				<div class="flex items-center gap-3">
 					<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-					<?php echo get_avatar( $creator_id, 32, '', $creator->display_name, array( 'class' => 'w-full h-full object-cover' ) ); ?>
+					<?php echo get_avatar( $creator_id, 32, '', $creator->display_name, [ 'class' => 'w-full h-full object-cover' ] ); ?>
 					</div>
 					<div class="flex-1">
 					<p class="text-[13px] font-semibold text-slate-900"><?php echo esc_html( $creator->display_name ); ?></p>
@@ -495,7 +495,7 @@ $community_posts = get_posts(
 					?>
 				<div class="flex items-center gap-3">
 					<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-					<?php echo get_avatar( $mod_id, 32, '', $mod->display_name, array( 'class' => 'w-full h-full object-cover' ) ); ?>
+					<?php echo get_avatar( $mod_id, 32, '', $mod->display_name, [ 'class' => 'w-full h-full object-cover' ] ); ?>
 					</div>
 					<div class="flex-1">
 					<p class="text-[13px] font-semibold text-slate-900"><?php echo esc_html( $mod->display_name ); ?></p>
@@ -534,7 +534,7 @@ $community_posts = get_posts(
 					?>
 				<a href="<?php echo esc_url( home_url( '/id/' . $member->user_login ) ); ?>" class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 text-[11px] px-2.5 py-1 hover:bg-slate-200 transition-colors">
 					<span class="h-5 w-5 rounded-full bg-slate-300 overflow-hidden">
-					<?php echo get_avatar( $member_id, 20, '', $member->display_name, array( 'class' => 'w-full h-full' ) ); ?>
+					<?php echo get_avatar( $member_id, 20, '', $member->display_name, [ 'class' => 'w-full h-full' ] ); ?>
 					</span>
 					<span>@<?php echo esc_html( $member->user_login ); ?></span>
 				</a>
@@ -608,27 +608,27 @@ $community_posts = get_posts(
 					$post_likes          = (int) get_post_meta( $post_item->ID, '_post_likes_count', true );
 					$post_comments_count = (int) get_post_meta( $post_item->ID, '_post_comments_count', true );
 					$is_notice           = (bool) get_post_meta( $post_item->ID, '_post_is_notice', true );
-					$is_owner            = in_array( $post_author_id, array( $creator_id, ...$moderators ), true );
+					$is_owner            = in_array( $post_author_id, [ $creator_id, ...$moderators ], true );
 
 					if ( ! is_array( $post_tags ) ) {
-						$post_tags = $post_tags ? array_map( 'trim', explode( ',', $post_tags ) ) : array();
+						$post_tags = $post_tags ? array_map( 'trim', explode( ',', $post_tags ) ) : [];
 					}
 
 					// First featured comment.
 					$featured_comment = get_comments(
-						array(
+						[
 							'post_id' => $post_item->ID,
 							'number'  => 1,
 							'status'  => 'approve',
 							'order'   => 'DESC',
-						)
+						]
 					);
 					?>
 			<article class="bg-white/95 border border-slate-200 rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-sm">
 				<header class="flex items-start gap-3">
 				<div class="h-9 w-9 rounded-full overflow-hidden bg-slate-100">
 						<?php if ( $post_author ) : ?>
-							<?php echo get_avatar( $post_author_id, 36, '', $post_author->display_name, array( 'class' => 'h-full w-full object-cover' ) ); ?>
+							<?php echo get_avatar( $post_author_id, 36, '', $post_author->display_name, [ 'class' => 'h-full w-full object-cover' ] ); ?>
 					<?php endif; ?>
 				</div>
 				<div class="flex-1">
@@ -711,7 +711,7 @@ $community_posts = get_posts(
 				<div class="flex items-start gap-2.5">
 					<div class="h-7 w-7 rounded-full overflow-hidden bg-slate-100">
 						<?php if ( $comment_author ) : ?>
-							<?php echo get_avatar( $comment_author_id, 28, '', $comment_author->display_name, array( 'class' => 'h-full w-full object-cover' ) ); ?>
+							<?php echo get_avatar( $comment_author_id, 28, '', $comment_author->display_name, [ 'class' => 'h-full w-full object-cover' ] ); ?>
 					<?php else : ?>
 					<div class="h-full w-full bg-slate-200 flex items-center justify-center">
 						<i class="ri-user-line text-xs text-slate-400"></i>

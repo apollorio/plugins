@@ -74,20 +74,20 @@ class SignaturesModule {
 			$plugin_file = dirname( dirname( dirname( __DIR__ ) ) ) . '/apollo-social.php';
 		}
 
-		register_activation_hook( $plugin_file, array( self::class, 'activate' ) );
+		register_activation_hook( $plugin_file, [ self::class, 'activate' ] );
 
 		// Initialize on plugins loaded.
-		add_action( 'plugins_loaded', array( self::class, 'setup' ), 20 );
+		add_action( 'plugins_loaded', [ self::class, 'setup' ], 20 );
 
 		// Register REST endpoints.
-		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ self::class, 'register_rest_routes' ] );
 
 		// Register AJAX handlers.
-		add_action( 'init', array( self::class, 'register_ajax_handlers' ) );
+		add_action( 'init', [ self::class, 'register_ajax_handlers' ] );
 
 		// Admin menu.
 		if ( is_admin() ) {
-			add_action( 'admin_menu', array( self::class, 'register_admin_menu' ) );
+			add_action( 'admin_menu', [ self::class, 'register_admin_menu' ] );
 		}
 	}
 
@@ -146,8 +146,8 @@ class SignaturesModule {
 		new LocalSignatureController();
 
 		// Additional AJAX handlers.
-		add_action( 'wp_ajax_apollo_get_signature_backends', array( self::class, 'ajax_get_backends' ) );
-		add_action( 'wp_ajax_apollo_sign_document', array( self::class, 'ajax_sign_document' ) );
+		add_action( 'wp_ajax_apollo_get_signature_backends', [ self::class, 'ajax_get_backends' ] );
+		add_action( 'wp_ajax_apollo_sign_document', [ self::class, 'ajax_sign_document' ] );
 	}
 
 	/**
@@ -159,13 +159,13 @@ class SignaturesModule {
 		check_ajax_referer( 'apollo_signatures', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Acesso negado.', 'apollo-social' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Acesso negado.', 'apollo-social' ) ] );
 		}
 
 		$service  = self::get_service();
 		$backends = $service->get_backends_info();
 
-		wp_send_json_success( array( 'backends' => $backends ) );
+		wp_send_json_success( [ 'backends' => $backends ] );
 	}
 
 	/**
@@ -177,44 +177,44 @@ class SignaturesModule {
 		check_ajax_referer( 'apollo_sign_document', 'nonce' );
 
 		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( array( 'message' => __( 'Você precisa estar logado.', 'apollo-social' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Você precisa estar logado.', 'apollo-social' ) ] );
 		}
 
 		$document_id = isset( $_POST['document_id'] ) ? absint( $_POST['document_id'] ) : 0;
 
 		if ( ! $document_id ) {
-			wp_send_json_error( array( 'message' => __( 'ID do documento inválido.', 'apollo-social' ) ) );
+			wp_send_json_error( [ 'message' => __( 'ID do documento inválido.', 'apollo-social' ) ] );
 		}
 
 		$cert_type = isset( $_POST['certificate_type'] ) ? sanitize_text_field( wp_unslash( $_POST['certificate_type'] ) ) : 'A1';
 		$reason    = isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '';
 		$location  = isset( $_POST['location'] ) ? sanitize_text_field( wp_unslash( $_POST['location'] ) ) : get_bloginfo( 'name' );
 
-		$options = array(
+		$options = [
 			'certificate_type' => $cert_type,
 			'reason'           => $reason,
 			'location'         => $location,
-		);
+		];
 
 		$service = self::get_service();
 		$result  = $service->sign_document( $document_id, get_current_user_id(), $options );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => $result->get_error_message(),
 					'code'    => $result->get_error_code(),
-				)
+				]
 			);
 		}
 
 		wp_send_json_success(
-			array(
+			[
 				'message'      => __( 'Documento assinado com sucesso.', 'apollo-social' ),
 				'signature_id' => $result['signature_id'] ?? '',
 				'timestamp'    => $result['timestamp'] ?? '',
 				'is_stub'      => $result['is_stub'] ?? false,
-			)
+			]
 		);
 	}
 
@@ -230,7 +230,7 @@ class SignaturesModule {
 			__( 'Assinaturas', 'apollo-social' ),
 			'manage_options',
 			'apollo-signatures',
-			array( self::class, 'render_admin_page' )
+			[ self::class, 'render_admin_page' ]
 		);
 	}
 
@@ -287,7 +287,7 @@ class SignaturesModule {
 							<td>
 								<?php
 								$caps = $backend['capabilities'];
-								$tags = array();
+								$tags = [];
 								if ( ! empty( $caps['icp_brasil'] ) ) {
 									$tags[] = '<span class="tag tag-success">ICP-Brasil</span>';
 								}

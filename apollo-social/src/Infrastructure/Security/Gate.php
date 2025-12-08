@@ -44,33 +44,33 @@ class Gate {
 	/**
 	 * Check if user can create content
 	 */
-	public function canCreate( string $content_type, array $data = array() ): array {
+	public function canCreate( string $content_type, array $data = [] ): array {
 		$user = \wp_get_current_user();
 
 		if ( ! $user->exists() ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Usuário não autenticado',
-			);
+			];
 		}
 
 		// Check create capability
 		$create_cap = $this->buildCapabilityName( 'create', $content_type );
 		if ( ! $user->has_cap( $create_cap ) ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Você não tem permissão para criar este tipo de conteúdo',
-			);
+			];
 		}
 
 		// Get approval workflow
 		$workflow = $this->caps->getApprovalWorkflow( $content_type, $data );
 
-		return array(
+		return [
 			'allowed'  => true,
 			'workflow' => $workflow,
 			'message'  => $workflow['message'],
-		);
+		];
 	}
 
 	/**
@@ -80,42 +80,42 @@ class Gate {
 		$user = \wp_get_current_user();
 
 		if ( ! $user->exists() ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Usuário não autenticado',
-			);
+			];
 		}
 
 		// Check basic edit capability
 		$edit_cap = $this->buildCapabilityName( 'edit', $content_type );
 		if ( ! $user->has_cap( $edit_cap ) ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Você não tem permissão para editar este tipo de conteúdo',
-			);
+			];
 		}
 
 		// Check if it's own content or if user can edit others
 		if ( $this->isOwnContent( $content, $user ) ) {
-			return array(
+			return [
 				'allowed' => true,
 				'message' => 'Você pode editar seu próprio conteúdo',
-			);
+			];
 		}
 
 		// Check edit others capability
 		$edit_others_cap = $this->buildCapabilityName( 'edit_others', $content_type );
 		if ( $user->has_cap( $edit_others_cap ) ) {
-			return array(
+			return [
 				'allowed' => true,
 				'message' => 'Você pode editar conteúdo de outros usuários',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'allowed' => false,
 			'message' => 'Você só pode editar seu próprio conteúdo',
-		);
+		];
 	}
 
 	/**
@@ -125,50 +125,50 @@ class Gate {
 		$user = \wp_get_current_user();
 
 		if ( ! $user->exists() ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Usuário não autenticado',
-			);
+			];
 		}
 
 		// Check basic delete capability
 		$delete_cap = $this->buildCapabilityName( 'delete', $content_type );
 		if ( ! $user->has_cap( $delete_cap ) ) {
-			return array(
+			return [
 				'allowed' => false,
 				'message' => 'Você não tem permissão para excluir este tipo de conteúdo',
-			);
+			];
 		}
 
 		// Check if it's own content or if user can delete others
 		if ( $this->isOwnContent( $content, $user ) ) {
 			// Check if content is published (some roles can't delete published content)
 			if ( $this->isPublished( $content ) && ! $this->canDeletePublished( $content_type, $user ) ) {
-				return array(
+				return [
 					'allowed' => false,
 					'message' => 'Você não pode excluir conteúdo já publicado',
-				);
+				];
 			}
 
-			return array(
+			return [
 				'allowed' => true,
 				'message' => 'Você pode excluir seu próprio conteúdo',
-			);
+			];
 		}
 
 		// Check delete others capability
 		$delete_others_cap = $this->buildCapabilityName( 'delete_others', $content_type );
 		if ( $user->has_cap( $delete_others_cap ) ) {
-			return array(
+			return [
 				'allowed' => true,
 				'message' => 'Você pode excluir conteúdo de outros usuários',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'allowed' => false,
 			'message' => 'Você só pode excluir seu próprio conteúdo',
-		);
+		];
 	}
 
 	/**
@@ -261,7 +261,7 @@ class Gate {
 		$user  = \wp_get_current_user();
 		$level = $this->getUserLevel( $user );
 
-		$permissions = array(
+		$permissions = [
 			'can_create'           => $this->can( 'create', $content_type ),
 			'can_edit_own'         => $this->can( 'edit', $content_type ),
 			'can_edit_others'      => $this->can( 'edit_others', $content_type ),
@@ -271,7 +271,7 @@ class Gate {
 			'can_moderate'         => $this->canModerate( $content_type ),
 			'user_level'           => $level,
 			'role_name'            => $this->getRoleName( $user ),
-		);
+		];
 
 		return $permissions;
 	}
@@ -304,7 +304,7 @@ class Gate {
 	 */
 	private function checkContentPermissions( string $action, string $content_type, $content, $user ): bool {
 		// Check if content is published and user is trying to edit/delete
-		if ( in_array( $action, array( 'edit', 'delete' ) ) && $this->isPublished( $content ) ) {
+		if ( in_array( $action, [ 'edit', 'delete' ] ) && $this->isPublished( $content ) ) {
 			// Some roles can't edit/delete published content
 			if ( ! $this->canEditPublished( $content_type, $user ) ) {
 				return false;
@@ -379,13 +379,13 @@ class Gate {
 	 * Get user role display name
 	 */
 	private function getRoleName( $user ): string {
-		$roles = array(
+		$roles = [
 			'administrator' => 'Administrador',
 			'editor'        => 'Editor',
 			'author'        => 'Autor',
 			'contributor'   => 'Colaborador',
 			'subscriber'    => 'Assinante',
-		);
+		];
 
 		foreach ( $user->roles as $role ) {
 			if ( isset( $roles[ $role ] ) ) {
@@ -410,7 +410,7 @@ class Gate {
 		return $instance->can( $action, $content_type, $content );
 	}
 
-	public static function userCanCreate( string $content_type, array $data = array() ): array {
+	public static function userCanCreate( string $content_type, array $data = [] ): array {
 		static $instance = null;
 
 		if ( ! $instance ) {

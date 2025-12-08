@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 // Determine group type from URL
 $current_url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
@@ -38,7 +38,7 @@ if ( strpos( $current_url, 'nucleo' ) !== false ) {
 $paged        = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
 $search_query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
 
-$args = array(
+$args = [
 	'post_type'      => 'apollo_group',
 	'post_status'    => 'publish',
 	'posts_per_page' => 12,
@@ -46,14 +46,14 @@ $args = array(
 	'orderby'        => 'meta_value_num',
 	'meta_key'       => '_group_members_count',
 	'order'          => 'DESC',
-	'meta_query'     => array(
-		array(
+	'meta_query'     => [
+		[
 			'key'     => '_group_type',
 			'value'   => $group_type,
 			'compare' => '=',
-		),
-	),
-);
+		],
+	],
+];
 
 if ( $search_query ) {
 	$args['s'] = $search_query;
@@ -62,11 +62,11 @@ if ( $search_query ) {
 $groups = new WP_Query( $args );
 
 // Color schemes per type
-$type_colors  = array(
+$type_colors  = [
 	'comunidade' => 'purple',
 	'nucleo'     => 'orange',
 	'season'     => 'blue',
-);
+];
 $accent_color = $type_colors[ $group_type ] ?? 'purple';
 
 get_header();
@@ -221,12 +221,12 @@ get_header();
 		<nav class="ap-pagination ap-mt-8" data-ap-tooltip="<?php esc_attr_e( 'Navegação de páginas', 'apollo-social' ); ?>">
 				<?php
 				echo paginate_links(
-					array(
+					[
 						'total'     => $groups->max_num_pages,
 						'current'   => $paged,
 						'prev_text' => '<i class="ri-arrow-left-s-line"></i>',
 						'next_text' => '<i class="ri-arrow-right-s-line"></i>',
-					)
+					]
 				);
 				?>
 		</nav>

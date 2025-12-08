@@ -15,7 +15,7 @@ class Apollo_User_Page_Editor_AJAX {
 			wp_send_json_error( 'Layout inválido ou muito grande' );
 		}
 		update_post_meta( $post_id, 'apollo_userpage_layout_v1', $layout );
-		wp_send_json_success( array( 'ok' => true ) );
+		wp_send_json_success( [ 'ok' => true ] );
 	}
 	public static function load_layout() {
 		check_ajax_referer( 'apollo_userpage_load', 'nonce' );
@@ -25,8 +25,8 @@ class Apollo_User_Page_Editor_AJAX {
 			wp_send_json_error( 'Página não encontrada' );
 		}
 		$layout = get_post_meta( $post_id, 'apollo_userpage_layout_v1', true );
-		wp_send_json_success( array( 'layout' => $layout ) );
+		wp_send_json_success( [ 'layout' => $layout ] );
 	}
 }
-add_action( 'wp_ajax_apollo_userpage_save', array( 'Apollo_User_Page_Editor_AJAX', 'save_layout' ) );
-add_action( 'wp_ajax_apollo_userpage_load', array( 'Apollo_User_Page_Editor_AJAX', 'load_layout' ) );
+add_action( 'wp_ajax_apollo_userpage_save', [ 'Apollo_User_Page_Editor_AJAX', 'save_layout' ] );
+add_action( 'wp_ajax_apollo_userpage_load', [ 'Apollo_User_Page_Editor_AJAX', 'load_layout' ] );

@@ -53,16 +53,16 @@ class Apollo_Events_Dashboards {
 
 		wp_enqueue_style(
 			'apollo-dashboards',
-			APOLLO_WPEM_URL . 'assets/dashboards.css',
+			APOLLO_APRIO_URL . 'assets/dashboards.css',
 			array(),
-			APOLLO_WPEM_VERSION
+			APOLLO_APRIO_VERSION
 		);
 
 		wp_enqueue_script(
 			'apollo-dashboards',
-			APOLLO_WPEM_URL . 'assets/dashboards.js',
+			APOLLO_APRIO_URL . 'assets/dashboards.js',
 			array( 'jquery' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 

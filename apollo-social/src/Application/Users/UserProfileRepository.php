@@ -14,10 +14,10 @@ class UserProfileRepository {
 	public function getUserProfile( int $user_id ): array {
 		$user = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
-		$profile_fields = array(
+		$profile_fields = [
 			'apollo_name'          => 'name',
 			'apollo_industry'      => 'industry',
 			'apollo_roles'         => 'roles',
@@ -28,15 +28,15 @@ class UserProfileRepository {
 			'apollo_verify_status' => 'verify_status',
 			'apollo_onboarded'     => 'onboarded',
 			'apollo_onboarded_at'  => 'onboarded_at',
-		);
+		];
 
-		$profile = array(
+		$profile = [
 			'user_id'      => $user_id,
 			'username'     => $user->user_login,
 			'email'        => $user->user_email,
 			'display_name' => $user->display_name,
 			'created_at'   => $user->user_registered,
-		);
+		];
 
 		foreach ( $profile_fields as $meta_key => $key ) {
 			$value           = get_user_meta( $user_id, $meta_key, true );
@@ -45,11 +45,11 @@ class UserProfileRepository {
 
 		// Parse JSON fields
 		if ( is_string( $profile['roles'] ) ) {
-			$profile['roles'] = json_decode( $profile['roles'], true ) ?: array();
+			$profile['roles'] = json_decode( $profile['roles'], true ) ?: [];
 		}
 
 		if ( is_string( $profile['member_of'] ) ) {
-			$profile['member_of'] = json_decode( $profile['member_of'], true ) ?: array();
+			$profile['member_of'] = json_decode( $profile['member_of'], true ) ?: [];
 		}
 
 		return $profile;
@@ -65,7 +65,7 @@ class UserProfileRepository {
 		}
 
 		// Update core user fields if provided
-		$user_data = array();
+		$user_data = [];
 		if ( isset( $data['display_name'] ) ) {
 			$user_data['ID']           = $user_id;
 			$user_data['display_name'] = sanitize_text_field( $data['display_name'] );
@@ -76,7 +76,7 @@ class UserProfileRepository {
 		}
 
 		// Update meta fields
-		$meta_fields = array(
+		$meta_fields = [
 			'name'          => 'apollo_name',
 			'industry'      => 'apollo_industry',
 			'roles'         => 'apollo_roles',
@@ -85,19 +85,19 @@ class UserProfileRepository {
 			'instagram'     => 'apollo_instagram',
 			'verify_token'  => 'apollo_verify_token',
 			'verify_status' => 'apollo_verify_status',
-		);
+		];
 
 		foreach ( $meta_fields as $key => $meta_key ) {
 			if ( isset( $data[ $key ] ) ) {
 				$value = $data[ $key ];
 
 				// JSON encode arrays
-				if ( in_array( $key, array( 'roles', 'member_of' ) ) && is_array( $value ) ) {
+				if ( in_array( $key, [ 'roles', 'member_of' ] ) && is_array( $value ) ) {
 					$value = json_encode( $value );
 				}
 
 				// Sanitize text fields
-				if ( in_array( $key, array( 'name', 'industry', 'whatsapp', 'instagram' ) ) ) {
+				if ( in_array( $key, [ 'name', 'industry', 'whatsapp', 'instagram' ] ) ) {
 					$value = sanitize_text_field( $value );
 				}
 
@@ -112,283 +112,283 @@ class UserProfileRepository {
 	 * Get industry options for onboarding
 	 */
 	public function getIndustryOptions(): array {
-		return array(
-			'technology'    => array(
+		return [
+			'technology'    => [
 				'label'       => 'Tecnologia',
 				'description' => 'Software, Hardware, TI, Desenvolvimento',
 				'popular'     => true,
-			),
-			'marketing'     => array(
+			],
+			'marketing'     => [
 				'label'       => 'Marketing & Publicidade',
 				'description' => 'Marketing Digital, Publicidade, Branding',
 				'popular'     => true,
-			),
-			'design'        => array(
+			],
+			'design'        => [
 				'label'       => 'Design & Criativo',
 				'description' => 'Design Gráfico, UX/UI, Fotografia',
 				'popular'     => true,
-			),
-			'business'      => array(
+			],
+			'business'      => [
 				'label'       => 'Negócios & Empreendedorismo',
 				'description' => 'Startups, Consultoria, Gestão',
 				'popular'     => true,
-			),
-			'education'     => array(
+			],
+			'education'     => [
 				'label'       => 'Educação',
 				'description' => 'Ensino, Treinamento, Cursos',
 				'popular'     => false,
-			),
-			'health'        => array(
+			],
+			'health'        => [
 				'label'       => 'Saúde & Bem-estar',
 				'description' => 'Medicina, Fitness, Nutrição',
 				'popular'     => false,
-			),
-			'finance'       => array(
+			],
+			'finance'       => [
 				'label'       => 'Finanças',
 				'description' => 'Bancos, Investimentos, Fintech',
 				'popular'     => false,
-			),
-			'retail'        => array(
+			],
+			'retail'        => [
 				'label'       => 'Varejo & E-commerce',
 				'description' => 'Comércio, Vendas, Loja Online',
 				'popular'     => false,
-			),
-			'food'          => array(
+			],
+			'food'          => [
 				'label'       => 'Alimentação',
 				'description' => 'Restaurantes, Food Tech, Gastronomia',
 				'popular'     => false,
-			),
-			'entertainment' => array(
+			],
+			'entertainment' => [
 				'label'       => 'Entretenimento',
 				'description' => 'Mídia, Jogos, Produção de Conteúdo',
 				'popular'     => false,
-			),
-			'real_estate'   => array(
+			],
+			'real_estate'   => [
 				'label'       => 'Imobiliário',
 				'description' => 'Imóveis, Construção, Arquitetura',
 				'popular'     => false,
-			),
-			'automotive'    => array(
+			],
+			'automotive'    => [
 				'label'       => 'Automotivo',
 				'description' => 'Carros, Motos, Transportes',
 				'popular'     => false,
-			),
-			'travel'        => array(
+			],
+			'travel'        => [
 				'label'       => 'Turismo & Viagem',
 				'description' => 'Agências, Hotéis, Experiências',
 				'popular'     => false,
-			),
-			'fashion'       => array(
+			],
+			'fashion'       => [
 				'label'       => 'Moda & Beleza',
 				'description' => 'Roupas, Cosméticos, Estilo',
 				'popular'     => false,
-			),
-			'sports'        => array(
+			],
+			'sports'        => [
 				'label'       => 'Esportes',
 				'description' => 'Atletas, Equipamentos, Eventos',
 				'popular'     => false,
-			),
-			'non_profit'    => array(
+			],
+			'non_profit'    => [
 				'label'       => 'ONGs & Causas Sociais',
 				'description' => 'Organizações sem fins lucrativos',
 				'popular'     => false,
-			),
-			'government'    => array(
+			],
+			'government'    => [
 				'label'       => 'Governo & Público',
 				'description' => 'Órgãos públicos, Política',
 				'popular'     => false,
-			),
-			'other'         => array(
+			],
+			'other'         => [
 				'label'       => 'Outro',
 				'description' => 'Indústria não listada',
 				'popular'     => false,
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Get role options for onboarding
 	 */
 	public function getRoleOptions(): array {
-		return array(
-			'founder'      => array(
+		return [
+			'founder'      => [
 				'label'       => 'Fundador/CEO',
 				'description' => 'Líder executivo da empresa',
 				'category'    => 'leadership',
-			),
-			'cofounder'    => array(
+			],
+			'cofounder'    => [
 				'label'       => 'Co-fundador',
 				'description' => 'Sócio fundador',
 				'category'    => 'leadership',
-			),
-			'director'     => array(
+			],
+			'director'     => [
 				'label'       => 'Diretor',
 				'description' => 'Diretor executivo ou de área',
 				'category'    => 'leadership',
-			),
-			'manager'      => array(
+			],
+			'manager'      => [
 				'label'       => 'Gerente',
 				'description' => 'Gestão de equipe ou projeto',
 				'category'    => 'management',
-			),
-			'coordinator'  => array(
+			],
+			'coordinator'  => [
 				'label'       => 'Coordenador',
 				'description' => 'Coordenação de atividades',
 				'category'    => 'management',
-			),
-			'developer'    => array(
+			],
+			'developer'    => [
 				'label'       => 'Desenvolvedor',
 				'description' => 'Programação e desenvolvimento',
 				'category'    => 'technical',
-			),
-			'designer'     => array(
+			],
+			'designer'     => [
 				'label'       => 'Designer',
 				'description' => 'Design visual e UX/UI',
 				'category'    => 'creative',
-			),
-			'marketer'     => array(
+			],
+			'marketer'     => [
 				'label'       => 'Profissional de Marketing',
 				'description' => 'Marketing e publicidade',
 				'category'    => 'marketing',
-			),
-			'sales'        => array(
+			],
+			'sales'        => [
 				'label'       => 'Vendas',
 				'description' => 'Representante ou gerente de vendas',
 				'category'    => 'sales',
-			),
-			'consultant'   => array(
+			],
+			'consultant'   => [
 				'label'       => 'Consultor',
 				'description' => 'Consultoria especializada',
 				'category'    => 'services',
-			),
-			'freelancer'   => array(
+			],
+			'freelancer'   => [
 				'label'       => 'Freelancer',
 				'description' => 'Profissional autônomo',
 				'category'    => 'independent',
-			),
-			'entrepreneur' => array(
+			],
+			'entrepreneur' => [
 				'label'       => 'Empreendedor',
 				'description' => 'Criador de negócios',
 				'category'    => 'independent',
-			),
-			'student'      => array(
+			],
+			'student'      => [
 				'label'       => 'Estudante',
 				'description' => 'Estudante ou estagiário',
 				'category'    => 'learning',
-			),
-			'investor'     => array(
+			],
+			'investor'     => [
 				'label'       => 'Investidor',
 				'description' => 'Investidor ou venture capital',
 				'category'    => 'finance',
-			),
-			'analyst'      => array(
+			],
+			'analyst'      => [
 				'label'       => 'Analista',
 				'description' => 'Análise de dados ou negócios',
 				'category'    => 'technical',
-			),
-			'specialist'   => array(
+			],
+			'specialist'   => [
 				'label'       => 'Especialista',
 				'description' => 'Especialista em área técnica',
 				'category'    => 'technical',
-			),
-			'other'        => array(
+			],
+			'other'        => [
 				'label'       => 'Outro',
 				'description' => 'Função não listada',
 				'category'    => 'other',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Get membership options for onboarding
 	 */
 	public function getMembershipOptions(): array {
-		return array(
-			'apollo_groups'             => array(
+		return [
+			'apollo_groups'             => [
 				'type'        => 'apollo',
 				'label'       => 'Grupos Apollo',
 				'description' => 'Outros grupos da comunidade Apollo',
 				'icon'        => 'apollo-icon',
 				'category'    => 'apollo_ecosystem',
-			),
-			'facebook_groups'           => array(
+			],
+			'facebook_groups'           => [
 				'type'        => 'external',
 				'label'       => 'Grupos Facebook',
 				'description' => 'Grupos de negócios no Facebook',
 				'icon'        => 'facebook-icon',
 				'category'    => 'social_media',
-			),
-			'linkedin_groups'           => array(
+			],
+			'linkedin_groups'           => [
 				'type'        => 'external',
 				'label'       => 'Grupos LinkedIn',
 				'description' => 'Grupos profissionais no LinkedIn',
 				'icon'        => 'linkedin-icon',
 				'category'    => 'professional',
-			),
-			'telegram_groups'           => array(
+			],
+			'telegram_groups'           => [
 				'type'        => 'external',
 				'label'       => 'Grupos Telegram',
 				'description' => 'Comunidades no Telegram',
 				'icon'        => 'telegram-icon',
 				'category'    => 'messaging',
-			),
-			'discord_servers'           => array(
+			],
+			'discord_servers'           => [
 				'type'        => 'external',
 				'label'       => 'Servidores Discord',
 				'description' => 'Comunidades no Discord',
 				'icon'        => 'discord-icon',
 				'category'    => 'gaming_tech',
-			),
-			'whatsapp_groups'           => array(
+			],
+			'whatsapp_groups'           => [
 				'type'        => 'external',
 				'label'       => 'Grupos WhatsApp',
 				'description' => 'Grupos de negócios no WhatsApp',
 				'icon'        => 'whatsapp-icon',
 				'category'    => 'messaging',
-			),
-			'slack_workspaces'          => array(
+			],
+			'slack_workspaces'          => [
 				'type'        => 'external',
 				'label'       => 'Workspaces Slack',
 				'description' => 'Comunidades profissionais no Slack',
 				'icon'        => 'slack-icon',
 				'category'    => 'professional',
-			),
-			'reddit_communities'        => array(
+			],
+			'reddit_communities'        => [
 				'type'        => 'external',
 				'label'       => 'Comunidades Reddit',
 				'description' => 'Subreddits de negócios e tecnologia',
 				'icon'        => 'reddit-icon',
 				'category'    => 'forums',
-			),
-			'professional_associations' => array(
+			],
+			'professional_associations' => [
 				'type'        => 'external',
 				'label'       => 'Associações Profissionais',
 				'description' => 'Conselhos e associações da área',
 				'icon'        => 'association-icon',
 				'category'    => 'professional',
-			),
-			'coworking_spaces'          => array(
+			],
+			'coworking_spaces'          => [
 				'type'        => 'external',
 				'label'       => 'Coworkings',
 				'description' => 'Espaços de coworking e networking',
 				'icon'        => 'coworking-icon',
 				'category'    => 'physical',
-			),
-			'startup_accelerators'      => array(
+			],
+			'startup_accelerators'      => [
 				'type'        => 'external',
 				'label'       => 'Aceleradoras',
 				'description' => 'Programas de aceleração e incubação',
 				'icon'        => 'accelerator-icon',
 				'category'    => 'startup',
-			),
-			'none'                      => array(
+			],
+			'none'                      => [
 				'type'        => 'none',
 				'label'       => 'Nenhuma',
 				'description' => 'Não participo de outras comunidades',
 				'icon'        => 'none-icon',
 				'category'    => 'none',
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -416,11 +416,11 @@ class UserProfileRepository {
 		// Parse metadata and assets for each result
 		foreach ( $results as &$result ) {
 			if ( ! empty( $result['metadata'] ) ) {
-				$result['metadata'] = json_decode( $result['metadata'], true ) ?: array();
+				$result['metadata'] = json_decode( $result['metadata'], true ) ?: [];
 			}
 
 			if ( ! empty( $result['verify_assets'] ) ) {
-				$result['verify_assets'] = json_decode( $result['verify_assets'], true ) ?: array();
+				$result['verify_assets'] = json_decode( $result['verify_assets'], true ) ?: [];
 			}
 		}
 
@@ -446,13 +446,13 @@ class UserProfileRepository {
 			ARRAY_A
 		);
 
-		$formatted_stats = array(
+		$formatted_stats = [
 			'awaiting_instagram_verify' => 0,
 			'dm_requested'              => 0,
 			'verified'                  => 0,
 			'rejected'                  => 0,
 			'total'                     => 0,
-		);
+		];
 
 		foreach ( $stats as $stat ) {
 			$formatted_stats[ $stat['verify_status'] ] = (int) $stat['count'];
@@ -468,8 +468,8 @@ class UserProfileRepository {
 	public function searchUsers( array $criteria, int $limit = 20, int $offset = 0 ): array {
 		global $wpdb;
 
-		$where_conditions = array( '1=1' );
-		$params           = array();
+		$where_conditions = [ '1=1' ];
+		$params           = [];
 
 		// Search by name
 		if ( ! empty( $criteria['name'] ) ) {
@@ -527,12 +527,12 @@ class UserProfileRepository {
 		global $wpdb;
 
 		// Convert period to MySQL date
-		$date_ranges = array(
+		$date_ranges = [
 			'7d'  => '7 DAY',
 			'30d' => '30 DAY',
 			'90d' => '90 DAY',
 			'1y'  => '365 DAY',
-		);
+		];
 
 		$date_range = $date_ranges[ $period ] ?? '30 DAY';
 
@@ -576,10 +576,10 @@ class UserProfileRepository {
 			ARRAY_A
 		);
 
-		return array(
+		return [
 			'completions_over_time' => $completions,
 			'industry_distribution' => $industries,
 			'period'                => $period,
-		);
+		];
 	}
 }

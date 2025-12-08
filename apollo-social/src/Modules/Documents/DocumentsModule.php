@@ -60,19 +60,19 @@ class DocumentsModule {
 			// Fallback: calculate path to main plugin file
 			$plugin_file = dirname( dirname( dirname( __DIR__ ) ) ) . '/apollo-social.php';
 		}
-		register_activation_hook( $plugin_file, array( self::class, 'activate' ) );
+		register_activation_hook( $plugin_file, [ self::class, 'activate' ] );
 
 		// Initialize on plugins loaded
-		add_action( 'plugins_loaded', array( self::class, 'setup' ) );
+		add_action( 'plugins_loaded', [ self::class, 'setup' ] );
 
 		// Register REST endpoints
-		add_action( 'rest_api_init', array( self::class, 'registerEndpoints' ) );
+		add_action( 'rest_api_init', [ self::class, 'registerEndpoints' ] );
 
 		// Register shortcodes
-		add_action( 'init', array( self::class, 'registerShortcodes' ) );
+		add_action( 'init', [ self::class, 'registerShortcodes' ] );
 
 		// Register Canvas routes
-		add_action( 'init', array( self::class, 'registerRoutes' ) );
+		add_action( 'init', [ self::class, 'registerRoutes' ] );
 
 		// Register AJAX handlers
 		$ajax_handler = new DocumentsAjaxHandler();
@@ -80,7 +80,7 @@ class DocumentsModule {
 
 		// Admin hooks
 		if ( is_admin() ) {
-			add_action( 'admin_menu', array( self::class, 'registerAdminMenu' ) );
+			add_action( 'admin_menu', [ self::class, 'registerAdminMenu' ] );
 		}
 	}
 
@@ -132,16 +132,16 @@ class DocumentsModule {
 	 */
 	public static function registerShortcodes(): void {
 		// Document editor shortcode
-		add_shortcode( 'apollo_document_editor', array( self::class, 'renderDocumentEditor' ) );
+		add_shortcode( 'apollo_document_editor', [ self::class, 'renderDocumentEditor' ] );
 
 		// Document list shortcode
-		add_shortcode( 'apollo_documents', array( self::class, 'renderDocumentList' ) );
+		add_shortcode( 'apollo_documents', [ self::class, 'renderDocumentList' ] );
 
 		// Signature page shortcode
-		add_shortcode( 'apollo_sign_document', array( self::class, 'renderSignaturePage' ) );
+		add_shortcode( 'apollo_sign_document', [ self::class, 'renderSignaturePage' ] );
 
 		// Verification form shortcode
-		add_shortcode( 'apollo_verify_document', array( self::class, 'renderVerificationForm' ) );
+		add_shortcode( 'apollo_verify_document', [ self::class, 'renderVerificationForm' ] );
 	}
 
 	/**
@@ -169,7 +169,7 @@ class DocumentsModule {
 		);
 
 		// Handle template redirect
-		add_action( 'template_redirect', array( self::class, 'handleCanvasRoutes' ) );
+		add_action( 'template_redirect', [ self::class, 'handleCanvasRoutes' ] );
 	}
 
 	/**
@@ -187,7 +187,7 @@ class DocumentsModule {
 
 			// Load document data if editing
 			$mode     = 'new';
-			$document = array();
+			$document = [];
 
 			if ( 'new' !== $doc_id ) {
 				$manager  = new DocumentsManager();
@@ -197,12 +197,12 @@ class DocumentsModule {
 
 			self::loadTemplate(
 				'editor',
-				array(
+				[
 					'file_id'  => $doc_id,
 					'type'     => 'documento',
 					'mode'     => $mode,
 					'document' => $document,
-				)
+				]
 			);
 			exit;
 		}//end if
@@ -216,7 +216,7 @@ class DocumentsModule {
 
 			// Load spreadsheet data if editing
 			$mode     = 'new';
-			$document = array();
+			$document = [];
 
 			if ( 'new' !== $pla_id ) {
 				$manager  = new DocumentsManager();
@@ -226,12 +226,12 @@ class DocumentsModule {
 
 			self::loadTemplate(
 				'editor',
-				array(
+				[
 					'file_id'  => $pla_id,
 					'type'     => 'planilha',
 					'mode'     => $mode,
 					'document' => $document,
-				)
+				]
 			);
 			exit;
 		}//end if
@@ -239,14 +239,14 @@ class DocumentsModule {
 		// Signature page
 		$sign_token = get_query_var( 'apollo_sign' );
 		if ( $sign_token ) {
-			self::loadTemplate( 'sign-document', array( 'token' => $sign_token ) );
+			self::loadTemplate( 'sign-document', [ 'token' => $sign_token ] );
 			exit;
 		}
 
 		// Verification page
 		$verify_code = get_query_var( 'apollo_verify' );
 		if ( $verify_code ) {
-			self::loadTemplate( 'verify', array( 'code' => $verify_code ) );
+			self::loadTemplate( 'verify', [ 'code' => $verify_code ] );
 			exit;
 		}
 	}
@@ -254,7 +254,7 @@ class DocumentsModule {
 	/**
 	 * Load template
 	 */
-	private static function loadTemplate( string $template, array $args = array() ): void {
+	private static function loadTemplate( string $template, array $args = [] ): void {
 		// Extract args for template
 		extract( $args );
 
@@ -263,7 +263,7 @@ class DocumentsModule {
 		if ( file_exists( $template_file ) ) {
 			include $template_file;
 		} else {
-			wp_die( 'Template não encontrado: ' . esc_html( $template ), 'Erro', array( 'response' => 404 ) );
+			wp_die( 'Template não encontrado: ' . esc_html( $template ), 'Erro', [ 'response' => 404 ] );
 		}
 	}
 
@@ -277,7 +277,7 @@ class DocumentsModule {
 			'Documentos',
 			'manage_options',
 			'apollo-documents',
-			array( self::class, 'renderAdminPage' )
+			[ self::class, 'renderAdminPage' ]
 		);
 	}
 
@@ -421,10 +421,10 @@ class DocumentsModule {
 		}
 
 		$atts = shortcode_atts(
-			array(
+			[
 				'file_id' => '',
 				'type'    => 'document',
-			),
+			],
 			$atts
 		);
 
@@ -442,10 +442,10 @@ class DocumentsModule {
 		}
 
 		$atts = shortcode_atts(
-			array(
+			[
 				'library' => 'private',
 				'limit'   => 10,
-			),
+			],
 			$atts
 		);
 
@@ -453,9 +453,9 @@ class DocumentsModule {
 		$result    = $libraries->getDocumentsByLibrary(
 			$atts['library'],
 			null,
-			array(
+			[
 				'per_page' => (int) $atts['limit'],
-			)
+			]
 		);
 
 		ob_start();
@@ -485,9 +485,9 @@ class DocumentsModule {
 	 */
 	public static function renderSignaturePage( $atts ): string {
 		$atts = shortcode_atts(
-			array(
+			[
 				'token' => '',
-			),
+			],
 			$atts
 		);
 

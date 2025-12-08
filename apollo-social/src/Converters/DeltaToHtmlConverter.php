@@ -107,81 +107,81 @@ class DeltaToHtmlConverter {
 	 *
 	 * @var array
 	 */
-	private $allowed_html = array(
+	private $allowed_html = [
 		// Block elements
-		'p'          => array(
-			'class' => array(),
-			'style' => array(),
-		),
-		'h1'         => array( 'class' => array() ),
-		'h2'         => array( 'class' => array() ),
-		'h3'         => array( 'class' => array() ),
-		'h4'         => array( 'class' => array() ),
-		'h5'         => array( 'class' => array() ),
-		'h6'         => array( 'class' => array() ),
-		'blockquote' => array( 'class' => array() ),
-		'pre'        => array( 'class' => array() ),
-		'code'       => array( 'class' => array() ),
+		'p'          => [
+			'class' => [],
+			'style' => [],
+		],
+		'h1'         => [ 'class' => [] ],
+		'h2'         => [ 'class' => [] ],
+		'h3'         => [ 'class' => [] ],
+		'h4'         => [ 'class' => [] ],
+		'h5'         => [ 'class' => [] ],
+		'h6'         => [ 'class' => [] ],
+		'blockquote' => [ 'class' => [] ],
+		'pre'        => [ 'class' => [] ],
+		'code'       => [ 'class' => [] ],
 
 		// List elements
-		'ul'         => array( 'class' => array() ),
-		'ol'         => array( 'class' => array() ),
-		'li'         => array( 'class' => array() ),
+		'ul'         => [ 'class' => [] ],
+		'ol'         => [ 'class' => [] ],
+		'li'         => [ 'class' => [] ],
 
 		// Inline formatting
-		'strong'     => array(),
-		'b'          => array(),
-		'em'         => array(),
-		'i'          => array(),
-		'u'          => array(),
-		's'          => array(),
-		'strike'     => array(),
-		'sub'        => array(),
-		'sup'        => array(),
-		'span'       => array(
-			'class' => array(),
-			'style' => array(),
-		),
+		'strong'     => [],
+		'b'          => [],
+		'em'         => [],
+		'i'          => [],
+		'u'          => [],
+		's'          => [],
+		'strike'     => [],
+		'sub'        => [],
+		'sup'        => [],
+		'span'       => [
+			'class' => [],
+			'style' => [],
+		],
 
 		// Links
-		'a'          => array(
-			'href'   => array(),
-			'target' => array(),
-			'rel'    => array(),
-			'title'  => array(),
-		),
+		'a'          => [
+			'href'   => [],
+			'target' => [],
+			'rel'    => [],
+			'title'  => [],
+		],
 
 		// Media
-		'img'        => array(
-			'src'    => array(),
-			'alt'    => array(),
-			'width'  => array(),
-			'height' => array(),
-			'class'  => array(),
-		),
+		'img'        => [
+			'src'    => [],
+			'alt'    => [],
+			'width'  => [],
+			'height' => [],
+			'class'  => [],
+		],
 
 		// Tables (for future support)
-		'table'      => array( 'class' => array() ),
-		'thead'      => array(),
-		'tbody'      => array(),
-		'tr'         => array(),
-		'th'         => array(
-			'colspan' => array(),
-			'rowspan' => array(),
-		),
-		'td'         => array(
-			'colspan' => array(),
-			'rowspan' => array(),
-		),
+		'table'      => [ 'class' => [] ],
+		'thead'      => [],
+		'tbody'      => [],
+		'tr'         => [],
+		'th'         => [
+			'colspan' => [],
+			'rowspan' => [],
+		],
+		'td'         => [
+			'colspan' => [],
+			'rowspan' => [],
+		],
 
 		// Misc
-		'br'         => array(),
-		'hr'         => array(),
-		'div'        => array(
-			'class' => array(),
-			'style' => array(),
-		),
-	);
+		'br'         => [],
+		'hr'         => [],
+		'div'        => [
+			'class' => [],
+			'style' => [],
+		],
+	];
 
 	/**
 	 * Custom embed handlers for Delta types not supported by default.
@@ -195,14 +195,14 @@ class DeltaToHtmlConverter {
 	 *
 	 * @var array
 	 */
-	private $embed_handlers = array();
+	private $embed_handlers = [];
 
 	/**
 	 * Configuration options for the converter.
 	 *
 	 * @var array
 	 */
-	private $options = array(
+	private $options = [
 		// Wrap output in a container div with this class
 		'container_class'       => 'apollo-document-content',
 
@@ -217,14 +217,14 @@ class DeltaToHtmlConverter {
 
 		// Throw exception on invalid Delta (vs. return empty string)
 		'strict_mode'           => false,
-	);
+	];
 
 	/**
 	 * Constructor.
 	 *
 	 * @param array $options Configuration options to override defaults.
 	 */
-	public function __construct( array $options = array() ) {
+	public function __construct( array $options = [] ) {
 		$this->options = array_merge( $this->options, $options );
 
 		// Register default embed handlers
@@ -527,7 +527,7 @@ class DeltaToHtmlConverter {
 	 * @param array        $options Configuration options.
 	 * @return string Sanitized HTML output.
 	 */
-	public static function toHtml( $delta, array $options = array() ) {
+	public static function toHtml( $delta, array $options = [] ) {
 		$converter = new self( $options );
 		return $converter->convert( $delta );
 	}

@@ -62,7 +62,7 @@ class SignatureEndpoints {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
@@ -80,136 +80,136 @@ class SignatureEndpoints {
 		register_rest_route(
 			self::NAMESPACE,
 			'/library/(?P<library>[a-z]+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getLibraryDocuments' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'library'  => array(
+				'callback'            => [ $this, 'getLibraryDocuments' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'library'  => [
 						'required'          => true,
-						'validate_callback' => fn( $v ) => in_array( $v, array( 'apollo', 'cenario', 'private' ), true ),
-					),
-					'status'   => array( 'type' => 'string' ),
-					'type'     => array( 'type' => 'string' ),
-					'search'   => array( 'type' => 'string' ),
-					'page'     => array(
+						'validate_callback' => fn( $v ) => in_array( $v, [ 'apollo', 'cenario', 'private' ], true ),
+					],
+					'status'   => [ 'type' => 'string' ],
+					'type'     => [ 'type' => 'string' ],
+					'search'   => [ 'type' => 'string' ],
+					'page'     => [
 						'type'    => 'integer',
 						'default' => 1,
-					),
-					'per_page' => array(
+					],
+					'per_page' => [
 						'type'    => 'integer',
 						'default' => 20,
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get library stats
 		register_rest_route(
 			self::NAMESPACE,
 			'/library/(?P<library>[a-z]+)/stats',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getLibraryStats' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-			)
+				'callback'            => [ $this, 'getLibraryStats' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+			]
 		);
 
 		// Create document
 		register_rest_route(
 			self::NAMESPACE,
 			'/document',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'createDocument' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'library' => array(
+				'callback'            => [ $this, 'createDocument' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'library' => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
-					),
-					'title'   => array(
+					],
+					'title'   => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'type'    => array(
+					],
+					'type'    => [
 						'type'              => 'string',
 						'default'           => 'document',
 						'sanitize_callback' => 'sanitize_key',
-					),
-					'content' => array(
+					],
+					'content' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'wp_kses_post',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get document
 		register_rest_route(
 			self::NAMESPACE,
 			'/document/(?P<file_id>[a-zA-Z0-9]+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getDocument' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-			)
+				'callback'            => [ $this, 'getDocument' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+			]
 		);
 
 		// Update document
 		register_rest_route(
 			self::NAMESPACE,
 			'/document/(?P<file_id>[a-zA-Z0-9]+)',
-			array(
+			[
 				'methods'             => 'PUT',
-				'callback'            => array( $this, 'updateDocument' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'title'        => array(
+				'callback'            => [ $this, 'updateDocument' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'title'        => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'content'      => array(
+					],
+					'content'      => [
 						'type'              => 'string',
 						'sanitize_callback' => 'wp_kses_post',
-					),
-					'html_content' => array(
+					],
+					'html_content' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'wp_kses_post',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Finalize document
 		register_rest_route(
 			self::NAMESPACE,
 			'/document/(?P<file_id>[a-zA-Z0-9]+)/finalize',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'finalizeDocument' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-			)
+				'callback'            => [ $this, 'finalizeDocument' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+			]
 		);
 
 		// Move document
 		register_rest_route(
 			self::NAMESPACE,
 			'/document/(?P<file_id>[a-zA-Z0-9]+)/move',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'moveDocument' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'target_library' => array(
+				'callback'            => [ $this, 'moveDocument' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'target_library' => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// ===== SIGNATURE ENDPOINTS =====
@@ -218,103 +218,103 @@ class SignatureEndpoints {
 		register_rest_route(
 			self::NAMESPACE,
 			'/sign/certificate',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'signWithCertificate' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'document_id' => array(
+				'callback'            => [ $this, 'signWithCertificate' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'document_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'certificate' => array(
+					],
+					'certificate' => [
 						'required' => true,
 						'type'     => 'string',
-					),
-					'password'    => array(
+					],
+					'password'    => [
 						'required' => true,
 						'type'     => 'string',
-					),
-					'name'        => array(
+					],
+					'name'        => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'cpf'         => array(
+					],
+					'cpf'         => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Sign with canvas (electronic)
 		register_rest_route(
 			self::NAMESPACE,
 			'/sign/canvas',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'signWithCanvas' ),
+				'callback'            => [ $this, 'signWithCanvas' ],
 				'permission_callback' => '__return_true',
 				// Public for external signers - token validated in callback.
-				'args'                => array(
-					'token'     => array(
+				'args'                => [
+					'token'     => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'signature' => array(
+					],
+					'signature' => [
 						'required' => true,
 						'type'     => 'string',
-					),
-					'name'      => array(
+					],
+					'name'      => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'cpf'       => array(
+					],
+					'cpf'       => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'email'     => array(
+					],
+					'email'     => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_email',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Request signature from another person
 		register_rest_route(
 			self::NAMESPACE,
 			'/sign/request',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'requestSignature' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'document_id' => array(
+				'callback'            => [ $this, 'requestSignature' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'document_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'party'       => array(
+					],
+					'party'       => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
-					),
-					'email'       => array(
+					],
+					'email'       => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_email',
-					),
-					'name'        => array(
+					],
+					'name'        => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// ===== VERIFICATION ENDPOINTS =====
@@ -323,39 +323,39 @@ class SignatureEndpoints {
 		register_rest_route(
 			self::NAMESPACE,
 			'/verify/protocol/(?P<code>[A-Z0-9-]+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'verifyByProtocol' ),
+				'callback'            => [ $this, 'verifyByProtocol' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		// Verify by hash (public)
 		register_rest_route(
 			self::NAMESPACE,
 			'/verify/hash',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'verifyByHash' ),
+				'callback'            => [ $this, 'verifyByHash' ],
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'hash' => array(
+				'args'                => [
+					'hash' => [
 						'required' => true,
 						'type'     => 'string',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Verify PDF file (public)
 		register_rest_route(
 			self::NAMESPACE,
 			'/verify/file',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'verifyFile' ),
+				'callback'            => [ $this, 'verifyFile' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		// ===== AUDIT ENDPOINTS =====
@@ -364,39 +364,39 @@ class SignatureEndpoints {
 		register_rest_route(
 			self::NAMESPACE,
 			'/audit/(?P<file_id>[a-zA-Z0-9]+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getAuditLog' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-			)
+				'callback'            => [ $this, 'getAuditLog' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+			]
 		);
 
 		// Generate verification report
 		register_rest_route(
 			self::NAMESPACE,
 			'/audit/(?P<file_id>[a-zA-Z0-9]+)/report',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getVerificationReport' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-			)
+				'callback'            => [ $this, 'getVerificationReport' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+			]
 		);
 
 		// Generate protocol
 		register_rest_route(
 			self::NAMESPACE,
 			'/protocol/generate',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'generateProtocol' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'document_id' => array(
+				'callback'            => [ $this, 'generateProtocol' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'document_id' => [
 						'required' => true,
 						'type'     => 'integer',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// ===== TEMPLATE ENDPOINTS =====
@@ -405,31 +405,31 @@ class SignatureEndpoints {
 		register_rest_route(
 			self::NAMESPACE,
 			'/templates',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getTemplates' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'category' => array( 'type' => 'string' ),
-				),
-			)
+				'callback'            => [ $this, 'getTemplates' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'category' => [ 'type' => 'string' ],
+				],
+			]
 		);
 
 		// Create from template
 		register_rest_route(
 			self::NAMESPACE,
 			'/templates/(?P<file_id>[a-zA-Z0-9]+)/use',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'createFromTemplate' ),
-				'permission_callback' => array( $this, 'checkAuthenticated' ),
-				'args'                => array(
-					'target_library' => array(
+				'callback'            => [ $this, 'createFromTemplate' ],
+				'permission_callback' => [ $this, 'checkAuthenticated' ],
+				'args'                => [
+					'target_library' => [
 						'type'    => 'string',
 						'default' => 'private',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -445,13 +445,13 @@ class SignatureEndpoints {
 		}
 
 		$library = $request->get_param( 'library' );
-		$args    = array(
+		$args    = [
 			'status'   => $request->get_param( 'status' ),
 			'type'     => $request->get_param( 'type' ),
 			'search'   => $request->get_param( 'search' ),
 			'page'     => $request->get_param( 'page' ),
 			'per_page' => $request->get_param( 'per_page' ),
-		);
+		];
 
 		$result = $this->libraries->getDocumentsByLibrary( $library, null, array_filter( $args ) );
 
@@ -466,11 +466,11 @@ class SignatureEndpoints {
 		$stats   = $this->libraries->getLibraryStats( $library );
 
 		return new \WP_REST_Response(
-			array(
+			[
 				'library'      => $library,
 				'library_info' => DocumentLibraries::LIBRARY_TYPES[ $library ] ?? null,
 				'stats'        => $stats,
-			),
+			],
 			200
 		);
 	}
@@ -481,11 +481,11 @@ class SignatureEndpoints {
 	public function createDocument( \WP_REST_Request $request ): \WP_REST_Response {
 		$result = $this->libraries->createDocument(
 			$request->get_param( 'library' ),
-			array(
+			[
 				'type'    => $request->get_param( 'type' ),
 				'title'   => $request->get_param( 'title' ),
 				'content' => $request->get_param( 'content' ),
-			)
+			]
 		);
 
 		$status = $result['success'] ? 201 : 400;
@@ -499,7 +499,7 @@ class SignatureEndpoints {
 		$document = $this->libraries->getDocument( $request->get_param( 'file_id' ) );
 
 		if ( ! $document ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento não encontrado' ), 404 );
+			return new \WP_REST_Response( [ 'error' => 'Documento não encontrado' ], 404 );
 		}
 
 		return new \WP_REST_Response( $document, 200 );
@@ -511,11 +511,11 @@ class SignatureEndpoints {
 	public function updateDocument( \WP_REST_Request $request ): \WP_REST_Response {
 		$result = $this->libraries->updateDocument(
 			$request->get_param( 'file_id' ),
-			array(
+			[
 				'title'        => $request->get_param( 'title' ),
 				'content'      => $request->get_param( 'content' ),
 				'html_content' => $request->get_param( 'html_content' ),
-			)
+			]
 		);
 
 		$status = $result['success'] ? 200 : 400;
@@ -577,11 +577,11 @@ class SignatureEndpoints {
 		);
 
 		if ( ! $document ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento não encontrado' ), 404 );
+			return new \WP_REST_Response( [ 'error' => 'Documento não encontrado' ], 404 );
 		}
 
 		if ( ! $document['pdf_path'] ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento precisa ser finalizado antes de assinar' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'Documento precisa ser finalizado antes de assinar' ], 400 );
 		}
 
 		// Get full PDF path
@@ -592,10 +592,10 @@ class SignatureEndpoints {
 			$pdf_path,
 			$request->get_param( 'certificate' ),
 			$request->get_param( 'password' ),
-			array(
+			[
 				'name' => $request->get_param( 'name' ),
 				'cpf'  => $request->get_param( 'cpf' ),
-			)
+			]
 		);
 
 		if ( $result['success'] ) {
@@ -610,11 +610,11 @@ class SignatureEndpoints {
 			// Update document status
 			$wpdb->update(
 				$documents_table,
-				array(
+				[
 					'status'   => 'signing',
 					'pdf_path' => str_replace( ABSPATH, '/', $result['signed_pdf_path'] ),
-				),
-				array( 'id' => $document_id )
+				],
+				[ 'id' => $document_id ]
 			);
 		}
 
@@ -641,7 +641,7 @@ class SignatureEndpoints {
 		);
 
 		if ( ! $signature_request ) {
-			return new \WP_REST_Response( array( 'error' => 'Token inválido ou já utilizado' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'Token inválido ou já utilizado' ], 400 );
 		}
 
 		// Get document
@@ -652,13 +652,13 @@ class SignatureEndpoints {
 		);
 
 		if ( ! $document || ! $document['pdf_path'] ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento não encontrado' ), 404 );
+			return new \WP_REST_Response( [ 'error' => 'Documento não encontrado' ], 404 );
 		}
 
 		// Validate CPF
 		$cpf = preg_replace( '/[^0-9]/', '', $request->get_param( 'cpf' ) );
 		if ( ! $this->validateCpf( $cpf ) ) {
-			return new \WP_REST_Response( array( 'error' => 'CPF inválido' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'CPF inválido' ], 400 );
 		}
 
 		// Get full PDF path
@@ -668,11 +668,11 @@ class SignatureEndpoints {
 		$result = $this->signer->signWithCanvas(
 			$pdf_path,
 			$request->get_param( 'signature' ),
-			array(
+			[
 				'name'  => $request->get_param( 'name' ),
 				'cpf'   => $cpf,
 				'email' => $request->get_param( 'email' ),
-			)
+			]
 		);
 
 		if ( $result['success'] ) {
@@ -686,7 +686,7 @@ class SignatureEndpoints {
 
 			$wpdb->update(
 				$signatures_table,
-				array(
+				[
 					'signer_name'    => sanitize_text_field( $request->get_param( 'name' ) ),
 					'signer_cpf'     => $cpf,
 					'signer_email'   => sanitize_email( $request->get_param( 'email' ) ),
@@ -695,19 +695,19 @@ class SignatureEndpoints {
 					'signed_at'      => current_time( 'mysql' ),
 					'ip_address'     => $ip_address,
 					'user_agent'     => $user_agent,
-				),
-				array( 'id' => $signature_request['id'] )
+				],
+				[ 'id' => $signature_request['id'] ]
 			);
 
 			// Log signature
 			$this->audit->logSignature(
 				(int) $document['id'],
-				array(
+				[
 					'name'  => sanitize_text_field( $request->get_param( 'name' ) ),
 					'cpf'   => $cpf,
 					'email' => sanitize_email( $request->get_param( 'email' ) ),
 					'type'  => 'electronic',
-				),
+				],
 				$result['hash'],
 				$document['pdf_hash'] ?? ''
 			);
@@ -715,8 +715,8 @@ class SignatureEndpoints {
 			// Update document
 			$wpdb->update(
 				$documents_table,
-				array( 'pdf_path' => str_replace( ABSPATH, '/', $result['signed_pdf_path'] ) ),
-				array( 'id' => $document['id'] )
+				[ 'pdf_path' => str_replace( ABSPATH, '/', $result['signed_pdf_path'] ) ],
+				[ 'id' => $document['id'] ]
 			);
 
 			// Check if all signatures complete
@@ -728,7 +728,7 @@ class SignatureEndpoints {
 			);
 
 			if ( 0 === (int) $pending ) {
-				$wpdb->update( $documents_table, array( 'status' => 'completed' ), array( 'id' => $document['id'] ) );
+				$wpdb->update( $documents_table, [ 'status' => 'completed' ], [ 'id' => $document['id'] ] );
 			}
 		}//end if
 
@@ -782,13 +782,13 @@ class SignatureEndpoints {
 		$files = $request->get_file_params();
 
 		if ( empty( $files['file'] ) ) {
-			return new \WP_REST_Response( array( 'error' => 'Nenhum arquivo enviado' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'Nenhum arquivo enviado' ], 400 );
 		}
 
 		$file = $files['file'];
 
 		if ( $file['error'] !== UPLOAD_ERR_OK ) {
-			return new \WP_REST_Response( array( 'error' => 'Erro no upload' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'Erro no upload' ], 400 );
 		}
 
 		// Calculate hash
@@ -815,19 +815,19 @@ class SignatureEndpoints {
 		$document = $this->libraries->getDocument( $request->get_param( 'file_id' ) );
 
 		if ( ! $document ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento não encontrado' ), 404 );
+			return new \WP_REST_Response( [ 'error' => 'Documento não encontrado' ], 404 );
 		}
 
 		$logs = $this->audit->getDocumentLogs( (int) $document['id'] );
 
 		return new \WP_REST_Response(
-			array(
-				'document' => array(
+			[
+				'document' => [
 					'file_id' => $document['file_id'],
 					'title'   => $document['title'],
-				),
+				],
 				'logs'     => $logs,
-			),
+			],
 			200
 		);
 	}
@@ -839,7 +839,7 @@ class SignatureEndpoints {
 		$document = $this->libraries->getDocument( $request->get_param( 'file_id' ) );
 
 		if ( ! $document ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento não encontrado' ), 404 );
+			return new \WP_REST_Response( [ 'error' => 'Documento não encontrado' ], 404 );
 		}
 
 		$report = $this->audit->generateVerificationReport( (int) $document['id'] );
@@ -863,7 +863,7 @@ class SignatureEndpoints {
 		);
 
 		if ( ! $document || ! $document['pdf_hash'] ) {
-			return new \WP_REST_Response( array( 'error' => 'Documento precisa ser finalizado primeiro' ), 400 );
+			return new \WP_REST_Response( [ 'error' => 'Documento precisa ser finalizado primeiro' ], 400 );
 		}
 
 		$result = $this->audit->generateProtocol( $document_id, $document['pdf_hash'] );

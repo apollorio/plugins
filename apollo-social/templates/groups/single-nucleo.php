@@ -22,7 +22,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -30,7 +30,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -38,7 +38,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -122,13 +122,13 @@ $tags            = get_post_meta( $nucleo_id, '_group_tags', true );
 // Founders/Team
 $founders = get_post_meta( $nucleo_id, '_nucleo_founders', true );
 if ( ! is_array( $founders ) ) {
-	$founders = array();
+	$founders = [];
 }
 
 // Team members
 $team_members = get_post_meta( $nucleo_id, '_nucleo_team', true );
 if ( ! is_array( $team_members ) ) {
-	$team_members = array();
+	$team_members = [];
 }
 
 // Creator
@@ -151,12 +151,12 @@ if ( $current_user_id ) {
 
 // Genres array
 if ( ! is_array( $genres ) ) {
-	$genres = $genres ? array_map( 'trim', explode( ',', $genres ) ) : array();
+	$genres = $genres ? array_map( 'trim', explode( ',', $genres ) ) : [];
 }
 
 // Tags array
 if ( ! is_array( $tags ) ) {
-	$tags = $tags ? array_map( 'trim', explode( ',', $tags ) ) : array();
+	$tags = $tags ? array_map( 'trim', explode( ',', $tags ) ) : [];
 }
 
 // Activity status
@@ -167,50 +167,50 @@ $is_active     = $last_activity && ( time() - (int) $last_activity ) < 86400;
 $current_user_avatar = '';
 $current_user_name   = 'Você';
 if ( $current_user_id ) {
-	$current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 80 ) );
+	$current_user_avatar = get_avatar_url( $current_user_id, [ 'size' => 80 ] );
 	$user_obj            = wp_get_current_user();
 	$current_user_name   = $user_obj->display_name;
 }
 
 // Fetch núcleo posts/updates
 $nucleo_posts = get_posts(
-	array(
+	[
 		'post_type'      => 'apollo_social_post',
 		'post_status'    => 'publish',
 		'posts_per_page' => 10,
-		'meta_query'     => array(
-			array(
+		'meta_query'     => [
+			[
 				'key'   => '_post_nucleo_id',
 				'value' => $nucleo_id,
-			),
-		),
+			],
+		],
 		'orderby'        => 'date',
 		'order'          => 'DESC',
-	)
+	]
 );
 
 // Fetch upcoming events
 $upcoming_events = get_posts(
-	array(
+	[
 		'post_type'      => 'event_listing',
 		'post_status'    => 'publish',
 		'posts_per_page' => 3,
-		'meta_query'     => array(
-			array(
+		'meta_query'     => [
+			[
 				'key'   => '_event_nucleo_id',
 				'value' => $nucleo_id,
-			),
-			array(
+			],
+			[
 				'key'     => '_event_start_date',
 				'value'   => date( 'Y-m-d' ),
 				'compare' => '>=',
 				'type'    => 'DATE',
-			),
-		),
+			],
+		],
 		'orderby'        => 'meta_value',
 		'meta_key'       => '_event_start_date',
 		'order'          => 'ASC',
-	)
+	]
 );
 
 // NO get_header() - Canvas mode
@@ -535,7 +535,7 @@ $upcoming_events = get_posts(
 				<?php if ( $creator ) : ?>
 				<div class="flex items-center gap-3">
 					<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-					<?php echo get_avatar( $creator_id, 32, '', $creator->display_name, array( 'class' => 'w-full h-full object-cover' ) ); ?>
+					<?php echo get_avatar( $creator_id, 32, '', $creator->display_name, [ 'class' => 'w-full h-full object-cover' ] ); ?>
 					</div>
 					<div class="flex-1">
 					<p class="text-[13px] font-semibold text-slate-900"><?php echo esc_html( $creator->display_name ); ?></p>
@@ -559,7 +559,7 @@ $upcoming_events = get_posts(
 					?>
 				<div class="flex items-center gap-3">
 					<div class="h-8 w-8 rounded-full overflow-hidden bg-slate-100">
-					<?php echo get_avatar( $founder_id, 32, '', $founder->display_name, array( 'class' => 'w-full h-full object-cover' ) ); ?>
+					<?php echo get_avatar( $founder_id, 32, '', $founder->display_name, [ 'class' => 'w-full h-full object-cover' ] ); ?>
 					</div>
 					<div class="flex-1">
 					<p class="text-[13px] font-semibold text-slate-900"><?php echo esc_html( $founder->display_name ); ?></p>
@@ -588,7 +588,7 @@ $upcoming_events = get_posts(
 				foreach ( $upcoming_events as $event ) :
 					$event_date = get_post_meta( $event->ID, '_event_start_date', true );
 					$date_obj   = $event_date ? DateTime::createFromFormat( 'Y-m-d', $event_date ) : null;
-					$day_names  = array( 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' );
+					$day_names  = [ 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' ];
 					?>
 				<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg transition-colors group">
 					<div class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900 group-hover:border-orange-400 transition-colors">

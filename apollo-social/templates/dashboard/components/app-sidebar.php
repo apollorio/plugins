@@ -25,21 +25,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  *     @type string $collapsible   Collapsible mode: 'icon', 'none', 'offcanvas'. Default 'icon'.
  * }
  */
-function apollo_render_app_sidebar( array $args = array() ) {
+function apollo_render_app_sidebar( array $args = [] ) {
 	$current_user = wp_get_current_user();
 
-	$defaults = array(
+	$defaults = [
 		'variant'     => 'inset',
 		'collapsible' => 'icon',
-		'user'        => array(
+		'user'        => [
 			'id'     => $current_user->ID,
 			'name'   => $current_user->display_name,
 			'email'  => $current_user->user_email,
-			'avatar' => get_avatar_url( $current_user->ID, array( 'size' => 64 ) ),
+			'avatar' => get_avatar_url( $current_user->ID, [ 'size' => 64 ] ),
 			'role'   => implode( ', ', $current_user->roles ),
-		),
+		],
 		'nav_items'   => apollo_get_default_nav_items(),
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	$sidebar_classes  = 'apollo-app-sidebar peer hidden md:flex flex-col';
@@ -130,7 +130,7 @@ function apollo_render_app_sidebar( array $args = array() ) {
 function apollo_render_sidebar_nav_section( array $nav_items ) {
 	foreach ( $nav_items as $section ) {
 		$section_label = $section['label'] ?? '';
-		$items         = $section['items'] ?? array();
+		$items         = $section['items'] ?? [];
 		?>
 		<div class="px-3">
 			<?php if ( ! empty( $section_label ) ) : ?>
@@ -248,7 +248,7 @@ function apollo_render_sidebar_user_menu( array $user ) {
  * @return bool
  */
 function apollo_is_nav_item_active( array $item ) {
-	$current_url = home_url( add_query_arg( array() ) );
+	$current_url = home_url( add_query_arg( [] ) );
 	$item_url    = $item['url'] ?? '';
 
 	if ( empty( $item_url ) || $item_url === '#' ) {
@@ -267,64 +267,64 @@ function apollo_is_nav_item_active( array $item ) {
 function apollo_get_default_nav_items() {
 	$pending_docs = apollo_get_pending_docs_count();
 
-	return array(
-		array(
+	return [
+		[
 			'label' => 'Principal',
-			'items' => array(
-				array(
+			'items' => [
+				[
 					'label' => 'Dashboard',
 					'url'   => home_url( '/painel/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
-				),
-				array(
+				],
+				[
 					'label' => 'Eventos',
 					'url'   => home_url( '/eventos/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
-				),
-				array(
+				],
+				[
 					'label' => 'Minha Página',
 					'url'   => home_url( '/id/' . get_current_user_id() . '/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-				),
-			),
-		),
-		array(
+				],
+			],
+		],
+		[
 			'label' => 'Conteúdo',
-			'items' => array(
-				array(
+			'items' => [
+				[
 					'label' => 'Comunidades',
 					'url'   => home_url( '/comunidades/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-				),
-				array(
+				],
+				[
 					'label' => 'Núcleos',
 					'url'   => home_url( '/nucleos/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
-				),
-				array(
+				],
+				[
 					'label' => 'Documentos',
 					'url'   => home_url( '/doc/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>',
 					'badge' => $pending_docs > 0 ? $pending_docs : null,
-				),
-			),
-		),
-		array(
+				],
+			],
+		],
+		[
 			'label' => 'Sistema',
-			'items' => array(
-				array(
+			'items' => [
+				[
 					'label' => 'Configurações',
 					'url'   => home_url( '/painel/config/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
-				),
-				array(
+				],
+				[
 					'label' => 'Ajuda',
 					'url'   => home_url( '/ajuda/' ),
 					'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>',
-				),
-			),
-		),
-	);
+				],
+			],
+		],
+	];
 }
 
 /**

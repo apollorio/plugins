@@ -1,27 +1,27 @@
-var WPEMRestAPIAdmin = (function () {
+var APRIORestAPIAdmin = (function () {
     return {
         init: function () {
-            jQuery("#update_api_key").on("click", WPEMRestAPIAdmin.actions.saveApiKey),
+            jQuery("#update_api_key").on("click", APRIORestAPIAdmin.actions.saveApiKey),
             jQuery("select#key_user").chosen(),
             jQuery("select#event_id").chosen(),
             jQuery("#select_events").chosen();
             jQuery("input#date_expires").datepicker({dateFormat: "yy-mm-dd",minDate: 0}),
             jQuery("table#app-branding-color-dark").hide(),
-            jQuery(".wpem-app-branding-mode .app-branding-mode .wpem-light-mode").click(function () {
-                jQuery(".wpem-app-branding-mode").removeClass("wpem-dark-mode").addClass("wpem-light-mode"), jQuery("table#app-branding-color").show(), jQuery("table#app-branding-color-dark").hide();
+            jQuery(".aprio-app-branding-mode .app-branding-mode .aprio-light-mode").click(function () {
+                jQuery(".aprio-app-branding-mode").removeClass("aprio-dark-mode").addClass("aprio-light-mode"), jQuery("table#app-branding-color").show(), jQuery("table#app-branding-color-dark").hide();
             }),
-            jQuery(".wpem-app-branding-mode .app-branding-mode .wpem-dark-mode").click(function () {
-                jQuery("table#app-branding-color").hide(), jQuery("table#app-branding-color-dark").show(), jQuery(".wpem-app-branding-mode").removeClass("wpem-light-mode").addClass("wpem-dark-mode");
+            jQuery(".aprio-app-branding-mode .app-branding-mode .aprio-dark-mode").click(function () {
+                jQuery("table#app-branding-color").hide(), jQuery("table#app-branding-color-dark").show(), jQuery(".aprio-app-branding-mode").removeClass("aprio-light-mode").addClass("aprio-dark-mode");
             }),
-            jQuery("#update_app_branding").on("click", WPEMRestAPIAdmin.actions.saveAppBranding);
+            jQuery("#update_app_branding").on("click", APRIORestAPIAdmin.actions.saveAppBranding);
             var t;
-            jQuery(".wpem-colorpicker").wpColorPicker({
+            jQuery(".aprio-colorpicker").wpColorPicker({
                 defaultColor: !0,
                 change: function (e, a) {
                     var n = e.target;
                     clearTimeout(t),
                         (t = setTimeout(function () {
-                            WPEMRestAPIAdmin.actions.changeBrightness(e, a.toString());
+                            APRIORestAPIAdmin.actions.changeBrightness(e, a.toString());
                         }, 500));
                 },
             });
@@ -44,7 +44,7 @@ var WPEMRestAPIAdmin = (function () {
             jQuery('.wp_event_manager_upload_file_button').on('click', function(e){
                 e.preventDefault();
                 var button = jQuery(this);
-                var input = button.closest('.file_url').find('#wpem_rest_api_app_logo');
+                var input = button.closest('.file_url').find('#aprio_rest_api_app_logo');
                 console.log(input);
                 var custom_uploader = wp.media({
                     title: 'Select or Upload Image',
@@ -69,10 +69,10 @@ var WPEMRestAPIAdmin = (function () {
                     jQuery("#update_api_key").attr("disabled", !0),
                     jQuery.ajax({
                         type: "POST",
-                        url: wpem_rest_api_admin.ajaxUrl,
+                        url: aprio_rest_api_admin.ajaxUrl,
                         data: {
                             action: "save_rest_api_keys",
-                            security: wpem_rest_api_admin.save_api_nonce,
+                            security: aprio_rest_api_admin.save_api_nonce,
                             key_id: jQuery("#key_id").val(),
                             description: jQuery("#key_description").val(),
                             user: jQuery("#key_user").val(),
@@ -91,7 +91,7 @@ var WPEMRestAPIAdmin = (function () {
                             e.success
                                 ? (jQuery("h2, h3", a.el)
                                       .first()
-                                      .html('<div class="wpem-api-message updated"><p>' + e.data.message + "</p></div>"),
+                                      .html('<div class="aprio-api-message updated"><p>' + e.data.message + "</p></div>"),
                                   0 < e.data.consumer_key.length && 0 < e.data.consumer_secret.length
                                       ? (jQuery("#api-keys-options", a.el).parent().remove(),
                                         jQuery("p.submit", a.el).empty().append(e.data.revoke_url),
@@ -100,7 +100,7 @@ var WPEMRestAPIAdmin = (function () {
                                     jQuery('#select_events').val(e.data.selected_events).trigger('chosen:updated')))
                                 : jQuery("h2, h3", a.el)
                                       .first()
-                                      .append('<div class="wpem-api-message error"><p>' + e.data.message + "</p></div>");
+                                      .append('<div class="aprio-api-message error"><p>' + e.data.message + "</p></div>");
                                       
                                 if (e.data.mobile_menu) {
                                     jQuery('input[name="mobile_menu[]"]').prop('checked', false);
@@ -112,7 +112,7 @@ var WPEMRestAPIAdmin = (function () {
                         error: function (e, t, n) {
                             jQuery("h2, h3", a.el)
                                 .first()
-                                .append('<div class="wpem-api-message error"><p>' + n + "</p></div>");
+                                .append('<div class="aprio-api-message error"><p>' + n + "</p></div>");
                         },
                         complete: function (e, t) {
                             jQuery("#api_key_loader").hide(), jQuery("#update_api_key").attr("disabled", !1);
@@ -121,7 +121,7 @@ var WPEMRestAPIAdmin = (function () {
                 } else {
                     jQuery("h2, h3", a.el)
                                 .first()
-                                .append('<div class="wpem-api-message error"><p>Please select User Owner of key.</p></div>');
+                                .append('<div class="aprio-api-message error"><p>Please select User Owner of key.</p></div>');
                 }
             },
             saveAppBranding: function (e) {
@@ -133,34 +133,34 @@ var WPEMRestAPIAdmin = (function () {
                 i ? (n = "light") : p && (n = "dark"),
                     jQuery.ajax({
                         type: "POST",
-                        url: wpem_rest_api_admin.ajaxUrl,
+                        url: aprio_rest_api_admin.ajaxUrl,
                         data: {
                             action: "save_app_branding",
-                            security: wpem_rest_api_admin.save_app_branding_nonce,
-                            wpem_primary_color: jQuery('input[name="wpem_primary_color"]').val(),
-                            wpem_success_color: jQuery('input[name="wpem_success_color"]').val(),
-                            wpem_info_color: jQuery('input[name="wpem_info_color"]').val(),
-                            wpem_warning_color: jQuery('input[name="wpem_warning_color"]').val(),
-                            wpem_danger_color: jQuery('input[name="wpem_danger_color"]').val(),
-                            wpem_primary_dark_color: jQuery('input[name="wpem_primary_dark_color"]').val(),
-                            wpem_success_dark_color: jQuery('input[name="wpem_success_dark_color"]').val(),
-                            wpem_info_dark_color: jQuery('input[name="wpem_info_dark_color"]').val(),
-                            wpem_warning_dark_color: jQuery('input[name="wpem_warning_dark_color"]').val(),
-                            wpem_danger_dark_color: jQuery('input[name="wpem_danger_dark_color"]').val(),
+                            security: aprio_rest_api_admin.save_app_branding_nonce,
+                            aprio_primary_color: jQuery('input[name="aprio_primary_color"]').val(),
+                            aprio_success_color: jQuery('input[name="aprio_success_color"]').val(),
+                            aprio_info_color: jQuery('input[name="aprio_info_color"]').val(),
+                            aprio_warning_color: jQuery('input[name="aprio_warning_color"]').val(),
+                            aprio_danger_color: jQuery('input[name="aprio_danger_color"]').val(),
+                            aprio_primary_dark_color: jQuery('input[name="aprio_primary_dark_color"]').val(),
+                            aprio_success_dark_color: jQuery('input[name="aprio_success_dark_color"]').val(),
+                            aprio_info_dark_color: jQuery('input[name="aprio_info_dark_color"]').val(),
+                            aprio_warning_dark_color: jQuery('input[name="aprio_warning_dark_color"]').val(),
+                            aprio_danger_dark_color: jQuery('input[name="aprio_danger_dark_color"]').val(),
                             active_mode: n,
                         },
                         beforeSend: function (e) {},
                         success: function (e) {
-                            jQuery(".wpem-branding-status").html('<div class="wpem-api-message updated"><p>' + e.data.message + "</p></div>"),
+                            jQuery(".aprio-branding-status").html('<div class="aprio-api-message updated"><p>' + e.data.message + "</p></div>"),
                                 jQuery(".update_app_branding_message").html(
-                                    '<div class="update_app_branding_message_update"><i class="wpem-icon-checkmark"></i> Your preferred color for your app branding has been successfully saved.</div>'
+                                    '<div class="update_app_branding_message_update"><i class="aprio-icon-checkmark"></i> Your preferred color for your app branding has been successfully saved.</div>'
                                 ),
                                 "dark" == e.data.mode && (jQuery("table#app-branding-color").hide(), jQuery("table#app-branding-color-dark").show());
                         },
                         error: function (e, t, n) {
-                            jQuery(".wpem-branding-status").html('<div class="wpem-api-message error"><p>' + n + "</p></div>"),
+                            jQuery(".aprio-branding-status").html('<div class="aprio-api-message error"><p>' + n + "</p></div>"),
                                 jQuery(".update_app_branding_message").html(
-                                    '<div class="update_app_branding_message_update"><i class="wpem-icon-cross"></i> Your preferred color for your app branding has not been successfully saved.</div>'
+                                    '<div class="update_app_branding_message_update"><i class="aprio-icon-cross"></i> Your preferred color for your app branding has not been successfully saved.</div>'
                                 );
                         },
                         complete: function (e, t) {},
@@ -170,7 +170,7 @@ var WPEMRestAPIAdmin = (function () {
                 var n = e.target.name,
                     i = jQuery(e.target).parents("table").attr("id");
                 jQuery.ajax({
-                    url: wpem_rest_api_admin.ajaxUrl,
+                    url: aprio_rest_api_admin.ajaxUrl,
                     type: "POST",
                     dataType: "HTML",
                     data: { action: "change_brighness_color", color: a },
@@ -189,5 +189,5 @@ var WPEMRestAPIAdmin = (function () {
     };
 })();
 jQuery(document).ready(function (a) {
-    WPEMRestAPIAdmin.init();
+    APRIORestAPIAdmin.init();
 });

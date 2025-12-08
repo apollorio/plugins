@@ -34,11 +34,11 @@ class CompleteOnboarding {
 			// Validate user and current progress.
 			$validation = $this->validateCompletion( $user_id, $data );
 			if ( ! $validation['valid'] ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => $validation['message'],
-					'errors'  => $validation['errors'] ?? array(),
-				);
+					'errors'  => $validation['errors'] ?? [],
+				];
 			}
 
 			// Mark onboarding as completed.
@@ -56,21 +56,21 @@ class CompleteOnboarding {
 			// Send analytics event (if enabled).
 			$this->trackAnalyticsEvent( $user_id, 'onboarding_completed', $data );
 
-			return array(
+			return [
 				'success'      => true,
 				'message'      => 'Onboarding finalizado com sucesso',
 				'redirect_url' => $this->getRedirectUrl( $user_id ),
 				'user_status'  => 'awaiting_verification',
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'CompleteOnboarding error: ' . $e->getMessage() );
 
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno. Tente novamente.',
-			);
+			];
 		}//end try
 	}
 
@@ -84,36 +84,36 @@ class CompleteOnboarding {
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	private function validateCompletion( int $user_id, array $data ): array { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Reserved for future use.
-		$errors = array();
+		$errors = [];
 
 		// Check if user exists.
 		$user = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Usuário não encontrado',
-			);
+			];
 		}
 
 		// Check if user has onboarding progress.
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
 		if ( ! $progress || ! is_array( $progress ) ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Onboarding não iniciado',
-			);
+			];
 		}
 
 		// Check if already completed.
 		if ( isset( $progress['completed'] ) && $progress['completed'] ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Onboarding já finalizado',
-			);
+			];
 		}
 
 		// Validate required fields are present.
-		$required_fields = array( 'name', 'industry', 'whatsapp', 'instagram' );
+		$required_fields = [ 'name', 'industry', 'whatsapp', 'instagram' ];
 		foreach ( $required_fields as $field ) {
 			$value = get_user_meta( $user_id, "apollo_{$field}", true );
 			if ( empty( $value ) ) {
@@ -127,11 +127,11 @@ class CompleteOnboarding {
 			$errors['verification'] = 'Token de verificação não encontrado';
 		}
 
-		return array(
+		return [
 			'valid'   => empty( $errors ),
 			'message' => empty( $errors ) ? 'Validação passou' : 'Dados incompletos',
 			'errors'  => $errors,
-		);
+		];
 	}
 
 	/**
@@ -144,7 +144,7 @@ class CompleteOnboarding {
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
 
 		if ( ! is_array( $progress ) ) {
-			$progress = array();
+			$progress = [];
 		}
 
 		$progress['completed']    = true;
@@ -190,7 +190,7 @@ class CompleteOnboarding {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Verification record creation.
 		$wpdb->insert(
 			$verification_table,
-			array(
+			[
 				'user_id'            => $user_id,
 				'instagram_username' => $user_meta['instagram'],
 				'whatsapp_number'    => $user_meta['whatsapp'],
@@ -198,16 +198,16 @@ class CompleteOnboarding {
 				'verify_status'      => 'awaiting_instagram_verify',
 				'submitted_at'       => current_time( 'mysql' ),
 				'metadata'           => wp_json_encode(
-					array(
+					[
 						'name'       => $user_meta['name'],
 						'industry'   => $user_meta['industry'],
 						'roles'      => $user_meta['roles'],
 						'member_of'  => $user_meta['member_of'],
 						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address' => $this->getClientIp(),
-					)
+					]
 				),
-			)
+			]
 		);
 	}
 
@@ -265,13 +265,13 @@ class CompleteOnboarding {
 		}
 
 		// Add Apollo-specific capabilities for subscribers.
-		$subscriber_caps = array(
+		$subscriber_caps = [
 			'create_apollo_groups'  => true,
 			'create_apollo_ads'     => true,
 			'publish_apollo_groups' => true,
 			'publish_apollo_ads'    => true,
 			'read_apollo_content'   => true,
-		);
+		];
 
 		foreach ( $subscriber_caps as $cap => $grant ) {
 			$user->add_cap( $cap, $grant );
@@ -302,7 +302,7 @@ class CompleteOnboarding {
 	 * @return array The user meta.
 	 */
 	private function getUserOnboardingMeta( int $user_id ): array {
-		$meta_keys = array(
+		$meta_keys = [
 			'apollo_name'          => 'name',
 			'apollo_industry'      => 'industry',
 			'apollo_roles'         => 'roles',
@@ -311,9 +311,9 @@ class CompleteOnboarding {
 			'apollo_instagram'     => 'instagram',
 			'apollo_verify_token'  => 'verify_token',
 			'apollo_verify_status' => 'verify_status',
-		);
+		];
 
-		$user_meta = array();
+		$user_meta = [];
 		foreach ( $meta_keys as $meta_key => $key ) {
 			$value             = get_user_meta( $user_id, $meta_key, true );
 			$user_meta[ $key ] = $value;
@@ -330,7 +330,7 @@ class CompleteOnboarding {
 	 * @param array  $data    Additional event data.
 	 * @return void
 	 */
-	private function logOnboardingEvent( int $user_id, string $event, array $data = array() ): void {
+	private function logOnboardingEvent( int $user_id, string $event, array $data = [] ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
@@ -351,20 +351,20 @@ class CompleteOnboarding {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
-			array(
+			[
 				'user_id'     => $user_id,
 				'action'      => $event,
 				'entity_type' => 'user',
 				'entity_id'   => $user_id,
 				'metadata'    => wp_json_encode(
-					array(
+					[
 						'user_agent'      => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address'      => $this->getClientIp(),
 						'completion_data' => $data,
-					)
+					]
 				),
 				'created_at'  => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -394,21 +394,21 @@ class CompleteOnboarding {
 		$user_meta = $this->getUserOnboardingMeta( $user_id );
 
 		// Prepare event data.
-		$event_data = array(
+		$event_data = [
 			'user_id'    => $user_id,
 			'event'      => $event,
-			'properties' => array(
+			'properties' => [
 				'industry'            => $user_meta['industry'],
 				'roles_count'         => is_array( $user_meta['roles'] ) ? count( $user_meta['roles'] ) : 0,
 				'has_memberships'     => ! empty( $user_meta['member_of'] ),
 				'verification_method' => 'instagram',
 				'onboarding_flow'     => 'chat',
-			),
+			],
 			'timestamp'  => current_time( 'mysql' ),
 			'session_id' => session_id() ? session_id() : 'unknown',
 			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 			'ip_address' => $this->getClientIp(),
-		);
+		];
 
 		// Store in local analytics if no external service.
 		$this->storeLocalAnalyticsEvent( $event_data );
@@ -440,7 +440,7 @@ class CompleteOnboarding {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Analytics logging.
 		$wpdb->insert(
 			$analytics_table,
-			array(
+			[
 				'user_id'          => $event_data['user_id'],
 				'event_name'       => $event_data['event'],
 				'event_properties' => wp_json_encode( $event_data['properties'] ),
@@ -448,7 +448,7 @@ class CompleteOnboarding {
 				'user_agent'       => $event_data['user_agent'],
 				'ip_address'       => $event_data['ip_address'],
 				'created_at'       => $event_data['timestamp'],
-			)
+			]
 		);
 	}
 
@@ -488,7 +488,7 @@ class CompleteOnboarding {
 	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
-		$ip_headers = array(
+		$ip_headers = [
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -496,7 +496,7 @@ class CompleteOnboarding {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		);
+		];
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
@@ -519,15 +519,15 @@ class CompleteOnboarding {
 		$last_submit = wp_cache_get( $cache_key );
 
 		if ( $last_submit && ( time() - $last_submit ) < 60 ) {
-			return array(
+			return [
 				'allowed'   => false,
 				'wait_time' => 60 - ( time() - $last_submit ),
-			);
+			];
 		}
 
 		// Set rate limit.
 		wp_cache_set( $cache_key, time(), '', 60 );
 
-		return array( 'allowed' => true );
+		return [ 'allowed' => true ];
 	}
 }

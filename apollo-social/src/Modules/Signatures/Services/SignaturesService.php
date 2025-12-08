@@ -120,7 +120,7 @@ class SignaturesService {
 		array $template_data,
 		array $signer_info,
 		string $track = self::TRACK_B,
-		array $options = array()
+		array $options = []
 	): DigitalSignature|false {
 
 		try {
@@ -139,10 +139,10 @@ class SignaturesService {
 			// Generate PDF document
 			$pdf_options = array_merge(
 				$options,
-				array(
+				[
 					'title'    => $template->name,
 					'filename' => sprintf( 'documento_%s_%s.pdf', $template_id, uniqid() ),
-				)
+				]
 			);
 
 			$pdf_path = $this->render_service->renderToPdf( $template, $template_data, $pdf_options );
@@ -157,7 +157,7 @@ class SignaturesService {
 			[$provider, $signature_level] = $this->getProviderAndLevel( $track, $options );
 
 			// Create signature record
-			$signature_data = array(
+			$signature_data = [
 				'template_id'     => $template_id,
 				'document_hash'   => $document_hash,
 				'signer_name'     => $signer_info['name'],
@@ -166,13 +166,13 @@ class SignaturesService {
 				'signature_level' => $signature_level,
 				'provider'        => $provider,
 				'metadata'        => json_encode(
-					array(
+					[
 						'template_data' => $template_data,
 						'pdf_path'      => $pdf_path,
 						'options'       => $options,
-					)
+					]
 				),
-			);
+			];
 
 			$signature = $this->createSignatureRecord( $signature_data );
 			if ( ! $signature ) {
@@ -188,10 +188,10 @@ class SignaturesService {
 			// Update signature with envelope info
 			$this->updateSignature(
 				$signature->id,
-				array(
+				[
 					'provider_envelope_id' => $envelope_result['envelope_id'],
 					'signing_url'          => $envelope_result['signing_url'],
-				)
+				]
 			);
 
 			// Reload signature with updated data
@@ -211,20 +211,20 @@ class SignaturesService {
 	 * @param array  $options
 	 * @return array [provider, signature_level]
 	 */
-	private function getProviderAndLevel( string $track, array $options = array() ): array {
+	private function getProviderAndLevel( string $track, array $options = [] ): array {
 		switch ( $track ) {
 			case self::TRACK_B:
 				// Trilho B: Assinatura qualificada
 				$provider = $options['provider'] ?? 'govbr';
 
 				if ( $provider === 'govbr' ) {
-					return array( 'govbr', DigitalSignature::LEVEL_QUALIFIED );
+					return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
 				} else {
-					return array( 'icp_provider', DigitalSignature::LEVEL_QUALIFIED );
+					return [ 'icp_provider', DigitalSignature::LEVEL_QUALIFIED ];
 				}
 
 			default:
-				return array( 'govbr', DigitalSignature::LEVEL_QUALIFIED );
+				return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
 		}
 	}
 
@@ -236,7 +236,7 @@ class SignaturesService {
 	 * @param array            $options
 	 * @return array|false
 	 */
-	private function createEnvelope( DigitalSignature $signature, string $pdf_path, array $options = array() ): array|false {
+	private function createEnvelope( DigitalSignature $signature, string $pdf_path, array $options = [] ): array|false {
 		switch ( $signature->provider ) {
 			case 'govbr':
 				return $this->govbr_api->createEnvelope( $signature, $pdf_path, $options );
@@ -300,7 +300,7 @@ class SignaturesService {
 		$result = $wpdb->update(
 			$this->signatures_table,
 			$data,
-			array( 'id' => $id )
+			[ 'id' => $id ]
 		);
 
 		return $result !== false;
@@ -338,7 +338,7 @@ class SignaturesService {
 	 * @param array  $metadata
 	 * @return bool
 	 */
-	public function updateSignatureStatus( string $envelope_id, string $status, array $metadata = array() ): bool {
+	public function updateSignatureStatus( string $envelope_id, string $status, array $metadata = [] ): bool {
 		global $wpdb;
 
 		$signature = $wpdb->get_row(
@@ -356,11 +356,11 @@ class SignaturesService {
 		$signature_obj = new DigitalSignature( $signature );
 		$signature_obj->updateStatus( $status, $metadata );
 
-		$update_data = array(
+		$update_data = [
 			'status'     => $signature_obj->status,
 			'metadata'   => json_encode( $signature_obj->metadata ),
 			'updated_at' => $signature_obj->updated_at,
-		);
+		];
 
 		if ( $signature_obj->signed_at ) {
 			$update_data['signed_at'] = $signature_obj->signed_at;
@@ -369,7 +369,7 @@ class SignaturesService {
 		$result = $wpdb->update(
 			$this->signatures_table,
 			$update_data,
-			array( 'id' => $signature_obj->id )
+			[ 'id' => $signature_obj->id ]
 		);
 
 		// Award badge if signed
@@ -404,12 +404,12 @@ class SignaturesService {
 				'apollo_award_badge',
 				$user->ID,
 				'contract_signed',
-				array(
+				[
 					'signature_id'    => $signature->id,
 					'signature_level' => $signature->signature_level,
 					'provider'        => $signature->provider,
 					'signed_at'       => $signature->signed_at,
-				)
+				]
 			);
 		}
 	}
@@ -421,16 +421,16 @@ class SignaturesService {
 	 * @param array $filters
 	 * @return array
 	 */
-	public function getSignaturesByUser( int $user_id, array $filters = array() ): array {
+	public function getSignaturesByUser( int $user_id, array $filters = [] ): array {
 		global $wpdb;
 
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
-		$where_clauses = array( 'signer_email = %s' );
-		$values        = array( $user->user_email );
+		$where_clauses = [ 'signer_email = %s' ];
+		$values        = [ $user->user_email ];
 
 		if ( ! empty( $filters['status'] ) ) {
 			$where_clauses[] = 'status = %s';
@@ -462,7 +462,7 @@ class SignaturesService {
 			function ( $row ) {
 				return new DigitalSignature( $row );
 			},
-			$results ?: array()
+			$results ?: []
 		);
 	}
 
@@ -472,11 +472,11 @@ class SignaturesService {
 	 * @param array $filters
 	 * @return array
 	 */
-	public function getSignatureStats( array $filters = array() ): array {
+	public function getSignatureStats( array $filters = [] ): array {
 		global $wpdb;
 
-		$where_clauses = array( '1=1' );
-		$values        = array();
+		$where_clauses = [ '1=1' ];
+		$values        = [];
 
 		if ( ! empty( $filters['date_from'] ) ) {
 			$where_clauses[] = 'created_at >= %s';
@@ -508,10 +508,10 @@ class SignaturesService {
 			ARRAY_A
 		);
 
-		return array(
+		return [
 			'total'     => (int) $total,
-			'by_status' => $by_status ?: array(),
-			'by_level'  => $by_level ?: array(),
-		);
+			'by_status' => $by_status ?: [],
+			'by_level'  => $by_level ?: [],
+		];
 	}
 }

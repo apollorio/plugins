@@ -30,10 +30,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  *     @type string $empty_message Message when no data.
  * }
  */
-function apollo_render_data_table( array $args = array() ) {
-	$defaults = array(
-		'columns'       => array(),
-		'data'          => array(),
+function apollo_render_data_table( array $args = [] ) {
+	$defaults = [
+		'columns'       => [],
+		'data'          => [],
 		'title'         => '',
 		'description'   => '',
 		'searchable'    => true,
@@ -42,7 +42,7 @@ function apollo_render_data_table( array $args = array() ) {
 		'per_page'      => 10,
 		'empty_message' => 'Nenhum registro encontrado.',
 		'id'            => 'apollo-table-' . wp_rand( 1000, 9999 ),
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	$table_id = esc_attr( $args['id'] );
@@ -253,39 +253,39 @@ function apollo_render_data_table( array $args = array() ) {
  * @param array  $variants Status-to-variant mapping.
  * @return string HTML output.
  */
-function apollo_render_table_badge( $status, array $variants = array() ) {
-	$defaults = array(
-		'publish'  => array(
+function apollo_render_table_badge( $status, array $variants = [] ) {
+	$defaults = [
+		'publish'  => [
 			'label' => 'Publicado',
 			'class' => 'bg-emerald-100 text-emerald-700',
-		),
-		'draft'    => array(
+		],
+		'draft'    => [
 			'label' => 'Rascunho',
 			'class' => 'bg-slate-100 text-slate-700',
-		),
-		'pending'  => array(
+		],
+		'pending'  => [
 			'label' => 'Pendente',
 			'class' => 'bg-amber-100 text-amber-700',
-		),
-		'signed'   => array(
+		],
+		'signed'   => [
 			'label' => 'Assinado',
 			'class' => 'bg-emerald-100 text-emerald-700',
-		),
-		'active'   => array(
+		],
+		'active'   => [
 			'label' => 'Ativo',
 			'class' => 'bg-emerald-100 text-emerald-700',
-		),
-		'inactive' => array(
+		],
+		'inactive' => [
 			'label' => 'Inativo',
 			'class' => 'bg-slate-100 text-slate-700',
-		),
-	);
+		],
+	];
 	$variants = wp_parse_args( $variants, $defaults );
 
-	$variant = $variants[ $status ] ?? array(
+	$variant = $variants[ $status ] ?? [
 		'label' => ucfirst( $status ),
 		'class' => 'bg-slate-100 text-slate-700',
-	);
+	];
 
 	return sprintf(
 		'<span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium %s">%s</span>',

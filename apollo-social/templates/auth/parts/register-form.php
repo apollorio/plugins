@@ -38,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Get configuration values
 $terms_url        = isset( $auth_config['terms_url'] ) ? $auth_config['terms_url'] : 'https://apollo.rio.br/politica';
 $show_instagram   = isset( $auth_config['show_instagram'] ) ? $auth_config['show_instagram'] : true;
-$available_sounds = isset( $available_sounds ) ? $available_sounds : array();
+$available_sounds = isset( $available_sounds ) ? $available_sounds : [];
 ?>
 
 <!-- Status Messages -->

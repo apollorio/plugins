@@ -130,10 +130,10 @@ class LayoutRepository {
 			return false;
 		}
 
-		$layout['background'] = array(
+		$layout['background'] = [
 			'id'         => sanitize_key( $background_id ),
 			'updated_at' => current_time( 'mysql' ),
-		);
+		];
 
 		return $this->saveLayout( $user_id, $layout );
 	}
@@ -151,7 +151,7 @@ class LayoutRepository {
 	public function getStickers( int $user_id ): array {
 		$layout = $this->getLayout( $user_id );
 
-		return $layout['stickers'] ?? array();
+		return $layout['stickers'] ?? [];
 	}
 
 	/**
@@ -188,7 +188,7 @@ class LayoutRepository {
 		// Generate unique instance ID.
 		$instance_id = 'stk_' . wp_generate_uuid4();
 
-		$layout['stickers'][] = array(
+		$layout['stickers'][] = [
 			'id'       => $instance_id,
 			'asset'    => sanitize_key( $asset_id ),
 			'x'        => isset( $sticker['x'] ) ? (int) $sticker['x'] : 0,
@@ -196,7 +196,7 @@ class LayoutRepository {
 			'scale'    => isset( $sticker['scale'] ) ? $this->sanitizeScale( $sticker['scale'] ) : 1.0,
 			'rotation' => isset( $sticker['rotation'] ) ? $this->sanitizeRotation( $sticker['rotation'] ) : 0,
 			'z_index'  => isset( $sticker['z_index'] ) ? absint( $sticker['z_index'] ) : 50,
-		);
+		];
 
 		$this->saveLayout( $user_id, $layout );
 
@@ -283,20 +283,20 @@ class LayoutRepository {
 	 * @return array Empty layout structure.
 	 */
 	public function emptyLayout(): array {
-		return array(
-			'background' => array(
+		return [
+			'background' => [
 				'id' => self::DEFAULT_BACKGROUND,
-			),
-			'widgets'    => array(),
-			'stickers'   => array(),
-			'grids'      => array(),
-			'grid_cells' => array(),
-			'apollo'     => array(
+			],
+			'widgets'    => [],
+			'stickers'   => [],
+			'grids'      => [],
+			'grid_cells' => [],
+			'apollo'     => [
 				'absolute'  => true,
-				'positions' => array(),
-			),
+				'positions' => [],
+			],
 			'__version'  => self::SCHEMA_VERSION,
-		);
+		];
 	}
 
 	/**
@@ -317,13 +317,13 @@ class LayoutRepository {
 
 		// Ensure stickers array exists.
 		if ( ! isset( $layout['stickers'] ) || ! is_array( $layout['stickers'] ) ) {
-			$layout['stickers'] = array();
+			$layout['stickers'] = [];
 		}
 
 		// Ensure other required keys.
-		$layout['widgets']    = $layout['widgets'] ?? array();
-		$layout['grids']      = $layout['grids'] ?? array();
-		$layout['grid_cells'] = $layout['grid_cells'] ?? array();
+		$layout['widgets']    = $layout['widgets'] ?? [];
+		$layout['grids']      = $layout['grids'] ?? [];
+		$layout['grid_cells'] = $layout['grid_cells'] ?? [];
 		$layout['apollo']     = $layout['apollo'] ?? $empty['apollo'];
 
 		return $layout;
@@ -356,14 +356,14 @@ class LayoutRepository {
 	 * @return array Sanitized stickers.
 	 */
 	private function sanitizeStickers( array $stickers ): array {
-		$sanitized = array();
+		$sanitized = [];
 
 		foreach ( $stickers as $sticker ) {
 			if ( ! is_array( $sticker ) ) {
 				continue;
 			}
 
-			$sanitized[] = array(
+			$sanitized[] = [
 				'id'       => sanitize_key( $sticker['id'] ?? '' ),
 				'asset'    => sanitize_key( $sticker['asset'] ?? '' ),
 				'x'        => (int) ( $sticker['x'] ?? 0 ),
@@ -371,7 +371,7 @@ class LayoutRepository {
 				'scale'    => $this->sanitizeScale( $sticker['scale'] ?? 1.0 ),
 				'rotation' => $this->sanitizeRotation( $sticker['rotation'] ?? 0 ),
 				'z_index'  => absint( $sticker['z_index'] ?? 50 ),
-			);
+			];
 		}
 
 		return $sanitized;

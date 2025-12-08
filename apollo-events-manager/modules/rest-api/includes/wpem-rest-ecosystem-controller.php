@@ -15,15 +15,15 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API Ecosystem controller class.
  *
- * @extends WPEM_REST_CRUD_Controller
+ * @extends APRIO_REST_CRUD_Controller
  */
-class WPEM_REST_Ecosystem_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Ecosystem_Controller extends APRIO_REST_CRUD_Controller {
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base.
@@ -73,16 +73,16 @@ class WPEM_REST_Ecosystem_Controller extends WPEM_REST_CRUD_Controller {
 	 * This function is used to get all required plugin with activation status
 	 */
 	public function get_echosystem_overview() {
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
 			$response_data         = self::prepare_error_for_response( 200 );
 			$response_data['data'] = array(
-				'ecosystem_info' => get_wpem_rest_api_ecosystem_info(),
+				'ecosystem_info' => get_aprio_rest_api_ecosystem_info(),
 			);
 			return wp_send_json( $response_data );
 		}
 	}
 }
-new WPEM_REST_Ecosystem_Controller();
+new APRIO_REST_Ecosystem_Controller();

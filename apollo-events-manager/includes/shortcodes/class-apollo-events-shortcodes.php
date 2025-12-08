@@ -418,7 +418,7 @@ class Apollo_Events_Shortcodes {
 				}
 
 				// Use event card template (with placeholder/tooltip support)
-				$card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+				$card_template = APOLLO_APRIO_PATH . 'templates/event-card.php';
 				if ( file_exists( $card_template ) ) {
 					include $card_template;
 				} else {
@@ -486,7 +486,7 @@ class Apollo_Events_Shortcodes {
 		setup_postdata( $post );
 
 		// Use single event template (with placeholder/tooltip support)
-		$single_template = APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
+		$single_template = APOLLO_APRIO_PATH . 'templates/single-event-standalone.php';
 		if ( file_exists( $single_template ) ) {
 			include $single_template;
 		} else {
@@ -707,7 +707,7 @@ class Apollo_Events_Shortcodes {
 			while ( $events->have_posts() ) :
 				$events->the_post();
 				// Use event card template (with placeholder/tooltip support)
-				$card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+				$card_template = APOLLO_APRIO_PATH . 'templates/event-card.php';
 				if ( file_exists( $card_template ) ) {
 					include $card_template;
 				} else {
@@ -778,7 +778,7 @@ class Apollo_Events_Shortcodes {
 				}
 
 				// Use event card template (with placeholder/tooltip support)
-				$card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+				$card_template = APOLLO_APRIO_PATH . 'templates/event-card.php';
 				if ( file_exists( $card_template ) ) {
 					include $card_template;
 				} else {
@@ -860,7 +860,7 @@ class Apollo_Events_Shortcodes {
 			while ( $events->have_posts() ) :
 				$events->the_post();
 				// Use event card template (with placeholder/tooltip support)
-				$card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+				$card_template = APOLLO_APRIO_PATH . 'templates/event-card.php';
 				if ( file_exists( $card_template ) ) {
 					include $card_template;
 				} else {
@@ -994,7 +994,7 @@ class Apollo_Events_Shortcodes {
 				$soundcloud = get_post_meta( $dj_id, '_dj_soundcloud', true );
 
 				// Include DJ card template (with placeholder/tooltip support)
-				$dj_card_template = APOLLO_WPEM_PATH . 'templates/dj-card.php';
+				$dj_card_template = APOLLO_APRIO_PATH . 'templates/dj-card.php';
 				if ( file_exists( $dj_card_template ) ) {
 					include $dj_card_template;
 				} else {
@@ -1077,7 +1077,7 @@ class Apollo_Events_Shortcodes {
 		ob_start();
 
 		// Include single DJ template (with placeholder/tooltip support)
-		$dj_template = APOLLO_WPEM_PATH . 'templates/single-event_dj.php';
+		$dj_template = APOLLO_APRIO_PATH . 'templates/single-event_dj.php';
 		if ( file_exists( $dj_template ) ) {
 			include $dj_template;
 		} else {
@@ -1222,7 +1222,7 @@ class Apollo_Events_Shortcodes {
 				}//end if
 
 				// Include local card template (with placeholder/tooltip support)
-				$local_card_template = APOLLO_WPEM_PATH . 'templates/local-card.php';
+				$local_card_template = APOLLO_APRIO_PATH . 'templates/local-card.php';
 				if ( file_exists( $local_card_template ) ) {
 					include $local_card_template;
 				} else {
@@ -1310,7 +1310,7 @@ class Apollo_Events_Shortcodes {
 		ob_start();
 
 		// Include single local template (with placeholder/tooltip support)
-		$local_template = APOLLO_WPEM_PATH . 'templates/single-event_local.php';
+		$local_template = APOLLO_APRIO_PATH . 'templates/single-event_local.php';
 		if ( file_exists( $local_template ) ) {
 			include $local_template;
 		} else {

@@ -15,4 +15,4 @@ class Apollo_User_Page_Rewrite {
 		add_rewrite_tag( '%apollo_private_profile%', '([0-1]+)' );
 	}
 }
-add_action( 'init', array( 'Apollo_User_Page_Rewrite', 'add_rewrite' ) );
+add_action( 'init', [ 'Apollo_User_Page_Rewrite', 'add_rewrite' ] );

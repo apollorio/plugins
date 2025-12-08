@@ -102,7 +102,7 @@ interface DmsAdapterInterface {
 	 *
 	 * @return array|WP_Error List of documents or error.
 	 */
-	public function list_documents( array $args = array() );
+	public function list_documents( array $args = [] );
 
 	/**
 	 * Get a signed/temporary URL for document download.
@@ -122,7 +122,7 @@ interface DmsAdapterInterface {
 	 *
 	 * @return string|WP_Error Path to PDF or error.
 	 */
-	public function generate_pdf( string $document_id, array $options = array() );
+	public function generate_pdf( string $document_id, array $options = [] );
 
 	/**
 	 * Get document version history.

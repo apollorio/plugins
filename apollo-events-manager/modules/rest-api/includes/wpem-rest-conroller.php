@@ -12,7 +12,7 @@
  * NOTE THAT ONLY CODE RELEVANT FOR MOST ENDPOINTS SHOULD BE INCLUDED INTO THIS CLASS.
  * If necessary extend this class and create new abstract classes like `WP_REST_CRUD_Controller`.
  *
- * @class WPEM_REST_Controller
+ * @class APRIO_REST_Controller
  * @see   https://developer.wordpress.org/rest-api/extending-the-rest-api/controller-classes/
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @extends WP_REST_Controller
  * @version 1.0.0
  */
-abstract class WPEM_REST_Controller extends WP_REST_Controller {
+abstract class APRIO_REST_Controller extends WP_REST_Controller {
 
 	/**
 	 * Endpoint namespace.
@@ -33,7 +33,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 	 * @since 1.0.0
 	 * @var   string
 	 */
-	protected $namespace = 'wpem/';
+	protected $namespace = 'aprio/';
 
 	/**
 	 * Route base.
@@ -68,7 +68,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 			}
 			$schema['properties'][ $field_name ] = $field_options['schema'];
 		}
-		$schema['properties'] = apply_filters( 'wpem_rest_' . $object_type . '_schema', $schema['properties'] );
+		$schema['properties'] = apply_filters( 'aprio_rest_' . $object_type . '_schema', $schema['properties'] );
 		return $schema;
 	}
 
@@ -90,7 +90,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	protected function check_batch_limit( $items ) {
-		$limit = apply_filters( 'wpem_rest_batch_items_limit', 100, $this->get_normalized_rest_base() );
+		$limit = apply_filters( 'aprio_rest_batch_items_limit', 100, $this->get_normalized_rest_base() );
 		$total = 0;
 
 		if ( ! empty( $items['create'] ) ) {
@@ -397,7 +397,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 			'type'       => 'object',
 			'properties' => array(
 				'create' => array(
-					'description' => __( 'List of created resources.', 'wpem-rest-api' ),
+					'description' => __( 'List of created resources.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -405,7 +405,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 					),
 				),
 				'update' => array(
-					'description' => __( 'List of updated resources.', 'wpem-rest-api' ),
+					'description' => __( 'List of updated resources.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(
@@ -413,7 +413,7 @@ abstract class WPEM_REST_Controller extends WP_REST_Controller {
 					),
 				),
 				'delete' => array(
-					'description' => __( 'List of delete resources.', 'wpem-rest-api' ),
+					'description' => __( 'List of delete resources.', 'aprio-rest-api' ),
 					'type'        => 'array',
 					'context'     => array( 'view', 'edit' ),
 					'items'       => array(

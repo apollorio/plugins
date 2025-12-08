@@ -44,32 +44,32 @@ class Apollo_Builder_Ajax {
 	public static function init() {
 		// Save layout (pattern: WOW wow_page_save)
 		// Tooltip: Saves layout JSON to _apollo_builder_content meta
-		add_action( 'wp_ajax_apollo_builder_save', array( __CLASS__, 'save_layout' ) );
+		add_action( 'wp_ajax_apollo_builder_save', [ __CLASS__, 'save_layout' ] );
 
 		// Render widget (pattern: WOW wow_render_addon)
 		// Tooltip: Returns rendered HTML for a widget preview
-		add_action( 'wp_ajax_apollo_builder_render_widget', array( __CLASS__, 'render_widget' ) );
+		add_action( 'wp_ajax_apollo_builder_render_widget', [ __CLASS__, 'render_widget' ] );
 
 		// Get widget settings form
 		// Tooltip: Returns widget configuration form data
-		add_action( 'wp_ajax_apollo_builder_widget_form', array( __CLASS__, 'widget_form' ) );
+		add_action( 'wp_ajax_apollo_builder_widget_form', [ __CLASS__, 'widget_form' ] );
 
 		// Update background
 		// Tooltip: Updates _apollo_background_texture meta
-		add_action( 'wp_ajax_apollo_builder_update_bg', array( __CLASS__, 'update_background' ) );
+		add_action( 'wp_ajax_apollo_builder_update_bg', [ __CLASS__, 'update_background' ] );
 
 		// Update trax URL
 		// Tooltip: Updates _apollo_trax_url meta (SoundCloud/Spotify only)
-		add_action( 'wp_ajax_apollo_builder_update_trax', array( __CLASS__, 'update_trax' ) );
+		add_action( 'wp_ajax_apollo_builder_update_trax', [ __CLASS__, 'update_trax' ] );
 
 		// Add depoimento (guestbook comment)
 		// Tooltip: Creates WP comment as "depoimento" on apollo_home post
-		add_action( 'wp_ajax_apollo_builder_add_depoimento', array( __CLASS__, 'add_depoimento' ) );
-		add_action( 'wp_ajax_nopriv_apollo_builder_add_depoimento', array( __CLASS__, 'add_depoimento' ) );
+		add_action( 'wp_ajax_apollo_builder_add_depoimento', [ __CLASS__, 'add_depoimento' ] );
+		add_action( 'wp_ajax_nopriv_apollo_builder_add_depoimento', [ __CLASS__, 'add_depoimento' ] );
 
 		// Get all widgets data
 		// Tooltip: Returns all registered widget definitions for sidebar
-		add_action( 'wp_ajax_apollo_builder_get_widgets', array( __CLASS__, 'get_widgets' ) );
+		add_action( 'wp_ajax_apollo_builder_get_widgets', [ __CLASS__, 'get_widgets' ] );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Apollo_Builder_Ajax {
 			}
 		}
 
-		return array( $user_id, $post );
+		return [ $user_id, $post ];
 	}
 
 	/**
@@ -138,14 +138,14 @@ class Apollo_Builder_Ajax {
 	 */
 	private static function send_error( string $code, string $message, int $status = 400 ): void {
 		// Log security events
-		$security_codes = array( 'invalid_nonce', 'not_logged_in', 'not_owner', 'insufficient_capability' );
+		$security_codes = [ 'invalid_nonce', 'not_logged_in', 'not_owner', 'insufficient_capability' ];
 		if ( in_array( $code, $security_codes, true ) ) {
 			self::log_security_event( $code, $message );
 		}
 
 		// Use Apollo\API\Response if available
 		if ( class_exists( Response::class ) ) {
-			$response = Response::error( $code, $message, array(), $status );
+			$response = Response::error( $code, $message, [], $status );
 			// wp_send_json expects raw data, Response object is wrapper
 			wp_send_json( $response->get_data(), $response->get_status() );
 			// wp_send_json exits
@@ -153,14 +153,14 @@ class Apollo_Builder_Ajax {
 
 		// Fallback Standard AJAX response
 		wp_send_json(
-			array(
+			[
 				'success' => false,
-				'error'   => array(
+				'error'   => [
 					'code'      => $code,
 					'message'   => $message,
 					'timestamp' => current_time( 'c' ),
-				),
-			),
+				],
+			],
 			$status
 		);
 	}
@@ -183,10 +183,10 @@ class Apollo_Builder_Ajax {
 		}
 
 		// Fallback Standard AJAX response
-		$response = array(
+		$response = [
 			'success' => true,
 			'data'    => $data,
-		);
+		];
 
 		if ( $message ) {
 			$response['message'] = $message;
@@ -290,7 +290,7 @@ class Apollo_Builder_Ajax {
 			$sanitized = apollo_builder_sanitize_layout( $layout_json );
 
 			if ( $current === $sanitized ) {
-				self::send_success( array( 'synced' => true ), __( 'Layout já está atualizado.', 'apollo-social' ) );
+				self::send_success( [ 'synced' => true ], __( 'Layout já está atualizado.', 'apollo-social' ) );
 				return;
 			}
 
@@ -305,12 +305,12 @@ class Apollo_Builder_Ajax {
 					'[Apollo Builder] Layout saved: post=%d user=%d widgets=%d',
 					$post_id,
 					$user_id,
-					count( $decoded['widgets'] ?? array() )
+					count( $decoded['widgets'] ?? [] )
 				)
 			);
 		}
 
-		self::send_success( array( 'saved' => true ), __( 'Layout salvo com sucesso!', 'apollo-social' ) );
+		self::send_success( [ 'saved' => true ], __( 'Layout salvo com sucesso!', 'apollo-social' ) );
 	}
 
 	/**
@@ -329,8 +329,8 @@ class Apollo_Builder_Ajax {
 		}
 
 		// Sanitize widget data
-		$widget_data = array();
-		$raw_widget  = $_POST['widget'] ?? array();
+		$widget_data = [];
+		$raw_widget  = $_POST['widget'] ?? [];
 
 		if ( ! is_array( $raw_widget ) ) {
 			self::send_error( 'invalid_widget_data', __( 'Dados do widget inválidos.', 'apollo-social' ), 400 );
@@ -345,7 +345,7 @@ class Apollo_Builder_Ajax {
 		$widget_data['width']  = absint( $raw_widget['width'] ?? 200 );
 		$widget_data['height'] = absint( $raw_widget['height'] ?? 150 );
 		$widget_data['zIndex'] = absint( $raw_widget['zIndex'] ?? 1 );
-		$widget_data['config'] = is_array( $raw_widget['config'] ?? null ) ? $raw_widget['config'] : array();
+		$widget_data['config'] = is_array( $raw_widget['config'] ?? null ) ? $raw_widget['config'] : [];
 
 		if ( empty( $widget_data['type'] ) ) {
 			self::send_error( 'missing_type', __( 'Tipo de widget é obrigatório.', 'apollo-social' ), 400 );
@@ -356,11 +356,11 @@ class Apollo_Builder_Ajax {
 		$html = apollo_builder_render_widget( $widget_data, $post_id );
 
 		self::send_success(
-			array(
+			[
 				'html'   => $html,
-				'assets' => array(),
+				'assets' => [],
 			// Future: CSS/JS assets
-			)
+			]
 		);
 	}
 
@@ -392,7 +392,7 @@ class Apollo_Builder_Ajax {
 		}
 
 		self::send_success(
-			array(
+			[
 				'name'        => $instance->get_name(),
 				'title'       => $instance->get_title(),
 				'icon'        => $instance->get_icon(),
@@ -401,7 +401,7 @@ class Apollo_Builder_Ajax {
 				'settings'    => $instance->get_settings(),
 				'defaults'    => $instance->get_defaults(),
 				'canDelete'   => $instance->can_delete(),
-			)
+			]
 		);
 	}
 
@@ -423,7 +423,7 @@ class Apollo_Builder_Ajax {
 
 		// Validate texture exists in library (if not empty)
 		if ( $texture_id !== '' ) {
-			$textures = get_option( 'apollo_builder_textures', array() );
+			$textures = get_option( 'apollo_builder_textures', [] );
 			$valid    = false;
 
 			foreach ( $textures as $t ) {
@@ -441,7 +441,7 @@ class Apollo_Builder_Ajax {
 
 		update_post_meta( $post_id, APOLLO_BUILDER_META_BACKGROUND, $texture_id );
 
-		self::send_success( array( 'background' => $texture_id ), __( 'Fundo atualizado!', 'apollo-social' ) );
+		self::send_success( [ 'background' => $texture_id ], __( 'Fundo atualizado!', 'apollo-social' ) );
 	}
 
 	/**
@@ -462,7 +462,7 @@ class Apollo_Builder_Ajax {
 
 		// Validate domain (only SoundCloud and Spotify)
 		if ( $url !== '' ) {
-			$allowed_domains = array( 'soundcloud.com', 'spotify.com', 'open.spotify.com' );
+			$allowed_domains = [ 'soundcloud.com', 'spotify.com', 'open.spotify.com' ];
 			$parsed          = wp_parse_url( $url );
 			$host            = isset( $parsed['host'] ) ? str_replace( 'www.', '', strtolower( $parsed['host'] ) ) : '';
 
@@ -486,7 +486,7 @@ class Apollo_Builder_Ajax {
 
 		update_post_meta( $post_id, APOLLO_BUILDER_META_TRAX, $url );
 
-		self::send_success( array( 'trax_url' => $url ), __( 'Música atualizada!', 'apollo-social' ) );
+		self::send_success( [ 'trax_url' => $url ], __( 'Música atualizada!', 'apollo-social' ) );
 	}
 
 	/**
@@ -544,13 +544,13 @@ class Apollo_Builder_Ajax {
 		}
 
 		// Prepare comment data
-		$comment_data = array(
+		$comment_data = [
 			'comment_post_ID'  => $post_id,
 			'comment_content'  => $content,
 			'comment_type'     => 'depoimento',
 			'comment_approved' => is_user_logged_in() ? 1 : 0,
 		// Auto-approve for logged in
-		);
+		];
 
 		if ( is_user_logged_in() ) {
 			$user                                 = wp_get_current_user();
@@ -577,14 +577,14 @@ class Apollo_Builder_Ajax {
 		$comment = get_comment( $comment_id );
 
 		self::send_success(
-			array(
+			[
 				'comment_id' => $comment_id,
 				'author'     => esc_html( $comment->comment_author ),
 				'content'    => wp_kses_post( $comment->comment_content ),
 				'date'       => get_comment_date( get_option( 'date_format' ), $comment ),
-				'avatar'     => get_avatar_url( $comment->comment_author_email, array( 'size' => 50 ) ),
+				'avatar'     => get_avatar_url( $comment->comment_author_email, [ 'size' => 50 ] ),
 				'approved'   => $comment->comment_approved === '1',
-			),
+			],
 			__( 'Depoimento adicionado!', 'apollo-social' )
 		);
 	}
@@ -602,7 +602,7 @@ class Apollo_Builder_Ajax {
 			return;
 		}
 
-		$widgets_data   = array();
+		$widgets_data   = [];
 		$widget_classes = apollo_builder_get_widgets();
 
 		foreach ( $widget_classes as $class ) {
@@ -613,7 +613,7 @@ class Apollo_Builder_Ajax {
 			try {
 				$instance = new $class();
 
-				$widgets_data[] = array(
+				$widgets_data[] = [
 					'name'          => $instance->get_name(),
 					'title'         => $instance->get_title(),
 					'icon'          => $instance->get_icon(),
@@ -625,7 +625,7 @@ class Apollo_Builder_Ajax {
 					'maxInstances'  => $instance->get_max_instances(),
 					'defaultWidth'  => $instance->get_default_width(),
 					'defaultHeight' => $instance->get_default_height(),
-				);
+				];
 			} catch ( \Throwable $e ) {
 				// Skip broken widgets but log in debug mode
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -634,6 +634,6 @@ class Apollo_Builder_Ajax {
 			}//end try
 		}//end foreach
 
-		self::send_success( array( 'widgets' => $widgets_data ) );
+		self::send_success( [ 'widgets' => $widgets_data ] );
 	}
 }

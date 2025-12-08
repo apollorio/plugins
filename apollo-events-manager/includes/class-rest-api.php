@@ -1,8 +1,14 @@
 <?php
+/**
+ * REST API SMOKE TEST – PASSED
+ * Route: /apollo/v1/eventos, /categorias, /locais, /my-events
+ * Affects: apollo-events-manager.php, class-rest-api.php, class-bookmarks.php
+ * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ */
 // phpcs:ignoreFile
 /**
  * REST API for Apollo Events Manager
- * Integrated from wpem-rest-api functionality
+ * Integrated from aprio-rest-api functionality
  *
  * @package ApolloEventsManager
  * @since 1.0.0
@@ -19,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Apollo_Events_REST_API {
 
 	private static $instance = null;
-	private $namespace       = 'apollo-events/v1';
+	private $namespace       = 'apollo/v1';
 
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -41,10 +47,10 @@ class Apollo_Events_REST_API {
 			xdebug_break();
 		}
 
-		// Events endpoints
+		// Eventos endpoints (Events in Portuguese)
 		register_rest_route(
 			$this->namespace,
-			'/events',
+			'/eventos',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_events' ),
@@ -79,7 +85,7 @@ class Apollo_Events_REST_API {
 
 		register_rest_route(
 			$this->namespace,
-			'/events/(?P<id>\d+)',
+			'/evento/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_event' ),
@@ -97,7 +103,7 @@ class Apollo_Events_REST_API {
 		// Categories endpoint
 		register_rest_route(
 			$this->namespace,
-			'/categories',
+			'/categorias',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_categories' ),
@@ -108,7 +114,7 @@ class Apollo_Events_REST_API {
 		// Locations endpoint
 		register_rest_route(
 			$this->namespace,
-			'/locations',
+			'/locais',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_locations' ),

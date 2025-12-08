@@ -11,23 +11,23 @@ namespace Apollo\Infrastructure\Rendering;
 class RawTemplateRenderer {
 
 	public function render( $template_data ) {
-		$route_config = $template_data['route_config'] ?? array();
+		$route_config = $template_data['route_config'] ?? [];
 		$template     = $route_config['template'] ?? '';
 
 		if ( empty( $template ) ) {
-			return array(
+			return [
 				'content' => 'Template not defined',
 				'raw'     => true,
-			);
+			];
 		}
 
 		$template_path = APOLLO_SOCIAL_PLUGIN_DIR . 'templates/' . $template;
 
 		if ( ! file_exists( $template_path ) ) {
-			return array(
+			return [
 				'content' => 'Template not found: ' . esc_html( $template ),
 				'raw'     => true,
-			);
+			];
 		}
 
 		// Make data available to template
@@ -37,9 +37,9 @@ class RawTemplateRenderer {
 		include $template_path;
 		$content = ob_get_clean();
 
-		return array(
+		return [
 			'content' => $content,
 			'raw'     => true,
-		);
+		];
 	}
 }

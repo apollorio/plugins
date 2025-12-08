@@ -15,12 +15,12 @@ class AssetsManager {
 	 *
 	 * @var array
 	 */
-	private static $preconnect_domains = array(
+	private static $preconnect_domains = [
 		'https://assets.apollo.rio.br',
 		'https://cdn.jsdelivr.net',
 		'https://fonts.googleapis.com',
 		'https://fonts.gstatic.com',
-	);
+	];
 
 	public function __construct() {
 		$this->loadConfig();
@@ -32,7 +32,7 @@ class AssetsManager {
 	 * Fires early in wp_head for maximum performance benefit.
 	 */
 	private function registerPreconnectHints(): void {
-		add_action( 'wp_head', array( $this, 'outputPreconnectHints' ), 1 );
+		add_action( 'wp_head', [ $this, 'outputPreconnectHints' ], 1 );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class AssetsManager {
 		if ( file_exists( $config_file ) ) {
 			$this->config = require $config_file;
 		} else {
-			$this->config = array();
+			$this->config = [];
 		}
 	}
 
@@ -78,7 +78,7 @@ class AssetsManager {
 		}
 
 		// FASE 1: Lista completa de rotas Apollo (incluindo documentos)
-		$apollo_routes = array(
+		$apollo_routes = [
 			'/a/',
 			'/comunidade/',
 			'/nucleo/',
@@ -101,7 +101,7 @@ class AssetsManager {
 			'/sign/',
 			'/documentos/',
 			'/enviar/',
-		);
+		];
 
 		foreach ( $apollo_routes as $route ) {
 			if ( strpos( $request_uri, $route ) !== false ) {
@@ -139,11 +139,11 @@ class AssetsManager {
 	 */
 	private function installApolloOnlyFilter() {
 		// Filter styles - remove all non-Apollo styles
-		add_action( 'wp_print_styles', array( $this, 'filterApolloOnlyStyles' ), 999 );
+		add_action( 'wp_print_styles', [ $this, 'filterApolloOnlyStyles' ], 999 );
 
 		// Filter scripts - remove all non-Apollo scripts
-		add_action( 'wp_print_scripts', array( $this, 'filterApolloOnlyScripts' ), 999 );
-		add_action( 'wp_print_footer_scripts', array( $this, 'filterApolloOnlyScripts' ), 999 );
+		add_action( 'wp_print_scripts', [ $this, 'filterApolloOnlyScripts' ], 999 );
+		add_action( 'wp_print_footer_scripts', [ $this, 'filterApolloOnlyScripts' ], 999 );
 	}
 
 	/**
@@ -156,7 +156,7 @@ class AssetsManager {
 			return;
 		}
 
-		$allowed_handles = array(
+		$allowed_handles = [
 			'apollo-uni-css',
 			// P0-4: uni.css from assets.apollo.rio.br
 							'apollo-canvas-mode',
@@ -169,9 +169,9 @@ class AssetsManager {
 			'apollo-dashboard',
 			'apollo-cena',
 			'apollo-feed-css',
-		);
+		];
 
-		$allowed_patterns = array(
+		$allowed_patterns = [
 			'/apollo-',
 			'assets.apollo.rio.br',
 			'remixicon',
@@ -179,7 +179,7 @@ class AssetsManager {
 			// Motion.dev library
 							'cdn.tailwindcss.com',
 		// Tailwind CDN (if used)
-		);
+		];
 
 		foreach ( $wp_styles->queue as $handle ) {
 			$keep = false;
@@ -223,7 +223,7 @@ class AssetsManager {
 			return;
 		}
 
-		$allowed_handles = array(
+		$allowed_handles = [
 			'apollo-canvas',
 			'apollo-feed',
 			'apollo-chat',
@@ -231,22 +231,22 @@ class AssetsManager {
 			'apollo-users-directory',
 			'apollo-hold-to-confirm',
 			'motion',
-		);
+		];
 
-		$allowed_patterns = array(
+		$allowed_patterns = [
 			'/apollo-',
 			'assets.apollo.rio.br',
 			'cdn.jsdelivr.net/npm/motion',
 			// Motion.dev library
 							'unpkg.com/@motionone',
 		// Motion.dev alternative CDN
-		);
+		];
 
 		foreach ( $wp_scripts->queue as $handle ) {
 			$keep = false;
 
 			// Check if handle is in allowed list
-			if ( in_array( $handle, $allowed_handles ) ) {
+			if ( in_array( $handle, $allowed_handles, true ) ) {
 				$keep = true;
 			}
 
@@ -287,8 +287,8 @@ class AssetsManager {
 			wp_enqueue_style(
 				'apollo-uni-css',
 				'https://assets.apollo.rio.br/uni.css',
-				array(),
-				null
+				[],
+				APOLLO_SOCIAL_VERSION
 			);
 		}
 
@@ -300,7 +300,7 @@ class AssetsManager {
 			wp_enqueue_style(
 				'apollo-canvas-mode',
 				$css_file,
-				array( 'apollo-uni-css' ),
+				[ 'apollo-uni-css' ],
 				// Depend on uni.css
 				APOLLO_SOCIAL_VERSION
 			);
@@ -334,7 +334,7 @@ class AssetsManager {
 			wp_enqueue_style(
 				'apollo-modules',
 				$modules_css,
-				array( 'apollo-canvas-mode' ),
+				[ 'apollo-canvas-mode' ],
 				APOLLO_SOCIAL_VERSION
 			);
 		}
@@ -351,7 +351,7 @@ class AssetsManager {
 			wp_enqueue_script(
 				'apollo-canvas',
 				$js_file,
-				array( 'jquery' ),
+				[ 'jquery' ],
 				APOLLO_SOCIAL_VERSION,
 				true
 			);
@@ -360,11 +360,11 @@ class AssetsManager {
 			wp_localize_script(
 				'apollo-canvas',
 				'apolloCanvas',
-				array(
+				[
 					'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
 					'nonce'     => wp_create_nonce( 'apollo_canvas' ),
 					'pluginUrl' => APOLLO_SOCIAL_PLUGIN_URL,
-				)
+				]
 			);
 		}
 
@@ -380,8 +380,8 @@ class AssetsManager {
 		wp_enqueue_script(
 			'motion',
 			'https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.umd.js',
-			array(),
-			null,
+			[],
+			APOLLO_SOCIAL_VERSION,
 			true
 		);
 
@@ -393,7 +393,7 @@ class AssetsManager {
 			wp_enqueue_style(
 				'apollo-hold-to-confirm',
 				$css_file,
-				array(),
+				[],
 				APOLLO_SOCIAL_VERSION
 			);
 		}
@@ -406,7 +406,7 @@ class AssetsManager {
 			wp_enqueue_script(
 				'apollo-hold-to-confirm',
 				$js_file,
-				array( 'motion' ),
+				[ 'motion' ],
 				APOLLO_SOCIAL_VERSION,
 				true
 			);
@@ -425,7 +425,7 @@ class AssetsManager {
 			wp_enqueue_style(
 				"apollo-module-{$module}",
 				$css_file,
-				array( 'apollo-canvas' ),
+				[ 'apollo-canvas' ],
 				APOLLO_SOCIAL_VERSION
 			);
 		}
@@ -438,7 +438,7 @@ class AssetsManager {
 			wp_enqueue_script(
 				"apollo-module-{$module}",
 				$js_file,
-				array( 'apollo-canvas' ),
+				[ 'apollo-canvas' ],
 				APOLLO_SOCIAL_VERSION,
 				true
 			);
@@ -450,11 +450,11 @@ class AssetsManager {
 	 */
 	public function blockThemeAssets() {
 		if ( ! empty( $this->config['block_theme_css'] ) ) {
-			add_action( 'wp_print_styles', array( $this, 'dequeueThemeStyles' ), 100 );
+			add_action( 'wp_print_styles', [ $this, 'dequeueThemeStyles' ], 100 );
 		}
 
 		if ( ! empty( $this->config['block_theme_js'] ) ) {
-			add_action( 'wp_print_scripts', array( $this, 'dequeueThemeScripts' ), 100 );
+			add_action( 'wp_print_scripts', [ $this, 'dequeueThemeScripts' ], 100 );
 		}
 	}
 
@@ -466,12 +466,12 @@ class AssetsManager {
 
 		// Check if analytics enabled and Canvas injection enabled
 		if ( ! ( $analytics_config['enabled'] ?? false ) ||
-			$analytics_config['driver'] !== 'plausible' ||
+			'plausible' !== $analytics_config['driver'] ||
 			! ( $analytics_config['inject_on_canvas'] ?? false ) ) {
 			return;
 		}
 
-		$script_config = $analytics_config['script_config'] ?? array();
+		$script_config = $analytics_config['script_config'] ?? [];
 		$domain        = isset( $script_config['domain'] ) ? sanitize_text_field( $script_config['domain'] ) : '';
 		$script_url    = isset( $script_config['script_url'] ) ? esc_url_raw( $script_config['script_url'] ) : 'https://plausible.io/js/plausible.js';
 
@@ -491,7 +491,7 @@ class AssetsManager {
 	 */
 	private function addApolloAnalyticsJS() {
 		$analytics_config = config( 'analytics' );
-		$events_config    = $analytics_config['events'] ?? array();
+		$events_config    = $analytics_config['events'] ?? [];
 
 		// Generate safe JavaScript code (static, no user input)
 		$js_code = "
@@ -599,7 +599,7 @@ class AssetsManager {
         // Auto-track page views with additional context
         document.addEventListener('DOMContentLoaded', function() {
             var path = window.location.pathname;
-            var apolloRoutes = ['/a/', '/comunidade/', '/nucleo/', '/season/', '/membership', '/uniao/', '/anuncio/'];
+            var apolloRoutes = ['/a/', '/comunidade/', '/nucleo/', '/season/', '/membro/', '/membership', '/uniao/', '/anuncio/'];
 
             for (var i = 0; i < apolloRoutes.length; i++) {
                 if (path.indexOf(apolloRoutes[i]) !== -1) {
@@ -610,6 +610,10 @@ class AssetsManager {
                     else if (path.indexOf('/nucleo/') !== -1) {
                         var slug = path.split('/nucleo/')[1]?.split('/')[0];
                         if (slug) window.apolloAnalytics.trackGroupView('nucleo', slug);
+                    }
+                    else if (path.indexOf('/membro/') !== -1) {
+                        var slug = path.split('/membro/')[1]?.split('/')[0];
+                        if (slug) window.apolloAnalytics.trackGroupView('membro', slug);
                     }
                     else if (path.indexOf('/season/') !== -1) {
                         var slug = path.split('/season/')[1]?.split('/')[0];
@@ -623,7 +627,7 @@ class AssetsManager {
         ";
 
 		// Output safe JavaScript (static code, no user input)
-		echo $js_code;
+		echo wp_kses_post( $js_code );
 	}
 
 	/**

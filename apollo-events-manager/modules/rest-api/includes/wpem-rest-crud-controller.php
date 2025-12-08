@@ -3,7 +3,7 @@
 /**
  * Abstract Rest CRUD Controller Class
  *
- * @class   WPEM_REST_CRUD_Controller
+ * @class   APRIO_REST_CRUD_Controller
  * @version 1.0.0
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -11,18 +11,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPEM_REST_CRUD_Controller class.
+ * APRIO_REST_CRUD_Controller class.
  *
- * @extends WPEM_REST_Posts_Controller
+ * @extends APRIO_REST_Posts_Controller
  */
-abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
+abstract class APRIO_REST_CRUD_Controller extends APRIO_REST_Posts_Controller {
 
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * If object is hierarchical.
@@ -56,7 +56,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 				$object_id = $object->get_id();
 			}
 
-			if ( 0 == $object_id && ! wpem_rest_api_check_post_permissions( $this->post_type, 'read', $object_id ) ) {
+			if ( 0 == $object_id && ! aprio_rest_api_check_post_permissions( $this->post_type, 'read', $object_id ) ) {
 				return self::prepare_error_for_response( 203 );
 			}
 			return true;
@@ -75,7 +75,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	public function update_item_permissions_check( $request ) {
 		$object = $this->get_object( (int) $request['id'] );
 		if ( ! is_wp_error( $object ) && $object ) {
-			if ( $object && 0 !== $object->ID && ! wpem_rest_api_check_post_permissions( $this->post_type, 'edit', $object->ID ) ) {
+			if ( $object && 0 !== $object->ID && ! aprio_rest_api_check_post_permissions( $this->post_type, 'edit', $object->ID ) ) {
 				return self::prepare_error_for_response( 504 );
 			}
 			return true;
@@ -94,7 +94,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	public function delete_item_permissions_check( $request ) {
 		$object = $this->get_object( (int) $request['id'] );
 		if ( ! is_wp_error( $object ) && $object ) {
-			if ( $object && 0 !== $object->ID && ! wpem_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
+			if ( $object && 0 !== $object->ID && ! aprio_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
 				return self::prepare_error_for_response( 412 );
 			}
 			return true;
@@ -213,7 +213,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			 * @param WP_REST_Request $request   Request object.
 			 * @param boolean         $creating  True when creating object, false when updating.
 			 */
-			do_action( "wpem_rest_insert_{$this->post_type}_object", $object, $request, true );
+			do_action( "aprio_rest_insert_{$this->post_type}_object", $object, $request, true );
 		} catch ( Exception $e ) {
 			wp_delete_post( $object->ID );
 			return new WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
@@ -256,7 +256,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			 * @param WP_REST_Request $request   Request object.
 			 * @param boolean         $creating  True when creating object, false when updating.
 			 */
-			do_action( "wpem_rest_insert_{$this->post_type}_object", $object, $request, false );
+			do_action( "aprio_rest_insert_{$this->post_type}_object", $object, $request, false );
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getErrorCode(), $e->getMessage(), array( 'status' => $e->getCode() ) );
 		}
@@ -315,7 +315,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 		 * @param array           $args    Key value array of query var to query value.
 		 * @param WP_REST_Request $request The request used.
 		 */
-		$args = apply_filters( "wpem_rest_{$this->post_type}_object_query", $args, $request );
+		$args = apply_filters( "aprio_rest_{$this->post_type}_object_query", $args, $request );
 
 		return $this->prepare_items_query( $args, $request );
 	}
@@ -341,7 +341,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 				 *
 				 * @param mixed $prepared_args[ $var ] The query_var value.
 				 */
-				$query_args[ $var ] = apply_filters( "wpem_rest_query_var-{$var}", $prepared_args[ $var ] );
+				$query_args[ $var ] = apply_filters( "aprio_rest_query_var-{$var}", $prepared_args[ $var ] );
 			}
 		}
 		$query_args['ignore_sticky_posts'] = true;
@@ -349,7 +349,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 		if ( 'include' === $query_args['orderby'] ) {
 			$query_args['orderby'] = 'post__in';
 		} elseif ( 'id' === $query_args['orderby'] ) {
-			$query_args['orderby'] = 'ID'; 
+			$query_args['orderby'] = 'ID';
 			// ID must be capitalized.
 		} elseif ( 'slug' === $query_args['orderby'] ) {
 			$query_args['orderby'] = 'name';
@@ -391,7 +391,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -407,7 +407,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 					$object_id = $object->ID;
 				}
 
-				if ( ! wpem_rest_api_check_post_permissions( $this->post_type, 'read', $object_id ) ) {
+				if ( ! aprio_rest_api_check_post_permissions( $this->post_type, 'read', $object_id ) ) {
 					continue;
 				}
 
@@ -456,9 +456,9 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 		 * @param boolean $supports_trash Whether the object type support trashing.
 		 * @param Post Data $object         The object being considered for trashing support.
 		 */
-		$supports_trash = apply_filters( "wpem_rest_{$this->post_type}_object_trashable", $supports_trash, $object );
+		$supports_trash = apply_filters( "aprio_rest_{$this->post_type}_object_trashable", $supports_trash, $object );
 
-		if ( ! wpem_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
+		if ( ! aprio_rest_api_check_post_permissions( $this->post_type, 'delete', $object->ID ) ) {
 			return parent::prepare_error_for_response( 412 );
 		}
 
@@ -494,7 +494,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 		 * @param WP_REST_Response $response The response data.
 		 * @param WP_REST_Request  $request  The request sent to the API.
 		 */
-		do_action( "wpem_rest_delete_{$this->post_type}_object", $object, $response, $request );
+		do_action( "aprio_rest_delete_{$this->post_type}_object", $object, $response, $request );
 		return parent::prepare_error_for_response( 200 );
 	}
 
@@ -529,7 +529,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 		$params['context']['default'] = 'view';
 
 		$params['page']     = array(
-			'description'       => __( 'Current page of the collection.', 'wpem-rest-api' ),
+			'description'       => __( 'Current page of the collection.', 'aprio-rest-api' ),
 			'type'              => 'integer',
 			'default'           => 1,
 			'sanitize_callback' => 'absint',
@@ -537,7 +537,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			'minimum'           => 1,
 		);
 		$params['per_page'] = array(
-			'description'       => __( 'Maximum number of items to be returned in result set.', 'wpem-rest-api' ),
+			'description'       => __( 'Maximum number of items to be returned in result set.', 'aprio-rest-api' ),
 			'type'              => 'integer',
 			'default'           => 10,
 			'minimum'           => 1,
@@ -546,25 +546,25 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['search']   = array(
-			'description'       => __( 'Limit results to those matching a string.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit results to those matching a string.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['after']    = array(
-			'description'       => __( 'Limit response to resources published after a given ISO8601 compliant date.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit response to resources published after a given ISO8601 compliant date.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['before']   = array(
-			'description'       => __( 'Limit response to resources published before a given ISO8601 compliant date.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit response to resources published before a given ISO8601 compliant date.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'format'            => 'date-time',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['exclude']  = array(
-			'description'       => __( 'Ensure result set excludes specific IDs.', 'wpem-rest-api' ),
+			'description'       => __( 'Ensure result set excludes specific IDs.', 'aprio-rest-api' ),
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -573,7 +573,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['include']  = array(
-			'description'       => __( 'Limit result set to specific ids.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to specific ids.', 'aprio-rest-api' ),
 			'type'              => 'array',
 			'items'             => array(
 				'type' => 'integer',
@@ -582,20 +582,20 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			'sanitize_callback' => 'wp_parse_id_list',
 		);
 		$params['offset']   = array(
-			'description'       => __( 'Offset the result set by a specific number of items.', 'wpem-rest-api' ),
+			'description'       => __( 'Offset the result set by a specific number of items.', 'aprio-rest-api' ),
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['order']    = array(
-			'description'       => __( 'Order sort attribute ascending or descending.', 'wpem-rest-api' ),
+			'description'       => __( 'Order sort attribute ascending or descending.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'default'           => 'desc',
 			'enum'              => array( 'asc', 'desc' ),
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$params['orderby']  = array(
-			'description'       => __( 'Sort collection by object attribute.', 'wpem-rest-api' ),
+			'description'       => __( 'Sort collection by object attribute.', 'aprio-rest-api' ),
 			'type'              => 'string',
 			'default'           => 'date',
 			'enum'              => array(
@@ -610,7 +610,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 
 		if ( $this->hierarchical ) {
 			$params['parent']         = array(
-				'description'       => __( 'Limit result set to those of particular parent IDs.', 'wpem-rest-api' ),
+				'description'       => __( 'Limit result set to those of particular parent IDs.', 'aprio-rest-api' ),
 				'type'              => 'array',
 				'items'             => array(
 					'type' => 'integer',
@@ -619,7 +619,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 				'default'           => array(),
 			);
 			$params['parent_exclude'] = array(
-				'description'       => __( 'Limit result set to all items except those of a particular parent ID.', 'wpem-rest-api' ),
+				'description'       => __( 'Limit result set to all items except those of a particular parent ID.', 'aprio-rest-api' ),
 				'type'              => 'array',
 				'items'             => array(
 					'type' => 'integer',
@@ -650,7 +650,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	 *
 	 * @since 1.0.1
 	 */
-	public function wpem_check_authorized_user() {
+	public function aprio_check_authorized_user() {
 		// Get the authorization header
 		global $wpdb;
 		$headers = getallheaders();
@@ -672,7 +672,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			return self::prepare_error_for_response( 405 );
 		}
 
-		$user_data = self::wpem_validate_jwt_token( $token );
+		$user_data = self::aprio_validate_jwt_token( $token );
 		if ( ! $user_data ) {
 			return self::prepare_error_for_response( 405 );
 		}
@@ -682,7 +682,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			if ( ! wp_check_password( $user_data['password'], $user->user_pass, $user->ID ) ) {
 				return self::prepare_error_for_response( 405 );
 			} else {
-				$user_info = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}wpem_rest_api_keys WHERE user_id = $user->ID " ) );
+				$user_info = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}aprio_rest_api_keys WHERE user_id = $user->ID " ) );
 				$user_meta = get_user_meta( $user->ID, '_matchmaking_profile', true );
 				if ( $user_info ) {
 					$date_expires = date( 'Y-m-d', strtotime( $user_info->date_expires ) );
@@ -713,7 +713,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	 *
 	 * @since 1.0.9
 	 */
-	public static function wpem_validate_jwt_token( $token ) {
+	public static function aprio_validate_jwt_token( $token ) {
 		$parts = explode( '.', $token );
 		if ( count( $parts ) !== 3 ) {
 			return false;
@@ -721,7 +721,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 
 		list($header, $payload, $signature) = $parts;
 
-		$expected_signature = wpem_base64url_encode(
+		$expected_signature = aprio_base64url_encode(
 			hash_hmac( 'sha256', "$header.$payload", JWT_SECRET_KEY, true )
 		);
 
@@ -729,7 +729,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			return false;
 		}
 
-		$payload_json = wpem_base64url_decode( $payload );
+		$payload_json = aprio_base64url_decode( $payload );
 		$payload_data = json_decode( $payload_json, true );
 		if ( json_last_error() !== JSON_ERROR_NONE || ! isset( $payload_data['user'] ) ) {
 			return false;
@@ -750,7 +750,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 	 * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
 	 */
 	public static function prepare_error_for_response( $code, $data = array() ) {
-		$error_info = wpem_response_default_status();
+		$error_info = aprio_response_default_status();
 
 		// Filter the array to find the element where 'code' matches the provided $code
 		$filtered_error = array_filter(
@@ -762,7 +762,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 
 		// If $filtered_error is not empty, return the first matched array
 		if ( ! empty( $filtered_error ) ) {
-			$error = array_shift( $filtered_error );  
+			$error = array_shift( $filtered_error );
 			// Get the first matched array
 			if ( $code == 200 ) {
 				return $error;
@@ -771,7 +771,7 @@ abstract class WPEM_REST_CRUD_Controller extends WPEM_REST_Posts_Controller {
 			}
 				return wp_send_json( $error );
 		} else {
-			return null;  
+			return null;
 			// Or handle the case where code 400 is not found
 		}
 	}

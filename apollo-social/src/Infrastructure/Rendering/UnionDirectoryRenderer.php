@@ -6,34 +6,34 @@ namespace Apollo\Infrastructure\Rendering;
  */
 class UnionDirectoryRenderer {
 
-	public function render( $template_data ) {
+	public function render() {
 		$unions = $this->getUnionsData();
 
-		return array(
+		return [
 			'title'       => 'União - Apollo Social',
 			'content'     => $this->renderUnionDirectory( $unions ),
-			'breadcrumbs' => array( 'Apollo Social', 'União' ),
+			'breadcrumbs' => [ 'Apollo Social', 'União' ],
 			'unions'      => $unions,
-		);
+		];
 	}
 
 	private function getUnionsData() {
-		return array(
-			array(
+		return [
+			[
 				'id'            => 1,
 				'name'          => 'União dos Desenvolvedores',
 				'slug'          => 'desenvolvedores',
 				'members_count' => 150,
 				'description'   => 'União para profissionais de desenvolvimento',
-			),
-			array(
+			],
+			[
 				'id'            => 2,
 				'name'          => 'União dos Designers',
 				'slug'          => 'designers',
 				'members_count' => 89,
 				'description'   => 'União para profissionais de design',
-			),
-		);
+			],
+		];
 	}
 
 	private function renderUnionDirectory( $unions ) {

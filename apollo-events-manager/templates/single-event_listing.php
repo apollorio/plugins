@@ -13,4 +13,4 @@
 defined( 'ABSPATH' ) || exit;
 
 // Load our complete standalone template
-require APOLLO_WPEM_PATH . 'templates/single-event-standalone.php';
+require APOLLO_APRIO_PATH . 'templates/single-event-standalone.php';

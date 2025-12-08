@@ -179,7 +179,7 @@ class LuckysheetConverter {
 	 *
 	 * @var array
 	 */
-	private static $dangerous_patterns = array(
+	private static $dangerous_patterns = [
 		'/^=\s*cmd/i',
 		// Command execution
 					'/^=\s*exec/i',
@@ -202,31 +202,31 @@ class LuckysheetConverter {
 		// At prefix injection
 					'/\|\s*cmd/i',
 	// Pipe to command
-	);
+	];
 
 	/**
 	 * Sheet configuration for the current conversion.
 	 *
 	 * @var array
 	 */
-	private $sheet_config = array();
+	private $sheet_config = [];
 
 	/**
 	 * Warnings collected during conversion.
 	 *
 	 * @var array
 	 */
-	private $warnings = array();
+	private $warnings = [];
 
 	/**
 	 * Constructor.
 	 *
 	 * @param array $config Optional configuration overrides.
 	 */
-	public function __construct( array $config = array() ) {
+	public function __construct( array $config = [] ) {
 		$this->sheet_config = wp_parse_args(
 			$config,
-			array(
+			[
 				'sheet_name'         => 'Planilha 1',
 				'default_col_width'  => self::DEFAULT_COL_WIDTH,
 				'default_row_height' => self::DEFAULT_ROW_HEIGHT,
@@ -237,7 +237,7 @@ class LuckysheetConverter {
 												'show_grid' => true,
 				'show_row_header'    => true,
 				'show_col_header'    => true,
-			)
+			]
 		);
 	}
 
@@ -258,18 +258,18 @@ class LuckysheetConverter {
 	 *                          - 'merged_cells' (array): Array of merge definitions.
 	 * @return string JSON string ready for Luckysheet initialization.
 	 */
-	public function fromArray( array $rows, array $options = array() ) {
-		$this->warnings = array();
+	public function fromArray( array $rows, array $options = [] ) {
+		$this->warnings = [];
 
 		// Parse options
 		$options = wp_parse_args(
 			$options,
-			array(
+			[
 				'first_row_header' => true,
-				'column_types'     => array(),
-				'column_widths'    => array(),
-				'merged_cells'     => array(),
-			)
+				'column_types'     => [],
+				'column_widths'    => [],
+				'merged_cells'     => [],
+			]
 		);
 
 		// Validate and limit data size
@@ -277,7 +277,7 @@ class LuckysheetConverter {
 
 		// Build celldata array
 		// This is where we iterate over every cell and create the Luckysheet format
-		$celldata = array();
+		$celldata = [];
 		$max_cols = 0;
 
 		foreach ( $rows as $row_index => $row ) {
@@ -295,12 +295,12 @@ class LuckysheetConverter {
 					$row_index,
 					$col_index,
 					$cell_value,
-					array(
+					[
 						'is_header'   => ( $options['first_row_header'] && $row_index === 0 ),
 						'column_type' => isset( $options['column_types'][ $col_index ] )
 							? $options['column_types'][ $col_index ]
 							: 'auto',
-					)
+					]
 				);
 
 				if ( $cell !== null ) {
@@ -319,7 +319,7 @@ class LuckysheetConverter {
 		$config = $this->buildSheetConfig( count( $rows ), $max_cols, $options );
 
 		// Build the complete sheet object
-		$sheet = array(
+		$sheet = [
 			'name'                          => $this->sheet_config['sheet_name'],
 			'index'                         => 'sheet_' . uniqid(),
 			// Unique ID for this sheet
@@ -340,22 +340,22 @@ class LuckysheetConverter {
 							'scrollLeft'    => 0,
 			// Scroll position
 							'scrollTop'     => 0,
-			'luckysheet_select_save'        => array(),
+			'luckysheet_select_save'        => [],
 			// Selection state
 							'zoomRatio'     => 1,
 			// Zoom level
 							'showGridLines' => $this->sheet_config['show_grid'] ? 1 : 0,
-		);
+		];
 
 		// Add frozen panes if configured
 		if ( $this->sheet_config['freeze_row'] > 0 || $this->sheet_config['freeze_col'] > 0 ) {
-			$sheet['frozen'] = array(
+			$sheet['frozen'] = [
 				'type'  => 'rangeBoth',
-				'range' => array(
+				'range' => [
 					'row_focus'    => $this->sheet_config['freeze_row'] - 1,
 					'column_focus' => $this->sheet_config['freeze_col'] - 1,
-				),
-			);
+				],
+			];
 		}
 
 		// Add merged cells if provided
@@ -365,7 +365,7 @@ class LuckysheetConverter {
 
 		// Build the workbook (array of sheets)
 		// Luckysheet expects an array even for single-sheet workbooks
-		$workbook = array( $sheet );
+		$workbook = [ $sheet ];
 
 		// Return as JSON string
 		// We use JSON_UNESCAPED_UNICODE for proper UTF-8 support
@@ -386,7 +386,7 @@ class LuckysheetConverter {
 	 * @param array $options   Cell-specific options (is_header, column_type).
 	 * @return array|null Cell data object, or null if cell is empty.
 	 */
-	private function createCellData( $row, $col, $value, array $options = array() ) {
+	private function createCellData( $row, $col, $value, array $options = [] ) {
 		// Skip completely empty cells to reduce JSON size
 		// Luckysheet handles missing cells as empty
 		if ( $value === null || $value === '' ) {
@@ -401,18 +401,18 @@ class LuckysheetConverter {
 		$type_info = $this->detectCellType( $sanitized, $options['column_type'] ?? 'auto' );
 
 		// Build the cell value object (v property)
-		$cell_value = array(
+		$cell_value = [
 			'v'                 => $type_info['value'],
 			// Raw value
 							'm' => $type_info['display'],
 			// Display/formatted value
-				'ct'            => array(
+				'ct'            => [
 					'fa'                        => $type_info['format'],
 					// Format string (e.g., "General", "#,##0.00")
 											't' => $type_info['type'],
 			// Type: s=string, n=number, b=boolean, d=date
-				),
-		);
+				],
+		];
 
 		// Apply header styling if this is a header row
 		if ( ! empty( $options['is_header'] ) ) {
@@ -428,11 +428,11 @@ class LuckysheetConverter {
 
 		// Build the complete cell object
 		// The structure requires r (row), c (column), and v (value object)
-		return array(
+		return [
 			'r' => (int) $row,
 			'c' => (int) $col,
 			'v' => $cell_value,
-		);
+		];
 	}
 
 	/**
@@ -493,7 +493,7 @@ class LuckysheetConverter {
 		}
 
 		// Step 4: Normalize line breaks
-		$value = str_replace( array( "\r\n", "\r" ), "\n", $value );
+		$value = str_replace( [ "\r\n", "\r" ], "\n", $value );
 
 		return $value;
 	}
@@ -515,7 +515,7 @@ class LuckysheetConverter {
 	 */
 	private function detectCellType( $value, $type_hint = 'auto' ) {
 		// Default result for strings
-		$result = array(
+		$result = [
 			'type'                    => 's',
 			// String
 							'value'   => $value,
@@ -524,16 +524,16 @@ class LuckysheetConverter {
 			// Display value
 							'format'  => 'General',
 		// Format string
-		);
+		];
 
 		// Handle booleans
 		if ( is_bool( $value ) ) {
-			return array(
+			return [
 				'type'    => 'b',
 				'value'   => $value,
 				'display' => $value ? 'TRUE' : 'FALSE',
 				'format'  => 'General',
-			);
+			];
 		}
 
 		// Handle numbers (integers and floats)
@@ -541,63 +541,63 @@ class LuckysheetConverter {
 			$num_value = floatval( $value );
 			$is_int    = ( floor( $num_value ) == $num_value );
 
-			return array(
+			return [
 				'type'    => 'n',
 				'value'   => $num_value,
 				'display' => $is_int ? number_format( $num_value, 0, ',', '.' ) : number_format( $num_value, 2, ',', '.' ),
 				'format'  => $is_int ? '#,##0' : '#,##0.00',
-			);
+			];
 		}
 
 		// Handle formulas (start with =)
 		if ( is_string( $value ) && strpos( $value, '=' ) === 0 ) {
 			// Don't execute formulas, just store them
 			// Luckysheet will evaluate them client-side
-			return array(
+			return [
 				'type'                      => 'f',
 				// Formula (custom type, Luckysheet uses 's' but stores formula)
 									'value' => $value,
 				'display'                   => $value,
 				'format'                    => 'General',
-			);
+			];
 		}
 
 		// Handle dates (if type hint is 'date' or auto-detected)
 		if ( $type_hint === 'date' || $this->looksLikeDate( $value ) ) {
 			$timestamp = strtotime( $value );
 			if ( $timestamp !== false ) {
-				return array(
+				return [
 					'type'    => 'd',
 					'value'   => $value,
 					'display' => date_i18n( 'd/m/Y', $timestamp ),
 					'format'  => 'dd/mm/yyyy',
-				);
+				];
 			}
 		}
 
 		// Handle currency (BRL format)
 		if ( preg_match( '/^R\$\s*[\d.,]+$/', $value ) ) {
 			$num = preg_replace( '/[^\d,.-]/', '', $value );
-			$num = str_replace( array( '.', ',' ), array( '', '.' ), $num );
+			$num = str_replace( [ '.', ',' ], [ '', '.' ], $num );
 			if ( is_numeric( $num ) ) {
-				return array(
+				return [
 					'type'    => 'n',
 					'value'   => floatval( $num ),
 					'display' => $value,
 					'format'  => 'R$ #,##0.00',
-				);
+				];
 			}
 		}
 
 		// Handle percentages
 		if ( preg_match( '/^[\d.,]+\s*%$/', $value ) ) {
-			$num = floatval( str_replace( array( '%', ',', ' ' ), array( '', '.', '' ), $value ) );
-			return array(
+			$num = floatval( str_replace( [ '%', ',', ' ' ], [ '', '.', '' ], $value ) );
+			return [
 				'type'    => 'n',
 				'value'   => $num / 100,
 				'display' => $value,
 				'format'  => '0.00%',
-			);
+			];
 		}
 
 		return $result;
@@ -615,7 +615,7 @@ class LuckysheetConverter {
 		}
 
 		// Common date patterns
-		$patterns = array(
+		$patterns = [
 			'/^\d{2}\/\d{2}\/\d{4}$/',
 			// 25/12/2025
 							'/^\d{4}-\d{2}-\d{2}$/',
@@ -624,7 +624,7 @@ class LuckysheetConverter {
 			// 25-12-2025
 							'/^\d{1,2}\s+\w+\s+\d{4}$/',
 		// 25 December 2025
-		);
+		];
 
 		foreach ( $patterns as $pattern ) {
 			if ( preg_match( $pattern, $value ) ) {
@@ -649,11 +649,11 @@ class LuckysheetConverter {
 	 * @return array Sheet configuration object.
 	 */
 	private function buildSheetConfig( $row_count, $col_count, array $options ) {
-		$config = array();
+		$config = [];
 
 		// Column widths
 		// Map: column_index => width_in_pixels
-		$columnlen = array();
+		$columnlen = [];
 		for ( $i = 0; $i < $col_count; $i++ ) {
 			if ( isset( $options['column_widths'][ $i ] ) ) {
 				$columnlen[ $i ] = (int) $options['column_widths'][ $i ];
@@ -668,7 +668,7 @@ class LuckysheetConverter {
 		// Row heights (usually default, but can be customized)
 		// Only include if there are custom heights
 		if ( isset( $options['row_heights'] ) && is_array( $options['row_heights'] ) ) {
-			$config['rowlen'] = array();
+			$config['rowlen'] = [];
 			foreach ( $options['row_heights'] as $row_index => $height ) {
 				$config['rowlen'][ (int) $row_index ] = (int) $height;
 			}
@@ -695,13 +695,13 @@ class LuckysheetConverter {
 	 * @return array Luckysheet merge configuration.
 	 */
 	private function formatMergedCells( array $merged_cells ) {
-		$merge = array();
+		$merge = [];
 
 		foreach ( $merged_cells as $index => $def ) {
 			// Each merge needs a unique key
 			$key = sprintf( '%d_%d', $def['r'], $def['c'] );
 
-			$merge[ $key ] = array(
+			$merge[ $key ] = [
 				'r'                      => (int) $def['r'],
 				// Start row
 									'c'  => (int) $def['c'],
@@ -710,7 +710,7 @@ class LuckysheetConverter {
 				// Row span
 									'cs' => (int) $def['cs'],
 			// Column span
-			);
+			];
 		}
 
 		return $merge;
@@ -777,7 +777,7 @@ class LuckysheetConverter {
 	 * @param array $options  Conversion options.
 	 * @return string|false Luckysheet JSON or false on failure.
 	 */
-	public static function fromPost( $post_id, array $options = array() ) {
+	public static function fromPost( $post_id, array $options = [] ) {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
@@ -812,9 +812,9 @@ class LuckysheetConverter {
 		// Set sheet name from post title
 		$config = wp_parse_args(
 			$options,
-			array(
+			[
 				'sheet_name' => $post->post_title ?: 'Planilha',
-			)
+			]
 		);
 
 		$converter = new self( $config );
@@ -831,7 +831,7 @@ class LuckysheetConverter {
 	 * @param array  $options    Conversion options.
 	 * @return string|false Luckysheet JSON or false on failure.
 	 */
-	public static function fromTable( $table_name, $sheet_id, array $options = array() ) {
+	public static function fromTable( $table_name, $sheet_id, array $options = [] ) {
 		global $wpdb;
 
 		$table = $wpdb->prefix . sanitize_key( $table_name );
@@ -848,7 +848,7 @@ class LuckysheetConverter {
 		}
 
 		// Look for data column
-		$data_columns = array( 'data', 'spreadsheet_data', 'json_data', 'content' );
+		$data_columns = [ 'data', 'spreadsheet_data', 'json_data', 'content' ];
 		$raw_data     = null;
 
 		foreach ( $data_columns as $col ) {
@@ -867,7 +867,7 @@ class LuckysheetConverter {
 
 		// Set sheet name from table row if available
 		$sheet_name = $row['name'] ?? $row['title'] ?? $row['sheet_name'] ?? 'Planilha';
-		$config     = wp_parse_args( $options, array( 'sheet_name' => $sheet_name ) );
+		$config     = wp_parse_args( $options, [ 'sheet_name' => $sheet_name ] );
 
 		$converter = new self( $config );
 		return $converter->fromArray( $raw_data, $options );
@@ -879,12 +879,12 @@ class LuckysheetConverter {
 	 * @param array $options Configuration options.
 	 * @return string Empty Luckysheet JSON.
 	 */
-	public static function createEmptySpreadsheet( array $options = array() ) {
+	public static function createEmptySpreadsheet( array $options = [] ) {
 		$sheet_name = $options['sheet_name'] ?? 'Planilha 1';
 		$rows       = $options['rows'] ?? 50;
 		$cols       = $options['cols'] ?? 20;
 
-		$sheet = array(
+		$sheet = [
 			'name'          => $sheet_name,
 			'index'         => 'sheet_' . uniqid(),
 			'status'        => 1,
@@ -892,17 +892,17 @@ class LuckysheetConverter {
 			'hide'          => 0,
 			'row'           => $rows,
 			'column'        => $cols,
-			'celldata'      => array(),
-			'config'        => array(
+			'celldata'      => [],
+			'config'        => [
 				'defaultrowlen' => self::DEFAULT_ROW_HEIGHT,
 				'defaultcollen' => self::DEFAULT_COL_WIDTH,
-			),
+			],
 			'scrollLeft'    => 0,
 			'scrollTop'     => 0,
 			'showGridLines' => 1,
-		);
+		];
 
-		return wp_json_encode( array( $sheet ), JSON_UNESCAPED_UNICODE );
+		return wp_json_encode( [ $sheet ], JSON_UNESCAPED_UNICODE );
 	}
 
 	/**
@@ -912,7 +912,7 @@ class LuckysheetConverter {
 	 * @return array 2D array of data.
 	 */
 	private static function parseCsv( $csv_string ) {
-		$rows  = array();
+		$rows  = [];
 		$lines = str_getcsv( $csv_string, "\n" );
 
 		foreach ( $lines as $line ) {
@@ -945,18 +945,18 @@ class LuckysheetConverter {
 		$workbook = json_decode( $json, true );
 
 		if ( ! is_array( $workbook ) || empty( $workbook ) ) {
-			return array();
+			return [];
 		}
 
 		// Get first sheet (usually the active one)
 		$sheet = $workbook[0];
 
 		if ( ! isset( $sheet['celldata'] ) || ! is_array( $sheet['celldata'] ) ) {
-			return array();
+			return [];
 		}
 
 		// Initialize 2D array
-		$rows    = array();
+		$rows    = [];
 		$max_row = 0;
 		$max_col = 0;
 

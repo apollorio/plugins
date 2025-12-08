@@ -77,7 +77,7 @@ interface SignatureBackendInterface {
 	 *
 	 * @return array|WP_Error Result array on success, WP_Error on failure.
 	 */
-	public function sign( int $document_id, int $user_id, array $options = array() ): array|WP_Error;
+	public function sign( int $document_id, int $user_id, array $options = [] ): array|WP_Error;
 
 	/**
 	 * Verify a signature.
@@ -87,7 +87,7 @@ interface SignatureBackendInterface {
 	 *
 	 * @return array|WP_Error Verification result.
 	 */
-	public function verify( string $pdf_path, array $options = array() ): array|WP_Error;
+	public function verify( string $pdf_path, array $options = [] ): array|WP_Error;
 
 	/**
 	 * Get signer information from certificate.

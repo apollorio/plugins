@@ -33,8 +33,8 @@ class Apollo_Home_CPT {
 	 * Tooltip: Registers CPT on init hook, registers meta on rest_api_init
 	 */
 	public static function init() {
-		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
-		add_action( 'init', array( __CLASS__, 'register_meta' ) );
+		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class Apollo_Home_CPT {
 	 * Rewrite slug: /clubber/{post_name}
 	 */
 	public static function register_post_type() {
-		$labels = array(
+		$labels = [
 			'name'               => __( 'Clubber Homes', 'apollo-social' ),
 			'singular_name'      => __( 'Clubber Home', 'apollo-social' ),
 			'menu_name'          => __( 'Clubber Homes', 'apollo-social' ),
@@ -56,9 +56,9 @@ class Apollo_Home_CPT {
 			'search_items'       => __( 'Search Homes', 'apollo-social' ),
 			'not_found'          => __( 'No homes found', 'apollo-social' ),
 			'not_found_in_trash' => __( 'No homes found in trash', 'apollo-social' ),
-		);
+		];
 
-		$args = array(
+		$args = [
 			'labels'                       => $labels,
 			'public'                       => true,
 			'publicly_queryable'           => true,
@@ -67,16 +67,16 @@ class Apollo_Home_CPT {
 			// Hidden from admin menu
 							'show_in_rest' => true,
 			'query_var'                    => true,
-			'rewrite'                      => array(
+			'rewrite'                      => [
 				'slug'       => 'id',
 				'with_front' => false,
-			),
+			],
 			'capability_type'              => 'post',
 			'has_archive'                  => false,
 			'hierarchical'                 => false,
-			'supports'                     => array( 'title', 'comments', 'author' ),
+			'supports'                     => [ 'title', 'comments', 'author' ],
 			'menu_icon'                    => 'dashicons-admin-home',
-		);
+		];
 
 		register_post_type( self::POST_TYPE, $args );
 	}
@@ -92,7 +92,7 @@ class Apollo_Home_CPT {
 		register_post_meta(
 			self::POST_TYPE,
 			APOLLO_BUILDER_META_CONTENT,
-			array(
+			[
 				'type'              => 'string',
 				'single'            => true,
 				'default'           => '{"widgets":[]}',
@@ -100,49 +100,49 @@ class Apollo_Home_CPT {
 				'show_in_rest'      => false,
 				// Security: don't expose in REST
 												'description' => 'JSON layout: {widgets: [{id, type, x, y, width, height, zIndex, config}]}',
-			)
+			]
 		);
 
 		// Generated CSS (pattern: WOW _wow_page_css)
 		register_post_meta(
 			self::POST_TYPE,
 			APOLLO_BUILDER_META_CSS,
-			array(
+			[
 				'type'              => 'string',
 				'single'            => true,
 				'default'           => '',
 				'sanitize_callback' => 'wp_strip_all_tags',
 				'show_in_rest'      => false,
 				'description'       => 'Generated CSS for the home page layout',
-			)
+			]
 		);
 
 		// Background texture
 		register_post_meta(
 			self::POST_TYPE,
 			APOLLO_BUILDER_META_BACKGROUND,
-			array(
+			[
 				'type'              => 'string',
 				'single'            => true,
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 				'description'       => 'Background texture ID from apollo_builder_textures option',
-			)
+			]
 		);
 
 		// Trax player URL
 		register_post_meta(
 			self::POST_TYPE,
 			APOLLO_BUILDER_META_TRAX,
-			array(
+			[
 				'type'              => 'string',
 				'single'            => true,
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
 				'show_in_rest'      => true,
 				'description'       => 'SoundCloud or Spotify URL for Trax Player widget',
-			)
+			]
 		);
 	}
 
@@ -167,13 +167,13 @@ class Apollo_Home_CPT {
 
 		// Try to find existing
 		$existing = get_posts(
-			array(
+			[
 				'post_type'      => self::POST_TYPE,
-				'post_status'    => array( 'publish', 'draft' ),
+				'post_status'    => [ 'publish', 'draft' ],
 				'author'         => $user_id,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-			)
+			]
 		);
 
 		if ( ! empty( $existing ) ) {
@@ -182,14 +182,14 @@ class Apollo_Home_CPT {
 
 		// Create new home
 		$post_id = wp_insert_post(
-			array(
+			[
 				'post_type'      => self::POST_TYPE,
 				'post_title'     => sprintf( __( '%s\'s Home', 'apollo-social' ), $user->display_name ),
 				'post_status'    => 'publish',
 				'post_author'    => $user_id,
 				'comment_status' => 'open',
 			// Enable "Depoimentos"
-			),
+			],
 			true
 		);
 
@@ -201,9 +201,9 @@ class Apollo_Home_CPT {
 		}
 
 		// Set default layout with profile card (always present, cannot delete)
-		$default_layout = array(
-			'widgets' => array(
-				array(
+		$default_layout = [
+			'widgets' => [
+				[
 					'id'     => 'profile-card-default',
 					'type'   => 'profile-card',
 					'x'      => 24,
@@ -211,10 +211,10 @@ class Apollo_Home_CPT {
 					'width'  => 280,
 					'height' => 200,
 					'zIndex' => 1,
-					'config' => array(),
-				),
-			),
-		);
+					'config' => [],
+				],
+			],
+		];
 
 		update_post_meta( $post_id, APOLLO_BUILDER_META_CONTENT, wp_json_encode( $default_layout ) );
 
@@ -233,12 +233,12 @@ class Apollo_Home_CPT {
 		}
 
 		$posts = get_posts(
-			array(
+			[
 				'post_type'      => self::POST_TYPE,
 				'post_status'    => 'publish',
 				'author'         => $user_id,
 				'posts_per_page' => 1,
-			)
+			]
 		);
 
 		return ! empty( $posts ) ? $posts[0] : null;
@@ -291,7 +291,7 @@ class Apollo_Home_CPT {
 		$layout = json_decode( $json, true );
 
 		if ( ! is_array( $layout ) || ! isset( $layout['widgets'] ) ) {
-			return array( 'widgets' => array() );
+			return [ 'widgets' => [] ];
 		}
 
 		return $layout;

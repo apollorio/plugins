@@ -86,12 +86,12 @@ class Apollo_Widget_Profile_Card extends Apollo_Widget_Base {
 	 * Tooltip: Configurable options for the widget
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'show_location' => $this->field( 'switch', __( 'Show Location', 'apollo-social' ), true ),
 			'show_date'     => $this->field( 'switch', __( 'Show Member Since', 'apollo-social' ), true ),
 			'show_pronouns' => $this->field( 'switch', __( 'Show Pronouns', 'apollo-social' ), true ),
 			'label'         => $this->field( 'text', __( 'Label', 'apollo-social' ), 'Clubber carioca' ),
-		);
+		];
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Apollo_Widget_Profile_Card extends Apollo_Widget_Base {
 	 * @return string HTML
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 		$post_id  = $data['post_id'] ?? 0;
 
 		$user = $this->get_post_author( $post_id );
@@ -128,7 +128,7 @@ class Apollo_Widget_Profile_Card extends Apollo_Widget_Base {
 		?>
 		<div class="apollo-widget-profile-card">
 			<div class="profile-avatar-wrapper">
-				<?php echo get_avatar( $user->ID, 80, '', '', array( 'class' => 'profile-avatar' ) ); ?>
+				<?php echo get_avatar( $user->ID, 80, '', '', [ 'class' => 'profile-avatar' ] ); ?>
 			</div>
 			
 			<div class="profile-info">

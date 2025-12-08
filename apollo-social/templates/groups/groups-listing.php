@@ -22,7 +22,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -30,7 +30,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -38,7 +38,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -61,32 +61,32 @@ $page_subtitle = $is_nucleo
 // Get current user - avoid overriding WP globals.
 $user_obj            = wp_get_current_user();
 $current_user_id     = $user_obj->ID;
-$current_user_avatar = get_avatar_url( $current_user_id, array( 'size' => 64 ) );
+$current_user_avatar = get_avatar_url( $current_user_id, [ 'size' => 64 ] );
 
 // Get filter.
 $current_filter = isset( $_GET['filter'] ) ? sanitize_text_field( wp_unslash( $_GET['filter'] ) ) : 'all';
 
 // Query groups.
-$groups_args = array(
+$groups_args = [
 	'post_type'      => 'apollo_group',
 	'post_status'    => 'publish',
 	'posts_per_page' => 50,
 	'orderby'        => 'meta_value_num',
 	'meta_key'       => '_group_members_count',
 	'order'          => 'DESC',
-	'meta_query'     => array(
-		array(
+	'meta_query'     => [
+		[
 			'key'     => '_group_is_private',
 			'value'   => $is_nucleo ? '1' : '',
 			'compare' => $is_nucleo ? '=' : 'NOT EXISTS',
-		),
-	),
-);
+		],
+	],
+];
 
 $groups = get_posts( $groups_args );
 
 // Get unique tags for filters.
-$all_tags = array();
+$all_tags = [];
 foreach ( $groups as $group ) {
 	$tags = get_post_meta( $group->ID, '_group_tags', true );
 	if ( $tags ) {

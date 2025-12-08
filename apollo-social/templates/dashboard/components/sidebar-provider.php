@@ -30,13 +30,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *     @type string $class           Additional CSS classes.
  * }
  */
-function apollo_sidebar_provider_start( array $args = array() ) {
-	$defaults = array(
+function apollo_sidebar_provider_start( array $args = [] ) {
+	$defaults = [
 		'sidebar_width' => 'calc(var(--spacing) * 72)',
 		'header_height' => 'calc(var(--spacing) * 12)',
 		'default_open'  => 'true',
 		'class'         => '',
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	$style_vars = sprintf(
@@ -73,10 +73,10 @@ function apollo_sidebar_provider_end() {
  *
  * @param array $args Configuration options.
  */
-function apollo_sidebar_inset_start( array $args = array() ) {
-	$defaults = array(
+function apollo_sidebar_inset_start( array $args = [] ) {
+	$defaults = [
 		'class' => '',
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	$classes  = 'apollo-sidebar-inset relative flex min-h-svh flex-1 flex-col bg-background';

@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 class AuthServiceProvider {
 
 	public function register(): void {
-		add_filter( 'login_redirect', array( $this, 'redirectToWorld' ), 10, 3 );
+		add_filter( 'login_redirect', [ $this, 'redirectToWorld' ], 10, 3 );
 
 		// Register User Roles modifications
 		$userRoles = new UserRoles();

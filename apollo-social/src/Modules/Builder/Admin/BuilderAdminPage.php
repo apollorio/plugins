@@ -13,8 +13,8 @@ class BuilderAdminPage {
 	}
 
 	public function register(): void {
-		add_action( 'admin_menu', array( $this, 'registerMenu' ), 35 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAssets' ) );
+		add_action( 'admin_menu', [ $this, 'registerMenu' ], 35 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAssets' ] );
 	}
 
 	public function registerMenu(): void {
@@ -23,7 +23,7 @@ class BuilderAdminPage {
 			__( 'Apollo Builder', 'apollo-social' ),
 			'edit_users',
 			'apollo-builder',
-			array( $this, 'renderPage' ),
+			[ $this, 'renderPage' ],
 			'dashicons-layout',
 			31
 		);
@@ -43,14 +43,14 @@ class BuilderAdminPage {
 		wp_enqueue_style(
 			'apollo-builder-css',
 			plugins_url( 'assets/css/apollo-builder.css', $pluginFile ),
-			array( 'apollo-uni-css' ),
+			[ 'apollo-uni-css' ],
 			APOLLO_SOCIAL_VERSION
 		);
 
 		wp_enqueue_script(
 			'interactjs',
 			'https://cdn.jsdelivr.net/npm/interactjs@1.10.17/dist/interact.min.js',
-			array(),
+			[],
 			'1.10.17',
 			true
 		);
@@ -63,12 +63,12 @@ class BuilderAdminPage {
 		wp_localize_script(
 			'apollo-social-builder-runtime',
 			'apolloBuilder',
-			array(
+			[
 				'restUrl'     => esc_url_raw( rest_url( 'apollo-social/v1/builder/layout' ) ),
 				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'currentUser' => get_current_user_id(),
 				'layout'      => $this->repository->getLayout( get_current_user_id() ),
-			)
+			]
 		);
 	}
 

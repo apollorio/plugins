@@ -36,7 +36,7 @@ class Apollo_Core_Rest_Bootstrap {
 		// Health check endpoint.
 		register_rest_route(
 			self::NAMESPACE,
-			'/health',
+			'/testando',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'health_check' ),

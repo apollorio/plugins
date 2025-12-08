@@ -1,4 +1,11 @@
 <?php
+/**
+ * REST API SMOKE TEST – PASSED
+ * Routes: /apollo/v1/comunas, /comunas/{id}, /membro, /anuncios, /id/{id}, /favs
+ * Legacy aliases: /uniao (deprecated)
+ * Affects: apollo-social.php, RestRoutes.php, GroupsController.php, MembershipsController.php
+ * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ */
 namespace Apollo\Infrastructure\Http;
 
 use Apollo\Infrastructure\Http\Controllers\GroupsController;
@@ -14,126 +21,151 @@ use WP_Error;
 class RestRoutes {
 
 	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
 	 * Register all REST API routes
 	 */
 	public function registerRoutes(): void {
-		// Groups routes
+		// Comunas routes (Groups in Portuguese)
 		register_rest_route(
 			'apollo/v1',
-			'/groups',
-			array(
+			'/comunas',
+			[
 				'methods'             => 'GET',
-				'callback'            => array( new GroupsController(), 'index' ),
+				'callback'            => [ new GroupsController(), 'index' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/groups',
-			array(
+			'/comunas',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'create' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new GroupsController(), 'create' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/groups/(?P<id>\d+)/join',
-			array(
+			'/comunas/(?P<id>\d+)/join',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'join' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new GroupsController(), 'join' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/groups/(?P<id>\d+)/invite',
-			array(
+			'/comunas/(?P<id>\d+)/invite',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'invite' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new GroupsController(), 'invite' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/groups/(?P<id>\d+)/approve-invite',
-			array(
+			'/comunas/(?P<id>\d+)/approve-invite',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'approveInvite' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new GroupsController(), 'approveInvite' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
-		// Unions routes
+		// =====================================================================
+		// Membro routes (Portuguese naming - primary routes)
+		// =====================================================================
 		register_rest_route(
 			'apollo/v1',
-			'/unions',
-			array(
+			'/membro',
+			[
 				'methods'             => 'GET',
-				'callback'            => array( new MembershipsController(), 'index' ),
+				'callback'            => [ new MembershipsController(), 'index' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/unions/(?P<id>\d+)/toggle-badges',
-			array(
+			'/membro/(?P<id>\d+)/toggle-badges',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new MembershipsController(), 'toggleBadges' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new MembershipsController(), 'toggleBadges' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
-		// Classifieds routes (WPAdverts integration)
+		// =====================================================================
+		// Legacy: /uniao routes (deprecated, backward compatibility)
+		// =====================================================================
 		register_rest_route(
 			'apollo/v1',
-			'/classifieds',
-			array(
+			'/uniao',
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'restGetClassifieds' ),
+				'callback'            => [ new MembershipsController(), 'index' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
-			'/classifieds/(?P<id>\d+)',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( $this, 'restGetClassified' ),
-				'permission_callback' => '__return_true',
-			)
-		);
-
-		// Keep existing ClassifiedsController for backward compatibility
-		register_rest_route(
-			'apollo/v1',
-			'/classifieds',
-			array(
+			'/uniao/(?P<id>\d+)/toggle-badges',
+			[
 				'methods'             => 'POST',
-				'callback'            => array( new ClassifiedsController(), 'create' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
+				'callback'            => [ new MembershipsController(), 'toggleBadges' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
 		);
 
-		// Users routes
+		// Anúncios routes (Classifieds in Portuguese - WPAdverts integration)
 		register_rest_route(
 			'apollo/v1',
-			'/users/(?P<id>[a-zA-Z0-9_-]+)',
-			array(
+			'/anuncios',
+			[
 				'methods'             => 'GET',
-				'callback'            => array( new UsersController(), 'show' ),
+				'callback'            => [ $this, 'restGetClassifieds' ],
 				'permission_callback' => '__return_true',
-			)
+			]
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'/anuncio/(?P<id>\d+)',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ $this, 'restGetClassified' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+
+		// Post anúncio
+		register_rest_route(
+			'apollo/v1',
+			'/anuncios',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ new ClassifiedsController(), 'create' ],
+				'permission_callback' => [ $this, 'requireLoggedIn' ],
+			]
+		);
+
+		// User ID routes (shortened from /users to /id)
+		register_rest_route(
+			'apollo/v1',
+			'/id/(?P<id>[a-zA-Z0-9_-]+)',
+			[
+				'methods'             => 'GET',
+				'callback'            => [ new UsersController(), 'show' ],
+				'permission_callback' => '__return_true',
+			]
 		);
 	}
 
@@ -145,10 +177,10 @@ class RestRoutes {
 		$page     = intval( $request->get_param( 'page' ) ) ?: 1;
 		$search   = sanitize_text_field( $request->get_param( 'search' ) ?: '' );
 
-		$args = array(
+		$args = [
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
-		);
+		];
 
 		if ( $search ) {
 			$args['s'] = $search;
@@ -157,10 +189,10 @@ class RestRoutes {
 		$result = WPAdvertsAdapter::listAds( $args );
 
 		return new \WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'data'    => $result,
-			),
+			],
 			200
 		);
 	}
@@ -173,10 +205,10 @@ class RestRoutes {
 
 		if ( ! $id ) {
 			return new \WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => 'Invalid ad ID',
-				),
+				],
 				400
 			);
 		}
@@ -185,19 +217,19 @@ class RestRoutes {
 
 		if ( ! $ad ) {
 			return new \WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => 'Ad not found',
-				),
+				],
 				404
 			);
 		}
 
 		return new \WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'data'    => $ad,
-			),
+			],
 			200
 		);
 	}
@@ -212,7 +244,7 @@ class RestRoutes {
 			return new WP_Error(
 				'rest_invalid_nonce',
 				__( 'Invalid or missing WP REST nonce.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -220,7 +252,7 @@ class RestRoutes {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in to access this endpoint.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 

@@ -19,9 +19,9 @@ class Apollo_Builder_Assets_Admin {
 	 * Initialize hooks
 	 */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
-		add_action( 'wp_ajax_apollo_builder_save_assets', array( __CLASS__, 'ajax_save_assets' ) );
+		add_action( 'admin_menu', [ __CLASS__, 'add_menu' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'wp_ajax_apollo_builder_save_assets', [ __CLASS__, 'ajax_save_assets' ] );
 	}
 
 	/**
@@ -34,7 +34,7 @@ class Apollo_Builder_Assets_Admin {
 			__( '🖼️ Builder Assets', 'apollo-social' ),
 			'manage_options',
 			'apollo-builder-assets',
-			array( __CLASS__, 'render_page' )
+			[ __CLASS__, 'render_page' ]
 		);
 	}
 
@@ -51,7 +51,7 @@ class Apollo_Builder_Assets_Admin {
 		wp_enqueue_script(
 			'apollo-builder-assets-admin',
 			plugins_url( 'assets/js/admin-builder-assets.js', dirname( __DIR__ ) ),
-			array( 'jquery', 'wp-media-utils' ),
+			[ 'jquery', 'wp-media-utils' ],
 			APOLLO_BUILDER_VERSION,
 			true
 		);
@@ -59,10 +59,10 @@ class Apollo_Builder_Assets_Admin {
 		wp_localize_script(
 			'apollo-builder-assets-admin',
 			'apolloBuilderAssetsAdmin',
-			array(
+			[
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'apollo_builder_assets_nonce' ),
-				'i18n'    => array(
+				'i18n'    => [
 					'selectImage'   => __( 'Select Image', 'apollo-social' ),
 					'useImage'      => __( 'Use Image', 'apollo-social' ),
 					'removeImage'   => __( 'Remove Image', 'apollo-social' ),
@@ -70,8 +70,8 @@ class Apollo_Builder_Assets_Admin {
 					'saving'        => __( 'Saving...', 'apollo-social' ),
 					'saved'         => __( 'Saved!', 'apollo-social' ),
 					'error'         => __( 'Error saving', 'apollo-social' ),
-				),
-			)
+				],
+			]
 		);
 
 		// Inline styles
@@ -154,8 +154,8 @@ class Apollo_Builder_Assets_Admin {
 	 * Render admin page
 	 */
 	public static function render_page() {
-		$stickers = get_option( 'apollo_builder_stickers', array() );
-		$textures = get_option( 'apollo_builder_textures', array() );
+		$stickers = get_option( 'apollo_builder_stickers', [] );
+		$textures = get_option( 'apollo_builder_textures', [] );
 
 		?>
 		<div class="wrap">
@@ -229,7 +229,7 @@ class Apollo_Builder_Assets_Admin {
 	/**
 	 * Render single asset row
 	 */
-	private static function render_asset_row( $type, $index, $data = array() ) {
+	private static function render_asset_row( $type, $index, $data = [] ) {
 		$id        = esc_attr( $data['id'] ?? uniqid( $type . '_' ) );
 		$label     = esc_attr( $data['label'] ?? '' );
 		$image_id  = absint( $data['image_id'] ?? 0 );
@@ -276,38 +276,38 @@ class Apollo_Builder_Assets_Admin {
 		check_ajax_referer( 'apollo_builder_assets_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'apollo-social' ) ), 403 );
+			wp_send_json_error( [ 'message' => __( 'Permission denied', 'apollo-social' ) ], 403 );
 		}
 
 		// Process stickers
-		$stickers = array();
+		$stickers = [];
 		if ( isset( $_POST['stickers'] ) && is_array( $_POST['stickers'] ) ) {
 			foreach ( $_POST['stickers'] as $s ) {
 				if ( empty( $s['image_id'] ) ) {
 					continue;
 				}
 
-				$stickers[] = array(
+				$stickers[] = [
 					'id'       => sanitize_key( $s['id'] ?? uniqid( 'sticker_' ) ),
 					'label'    => sanitize_text_field( $s['label'] ?? '' ),
 					'image_id' => absint( $s['image_id'] ),
-				);
+				];
 			}
 		}
 
 		// Process textures
-		$textures = array();
+		$textures = [];
 		if ( isset( $_POST['textures'] ) && is_array( $_POST['textures'] ) ) {
 			foreach ( $_POST['textures'] as $t ) {
 				if ( empty( $t['image_id'] ) ) {
 					continue;
 				}
 
-				$textures[] = array(
+				$textures[] = [
 					'id'       => sanitize_key( $t['id'] ?? uniqid( 'texture_' ) ),
 					'label'    => sanitize_text_field( $t['label'] ?? '' ),
 					'image_id' => absint( $t['image_id'] ),
-				);
+				];
 			}
 		}
 
@@ -315,11 +315,11 @@ class Apollo_Builder_Assets_Admin {
 		update_option( 'apollo_builder_textures', $textures );
 
 		wp_send_json_success(
-			array(
+			[
 				'message'  => __( 'Assets saved!', 'apollo-social' ),
 				'stickers' => count( $stickers ),
 				'textures' => count( $textures ),
-			)
+			]
 		);
 	}
 
@@ -327,14 +327,14 @@ class Apollo_Builder_Assets_Admin {
 	 * Static: Get stickers
 	 */
 	public static function get_stickers() {
-		return get_option( 'apollo_builder_stickers', array() );
+		return get_option( 'apollo_builder_stickers', [] );
 	}
 
 	/**
 	 * Static: Get textures
 	 */
 	public static function get_textures() {
-		return get_option( 'apollo_builder_textures', array() );
+		return get_option( 'apollo_builder_textures', [] );
 	}
 }
 

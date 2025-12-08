@@ -43,13 +43,13 @@ $document_pages = ! empty( $pages_raw ) ? $pages_raw : 1;
 // Get signers.
 $signers = get_post_meta( $document_id, '_document_signers', true );
 if ( ! is_array( $signers ) ) {
-	$signers = array();
+	$signers = [];
 }
 
 // Current user.
 $user_obj              = wp_get_current_user();
 $current_user_id       = $user_obj->ID;
-$current_user_avatar   = get_avatar_url( $current_user_id, array( 'size' => 64 ) );
+$current_user_avatar   = get_avatar_url( $current_user_id, [ 'size' => 64 ] );
 $current_user_initials = mb_strtoupper( mb_substr( $user_obj->display_name, 0, 2 ) );
 
 // Check if current user has already signed.
@@ -108,7 +108,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -116,7 +116,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 	},

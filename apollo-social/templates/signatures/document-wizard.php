@@ -16,31 +16,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 // Get document templates
-$templates = array(
-	'contract'      => array(
+$templates = [
+	'contract'      => [
 		'title'       => __( 'Contrato de Prestação de Serviços', 'apollo-social' ),
 		'description' => __( 'Modelo completo para prestação de serviços com cláusulas padrão', 'apollo-social' ),
 		'icon'        => 'ri-file-text-line',
-	),
-	'nda'           => array(
+	],
+	'nda'           => [
 		'title'       => __( 'Acordo de Confidencialidade (NDA)', 'apollo-social' ),
 		'description' => __( 'Termo de confidencialidade para proteção de informações', 'apollo-social' ),
 		'icon'        => 'ri-shield-keyhole-line',
-	),
-	'authorization' => array(
+	],
+	'authorization' => [
 		'title'       => __( 'Autorização de Uso de Imagem', 'apollo-social' ),
 		'description' => __( 'Autorização para uso de imagem e voz em materiais', 'apollo-social' ),
 		'icon'        => 'ri-camera-line',
-	),
-	'partnership'   => array(
+	],
+	'partnership'   => [
 		'title'       => __( 'Termo de Parceria', 'apollo-social' ),
 		'description' => __( 'Acordo de parceria entre organizações ou empresas', 'apollo-social' ),
 		'icon'        => 'ri-handshake-line',
-	),
-);
+	],
+];
 
 get_header();
 ?>

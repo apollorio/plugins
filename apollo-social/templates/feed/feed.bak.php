@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder
-$posts        = $view['data']['posts'] ?? array();
-$current_user = $view['data']['current_user'] ?? array();
+$posts        = $view['data']['posts'] ?? [];
+$current_user = $view['data']['current_user'] ?? [];
 
 $ajax_url      = admin_url( 'admin-ajax.php' );
 $rest_url      = rest_url( 'apollo/v1' );

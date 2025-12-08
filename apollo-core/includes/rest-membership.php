@@ -2,7 +2,9 @@
 declare(strict_types=1);
 
 /**
- * Apollo Core - Membership REST API
+ * Apollo Core - Membership REST API (Membro)
+ *
+ * Routes: /apollo/v1/membros (primary), /apollo/v1/memberships (legacy alias)
  *
  * @package Apollo_Core
  * @since 3.0.0
@@ -13,10 +15,182 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register membership REST routes
+ * Register membership REST routes (membros - Portuguese naming)
  */
 function apollo_register_membership_rest_routes() {
-	// GET /memberships - Get all membership types (public).
+	// =========================================================================
+	// PRIMARY ROUTES: /membros/* (Portuguese naming convention)
+	// =========================================================================
+
+	// GET /membros - Listar todos os tipos de membro (público).
+	register_rest_route(
+		'apollo/v1',
+		'/membros',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'apollo_rest_get_memberships',
+			'permission_callback' => '__return_true',
+		)
+	);
+
+	// POST /membros/definir - Definir tipo de membro do usuário.
+	register_rest_route(
+		'apollo/v1',
+		'/membros/definir',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_set_membership',
+			'permission_callback' => 'apollo_rest_can_edit_users',
+			'args'                => array(
+				'user_id'         => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+					'validate_callback' => 'apollo_rest_validate_user_id',
+				),
+				'membership_slug' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+					'validate_callback' => 'apollo_rest_validate_membership_slug',
+				),
+			),
+		)
+	);
+
+	// POST /membros/criar - Criar novo tipo de membro (apenas admin).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/criar',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_create_membership',
+			'permission_callback' => 'apollo_rest_can_manage_memberships',
+			'args'                => array(
+				'slug'           => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+				),
+				'label'          => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'frontend_label' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'color'          => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_hex_color',
+				),
+				'text_color'     => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_hex_color',
+				),
+			),
+		)
+	);
+
+	// POST /membros/atualizar - Atualizar tipo de membro (apenas admin).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/atualizar',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_update_membership',
+			'permission_callback' => 'apollo_rest_can_manage_memberships',
+			'args'                => array(
+				'slug'           => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+				),
+				'label'          => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'frontend_label' => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'color'          => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_hex_color',
+				),
+				'text_color'     => array(
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_hex_color',
+				),
+			),
+		)
+	);
+
+	// POST /membros/excluir - Excluir tipo de membro (apenas admin).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/excluir',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_delete_membership',
+			'permission_callback' => 'apollo_rest_can_manage_memberships',
+			'args'                => array(
+				'slug' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'sanitize_key',
+				),
+			),
+		)
+	);
+
+	// GET /membros/exportar - Exportar membros como JSON (apenas admin).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/exportar',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'apollo_rest_export_memberships',
+			'permission_callback' => 'apollo_rest_can_manage_memberships',
+		)
+	);
+
+	// POST /membros/importar - Importar membros de JSON (apenas admin).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/importar',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_import_memberships',
+			'permission_callback' => 'apollo_rest_can_manage_memberships',
+			'args'                => array(
+				'data' => array(
+					'required'          => true,
+					'type'              => 'string',
+					'sanitize_callback' => 'wp_kses_post',
+				),
+			),
+		)
+	);
+
+	// =========================================================================
+	// LEGACY ROUTES: /memberships/* (deprecated, backward compatibility)
+	// =========================================================================
+	apollo_register_legacy_membership_routes();
+}
+add_action( 'rest_api_init', 'apollo_register_membership_rest_routes' );
+
+/**
+ * Register legacy /memberships/* routes for backward compatibility
+ *
+ * @deprecated Use /membros/* routes instead.
+ */
+function apollo_register_legacy_membership_routes() {
+	// GET /memberships - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships',
@@ -27,7 +201,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// POST /memberships/set - Set user membership.
+	// POST /memberships/set - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/set',
@@ -52,7 +226,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// POST /memberships/create - Create new membership type (admin only).
+	// POST /memberships/create - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/create',
@@ -90,7 +264,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// POST /memberships/update - Update membership type (admin only).
+	// POST /memberships/update - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/update',
@@ -124,7 +298,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// DELETE /memberships/delete - Delete membership type (admin only).
+	// POST /memberships/delete - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/delete',
@@ -142,7 +316,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// GET /memberships/export - Export memberships as JSON (admin only).
+	// GET /memberships/export - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/export',
@@ -153,7 +327,7 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
-	// POST /memberships/import - Import memberships from JSON (admin only).
+	// POST /memberships/import - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/import',
@@ -171,7 +345,6 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 }
-add_action( 'rest_api_init', 'apollo_register_membership_rest_routes' );
 
 /**
  * Permission callback: check if user can edit users

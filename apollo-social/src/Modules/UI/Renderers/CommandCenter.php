@@ -489,7 +489,7 @@ class CommandCenter {
 	private function getUserPermissions(): array {
 		$user = wp_get_current_user();
 
-		return array(
+		return [
 			'can_create_groups'    => current_user_can( 'create_apollo_groups' ),
 			'can_create_events'    => current_user_can( 'create_eva_events' ),
 			'can_create_ads'       => current_user_can( 'create_apollo_ads' ),
@@ -499,7 +499,7 @@ class CommandCenter {
 			'can_export_analytics' => current_user_can( 'apollo_export_analytics' ),
 			'user_level'           => $this->getUserLevel( $user ),
 			'role_name'            => $this->getRoleName( $user ),
-		);
+		];
 	}
 
 	private function getUserLevel( $user ): int {
@@ -522,13 +522,13 @@ class CommandCenter {
 	}
 
 	private function getRoleName( $user ): string {
-		$roles = array(
+		$roles = [
 			'administrator' => 'Administrador',
 			'editor'        => 'Editor',
 			'author'        => 'Autor',
 			'contributor'   => 'Colaborador',
 			'subscriber'    => 'Assinante',
-		);
+		];
 
 		foreach ( $user->roles as $role ) {
 			if ( isset( $roles[ $role ] ) ) {

@@ -1,32 +1,38 @@
-.wpem-admin-container .wpem-admin-left-sidebar {
+.aprio-admin-container .aprio-admin-left-sidebar {
   display: inline-block;
   width: 25%;
 }
-.wpem-admin-container .wpem-admin-right-container {
+
+.aprio-admin-container .aprio-admin-right-container {
   display: inline-block;
   width: 68%;
   vertical-align: top;
   background: #fff;
   margin-top: 12px;
 }
-.wpem-admin-container .wpem-admin-right-container.wpem-dark-mode .postbox {
+
+.aprio-admin-container .aprio-admin-right-container.aprio-dark-mode .postbox {
   background: #151a30;
 }
-.wpem-admin-container ul.wpem-admin-left-menu {
+
+.aprio-admin-container ul.aprio-admin-left-menu {
   background: #fff;
   border-left: 1px solid #e3e3e3;
   border-right: 1px solid #e3e3e3;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item:first-child {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item:first-child {
   border-top: 1px solid #e3e3e3;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item {
   width: 100%;
   display: flex;
   margin: 0;
   border-bottom: 1px solid #e3e3e3;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab {
   border: 0;
   transition: 0.2s all ease-in-out;
   position: relative;
@@ -38,26 +44,31 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab:hover {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab:hover {
   background-color: #f9f9f9;
   color: #00a5fa;
   border-left: 5px solid;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab:hover:before {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab:hover:before {
   color: #00a5fa;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active {
   position: relative;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active,
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active:focus,
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active:focus:active,
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active:hover {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:focus,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:focus:active,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:hover {
   background-color: #f9f9f9;
   color: #00a5fa;
   border-left: 5px solid;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item a.nav-tab-active:after {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:after {
   content: "";
   position: absolute;
   right: 15px;
@@ -69,7 +80,8 @@
   transform: rotate(-45deg);
   -webkit-transform: rotate(-45deg);
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox h3 {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox h3 {
   padding: 18px 20px;
   font-weight: 500;
   font-size: 1.6em;
@@ -78,30 +90,37 @@
   color: #666;
   background: #f5f5f5;
 }
-.wpem-api-message.updated{
-  margin:0;
+
+.aprio-api-message.updated {
+  margin: 0;
 }
+
 .update_app_branding_message {
   position: absolute;
   bottom: 30px;
   left: 100px;
   transition: all 300ms ease;
 }
-.wpem-app-branding-mode.wpem-dark-mode .update_app_branding_message {
+
+.aprio-app-branding-mode.aprio-dark-mode .update_app_branding_message {
   color: white;
 }
-.update_app_branding_message i.wpem-icon-checkmark {
+
+.update_app_branding_message i.aprio-icon-checkmark {
   color: #77dd37;
 }
-.update_app_branding_message i.wpem-icon-cross {
+
+.update_app_branding_message i.aprio-icon-cross {
   color: #FC4C20;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox {
   margin: 0px;
   border: none;
   box-shadow: none;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item .nav-tab:before {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item .nav-tab:before {
   font-family: "wp-event-manager";
   position: absolute;
   font-weight: normal;
@@ -112,27 +131,32 @@
   transition: 0.3s all ease-in-out;
   color: #a2acba;
 }
-.wpem-admin-container .wpem-admin-left-sidebar ul.wpem-admin-left-menu li.wpem-admin-left-menu-item .nav-tab.nav-tab-active:before {
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item .nav-tab.nav-tab-active:before {
   color: #00a5fa;
 }
-.wpem-admin-container .wpem-admin-right-container-holder {
+
+.aprio-admin-container .aprio-admin-right-container-holder {
   padding-top: 0px !important;
   border: 1px solid #ccc;
   overflow: auto;
 }
+
 @media only screen and (max-width: 768px) {
-  .wpem-admin-container .wpem-admin-left-sidebar,
-  .wpem-admin-container .wpem-admin-right-container {
+
+  .aprio-admin-container .aprio-admin-left-sidebar,
+  .aprio-admin-container .aprio-admin-right-container {
     display: block;
     width: 100%;
   }
 }
+
 /* Inside Container CSS */
 
-.wpem-admin-container .wpem-backend-theme-button,
-.wpem-admin-container a.wpem-backend-theme-button,
-.wpem-admin-container button.wpem-backend-theme-button,
-.wpem-admin-container input.wpem-backend-theme-button {
+.aprio-admin-container .aprio-backend-theme-button,
+.aprio-admin-container a.aprio-backend-theme-button,
+.aprio-admin-container button.aprio-backend-theme-button,
+.aprio-admin-container input.aprio-backend-theme-button {
   background: #00a5fb;
   color: #fff;
   border: none;
@@ -145,62 +169,75 @@
   font-size: 14px;
   transition: 0.3s all ease-in-out;
 }
-.wpem-admin-container a.wpem-backend-theme-button:hover,
-.wpem-admin-container input.wpem-backend-theme-button:hover,
-.wpem-admin-container input.wpem-backend-theme-button:active {
+
+.aprio-admin-container a.aprio-backend-theme-button:hover,
+.aprio-admin-container input.aprio-backend-theme-button:hover,
+.aprio-admin-container input.aprio-backend-theme-button:active {
   background: #008cd4;
   color: #fff;
   border: none;
 }
-.wpem-admin-container input.wpem-backend-theme-button:focus {
+
+.aprio-admin-container input.aprio-backend-theme-button:focus {
   border: none;
   background: #008cd4;
   box-shadow: none;
   outline: none;
 }
-.wpem-admin-container .wpem-backend-theme-button.wpem-revoke-button,
-.wpem-admin-container a.wpem-backend-theme-button.wpem-revoke-button {
+
+.aprio-admin-container .aprio-backend-theme-button.aprio-revoke-button,
+.aprio-admin-container a.aprio-backend-theme-button.aprio-revoke-button {
   background: #e54646;
   transition: all 0.2s ease;
 }
-.wpem-admin-container .wpem-backend-theme-button.wpem-revoke-button:hover,
-.wpem-admin-container a.wpem-backend-theme-button.wpem-revoke-button:hover {
+
+.aprio-admin-container .aprio-backend-theme-button.aprio-revoke-button:hover,
+.aprio-admin-container a.aprio-backend-theme-button.aprio-revoke-button:hover {
   background: #e51e1e;
 }
-.wpem-admin-container .wpem-admin-tab-title a.wpem-backend-theme-button {
+
+.aprio-admin-container .aprio-admin-tab-title a.aprio-backend-theme-button {
   line-height: 16px;
   font-size: 12px;
   border-radius: 3px;
   padding: 7px 10px;
 }
-.wpem-admin-container .wpem-admin-right-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table {
+
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table {
   width: 100%;
   margin-top: 0;
 }
-.wpem-admin-container .wpem-admin-right-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table tbody tr:first-child th,
-.wpem-admin-container .wpem-admin-right-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table tbody tr:first-child td {
+
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr:first-child th,
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr:first-child td {
   padding-top: 10px;
 }
-.wpem-admin-container .wpem-admin-right-container-holder p.submit {
+
+.aprio-admin-container .aprio-admin-right-container-holder p.submit {
   padding: 15px 20px;
   margin: 0px;
   background: #f5f5f5;
 }
-.wpem-admin-container .wpem-admin-bottom-content .wpem-admin-body {
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body {
   padding: 20px;
 }
-.wpem-admin-container .wpem-api-access.wpem-admin-right-container .wpem-admin-right-container-holder .wpem-admin-body {
+
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body {
   padding: 20px;
 }
-.wpem-admin-container .wpem-api-access.wpem-admin-right-container .wpem-admin-right-container-holder .wpem-admin-body table.form-table tbody tr:first-child th,
-.wpem-admin-container .wpem-api-access.wpem-admin-right-container .wpem-admin-right-container-holder .wpem-admin-body table.form-table tbody tr:first-child td {
+
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body table.form-table tbody tr:first-child th,
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body table.form-table tbody tr:first-child td {
   padding-top: 0;
 }
-.wpem-admin-container .wpem-admin-bottom-content .wpem-admin-body h2:first-child {
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body h2:first-child {
   margin-top: 0px;
 }
-.wpem-admin-container .wpem-admin-body p.search-box input.button,
-.wpem-admin-container .wpem-admin-body input.button.action {
+
+.aprio-admin-container .aprio-admin-body p.search-box input.button,
+.aprio-admin-container .aprio-admin-body input.button.action {
   line-height: 16px;
   font-size: 12px;
   border-radius: 3px;
@@ -209,139 +246,167 @@
   color: #fff;
   border: none;
 }
-.wpem-admin-container .wpem-admin-body p.search-box input.button:hover,
-.wpem-admin-container .wpem-admin-body input.button.action:hover {
+
+.aprio-admin-container .aprio-admin-body p.search-box input.button:hover,
+.aprio-admin-container .aprio-admin-body input.button.action:hover {
   background: #008cd4;
   color: #fff;
   border: none;
 }
-.wpem-admin-container .wpem-admin-bottom-content input[type="color"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="date"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="datetime-local"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="datetime"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="email"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="month"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="number"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="password"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="search"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="tel"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="text"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="time"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="url"],
-.wpem-admin-container .wpem-admin-bottom-content input[type="week"],
-.wpem-admin-container .wpem-admin-bottom-content select,
-.wpem-admin-container .wpem-admin-bottom-content textarea {
+
+.aprio-admin-container .aprio-admin-bottom-content input[type="color"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="date"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="datetime-local"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="datetime"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="email"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="month"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="number"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="password"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="search"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="tel"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="text"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="time"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="url"],
+.aprio-admin-container .aprio-admin-bottom-content input[type="week"],
+.aprio-admin-container .aprio-admin-bottom-content select,
+.aprio-admin-container .aprio-admin-bottom-content textarea {
   box-shadow: 0 0 0 transparent;
   border: 1px solid #ccc;
   background-color: #fff;
   color: #555;
 }
+
 /* Inside Container CSS */
 
 /* App Branding */
 
-.wpem-admin-container .wpem-app-branding-mode .button label {
+.aprio-admin-container .aprio-app-branding-mode .button label {
   display: none;
 }
-.wpem-admin-container .app-branding-mode .button svg {
+
+.aprio-admin-container .app-branding-mode .button svg {
   max-width: 25px;
   width: 100%;
   display: block;
 }
-.wpem-admin-container .app-branding-mode .button {
+
+.aprio-admin-container .app-branding-mode .button {
   padding: 10px;
   height: 50px;
 }
-.wpem-admin-container .app-branding-mode {
+
+.aprio-admin-container .app-branding-mode {
   display: flex;
   padding: 15px 20px;
   justify-content: flex-end;
 }
-.wpem-admin-container .wpem-light-mode .wpem-light-mode.button {
+
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button {
   background: #00a5fa;
   border: 2px solid #00a5fa;
   border-radius: 3px 0px 0px 3px;
 }
-.wpem-admin-container .wpem-light-mode .wpem-light-mode.button svg {
+
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button svg {
   fill: #fff;
 }
-.wpem-admin-container .wpem-light-mode .wpem-dark-mode.button {
+
+.aprio-admin-container .aprio-light-mode .aprio-dark-mode.button {
   border: 2px solid #00a5fa;
   border-radius: 0px 3px 3px 0px;
   background: #fff;
 }
-.wpem-admin-container .wpem-light-mode .wpem-dark-mode.button svg {
+
+.aprio-admin-container .aprio-light-mode .aprio-dark-mode.button svg {
   fill: #00a5fa;
 }
-.wpem-admin-container .wpem-dark-mode .wpem-light-mode.button {
+
+.aprio-admin-container .aprio-dark-mode .aprio-light-mode.button {
   background: transparent;
   border: 2px solid #00a5fa;
   border-radius: 3px 0px 0px 3px;
 }
-.wpem-admin-container .wpem-dark-mode .wpem-light-mode.button svg {
+
+.aprio-admin-container .aprio-dark-mode .aprio-light-mode.button svg {
   fill: #00a5fa;
 }
-.wpem-admin-container .wpem-dark-mode .wpem-dark-mode.button {
+
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button {
   border: 2px solid #00a5fa;
   border-radius: 0px 3px 3px 0px;
   background: #00a5fa;
 }
-.wpem-admin-container .wpem-dark-mode .wpem-dark-mode.button svg {
+
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button svg {
   fill: #fff;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table thead tr th {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th {
   background: #eee;
   padding-left: 20px;
   border: 1px solid #ccc;
   text-align: center;
   border-left: none;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
   border-right: none;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table thead {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead {
   width: 100%;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
   border-right: none;
 }
-.wpem-admin-container .wpem-app-branding .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr {
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr {
   background: #f1f1f1;
 }
-.wpem-admin-container .wpem-app-branding .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr + tr {
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr+tr {
   background: #fff;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-app-branding .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr td {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td {
   text-align: center;
   border-right: 1px solid #ccc;
   position: relative;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table span.wp-color-result-text {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table span.wp-color-result-text {
   display: none;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table .wp-picker-container .iris-picker {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table .wp-picker-container .iris-picker {
   position: absolute;
   z-index: 2;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table tbody td:last-child .wp-picker-container .iris-picker {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody td:last-child .wp-picker-container .iris-picker {
   right: 0;
 }
-.wpem-admin-container .wpem-color-pallet-wrapper {
+
+.aprio-admin-container .aprio-color-pallet-wrapper {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
 }
-.wpem-admin-container .wpem-color-pallet-wrapper .wpem-color-pallet {
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet {
   width: 80%;
   height: 30px;
   padding: 10px;
   text-align: center;
 }
-.wpem-admin-container .wpem-app-branding .wpem-light-mode .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr:first-child {
+
+.aprio-admin-container .aprio-app-branding .aprio-light-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr:first-child {
   background: #f1f1f1;
 }
-.wpem-admin-container .wpem-color-pallet-wrapper div {
+
+.aprio-admin-container .aprio-color-pallet-wrapper div {
   font-size: 14px;
   line-height: 28px;
   font-weight: 500;
@@ -349,77 +414,96 @@
   padding: 5px;
   width: 20%;
 }
-.wpem-admin-container .wpem-admin-bottom-content table.form-table p {
+
+.aprio-admin-container .aprio-admin-bottom-content table.form-table p {
   padding-bottom: 10px;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table tbody .wpem-color-pellet-code {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody .aprio-color-pellet-code {
   padding: 10px;
   font-size: 14px;
   line-height: 28px;
   font-weight: 600;
 }
-.wpem-admin-container .wpem-color-pallet-wrapper .wpem-color-pallet span {
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet span {
   opacity: 0;
   transition: 0.2s all ease;
 }
-.wpem-admin-container .wpem-color-pallet-wrapper .wpem-color-pallet:hover span {
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet:hover span {
   display: block;
   opacity: 1;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode h3.wpem-admin-tab-title {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode h3.aprio-admin-tab-title {
   background: #202745;
   color: #fff;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table thead tr th {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table thead tr th {
   background: #202745;
   color: #fff;
   border-color: #151a30;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-app-branding.wpem-dark-mode .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr td {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td {
   border-color: #151a30;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-app-branding .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr td:last-child {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td:last-child {
   border: none;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr + tr {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr+tr {
   background: #202745;
   color: #fff;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode .wpem-color-pallet-wrapper div {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-color-pallet-wrapper div {
   color: #fff;
 }
-.wpem-admin-container .wpem-app-branding .wpem-admin-right-container-holder p.submit,
-.wpem-admin-container .wpem-api-access .wpem-admin-right-container-holder p.submit {
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-right-container-holder p.submit,
+.aprio-admin-container .aprio-api-access .aprio-admin-right-container-holder p.submit {
   display: none;
 }
-.wpem-admin-container .wpem-app-branding .wpem-admin-right-container-holder .wpem-admin-top-title-section p.submit,
-.wpem-admin-container .wpem-admin-right-container-holder.wpem-admin-body .wpem-admin-top-title-section .wpem-admin-bottom-content p.submit {
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-right-container-holder .aprio-admin-top-title-section p.submit,
+.aprio-admin-container .aprio-admin-right-container-holder.aprio-admin-body .aprio-admin-top-title-section .aprio-admin-bottom-content p.submit {
   display: block;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode .wpem-admin-right-container-holder p.submit {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-right-container-holder p.submit {
   background: #151a30;
 }
-.wpem-admin-container .wpem-app-branding-mode.wpem-dark-mode .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content .settings-panel table.form-table tbody tr {
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr {
   background: #151a30;
   color: #fff;
 }
-.wpem-admin-container .wpem-admin-top-title-section.postbox .wpem-admin-bottom-content table.form-table tbody tr td:first-child {
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr td:first-child {
   border-left: none;
 }
-.wpem-admin-container .wpem-light-mode .wpem-light-mode.button img,
-.wpem-admin-container .wpem-dark-mode .wpem-dark-mode.button img {
+
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button img,
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button img {
   -webkit-filter: brightness(0) invert(1);
   filter: brightness(0) invert(1);
 }
-.wpem-admin-container .wpem-api-access .wpem-admin-right-container-holder .wpem-admin-bottom-content .settings-panel p.submit {
+
+.aprio-admin-container .aprio-api-access .aprio-admin-right-container-holder .aprio-admin-bottom-content .settings-panel p.submit {
   display: block;
 }
-.wpem-admin-container .wpem-admin-bottom-content .wpem-admin-body .form-field .file_url {
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body .form-field .file_url {
   text-align: left;
   display: flex;
   width: 100%;
 }
-.wpem-no-api-wrap {
+
+.aprio-no-api-wrap {
   height: 100vh;
   max-height: 400px;
   display: flex;
@@ -429,39 +513,55 @@
   max-width: 400px;
   margin: 0 auto;
 }
-.wpem-no-api-wrap h2.wpem-rest-api-BlankState-message {
+
+.aprio-no-api-wrap h2.aprio-rest-api-BlankState-message {
   line-height: 1.42;
   color: #ccc;
   letter-spacing: 0.2px;
   text-align: center;
 }
-.wpem-no-api-wrap a.wpem-rest-api-BlankState-cta {
+
+.aprio-no-api-wrap a.aprio-rest-api-BlankState-cta {
   padding: 12px 40px;
   margin: 10px 0px;
 }
-.wpem-no-api-wrap .wpem-no-api-icon span {
+
+.aprio-no-api-wrap .aprio-no-api-icon span {
   font-size: 150px;
   line-height: 150px;
   height: 150px;
   width: 150px;
   color: #dcdcdc;
 }
+
 /* Loader css */
 
 .loader {
-	border: 5px solid #f3f3f3;
-	border-radius: 50%;
-	border-top: 5px solid #3498db;
-	width: 20px;
-	height: 20px;
-	-webkit-animation: spin 2s linear infinite; 
-	animation: spin 2s linear infinite;
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid #3498db;
+  width: 20px;
+  height: 20px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
 }
+
 @-webkit-keyframes spin {
-0% { -webkit-transform: rotate(0deg); }
-100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
+
 @keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

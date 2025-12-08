@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$pwa              = $view['pwa'] ?? array();
+$pwa              = $view['pwa'] ?? [];
 $is_pwa           = $pwa['is_pwa'] ?? false;
 $show_header      = $pwa['show_header'] ?? false;
 $is_clean_mode    = $pwa['is_clean_mode'] ?? false;

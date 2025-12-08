@@ -38,7 +38,7 @@ class DefaultGroups {
 		}
 
 		$this->repository->create(
-			array(
+			[
 				'title'       => 'COMUNIDADES',
 				'slug'        => 'comunidades',
 				'description' => 'Grupo público para comunidades e grupos de interesse',
@@ -47,7 +47,7 @@ class DefaultGroups {
 				'visibility'  => 'public',
 				'creator_id'  => 1,
 			// System user
-			)
+			]
 		);
 	}
 
@@ -62,7 +62,7 @@ class DefaultGroups {
 		}
 
 		$this->repository->create(
-			array(
+			[
 				'title'       => 'PROJECT TEAM',
 				'slug'        => 'project-team',
 				'description' => 'Núcleo de produtores e equipe de trabalho Apollo',
@@ -72,7 +72,7 @@ class DefaultGroups {
 				// Private group for producers
 												'creator_id' => 1,
 			// System user
-			)
+			]
 		);
 	}
 

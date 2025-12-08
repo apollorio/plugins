@@ -80,7 +80,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 * @return array
 	 */
 	public function get_capabilities(): array {
-		return array(
+		return [
 			'versioning'     => true,
 			'pdf_generation' => class_exists( 'Dompdf\Dompdf' ) || class_exists( 'TCPDF' ),
 			'signed_urls'    => false,
@@ -88,7 +88,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			'metadata'       => true,
 			'search'         => true,
 			'attachments'    => true,
-		);
+		];
 	}
 
 	/**
@@ -111,13 +111,13 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		$file_id = $this->generate_file_id();
 
 		// Create the document post.
-		$post_data = array(
+		$post_data = [
 			'post_title'   => $title,
 			'post_content' => $content,
 			'post_status'  => $post_status,
 			'post_type'    => self::POST_TYPE,
 			'post_author'  => $author_id,
-		);
+		];
 
 		$post_id = wp_insert_post( $post_data, true );
 
@@ -145,7 +145,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		// Fire action for extensions.
 		do_action( 'apollo_dms_document_stored', $post_id, $file_id, $metadata );
 
-		return array(
+		return [
 			'id'           => $post_id,
 			'file_id'      => $file_id,
 			'title'        => $title,
@@ -155,7 +155,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			'content_type' => $content_type,
 			'created_at'   => current_time( 'mysql' ),
 			'author_id'    => $author_id,
-		);
+		];
 	}
 
 	/**
@@ -172,7 +172,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -195,15 +195,15 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
 		// Update post.
-		$post_data = array(
+		$post_data = [
 			'ID'           => $post->ID,
 			'post_content' => $content,
-		);
+		];
 
 		if ( isset( $metadata['title'] ) ) {
 			$post_data['post_title'] = sanitize_text_field( $metadata['title'] );
@@ -226,7 +226,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		update_post_meta( $post->ID, self::META_PREFIX . 'updated_at', current_time( 'mysql' ) );
 
 		// Update other metadata.
-		$meta_fields = array( 'category', 'type' );
+		$meta_fields = [ 'category', 'type' ];
 		foreach ( $meta_fields as $field ) {
 			if ( isset( $metadata[ $field ] ) ) {
 				update_post_meta( $post->ID, self::META_PREFIX . $field, sanitize_text_field( $metadata[ $field ] ) );
@@ -254,7 +254,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -268,7 +268,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'delete_failed',
 				__( 'Failed to delete document.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
@@ -284,8 +284,8 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return array|WP_Error
 	 */
-	public function list_documents( array $args = array() ) {
-		$defaults = array(
+	public function list_documents( array $args = [] ) {
+		$defaults = [
 			'status'     => 'any',
 			'type'       => '',
 			'author'     => 0,
@@ -295,23 +295,23 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			'order'      => 'DESC',
 			'search'     => '',
 			'date_after' => '',
-		);
+		];
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$query_args = array(
+		$query_args = [
 			'post_type'      => self::POST_TYPE,
 			'posts_per_page' => $args['per_page'],
 			'paged'          => $args['page'],
 			'orderby'        => $args['orderby'],
 			'order'          => $args['order'],
-		);
+		];
 
 		// Status filter.
 		if ( 'any' !== $args['status'] ) {
 			$query_args['post_status'] = $this->map_doc_status_to_post_status( $args['status'] );
 		} else {
-			$query_args['post_status'] = array( 'publish', 'draft', 'pending', 'private' );
+			$query_args['post_status'] = [ 'publish', 'draft', 'pending', 'private' ];
 		}
 
 		// Author filter.
@@ -321,10 +321,10 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 
 		// Type filter via meta query.
 		if ( $args['type'] ) {
-			$query_args['meta_query'][] = array(
+			$query_args['meta_query'][] = [
 				'key'   => self::META_PREFIX . 'type',
 				'value' => $args['type'],
-			);
+			];
 		}
 
 		// Search.
@@ -334,25 +334,25 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 
 		// Date filter.
 		if ( $args['date_after'] ) {
-			$query_args['date_query'][] = array(
+			$query_args['date_query'][] = [
 				'after' => $args['date_after'],
-			);
+			];
 		}
 
 		$query = new WP_Query( $query_args );
 
-		$documents = array();
+		$documents = [];
 		foreach ( $query->posts as $post ) {
 			$documents[] = $this->format_document( $post );
 		}
 
-		return array(
+		return [
 			'documents'   => $documents,
 			'total'       => $query->found_posts,
 			'total_pages' => $query->max_num_pages,
 			'page'        => $args['page'],
 			'per_page'    => $args['per_page'],
-		);
+		];
 	}
 
 	/**
@@ -370,7 +370,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -393,14 +393,14 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return string|WP_Error
 	 */
-	public function generate_pdf( string $document_id, array $options = array() ) {
+	public function generate_pdf( string $document_id, array $options = [] ) {
 		$post = $this->get_post_by_id( $document_id );
 
 		if ( ! $post ) {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -441,22 +441,22 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
 		$revisions = wp_get_post_revisions( $post->ID );
-		$versions  = array();
+		$versions  = [];
 
 		$version_num = count( $revisions ) + 1;
 		foreach ( $revisions as $revision ) {
-			$versions[] = array(
+			$versions[] = [
 				'id'         => $revision->ID,
 				'version'    => $version_num,
 				'author_id'  => $revision->post_author,
 				'created_at' => $revision->post_date,
 				'excerpt'    => wp_trim_words( $revision->post_content, 30 ),
-			);
+			];
 			--$version_num;
 		}
 
@@ -473,7 +473,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 * @return array|WP_Error
 	 */
 	public function create_version( string $document_id, string $content, string $comment = '' ) {
-		return $this->update( $document_id, $content, array( 'version_comment' => $comment ) );
+		return $this->update( $document_id, $content, [ 'version_comment' => $comment ] );
 	}
 
 	/**
@@ -491,7 +491,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'document_not_found',
 				__( 'Document not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -501,7 +501,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'version_not_found',
 				__( 'Version not found.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -511,7 +511,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'restore_failed',
 				__( 'Failed to restore version.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
@@ -538,13 +538,13 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 
 		// Try file_id.
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Required for document lookup by file_id.
-		$args = array(
+		$args = [
 			'post_type'      => self::POST_TYPE,
 			'meta_key'       => self::META_PREFIX . 'file_id',
 			'meta_value'     => $document_id,
 			'posts_per_page' => 1,
 			'post_status'    => 'any',
-		);
+		];
 		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		$query = new WP_Query( $args );
 
@@ -568,7 +568,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 * @return string
 	 */
 	private function map_doc_status_to_post_status( string $status ): string {
-		$map = array(
+		$map = [
 			'draft'     => 'draft',
 			'pending'   => 'pending',
 			'ready'     => 'publish',
@@ -576,7 +576,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			'signed'    => 'publish',
 			'completed' => 'publish',
 			'archived'  => 'private',
-		);
+		];
 
 		return $map[ $status ] ?? 'draft';
 	}
@@ -596,7 +596,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		$content_type = get_post_meta( $post->ID, self::META_PREFIX . 'content_type', true );
 		$category     = get_post_meta( $post->ID, self::META_PREFIX . 'category', true );
 
-		return array(
+		return [
 			'id'           => $post->ID,
 			'file_id'      => $file_id ? $file_id : '',
 			'title'        => $post->post_title,
@@ -610,7 +610,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			'created_at'   => $post->post_date,
 			'updated_at'   => $post->post_modified,
 			'permalink'    => get_permalink( $post->ID ),
-		);
+		];
 	}
 
 	/**
@@ -621,7 +621,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return array|WP_Error
 	 */
-	private function create_pdf_from_content( WP_Post $post, array $options = array() ) {
+	private function create_pdf_from_content( WP_Post $post, array $options = [] ) {
 		// Check for Dompdf.
 		if ( class_exists( 'Dompdf\Dompdf' ) ) {
 			return $this->generate_pdf_dompdf( $post, $options );
@@ -635,7 +635,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		return new WP_Error(
 			'pdf_library_missing',
 			__( 'No PDF library available. Install Dompdf or TCPDF.', 'apollo-social' ),
-			array( 'status' => 500 )
+			[ 'status' => 500 ]
 		);
 	}
 
@@ -647,12 +647,12 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return array|WP_Error
 	 */
-	private function generate_pdf_dompdf( WP_Post $post, array $options = array() ) {
+	private function generate_pdf_dompdf( WP_Post $post, array $options = [] ) {
 		if ( ! class_exists( 'Dompdf\Dompdf' ) ) {
 			return new WP_Error(
 				'dompdf_not_available',
 				__( 'Dompdf library is not available.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
@@ -685,17 +685,17 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 			return new WP_Error(
 				'pdf_save_failed',
 				__( 'Failed to save PDF file.', 'apollo-social' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		// Create attachment.
-		$attachment = array(
+		$attachment = [
 			'post_mime_type' => 'application/pdf',
 			'post_title'     => $post->post_title . ' (PDF)',
 			'post_content'   => '',
 			'post_status'    => 'inherit',
-		);
+		];
 
 		$attach_id = wp_insert_attachment( $attachment, $filepath, $post->ID );
 
@@ -707,11 +707,11 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 		$attach_data = wp_generate_attachment_metadata( $attach_id, $filepath );
 		wp_update_attachment_metadata( $attach_id, $attach_data );
 
-		return array(
+		return [
 			'attachment_id' => $attach_id,
 			'url'           => wp_get_attachment_url( $attach_id ),
 			'path'          => $filepath,
-		);
+		];
 	}
 
 	/**
@@ -722,12 +722,12 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return array|WP_Error
 	 */
-	private function generate_pdf_tcpdf( WP_Post $post, array $options = array() ) {
+	private function generate_pdf_tcpdf( WP_Post $post, array $options = [] ) {
 		// Simplified TCPDF implementation.
 		return new WP_Error(
 			'tcpdf_not_implemented',
 			__( 'TCPDF support coming soon.', 'apollo-social' ),
-			array( 'status' => 501 )
+			[ 'status' => 501 ]
 		);
 	}
 
@@ -739,7 +739,7 @@ class LocalWordPressDmsAdapter implements DmsAdapterInterface {
 	 *
 	 * @return string
 	 */
-	private function build_pdf_html( WP_Post $post, array $options = array() ): string {
+	private function build_pdf_html( WP_Post $post, array $options = [] ): string {
 		$title   = esc_html( $post->post_title );
 		$content = wp_kses_post( $post->post_content );
 		$date    = date_i18n( 'd/m/Y H:i', strtotime( $post->post_date ) );

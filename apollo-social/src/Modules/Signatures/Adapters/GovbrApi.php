@@ -68,7 +68,7 @@ class GovbrApi {
 	 * @param array            $options
 	 * @return array|false
 	 */
-	public function createEnvelope( DigitalSignature $signature, string $pdf_path, array $options = array() ): array|false {
+	public function createEnvelope( DigitalSignature $signature, string $pdf_path, array $options = [] ): array|false {
 		try {
 			// TODO: Implementar integração real com GOV.BR
 			// Esta é uma implementação stub para demonstração
@@ -96,13 +96,13 @@ class GovbrApi {
 				throw new \Exception( 'Falha ao criar solicitação de assinatura' );
 			}
 
-			return array(
+			return [
 				'envelope_id' => $signature_request['id'],
 				'signing_url' => $signature_request['signing_url'],
 				'expires_at'  => $signature_request['expires_at'],
 				'document_id' => $document_id,
 				'request_id'  => $signature_request['id'],
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			error_log( 'GOV.BR API Error: ' . $e->getMessage() );
@@ -145,7 +145,7 @@ class GovbrApi {
 	 * @param array  $options
 	 * @return string|false Document ID
 	 */
-	private function uploadDocumentToGovbr( string $pdf_path, string $access_token, array $options = array() ): string|false {
+	private function uploadDocumentToGovbr( string $pdf_path, string $access_token, array $options = [] ): string|false {
 		// TODO: Implementar API real de upload do GOV.BR
 
 		/*
@@ -186,7 +186,7 @@ class GovbrApi {
 		string $document_id,
 		DigitalSignature $signature,
 		string $access_token,
-		array $options = array()
+		array $options = []
 	): array|false {
 
 		// TODO: Implementar API de criação de solicitação de assinatura
@@ -217,31 +217,31 @@ class GovbrApi {
 		$expires_at  = date( 'Y-m-d H:i:s', strtotime( '+7 days' ) );
 		// 7 dias para assinatura qualificada
 
-		$request_data = array(
+		$request_data = [
 			'documento_id'           => $document_id,
-			'signatario'             => array(
+			'signatario'             => [
 				'cpf'   => $signature->signer_document,
 				'nome'  => $signature->signer_name,
 				'email' => $signature->signer_email,
-			),
+			],
 			'tipo_assinatura'        => 'qualificada',
 			'certificado_requerido'  => 'icp_brasil',
 			'politica_assinatura'    => 'adrb_2_1',
 			'expires_at'             => $expires_at,
 			'callback_url'           => $webhook_url,
 			'mensagem_personalizada' => $options['custom_message'] ?? $this->getDefaultQualifiedMessage( $signature ),
-		);
+		];
 
 		error_log( 'TODO: Implementar criação de solicitação de assinatura GOV.BR' );
 		error_log( 'Request data: ' . json_encode( $request_data, JSON_PRETTY_PRINT ) );
 
 		// Stub temporário
-		return array(
+		return [
 			'id'          => 'STUB_REQUEST_' . uniqid(),
 			'signing_url' => 'https://assinatura.gov.br/assinar/' . uniqid(),
 			'expires_at'  => $expires_at,
 			'status'      => 'pending',
-		);
+		];
 	}
 
 	/**
@@ -267,7 +267,7 @@ class GovbrApi {
 			*/
 
 			$event_type   = $payload['evento'] ?? '';
-			$request_data = $payload['dados'] ?? array();
+			$request_data = $payload['dados'] ?? [];
 
 			if ( empty( $request_data['id'] ) ) {
 				throw new \Exception( 'ID da solicitação não encontrado' );
@@ -308,11 +308,11 @@ class GovbrApi {
 		// TODO: Verificar validade da cadeia de certificação
 		// TODO: Extrair dados do certificado (emissor, validade, política)
 
-		$metadata = array(
+		$metadata = [
 			'provider'        => 'govbr',
 			'signature_level' => DigitalSignature::LEVEL_QUALIFIED,
 			'completed_at'    => $request_data['assinado_em'] ?? date( 'Y-m-d H:i:s' ),
-			'certificate'     => array(
+			'certificate'     => [
 				'issuer'          => $request_data['certificado']['emissor'] ?? 'ICP-Brasil',
 				'serial_number'   => $request_data['certificado']['numero_serie'] ?? '',
 				'subject'         => $request_data['certificado']['titular'] ?? '',
@@ -321,14 +321,14 @@ class GovbrApi {
 				'policy_oid'      => $request_data['certificado']['politica'] ?? 'ADRb v2.1',
 				'signature_level' => DigitalSignature::LEVEL_QUALIFIED,
 				'compliance'      => 'Lei 14.063/2020 Art. 10 § 2º + MP 2.200-2/2001',
-			),
-			'icp_brasil'      => array(
-				'authority_chain'   => $request_data['cadeia_certificacao'] ?? array(),
+			],
+			'icp_brasil'      => [
+				'authority_chain'   => $request_data['cadeia_certificacao'] ?? [],
 				'timestamp_server'  => $request_data['servidor_tempo'] ?? '',
 				'signature_policy'  => 'ADRb v2.1',
 				'validation_status' => 'valid',
-			),
-		);
+			],
+		];
 
 		error_log( 'TODO: Processar assinatura qualificada concluída' );
 		error_log( 'Metadata: ' . json_encode( $metadata, JSON_PRETTY_PRINT ) );
@@ -347,11 +347,11 @@ class GovbrApi {
 	private function handleQualifiedSignatureRejected( array $request_data ): bool {
 		$envelope_id = $request_data['id'];
 
-		$metadata = array(
+		$metadata = [
 			'provider'    => 'govbr',
 			'rejected_at' => date( 'Y-m-d H:i:s' ),
 			'reason'      => $request_data['motivo_rejeicao'] ?? 'Não especificado',
-		);
+		];
 
 		$signatures_service = new \Apollo\Modules\Signatures\Services\SignaturesService();
 		return $signatures_service->updateSignatureStatus( $envelope_id, DigitalSignature::STATUS_DECLINED, $metadata );
@@ -366,11 +366,11 @@ class GovbrApi {
 	private function handleQualifiedSignatureExpired( array $request_data ): bool {
 		$envelope_id = $request_data['id'];
 
-		$metadata = array(
+		$metadata = [
 			'provider'   => 'govbr',
 			'expired_at' => date( 'Y-m-d H:i:s' ),
 			'expires_at' => $request_data['expires_at'] ?? '',
-		);
+		];
 
 		$signatures_service = new \Apollo\Modules\Signatures\Services\SignaturesService();
 		return $signatures_service->updateSignatureStatus( $envelope_id, DigitalSignature::STATUS_EXPIRED, $metadata );
@@ -409,19 +409,19 @@ Para assinar, acesse o link abaixo usando seu certificado digital:',
 	 */
 	public function testConnection(): array {
 		if ( empty( $this->client_id ) || empty( $this->client_secret ) ) {
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Credenciais GOV.BR não configuradas',
-			);
+			];
 		}
 
 		// TODO: Implementar teste real de conectividade
 		error_log( 'TODO: Implementar teste de conexão com GOV.BR' );
 
-		return array(
+		return [
 			'success' => false,
 			'message' => 'Integração GOV.BR em desenvolvimento - veja logs para TODOs',
-		);
+		];
 	}
 
 	/**
@@ -452,13 +452,13 @@ Para assinar, acesse o link abaixo usando seu certificado digital:',
 	 * @return array
 	 */
 	public function getImplementationReferences(): array {
-		return array(
+		return [
 			'oauth2_doc'  => 'https://manual-roteiro-integracao-login-unico.servicos.gov.br/',
 			'govbr_apis'  => 'https://www.gov.br/governodigital/pt-br/apis',
 			'lei_14063'   => 'http://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14063.htm',
 			'mp_2200'     => 'http://www.planalto.gov.br/ccivil_03/mpv/antigas_2001/2200-2.htm',
 			'iti_docs'    => 'https://www.gov.br/iti/pt-br/assuntos/repositorio-de-arquivos',
 			'adrb_policy' => 'https://www.gov.br/iti/pt-br/centrais-de-conteudo/doc-icp-15-03-pdf',
-		);
+		];
 	}
 }

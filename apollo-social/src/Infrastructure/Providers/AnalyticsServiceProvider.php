@@ -45,19 +45,19 @@ class AnalyticsServiceProvider {
 	 */
 	private function init_analytics_hooks() {
 		// Add analytics to Canvas Mode assets
-		add_action( 'apollo_canvas_assets', array( $this, 'enqueue_analytics_assets' ), 20 );
+		add_action( 'apollo_canvas_assets', [ $this, 'enqueue_analytics_assets' ], 20 );
 
 		// Add analytics tracking to specific actions
-		add_action( 'apollo_group_viewed', array( $this, 'track_group_view' ), 10, 2 );
-		add_action( 'apollo_group_joined', array( $this, 'track_group_join' ), 10, 2 );
-		add_action( 'apollo_invite_sent', array( $this, 'track_invite_sent' ), 10, 3 );
-		add_action( 'apollo_invite_approved', array( $this, 'track_invite_approved' ), 10, 3 );
-		add_action( 'apollo_ad_viewed', array( $this, 'track_ad_view' ), 10, 4 );
-		add_action( 'apollo_ad_created', array( $this, 'track_ad_create' ), 10, 3 );
-		add_action( 'apollo_event_viewed', array( $this, 'track_event_view' ), 10, 4 );
+		add_action( 'apollo_group_viewed', [ $this, 'track_group_view' ], 10, 2 );
+		add_action( 'apollo_group_joined', [ $this, 'track_group_join' ], 10, 2 );
+		add_action( 'apollo_invite_sent', [ $this, 'track_invite_sent' ], 10, 3 );
+		add_action( 'apollo_invite_approved', [ $this, 'track_invite_approved' ], 10, 3 );
+		add_action( 'apollo_ad_viewed', [ $this, 'track_ad_view' ], 10, 4 );
+		add_action( 'apollo_ad_created', [ $this, 'track_ad_create' ], 10, 3 );
+		add_action( 'apollo_event_viewed', [ $this, 'track_event_view' ], 10, 4 );
 
 		// Add AJAX handlers for analytics testing
-		add_action( 'wp_ajax_apollo_test_analytics_connection', array( $this, 'ajax_test_analytics_connection' ) );
+		add_action( 'wp_ajax_apollo_test_analytics_connection', [ $this, 'ajax_test_analytics_connection' ] );
 	}
 
 	/**
@@ -65,8 +65,8 @@ class AnalyticsServiceProvider {
 	 */
 	private function init_canvas_injection() {
 		// Hook into Canvas Mode rendering
-		add_action( 'apollo_canvas_head', array( $this, 'inject_analytics_head' ) );
-		add_action( 'apollo_canvas_footer', array( $this, 'inject_analytics_footer' ) );
+		add_action( 'apollo_canvas_head', [ $this, 'inject_analytics_head' ] );
+		add_action( 'apollo_canvas_footer', [ $this, 'inject_analytics_footer' ] );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class AnalyticsServiceProvider {
 			return;
 		}
 
-		$plausible_config = $analytics_config['plausible'] ?? array();
+		$plausible_config = $analytics_config['plausible'] ?? [];
 		$domain           = $plausible_config['domain'] ?? '';
 		$script_url       = $plausible_config['script_url'] ?? 'https://plausible.io/js/plausible.js';
 
@@ -96,7 +96,7 @@ class AnalyticsServiceProvider {
 		}
 
 		// DNS prefetch and preconnect for performance
-		$performance_config = $analytics_config['performance'] ?? array();
+		$performance_config = $analytics_config['performance'] ?? [];
 
 		if ( $performance_config['dns_prefetch'] ?? false ) {
 			echo '<link rel="dns-prefetch" href="' . esc_url( parse_url( $script_url, PHP_URL_HOST ) ) . '">' . "\n";
@@ -116,7 +116,7 @@ class AnalyticsServiceProvider {
 	 */
 	public function inject_analytics_footer() {
 		$analytics_config = config( 'analytics' );
-		$events_config    = $analytics_config['events'] ?? array();
+		$events_config    = $analytics_config['events'] ?? [];
 
 		echo '<script>
         window.apolloAnalytics = {
@@ -126,47 +126,47 @@ class AnalyticsServiceProvider {
                 }
                 console.log("Apollo Analytics:", eventName, props);
             },
-            
+
             trackGroupView: function(groupType, groupSlug) {
                 this.track("group_view", {
                     group_type: groupType,
                     group_slug: groupSlug
                 });
             },
-            
+
             trackGroupJoin: function(groupType, groupSlug) {
                 this.track("group_join", {
                     group_type: groupType,
                     group_slug: groupSlug
                 });
             },
-            
+
             trackInviteSent: function(groupType, inviteType) {
                 this.track("invite_sent", {
                     group_type: groupType,
                     invite_type: inviteType
                 });
             },
-            
+
             trackInviteApproved: function(groupType, inviteType) {
                 this.track("invite_approved", {
                     group_type: groupType,
                     invite_type: inviteType
                 });
             },
-            
+
             trackUnionBadgesToggle: function(action) {
                 this.track("union_badges_toggle", {
                     action: action
                 });
             },
-            
+
             trackChatMessage: function(groupType) {
                 this.track("chat_message_sent", {
                     group_type: groupType
                 });
             },
-            
+
             trackAdView: function(adId, category, groupType) {
                 this.track("ad_view", {
                     ad_id: adId,
@@ -174,35 +174,35 @@ class AnalyticsServiceProvider {
                     group_type: groupType
                 });
             },
-            
+
             trackAdCreate: function(category, groupType) {
                 this.track("ad_create", {
                     category: category,
                     group_type: groupType
                 });
             },
-            
+
             trackAdPublish: function(category, groupType) {
                 this.track("ad_publish", {
                     category: category,
                     group_type: groupType
                 });
             },
-            
+
             trackAdReject: function(category, reason) {
                 this.track("ad_reject", {
                     category: category,
                     reason: reason
                 });
             },
-            
+
             trackAdCreateInvalidSeason: function(attemptedSeason, userSeason) {
                 this.track("ad_create_invalid_season", {
                     attempted_season: attemptedSeason,
                     user_season: userSeason
                 });
             },
-            
+
             trackEventView: function(eventId, seasonSlug, groupType) {
                 this.track("event_view", {
                     event_id: eventId,
@@ -210,7 +210,7 @@ class AnalyticsServiceProvider {
                     group_type: groupType
                 });
             },
-            
+
             trackEventFilterApplied: function(filterType, seasonSlug) {
                 this.track("event_filter_applied", {
                     filter_type: filterType,
@@ -218,12 +218,12 @@ class AnalyticsServiceProvider {
                 });
             }
         };
-        
+
         // Auto-track page views with context
         document.addEventListener("DOMContentLoaded", function() {
             var path = window.location.pathname;
-            var apolloRoutes = ["/a/", "/comunidade/", "/nucleo/", "/season/", "/membership", "/uniao/", "/anuncio/"];
-            
+            var apolloRoutes = ["/a/", "/comunidade/", "/nucleo/", "/season/", "/membro/", "/membership", "/uniao/", "/anuncio/"];
+
             for (var i = 0; i < apolloRoutes.length; i++) {
                 if (path.indexOf(apolloRoutes[i]) !== -1) {
                     // Extract context and track specific page views
@@ -234,6 +234,10 @@ class AnalyticsServiceProvider {
                     else if (path.indexOf("/nucleo/") !== -1) {
                         var slug = path.split("/nucleo/")[1]?.split("/")[0];
                         if (slug) window.apolloAnalytics.trackGroupView("nucleo", slug);
+                    }
+                    else if (path.indexOf("/membro/") !== -1) {
+                        var slug = path.split("/membro/")[1]?.split("/")[0];
+                        if (slug) window.apolloAnalytics.trackGroupView("membro", slug);
                     }
                     else if (path.indexOf("/season/") !== -1) {
                         var slug = path.split("/season/")[1]?.split("/")[0];
@@ -302,12 +306,12 @@ class AnalyticsServiceProvider {
 
 			$response = wp_remote_get(
 				$test_url,
-				array(
-					'headers' => array(
+				[
+					'headers' => [
 						'Authorization' => 'Bearer ' . $api_key,
-					),
+					],
 					'timeout' => 10,
-				)
+				]
 			);
 
 			if ( is_wp_error( $response ) ) {

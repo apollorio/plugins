@@ -23,168 +23,168 @@ $membership_slug_raw = get_query_var( 'membership_slug' );
 $membership_slug     = ! empty( $membership_slug_raw ) ? $membership_slug_raw : 'clubber';
 
 // Membership levels configuration
-$membership_levels = array(
-	'clubber'  => array(
+$membership_levels = [
+	'clubber'  => [
 		'icon'         => 'ri-user-line',
 		'label'        => 'Clubber',
 		'description'  => 'Acesso básico à comunidade Apollo - para todos os amantes da cena eletrônica.',
 		'color'        => 'var(--ap-text-muted)',
-		'requirements' => array( 'Cadastro completo', 'Verificação de email' ),
-		'features'     => array(
-			array(
+		'requirements' => [ 'Cadastro completo', 'Verificação de email' ],
+		'features'     => [
+			[
 				'icon'  => 'ri-user-3-line',
 				'title' => 'Perfil Público',
 				'desc'  => 'Crie seu perfil na comunidade',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-newspaper-line',
 				'title' => 'Feed Social',
 				'desc'  => 'Acompanhe posts e atualizações',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-heart-line',
 				'title' => 'Favoritar Eventos',
 				'desc'  => 'Salve eventos do seu interesse',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-team-line',
 				'title' => 'Comunidades',
 				'desc'  => 'Participe de grupos públicos',
-			),
-		),
-	),
-	'dj'       => array(
+			],
+		],
+	],
+	'dj'       => [
 		'icon'         => 'ri-disc-line',
 		'label'        => 'DJ',
 		'description'  => 'Para DJs profissionais que querem expandir sua presença na cena carioca.',
 		'color'        => 'var(--ap-orange-500)',
-		'requirements' => array( 'Ser DJ ativo', 'Pelo menos 1 apresentação comprovada', 'Perfil com foto profissional' ),
-		'features'     => array(
-			array(
+		'requirements' => [ 'Ser DJ ativo', 'Pelo menos 1 apresentação comprovada', 'Perfil com foto profissional' ],
+		'features'     => [
+			[
 				'icon'  => 'ri-user-star-line',
 				'title' => 'Página de Artista',
 				'desc'  => 'Perfil profissional verificado',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-calendar-schedule-line',
 				'title' => 'Agenda Pública',
 				'desc'  => 'Mostre seus próximos sets',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-mail-send-line',
 				'title' => 'Booking Requests',
 				'desc'  => 'Receba solicitações de booking',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-line-chart-line',
 				'title' => 'Analytics',
 				'desc'  => 'Métricas do seu perfil',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-music-2-line',
 				'title' => 'Sound System',
 				'desc'  => 'Vincule sons e gêneros',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-file-text-line',
 				'title' => 'Contratos',
 				'desc'  => 'Assine contratos digitalmente',
-			),
-		),
-	),
-	'producer' => array(
+			],
+		],
+	],
+	'producer' => [
 		'icon'         => 'ri-music-2-line',
 		'label'        => 'Producer',
 		'description'  => 'Para produtores musicais que criam e lançam música eletrônica.',
 		'color'        => '#a855f7',
-		'requirements' => array( 'Portfolio de produções', 'Pelo menos 1 release', 'Links para plataformas' ),
-		'features'     => array(
-			array(
+		'requirements' => [ 'Portfolio de produções', 'Pelo menos 1 release', 'Links para plataformas' ],
+		'features'     => [
+			[
 				'icon'  => 'ri-album-line',
 				'title' => 'Portfolio',
 				'desc'  => 'Showcase de suas produções',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-group-line',
 				'title' => 'Colaborações',
 				'desc'  => 'Conecte-se com outros produtores',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-disc-line',
 				'title' => 'Releases',
 				'desc'  => 'Gerencie seus lançamentos',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-bar-chart-box-line',
 				'title' => 'Analytics',
 				'desc'  => 'Métricas de alcance',
-			),
-		),
-	),
-	'promoter' => array(
+			],
+		],
+	],
+	'promoter' => [
 		'icon'         => 'ri-megaphone-line',
 		'label'        => 'Promoter',
 		'description'  => 'Para produtores de eventos e festas da cena eletrônica.',
 		'color'        => '#3b82f6',
-		'requirements' => array( 'CNPJ ou MEI', 'Histórico de eventos', 'Referências na cena' ),
-		'features'     => array(
-			array(
+		'requirements' => [ 'CNPJ ou MEI', 'Histórico de eventos', 'Referências na cena' ],
+		'features'     => [
+			[
 				'icon'  => 'ri-calendar-event-line',
 				'title' => 'Criar Eventos',
 				'desc'  => 'Publique eventos na plataforma',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-team-line',
 				'title' => 'Gestão de Lineup',
 				'desc'  => 'Monte e gerencie lineups',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-file-list-3-line',
 				'title' => 'Contratos',
 				'desc'  => 'Gere e envie contratos',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-money-dollar-circle-line',
 				'title' => 'Vendas',
 				'desc'  => 'Integração com vendas',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-group-2-line',
 				'title' => 'Staff',
 				'desc'  => 'Gerencie equipe',
-			),
-		),
-	),
-	'venue'    => array(
+			],
+		],
+	],
+	'venue'    => [
 		'icon'         => 'ri-building-2-line',
 		'label'        => 'Venue',
 		'description'  => 'Para casas noturnas, clubs e espaços de eventos.',
 		'color'        => '#10b981',
-		'requirements' => array( 'Local físico', 'Alvará de funcionamento', 'Fotos do espaço' ),
-		'features'     => array(
-			array(
+		'requirements' => [ 'Local físico', 'Alvará de funcionamento', 'Fotos do espaço' ],
+		'features'     => [
+			[
 				'icon'  => 'ri-home-4-line',
 				'title' => 'Página do Local',
 				'desc'  => 'Perfil do seu espaço',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-calendar-line',
 				'title' => 'Calendário',
 				'desc'  => 'Agenda de eventos',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-bookmark-line',
 				'title' => 'Booking',
 				'desc'  => 'Receba solicitações',
-			),
-			array(
+			],
+			[
 				'icon'  => 'ri-pie-chart-line',
 				'title' => 'Analytics',
 				'desc'  => 'Métricas do local',
-			),
-		),
-	),
-);
+			],
+		],
+	],
+];
 
 // Get current membership data
 $membership            = isset( $membership_levels[ $membership_slug ] ) ? $membership_levels[ $membership_slug ] : $membership_levels['clubber'];

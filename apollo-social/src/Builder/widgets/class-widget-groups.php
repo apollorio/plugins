@@ -44,29 +44,29 @@ class Apollo_Widget_Groups extends Apollo_Widget_Base {
 	 * Settings
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'max_groups' => $this->field(
 				'slider',
 				__( 'Max Groups', 'apollo-social' ),
 				6,
-				array(
+				[
 					'min' => 1,
 					'max' => 20,
-				)
+				]
 			),
 			'show_names' => $this->field( 'switch', __( 'Show Group Names', 'apollo-social' ), true ),
 			'layout'     => $this->field(
 				'select',
 				__( 'Layout', 'apollo-social' ),
 				'grid',
-				array(
-					'options' => array(
+				[
+					'options' => [
 						'grid' => __( 'Grid', 'apollo-social' ),
 						'list' => __( 'List', 'apollo-social' ),
-					),
-				)
+					],
+				]
 			),
-		);
+		];
 	}
 
 	/**
@@ -76,7 +76,7 @@ class Apollo_Widget_Groups extends Apollo_Widget_Base {
 	 * Tooltip: Expected format: [['id' => '1', 'name' => 'Name', 'logo_url' => 'url', 'url' => 'link']]
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 		$post_id  = $data['post_id'] ?? 0;
 
 		$user = $this->get_post_author( $post_id );
@@ -92,7 +92,7 @@ class Apollo_Widget_Groups extends Apollo_Widget_Base {
 		 * @param array $groups Empty array
 		 * @param int $user_id User ID
 		 */
-		$groups = apply_filters( 'apollo_social_user_groups', array(), $user->ID );
+		$groups = apply_filters( 'apollo_social_user_groups', [], $user->ID );
 
 		$max_groups = absint( $settings['max_groups'] ?? 6 );
 		$show_names = ! empty( $settings['show_names'] );

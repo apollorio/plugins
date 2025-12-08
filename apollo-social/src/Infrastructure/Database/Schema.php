@@ -462,14 +462,14 @@ class Schema {
 	public function uninstall(): void {
 		global $wpdb;
 
-		$tables = array(
+		$tables = [
 			$wpdb->prefix . 'apollo_workflow_log',
 			$wpdb->prefix . 'apollo_moderation_queue',
 			$wpdb->prefix . 'apollo_analytics',
 			$wpdb->prefix . 'apollo_signature_requests',
 			$wpdb->prefix . 'apollo_onboarding_progress',
 			$wpdb->prefix . 'apollo_verification_tokens',
-		);
+		];
 
 		foreach ( $tables as $table ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
@@ -485,16 +485,16 @@ class Schema {
 	public function getInstallationStatus(): array {
 		global $wpdb;
 
-		$tables = array(
+		$tables = [
 			'workflow_log'        => $wpdb->prefix . 'apollo_workflow_log',
 			'moderation_queue'    => $wpdb->prefix . 'apollo_moderation_queue',
 			'analytics'           => $wpdb->prefix . 'apollo_analytics',
 			'signature_requests'  => $wpdb->prefix . 'apollo_signature_requests',
 			'onboarding_progress' => $wpdb->prefix . 'apollo_onboarding_progress',
 			'verification_tokens' => $wpdb->prefix . 'apollo_verification_tokens',
-		);
+		];
 
-		$status = array();
+		$status = [];
 		foreach ( $tables as $name => $table ) {
 			$exists = $wpdb->get_var(
 				$wpdb->prepare(
@@ -518,7 +518,7 @@ class Schema {
 	public function getStatistics(): array {
 		global $wpdb;
 
-		$stats = array();
+		$stats = [];
 
 		// Workflow log statistics
 		$stats['workflow_transitions'] = $wpdb->get_var(

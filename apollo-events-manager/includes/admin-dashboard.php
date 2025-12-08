@@ -151,16 +151,16 @@ class Apollo_Admin_Dashboard {
 		// Admin dashboard assets
 		wp_enqueue_style(
 			'apollo-admin-dashboard',
-			APOLLO_WPEM_URL . 'assets/admin-dashboard.css',
+			APOLLO_APRIO_URL . 'assets/admin-dashboard.css',
 			array( 'apollo-shadcn-components' ),
-			APOLLO_WPEM_VERSION
+			APOLLO_APRIO_VERSION
 		);
 
 		wp_enqueue_script(
 			'apollo-admin-dashboard',
-			APOLLO_WPEM_URL . 'assets/admin-dashboard.js',
+			APOLLO_APRIO_URL . 'assets/admin-dashboard.js',
 			array( 'jquery', 'datatables-js', 'chartjs' ),
-			APOLLO_WPEM_VERSION,
+			APOLLO_APRIO_VERSION,
 			true
 		);
 
@@ -182,7 +182,7 @@ class Apollo_Admin_Dashboard {
 	public function register_rest_routes() {
 		register_rest_route(
 			'apollo/v1',
-			'/analytics',
+			'/estatisticas',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_analytics' ),
@@ -192,7 +192,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/analytics',
+			'/estatisticas',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_analytics' ),

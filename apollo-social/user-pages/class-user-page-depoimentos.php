@@ -20,5 +20,5 @@ class Apollo_User_Page_Depoimentos {
 		return $commentdata;
 	}
 }
-add_filter( 'comments_post_type_labels_user_page', array( 'Apollo_User_Page_Depoimentos', 'rename_labels' ) );
-add_filter( 'preprocess_comment', array( 'Apollo_User_Page_Depoimentos', 'antispam' ) );
+add_filter( 'comments_post_type_labels_user_page', [ 'Apollo_User_Page_Depoimentos', 'rename_labels' ] );
+add_filter( 'preprocess_comment', [ 'Apollo_User_Page_Depoimentos', 'antispam' ] );

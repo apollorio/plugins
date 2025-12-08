@@ -12,24 +12,24 @@ class RoleManager {
 	 * Role name mappings
 	 * Format: [wp_slug => display_name]
 	 */
-	private $role_names = array(
+	private $role_names = [
 		'subscriber'    => 'Clubber',
 		'contributor'   => 'Cena::rio',
 		'author'        => 'Cena::rj',
 		'editor'        => 'Apollo::rio',
 		'administrator' => 'Apollo',
-	);
+	];
 
 	public function register() {
 		// Hook into role name display
-		add_filter( 'wp_roles', array( $this, 'renameRoles' ) );
-		add_filter( 'get_role', array( $this, 'renameRoleObject' ), 10, 2 );
+		add_filter( 'wp_roles', [ $this, 'renameRoles' ] );
+		add_filter( 'get_role', [ $this, 'renameRoleObject' ], 10, 2 );
 
 		// Add custom capabilities for Clubber (Subscriber)
-		add_action( 'init', array( $this, 'addClubberCapabilities' ) );
+		add_action( 'init', [ $this, 'addClubberCapabilities' ] );
 
 		// Ensure cena-rio role exists with Contributor capabilities
-		add_action( 'init', array( $this, 'ensureCenaRioRole' ) );
+		add_action( 'init', [ $this, 'ensureCenaRioRole' ] );
 	}
 
 	/**

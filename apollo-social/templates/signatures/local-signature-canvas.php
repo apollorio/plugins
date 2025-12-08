@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 // Get signer email from URL if provided
 $signer_email = isset( $_GET['signer_email'] ) ? sanitize_email( wp_unslash( $_GET['signer_email'] ) ) : '';

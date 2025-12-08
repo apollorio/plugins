@@ -22,7 +22,7 @@ class Apollo_Unions_Directory_Widget extends \Elementor\Widget_Base {
 	}
 
 	public function get_categories() {
-		return array( 'apollo-social' );
+		return [ 'apollo-social' ];
 	}
 
 	protected function register_controls() {

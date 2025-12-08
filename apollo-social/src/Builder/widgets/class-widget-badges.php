@@ -45,31 +45,31 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 	 * Settings
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'layout'      => $this->field(
 				'select',
 				__( 'Layout', 'apollo-social' ),
 				'row',
-				array(
-					'options' => array(
+				[
+					'options' => [
 						'row'   => __( 'Row', 'apollo-social' ),
 						'grid'  => __( 'Grid', 'apollo-social' ),
 						'stack' => __( 'Stack', 'apollo-social' ),
-					),
-				)
+					],
+				]
 			),
 			'badge_size'  => $this->field(
 				'slider',
 				__( 'Badge Size', 'apollo-social' ),
 				40,
-				array(
+				[
 					'min'  => 24,
 					'max'  => 80,
 					'unit' => 'px',
-				)
+				]
 			),
 			'show_titles' => $this->field( 'switch', __( 'Show Titles on Hover', 'apollo-social' ), true ),
-		);
+		];
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 	 * Tooltip: Plugins/themes can add badges via filter
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 		$post_id  = $data['post_id'] ?? 0;
 
 		$user = $this->get_post_author( $post_id );
@@ -98,7 +98,7 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 		 * @param array $badges Empty array
 		 * @param int $user_id User ID
 		 */
-		$badges = apply_filters( 'apollo_social_user_badges', array(), $user->ID );
+		$badges = apply_filters( 'apollo_social_user_badges', [], $user->ID );
 
 		// Also check user meta for Cultura::Rio identities
 		$identities = get_user_meta( $user->ID, 'apollo_cultura_identities', true );
@@ -109,14 +109,14 @@ class Apollo_Widget_Badges extends Apollo_Widget_Base {
 					// Skip default
 				}
 
-				$badges[] = array(
+				$badges[] = [
 					'id'                           => 'cultura-' . $identity,
 					'label'                        => ucfirst( str_replace( '-', ' ', $identity ) ),
 					'description'                  => sprintf( __( 'Cultura::Rio %s', 'apollo-social' ), $identity ),
 					'image_url'                    => '',
 					// Will use default badge
 											'type' => 'cultura',
-				);
+				];
 			}
 		}
 

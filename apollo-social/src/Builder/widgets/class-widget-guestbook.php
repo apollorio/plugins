@@ -45,19 +45,19 @@ class Apollo_Widget_Guestbook extends Apollo_Widget_Base {
 	 * Settings
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'max_comments' => $this->field(
 				'slider',
 				__( 'Max Depoimentos', 'apollo-social' ),
 				5,
-				array(
+				[
 					'min' => 1,
 					'max' => 20,
-				)
+				]
 			),
 			'show_form'    => $this->field( 'switch', __( 'Show Form', 'apollo-social' ), true ),
 			'show_avatars' => $this->field( 'switch', __( 'Show Avatars', 'apollo-social' ), true ),
-		);
+		];
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Apollo_Widget_Guestbook extends Apollo_Widget_Base {
 	 * Tooltip: Uses native wp_list_comments and comment_form
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 		$post_id  = $data['post_id'] ?? 0;
 
 		if ( ! $post_id ) {
@@ -82,13 +82,13 @@ class Apollo_Widget_Guestbook extends Apollo_Widget_Base {
 
 		// Get comments
 		$comments = get_comments(
-			array(
+			[
 				'post_id' => $post_id,
 				'status'  => 'approve',
 				'number'  => $max_comments,
 				'orderby' => 'comment_date_gmt',
 				'order'   => 'DESC',
-			)
+			]
 		);
 
 		$comment_count = get_comments_number( $post_id );

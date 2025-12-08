@@ -30,14 +30,14 @@ if ( ! function_exists( 'apollo_get_user_page' ) ) {
 
 		// Fallback: search by post meta
 		$pages = get_posts(
-			array(
+			[
 				'post_type'      => 'page',
 				'post_status'    => 'publish',
 				'meta_key'       => '_apollo_user_id',
 				'meta_value'     => $user_id,
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-			)
+			]
 		);
 
 		if ( ! empty( $pages ) ) {
@@ -76,14 +76,14 @@ if ( ! function_exists( 'apollo_get_or_create_user_page' ) ) {
 		}
 
 		// Create new page
-		$page_data = array(
+		$page_data = [
 			'post_title'   => 'Perfil de ' . $user->display_name,
 			'post_name'    => 'perfil-' . $user_id,
 			'post_status'  => 'publish',
 			'post_type'    => 'page',
 			'post_author'  => $user_id,
 			'post_content' => '<!-- Apollo User Page -->',
-		);
+		];
 
 		$page_id = wp_insert_post( $page_data );
 
@@ -99,10 +99,10 @@ if ( ! function_exists( 'apollo_get_or_create_user_page' ) ) {
 
 		// Enable comments for depoimentos
 		wp_update_post(
-			array(
+			[
 				'ID'             => $page_id,
 				'comment_status' => 'open',
-			)
+			]
 		);
 
 		return get_post( $page_id );

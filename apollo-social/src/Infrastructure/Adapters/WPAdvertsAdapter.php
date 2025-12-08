@@ -25,23 +25,23 @@ class WPAdvertsAdapter {
 	 * @param array $args Query arguments
 	 * @return array List of ads
 	 */
-	public static function listAds( array $args = array() ): array {
+	public static function listAds( array $args = [] ): array {
 		if ( ! self::isActive() ) {
-			return array();
+			return [];
 		}
 
-		$defaults = array(
+		$defaults = [
 			'post_type'      => 'advert',
 			'post_status'    => 'publish',
 			'posts_per_page' => 10,
 			'paged'          => 1,
-		);
+		];
 
 		$query_args = wp_parse_args( $args, $defaults );
 
 		$query = new \WP_Query( $query_args );
 
-		$ads = array();
+		$ads = [];
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
 				$query->the_post();
@@ -50,11 +50,11 @@ class WPAdvertsAdapter {
 			wp_reset_postdata();
 		}
 
-		return array(
+		return [
 			'ads'   => $ads,
 			'total' => $query->found_posts,
 			'pages' => $query->max_num_pages,
-		);
+		];
 	}
 
 	/**
@@ -77,7 +77,7 @@ class WPAdvertsAdapter {
 		$meta = get_post_meta( $ad_id );
 
 		// Extract common fields
-		$ad = array(
+		$ad = [
 			'id'          => $ad_id,
 			'title'       => get_the_title( $ad_id ),
 			'content'     => get_the_content( null, false, $ad_id ),
@@ -87,12 +87,12 @@ class WPAdvertsAdapter {
 			'date'        => $post->post_date,
 			'modified'    => $post->post_modified,
 			'status'      => $post->post_status,
-		);
+		];
 
 		// Extract WPAdverts specific meta
 		$ad['price']    = isset( $meta['adverts_price'] ) ? $meta['adverts_price'][0] : null;
 		$ad['location'] = isset( $meta['adverts_location'] ) ? $meta['adverts_location'][0] : null;
-		$ad['gallery']  = isset( $meta['adverts_gallery'] ) ? maybe_unserialize( $meta['adverts_gallery'][0] ) : array();
+		$ad['gallery']  = isset( $meta['adverts_gallery'] ) ? maybe_unserialize( $meta['adverts_gallery'][0] ) : [];
 		$ad['category'] = isset( $meta['adverts_category'] ) ? $meta['adverts_category'][0] : null;
 
 		// Get featured image
@@ -102,7 +102,7 @@ class WPAdvertsAdapter {
 		}
 
 		// Get all meta for flexibility
-		$ad['meta'] = array();
+		$ad['meta'] = [];
 		foreach ( $meta as $key => $value ) {
 			if ( strpos( $key, 'adverts_' ) === 0 ) {
 				$ad['meta'][ $key ] = maybe_unserialize( $value[0] );
@@ -135,28 +135,28 @@ class WPAdvertsAdapter {
 	 */
 	public static function getCategories(): array {
 		if ( ! self::isActive() ) {
-			return array();
+			return [];
 		}
 
 		$terms = get_terms(
-			array(
+			[
 				'taxonomy'   => 'advert_category',
 				'hide_empty' => false,
-			)
+			]
 		);
 
 		if ( is_wp_error( $terms ) ) {
-			return array();
+			return [];
 		}
 
-		$categories = array();
+		$categories = [];
 		foreach ( $terms as $term ) {
-			$categories[] = array(
+			$categories[] = [
 				'id'    => $term->term_id,
 				'name'  => $term->name,
 				'slug'  => $term->slug,
 				'count' => $term->count,
-			);
+			];
 		}
 
 		return $categories;

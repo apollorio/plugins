@@ -22,7 +22,7 @@ if ( ! $user ) {
 $post_id = get_user_meta( $user_id, 'apollo_user_page_id', true );
 $layout  = get_post_meta( $post_id, 'apollo_userpage_layout_v1', true );
 if ( ! is_array( $layout ) ) {
-	$layout = array();
+	$layout = [];
 }
 
 // User meta data
@@ -41,10 +41,10 @@ if ( ! $cover_url ) {
 }
 
 // Enqueue assets - STRICT MODE
-wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '2.0.0' );
-wp_enqueue_style( 'apollo-base-css', 'https://assets.apollo.rio.br/base.css', array(), '2.0.0' );
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
-wp_enqueue_script( 'tailwindcss', 'https://cdn.tailwindcss.com', array(), null, true );
+wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0' );
+wp_enqueue_style( 'apollo-base-css', 'https://assets.apollo.rio.br/base.css', [], '2.0.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
+wp_enqueue_script( 'tailwindcss', 'https://cdn.tailwindcss.com', [], null, true );
 
 get_header();
 ?>
@@ -76,9 +76,9 @@ get_header();
 				96,
 				'',
 				$user->display_name,
-				array(
+				[
 					'class' => 'h-24 w-24 rounded-full border-4 border-white shadow-lg object-cover',
-				)
+				]
 			);
 			?>
 			<?php if ( $is_verified ) : ?>
@@ -170,14 +170,14 @@ get_header();
 			$widgets = Apollo_User_Page_Widgets::get_widgets();
 			foreach ( $layout['grid'] as $widget_data ) {
 				$widget_id = $widget_data['widget'] ?? '';
-				$props     = $widget_data['props'] ?? array();
+				$props     = $widget_data['props'] ?? [];
 
 				if ( isset( $widgets[ $widget_id ] ) && isset( $widgets[ $widget_id ]['render'] ) ) {
-					$ctx = array(
+					$ctx = [
 						'user_id'      => $user_id,
 						'post_id'      => $post_id,
 						'display_name' => $user->display_name,
-					);
+					];
 					echo '<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4" data-ap-tooltip="Widget personalizado">';
 					echo $widgets[ $widget_id ]['render']( $props, $ctx );
 					echo '</div>';
@@ -204,13 +204,13 @@ get_header();
 		<?php
 		// Get comments for this user page
 		$comments = get_comments(
-			array(
+			[
 				'post_id' => $post_id,
 				'status'  => 'approve',
 				'number'  => 10,
 				'orderby' => 'comment_date',
 				'order'   => 'DESC',
-			)
+			]
 		);
 
 		if ( ! empty( $comments ) ) :
@@ -218,7 +218,7 @@ get_header();
 		<div class="space-y-4">
 			<?php foreach ( $comments as $comment ) : ?>
 		<div class="flex gap-3">
-				<?php echo get_avatar( $comment->comment_author_email, 40, '', '', array( 'class' => 'h-10 w-10 rounded-full shrink-0' ) ); ?>
+				<?php echo get_avatar( $comment->comment_author_email, 40, '', '', [ 'class' => 'h-10 w-10 rounded-full shrink-0' ] ); ?>
 			<div class="flex-1 min-w-0">
 			<div class="flex items-center gap-2 mb-1">
 				<span class="font-medium text-sm text-slate-900"><?php echo esc_html( $comment->comment_author ); ?></span>
@@ -241,7 +241,7 @@ get_header();
 		<form class="mt-6 pt-4 border-t border-slate-100" id="depoimento-form" data-post-id="<?php echo esc_attr( $post_id ); ?>">
 			<?php wp_nonce_field( 'apollo_depoimento_nonce', 'depoimento_nonce' ); ?>
 		<div class="flex gap-3">
-			<?php echo get_avatar( get_current_user_id(), 40, '', '', array( 'class' => 'h-10 w-10 rounded-full shrink-0' ) ); ?>
+			<?php echo get_avatar( get_current_user_id(), 40, '', '', [ 'class' => 'h-10 w-10 rounded-full shrink-0' ] ); ?>
 			<div class="flex-1">
 			<textarea 
 				name="depoimento_content"

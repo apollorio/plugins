@@ -10,10 +10,10 @@ class RegistrationRoutes {
 
 	public function register(): void {
 		// Override default registration URL
-		add_filter( 'register_url', array( $this, 'customRegistrationUrl' ), 10, 1 );
+		add_filter( 'register_url', [ $this, 'customRegistrationUrl' ], 10, 1 );
 
 		// Add custom registration page template
-		add_action( 'template_redirect', array( $this, 'handleRegistrationPage' ), 1 );
+		add_action( 'template_redirect', [ $this, 'handleRegistrationPage' ], 1 );
 	}
 
 	/**

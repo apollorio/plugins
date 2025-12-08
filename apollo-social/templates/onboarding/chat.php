@@ -18,8 +18,8 @@ if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
 
-$config       = $config ?? array();
-$progress     = $progress ?? array();
+$config       = $config ?? [];
+$progress     = $progress ?? [];
 $current_step = $current_step ?? 'welcome';
 $user_id      = $user_id ?? get_current_user_id();
 $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );

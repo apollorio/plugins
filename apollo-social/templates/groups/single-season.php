@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 global $post;
 
@@ -137,19 +137,19 @@ get_header();
 			<div class="ap-card-body">
 				<?php
 				$events = get_posts(
-					array(
+					[
 						'post_type'      => 'event_listing',
 						'posts_per_page' => 10,
-						'meta_query'     => array(
-							array(
+						'meta_query'     => [
+							[
 								'key'   => '_event_season_id',
 								'value' => $season_id,
-							),
-						),
+							],
+						],
 						'orderby'        => 'meta_value',
 						'meta_key'       => '_event_start_date',
 						'order'          => 'ASC',
-					)
+					]
 				);
 
 				if ( ! empty( $events ) ) :
@@ -161,7 +161,7 @@ get_header();
 						$date_obj   = $event_date ? DateTime::createFromFormat( 'Y-m-d', $event_date ) : null;
 						$venue      = get_post_meta( $event->ID, '_event_venue_name', true );
 						$thumb      = get_the_post_thumbnail_url( $event->ID, 'thumbnail' );
-						$day_names  = array( 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' );
+						$day_names  = [ 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' ];
 						?>
 					<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>"
 						class="ap-list-item ap-list-item-hover"

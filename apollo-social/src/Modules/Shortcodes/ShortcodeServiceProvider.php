@@ -7,35 +7,35 @@ use WP_Query;
 class ShortcodeServiceProvider {
 
 	public function register(): void {
-		add_action( 'init', array( $this, 'registerShortcodes' ) );
+		add_action( 'init', [ $this, 'registerShortcodes' ] );
 	}
 
 	public function registerShortcodes(): void {
-		add_shortcode( 'apollo_event_list', array( $this, 'renderEventList' ) );
-		add_shortcode( 'apollo_profile_card', array( $this, 'renderProfileCard' ) );
+		add_shortcode( 'apollo_event_list', [ $this, 'renderEventList' ] );
+		add_shortcode( 'apollo_profile_card', [ $this, 'renderProfileCard' ] );
 	}
 
-	public function renderEventList( $atts = array() ): string {
+	public function renderEventList( $atts = [] ): string {
 		$atts = shortcode_atts(
-			array(
+			[
 				'limit'        => 6,
 				'order'        => 'ASC',
 				'order_by'     => 'meta_value',
 				'show_excerpt' => true,
-			),
+			],
 			$atts,
 			'apollo_event_list'
 		);
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => (int) $atts['limit'],
 				'post_status'    => 'publish',
 				'orderby'        => $atts['order_by'],
 				'order'          => $atts['order'],
 				'meta_key'       => '_event_start_date',
-			)
+			]
 		);
 
 		if ( ! $query->have_posts() ) {
@@ -45,7 +45,7 @@ class ShortcodeServiceProvider {
 		}
 
 		wp_enqueue_style( 'apollo-uni-css' );
-		wp_enqueue_style( 'apollo-shadcn-components', 'https://assets.apollo.rio.br/apollo-shadcn-components.css', array(), APOLLO_SOCIAL_VERSION );
+		wp_enqueue_style( 'apollo-shadcn-components', 'https://assets.apollo.rio.br/apollo-shadcn-components.css', [], APOLLO_SOCIAL_VERSION );
 
 		// Load event data helper from apollo-events-manager
 		$helper_path = WP_PLUGIN_DIR . '/apollo-events-manager/includes/helpers/event-data-helper.php';
@@ -115,13 +115,13 @@ class ShortcodeServiceProvider {
 		return (string) ob_get_clean();
 	}
 
-	public function renderProfileCard( $atts = array(), $content = null ): string {
+	public function renderProfileCard( $atts = [], $content = null ): string {
 		$atts = shortcode_atts(
-			array(
+			[
 				'user_id'  => get_current_user_id(),
 				'title'    => '',
 				'subtitle' => '',
-			),
+			],
 			$atts,
 			'apollo_profile_card'
 		);
@@ -132,7 +132,7 @@ class ShortcodeServiceProvider {
 		}
 
 		$displayName = get_the_author_meta( 'display_name', $userId );
-		$avatar      = get_avatar_url( $userId, array( 'size' => 128 ) );
+		$avatar      = get_avatar_url( $userId, [ 'size' => 128 ] );
 
 		ob_start();
 		?>

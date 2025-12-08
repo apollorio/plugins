@@ -39,10 +39,10 @@ class Apollo_Widget_Playlist {
 				$html   .= \Apollo\Helpers\MediaEmbedHelper::renderSpotifyEmbed(
 					$spotify['id'],
 					$spotify['type'],
-					array(
+					[
 						'width'  => '100%',
 						'height' => $spotify['type'] === 'track' ? '152' : '352',
-					)
+					]
 				);
 			}
 		}
@@ -54,10 +54,10 @@ class Apollo_Widget_Playlist {
 				$soundcloud = $media['soundcloud'][0];
 				$html      .= \Apollo\Helpers\MediaEmbedHelper::renderSoundCloudEmbed(
 					$soundcloud['url'],
-					array(
+					[
 						'width'  => '100%',
 						'height' => '166',
-					)
+					]
 				);
 			}
 		}
@@ -81,28 +81,28 @@ class Apollo_Widget_Playlist {
 	 * P0-8: Get widget schema
 	 */
 	public static function getSchema() {
-		return array(
+		return [
 			'title'       => 'Playlist',
 			'icon'        => 'music-2-line',
-			'propsSchema' => array(
-				'title'          => array(
+			'propsSchema' => [
+				'title'          => [
 					'type'    => 'string',
 					'default' => 'Playlist',
 					'label'   => 'Título',
-				),
-				'spotify_url'    => array(
+				],
+				'spotify_url'    => [
 					'type'        => 'string',
 					'default'     => '',
 					'label'       => 'URL do Spotify',
 					'placeholder' => 'https://open.spotify.com/playlist/...',
-				),
-				'soundcloud_url' => array(
+				],
+				'soundcloud_url' => [
 					'type'        => 'string',
 					'default'     => '',
 					'label'       => 'URL do SoundCloud',
 					'placeholder' => 'https://soundcloud.com/...',
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 }

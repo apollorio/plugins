@@ -11,20 +11,20 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Matchmaking_Profile_Controller extends APRIO_REST_CRUD_Controller {
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base for profile endpoints.
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'matchmaking-profile';
+	protected $rest_base = 'preferencias';
 
 	/**
 	 * Initialize routes.
@@ -135,14 +135,14 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 			)
 		);
 
-		// POST - Filter matchmaking users (same as wpem_matchmaking_filter_users)
+		// POST - Filter matchmaking users (same as aprio_matchmaking_filter_users)
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/search',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'wpem_matchmaking_filter_users' ),
+					'callback'            => array( $this, 'aprio_matchmaking_filter_users' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
 						'profession'   => array(
@@ -200,12 +200,12 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'wpem_matchmaking_filter_users' ),
+					'callback'            => array( $this, 'aprio_matchmaking_filter_users' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'wpem_matchmaking_filter_users' ),
+					'callback'            => array( $this, 'aprio_matchmaking_filter_users' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 				),
 			)
@@ -222,9 +222,9 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @return bool|WP_Error True if allowed, or sends JSON error.
 	 */
 	public function permission_check( $request ) {
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
-			return $auth_check; 
+			return $auth_check;
 			// Standardized error already sent
 		}
 		return true;
@@ -238,7 +238,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @return WP_REST_Response|Array
 	 */
 	public function get_user_profile_data( $request ) {
-		$user_id = (int) $request->get_param( 'user_id' ) ? (int) $request->get_param( 'user_id' ) : wpem_rest_get_current_user_id();
+		$user_id = (int) $request->get_param( 'user_id' ) ? (int) $request->get_param( 'user_id' ) : aprio_rest_get_current_user_id();
 		$user    = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
 			return self::prepare_error_for_response( 404 );
@@ -253,7 +253,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 		);
 
 		// Fetch dynamic fields
-		$fields = get_wpem_user_matchmaking_profile_fields();
+		$fields = get_aprio_user_matchmaking_profile_fields();
 		foreach ( $fields as $field_key => $field_config ) {
 			$raw_value = isset( $user_meta[ '_' . $field_key ][0] ) ? maybe_unserialize( $user_meta[ '_' . $field_key ][0] ) : '';
 
@@ -285,7 +285,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 				case 'url':
 				case 'file':
 					if ( is_array( $raw_value ) ) {
-						$raw_value = reset( $raw_value ); 
+						$raw_value = reset( $raw_value );
 						// handle WP file upload meta
 					}
 					$value = esc_url_raw( $raw_value );
@@ -305,7 +305,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 		}//end foreach
 
 		// Add profile photo separately
-		$profile['profile_photo'] = get_wpem_user_profile_photo( $user_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+		$profile['profile_photo'] = get_aprio_user_profile_photo( $user_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
 
 		// Add organization logo separately
 		$organization_logo = get_user_meta( $user_id, '_organization_logo', true );
@@ -329,18 +329,18 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @return WP_REST_Response|Array
 	 */
 	public function update_matchmaking_profile( $request ) {
-		$user_id = (int) wpem_rest_get_current_user_id();
+		$user_id = (int) aprio_rest_get_current_user_id();
 		$user    = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
 			return self::prepare_error_for_response( 404 );
 		}
 
 		// Get all defined profile fields
-		$fields = get_wpem_user_matchmaking_profile_fields();
+		$fields = get_aprio_user_matchmaking_profile_fields();
 
 		foreach ( $fields as $field_key => $field_config ) {
 			if ( $request->get_param( $field_key ) === null ) {
-				continue; 
+				continue;
 				// skip if not provided
 			}
 
@@ -380,7 +380,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @return WP_REST_Response|Array
 	 */
 	public function upload_user_file( $request ) {
-		$user_id = (int) wpem_rest_get_current_user_id();
+		$user_id = (int) aprio_rest_get_current_user_id();
 		$user    = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
 			return self::prepare_error_for_response( 404 );
@@ -419,7 +419,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @since 1.1.3
 	 */
 	public function get_matchmaking_profile_settings( $request ) {
-		$user_id  = wpem_rest_get_current_user_id();
+		$user_id  = aprio_rest_get_current_user_id();
 		$event_id = (int) $request->get_param( 'event_id' );
 
 		$user = get_user_by( 'id', $user_id );
@@ -475,7 +475,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 			'enable_matchmaking'   => (int) get_user_meta( $user_id, '_matchmaking_profile', true ),
 			'message_notification' => (int) get_user_meta( $user_id, '_message_notification', true ),
 			'event_participation'  => $user_event_participation,
-			'meeting_request_mode' => get_user_meta( $user_id, '_wpem_meeting_request_mode', true ) ?: 'approval',
+			'meeting_request_mode' => get_user_meta( $user_id, '_aprio_meeting_request_mode', true ) ?: 'approval',
 		);
 
 		$response_data         = self::prepare_error_for_response( 200 );
@@ -492,7 +492,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	 * @since 1.1.3
 	 */
 	public function update_matchmaking_profile_settings( $request ) {
-		$user_id = wpem_rest_get_current_user_id();
+		$user_id = aprio_rest_get_current_user_id();
 		$user    = get_user_by( 'id', $user_id );
 
 		// Update user meta values
@@ -500,7 +500,7 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 			update_user_meta( $user_id, '_message_notification', (int) $request->get_param( 'message_notification' ) );
 		}
 		if ( ! is_null( $request->get_param( 'meeting_request_mode' ) ) ) {
-			update_user_meta( $user_id, '_wpem_meeting_request_mode', sanitize_text_field( $request->get_param( 'meeting_request_mode' ) ) );
+			update_user_meta( $user_id, '_aprio_meeting_request_mode', sanitize_text_field( $request->get_param( 'meeting_request_mode' ) ) );
 		}
 
 		// Update event participation settings
@@ -533,14 +533,14 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	}
 
 	/**
-	 * Filter matchmaking users (combined logic from wpem_matchmaking_filter_users)
-	 * Route: POST /wp-json/wpem/matchmaking-profile/filter
+	 * Filter matchmaking users (combined logic from aprio_matchmaking_filter_users)
+	 * Route: POST /wp-json/aprio/matchmaking-profile/filter
 	 *
 	 * @since 1.1.4
 	 */
-	public function wpem_matchmaking_filter_users( WP_REST_Request $request ) {
+	public function aprio_matchmaking_filter_users( WP_REST_Request $request ) {
 		$filters      = $request->get_params();
-		$current_user = wpem_rest_get_current_user_id();
+		$current_user = aprio_rest_get_current_user_id();
 
 		// Step 1: Get event_ids (passed or derived from user registrations)
 		$event_ids = array();
@@ -578,11 +578,11 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 		}
 
 		// Step 2: Collect attendees with matchmaking
-		$countries      = wpem_get_all_countries();
+		$countries      = aprio_get_all_countries();
 		$filtered_users = array();
 
 		foreach ( $event_ids as $eid ) {
-			$users = wpem_get_all_match_making_attendees( $current_user, $eid );
+			$users = aprio_get_all_match_making_attendees( $current_user, $eid );
 
 			foreach ( $users as $u ) {
 				$uid = $u['user_id'] ?? $u['ID'];
@@ -713,4 +713,4 @@ class WPEM_REST_Matchmaking_Profile_Controller extends WPEM_REST_CRUD_Controller
 	}
 }
 
-new WPEM_REST_Matchmaking_Profile_Controller();
+new APRIO_REST_Matchmaking_Profile_Controller();

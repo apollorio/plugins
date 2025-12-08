@@ -12,14 +12,14 @@ defined( 'ABSPATH' ) || exit;
 
 // Security: Must be logged in and have capability
 if ( ! is_user_logged_in() || ! current_user_can( APOLLO_BUILDER_CAPABILITY ) ) {
-	wp_die( __( 'Access denied', 'apollo-social' ), __( 'Error', 'apollo-social' ), array( 'response' => 403 ) );
+	wp_die( __( 'Access denied', 'apollo-social' ), __( 'Error', 'apollo-social' ), [ 'response' => 403 ] );
 }
 
 $user_id = get_current_user_id();
 $home    = Apollo_Home_CPT::get_or_create_home( $user_id );
 
 if ( ! $home ) {
-	wp_die( __( 'Could not load your home', 'apollo-social' ), __( 'Error', 'apollo-social' ), array( 'response' => 500 ) );
+	wp_die( __( 'Could not load your home', 'apollo-social' ), __( 'Error', 'apollo-social' ), [ 'response' => 500 ] );
 }
 
 ?>

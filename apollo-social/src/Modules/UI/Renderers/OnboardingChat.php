@@ -9,24 +9,24 @@ namespace Apollo\Modules\UI\Renderers;
  */
 class OnboardingChat {
 
-	private array $steps = array(
-		1 => array(
+	private array $steps = [
+		1 => [
 			'question'    => 'Hey, qual seu nome?',
 			'type'        => 'text',
 			'placeholder' => 'Digite seu nome',
 			'required'    => true,
 			'field'       => 'name',
-		),
-		2 => array(
+		],
+		2 => [
 			'question' => 'Você é da indústria de Música/Eventos/Cultura Eletrônica no Rio?',
 			'type'     => 'buttons',
-			'options'  => array( 'Yes', 'No', 'Future yes!' ),
+			'options'  => [ 'Yes', 'No', 'Future yes!' ],
 			'field'    => 'industry_member',
-		),
-		3 => array(
+		],
+		3 => [
 			'question'  => 'Em que frentes você atua? (múltipla escolha)',
 			'type'      => 'multi_select',
-			'options'   => array(
+			'options'   => [
 				'DJ',
 				'PRODUCER',
 				'CULTURAL PRODUCER',
@@ -40,38 +40,38 @@ class OnboardingChat {
 				'HOSTESS',
 				'PROMOTER',
 				'INFLUENCER',
-			),
+			],
 			'field'     => 'industry_roles',
 			'condition' => 'industry_member:Yes,Future yes!',
-		),
-		4 => array(
+		],
+		4 => [
 			'question'                  => 'É membro de algum Núcleo / Club / DJ Bar?',
 			'type'                      => 'multi_select',
-			'options'                   => array(),
+			'options'                   => [],
 			// Will be loaded dynamically
 								'field' => 'member_of',
 			'condition'                 => 'industry_member:Yes,Future yes!',
-		),
-		5 => array(
+		],
+		5 => [
 			'question'    => 'Qual seu WhatsApp?',
 			'type'        => 'phone',
 			'placeholder' => '(11) 99999-9999',
 			'required'    => true,
 			'field'       => 'whatsapp',
-		),
-		6 => array(
+		],
+		6 => [
 			'question'    => 'Qual seu Instagram?',
 			'type'        => 'instagram',
 			'placeholder' => '@seuusuario',
 			'required'    => true,
 			'field'       => 'instagram',
-		),
-		7 => array(
+		],
+		7 => [
 			'question' => 'Perfeito! Vamos verificar seu Instagram.',
 			'type'     => 'verification',
 			'field'    => 'verification',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Render onboarding chat

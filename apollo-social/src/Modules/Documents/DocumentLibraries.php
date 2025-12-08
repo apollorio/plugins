@@ -37,55 +37,55 @@ class DocumentLibraries {
 	private string $permissions_table;
 
 	/** @var array Tipos de biblioteca */
-	public const LIBRARY_TYPES = array(
-		'apollo'  => array(
+	public const LIBRARY_TYPES = [
+		'apollo'  => [
 			'name'        => 'Apollo',
 			'description' => 'Documentos institucionais e templates oficiais',
 			'icon'        => 'ri-command-fill',
 			'color'       => '#0f172a',
-			'roles'       => array( 'administrator', 'apollo_admin' ),
-		),
-		'cenario' => array(
+			'roles'       => [ 'administrator', 'apollo_admin' ],
+		],
+		'cenario' => [
 			'name'        => 'Cena-rio',
 			'description' => 'Documentos comunitários e modelos compartilhados',
 			'icon'        => 'ri-community-line',
 			'color'       => '#f97316',
-			'roles'       => array( '*' ),
+			'roles'       => [ '*' ],
 	// Todos autenticados
-		),
-		'private' => array(
+		],
+		'private' => [
 			'name'        => 'Minha Biblioteca',
 			'description' => 'Documentos pessoais e privados',
 			'icon'        => 'ri-folder-user-line',
 			'color'       => '#3b82f6',
-			'roles'       => array( 'owner' ),
+			'roles'       => [ 'owner' ],
 	// Apenas o dono
-		),
-	);
+		],
+	];
 
 	/** @var array Status de documento */
-	public const DOCUMENT_STATUS = array(
-		'draft'     => array(
+	public const DOCUMENT_STATUS = [
+		'draft'     => [
 			'name'  => 'Rascunho',
 			'color' => '#f59e0b',
-		),
-		'ready'     => array(
+		],
+		'ready'     => [
 			'name'  => 'Pronto',
 			'color' => '#3b82f6',
-		),
-		'signing'   => array(
+		],
+		'signing'   => [
 			'name'  => 'Em Assinatura',
 			'color' => '#8b5cf6',
-		),
-		'completed' => array(
+		],
+		'completed' => [
 			'name'  => 'Concluído',
 			'color' => '#10b981',
-		),
-		'archived'  => array(
+		],
+		'archived'  => [
 			'name'  => 'Arquivado',
 			'color' => '#64748b',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Constructor
@@ -165,19 +165,19 @@ class DocumentLibraries {
 	 * @param array    $args Query args
 	 * @return array Documents
 	 */
-	public function getDocumentsByLibrary( string $library, ?int $user_id = null, array $args = array() ): array {
+	public function getDocumentsByLibrary( string $library, ?int $user_id = null, array $args = [] ): array {
 		global $wpdb;
 
 		$user_id = $user_id ?? get_current_user_id();
 
 		// Check access
 		if ( ! $this->canAccessLibrary( $library, $user_id ) ) {
-			return array();
+			return [];
 		}
 
 		// Build query
-		$where  = array( 'library_type = %s' );
-		$params = array( $library );
+		$where  = [ 'library_type = %s' ];
+		$params = [ $library ];
 
 		// Private library: only own documents
 		if ( $library === 'private' ) {
@@ -235,7 +235,7 @@ class DocumentLibraries {
              WHERE {$where_sql}
              ORDER BY {$order_by} {$order}
              LIMIT %d OFFSET %d",
-			array( ...$params, $per_page, $offset )
+			[ ...$params, $per_page, $offset ]
 		);
 
 		$documents = $wpdb->get_results( $sql, ARRAY_A );
@@ -246,12 +246,12 @@ class DocumentLibraries {
 			$doc['permissions'] = $this->getUserPermissions( (int) $doc['id'], $user_id );
 		}
 
-		return array(
+		return [
 			'documents'    => $documents,
 			'total'        => $total,
 			'pages'        => ceil( $total / $per_page ),
 			'current_page' => $page,
-		);
+		];
 	}
 
 	/**
@@ -347,16 +347,16 @@ class DocumentLibraries {
 
 		// Check write permission
 		if ( ! $this->canWriteToLibrary( $library, $user_id ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Você não tem permissão para criar documentos nesta biblioteca',
-			);
+			];
 		}
 
 		// Generate unique file ID
 		$file_id = $this->generateFileId();
 
-		$insert_data = array(
+		$insert_data = [
 			'file_id'           => $file_id,
 			'library_type'      => $library,
 			'type'              => $data['type'] ?? 'document',
@@ -367,8 +367,8 @@ class DocumentLibraries {
 			'is_template'       => (int) ( $data['is_template'] ?? 0 ),
 			'template_category' => sanitize_text_field( $data['template_category'] ?? '' ),
 			'created_by'        => $user_id,
-			'metadata'          => json_encode( $data['metadata'] ?? array() ),
-		);
+			'metadata'          => json_encode( $data['metadata'] ?? [] ),
+		];
 
 		$result = $wpdb->insert( $this->documents_table, $insert_data );
 
@@ -378,18 +378,18 @@ class DocumentLibraries {
 			// Add owner permission
 			$this->grantPermission( $document_id, $user_id, 'admin', $user_id );
 
-			return array(
+			return [
 				'success'     => true,
 				'file_id'     => $file_id,
 				'document_id' => $document_id,
 				'url'         => $this->getDocumentUrl( $insert_data['type'], $file_id ),
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Erro ao criar documento: ' . $wpdb->last_error,
-		);
+		];
 	}
 
 	/**
@@ -446,30 +446,30 @@ class DocumentLibraries {
 		// Get document
 		$document = $this->getDocument( $file_id, $user_id );
 		if ( ! $document ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento não encontrado',
-			);
+			];
 		}
 
 		// Check edit permission
 		if ( ! $this->canEditDocument( (int) $document['id'], $user_id ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Você não tem permissão para editar este documento',
-			);
+			];
 		}
 
 		// Check if document is finalized
 		if ( $document['status'] !== 'draft' ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento finalizado não pode ser editado',
-			);
+			];
 		}
 
 		// Build update data
-		$update_data = array();
+		$update_data = [];
 
 		if ( isset( $data['title'] ) ) {
 			$update_data['title'] = sanitize_text_field( $data['title'] );
@@ -488,29 +488,29 @@ class DocumentLibraries {
 		}
 
 		if ( empty( $update_data ) ) {
-			return array(
+			return [
 				'success' => true,
 				'message' => 'Nada para atualizar',
-			);
+			];
 		}
 
 		$result = $wpdb->update(
 			$this->documents_table,
 			$update_data,
-			array( 'file_id' => $file_id )
+			[ 'file_id' => $file_id ]
 		);
 
 		if ( $result !== false ) {
-			return array(
+			return [
 				'success' => true,
 				'message' => 'Documento atualizado',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Erro ao atualizar documento',
-		);
+		];
 	}
 
 	/**
@@ -527,24 +527,24 @@ class DocumentLibraries {
 
 		$document = $this->getDocument( $file_id, $user_id );
 		if ( ! $document ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento não encontrado',
-			);
+			];
 		}
 
 		if ( ! $this->canEditDocument( (int) $document['id'], $user_id ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Sem permissão',
-			);
+			];
 		}
 
 		if ( $document['status'] !== 'draft' ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento já foi finalizado',
-			);
+			];
 		}
 
 		// Generate PDF
@@ -569,23 +569,23 @@ class DocumentLibraries {
 		// Update document
 		$wpdb->update(
 			$this->documents_table,
-			array(
+			[
 				'status'       => 'ready',
 				'pdf_path'     => $pdf_path ? str_replace( ABSPATH, '/', $pdf_path ) : null,
 				'pdf_hash'     => $content_hash,
 				'finalized_at' => current_time( 'mysql' ),
-			),
-			array( 'file_id' => $file_id )
+			],
+			[ 'file_id' => $file_id ]
 		);
 
-		return array(
+		return [
 			'success'  => true,
 			'message'  => 'Documento finalizado',
 			'pdf_path' => $pdf_path,
 			'pdf_url'  => $pdf_path ? $pdf_generator->getUrl( $pdf_path ) : null,
 			'hash'     => $content_hash,
 			'sign_url' => site_url( "/sign/{$file_id}" ),
-		);
+		];
 	}
 
 	/**
@@ -603,53 +603,53 @@ class DocumentLibraries {
 
 		$document = $this->getDocument( $file_id, $user_id );
 		if ( ! $document ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Documento não encontrado',
-			);
+			];
 		}
 
 		// Check permission to move
 		if ( ! $this->canEditDocument( (int) $document['id'], $user_id ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Sem permissão para mover',
-			);
+			];
 		}
 
 		// Check target library write permission
 		if ( ! $this->canWriteToLibrary( $target_library, $user_id ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Sem permissão para a biblioteca destino',
-			);
+			];
 		}
 
 		// Validate target library
 		if ( ! isset( self::LIBRARY_TYPES[ $target_library ] ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Biblioteca inválida',
-			);
+			];
 		}
 
 		$result = $wpdb->update(
 			$this->documents_table,
-			array( 'library_type' => $target_library ),
-			array( 'file_id' => $file_id )
+			[ 'library_type' => $target_library ],
+			[ 'file_id' => $file_id ]
 		);
 
 		if ( $result !== false ) {
-			return array(
+			return [
 				'success' => true,
 				'message' => 'Documento movido',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Erro ao mover documento',
-		);
+		];
 	}
 
 	/**
@@ -662,10 +662,10 @@ class DocumentLibraries {
 		return $this->getDocumentsByLibrary(
 			'cenario',
 			null,
-			array(
+			[
 				'is_template'       => 1,
 				'template_category' => $category,
-			)
+			]
 		);
 	}
 
@@ -683,24 +683,24 @@ class DocumentLibraries {
 		// Get template
 		$template = $this->getDocument( $template_file_id, $user_id );
 		if ( ! $template || ! $template['is_template'] ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Template não encontrado',
-			);
+			];
 		}
 
 		// Create new document based on template
 		return $this->createDocument(
 			$target_library,
-			array(
+			[
 				'type'         => $template['type'],
 				'title'        => $template['title'] . ' (Cópia)',
 				'content'      => $template['content'],
 				'html_content' => $template['html_content'],
-				'metadata'     => array(
+				'metadata'     => [
 					'source_template' => $template_file_id,
-				),
-			),
+				],
+			],
 			$user_id
 		);
 	}
@@ -719,12 +719,12 @@ class DocumentLibraries {
 
 		$result = $wpdb->replace(
 			$this->permissions_table,
-			array(
+			[
 				'document_id' => $document_id,
 				'user_id'     => $user_id,
 				'permission'  => $permission,
 				'granted_by'  => $granted_by,
-			)
+			]
 		);
 
 		return $result !== false;
@@ -778,7 +778,7 @@ class DocumentLibraries {
 			)
 		);
 
-		return $has_permission > 0 || in_array( $document['library_type'], array( 'apollo', 'cenario' ), true );
+		return $has_permission > 0 || in_array( $document['library_type'], [ 'apollo', 'cenario' ], true );
 	}
 
 	/**
@@ -842,7 +842,7 @@ class DocumentLibraries {
 		) == $user_id;
 
 		if ( $is_owner ) {
-			return array( 'view', 'edit', 'sign', 'admin' );
+			return [ 'view', 'edit', 'sign', 'admin' ];
 		}
 
 		// Get explicit permissions
@@ -876,7 +876,7 @@ class DocumentLibraries {
 		$user_id = $user_id ?? get_current_user_id();
 
 		$where  = 'library_type = %s';
-		$params = array( $library );
+		$params = [ $library ];
 
 		if ( $library === 'private' ) {
 			$where   .= ' AND created_by = %d';
@@ -899,14 +899,14 @@ class DocumentLibraries {
 			ARRAY_A
 		);
 
-		return $stats ?: array(
+		return $stats ?: [
 			'total'     => 0,
 			'drafts'    => 0,
 			'ready'     => 0,
 			'signing'   => 0,
 			'completed' => 0,
 			'templates' => 0,
-		);
+		];
 	}
 
 	/**
@@ -919,19 +919,19 @@ class DocumentLibraries {
 		$user = get_userdata( $user_id );
 
 		if ( ! $user ) {
-			return array(
+			return [
 				'id'     => $user_id,
 				'name'   => 'Usuário Removido',
 				'avatar' => '',
-			);
+			];
 		}
 
-		return array(
+		return [
 			'id'       => $user_id,
 			'name'     => $user->display_name,
 			'username' => $user->user_login,
-			'avatar'   => get_avatar_url( $user_id, array( 'size' => 48 ) ),
-		);
+			'avatar'   => get_avatar_url( $user_id, [ 'size' => 48 ] ),
+		];
 	}
 
 	/**

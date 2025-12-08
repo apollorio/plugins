@@ -49,7 +49,7 @@ class HtmlRenderService {
 	 * Initialize Quill format handlers
 	 */
 	private function initFormatHandlers(): void {
-		$this->format_handlers = array(
+		$this->format_handlers = [
 			// Inline formats
 			'bold'       => fn( string $text ): string => "<strong>{$text}</strong>",
 			'italic'     => fn( string $text ): string => "<em>{$text}</em>",
@@ -73,12 +73,12 @@ class HtmlRenderService {
 				return "<span style=\"background-color: {$bg}\">{$text}</span>";
 			},
 			'size'       => function ( string $text, $value ): string {
-				$sizes = array(
+				$sizes = [
 					'small'  => '0.75em',
 					'normal' => '1em',
 					'large'  => '1.5em',
 					'huge'   => '2.5em',
-				);
+				];
 				$size  = $sizes[ $value ] ?? '1em';
 				return "<span style=\"font-size: {$size}\">{$text}</span>";
 			},
@@ -86,7 +86,7 @@ class HtmlRenderService {
 				$font = esc_attr( $value );
 				return "<span style=\"font-family: {$font}\">{$text}</span>";
 			},
-		);
+		];
 	}
 
 	/**
@@ -294,7 +294,7 @@ CSS;
 	 * @param array        $options Rendering options
 	 * @return string HTML output
 	 */
-	public function deltaToHtml( $delta, array $options = array() ): string {
+	public function deltaToHtml( $delta, array $options = [] ): string {
 		// Parse JSON if string
 		if ( is_string( $delta ) ) {
 			$delta = json_decode( $delta, true );
@@ -331,11 +331,11 @@ CSS;
 	 * @return array Grouped blocks
 	 */
 	private function groupOpsIntoBlocks( array $ops ): array {
-		$blocks       = array();
-		$currentBlock = array(
-			'ops'        => array(),
-			'attributes' => array(),
-		);
+		$blocks       = [];
+		$currentBlock = [
+			'ops'        => [],
+			'attributes' => [],
+		];
 
 		foreach ( $ops as $op ) {
 			$insert = $op['insert'] ?? '';
@@ -345,10 +345,10 @@ CSS;
 				// End current block with these attributes
 				$currentBlock['attributes'] = $op['attributes'];
 				$blocks[]                   = $currentBlock;
-				$currentBlock               = array(
-					'ops'        => array(),
-					'attributes' => array(),
-				);
+				$currentBlock               = [
+					'ops'        => [],
+					'attributes' => [],
+				];
 				continue;
 			}
 
@@ -358,7 +358,7 @@ CSS;
 
 				foreach ( $lines as $i => $line ) {
 					if ( $line !== '' ) {
-						$lineOp = array( 'insert' => $line );
+						$lineOp = [ 'insert' => $line ];
 						if ( ! empty( $op['attributes'] ) ) {
 							$lineOp['attributes'] = $op['attributes'];
 						}
@@ -368,10 +368,10 @@ CSS;
 					// Each newline (except the last empty split) creates a new block
 					if ( $i < count( $lines ) - 1 ) {
 						$blocks[]     = $currentBlock;
-						$currentBlock = array(
-							'ops'        => array(),
-							'attributes' => array(),
-						);
+						$currentBlock = [
+							'ops'        => [],
+							'attributes' => [],
+						];
 					}
 				}
 			} else {
@@ -396,7 +396,7 @@ CSS;
 	 */
 	private function renderBlock( array $block ): string {
 		$content    = '';
-		$attributes = $block['attributes'] ?? array();
+		$attributes = $block['attributes'] ?? [];
 
 		// Render inline content
 		foreach ( $block['ops'] as $op ) {
@@ -412,7 +412,7 @@ CSS;
 			$text = esc_html( $insert );
 
 			// Apply inline formats
-			$opAttrs = $op['attributes'] ?? array();
+			$opAttrs = $op['attributes'] ?? [];
 			foreach ( $opAttrs as $format => $value ) {
 				if ( isset( $this->format_handlers[ $format ] ) && $value ) {
 					$handler = $this->format_handlers[ $format ];
@@ -441,8 +441,8 @@ CSS;
 	 */
 	private function wrapBlockContent( string $content, array $attributes ): string {
 		$tag   = 'p';
-		$class = array();
-		$style = array();
+		$class = [];
+		$style = [];
 
 		// Headings
 		if ( ! empty( $attributes['header'] ) ) {
@@ -540,7 +540,7 @@ CSS;
 	 * @param array        $options Rendering options
 	 * @return string HTML table
 	 */
-	public function sheetToHtml( $sheetData, array $options = array() ): string {
+	public function sheetToHtml( $sheetData, array $options = [] ): string {
 		// Parse JSON if string
 		if ( is_string( $sheetData ) ) {
 			$sheetData = json_decode( $sheetData, true );
@@ -561,7 +561,7 @@ CSS;
 		}
 
 		// Get cells data
-		$cells = array();
+		$cells = [];
 
 		// Luckysheet stores data in 'data' (2D array) or 'celldata' (sparse array)
 		if ( ! empty( $sheet['data'] ) && is_array( $sheet['data'] ) ) {
@@ -609,8 +609,8 @@ CSS;
 				$cell = $cells[ $key ] ?? null;
 
 				$value    = '';
-				$class    = array();
-				$styleArr = array();
+				$class    = [];
+				$styleArr = [];
 
 				if ( $cell ) {
 					$value = $this->getCellDisplayValue( $cell );
@@ -660,7 +660,7 @@ CSS;
 	 * @return array Cell map (row:col => cell)
 	 */
 	private function convertDataArrayToCells( array $data ): array {
-		$cells = array();
+		$cells = [];
 
 		foreach ( $data as $row => $rowData ) {
 			if ( ! is_array( $rowData ) ) {
@@ -668,7 +668,7 @@ CSS;
 			}
 			foreach ( $rowData as $col => $cell ) {
 				if ( $cell !== null && $cell !== '' ) {
-					$cells[ "{$row}:{$col}" ] = is_array( $cell ) ? $cell : array( 'v' => $cell );
+					$cells[ "{$row}:{$col}" ] = is_array( $cell ) ? $cell : [ 'v' => $cell ];
 				}
 			}
 		}
@@ -683,7 +683,7 @@ CSS;
 	 * @return array Cell map (row:col => cell)
 	 */
 	private function convertCelldataToCells( array $celldata ): array {
-		$cells = array();
+		$cells = [];
 
 		foreach ( $celldata as $item ) {
 			if ( isset( $item['r'], $item['c'] ) ) {
@@ -692,7 +692,7 @@ CSS;
 				$v   = $item['v'] ?? null;
 
 				if ( $v !== null ) {
-					$cells[ "{$row}:{$col}" ] = is_array( $v ) ? $v : array( 'v' => $v );
+					$cells[ "{$row}:{$col}" ] = is_array( $v ) ? $v : [ 'v' => $v ];
 				}
 			}
 		}
@@ -753,7 +753,7 @@ CSS;
 	 * @param array  $options Document options
 	 * @return string Complete HTML document
 	 */
-	public function renderFullDocument( string $bodyHtml, array $options = array() ): string {
+	public function renderFullDocument( string $bodyHtml, array $options = [] ): string {
 		$title  = esc_html( $options['title'] ?? 'Documento Apollo' );
 		$author = esc_html( $options['author'] ?? 'Apollo Social' );
 		$date   = $options['date'] ?? wp_date( 'd/m/Y H:i' );
@@ -815,21 +815,21 @@ HTML;
 	 * @param array  $signers Array of signers ['name' => 'Name', 'cpf' => '000.000.000-00', 'party' => 'A']
 	 * @return string HTML with signature blocks
 	 */
-	public function addSignatureBlocks( string $html, array $signers = array() ): string {
+	public function addSignatureBlocks( string $html, array $signers = [] ): string {
 		if ( empty( $signers ) ) {
 			// Default two-party signature
-			$signers = array(
-				array(
+			$signers = [
+				[
 					'name'  => '',
 					'cpf'   => '',
 					'party' => 'A',
-				),
-				array(
+				],
+				[
 					'name'  => '',
 					'cpf'   => '',
 					'party' => 'B',
-				),
-			);
+				],
+			];
 		}
 
 		$blocks  = '<div class="signatures-container" style="margin-top: 48pt; page-break-inside: avoid;">';

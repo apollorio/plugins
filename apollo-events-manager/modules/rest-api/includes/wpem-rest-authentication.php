@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API authentication class.
  */
-class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 
 	/**
 	 * Authentication error.
@@ -58,13 +58,13 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		$rest_prefix = trailingslashit( rest_get_url_prefix() );
 		$request_uri = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 
-		// Check if the request is to the WPEM API endpoints.
-		$wpem_endpoint = ( false !== strpos( $request_uri, $rest_prefix . 'wpem/' ) );
+		// Check if the request is to the APRIO API endpoints.
+		$aprio_endpoint = ( false !== strpos( $request_uri, $rest_prefix . 'aprio/' ) );
 
 		// Allow third party plugins use our authentication methods.
-		$third_party = ( false !== strpos( $request_uri, $rest_prefix . 'wpem' ) );
+		$third_party = ( false !== strpos( $request_uri, $rest_prefix . 'aprio' ) );
 
-		return apply_filters( 'wpem_rest_is_request_to_rest_api', $wpem_endpoint || $third_party );
+		return apply_filters( 'aprio_rest_is_request_to_rest_api', $aprio_endpoint || $third_party );
 	}
 
 	/**
@@ -292,7 +292,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		if ( ! empty( $errors ) ) {
 			$message = sprintf(
 				/* translators: %s: amount of errors */
-				_n( 'Missing OAuth parameter %s', 'Missing OAuth parameters %s', count( $errors ), 'wpem-rest-api' ),
+				_n( 'Missing OAuth parameter %s', 'Missing OAuth parameters %s', count( $errors ), 'aprio-rest-api' ),
 				implode( ', ', $errors )
 			);
 			return parent::prepare_error_for_response( 401 );
@@ -377,8 +377,8 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		}
 
 		// Normalize parameter key/values.
-		$params         = $this->normalize_parameters( $params );
-		$query_string   = implode( '%26', $this->join_with_equals_sign( $params ) );
+		$normalized_params = $this->normalize_parameters( $params );
+		$query_string      = implode( '%26', $this->join_with_equals_sign( $normalized_params ) );
 		// Join with ampersand.
 		$string_to_sign = $http_method . '&' . $base_request_uri . '&' . $query_string;
 
@@ -417,7 +417,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 			} else {
 				$string = $param_key . '=' . $param_value;
 				// Join with equals sign.
-				$query_params[] = wpem_rest_api_urlencode_rfc3986( $string );
+				$query_params[] = aprio_rest_api_urlencode_rfc3986( $string );
 			}
 		}
 		return $query_params;
@@ -443,8 +443,8 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 * @return array Normalized parameters.
 	 */
 	private function normalize_parameters( $parameters ) {
-		$keys       = wpem_rest_api_urlencode_rfc3986( array_keys( $parameters ) );
-		$values     = wpem_rest_api_urlencode_rfc3986( array_values( $parameters ) );
+		$keys       = aprio_rest_api_urlencode_rfc3986( array_keys( $parameters ) );
+		$values     = aprio_rest_api_urlencode_rfc3986( array_values( $parameters ) );
 		$parameters = array_combine( $keys, $values );
 		return $parameters;
 	}
@@ -491,7 +491,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		$used_nonces = maybe_serialize( $used_nonces );
 
 		$wpdb->update(
-			$wpdb->prefix . 'wpem_dj_api_keys',
+			$wpdb->prefix . 'aprio_dj_api_keys',
 			array( 'nonces' => $used_nonces ),
 			array( 'key_id' => $user->key_id ),
 			array( '%s' ),
@@ -515,7 +515,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 			$wpdb->prepare(
 				"
 					SELECT `key_id`, `user_id`, `permissions`, `consumer_key`, `consumer_secret`, `nonces`,`date_expires`,`date_created`
-					FROM {$wpdb->prefix}wpem_rest_api_keys
+					FROM {$wpdb->prefix}aprio_rest_api_keys
 					WHERE consumer_key = %s
 				",
 				$consumer_key
@@ -563,7 +563,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		global $wpdb;
 
 		$wpdb->update(
-			$wpdb->prefix . 'wpem_rest_api_keys',
+			$wpdb->prefix . 'aprio_rest_api_keys',
 			array( 'last_access' => current_time( 'mysql' ) ),
 			array( 'key_id' => $this->user->key_id ),
 			array( '%s' ),
@@ -581,7 +581,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 */
 	public function send_unauthorized_headers( $response ) {
 		if ( is_wp_error( $this->get_error() ) && 'basic_auth' === $this->auth_method ) {
-			$auth_message = __( 'WPEM API. Use a consumer key in the username field and a consumer secret in the password field.', 'wpem-rest-api' );
+			$auth_message = __( 'APRIO API. Use a consumer key in the username field and a consumer secret in the password field.', 'aprio-rest-api' );
 			$response->header( 'WWW-Authenticate', 'Basic realm="' . $auth_message . '"', true );
 		}
 		return $response;
@@ -613,7 +613,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 */
 	public function register_routes() {
 		register_rest_route(
-			'wpem',
+			'aprio',
 			'/applogin',
 			array(
 				array(
@@ -636,7 +636,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 			)
 		);
 		register_rest_route(
-			'wpem',
+			'aprio',
 			'/login',
 			array(
 				array(
@@ -682,7 +682,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 					$wpdb->prepare(
 						"
 							SELECT *
-							FROM {$wpdb->prefix}wpem_rest_api_keys
+							FROM {$wpdb->prefix}aprio_rest_api_keys
 							WHERE user_id = %s
 						",
 						$user_id
@@ -728,7 +728,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 
 				$user_id = $user->ID;
 
-				$token              = $this->wpem_generate_jwt_token( $user->ID, $password );
+				$token              = $this->aprio_generate_jwt_token( $user->ID, $password );
 				$is_matchmaking     = get_user_meta( $user_id, '_matchmaking_profile', true );
 				$enable_matchmaking = get_option( 'enable_matchmaking', false ) ? 1 : 0;
 
@@ -769,11 +769,11 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 						$organization_logo = reset( $organization_logo );
 						// get first value in the array
 					}
-					$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
+					$organization_logo = $organization_logo ?: plugins_url( 'apollo-events-manager/assets/images/organisation-icon.jpg' );
 					$meta              = get_user_meta( $user_id, '_available_for_meeting', true );
 					$meeting_available = ( $meta !== '' && $meta !== null ) ? ( (int) $meta === 0 ? 0 : 1 ) : 1;
 
-					$photo = get_wpem_user_profile_photo( $user_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+					$photo = get_aprio_user_profile_photo( $user_id ) ?: plugins_url( 'apollo-events-manager/assets/images/user-profile-photo.png' );
 
 					// --- Skills ---
 					$skills_slugs = array();
@@ -851,7 +851,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 						'approve_profile_status'    => get_user_meta( $user_id, '_approve_profile_status', true ) ?: '',
 						'matchmaking_profile'       => isset( $user_meta['_matchmaking_profile'][0] ) ? (int) $user_meta['_matchmaking_profile'][0] : 0,
 						'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
-						'wpem_meeting_request_mode' => isset( $user_meta['_wpem_meeting_request_mode'][0] ) ? $user_meta['_wpem_meeting_request_mode'][0] : 'approval',
+						'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
 						'available_for_meeting'     => (int) $meeting_available,
 					);
 
@@ -861,7 +861,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 				// Keep the API key check logic unchanged
 				$key_data = $wpdb->get_row(
 					$wpdb->prepare(
-						"SELECT * FROM {$wpdb->prefix}wpem_rest_api_keys WHERE user_id = %s",
+						"SELECT * FROM {$wpdb->prefix}aprio_rest_api_keys WHERE user_id = %s",
 						$user_id
 					)
 				);
@@ -893,14 +893,14 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 	 *
 	 * @since 1.0.9
 	 */
-	public function wpem_generate_jwt_token( $user_id, $password ) {
+	public function aprio_generate_jwt_token( $user_id, $password ) {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
 			return false;
 		}
 
 		// Header and payload
-		$header = wpem_base64url_encode(
+		$header = aprio_base64url_encode(
 			json_encode(
 				array(
 					'alg' => 'HS256',
@@ -909,7 +909,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 			)
 		);
 
-		$payload = wpem_base64url_encode(
+		$payload = aprio_base64url_encode(
 			json_encode(
 				array(
 					'iss'  => get_bloginfo( 'url' ),
@@ -923,7 +923,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		);
 
 		// Signature
-		$signature = wpem_base64url_encode( hash_hmac( 'sha256', "$header.$payload", JWT_SECRET_KEY, true ) );
+		$signature = aprio_base64url_encode( hash_hmac( 'sha256', "$header.$payload", JWT_SECRET_KEY, true ) );
 
 		// Return standard JWT format
 		return $header . '.' . $payload . '.' . $signature;
@@ -959,7 +959,7 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		list($header_b64, $payload_b64, $signature_b64) = $parts;
 
 		// Recalculate the signature
-		$expected_signature = wpem_base64url_encode(
+		$expected_signature = aprio_base64url_encode(
 			hash_hmac( 'sha256', "$header_b64.$payload_b64", JWT_SECRET_KEY, true )
 		);
 
@@ -984,4 +984,4 @@ class WPEM_REST_Authentication extends WPEM_REST_CRUD_Controller {
 		return true;
 	}
 }
-new WPEM_REST_Authentication();
+new APRIO_REST_Authentication();

@@ -21,16 +21,16 @@ class UserPagesServiceProvider {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'init', array( UserPageRegistrar::class, 'registerPostType' ) );
-		add_action( 'init', array( UserPageRegistrar::class, 'registerRewriteRules' ), 11 );
-		add_filter( 'query_vars', array( UserPageRegistrar::class, 'registerQueryVar' ) );
+		add_action( 'init', [ UserPageRegistrar::class, 'registerPostType' ] );
+		add_action( 'init', [ UserPageRegistrar::class, 'registerRewriteRules' ], 11 );
+		add_filter( 'query_vars', [ UserPageRegistrar::class, 'registerQueryVar' ] );
 		add_action(
 			'pre_get_posts',
-			array( UserPageRouter::class, 'handleUserPageRequest' )
+			[ UserPageRouter::class, 'handleUserPageRequest' ]
 		);
 		add_filter(
 			'template_include',
-			array( UserPageRouter::class, 'maybeUsePluginTemplate' )
+			[ UserPageRouter::class, 'maybeUsePluginTemplate' ]
 		);
 	}
 

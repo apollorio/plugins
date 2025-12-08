@@ -21,17 +21,17 @@ class UserAjustesSection {
 	 */
 	public static function init(): void {
 		// Add shortcode for ajustes section
-		add_shortcode( 'apollo_user_ajustes', array( self::class, 'renderAjustesSection' ) );
+		add_shortcode( 'apollo_user_ajustes', [ self::class, 'renderAjustesSection' ] );
 
 		// AJAX handlers
-		add_action( 'wp_ajax_apollo_save_user_settings', array( self::class, 'ajaxSaveSettings' ) );
-		add_action( 'wp_ajax_apollo_update_profile', array( self::class, 'ajaxUpdateProfile' ) );
+		add_action( 'wp_ajax_apollo_save_user_settings', [ self::class, 'ajaxSaveSettings' ] );
+		add_action( 'wp_ajax_apollo_update_profile', [ self::class, 'ajaxUpdateProfile' ] );
 	}
 
 	/**
 	 * Render the Ajustes section
 	 */
-	public static function renderAjustesSection( array $atts = array() ): string {
+	public static function renderAjustesSection( array $atts = [] ): string {
 		if ( ! is_user_logged_in() ) {
 			return '<p>Você precisa estar logado para acessar esta seção.</p>';
 		}
@@ -42,11 +42,11 @@ class UserAjustesSection {
 		// Get user data
 		$identities        = CulturaRioIdentity::getUserIdentities( $user_id );
 		$membership_status = CulturaRioIdentity::getMembershipStatus( $user_id );
-		$sounds            = get_user_meta( $user_id, 'apollo_sounds', true ) ?: array();
-		$avatar_url        = get_avatar_url( $user_id, array( 'size' => 150 ) );
+		$sounds            = get_user_meta( $user_id, 'apollo_sounds', true ) ?: [];
+		$avatar_url        = get_avatar_url( $user_id, [ 'size' => 150 ] );
 
 		// Feature visibility settings
-		$settings = get_user_meta( $user_id, 'apollo_display_settings', true ) ?: array();
+		$settings = get_user_meta( $user_id, 'apollo_display_settings', true ) ?: [];
 
 		ob_start();
 		?>
@@ -112,18 +112,18 @@ class UserAjustesSection {
 					<div style="margin-bottom: 15px;">
 						<strong style="color: #a0a0a0;">Status do membership:</strong>
 						<?php
-						$status_colors = array(
+						$status_colors = [
 							'none'     => '#888',
 							'pending'  => '#f0ad4e',
 							'approved' => '#5cb85c',
 							'rejected' => '#d9534f',
-						);
-						$status_labels = array(
+						];
+						$status_labels = [
 							'none'     => 'Clubber (padrão)',
 							'pending'  => '⏳ Aguardando aprovação',
 							'approved' => '✅ Aprovado',
 							'rejected' => '❌ Não aprovado',
-						);
+						];
 						$status        = $membership_status['status'];
 						?>
 						<span style="display: inline-block; margin-left: 10px; color: <?php echo $status_colors[ $status ] ?? '#888'; ?>; font-weight: 600;">
@@ -274,57 +274,57 @@ class UserAjustesSection {
 						in_array( 'producer_starter', $identities, true ) ||
 						in_array( 'producer_pro', $identities, true );
 
-		return array(
-			'show_sounds'             => array(
+		return [
+			'show_sounds'             => [
 				'label'       => 'Mostrar gêneros musicais',
 				'description' => 'Exibir seus gêneros musicais favoritos no perfil público.',
 				'default'     => true,
 				'available'   => true,
 				'requires'    => '',
-			),
-			'show_membership_badge'   => array(
+			],
+			'show_membership_badge'   => [
 				'label'       => 'Badge de Membership',
 				'description' => 'Exibir badge de membro verificado no perfil.',
 				'default'     => true,
 				'available'   => $is_approved,
 				'requires'    => 'membership aprovado',
-			),
-			'show_dj_badge'           => array(
+			],
+			'show_dj_badge'           => [
 				'label'       => 'Badge de DJ',
 				'description' => 'Exibir badge especial de DJ no perfil.',
 				'default'     => true,
 				'available'   => $is_approved && $is_dj,
 				'requires'    => 'membership DJ aprovado',
-			),
-			'show_producer_badge'     => array(
+			],
+			'show_producer_badge'     => [
 				'label'       => 'Badge de Producer',
 				'description' => 'Exibir badge de Producer de Eventos.',
 				'default'     => true,
 				'available'   => $is_approved && $is_producer,
 				'requires'    => 'membership Producer aprovado',
-			),
-			'show_cultura_identities' => array(
+			],
+			'show_cultura_identities' => [
 				'label'       => 'Identidades Cultura::Rio',
 				'description' => 'Mostrar suas identidades culturais no perfil.',
 				'default'     => true,
 				'available'   => true,
 				'requires'    => '',
-			),
-			'allow_messages'          => array(
+			],
+			'allow_messages'          => [
 				'label'       => 'Permitir mensagens',
 				'description' => 'Permitir que outros usuários enviem mensagens diretas.',
 				'default'     => true,
 				'available'   => true,
 				'requires'    => '',
-			),
-			'show_events_attended'    => array(
+			],
+			'show_events_attended'    => [
 				'label'       => 'Eventos participados',
 				'description' => 'Mostrar contador de eventos que você participou.',
 				'default'     => false,
 				'available'   => true,
 				'requires'    => '',
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -343,17 +343,17 @@ class UserAjustesSection {
 		$display_name = sanitize_text_field( $_POST['display_name'] ?? '' );
 		if ( ! empty( $display_name ) ) {
 			wp_update_user(
-				array(
+				[
 					'ID'           => $user_id,
 					'display_name' => $display_name,
-				)
+				]
 			);
 		}
 
 		// Save features
 		$features = json_decode( stripslashes( $_POST['features'] ?? '{}' ), true );
 		if ( is_array( $features ) ) {
-			$sanitized = array();
+			$sanitized = [];
 			foreach ( $features as $key => $value ) {
 				$sanitized[ sanitize_key( $key ) ] = (bool) $value;
 			}
@@ -365,5 +365,5 @@ class UserAjustesSection {
 }
 
 // Initialize
-add_action( 'init', array( UserAjustesSection::class, 'init' ) );
+add_action( 'init', [ UserAjustesSection::class, 'init' ] );
 

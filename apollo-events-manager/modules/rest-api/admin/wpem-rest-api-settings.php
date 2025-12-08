@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPEM_Rest_API_Settings class used to create settings fields and save settings.
+ * APRIO_Rest_API_Settings class used to create settings fields and save settings.
  */
-class WPEM_Rest_API_Settings {
+class APRIO_Rest_API_Settings {
 
 	public $settings, $settings_group;
 	/**
@@ -18,7 +18,7 @@ class WPEM_Rest_API_Settings {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->settings_group = 'wpem_rest_api';
+		$this->settings_group = 'aprio_rest_api';
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 	}
 
@@ -30,41 +30,41 @@ class WPEM_Rest_API_Settings {
 	 */
 	public function init_settings() {
 		$this->settings = apply_filters(
-			'wpem_rest_api_settings',
+			'aprio_rest_api_settings',
 			array(
 				'general'      => array(
-					'label'    => __( 'General', 'wpem-rest-api' ),
+					'label'    => __( 'General', 'aprio-rest-api' ),
 					'icon'     => 'meter',
 					'type'     => 'fields',
 					'sections' => array(
-						'general' => __( 'General Settings', 'wpem-rest-api' ),
+						'general' => __( 'General Settings', 'aprio-rest-api' ),
 					),
 					'fields'   => array(
 						'general' => array(
 							array(
-								'name'       => 'enable_wpem_rest_api',
+								'name'       => 'enable_aprio_rest_api',
 								'std'        => '1',
-								'label'      => __( 'Enable Rest API', 'wpem-rest-api' ),
-								'cb_label'   => __( 'Disable to remove the API functionality from your event website.', 'wpem-rest-api' ),
+								'label'      => __( 'Enable Rest API', 'aprio-rest-api' ),
+								'cb_label'   => __( 'Disable to remove the API functionality from your event website.', 'aprio-rest-api' ),
 								'desc'       => '',
 								'type'       => 'checkbox',
 								'attributes' => array(),
 							),
 							array(
-								'name'       => 'wpem_rest_api_app_name',
+								'name'       => 'aprio_rest_api_app_name',
 								'std'        => 'WP Event Manager',
-								'label'      => __( 'Application Name', 'wpem-rest-api' ),
-								'cb_label'   => __( 'WP Event Manager', 'wpem-rest-api' ),
+								'label'      => __( 'Application Name', 'aprio-rest-api' ),
+								'cb_label'   => __( 'WP Event Manager', 'aprio-rest-api' ),
 								'desc'       => '',
 								'type'       => 'text',
 								'attributes' => array(),
 							),
 							array(
-								'name'       => 'wpem_rest_api_app_logo',
+								'name'       => 'aprio_rest_api_app_logo',
 								'std'        => '',
-								'cb_label'   => __( 'Upload  the logo of your own brand.', 'wpem-rest-api' ),
-								'label'      => __( 'App Logo', 'wpem-rest-api' ),
-								'desc'       => __( 'Upload smallest file possible to ensure lesser loading time', 'wpem-rest-api' ),
+								'cb_label'   => __( 'Upload  the logo of your own brand.', 'aprio-rest-api' ),
+								'label'      => __( 'App Logo', 'aprio-rest-api' ),
+								'desc'       => __( 'Upload smallest file possible to ensure lesser loading time', 'aprio-rest-api' ),
 								'type'       => 'file',
 								'attributes' => array(),
 							),
@@ -72,31 +72,31 @@ class WPEM_Rest_API_Settings {
 					),
 				),
 				'api-access'   => array(
-					'label' => __( 'API Access', 'wpem-rest-api' ),
+					'label' => __( 'API Access', 'aprio-rest-api' ),
 					'icon'  => 'loop',
 					'type'  => 'template',
 				),
 				'app-branding' => array(
-					'label' => __( 'APP Branding', 'wpem-rest-api' ),
+					'label' => __( 'APP Branding', 'aprio-rest-api' ),
 					'icon'  => 'mobile',
 					'type'  => 'template',
 				),
 				// New Settings tab
 				'settings'     => array(
-					'label'    => __( 'Settings', 'wpem-rest-api' ),
+					'label'    => __( 'Settings', 'aprio-rest-api' ),
 					'icon'     => 'settings',
 					'type'     => 'fields',
 					'sections' => array(
-						'settings' => __( 'App Settings', 'wpem-rest-api' ),
+						'settings' => __( 'App Settings', 'aprio-rest-api' ),
 					),
 					'fields'   => array(
 						'settings' => array(
 							array(
-								'name'       => 'wpem_rest_allowed_roles',
-								'std'        => array( 'dj', 'wpem-scanner', 'administrator' ),
-								'label'      => __( 'Allowed Roles for App Key Generation (does not affect mobile login)', 'wpem-rest-api' ),
-								'cb_label'   => __( 'Selected roles allows to access dj app.', 'wpem-rest-api' ),
-								'desc'       => __( 'Choose one or more user roles.', 'wpem-rest-api' ),
+								'name'       => 'aprio_rest_allowed_roles',
+								'std'        => array( 'dj', 'aprio-scanner', 'administrator' ),
+								'label'      => __( 'Allowed Roles for App Key Generation (does not affect mobile login)', 'aprio-rest-api' ),
+								'cb_label'   => __( 'Selected roles allows to access dj app.', 'aprio-rest-api' ),
+								'desc'       => __( 'Choose one or more user roles.', 'aprio-rest-api' ),
 								'type'       => 'multi-select-checkbox',
 								'attributes' => array(),
 								'options'    => $this->get_all_roles_for_multiselect(),
@@ -144,8 +144,8 @@ class WPEM_Rest_API_Settings {
 	public function output() {
 		$this->init_settings();
 
-		wp_enqueue_style( 'wpem-rest-api-backend', WPEM_REST_API_PLUGIN_URL . '/assets/css/backend.min.css' );
-		wp_enqueue_script( 'wpem-rest-api-admin-js' );
+		wp_enqueue_style( 'aprio-rest-api-backend', APRIO_REST_API_PLUGIN_URL . '/assets/css/backend.min.css' );
+		wp_enqueue_script( 'aprio-rest-api-admin-js' );
 
 		$current_tab = isset( $_REQUEST['tab'] ) ? sanitize_text_field( $_REQUEST['tab'] ) : 'general';
 
@@ -154,54 +154,54 @@ class WPEM_Rest_API_Settings {
 			$action = 'action=options.php';
 		} ?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Rest API Settings', 'wpem-rest-api' ); ?></h1>
+			<h1><?php esc_html_e( 'Rest API Settings', 'aprio-rest-api' ); ?></h1>
 		</div>
 
 		<div id="wpbody" role="main">
-				<div id="wpbody-content" class="wpem-admin-container">
-				<div class="wpem-wrap">
-					<form method="post" name="wpem-rest-settings-form" <?php echo esc_attr( $action ); ?> >
+				<div id="wpbody-content" class="aprio-admin-container">
+				<div class="aprio-wrap">
+					<form method="post" name="aprio-rest-settings-form" <?php echo esc_attr( $action ); ?> >
 
 						<?php settings_fields( $this->settings_group ); ?>
-						<div class="wpem-admin-left-sidebar">
-							<ul class="wpem-admin-left-menu">
+						<div class="aprio-admin-left-sidebar">
+							<ul class="aprio-admin-left-menu">
 								<?php foreach ( $this->settings as $key => $section ) { ?>
-									<li class="wpem-admin-left-menu-item">
-										<a class="wpem-icon-<?php echo isset( $section['icon'] ) ? esc_attr( $section['icon'] ) : 'meter'; ?> nav-tab 
+									<li class="aprio-admin-left-menu-item">
+										<a class="aprio-icon-<?php echo isset( $section['icon'] ) ? esc_attr( $section['icon'] ) : 'meter'; ?> nav-tab 
 										<?php
 										if ( isset( $_GET['tab'] ) && ( $_GET['tab'] == $key ) ) {
 											echo 'nav-tab-active';}
 										?>
-										" href="<?php echo esc_url( admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=' . $key ) ); ?>"><?php echo esc_html( $section['label'] ); ?></a>
+										" href="<?php echo esc_url( admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=' . $key ) ); ?>"><?php echo esc_html( $section['label'] ); ?></a>
 									</li>
 								<?php } ?>
 							</ul>
 						</div>
 						<?php
-							$mode  = get_option( 'wpem_active_mode' );
-							$class = 'wpem-light-mode';
+							$mode  = get_option( 'aprio_active_mode' );
+							$class = 'aprio-light-mode';
 						if ( $mode == 'dark' ) {
-							$class = 'wpem-dark-mode';
+							$class = 'aprio-dark-mode';
 						}
 						?>
-						<div class="wpem-admin-right-container wpem-<?php echo esc_html( $current_tab ); ?> wpem-app-branding-mode 
+						<div class="aprio-admin-right-container aprio-<?php echo esc_html( $current_tab ); ?> aprio-app-branding-mode 
 						<?php
 						if ( $current_tab == 'app-branding' ) {
 							echo esc_attr( $class ); }
 						?>
 						">
-							<div class="metabox-holder wpem-admin-right-container-holder">
-								<div class="wpem-admin-top-title-section postbox">
+							<div class="metabox-holder aprio-admin-right-container-holder">
+								<div class="aprio-admin-top-title-section postbox">
 									<?php
 									if ( ! empty( $_GET['settings-updated'] ) ) {
 										flush_rewrite_rules();
-										echo '<div class="updated fade event-manager-updated"><p>' . __( 'Settings successfully saved', 'wpem-rest-api' ) . '</p></div>';
+										echo '<div class="updated fade event-manager-updated"><p>' . __( 'Settings successfully saved', 'aprio-rest-api' ) . '</p></div>';
 									}
-										include 'templates/wpem-rest-settings-panel.php';
+										include 'templates/aprio-rest-settings-panel.php';
 									?>
 								</div>
 								<p class="submit">
-										<input type="submit" class="button-primary wpem-backend-theme-button" id="save-changes" value="<?php esc_html_e( 'Save Changes', 'wpem-rest-api' ); ?>" />
+										<input type="submit" class="button-primary aprio-backend-theme-button" id="save-changes" value="<?php esc_html_e( 'Save Changes', 'aprio-rest-api' ); ?>" />
 								</p>
 							</div>
 						</div>
@@ -244,7 +244,7 @@ class WPEM_Rest_API_Settings {
 		if ( ! is_array( $saved ) ) {
 			$saved = (array) $option['std'];
 		}
-		echo '<fieldset class="wpem-multicheck">';
+		echo '<fieldset class="aprio-multicheck">';
 		if ( ! empty( $option['desc'] ) ) {
 			echo '<p class="description">' . esc_html( $option['desc'] ) . '</p>';
 		}

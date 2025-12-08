@@ -2,9 +2,9 @@
 // phpcs:ignoreFile
 defined( 'ABSPATH' ) || exit;
 
-class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 	protected $rest_base = 'send-message';
 
 	public function __construct() {
@@ -17,13 +17,13 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'wpem_send_matchmaking_messages' ),
+				'callback'            => array( $this, 'aprio_send_matchmaking_messages' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'senderId'   => array(
@@ -55,7 +55,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			'/get-messages',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'wpem_get_matchmaking_messages' ),
+				'callback'            => array( $this, 'aprio_get_matchmaking_messages' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'senderId'   => array(
@@ -89,7 +89,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			'/get-conversation-list',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'wpem_get_matchmaking_conversation_list' ),
+				'callback'            => array( $this, 'aprio_get_matchmaking_conversation_list' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'   => array(
@@ -149,7 +149,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function wpem_send_matchmaking_messages( $request ) {
+	public function aprio_send_matchmaking_messages( $request ) {
 		global $wpdb;
 
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
@@ -162,7 +162,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -237,7 +237,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			}
 
 			// Insert into DB
-			$table            = $wpdb->prefix . 'wpem_matchmaking_users_messages';
+			$table            = $wpdb->prefix . 'aprio_matchmaking_users_messages';
 			$first_message_id = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT id FROM $table
@@ -332,7 +332,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function wpem_get_matchmaking_messages( $request ) {
+	public function aprio_get_matchmaking_messages( $request ) {
 		global $wpdb;
 
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
@@ -346,7 +346,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -368,7 +368,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 			}
 
 			$offset = ( $page - 1 ) * $per_page;
-			$table  = $wpdb->prefix . 'wpem_matchmaking_users_messages';
+			$table  = $wpdb->prefix . 'aprio_matchmaking_users_messages';
 
 			// Get total message count
 			$total_messages = $wpdb->get_var(
@@ -453,7 +453,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function wpem_get_matchmaking_conversation_list( $request ) {
+	public function aprio_get_matchmaking_conversation_list( $request ) {
 		global $wpdb;
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
@@ -466,7 +466,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -485,7 +485,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 				);
 			}
 
-			$messages_tbl = $wpdb->prefix . 'wpem_matchmaking_users_messages';
+			$messages_tbl = $wpdb->prefix . 'aprio_matchmaking_users_messages';
 
 			/**
 			 * Step 1: Get all unique conversation partners
@@ -566,7 +566,7 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 				if ( $last_message_row && preg_match( '/\.(jpg|jpeg|png|gif|webp)$/i', $last_message_row->message ) ) {
 					$is_image = 1;
 				}
-				$photo     = get_wpem_user_profile_photo( $partner_id );
+				$photo     = get_aprio_user_profile_photo( $partner_id );
 				$results[] = array(
 					'user_id'               => (int) $partner_id,
 					'first_name'            => get_user_meta( $partner_id, 'first_name', true ),
@@ -599,4 +599,4 @@ class WPEM_REST_Send_Message_Controller extends WPEM_REST_CRUD_Controller {
 		}//end if
 	}
 }
-new WPEM_REST_Send_Message_Controller();
+new APRIO_REST_Send_Message_Controller();

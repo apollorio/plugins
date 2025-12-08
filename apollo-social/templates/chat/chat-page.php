@@ -23,24 +23,24 @@ $user_obj = wp_get_current_user();
 $user_id  = $user_obj->ID;
 
 // Buscar conversas (placeholder - integrar com sistema real)
-$conversations = array(
-	array(
+$conversations = [
+	[
 		'id'           => 1,
 		'name'         => 'João Silva',
-		'avatar'       => get_avatar_url( 1, array( 'size' => 40 ) ),
+		'avatar'       => get_avatar_url( 1, [ 'size' => 40 ] ),
 		'last_message' => 'Olá! Como vai?',
 		'time'         => '09:34',
 		'unread'       => 2,
-	),
-	array(
+	],
+	[
 		'id'           => 2,
 		'name'         => 'Maria Santos',
-		'avatar'       => get_avatar_url( 2, array( 'size' => 40 ) ),
+		'avatar'       => get_avatar_url( 2, [ 'size' => 40 ] ),
 		'last_message' => 'Obrigada pela ajuda!',
 		'time'         => 'Ontem',
 		'unread'       => 0,
-	),
-);
+	],
+];
 
 $selected_conversation = isset( $_GET['conversation'] ) ? intval( $_GET['conversation'] ) : ( ! empty( $conversations ) ? $conversations[0]['id'] : null );
 
@@ -174,7 +174,7 @@ get_header();
 						</div>
 					</div>
 					<div class="avatar flex-shrink-0">
-						<?php echo get_avatar( $user_id, 32, '', '', array( 'class' => 'rounded-full' ) ); ?>
+						<?php echo get_avatar( $user_id, 32, '', '', [ 'class' => 'rounded-full' ] ); ?>
 					</div>
 				</div>
 			</div>

@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$rest_api_file = __DIR__ . '/rest-api/wpem-rest-api.php';
+$rest_api_file = __DIR__ . '/rest-api/aprio-rest-api.php';
 
 if ( file_exists( $rest_api_file ) ) {
 	require_once $rest_api_file;

@@ -48,20 +48,20 @@ class BeginOnboarding {
 			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Usuário não encontrado',
-				);
+				];
 			}
 
 			// Validate required data.
 			$validation = $this->validateOnboardingData( $data );
 			if ( ! $validation['valid'] ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Dados inválidos',
 					'errors'  => $validation['errors'],
-				);
+				];
 			}
 
 			// Sanitize and normalize data.
@@ -70,11 +70,11 @@ class BeginOnboarding {
 			// Check for Instagram username conflicts.
 			$instagram_check = $this->checkInstagramAvailability( $sanitized_data['instagram'], $user_id );
 			if ( ! $instagram_check['available'] ) {
-				return array(
+				return [
 					'success'    => false,
 					'message'    => 'Instagram já cadastrado',
 					'suggestion' => $instagram_check['suggestion'],
-				);
+				];
 			}
 
 			// Generate verification token.
@@ -89,21 +89,21 @@ class BeginOnboarding {
 			// Log onboarding start.
 			$this->logOnboardingEvent( $user_id, 'onboarding_started', $sanitized_data );
 
-			return array(
+			return [
 				'success'      => true,
 				'message'      => 'Onboarding iniciado com sucesso',
 				'verify_token' => $verify_token,
 				'progress'     => $this->getUserProgress( $user_id ),
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'BeginOnboarding error: ' . $e->getMessage() );
 
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno. Tente novamente.',
-			);
+			];
 		}//end try
 	}
 
@@ -114,7 +114,7 @@ class BeginOnboarding {
 	 * @return array Validation result with valid flag and errors.
 	 */
 	private function validateOnboardingData( array $data ): array {
-		$errors = array();
+		$errors = [];
 
 		// Name validation.
 		if ( empty( $data['name'] ) || strlen( trim( $data['name'] ) ) < 2 ) {
@@ -122,12 +122,12 @@ class BeginOnboarding {
 		}
 
 		// Industry validation.
-		if ( empty( $data['industry'] ) || ! in_array( $data['industry'], array( 'Yes', 'No', 'Future yes!' ), true ) ) {
+		if ( empty( $data['industry'] ) || ! in_array( $data['industry'], [ 'Yes', 'No', 'Future yes!' ], true ) ) {
 			$errors['industry'] = 'Selecione uma opção válida para indústria';
 		}
 
 		// Roles validation (if industry member).
-		if ( in_array( $data['industry'], array( 'Yes', 'Future yes!' ), true ) ) {
+		if ( in_array( $data['industry'], [ 'Yes', 'Future yes!' ], true ) ) {
 			if ( empty( $data['roles'] ) || ! is_array( $data['roles'] ) ) {
 				$errors['roles'] = 'Selecione pelo menos um role';
 			}
@@ -153,10 +153,10 @@ class BeginOnboarding {
 			}
 		}
 
-		return array(
+		return [
 			'valid'  => empty( $errors ),
 			'errors' => $errors,
-		);
+		];
 	}
 
 	/**
@@ -166,14 +166,14 @@ class BeginOnboarding {
 	 * @return array Sanitized data.
 	 */
 	private function sanitizeOnboardingData( array $data ): array {
-		return array(
+		return [
 			'name'      => sanitize_text_field( trim( $data['name'] ) ),
 			'industry'  => sanitize_text_field( $data['industry'] ),
-			'roles'     => isset( $data['roles'] ) ? array_map( 'sanitize_text_field', $data['roles'] ) : array(),
-			'member_of' => isset( $data['member_of'] ) ? array_map( 'sanitize_text_field', $data['member_of'] ) : array(),
+			'roles'     => isset( $data['roles'] ) ? array_map( 'sanitize_text_field', $data['roles'] ) : [],
+			'member_of' => isset( $data['member_of'] ) ? array_map( 'sanitize_text_field', $data['member_of'] ) : [],
 			'whatsapp'  => $this->normalizeWhatsapp( $data['whatsapp'] ),
 			'instagram' => $this->normalizeInstagram( $data['instagram'] ),
-		);
+		];
 	}
 
 	/**
@@ -203,13 +203,13 @@ class BeginOnboarding {
 			// Suggest variations.
 			$suggestion = $this->suggestUsernameVariation( $instagram );
 
-			return array(
+			return [
 				'available'  => false,
 				'suggestion' => $suggestion,
-			);
+			];
 		}
 
-		return array( 'available' => true );
+		return [ 'available' => true ];
 	}
 
 	/**
@@ -276,24 +276,24 @@ class BeginOnboarding {
 		update_user_meta( $user_id, 'apollo_instagram', $data['instagram'] );
 		update_user_meta( $user_id, 'apollo_verify_token', $verify_token );
 		update_user_meta( $user_id, 'apollo_verify_status', 'awaiting_instagram_verify' );
-		update_user_meta( $user_id, 'apollo_verify_assets', array() );
+		update_user_meta( $user_id, 'apollo_verify_assets', [] );
 
 		// Save progress state.
 		update_user_meta(
 			$user_id,
 			'apollo_onboarding_progress',
-			array(
+			[
 				'current_step'    => 'verification_rules',
-				'completed_steps' => array(
+				'completed_steps' => [
 					'ask_name',
 					'ask_industry',
 					'ask_roles',
 					'ask_memberships',
 					'ask_contacts',
-				),
+				],
 				'started_at'      => current_time( 'mysql' ),
 				'data'            => $data,
-			)
+			]
 		);
 	}
 
@@ -316,10 +316,10 @@ class BeginOnboarding {
 		if ( ! username_exists( $desired_username ) ) {
 			// Update username.
 			wp_update_user(
-				array(
+				[
 					'ID'         => $user->ID,
 					'user_login' => $desired_username,
-				)
+				]
 			);
 
 			// Update user_nicename as well.
@@ -327,8 +327,8 @@ class BeginOnboarding {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Core user update.
 			$wpdb->update(
 				$wpdb->users,
-				array( 'user_nicename' => $desired_username ),
-				array( 'ID' => $user->ID )
+				[ 'user_nicename' => $desired_username ],
+				[ 'ID' => $user->ID ]
 			);
 		}
 	}
@@ -341,7 +341,7 @@ class BeginOnboarding {
 	 */
 	private function getUserProgress( int $user_id ): array {
 		$progress = get_user_meta( $user_id, 'apollo_onboarding_progress', true );
-		return is_array( $progress ) ? $progress : array();
+		return is_array( $progress ) ? $progress : [];
 	}
 
 	/**
@@ -352,7 +352,7 @@ class BeginOnboarding {
 	 * @param array  $data    Additional event data.
 	 * @return void
 	 */
-	private function logOnboardingEvent( int $user_id, string $event, array $data = array() ): void {
+	private function logOnboardingEvent( int $user_id, string $event, array $data = [] ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
@@ -373,20 +373,20 @@ class BeginOnboarding {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
-			array(
+			[
 				'user_id'     => $user_id,
 				'action'      => $event,
 				'entity_type' => 'user',
 				'entity_id'   => $user_id,
 				'metadata'    => wp_json_encode(
-					array(
+					[
 						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 						'ip_address' => $this->getClientIp(),
 						'data'       => $data,
-					)
+					]
 				),
 				'created_at'  => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -447,7 +447,7 @@ class BeginOnboarding {
 	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
-		$ip_headers = array(
+		$ip_headers = [
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -455,7 +455,7 @@ class BeginOnboarding {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		);
+		];
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {

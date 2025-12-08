@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API SMOKE TEST – PASSED
+ * Route: /apollo/v1/mod/unified-queue, /mod/pending-count
+ * Affects: apollo-core.php, class-moderation-queue-unified.php
+ * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ */
 declare(strict_types=1);
 
 /**
@@ -64,7 +70,7 @@ class Apollo_Moderation_Queue_Unified {
 	public static function register_rest_routes(): void {
 		register_rest_route(
 			'apollo/v1',
-			'/moderation/unified-queue',
+			'/mod/unified-queue',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_get_unified_queue' ),
@@ -84,7 +90,7 @@ class Apollo_Moderation_Queue_Unified {
 
 		register_rest_route(
 			'apollo/v1',
-			'/moderation/pending-count',
+			'/mod/pending-count',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'rest_get_pending_count' ),

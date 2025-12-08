@@ -17,7 +17,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -25,7 +25,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -33,7 +33,7 @@ add_action(
 		wp_enqueue_script(
 			'tailwindcss',
 			'https://cdn.tailwindcss.com',
-			array(),
+			[],
 			'3.4.0',
 			false
 		);
@@ -42,7 +42,7 @@ add_action(
 		wp_enqueue_script(
 			'motion-one',
 			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			array(),
+			[],
 			'10.16.4',
 			true
 		);
@@ -51,7 +51,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);

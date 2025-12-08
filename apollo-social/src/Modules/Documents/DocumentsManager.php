@@ -108,30 +108,30 @@ class DocumentsManager {
 		$user_id = $user_id ?: get_current_user_id();
 		$file_id = $this->generateFileId();
 
-		$data = array(
+		$data = [
 			'file_id'    => $file_id,
 			'type'       => $type,
 			'title'      => $title,
 			'content'    => $content,
 			'status'     => 'draft',
 			'created_by' => $user_id,
-		);
+		];
 
 		$result = $wpdb->insert( $this->documents_table, $data );
 
 		if ( $result ) {
-			return array(
+			return [
 				'success'     => true,
 				'file_id'     => $file_id,
 				'document_id' => $wpdb->insert_id,
 				'url'         => $this->getDocumentUrl( $type, $file_id ),
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Failed to create document',
-		);
+		];
 	}
 
 	/**
@@ -207,7 +207,7 @@ class DocumentsManager {
 	public function updateDocument( int $id, array $data ): bool {
 		global $wpdb;
 
-		$allowed = array( 'title', 'content', 'status', 'pdf_path', 'requires_signatures', 'total_signatures_needed' );
+		$allowed = [ 'title', 'content', 'status', 'pdf_path', 'requires_signatures', 'total_signatures_needed' ];
 		$update  = array_intersect_key( $data, array_flip( $allowed ) );
 
 		if ( empty( $update ) ) {
@@ -217,7 +217,7 @@ class DocumentsManager {
 		$result = $wpdb->update(
 			$this->documents_table,
 			$update,
-			array( 'id' => $id )
+			[ 'id' => $id ]
 		);
 
 		return $result !== false;
@@ -272,10 +272,10 @@ class DocumentsManager {
 
 		// Mínimo 2 palavras
 		if ( count( $words ) < 2 ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Nome deve ter no mínimo 2 palavras (nome e sobrenome)',
-			);
+			];
 		}
 
 		// Verificar se maioria das palavras tem mais de 3 letras
@@ -287,21 +287,21 @@ class DocumentsManager {
 		}
 
 		if ( $valid_words < ( count( $words ) / 2 ) ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Maioria das palavras deve ter mais de 3 letras',
-			);
+			];
 		}
 
 		// Verificar se contém apenas letras e espaços
 		if ( ! preg_match( '/^[a-zA-ZÀ-ÿ\s]+$/', $name ) ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Nome deve conter apenas letras',
-			);
+			];
 		}
 
-		return array( 'valid' => true );
+		return [ 'valid' => true ];
 	}
 
 	/**
@@ -316,10 +316,10 @@ class DocumentsManager {
 		);
 
 		if ( ! $document ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Document not found',
-			);
+			];
 		}
 
 		// Gerar PDF do documento
@@ -328,25 +328,25 @@ class DocumentsManager {
 		if ( $pdf_path ) {
 			$wpdb->update(
 				$this->documents_table,
-				array(
+				[
 					'pdf_path'            => $pdf_path,
 					'status'              => 'ready',
 					'requires_signatures' => 1,
-				),
-				array( 'id' => $document_id )
+				],
+				[ 'id' => $document_id ]
 			);
 
-			return array(
+			return [
 				'success'  => true,
 				'pdf_path' => $pdf_path,
 				'sign_url' => site_url( "/sign/{$document['file_id']}" ),
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Failed to generate PDF',
-		);
+		];
 	}
 
 	/**
@@ -377,7 +377,7 @@ class DocumentsManager {
 
 		$verification_token = wp_generate_password( 32, false );
 
-		$data = array(
+		$data = [
 			'document_id'        => $document_id,
 			'signer_party'       => $party,
 			'signer_email'       => $email,
@@ -385,7 +385,7 @@ class DocumentsManager {
 			'signer_cpf'         => $cpf,
 			'verification_token' => $verification_token,
 			'status'             => 'pending',
-		);
+		];
 
 		$result = $wpdb->insert( $this->signatures_table, $data );
 
@@ -394,17 +394,17 @@ class DocumentsManager {
 			$sign_url = site_url( "/sign/{$verification_token}" );
 			$this->sendSignatureEmail( $email, $sign_url, $name );
 
-			return array(
+			return [
 				'success'      => true,
 				'signature_id' => $wpdb->insert_id,
 				'sign_url'     => $sign_url,
-			);
+			];
 		}
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Failed to create signature request',
-		);
+		];
 	}
 
 	/**
@@ -458,19 +458,19 @@ class DocumentsManager {
 
 		// Validar CPF
 		if ( ! $this->validateCPF( $signer_data['cpf'] ) ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'CPF inválido',
-			);
+			];
 		}
 
 		// Validar nome completo
 		$name_validation = $this->validateFullName( $signer_data['name'] );
 		if ( ! $name_validation['valid'] ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => $name_validation['error'],
-			);
+			];
 		}
 
 		// Buscar signature request
@@ -483,16 +483,16 @@ class DocumentsManager {
 		);
 
 		if ( ! $signature ) {
-			return array(
+			return [
 				'success' => false,
 				'error'   => 'Token inválido ou já utilizado',
-			);
+			];
 		}
 
 		// Atualizar assinatura
 		$result = $wpdb->update(
 			$this->signatures_table,
-			array(
+			[
 				'signer_name'    => $signer_data['name'],
 				'signer_cpf'     => $signer_data['cpf'],
 				'signature_data' => $signature_canvas,
@@ -500,8 +500,8 @@ class DocumentsManager {
 				'status'         => 'signed',
 				'ip_address'     => $_SERVER['REMOTE_ADDR'],
 				'user_agent'     => $_SERVER['HTTP_USER_AGENT'],
-			),
-			array( 'id' => $signature['id'] )
+			],
+			[ 'id' => $signature['id'] ]
 		);
 
 		if ( $result !== false ) {
@@ -511,27 +511,27 @@ class DocumentsManager {
 			if ( $completion >= 100 ) {
 				$wpdb->update(
 					$this->documents_table,
-					array( 'status' => 'completed' ),
-					array( 'id' => $signature['document_id'] )
+					[ 'status' => 'completed' ],
+					[ 'id' => $signature['document_id'] ]
 				);
 			} else {
 				$wpdb->update(
 					$this->documents_table,
-					array( 'status' => 'signing' ),
-					array( 'id' => $signature['document_id'] )
+					[ 'status' => 'signing' ],
+					[ 'id' => $signature['document_id'] ]
 				);
 			}
 
-			return array(
+			return [
 				'success'    => true,
 				'completion' => $completion,
 				'message'    => 'Documento assinado com sucesso!',
-			);
+			];
 		}//end if
 
-		return array(
+		return [
 			'success' => false,
 			'error'   => 'Erro ao registrar assinatura',
-		);
+		];
 	}
 }

@@ -13,7 +13,7 @@ if ( ! function_exists( 'config' ) ) {
 	 * @return mixed Configuration value
 	 */
 	function config( $key, $default = null ) {
-		static $configs = array();
+		static $configs = [];
 
 		// Validate key is string
 		if ( ! is_string( $key ) || empty( $key ) ) {
@@ -41,7 +41,7 @@ if ( ! function_exists( 'config' ) ) {
 			if ( $config_file_path && strpos( $config_file_path, $config_dir ) === 0 && file_exists( $config_file ) ) {
 				$configs[ $file ] = require $config_file;
 			} else {
-				$configs[ $file ] = array();
+				$configs[ $file ] = [];
 			}
 		}
 

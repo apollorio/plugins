@@ -107,7 +107,7 @@ class GroupPolicy {
 		}
 
 		$type_config = $this->getTypeConfig( $group->type );
-		$posting     = $type_config['posting'] ?? array();
+		$posting     = $type_config['posting'] ?? [];
 
 		// Check if scope is allowed for this group type
 		if ( isset( $posting['scopes'] ) && ! in_array( $scope, $posting['scopes'] ) ) {
@@ -116,14 +116,14 @@ class GroupPolicy {
 
 		// Check user role
 		$user_role = $this->getUserRoleInGroup( $user, $group );
-		return in_array( $user_role, $posting['roles'] ?? array() );
+		return in_array( $user_role, $posting['roles'] ?? [] );
 	}
 
 	/**
 	 * Get configuration for group type
 	 */
 	private function getTypeConfig( string $type ): array {
-		return $this->config[ $type ] ?? array();
+		return $this->config[ $type ] ?? [];
 	}
 
 	/**

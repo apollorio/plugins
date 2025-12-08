@@ -25,7 +25,7 @@ $post_author_id      = (int) ( $post_data['author_id'] ?? 0 );
 $post_content        = $post_data['content'] ?? '';
 $post_date           = $post_data['date'] ?? '';
 $post_location       = $post_data['location'] ?? '';
-$post_tags           = $post_data['tags'] ?? array();
+$post_tags           = $post_data['tags'] ?? [];
 $post_image          = $post_data['image'] ?? '';
 $post_likes          = (int) ( $post_data['likes'] ?? 0 );
 $post_comments_count = (int) ( $post_data['comments_count'] ?? 0 );
@@ -37,7 +37,7 @@ $post_author = get_userdata( $post_author_id );
 
 // Check if author is owner or moderator
 $is_owner = ( $post_author_id === ( $creator_id ?? 0 ) );
-$is_mod   = in_array( $post_author_id, $moderators ?? array(), true );
+$is_mod   = in_array( $post_author_id, $moderators ?? [], true );
 
 // Format date
 $time_ago = '';
@@ -47,7 +47,7 @@ if ( $post_date ) {
 
 // Tags array
 if ( ! is_array( $post_tags ) ) {
-	$post_tags = $post_tags ? array_map( 'trim', explode( ',', $post_tags ) ) : array();
+	$post_tags = $post_tags ? array_map( 'trim', explode( ',', $post_tags ) ) : [];
 }
 ?>
 <article class="ap-card" data-post-id="<?php echo esc_attr( $post_id ); ?>">
@@ -55,7 +55,7 @@ if ( ! is_array( $post_tags ) ) {
 		<header class="ap-flex ap-items-start ap-gap-3">
 			<div class="ap-avatar ap-avatar-md">
 				<?php if ( $post_author ) : ?>
-					<?php echo get_avatar( $post_author_id, 36, '', $post_author->display_name, array( 'class' => 'ap-avatar-img' ) ); ?>
+					<?php echo get_avatar( $post_author_id, 36, '', $post_author->display_name, [ 'class' => 'ap-avatar-img' ] ); ?>
 				<?php else : ?>
 				<div class="ap-avatar-fallback">
 					<i class="ri-user-line"></i>
@@ -165,7 +165,7 @@ if ( ! is_array( $post_tags ) ) {
 			<div class="ap-flex ap-items-start ap-gap-2">
 				<div class="ap-avatar ap-avatar-sm">
 					<?php if ( $comment_author ) : ?>
-						<?php echo get_avatar( $comment_author_id, 28, '', $comment_author->display_name, array( 'class' => 'ap-avatar-img' ) ); ?>
+						<?php echo get_avatar( $comment_author_id, 28, '', $comment_author->display_name, [ 'class' => 'ap-avatar-img' ] ); ?>
 					<?php else : ?>
 					<div class="ap-avatar-fallback">
 						<i class="ri-user-line"></i>

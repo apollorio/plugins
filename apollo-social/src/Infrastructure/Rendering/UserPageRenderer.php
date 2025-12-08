@@ -18,12 +18,12 @@ class UserPageRenderer {
 		// TODO: Implement real user lookup
 		$user_data = $this->getUserData( $param );
 
-		return array(
+		return [
 			'title'       => 'Perfil: ' . $user_data['name'],
 			'content'     => $this->renderUserProfile( $user_data ),
-			'breadcrumbs' => array( 'Apollo Social', 'Usuários', $user_data['name'] ),
+			'breadcrumbs' => [ 'Apollo Social', 'Usuários', $user_data['name'] ],
 			'user'        => $user_data,
-		);
+		];
 	}
 
 	/**
@@ -31,15 +31,15 @@ class UserPageRenderer {
 	 */
 	private function getUserData( $param ) {
 		// Mock data for now
-		return array(
+		return [
 			'id'     => is_numeric( $param ) ? $param : 123,
 			'login'  => is_numeric( $param ) ? 'user' . $param : $param,
 			'name'   => is_numeric( $param ) ? 'Usuário ' . $param : ucfirst( $param ),
 			'email'  => is_numeric( $param ) ? 'user' . $param . '@example.com' : $param . '@example.com',
 			'joined' => '2025-01-15',
-			'groups' => array( 'Comunidade Geral', 'Season 2025' ),
-			'badges' => array( 'Novo Membro', 'Participativo' ),
-		);
+			'groups' => [ 'Comunidade Geral', 'Season 2025' ],
+			'badges' => [ 'Novo Membro', 'Participativo' ],
+		];
 	}
 
 	/**

@@ -14,16 +14,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * User Registered Events Controller
  *
- * @extends WPEM_REST_CRUD_Controller
+ * @extends APRIO_REST_CRUD_Controller
  */
-class WPEM_REST_User_Registered_Events extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_User_Registered_Events extends APRIO_REST_CRUD_Controller {
 
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base.
@@ -57,7 +57,7 @@ class WPEM_REST_User_Registered_Events extends WPEM_REST_CRUD_Controller {
 	 * Register the routes for user registered events.
 	 */
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 
 		register_rest_route(
 			$this->namespace,
@@ -69,7 +69,7 @@ class WPEM_REST_User_Registered_Events extends WPEM_REST_CRUD_Controller {
 					'permission_callback' => array( $auth_controller, 'check_authentication' ),
 					'args'                => $this->get_collection_params() + array(
 						'user_id' => array(
-							'description'       => __( 'Optional user ID. Defaults to authenticated user.', 'wpem-rest-api' ),
+							'description'       => __( 'Optional user ID. Defaults to authenticated user.', 'aprio-rest-api' ),
 							'type'              => 'integer',
 							'required'          => false,
 							'sanitize_callback' => 'absint',
@@ -215,7 +215,7 @@ class WPEM_REST_User_Registered_Events extends WPEM_REST_CRUD_Controller {
 		}
 
 		$token = trim( $m[1] );
-		$user  = self::wpem_validate_jwt_token( $token );
+		$user  = self::aprio_validate_jwt_token( $token );
 		if ( ! $user || empty( $user['id'] ) ) {
 			return 0;
 		}
@@ -259,4 +259,4 @@ class WPEM_REST_User_Registered_Events extends WPEM_REST_CRUD_Controller {
 	}
 }
 
-new WPEM_REST_User_Registered_Events();
+new APRIO_REST_User_Registered_Events();

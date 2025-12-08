@@ -20,12 +20,12 @@ if ( ! $user ) {
 $post_id = get_user_meta( $user_id, 'apollo_user_page_id', true );
 $layout  = get_post_meta( $post_id, 'apollo_userpage_layout_v1', true );
 if ( ! is_array( $layout ) ) {
-	$layout = array();
+	$layout = [];
 }
 
 // Enqueue assets
-wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '2.0.0' );
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
+wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
 
 get_header();
 ?>
@@ -34,7 +34,7 @@ get_header();
   
 	<!-- Header do Perfil -->
 	<header class="profile-header mb-8 text-center">
-	<?php echo get_avatar( $user_id, 128, '', '', array( 'class' => 'rounded-full mx-auto mb-4 shadow-lg' ) ); ?>
+	<?php echo get_avatar( $user_id, 128, '', '', [ 'class' => 'rounded-full mx-auto mb-4 shadow-lg' ] ); ?>
 	<h1 class="text-4xl font-bold mb-2"><?php echo esc_html( $user->display_name ); ?></h1>
 	<p class="text-muted-foreground">@<?php echo esc_html( $user->user_login ); ?></p>
 	
@@ -54,14 +54,14 @@ get_header();
 		$widgets = Apollo_User_Page_Widgets::get_widgets();
 		foreach ( $layout['grid'] as $widget_data ) {
 			$widget_id = $widget_data['widget'] ?? '';
-			$props     = $widget_data['props'] ?? array();
+			$props     = $widget_data['props'] ?? [];
 
 			if ( isset( $widgets[ $widget_id ] ) && isset( $widgets[ $widget_id ]['render'] ) ) {
-				$ctx = array(
+				$ctx = [
 					'user_id'      => $user_id,
 					'post_id'      => $post_id,
 					'display_name' => $user->display_name,
-				);
+				];
 				echo $widgets[ $widget_id ]['render']( $props, $ctx );
 			}
 		}

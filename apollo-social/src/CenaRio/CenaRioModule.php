@@ -30,21 +30,21 @@ class CenaRioModule {
 	 * @return void
 	 */
 	public static function boot(): void {
-		add_action( 'init', array( self::class, 'registerRole' ) );
-		add_action( 'init', array( self::class, 'registerPostTypes' ) );
+		add_action( 'init', [ self::class, 'registerRole' ] );
+		add_action( 'init', [ self::class, 'registerPostTypes' ] );
 
 		add_action(
 			'admin_post_cena_create_document',
-			array( self::class, 'handleCreateDocument' )
+			[ self::class, 'handleCreateDocument' ]
 		);
 
 		add_action(
 			'admin_post_cena_add_plan',
-			array( self::class, 'handleAddPlan' )
+			[ self::class, 'handleAddPlan' ]
 		);
 
-		add_filter( 'template_include', array( self::class, 'maybeUseTemplate' ) );
-		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueueAssets' ) );
+		add_filter( 'template_include', [ self::class, 'maybeUseTemplate' ] );
+		add_action( 'wp_enqueue_scripts', [ self::class, 'enqueueAssets' ] );
 	}
 
 	/**
@@ -70,7 +70,7 @@ class CenaRioModule {
 		}
 
 		$author_role = get_role( 'author' );
-		$caps        = $author_role ? $author_role->capabilities : array();
+		$caps        = $author_role ? $author_role->capabilities : [];
 
 		add_role( self::ROLE, 'Cena Rio', $caps );
 	}
@@ -83,55 +83,55 @@ class CenaRioModule {
 	public static function registerPostTypes(): void {
 		register_post_type(
 			self::DOC_POST_TYPE,
-			array(
+			[
 				'label'           => 'Documentos Cena Rio',
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'    => true,
-				'supports'        => array( 'title', 'editor', 'author', 'revisions' ),
+				'supports'        => [ 'title', 'editor', 'author', 'revisions' ],
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
 				'menu_position'   => 25,
 				'menu_icon'       => 'dashicons-analytics',
-			)
+			]
 		);
 
 		register_post_meta(
 			self::DOC_POST_TYPE,
 			'_cena_is_library',
-			array(
+			[
 				'type'              => 'boolean',
 				'single'            => true,
 				'show_in_rest'      => true,
 				'auth_callback'     => '__return_true',
 				'sanitize_callback' => 'rest_sanitize_boolean',
-			)
+			]
 		);
 
 		register_post_type(
 			self::PLAN_POST_TYPE,
-			array(
+			[
 				'label'           => 'Eventos em Planejamento',
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'    => true,
-				'supports'        => array( 'title', 'editor', 'author' ),
+				'supports'        => [ 'title', 'editor', 'author' ],
 				'capability_type' => 'post',
 				'map_meta_cap'    => true,
 				'menu_position'   => 26,
 				'menu_icon'       => 'dashicons-calendar-alt',
-			)
+			]
 		);
 
 		register_post_meta(
 			self::PLAN_POST_TYPE,
 			'_cena_plan_date',
-			array(
+			[
 				'type'              => 'string',
 				'single'            => true,
 				'show_in_rest'      => true,
-				'sanitize_callback' => array( self::class, 'sanitizeDateMeta' ),
-			)
+				'sanitize_callback' => [ self::class, 'sanitizeDateMeta' ],
+			]
 		);
 	}
 
@@ -159,12 +159,12 @@ class CenaRioModule {
 		}
 
 		wp_insert_post(
-			array(
+			[
 				'post_title'  => 'Cena Rio',
 				'post_name'   => self::PAGE_SLUG,
 				'post_type'   => 'page',
 				'post_status' => 'publish',
-			)
+			]
 		);
 	}
 
@@ -208,7 +208,7 @@ class CenaRioModule {
 			require_once $shadcn_loader;
 			if ( class_exists( 'Apollo_ShadCN_Loader' ) ) {
 				$shadcn_class = 'Apollo_ShadCN_Loader';
-				call_user_func( array( $shadcn_class, 'get_instance' ) );
+				call_user_func( [ $shadcn_class, 'get_instance' ] );
 			}
 		}
 
@@ -216,7 +216,7 @@ class CenaRioModule {
 		wp_enqueue_style(
 			'cena-rio-page',
 			APOLLO_SOCIAL_PLUGIN_URL . 'cena-rio/assets/cena-rio-page.css',
-			array( 'apollo-shadcn-base', 'apollo-uni-css' ),
+			[ 'apollo-shadcn-base', 'apollo-uni-css' ],
 			APOLLO_SOCIAL_VERSION
 		);
 
@@ -224,7 +224,7 @@ class CenaRioModule {
 		wp_enqueue_script(
 			'cena-rio-page',
 			APOLLO_SOCIAL_PLUGIN_URL . 'cena-rio/assets/cena-rio-page.js',
-			array( 'jquery' ),
+			[ 'jquery' ],
 			APOLLO_SOCIAL_VERSION,
 			true
 		);
@@ -233,11 +233,11 @@ class CenaRioModule {
 		wp_localize_script(
 			'cena-rio-page',
 			'cenaRioData',
-			array(
+			[
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'cena_rio_nonce' ),
 				'userId'  => get_current_user_id(),
-			)
+			]
 		);
 	}
 
@@ -271,13 +271,13 @@ class CenaRioModule {
 		}
 
 		$result = wp_insert_post(
-			array(
+			[
 				'post_type'    => self::DOC_POST_TYPE,
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_status'  => 'publish',
 				'post_author'  => $user_id,
-			),
+			],
 			true
 		);
 
@@ -318,16 +318,16 @@ class CenaRioModule {
 		}
 
 		$result = wp_insert_post(
-			array(
+			[
 				'post_type'    => self::PLAN_POST_TYPE,
 				'post_title'   => $title,
 				'post_content' => $notes,
 				'post_status'  => 'publish',
 				'post_author'  => get_current_user_id(),
-				'meta_input'   => array(
+				'meta_input'   => [
 					'_cena_plan_date' => $date->format( 'Y-m-d' ),
-				),
-			),
+				],
+			],
 			true
 		);
 
@@ -349,7 +349,7 @@ class CenaRioModule {
 		}
 
 		$user    = wp_get_current_user();
-		$allowed = array( 'administrator', 'editor', 'author', self::ROLE );
+		$allowed = [ 'administrator', 'editor', 'author', self::ROLE ];
 
 		return (bool) array_intersect( $allowed, $user->roles );
 	}
@@ -363,14 +363,14 @@ class CenaRioModule {
 	 */
 	public static function getUserDocuments( int $user_id ): array {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => self::DOC_POST_TYPE,
-				'post_status'    => array( 'draft', 'pending', 'publish' ),
+				'post_status'    => [ 'draft', 'pending', 'publish' ],
 				'posts_per_page' => self::MAX_DOCUMENTS_PER_USER,
 				'author'         => $user_id,
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -385,13 +385,13 @@ class CenaRioModule {
 	 */
 	public static function getUserDocumentCount( int $user_id ): int {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => self::DOC_POST_TYPE,
-				'post_status'    => array( 'draft', 'pending', 'publish' ),
+				'post_status'    => [ 'draft', 'pending', 'publish' ],
 				'author'         => $user_id,
 				'fields'         => 'ids',
 				'posts_per_page' => -1,
-			)
+			]
 		);
 
 		return (int) $query->found_posts;
@@ -406,7 +406,7 @@ class CenaRioModule {
 	 */
 	public static function getLibraryDocuments( int $limit = 8 ): array {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => self::DOC_POST_TYPE,
 				'post_status'    => 'publish',
 				'meta_key'       => '_cena_is_library',
@@ -414,7 +414,7 @@ class CenaRioModule {
 				'posts_per_page' => $limit,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -430,15 +430,15 @@ class CenaRioModule {
 	 */
 	public static function getEventPlans( int $user_id, int $limit = 10 ): array {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => self::PLAN_POST_TYPE,
-				'post_status'    => array( 'draft', 'pending', 'publish' ),
+				'post_status'    => [ 'draft', 'pending', 'publish' ],
 				'author'         => $user_id,
 				'posts_per_page' => $limit,
 				'meta_key'       => '_cena_plan_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
 		return $query->posts;

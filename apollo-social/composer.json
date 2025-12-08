@@ -1,6 +1,6 @@
 {
   "name": "apollorio/apollo-social-core",
-  "description": "Apollo Social Core — plugin skeleton for Canvas Mode, routes and integrations",
+  "description": "Apollo Social Core — Professional WordPress Plugin Architecture",
   "type": "wordpress-plugin",
   "license": "MIT",
   "autoload": {
@@ -17,6 +17,23 @@
   },
   "suggest": {
     "tecnickcom/tcpdf": "Alternative PDF library if Dompdf is not suitable"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.7",
+    "wp-coding-standards/wpcs": "^3.0",
+    "automattic/vipwpcs": "^3.0",
+    "phpcompatibility/php-compatibility": "^9.0",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "sirbrillig/phpcs-variable-analysis": "^2.11"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "lint": "phpcs --standard=phpcs.xml.dist .",
+    "fix": "phpcbf --standard=phpcs.xml.dist ."
   }
 }
-

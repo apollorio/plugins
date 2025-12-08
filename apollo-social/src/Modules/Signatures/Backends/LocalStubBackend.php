@@ -61,7 +61,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 	 * {@inheritDoc}
 	 */
 	public function get_capabilities(): array {
-		return array(
+		return [
 			// Simulated PAdES support.
 			'pades'          => true,
 			'cades'          => false,
@@ -75,7 +75,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			'certificate_a1' => true,
 			// Cannot simulate A3.
 			'certificate_a3' => false,
-		);
+		];
 	}
 
 	/**
@@ -87,7 +87,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 	 * @param int   $user_id     The user ID performing the signature.
 	 * @param array $options     Additional signing options.
 	 */
-	public function sign( int $document_id, int $user_id, array $options = array() ): array|WP_Error {
+	public function sign( int $document_id, int $user_id, array $options = [] ): array|WP_Error {
 		// Validate document exists.
 		$manager  = new DocumentsManager();
 		$document = $manager->getDocumentById( $document_id );
@@ -96,7 +96,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_sign_document_not_found',
 				__( 'Documento não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -106,7 +106,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_sign_pdf_not_found',
 				__( 'PDF do documento não encontrado. Gere o PDF primeiro.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -116,7 +116,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			return new WP_Error(
 				'apollo_sign_user_not_found',
 				__( 'Usuário não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -124,7 +124,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 		$signature_id = 'STUB-' . strtoupper( wp_generate_password( 12, false ) );
 
 		// Generate stub certificate info.
-		$certificate = array(
+		$certificate = [
 			'type'       => $options['certificate_type'] ?? 'A1',
 			'cn'         => $user->display_name,
 			'cpf'        => get_user_meta( $user_id, 'cpf', true ) ? get_user_meta( $user_id, 'cpf', true ) : '000.000.000-00',
@@ -133,7 +133,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			'serial'     => strtoupper( wp_generate_password( 16, false ) ),
 			'valid_from' => gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'valid_to'   => gmdate( 'Y-m-d\TH:i:s\Z', strtotime( '+1 year' ) ),
-		);
+		];
 
 		// Calculate document hash.
 		$document_hash = hash_file( 'sha256', $pdf_path );
@@ -165,7 +165,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 		$location = isset( $options['location'] ) ? $options['location'] : get_bloginfo( 'name' );
 
 		// Return success with signature details.
-		return array(
+		return [
 			'success'         => true,
 			'signature_id'    => $signature_id,
 			'signed_pdf_path' => $signed_pdf_path,
@@ -174,13 +174,13 @@ class LocalStubBackend implements SignatureBackendInterface {
 			'hash'            => $document_hash,
 			'backend'         => $this->get_identifier(),
 			'is_stub'         => true,
-			'metadata'        => array(
+			'metadata'        => [
 				'reason'     => $reason,
 				'location'   => $location,
 				'ip_address' => $this->get_client_ip(),
 				'user_agent' => $this->get_user_agent(),
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -191,12 +191,12 @@ class LocalStubBackend implements SignatureBackendInterface {
 	 * @param string $pdf_path Path to the PDF file.
 	 * @param array  $options  Additional verification options.
 	 */
-	public function verify( string $pdf_path, array $options = array() ): array|WP_Error {
+	public function verify( string $pdf_path, array $options = [] ): array|WP_Error {
 		if ( ! file_exists( $pdf_path ) ) {
 			return new WP_Error(
 				'apollo_verify_file_not_found',
 				__( 'Arquivo PDF não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -204,39 +204,39 @@ class LocalStubBackend implements SignatureBackendInterface {
 		$is_signed = strpos( basename( $pdf_path ), '_signed' ) !== false;
 
 		if ( ! $is_signed ) {
-			return array(
+			return [
 				'valid'           => false,
-				'signatures'      => array(),
+				'signatures'      => [],
 				'certificate'     => null,
 				'chain_valid'     => false,
 				'timestamp_valid' => false,
 				'revoked'         => false,
 				'message'         => __( 'Documento não possui assinatura digital.', 'apollo-social' ),
-			);
+			];
 		}
 
 		// Return stub verification result.
-		return array(
+		return [
 			'valid'           => true,
-			'signatures'      => array(
-				array(
+			'signatures'      => [
+				[
 					'signer'    => 'Stub Signer (DEV)',
 					'timestamp' => gmdate( 'Y-m-d\TH:i:s\Z' ),
 					'valid'     => true,
-				),
-			),
-			'certificate'     => array(
+				],
+			],
+			'certificate'     => [
 				'issuer'     => 'Apollo Stub CA (DEV)',
 				'subject'    => 'Stub Signer',
 				'valid_from' => gmdate( 'Y-m-d' ),
 				'valid_to'   => gmdate( 'Y-m-d', strtotime( '+1 year' ) ),
-			),
+			],
 			'chain_valid'     => true,
 			'timestamp_valid' => true,
 			'revoked'         => false,
 			'is_stub'         => true,
 			'message'         => __( 'Assinatura stub válida (apenas para desenvolvimento).', 'apollo-social' ),
-		);
+		];
 	}
 
 	/**
@@ -249,7 +249,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 	 */
 	public function get_certificate_info( string $certificate_path, string $password = '' ): array|WP_Error {
 		// Stub: return fake certificate info.
-		return array(
+		return [
 			'name'       => 'Stub User (DEV)',
 			'cpf'        => '000.000.000-00',
 			'email'      => 'stub@example.com',
@@ -259,7 +259,7 @@ class LocalStubBackend implements SignatureBackendInterface {
 			'serial'     => 'STUB-' . strtoupper( wp_generate_password( 8, false ) ),
 			'type'       => 'A1',
 			'is_stub'    => true,
-		);
+		];
 	}
 
 	/**
@@ -268,12 +268,12 @@ class LocalStubBackend implements SignatureBackendInterface {
 	 * @return string The client IP address.
 	 */
 	private function get_client_ip(): string {
-		$ip_keys = array(
+		$ip_keys = [
 			'HTTP_CF_CONNECTING_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_REAL_IP',
 			'REMOTE_ADDR',
-		);
+		];
 
 		foreach ( $ip_keys as $key ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Known server keys.

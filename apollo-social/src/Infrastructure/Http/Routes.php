@@ -11,7 +11,7 @@ use Apollo\Infrastructure\Rendering\CanvasBuilder;
  */
 class Routes {
 
-	private $routes        = array();
+	private $routes        = [];
 	private $current_route = null;
 
 	public function __construct() {
@@ -33,7 +33,7 @@ class Routes {
 	 */
 	public function register() {
 		// Add query vars
-		add_filter( 'query_vars', array( $this, 'addQueryVars' ) );
+		add_filter( 'query_vars', [ $this, 'addQueryVars' ] );
 
 		// Register rewrite rules
 		foreach ( $this->routes as $route_config ) {
@@ -41,7 +41,7 @@ class Routes {
 				$query_string = $this->buildQueryString( $route_config['query_vars'] );
 				// Use priority from config or default to 'top'
 				// WordPress accepts 'top' or 'bottom' only
-				$priority = isset( $route_config['priority'] ) && in_array( $route_config['priority'], array( 'top', 'bottom' ) )
+				$priority = isset( $route_config['priority'] ) && in_array( $route_config['priority'], [ 'top', 'bottom' ] )
 					? $route_config['priority']
 					: 'top';
 				add_rewrite_rule( $route_config['pattern'], $query_string, $priority );
@@ -64,7 +64,7 @@ class Routes {
 	 * Build query string from query vars
 	 */
 	private function buildQueryString( $query_vars ) {
-		$query_parts = array();
+		$query_parts = [];
 		foreach ( $query_vars as $key => $value ) {
 			$key           = sanitize_key( $key );
 			$value         = urlencode( sanitize_text_field( $value ) );
@@ -176,7 +176,7 @@ class Routes {
 		$builder->build( $route_config );
 
 		// If builder didn't exit, ensure we stop WordPress template loading
-		wp_die( '', '', array( 'response' => 200 ) );
+		wp_die( '', '', [ 'response' => 200 ] );
 	}
 
 	/**

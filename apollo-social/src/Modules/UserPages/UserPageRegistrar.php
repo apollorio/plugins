@@ -29,7 +29,7 @@ class UserPageRegistrar {
 			return;
 		}
 
-		$labels = array(
+		$labels = [
 			'name'               => __( 'Páginas de Usuário', 'apollo-social' ),
 			'singular_name'      => __( 'Página de Usuário', 'apollo-social' ),
 			'add_new'            => __( 'Adicionar nova', 'apollo-social' ),
@@ -49,29 +49,29 @@ class UserPageRegistrar {
 			'all_items'          => __( 'Todas as páginas', 'apollo-social' ),
 			'menu_name'          => __( 'Páginas de Usuário', 'apollo-social' ),
 			'name_admin_bar'     => __( 'Página de Usuário', 'apollo-social' ),
-		);
+		];
 
 		register_post_type(
 			self::POST_TYPE,
-			array(
+			[
 				'labels'             => $labels,
 				'public'             => true,
 				'show_ui'            => true,
-				'supports'           => array(
+				'supports'           => [
 					'title',
 					'editor',
 					'thumbnail',
 					'custom-fields',
 					'revisions',
-				),
-				'rewrite'            => array(
+				],
+				'rewrite'            => [
 					'slug'       => 'user-page',
 					'with_front' => false,
-				),
+				],
 				'has_archive'        => false,
 				'publicly_queryable' => true,
 				'show_in_rest'       => false,
-			)
+			]
 		);
 	}
 

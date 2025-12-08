@@ -10,24 +10,24 @@ class UnionPageRenderer {
 		$slug       = $template_data['param'];
 		$union_data = $this->getUnionData( $slug );
 
-		return array(
+		return [
 			'title'       => $union_data['name'],
 			'content'     => $this->renderUnionPage( $union_data ),
-			'breadcrumbs' => array( 'Apollo Social', 'União', $union_data['name'] ),
+			'breadcrumbs' => [ 'Apollo Social', 'União', $union_data['name'] ],
 			'union'       => $union_data,
-		);
+		];
 	}
 
 	private function getUnionData( $slug ) {
-		return array(
+		return [
 			'id'            => 1,
 			'name'          => 'União ' . ucfirst( str_replace( '-', ' ', $slug ) ),
 			'slug'          => $slug,
 			'description'   => 'Descrição detalhada da união ' . $slug,
-			'members_count' => rand( 50, 200 ),
+			'members_count' => wp_rand( 50, 200 ),
 			'created'       => '2025-01-01',
 			'leader'        => 'Líder Principal',
-		);
+		];
 	}
 
 	private function renderUnionPage( $union_data ) {

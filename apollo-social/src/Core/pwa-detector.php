@@ -15,11 +15,11 @@
 namespace Apollo\Core;
 
 /**
- * PWADetector Class.
+ * PwaDetector Class.
  *
  * Bridges apollo-social with apollo-rio for PWA functionality.
  */
-class PWADetector {
+class PwaDetector {
 
 	/**
 	 * Whether apollo-rio plugin is active.
@@ -128,31 +128,29 @@ class PWADetector {
 			return null;
 		}
 
-		return array(
-			'ios'     => array(
+		return [
+			'ios'     => [
 				'title' => 'Instalar no iPhone',
-				'steps' => array(
+				'steps' => [
 					'1. Toque no botão de compartilhar (ícone de compartilhamento)',
 					'2. Role até encontrar "Adicionar à Tela de Início"',
 					'3. Toque em "Adicionar"',
 					'4. O ícone do Apollo aparecerá na sua tela inicial',
-				),
+				],
 				'icon'  => 'ri-iphone-line',
-			),
-			'android' => array(
+			],
+			'android' => [
 				'title'        => 'Baixar para Android',
-				'steps'        => array(
+				'steps'        => [
 					'1. Toque no menu (três pontos) no navegador',
 					'2. Selecione "Adicionar à tela inicial" ou "Instalar app"',
 					'3. Confirme a instalação',
 					'4. O app Apollo será instalado no seu dispositivo',
-				),
-				'download_url' => function_exists( 'apollo_get_android_app_url' )
-					? apollo_get_android_app_url()
-					: null,
+				],
+				'download_url' => $this->getAndroidDownloadUrl(),
 				'icon'         => 'ri-android-line',
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -192,8 +190,12 @@ class PWADetector {
 	 * @return string|null The download URL or null if not configured.
 	 */
 	private function getAndroidDownloadUrl() {
-		if ( function_exists( 'apollo_get_android_app_url' ) ) {
-			return apollo_get_android_app_url();
+		// Check if apollo-rio provides the function.
+		if ( $this->is_apollo_rio_active && function_exists( 'apollo_get_android_app_url' ) ) {
+			$url = call_user_func( 'apollo_get_android_app_url' );
+			if ( ! empty( $url ) ) {
+				return esc_url_raw( $url );
+			}
 		}
 
 		// Fallback to stored option.

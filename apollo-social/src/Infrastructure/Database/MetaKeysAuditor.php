@@ -20,106 +20,106 @@ class MetaKeysAuditor {
 	 * P0-3: Expected meta keys for event_listing CPT
 	 */
 	public static function getEventMetaKeys(): array {
-		return array(
-			'_event_title'      => array(
+		return [
+			'_event_title'      => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Event title (alternative to post_title)',
-			),
-			'_event_start_date' => array(
+			],
+			'_event_start_date' => [
 				'type'        => 'string',
 				'required'    => true,
 				'description' => 'Event start date/time (YYYY-MM-DD HH:MM:SS)',
 				'format'      => 'datetime',
-			),
-			'_event_end_date'   => array(
+			],
+			'_event_end_date'   => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Event end date/time',
 				'format'      => 'datetime',
-			),
-			'_event_start_time' => array(
+			],
+			'_event_start_time' => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Event start time (HH:MM:SS)',
-			),
-			'_event_end_time'   => array(
+			],
+			'_event_end_time'   => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Event end time (HH:MM:SS)',
-			),
-			'_event_banner'     => array(
+			],
+			'_event_banner'     => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Event banner image URL or attachment ID',
-			),
-			'_event_dj_ids'     => array(
+			],
+			'_event_dj_ids'     => [
 				'type'        => 'array',
 				'required'    => false,
 				'description' => 'Array of DJ post IDs',
 				'serialized'  => true,
-			),
-			'_event_local_ids'  => array(
+			],
+			'_event_local_ids'  => [
 				'type'        => 'integer',
 				'required'    => false,
 				'description' => 'Local post ID (single)',
-			),
-			'_event_timetable'  => array(
+			],
+			'_event_timetable'  => [
 				'type'        => 'array',
 				'required'    => false,
 				'description' => 'Event timetable with DJs and times',
 				'serialized'  => true,
-			),
-			'_favorites_count'  => array(
+			],
+			'_favorites_count'  => [
 				'type'        => 'integer',
 				'required'    => false,
 				'description' => 'Cached count of favorites',
 				'default'     => 0,
-			),
-			'_event_video_url'  => array(
+			],
+			'_event_video_url'  => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Video URL (YouTube/Vimeo)',
-			),
-			'_tickets_ext'      => array(
+			],
+			'_tickets_ext'      => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'External tickets URL',
-			),
-			'_cupom_ario'       => array(
+			],
+			'_cupom_ario'       => [
 				'type'        => 'integer',
 				'required'    => false,
 				'description' => 'Cupom Ario flag (0 or 1)',
-			),
-			'_event_location'   => array(
+			],
+			'_event_location'   => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Location text (fallback)',
-			),
-			'_event_country'    => array(
+			],
+			'_event_country'    => [
 				'type'        => 'string',
 				'required'    => false,
 				'description' => 'Country name',
-			),
-			'_3_imagens_promo'  => array(
+			],
+			'_3_imagens_promo'  => [
 				'type'        => 'array',
 				'required'    => false,
 				'description' => 'Promotional images array',
 				'serialized'  => true,
-			),
-			'_imagem_final'     => array(
+			],
+			'_imagem_final'     => [
 				'type'        => 'array',
 				'required'    => false,
 				'description' => 'Final images array',
 				'serialized'  => true,
-			),
-			'_event_co_authors' => array(
+			],
+			'_event_co_authors' => [
 				'type'        => 'array',
 				'required'    => false,
 				'description' => 'Co-author user IDs',
 				'serialized'  => true,
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -129,13 +129,13 @@ class MetaKeysAuditor {
 		global $wpdb;
 
 		$expected_keys = self::getEventMetaKeys();
-		$results       = array(
+		$results       = [
 			'total_events'     => 0,
 			'events_with_meta' => 0,
-			'missing_keys'     => array(),
-			'invalid_types'    => array(),
-			'coverage'         => array(),
-		);
+			'missing_keys'     => [],
+			'invalid_types'    => [],
+			'coverage'         => [],
+		];
 
 		// Get all published events
 		$events = $wpdb->get_results(
@@ -172,7 +172,7 @@ class MetaKeysAuditor {
 
 					if ( $expected_type === 'integer' && ! is_numeric( $meta_value ) ) {
 						if ( ! isset( $results['invalid_types'][ $key ] ) ) {
-							$results['invalid_types'][ $key ] = array();
+							$results['invalid_types'][ $key ] = [];
 						}
 						$results['invalid_types'][ $key ][] = $event_id;
 					}
@@ -186,7 +186,7 @@ class MetaKeysAuditor {
 					// Check if required
 					if ( $config['required'] ?? false ) {
 						if ( ! isset( $results['missing_keys'][ $key ] ) ) {
-							$results['missing_keys'][ $key ] = array();
+							$results['missing_keys'][ $key ] = [];
 						}
 						$results['missing_keys'][ $key ][] = $event_id;
 					}
@@ -200,12 +200,12 @@ class MetaKeysAuditor {
 
 		// Calculate coverage percentages
 		foreach ( $results['coverage'] as $key => $count ) {
-			$results['coverage'][ $key ] = array(
+			$results['coverage'][ $key ] = [
 				'count'      => $count,
 				'percentage' => $results['total_events'] > 0
 					? round( ( $count / $results['total_events'] ) * 100, 1 )
 					: 0,
-			);
+			];
 		}
 
 		return $results;
@@ -215,10 +215,10 @@ class MetaKeysAuditor {
 	 * P0-3: Validate meta key value
 	 */
 	public static function validateMetaKey( string $meta_key, $value, string $post_type = 'event_listing' ): array {
-		$result = array(
+		$result = [
 			'valid'  => true,
-			'errors' => array(),
-		);
+			'errors' => [],
+		];
 
 		if ( $post_type === 'event_listing' ) {
 			$expected_keys = self::getEventMetaKeys();
@@ -287,7 +287,7 @@ class MetaKeysAuditor {
 		$audit         = self::auditEventMetaKeys();
 		$expected_keys = self::getEventMetaKeys();
 
-		return array(
+		return [
 			'timestamp'        => current_time( 'mysql' ),
 			'total_events'     => $audit['total_events'],
 			'events_with_meta' => $audit['events_with_meta'],
@@ -296,7 +296,7 @@ class MetaKeysAuditor {
 			'missing_required' => $audit['missing_keys'],
 			'invalid_types'    => $audit['invalid_types'],
 			'health_score'     => self::calculateHealthScore( $audit ),
-		);
+		];
 	}
 
 	/**

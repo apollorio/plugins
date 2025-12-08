@@ -24,7 +24,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -32,7 +32,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -40,7 +40,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -97,7 +97,7 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 // User data - avoid overriding WP globals.
 $user_obj      = wp_get_current_user();
 $user_id       = $user_obj->ID;
-$avatar_url    = get_avatar_url( $user_id, array( 'size' => 200 ) );
+$avatar_url    = get_avatar_url( $user_id, [ 'size' => 200 ] );
 $display_name  = $user_obj->display_name;
 $user_username = $user_obj->user_login;
 $user_initials = strtoupper( substr( $display_name, 0, 2 ) );
@@ -113,21 +113,21 @@ $membership_level_raw = get_user_meta( $user_id, 'membership_level', true );
 $membership_level     = ! empty( $membership_level_raw ) ? $membership_level_raw : 'clubber';
 
 // Stats (placeholder - replace with actual queries).
-$stats = array(
+$stats = [
 	'producer'  => 3,
 	'favorited' => 11,
 	'posts'     => 5,
 	'comments'  => 37,
 	'liked'     => 26,
-);
+];
 
 // Membership labels.
-$membership_labels = array(
+$membership_labels = [
 	'clubber'  => __( 'Clubber', 'apollo-social' ),
 	'dj'       => __( 'DJ', 'apollo-social' ),
 	'producer' => __( 'Producer', 'apollo-social' ),
 	'promoter' => __( 'Promoter', 'apollo-social' ),
-);
+];
 
 // Get WordPress head.
 wp_head();

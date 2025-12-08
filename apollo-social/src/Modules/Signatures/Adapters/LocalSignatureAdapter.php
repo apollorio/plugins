@@ -40,10 +40,10 @@ class LocalSignatureAdapter {
 		$validation = $this->localService->validateSignatureData( $signature_data );
 
 		if ( ! $validation['valid'] ) {
-			return array(
+			return [
 				'success' => false,
 				'errors'  => $validation['errors'],
-			);
+			];
 		}
 
 		try {
@@ -56,19 +56,19 @@ class LocalSignatureAdapter {
 			// Store signature data
 			$signature_record = $this->storeSignatureRecord( $signature_data, $evidence_pack, $certificate );
 
-			return array(
+			return [
 				'success'          => true,
 				'signature_id'     => $signature_record['id'],
 				'certificate'      => $certificate,
 				'evidence_pack'    => $evidence_pack,
 				'verification_url' => $certificate['verification_url'],
-			);
+			];
 
 		} catch ( \Exception $e ) {
-			return array(
+			return [
 				'success' => false,
-				'errors'  => array( 'Erro interno: ' . $e->getMessage() ),
-			);
+				'errors'  => [ 'Erro interno: ' . $e->getMessage() ],
+			];
 		}//end try
 	}
 
@@ -80,7 +80,7 @@ class LocalSignatureAdapter {
 
 		$table_name = $wpdb->prefix . 'apollo_signatures';
 
-		$record = array(
+		$record = [
 			'certificate_id'       => $certificate['certificate_id'],
 			'signer_name'          => $signature_data['signer_name'],
 			'signer_email'         => $signature_data['signer_email'],
@@ -92,11 +92,11 @@ class LocalSignatureAdapter {
 			'status'               => 'completed',
 			'created_at'           => current_time( 'mysql' ),
 			'ip_address'           => $evidence_pack['evidence_pack']['ip_address'],
-		);
+		];
 
 		$wpdb->insert( $table_name, $record );
 
-		return array_merge( $record, array( 'id' => $wpdb->insert_id ) );
+		return array_merge( $record, [ 'id' => $wpdb->insert_id ] );
 	}
 
 	/**
@@ -113,34 +113,34 @@ class LocalSignatureAdapter {
 		);
 
 		if ( ! $signature ) {
-			return array(
+			return [
 				'valid' => false,
 				'error' => 'Certificado não encontrado',
-			);
+			];
 		}
 
 		$evidence_pack = json_decode( $signature['evidence_pack'], true );
 		$certificate   = json_decode( $signature['certificate_data'], true );
 
-		return array(
+		return [
 			'valid'                => true,
-			'signature_info'       => array(
+			'signature_info'       => [
 				'certificate_id' => $certificate_id,
 				'signer_name'    => $signature['signer_name'],
 				'signer_email'   => $signature['signer_email'],
 				'signed_at'      => $signature['created_at'],
 				'signature_type' => 'Apollo Local Signature',
 				'ip_address'     => $signature['ip_address'],
-			),
-			'verification_details' => array(
+			],
+			'verification_details' => [
 				'hash_algorithm'    => 'SHA-256',
 				'hash_value'        => $signature['signature_hash'],
 				'timestamp'         => $evidence_pack['evidence_pack']['timestamp_iso'],
 				'stroke_points'     => $evidence_pack['evidence_pack']['stroke_points'],
 				'canvas_dimensions' => $evidence_pack['evidence_pack']['canvas_dimensions'],
-			),
+			],
 			'certificate'          => $certificate,
-		);
+		];
 	}
 
 	/**
@@ -148,11 +148,11 @@ class LocalSignatureAdapter {
 	 */
 	public function generateSignatureUrl( array $template_data ): string {
 		$params = http_build_query(
-			array(
+			[
 				'template_id'  => $template_data['id'] ?? '',
 				'signer_email' => $template_data['signer_email'] ?? '',
 				'track'        => 'local',
-			)
+			]
 		);
 
 		return home_url( "/apollo/canvas/signature?{$params}" );
@@ -170,17 +170,17 @@ class LocalSignatureAdapter {
 	 * Get adapter configuration
 	 */
 	public function getConfig(): array {
-		return array(
+		return [
 			'name'         => 'Local Signature',
 			'type'         => 'local',
 			'description'  => 'Assinatura local com canvas HTML5',
-			'features'     => array(
+			'features'     => [
 				'canvas_signature' => true,
 				'evidence_pack'    => true,
 				'local_storage'    => true,
 				'offline_capable'  => true,
-			),
+			],
 			'legal_notice' => 'Assinaturas capturadas localmente para uso interno da plataforma Apollo Social.',
-		);
+		];
 	}
 }

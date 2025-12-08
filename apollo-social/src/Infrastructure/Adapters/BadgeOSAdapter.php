@@ -23,34 +23,34 @@ class BadgeOSAdapter {
 	 */
 	private function init_hooks() {
 		// Achievement earning hooks
-		add_action( 'badgeos_award_achievement', array( $this, 'on_achievement_awarded' ), 10, 5 );
-		add_action( 'badgeos_revoke_achievement', array( $this, 'on_achievement_revoked' ), 10, 3 );
+		add_action( 'badgeos_award_achievement', [ $this, 'on_achievement_awarded' ], 10, 5 );
+		add_action( 'badgeos_revoke_achievement', [ $this, 'on_achievement_revoked' ], 10, 3 );
 
 		// Point awarding hooks
-		add_action( 'badgeos_update_users_points', array( $this, 'on_points_updated' ), 10, 6 );
-		add_action( 'badgeos_award_points', array( $this, 'on_points_awarded' ), 10, 4 );
-		add_action( 'badgeos_deduct_points', array( $this, 'on_points_deducted' ), 10, 4 );
+		add_action( 'badgeos_update_users_points', [ $this, 'on_points_updated' ], 10, 6 );
+		add_action( 'badgeos_award_points', [ $this, 'on_points_awarded' ], 10, 4 );
+		add_action( 'badgeos_deduct_points', [ $this, 'on_points_deducted' ], 10, 4 );
 
 		// Apollo event listening
-		add_action( 'apollo_award_points', array( $this, 'award_apollo_points' ), 10, 3 );
-		add_action( 'apollo_award_badge', array( $this, 'award_apollo_badge' ), 10, 3 );
+		add_action( 'apollo_award_points', [ $this, 'award_apollo_points' ], 10, 3 );
+		add_action( 'apollo_award_badge', [ $this, 'award_apollo_badge' ], 10, 3 );
 
 		// Activity triggers for Apollo events
-		add_action( 'apollo_post_created', array( $this, 'trigger_post_created' ), 10, 2 );
-		add_action( 'apollo_event_approved', array( $this, 'trigger_event_approved' ), 10, 2 );
-		add_action( 'apollo_advert_approved', array( $this, 'trigger_advert_approved' ), 10, 2 );
-		add_action( 'apollo_document_signed', array( $this, 'trigger_document_signed' ), 10, 2 );
-		add_action( 'apollo_group_joined', array( $this, 'trigger_group_joined' ), 10, 2 );
-		add_action( 'apollo_invite_sent', array( $this, 'trigger_invite_sent' ), 10, 2 );
+		add_action( 'apollo_post_created', [ $this, 'trigger_post_created' ], 10, 2 );
+		add_action( 'apollo_event_approved', [ $this, 'trigger_event_approved' ], 10, 2 );
+		add_action( 'apollo_advert_approved', [ $this, 'trigger_advert_approved' ], 10, 2 );
+		add_action( 'apollo_document_signed', [ $this, 'trigger_document_signed' ], 10, 2 );
+		add_action( 'apollo_group_joined', [ $this, 'trigger_group_joined' ], 10, 2 );
+		add_action( 'apollo_invite_sent', [ $this, 'trigger_invite_sent' ], 10, 2 );
 
 		// Leaderboard integration
 		if ( $this->config['leaderboard_integration'] ?? false ) {
-			add_filter( 'badgeos_get_leaderboard', array( $this, 'enhance_leaderboard' ), 10, 3 );
+			add_filter( 'badgeos_get_leaderboard', [ $this, 'enhance_leaderboard' ], 10, 3 );
 		}
 
 		// Auto award if enabled
 		if ( $this->config['auto_award'] ?? false ) {
-			add_action( 'init', array( $this, 'register_apollo_triggers' ), 20 );
+			add_action( 'init', [ $this, 'register_apollo_triggers' ], 20 );
 		}
 	}
 
@@ -92,11 +92,11 @@ class BadgeOSAdapter {
 			$user_id,
 			$new_points,
 			$total_points,
-			array(
+			[
 				'admin_id'       => $admin_id,
 				'achievement_id' => $achievement_id,
 				'trigger'        => $this_trigger,
-			)
+			]
 		);
 	}
 
@@ -108,11 +108,11 @@ class BadgeOSAdapter {
 			'apollo_points_awarded',
 			$user_id,
 			$points,
-			array(
+			[
 				'admin_id'       => $admin_id,
 				'achievement_id' => $achievement_id,
 				'action'         => 'award',
-			)
+			]
 		);
 	}
 
@@ -124,18 +124,18 @@ class BadgeOSAdapter {
 			'apollo_points_deducted',
 			$user_id,
 			$points,
-			array(
+			[
 				'admin_id'       => $admin_id,
 				'achievement_id' => $achievement_id,
 				'action'         => 'deduct',
-			)
+			]
 		);
 	}
 
 	/**
 	 * Award points for Apollo events
 	 */
-	public function award_apollo_points( $user_id, $event_type, $data = array() ) {
+	public function award_apollo_points( $user_id, $event_type, $data = [] ) {
 		if ( ! $this->is_available() ) {
 			return;
 		}
@@ -162,7 +162,7 @@ class BadgeOSAdapter {
 	/**
 	 * Award badge for Apollo events
 	 */
-	public function award_apollo_badge( $user_id, $event_type, $data = array() ) {
+	public function award_apollo_badge( $user_id, $event_type, $data = [] ) {
 		if ( ! $this->is_available() ) {
 			return;
 		}
@@ -191,10 +191,10 @@ class BadgeOSAdapter {
 		}
 
 		// Award points
-		$this->award_apollo_points( $user_id, 'post_created', array( 'post_id' => $post_id ) );
+		$this->award_apollo_points( $user_id, 'post_created', [ 'post_id' => $post_id ] );
 
 		// Award badge
-		$this->award_apollo_badge( $user_id, 'post_created', array( 'post_id' => $post_id ) );
+		$this->award_apollo_badge( $user_id, 'post_created', [ 'post_id' => $post_id ] );
 
 		// Custom BadgeOS trigger
 		do_action( 'badgeos_apollo_post_created', $user_id, $post_id );
@@ -219,10 +219,10 @@ class BadgeOSAdapter {
 		$this->award_apollo_points(
 			$user_id,
 			'event_approved',
-			array(
+			[
 				'post_id'     => $post_id,
 				'apollo_meta' => $apollo_meta,
-			)
+			]
 		);
 
 		// Custom BadgeOS trigger
@@ -248,20 +248,20 @@ class BadgeOSAdapter {
 		$this->award_apollo_points(
 			$user_id,
 			'classified_approved',
-			array(
+			[
 				'post_id'     => $post_id,
 				'apollo_meta' => $apollo_meta,
-			)
+			]
 		);
 
 		// Award badge
 		$this->award_apollo_badge(
 			$user_id,
 			'classified_approved',
-			array(
+			[
 				'post_id'     => $post_id,
 				'apollo_meta' => $apollo_meta,
-			)
+			]
 		);
 
 		// Custom BadgeOS trigger
@@ -277,10 +277,10 @@ class BadgeOSAdapter {
 		}
 
 		// Award points
-		$this->award_apollo_points( $user_id, 'document_signed', array( 'document_id' => $document_id ) );
+		$this->award_apollo_points( $user_id, 'document_signed', [ 'document_id' => $document_id ] );
 
 		// Award badge
-		$this->award_apollo_badge( $user_id, 'document_signed', array( 'document_id' => $document_id ) );
+		$this->award_apollo_badge( $user_id, 'document_signed', [ 'document_id' => $document_id ] );
 
 		// Custom BadgeOS trigger
 		do_action( 'badgeos_apollo_document_signed', $user_id, $document_id );
@@ -331,14 +331,14 @@ class BadgeOSAdapter {
 		}
 
 		// Register triggers for BadgeOS
-		$apollo_triggers = array(
+		$apollo_triggers = [
 			'apollo_post_created'    => 'Post Criado no Apollo',
 			'apollo_event_approved'  => 'Evento Aprovado no Apollo',
 			'apollo_advert_approved' => 'Anúncio Aprovado no Apollo',
 			'apollo_document_signed' => 'Documento Assinado no Apollo',
 			'apollo_group_joined'    => 'Entrou em Grupo Apollo',
 			'apollo_invite_sent'     => 'Convite Enviado no Apollo',
-		);
+		];
 
 		foreach ( $apollo_triggers as $trigger => $label ) {
 			add_filter(
@@ -381,19 +381,19 @@ class BadgeOSAdapter {
 			return null;
 		}
 
-		$defaults = array(
+		$defaults = [
 			'post_type'   => badgeos_get_achievement_types_slugs()[0] ?? 'badge',
 			'post_status' => 'publish',
-			'meta_input'  => array(
+			'meta_input'  => [
 				'_badgeos_earned_by'  => 'triggers',
 				'_apollo_achievement' => true,
-			),
-		);
+			],
+		];
 
 		$achievement_data = array_merge( $defaults, $achievement_data );
 
 		// Extract Apollo meta
-		$apollo_meta = array();
+		$apollo_meta = [];
 		if ( isset( $achievement_data['apollo_data'] ) ) {
 			$apollo_meta = $achievement_data['apollo_data'];
 			unset( $achievement_data['apollo_data'] );
@@ -417,17 +417,17 @@ class BadgeOSAdapter {
 	/**
 	 * Award achievement to user
 	 */
-	public function award_achievement_to_user( $user_id, $achievement_id, $trigger = 'apollo_trigger', $data = array() ): bool {
+	public function award_achievement_to_user( $user_id, $achievement_id, $trigger = 'apollo_trigger', $data = [] ): bool {
 		if ( ! $this->is_available() ) {
 			return false;
 		}
 
 		// Check if user already has this achievement
 		if ( badgeos_get_user_achievements(
-			array(
+			[
 				'user_id'        => $user_id,
 				'achievement_id' => $achievement_id,
-			)
+			]
 		) ) {
 			return false;
 			// Already earned
@@ -456,7 +456,7 @@ class BadgeOSAdapter {
 			return 0;
 		}
 
-		$point_types = $this->config['point_types'] ?? array( 'points' );
+		$point_types = $this->config['point_types'] ?? [ 'points' ];
 
 		if ( $point_type && in_array( $point_type, $point_types ) ) {
 			return badgeos_get_users_points( $user_id, $point_type );
@@ -471,10 +471,10 @@ class BadgeOSAdapter {
 	 */
 	public function get_user_achievements( $user_id, $achievement_type = null ): array {
 		if ( ! $this->is_available() ) {
-			return array();
+			return [];
 		}
 
-		$args = array( 'user_id' => $user_id );
+		$args = [ 'user_id' => $user_id ];
 
 		if ( $achievement_type ) {
 			$args['achievement_type'] = $achievement_type;
@@ -488,19 +488,19 @@ class BadgeOSAdapter {
 	 */
 	public function get_user_apollo_badges( $user_id ): array {
 		$achievements  = $this->get_user_achievements( $user_id );
-		$apollo_badges = array();
+		$apollo_badges = [];
 
 		foreach ( $achievements as $achievement ) {
 			$is_apollo = get_post_meta( $achievement->ID, '_apollo_achievement', true );
 			if ( $is_apollo ) {
 				$apollo_data     = get_post_meta( $achievement->ID, '_apollo_achievement_data', true );
-				$apollo_badges[] = array(
+				$apollo_badges[] = [
 					'id'          => $achievement->ID,
 					'title'       => $achievement->post_title,
 					'image'       => get_post_thumbnail_id( $achievement->ID ),
 					'apollo_data' => $apollo_data,
 					'earned_date' => $achievement->date_earned,
-				);
+				];
 			}
 		}
 
@@ -513,17 +513,17 @@ class BadgeOSAdapter {
 	public function get_user_apollo_level( $user_id ): array {
 		$points        = $this->get_user_points( $user_id );
 		$badges_config = config( 'badges' );
-		$levels        = $badges_config['levels'] ?? array();
+		$levels        = $badges_config['levels'] ?? [];
 
-		$current_level = array(
+		$current_level = [
 			'name'       => 'bronze',
 			'min_points' => 0,
 			'color'      => '#CD7F32',
-		);
+		];
 
 		foreach ( $levels as $level_name => $level_data ) {
 			if ( $points >= $level_data['min_points'] ) {
-				$current_level = array_merge( array( 'name' => $level_name ), $level_data );
+				$current_level = array_merge( [ 'name' => $level_name ], $level_data );
 			}
 		}
 
@@ -555,12 +555,12 @@ class BadgeOSAdapter {
 	 */
 	private function get_achievement_by_slug( $slug ): ?int {
 		$posts = get_posts(
-			array(
+			[
 				'post_type'      => badgeos_get_achievement_types_slugs(),
 				'name'           => $slug,
 				'posts_per_page' => 1,
 				'post_status'    => 'publish',
-			)
+			]
 		);
 
 		return $posts ? $posts[0]->ID : null;

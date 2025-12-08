@@ -26,7 +26,7 @@ class CanvasRenderer {
 		if ( file_exists( $config_file ) ) {
 			$this->config = require $config_file;
 		} else {
-			$this->config = array();
+			$this->config = [];
 		}
 	}
 
@@ -61,12 +61,12 @@ class CanvasRenderer {
 	 * Prepare template data from route and query vars
 	 */
 	private function prepareTemplateData( $route_config ) {
-		return array(
+		return [
 			'route'        => get_query_var( 'apollo_route' ),
 			'type'         => get_query_var( 'apollo_type' ),
 			'param'        => get_query_var( 'apollo_param' ),
 			'route_config' => $route_config,
-		);
+		];
 	}
 
 	/**
@@ -81,7 +81,6 @@ class CanvasRenderer {
 
 		// Security: Validate that handler class is in Apollo namespace
 		if ( strpos( $handler_class, 'Apollo\\' ) !== 0 ) {
-			error_log( 'Apollo Security: Attempted to instantiate non-Apollo class: ' . esc_html( $handler_class ) );
 			return $this->renderDefaultHandler( $template_data );
 		}
 
@@ -104,11 +103,11 @@ class CanvasRenderer {
 	private function renderDefaultHandler( $template_data ) {
 		$route       = isset( $template_data['route'] ) ? sanitize_text_field( $template_data['route'] ) : '';
 		$route_title = ucfirst( $route );
-		return array(
+		return [
 			'title'       => 'Apollo Social - ' . $route_title,
 			'content'     => '<p>Handler em desenvolvimento para: ' . esc_html( $route ) . '</p>',
-			'breadcrumbs' => array( 'Apollo Social', $route_title ),
-		);
+			'breadcrumbs' => [ 'Apollo Social', $route_title ],
+		];
 	}
 
 	/**
@@ -117,7 +116,7 @@ class CanvasRenderer {
 	private function renderCanvasLayout( $route_config, $handler_output, $template_data ) {
 		// Check for raw output (bypassing layout)
 		if ( ! empty( $handler_output['raw'] ) || ! empty( $route_config['raw_html'] ) ) {
-			echo isset( $handler_output['content'] ) ? $handler_output['content'] : '';
+			echo isset( $handler_output['content'] ) ? wp_kses_post( $handler_output['content'] ) : '';
 			return;
 		}
 
@@ -140,7 +139,7 @@ class CanvasRenderer {
 		}
 
 		// Output and clean buffer
-		echo ob_get_clean();
+		echo wp_kses_post( ob_get_clean() );
 	}
 
 	/**
@@ -151,7 +150,7 @@ class CanvasRenderer {
 		$content = isset( $handler_output['content'] ) ? $handler_output['content'] : '';
 
 		echo '<!DOCTYPE html>';
-		echo '<html ' . get_language_attributes() . '>';
+		echo '<html ' . esc_attr( get_language_attributes() ) . '>';
 		echo '<head>';
 		echo '<meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '">';
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1">';

@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$post      = $post_data ?? array();
+$post      = $post_data ?? [];
 $post_type = $post['type'] ?? 'user_post';
-$data      = $post['data'] ?? array();
+$data      = $post['data'] ?? [];
 ?>
 <article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-all apollo-feed-card" 
 		data-feed-card 
@@ -61,10 +61,10 @@ $data      = $post['data'] ?? array();
 							echo \Apollo\Helpers\MediaEmbedHelper::renderSpotifyEmbed(
 								$spotify['id'],
 								$spotify['type'],
-								array(
+								[
 									'width'  => '100%',
 									'height' => $spotify['type'] === 'track' ? '152' : '352',
-								)
+								]
 							);
 						}
 						?>
@@ -80,10 +80,10 @@ $data      = $post['data'] ?? array();
 						if ( class_exists( '\Apollo\Helpers\MediaEmbedHelper' ) ) {
 							echo \Apollo\Helpers\MediaEmbedHelper::renderSoundCloudEmbed(
 								$soundcloud['url'],
-								array(
+								[
 									'width'  => '100%',
 									'height' => '166',
-								)
+								]
 							);
 						}
 						?>

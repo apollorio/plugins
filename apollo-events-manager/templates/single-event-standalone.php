@@ -56,7 +56,7 @@ $event_id = isset( $event_id ) ? $event_id : get_the_ID();
 
 // Get data helper
 if ( ! class_exists( 'Apollo_Event_Data_Helper' ) ) {
-	require_once APOLLO_WPEM_PATH . 'includes/helpers/event-data-helper.php';
+	require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
 }
 $event_data = Apollo_Event_Data_Helper::get_event_data( $event_id );
 

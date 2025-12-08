@@ -42,24 +42,24 @@ require_once $components_dir . 'data-table.php';
  *     @type array  $sidebar_nav  Custom sidebar navigation.
  * }
  */
-function apollo_render_dashboard_page( array $args = array() ) {
-	$defaults = array(
+function apollo_render_dashboard_page( array $args = [] ) {
+	$defaults = [
 		'title'       => 'Dashboard',
-		'breadcrumbs' => array(
-			array(
+		'breadcrumbs' => [
+			[
 				'label' => 'Início',
 				'url'   => home_url( '/' ),
-			),
-			array(
+			],
+			[
 				'label' => 'Dashboard',
 				'url'   => '',
-			),
-		),
-		'cards'       => array(),
-		'table'       => array(),
+			],
+		],
+		'cards'       => [],
+		'table'       => [],
 		'content'     => '',
-		'sidebar_nav' => array(),
-	);
+		'sidebar_nav' => [],
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	// Start output
@@ -70,10 +70,10 @@ function apollo_render_dashboard_page( array $args = array() ) {
 		
 		<?php
 		apollo_render_app_sidebar(
-			array(
+			[
 				'variant'   => 'inset',
 				'nav_items' => ! empty( $args['sidebar_nav'] ) ? $args['sidebar_nav'] : apollo_get_default_nav_items(),
-			)
+			]
 		);
 		?>
 		
@@ -81,10 +81,10 @@ function apollo_render_dashboard_page( array $args = array() ) {
 			
 			<?php
 			apollo_render_site_header(
-				array(
+				[
 					'breadcrumbs' => $args['breadcrumbs'],
 					'title'       => $args['title'],
-				)
+				]
 			);
 			?>
 			
@@ -608,7 +608,7 @@ function apollo_dashboard_footer() {
  */
 function apollo_render_chart_area( array $chart ) {
 	$title = $chart['title'] ?? 'Atividade';
-	$data  = $chart['data'] ?? array();
+	$data  = $chart['data'] ?? [];
 	?>
 	<div class="rounded-xl border bg-card p-4 lg:p-6">
 		<div class="flex items-center justify-between mb-4">

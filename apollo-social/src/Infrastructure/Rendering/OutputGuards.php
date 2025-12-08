@@ -51,7 +51,7 @@ class OutputGuards {
 		global $wp_filter;
 
 		if ( isset( $wp_filter['wp_head'] ) && is_object( $wp_filter['wp_head'] ) ) {
-			$callbacks = $wp_filter['wp_head']->callbacks ?? array();
+			$callbacks = $wp_filter['wp_head']->callbacks ?? [];
 			foreach ( $callbacks as $priority => $hooks ) {
 				foreach ( $hooks as $hook_id => $hook ) {
 					$function = $hook['function'] ?? null;
@@ -96,12 +96,12 @@ class OutputGuards {
 		$canvas_config = $this->getCanvasConfig();
 
 		if ( ! empty( $canvas_config['block_theme_css'] ) ) {
-			add_action( 'wp_print_styles', array( $this, 'dequeueThemeStyles' ), 100 );
+			add_action( 'wp_print_styles', [ $this, 'dequeueThemeStyles' ], 100 );
 		}
 
 		if ( ! empty( $canvas_config['block_theme_js'] ) ) {
-			add_action( 'wp_print_scripts', array( $this, 'dequeueThemeScripts' ), 100 );
-			add_action( 'wp_print_footer_scripts', array( $this, 'dequeueThemeScripts' ), 100 );
+			add_action( 'wp_print_scripts', [ $this, 'dequeueThemeScripts' ], 100 );
+			add_action( 'wp_print_footer_scripts', [ $this, 'dequeueThemeScripts' ], 100 );
 		}
 	}
 
@@ -156,10 +156,10 @@ class OutputGuards {
 	 */
 	public function blockThemeAssetsCompletely(): void {
 		// Remove theme styles completely
-		add_action( 'wp_print_styles', array( $this, 'removeAllThemeStyles' ), 999 );
+		add_action( 'wp_print_styles', [ $this, 'removeAllThemeStyles' ], 999 );
 
 		// Remove theme scripts
-		add_action( 'wp_print_scripts', array( $this, 'removeAllThemeScripts' ), 999 );
+		add_action( 'wp_print_scripts', [ $this, 'removeAllThemeScripts' ], 999 );
 
 		// Remove theme's header and footer hooks
 		$this->removeThemeHooksCompletely();
@@ -171,7 +171,7 @@ class OutputGuards {
 		remove_action( 'wp_head', 'wp_theme_mod_custom_css', 101 );
 
 		// Override body classes
-		add_filter( 'body_class', array( $this, 'overrideBodyClasses' ), 999 );
+		add_filter( 'body_class', [ $this, 'overrideBodyClasses' ], 999 );
 	}
 
 	/**
@@ -200,13 +200,13 @@ class OutputGuards {
 		}
 
 		// Also remove common theme styles by handle patterns
-		$theme_handles = array(
+		$theme_handles = [
 			'theme-style',
 			'style',
 			'main-style',
 			'theme-css',
 			'custom-style',
-		);
+		];
 
 		foreach ( $theme_handles as $handle ) {
 			wp_dequeue_style( $handle );
@@ -258,7 +258,7 @@ class OutputGuards {
 		$theme_slug = get_stylesheet();
 
 		if ( isset( $wp_filter['wp_head'] ) && is_object( $wp_filter['wp_head'] ) ) {
-			$callbacks = $wp_filter['wp_head']->callbacks ?? array();
+			$callbacks = $wp_filter['wp_head']->callbacks ?? [];
 			foreach ( $callbacks as $priority => $hooks ) {
 				foreach ( $hooks as $hook_id => $hook ) {
 					$function = $hook['function'] ?? null;
@@ -289,7 +289,7 @@ class OutputGuards {
 
 		// P0-4: Remove all theme-specific wp_footer hooks
 		if ( isset( $wp_filter['wp_footer'] ) && is_object( $wp_filter['wp_footer'] ) ) {
-			$callbacks = $wp_filter['wp_footer']->callbacks ?? array();
+			$callbacks = $wp_filter['wp_footer']->callbacks ?? [];
 			foreach ( $callbacks as $priority => $hooks ) {
 				foreach ( $hooks as $hook_id => $hook ) {
 					$function = $hook['function'] ?? null;
@@ -327,12 +327,12 @@ class OutputGuards {
 			function ( $class ) {
 				return in_array(
 					$class,
-					array(
+					[
 						'logged-in',
 						'admin-bar',
 						'wp-admin',
 						'wp-core-ui',
-					)
+					]
 				);
 			}
 		);
@@ -355,7 +355,7 @@ class OutputGuards {
 			if ( file_exists( $config_file ) ) {
 				$config = require $config_file;
 			} else {
-				$config = array();
+				$config = [];
 			}
 		}
 

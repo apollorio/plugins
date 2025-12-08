@@ -54,7 +54,7 @@ class RenderService {
 	 * @param array            $options
 	 * @return string|false PDF file path or false on error
 	 */
-	public function renderToPdf( DocumentTemplate $template, array $data, array $options = array() ): string|false {
+	public function renderToPdf( DocumentTemplate $template, array $data, array $options = [] ): string|false {
 		try {
 			// Validate template data
 			$validation_errors = $template->validateData( $data );
@@ -84,7 +84,7 @@ class RenderService {
 	 * @param array            $options
 	 * @return string
 	 */
-	public function renderToHtml( DocumentTemplate $template, array $data, array $options = array() ): string {
+	public function renderToHtml( DocumentTemplate $template, array $data, array $options = [] ): string {
 		// Render template content
 		$content = $template->render( $data );
 
@@ -101,7 +101,7 @@ class RenderService {
 	 * @param array  $options
 	 * @return string
 	 */
-	private function buildHtmlDocument( string $content, array $options = array() ): string {
+	private function buildHtmlDocument( string $content, array $options = [] ): string {
 		$title  = $options['title'] ?? 'Documento Apollo';
 		$styles = $this->getDefaultStyles( $options );
 
@@ -141,7 +141,7 @@ HTML;
 	 * @param array $options
 	 * @return string
 	 */
-	private function getDefaultStyles( array $options = array() ): string {
+	private function getDefaultStyles( array $options = [] ): string {
 		$font_family = $options['font_family'] ?? 'Arial, sans-serif';
 		$font_size   = $options['font_size'] ?? '12px';
 		$line_height = $options['line_height'] ?? '1.6';
@@ -248,7 +248,7 @@ CSS;
 	 * @param array $options
 	 * @return string
 	 */
-	private function renderHeader( array $options = array() ): string {
+	private function renderHeader( array $options = [] ): string {
 		if ( empty( $options['header'] ) ) {
 			$date = date( 'd/m/Y' );
 			return <<<HTML
@@ -268,7 +268,7 @@ HTML;
 	 * @param array $options
 	 * @return string
 	 */
-	private function renderFooter( array $options = array() ): string {
+	private function renderFooter( array $options = [] ): string {
 		if ( empty( $options['footer'] ) ) {
 			$timestamp = date( 'd/m/Y H:i:s' );
 			return <<<HTML
@@ -290,7 +290,7 @@ HTML;
 	 * @return string PDF file path
 	 * @throws \Exception
 	 */
-	private function generatePdf( string $html, array $options = array() ): string {
+	private function generatePdf( string $html, array $options = [] ): string {
 		$filename    = $options['filename'] ?? 'document_' . uniqid() . '.pdf';
 		$output_path = $this->temp_dir . $filename;
 
@@ -320,7 +320,7 @@ HTML;
 	 * @param array  $options
 	 * @return bool
 	 */
-	private function tryTcpdf( string $html, string $output_path, array $options = array() ): bool {
+	private function tryTcpdf( string $html, string $output_path, array $options = [] ): bool {
 		if ( ! class_exists( 'TCPDF' ) ) {
 			return false;
 		}
@@ -360,21 +360,21 @@ HTML;
 	 * @param array  $options
 	 * @return bool
 	 */
-	private function tryMpdf( string $html, string $output_path, array $options = array() ): bool {
+	private function tryMpdf( string $html, string $output_path, array $options = [] ): bool {
 		if ( ! class_exists( 'Mpdf\Mpdf' ) ) {
 			return false;
 		}
 
 		try {
 			$mpdf = new \Mpdf\Mpdf(
-				array(
+				[
 					'mode'          => 'utf-8',
 					'format'        => 'A4',
 					'margin_left'   => 15,
 					'margin_right'  => 15,
 					'margin_top'    => 20,
 					'margin_bottom' => 20,
-				)
+				]
 			);
 
 			$mpdf->WriteHTML( $html );
@@ -395,7 +395,7 @@ HTML;
 	 * @param array  $options
 	 * @return bool
 	 */
-	private function tryWkhtmltopdf( string $html, string $output_path, array $options = array() ): bool {
+	private function tryWkhtmltopdf( string $html, string $output_path, array $options = [] ): bool {
 		// Check if wkhtmltopdf is available
 		$wkhtmltopdf_path = $this->findWkhtmltopdf();
 		if ( ! $wkhtmltopdf_path ) {
@@ -434,12 +434,12 @@ HTML;
 	 * @return string|null
 	 */
 	private function findWkhtmltopdf(): ?string {
-		$paths = array(
+		$paths = [
 			'/usr/bin/wkhtmltopdf',
 			'/usr/local/bin/wkhtmltopdf',
 			'wkhtmltopdf',
 		// System PATH
-		);
+		];
 
 		foreach ( $paths as $path ) {
 			if ( is_executable( $path ) || exec( "which $path" ) ) {

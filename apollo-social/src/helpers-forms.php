@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array $args Button arguments
  * @return string HTML button
  */
-function apollo_hold_to_confirm_button( $args = array() ) {
-	$defaults = array(
+function apollo_hold_to_confirm_button( $args = [] ) {
+	$defaults = [
 		'text'           => __( 'Segure para Confirmar', 'apollo-social' ),
 		'confirm_text'   => __( '✓ Confirmado', 'apollo-social' ),
 		'hold_duration'  => 2000,
@@ -26,11 +26,11 @@ function apollo_hold_to_confirm_button( $args = array() ) {
 		'id'             => '',
 		'on_complete'    => '',
 		'on_cancel'      => '',
-	);
+	];
 
 	$args = wp_parse_args( $args, $defaults );
 
-	$attributes = array(
+	$attributes = [
 		'type'                 => esc_attr( $args['type'] ),
 		'class'                => esc_attr( $args['class'] ),
 		'data-hold-to-confirm' => '',
@@ -38,7 +38,7 @@ function apollo_hold_to_confirm_button( $args = array() ) {
 		'data-progress-color'  => esc_attr( $args['progress_color'] ),
 		'data-success-color'   => esc_attr( $args['success_color'] ),
 		'data-confirm-text'    => esc_attr( $args['confirm_text'] ),
-	);
+	];
 
 	if ( ! empty( $args['id'] ) ) {
 		$attributes['id'] = esc_attr( $args['id'] );
@@ -114,12 +114,12 @@ function apollo_apply_hold_to_confirm_to_form( $form_selector ) {
  */
 function apollo_registration_button() {
 	return apollo_hold_to_confirm_button(
-		array(
+		[
 			'text'          => __( 'Segure para Registrar', 'apollo-social' ),
 			'confirm_text'  => __( '✓ Registrando...', 'apollo-social' ),
 			'hold_duration' => 2000,
 			'id'            => 'apollo-register-button',
-		)
+		]
 	);
 }
 
@@ -128,11 +128,11 @@ function apollo_registration_button() {
  */
 function apollo_post_submit_button() {
 	return apollo_hold_to_confirm_button(
-		array(
+		[
 			'text'          => __( 'Segure para Publicar', 'apollo-social' ),
 			'confirm_text'  => __( '✓ Publicando...', 'apollo-social' ),
 			'hold_duration' => 1500,
-		)
+		]
 	);
 }
 
@@ -141,11 +141,11 @@ function apollo_post_submit_button() {
  */
 function apollo_comment_submit_button() {
 	return apollo_hold_to_confirm_button(
-		array(
+		[
 			'text'          => __( 'Segure para Comentar', 'apollo-social' ),
 			'confirm_text'  => __( '✓ Enviando...', 'apollo-social' ),
 			'hold_duration' => 1000,
-		)
+		]
 	);
 }
 

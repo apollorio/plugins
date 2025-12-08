@@ -31,15 +31,15 @@ Documentation for the core plugin and add-ons can be found [on the docs site her
 
 
 = Be a contributor =
-If you want to contribute, go to our [WP Event Manager Rest API GitHub Repository](https://github.com/wpeventmanager/wpem-rest-api/) and see where you can help.
+If you want to contribute, go to our [WP Event Manager Rest API GitHub Repository](https://github.com/wpeventmanager/aprio-rest-api/) and see where you can help.
 
-You can also add a new language via [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/wpem-rest-api). We've built a short guide explaining [how to translate and localize the plugin](https://www.wp-eventmanager.com/documentation/translating-wp-event-manager/).
+You can also add a new language via [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/aprio-rest-api). We've built a short guide explaining [how to translate and localize the plugin](https://www.wp-eventmanager.com/documentation/translating-wp-event-manager/).
 
 Thanks to all of our contributors.
 
 = Documentation and Support =
 - For documentation and tutorials go to our [Documentation](https://wp-eventmanager.com/knowledge-base/).
-- If you have any more questions, visit our support on the [Plugin's Forum](https://wordpress.org/support/plugin/wpem-rest-api).
+- If you have any more questions, visit our support on the [Plugin's Forum](https://wordpress.org/support/plugin/aprio-rest-api).
 - If you want help with a customisation, you can contact any one for the [Listed Certified Developers](https://www.wp-eventmanager.com/hire-certified-wp-event-manager-developers/?utm_source=wp-repo&utm_medium=link&utm_campaign=readme).
 - If you need help with one of our add-ons, [please contact here](https://www.wp-eventmanager.com/get-support/?utm_source=wp-repo&utm_medium=link&utm_campaign=readme).
 - For more information about features, FAQs and documentation, check out our website at [WP Event Manager](https://www.wp-eventmanager.com/?utm_source=wp-repo&utm_medium=link&utm_campaign=readme).

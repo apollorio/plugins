@@ -1,8 +1,8 @@
 <?php
 // phpcs:ignoreFile
-class WPEM_REST_Taxonomy_List_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Taxonomy_List_Controller extends APRIO_REST_CRUD_Controller {
 
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 	protected $rest_base = 'taxonomy-list';
 
 	public function __construct() {
@@ -10,7 +10,7 @@ class WPEM_REST_Taxonomy_List_Controller extends WPEM_REST_CRUD_Controller {
 	}
 
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -49,7 +49,7 @@ class WPEM_REST_Taxonomy_List_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -109,4 +109,4 @@ class WPEM_REST_Taxonomy_List_Controller extends WPEM_REST_CRUD_Controller {
 	}
 }
 
-new WPEM_REST_Taxonomy_List_Controller();
+new APRIO_REST_Taxonomy_List_Controller();

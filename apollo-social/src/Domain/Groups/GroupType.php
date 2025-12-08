@@ -18,7 +18,7 @@ class GroupType {
 	 * TODO: implement type listing and validation
 	 */
 	public static function all() {
-		return array( self::COMUNIDADE, self::NUCLEO, self::SEASON );
+		return [ self::COMUNIDADE, self::NUCLEO, self::SEASON ];
 	}
 
 	/**

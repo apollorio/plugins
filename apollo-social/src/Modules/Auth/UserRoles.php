@@ -5,7 +5,7 @@ namespace Apollo\Modules\Auth;
 class UserRoles {
 
 	public function register() {
-		add_action( 'init', array( $this, 'modifyUserRoles' ) );
+		add_action( 'init', [ $this, 'modifyUserRoles' ] );
 	}
 
 	public function modifyUserRoles() {

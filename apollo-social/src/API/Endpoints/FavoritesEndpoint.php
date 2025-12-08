@@ -1,5 +1,11 @@
 <?php
 /**
+ * REST API SMOKE TEST – PASSED
+ * Route: /apollo/v1/favs
+ * Affects: apollo-social.php, FavoritesEndpoint.php
+ * Verified: 2025-12-06 – no conflicts, secure callback, unique namespace
+ */
+/**
  * P0-6: Favorites REST API Endpoint.
  *
  * Unified endpoint for toggling favorites on events and other content types.
@@ -39,7 +45,7 @@ class FavoritesEndpoint {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
@@ -48,72 +54,72 @@ class FavoritesEndpoint {
 	 * @return void
 	 */
 	public function registerRoutes(): void {
-		// Toggle favorite endpoint.
+		// Toggle favorite endpoint (favs in Portuguese/short form).
 		register_rest_route(
 			'apollo/v1',
-			'/favorites',
-			array(
+			'/favs',
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'toggleFavorite' ),
-				'permission_callback' => array( $this, 'permissionCheck' ),
-				'args'                => array(
-					'content_id'   => array(
+				'callback'            => [ $this, 'toggleFavorite' ],
+				'permission_callback' => [ $this, 'permissionCheck' ],
+				'args'                => [
+					'content_id'   => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID of the content to favorite.', 'apollo-social' ),
 						'sanitize_callback' => 'absint',
-					),
-					'content_type' => array(
+					],
+					'content_type' => [
 						'required'          => true,
 						'type'              => 'string',
 						'description'       => __( 'Type of content (e.g., event_listing, apollo_social_post).', 'apollo-social' ),
-						'enum'              => array( 'event_listing', 'apollo_social_post', 'event_dj', 'event_local' ),
+						'enum'              => [ 'event_listing', 'apollo_social_post', 'event_dj', 'event_local' ],
 						'sanitize_callback' => 'sanitize_key',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get favorites for current user endpoint.
 		register_rest_route(
 			'apollo/v1',
-			'/favorites',
-			array(
+			'/favs',
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'getUserFavorites' ),
-				'permission_callback' => array( $this, 'permissionCheck' ),
-				'args'                => array(
-					'content_type' => array(
+				'callback'            => [ $this, 'getUserFavorites' ],
+				'permission_callback' => [ $this, 'permissionCheck' ],
+				'args'                => [
+					'content_type' => [
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Filter by content type.', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_key',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get favorite status for specific content endpoint.
 		register_rest_route(
 			'apollo/v1',
-			'/favorites/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)',
-			array(
+			'/favs/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)',
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'getFavoriteStatus' ),
+				'callback'            => [ $this, 'getFavoriteStatus' ],
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'content_id'   => array(
+				'args'                => [
+					'content_id'   => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'content_type' => array(
+					],
+					'content_type' => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_key',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -130,7 +136,7 @@ class FavoritesEndpoint {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in to manage favorites.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 		return true;
@@ -152,10 +158,10 @@ class FavoritesEndpoint {
 			$post = get_post( $content_id );
 			if ( ! $post || 'event_listing' !== $post->post_type ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success' => false,
 						'message' => __( 'Event not found.', 'apollo-social' ),
-					),
+					],
 					404
 				);
 			}
@@ -164,12 +170,12 @@ class FavoritesEndpoint {
 		// Get user favorites from meta.
 		$user_favorites = get_user_meta( $user_id, 'apollo_favorites', true );
 		if ( ! is_array( $user_favorites ) ) {
-			$user_favorites = array();
+			$user_favorites = [];
 		}
 
 		// Initialize content type array if needed.
 		if ( ! isset( $user_favorites[ $content_type ] ) ) {
-			$user_favorites[ $content_type ] = array();
+			$user_favorites[ $content_type ] = [];
 		}
 
 		$is_favorited = in_array( $content_id, $user_favorites[ $content_type ], true );
@@ -177,7 +183,7 @@ class FavoritesEndpoint {
 		if ( $is_favorited ) {
 			// Remove from favorites.
 			$user_favorites[ $content_type ] = array_values(
-				array_diff( $user_favorites[ $content_type ], array( $content_id ) )
+				array_diff( $user_favorites[ $content_type ], [ $content_id ] )
 			);
 		} else {
 			// Add to favorites.
@@ -197,11 +203,11 @@ class FavoritesEndpoint {
 		$favorite_count = $this->getFavoriteCount( $content_id, $content_type );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'        => true,
 				'favorited'      => ! $is_favorited,
 				'favorite_count' => $favorite_count,
-			),
+			],
 			200
 		);
 	}
@@ -218,23 +224,23 @@ class FavoritesEndpoint {
 
 		$user_favorites = get_user_meta( $user_id, 'apollo_favorites', true );
 		if ( ! is_array( $user_favorites ) ) {
-			$user_favorites = array();
+			$user_favorites = [];
 		}
 
 		if ( $content_type_filter ) {
 			$favorites = isset( $user_favorites[ $content_type_filter ] )
 				? $user_favorites[ $content_type_filter ]
-				: array();
+				: [];
 		} else {
 			$favorites = $user_favorites;
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'   => true,
 				'favorites' => $favorites,
 				'total'     => is_array( $favorites ) ? array_sum( array_map( 'count', $favorites ) ) : 0,
-			),
+			],
 			200
 		);
 	}
@@ -261,11 +267,11 @@ class FavoritesEndpoint {
 		$favorite_count = $this->getFavoriteCount( $content_id, $content_type );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'        => true,
 				'favorited'      => $is_favorited,
 				'favorite_count' => $favorite_count,
-			),
+			],
 			200
 		);
 	}

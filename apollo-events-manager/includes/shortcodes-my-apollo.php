@@ -116,7 +116,7 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 			// Favorited events
 			$favorite_ids = array();
 
-			// Try wpem-bookmarks first
+			// Try aprio-bookmarks first
 			if ( function_exists( 'get_user_favorites' ) ) {
 				$favorite_ids = get_user_favorites( $current_user_id, null, array( 'post_types' => 'event_listing' ) );
 			} else {
@@ -226,7 +226,7 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 						$event_id = get_the_ID();
 
 						// Include event card template
-						$card_template = APOLLO_WPEM_PATH . 'templates/event-card.php';
+						$card_template = APOLLO_APRIO_PATH . 'templates/event-card.php';
 						if ( file_exists( $card_template ) ) {
 							include $card_template;
 						} else {

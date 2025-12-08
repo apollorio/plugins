@@ -15,77 +15,77 @@ class FeedRenderer {
 		$this->current_user_id = get_current_user_id();
 	}
 
-	public function render( $template_data ) {
+	public function render() {
 		// Get current user
 		$current_user = wp_get_current_user();
 
 		// FASE 2: Obter feed unificado de múltiplas fontes
 		$feed_posts = $this->getUnifiedFeedPosts();
 
-		return array(
+		return [
 			'title'                       => 'Feed',
 			'content'                     => '',
 			// Will be rendered by template
-							'breadcrumbs' => array( 'Apollo Social', 'Feed' ),
-			'data'                        => array(
+							'breadcrumbs' => [ 'Apollo Social', 'Feed' ],
+			'data'                        => [
 				'posts'        => $feed_posts,
-				'current_user' => array(
+				'current_user' => [
 					'id'     => $current_user->ID,
 					'name'   => $current_user->display_name,
 					'avatar' => get_avatar_url( $current_user->ID ),
-				),
-			),
-		);
+				],
+			],
+		];
 	}
 
 	/**
 	 * FASE 2: Obter posts de múltiplas fontes e mesclar por data
 	 */
 	public function getUnifiedFeedPosts( $page = 1, $per_page = 20 ) {
-		$all_items = array();
+		$all_items = [];
 
 		// 1. Posts de usuários (apollo_social_post)
 		$user_posts = $this->getUserPosts( $per_page );
 		foreach ( $user_posts as $post ) {
-			$all_items[] = array(
+			$all_items[] = [
 				'type' => 'user_post',
 				'id'   => $post->ID,
 				'date' => $post->post_date,
 				'data' => $this->formatUserPost( $post ),
-			);
+			];
 		}
 
 		// 2. Eventos do Apollo Events Manager
 		$events = $this->getEvents( $per_page / 2 );
 		foreach ( $events as $event ) {
-			$all_items[] = array(
+			$all_items[] = [
 				'type' => 'event',
 				'id'   => $event->ID,
 				'date' => get_post_meta( $event->ID, '_event_start_date', true ) ?: $event->post_date,
 				'data' => $this->formatEvent( $event ),
-			);
+			];
 		}
 
 		// 3. Anúncios/Classificados (se existir CPT ou tabela)
 		$ads = $this->getAds( $per_page / 4 );
 		foreach ( $ads as $ad ) {
-			$all_items[] = array(
+			$all_items[] = [
 				'type' => 'ad',
 				'id'   => $ad->ID ?? $ad->id,
-				'date' => $ad->post_date ?? $ad->created_at ?? date( 'Y-m-d H:i:s' ),
+				'date' => $ad->post_date ?? $ad->created_at ?? gmdate( 'Y-m-d H:i:s' ),
 				'data' => $this->formatAd( $ad ),
-			);
+			];
 		}
 
 		// 4. Notícias (posts WordPress com categoria específica)
 		$news = $this->getNews( $per_page / 4 );
 		foreach ( $news as $news_item ) {
-			$all_items[] = array(
+			$all_items[] = [
 				'type' => 'news',
 				'id'   => $news_item->ID,
 				'date' => $news_item->post_date,
 				'data' => $this->formatNews( $news_item ),
-			);
+			];
 		}
 
 		// Ordenar por data (mais recente primeiro)
@@ -106,13 +106,13 @@ class FeedRenderer {
 	 */
 	private function getUserPosts( $limit = 10 ) {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'apollo_social_post',
 				'posts_per_page' => $limit,
 				'post_status'    => 'publish',
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -131,7 +131,7 @@ class FeedRenderer {
 		$content = $post->post_content;
 
 		// P0-5: Detectar URLs de Spotify/SoundCloud
-		$media_embeds = array();
+		$media_embeds = [];
 		if ( class_exists( '\Apollo\Helpers\MediaEmbedHelper' ) ) {
 			$detected_media = \Apollo\Helpers\MediaEmbedHelper::detectMediaUrls( $content );
 			if ( ! empty( $detected_media['spotify'] ) || ! empty( $detected_media['soundcloud'] ) ) {
@@ -139,16 +139,16 @@ class FeedRenderer {
 			}
 		}
 
-		return array(
+		return [
 			'id'            => $post->ID,
 			'title'         => get_the_title( $post->ID ),
-			'content'       => apply_filters( 'the_content', $content ),
+			'content'       => apply_filters( 'apollo_feed_the_content', $content ),
 			'excerpt'       => get_the_excerpt( $post->ID ),
-			'author'        => array(
+			'author'        => [
 				'id'     => $author_id,
 				'name'   => get_the_author_meta( 'display_name', $author_id ),
 				'avatar' => get_avatar_url( $author_id ),
-			),
+			],
 			'date'          => get_the_date( 'c', $post->ID ),
 			'permalink'     => get_permalink( $post->ID ),
 			'thumbnail'     => get_the_post_thumbnail_url( $post->ID, 'medium' ),
@@ -157,7 +157,7 @@ class FeedRenderer {
 			'user_liked'    => $user_liked,
 			'media_embeds'  => $media_embeds,
 		// P0-5: Spotify/SoundCloud embeds
-		);
+		];
 	}
 
 	/**
@@ -165,25 +165,25 @@ class FeedRenderer {
 	 */
 	private function getEvents( $limit = 5 ) {
 		if ( ! post_type_exists( 'event_listing' ) ) {
-			return array();
+			return [];
 		}
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'posts_per_page' => $limit,
 				'post_status'    => 'publish',
 				'meta_key'       => '_event_start_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'     => '_event_start_date',
 						'value'   => date( 'Y-m-d' ),
 						'compare' => '>=',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		return $query->posts;
@@ -204,15 +204,15 @@ class FeedRenderer {
 		$local_id   = get_post_meta( $event->ID, '_event_local_id', true );
 		$local_name = $local_id ? get_the_title( $local_id ) : '';
 
-		return array(
+		return [
 			'id'             => $event->ID,
 			'title'          => get_the_title( $event->ID ),
 			'excerpt'        => get_the_excerpt( $event->ID ),
-			'author'         => array(
+			'author'         => [
 				'id'     => $author_id,
 				'name'   => get_the_author_meta( 'display_name', $author_id ),
 				'avatar' => get_avatar_url( $author_id ),
-			),
+			],
 			'date'           => $start_date ?: get_the_date( 'c', $event->ID ),
 			'start_date'     => $start_date,
 			'start_time'     => $start_time,
@@ -222,7 +222,7 @@ class FeedRenderer {
 			'like_count'     => $like_count,
 			'user_liked'     => $user_liked,
 			'user_favorited' => $user_favorited,
-		);
+		];
 	}
 
 	/**
@@ -232,13 +232,13 @@ class FeedRenderer {
 		// Tentar CPT primeiro
 		if ( post_type_exists( 'apollo_ad' ) ) {
 			$query = new WP_Query(
-				array(
+				[
 					'post_type'      => 'apollo_ad',
 					'posts_per_page' => $limit,
 					'post_status'    => 'publish',
 					'orderby'        => 'date',
 					'order'          => 'DESC',
-				)
+				]
 			);
 			return $query->posts;
 		}
@@ -255,7 +255,7 @@ class FeedRenderer {
 			);
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -264,24 +264,24 @@ class FeedRenderer {
 	private function formatAd( $ad ) {
 		if ( is_object( $ad ) && isset( $ad->post_type ) ) {
 			// É um post WordPress
-			return array(
+			return [
 				'id'        => $ad->ID,
 				'title'     => get_the_title( $ad->ID ),
 				'excerpt'   => get_the_excerpt( $ad->ID ),
 				'permalink' => get_permalink( $ad->ID ),
 				'thumbnail' => get_the_post_thumbnail_url( $ad->ID, 'medium' ),
-			);
+			];
 		}
 
 		// É da tabela custom
-		return array(
+		return [
 			'id'                        => $ad->id,
 			'title'                     => $ad->title ?? '',
 			'excerpt'                   => $ad->description ?? '',
 			'permalink'                 => '#',
 			// Implementar rota se necessário
 							'thumbnail' => $ad->image_url ?? '',
-		);
+		];
 	}
 
 	/**
@@ -289,7 +289,7 @@ class FeedRenderer {
 	 */
 	private function getNews( $limit = 5 ) {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'                               => 'post',
 				'posts_per_page'                          => $limit,
 				'post_status'                             => 'publish',
@@ -297,7 +297,7 @@ class FeedRenderer {
 				// Ajustar conforme necessário
 												'orderby' => 'date',
 				'order'                                   => 'DESC',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -307,13 +307,13 @@ class FeedRenderer {
 	 * Formatar notícia
 	 */
 	private function formatNews( $news ) {
-		return array(
+		return [
 			'id'        => $news->ID,
 			'title'     => get_the_title( $news->ID ),
 			'excerpt'   => get_the_excerpt( $news->ID ),
 			'permalink' => get_permalink( $news->ID ),
 			'thumbnail' => get_the_post_thumbnail_url( $news->ID, 'medium' ),
-		);
+		];
 	}
 
 	/**

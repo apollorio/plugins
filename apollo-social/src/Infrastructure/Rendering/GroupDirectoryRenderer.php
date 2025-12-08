@@ -26,13 +26,13 @@ class GroupDirectoryRenderer {
 		$group_config = $this->getGroupConfig( $type );
 		$groups       = $this->getGroupsData( $type );
 
-		return array(
+		return [
 			'title'        => $group_config['label_plural'],
 			'content'      => $this->renderGroupDirectory( $groups, $group_config ),
-			'breadcrumbs'  => array( 'Apollo Social', $group_config['label_plural'] ),
+			'breadcrumbs'  => [ 'Apollo Social', $group_config['label_plural'] ],
 			'groups'       => $groups,
 			'group_config' => $group_config,
-		);
+		];
 	}
 
 	/**
@@ -48,22 +48,22 @@ class GroupDirectoryRenderer {
 		}
 
 		// Fallback
-		return array(
+		return [
 			'label'        => ucfirst( $type ),
 			'label_plural' => ucfirst( $type ) . 's',
 			'description'  => 'Grupos do tipo ' . $type,
-		);
+		];
 	}
 
 	/**
 	 * Get groups data from repository
 	 */
 	private function getGroupsData( $type ) {
-		$filters = array(
+		$filters = [
 			'type'   => $type,
 			'status' => 'published',
 		// Only show published groups
-		);
+		];
 
 		// Allow admins to see all statuses
 		if ( current_user_can( 'manage_options' ) ) {
@@ -72,9 +72,9 @@ class GroupDirectoryRenderer {
 
 		$group_entities = $this->repository->findAll( $filters );
 
-		$groups = array();
+		$groups = [];
 		foreach ( $group_entities as $group ) {
-			$groups[] = array(
+			$groups[] = [
 				'id'            => $group->id,
 				'name'          => $group->title,
 				'slug'          => $group->slug,
@@ -83,7 +83,7 @@ class GroupDirectoryRenderer {
 				'type'          => $group->type,
 				'url'           => '/' . $type . '/' . $group->slug,
 				'created_at'    => $group->created_at,
-			);
+			];
 		}
 
 		return $groups;

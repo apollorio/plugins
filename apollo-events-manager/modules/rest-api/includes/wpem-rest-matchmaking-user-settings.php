@@ -2,8 +2,8 @@
 // phpcs:ignoreFile
 defined( 'ABSPATH' ) || exit;
 
-class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
-	protected $namespace = 'wpem';
+class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller {
+	protected $namespace = 'aprio';
 
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
@@ -15,7 +15,7 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 
 		// GET - Retrieve settings
 		register_rest_route(
@@ -129,7 +129,7 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -200,7 +200,7 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 				'enable_matchmaking'   => (int) get_user_meta( $user_id, '_matchmaking_profile', true )[0],
 				'message_notification' => (int) get_user_meta( $user_id, '_message_notification', true ),
 				'event_participation'  => $user_event_participation,
-				'meeting_request_mode' => get_user_meta( $user_id, '_wpem_meeting_request_mode', true ) ?: 'approval',
+				'meeting_request_mode' => get_user_meta( $user_id, '_aprio_meeting_request_mode', true ) ?: 'approval',
 			);
 
 			return new WP_REST_Response(
@@ -233,7 +233,7 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -260,7 +260,7 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 				update_user_meta( $user_id, '_message_notification', (int) $request->get_param( 'message_notification' ) );
 			}
 			if ( ! is_null( $request->get_param( 'meeting_request_mode' ) ) ) {
-				update_user_meta( $user_id, '_wpem_meeting_request_mode', sanitize_text_field( $request->get_param( 'meeting_request_mode' ) ) );
+				update_user_meta( $user_id, '_aprio_meeting_request_mode', sanitize_text_field( $request->get_param( 'meeting_request_mode' ) ) );
 			}
 
 			// Update event participation settings
@@ -302,4 +302,4 @@ class WPEM_REST_Attendee_Settings_Controller extends WPEM_REST_CRUD_Controller {
 	}
 }
 
-new WPEM_REST_Attendee_Settings_Controller();
+new APRIO_REST_Attendee_Settings_Controller();

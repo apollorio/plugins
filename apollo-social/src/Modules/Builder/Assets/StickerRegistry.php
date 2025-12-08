@@ -80,7 +80,7 @@ class StickerRegistry {
 
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
 		return array_filter(
@@ -132,14 +132,14 @@ class StickerRegistry {
 	 * @return array<string, string> Category slug => label pairs.
 	 */
 	public static function get_categories(): array {
-		return array(
+		return [
 			'emoji'      => __( 'Emojis', 'apollo-social' ),
 			'badge'      => __( 'Badges', 'apollo-social' ),
 			'decoration' => __( 'Decorações', 'apollo-social' ),
 			'social'     => __( 'Redes Sociais', 'apollo-social' ),
 			'music'      => __( 'Música', 'apollo-social' ),
 			'premium'    => __( 'Premium', 'apollo-social' ),
-		);
+		];
 	}
 
 	/**
@@ -150,11 +150,11 @@ class StickerRegistry {
 	private static function get_core_stickers(): array {
 		$cdn_base = 'https://assets.apollo.rio.br/builder/stickers';
 
-		return array(
+		return [
 			// ─────────────────────────────────────────────────────────────
 			// Emojis
 			// ─────────────────────────────────────────────────────────────
-			'emoji-fire'        => array(
+			'emoji-fire'        => [
 				'id'                  => 'emoji-fire',
 				'label'               => __( 'Fogo', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/emoji/fire-preview.png",
@@ -165,8 +165,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 50,
-			),
-			'emoji-heart'       => array(
+			],
+			'emoji-heart'       => [
 				'id'                  => 'emoji-heart',
 				'label'               => __( 'Coração', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/emoji/heart-preview.png",
@@ -177,8 +177,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 50,
-			),
-			'emoji-star'        => array(
+			],
+			'emoji-star'        => [
 				'id'                  => 'emoji-star',
 				'label'               => __( 'Estrela', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/emoji/star-preview.png",
@@ -189,8 +189,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 50,
-			),
-			'emoji-sparkles'    => array(
+			],
+			'emoji-sparkles'    => [
 				'id'                  => 'emoji-sparkles',
 				'label'               => __( 'Brilhos', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/emoji/sparkles-preview.png",
@@ -201,8 +201,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 50,
-			),
-			'emoji-music'       => array(
+			],
+			'emoji-music'       => [
 				'id'                  => 'emoji-music',
 				'label'               => __( 'Nota Musical', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/emoji/music-preview.png",
@@ -213,12 +213,12 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 50,
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Badges
 			// ─────────────────────────────────────────────────────────────
-			'badge-verified'    => array(
+			'badge-verified'    => [
 				'id'                  => 'badge-verified',
 				'label'               => __( 'Verificado', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/badges/verified-preview.png",
@@ -229,8 +229,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 60,
-			),
-			'badge-dj'          => array(
+			],
+			'badge-dj'          => [
 				'id'                  => 'badge-dj',
 				'label'               => __( 'DJ', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/badges/dj-preview.png",
@@ -241,8 +241,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 60,
-			),
-			'badge-founder'     => array(
+			],
+			'badge-founder'     => [
 				'id'                  => 'badge-founder',
 				'label'               => __( 'Fundador', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/badges/founder-preview.png",
@@ -253,8 +253,8 @@ class StickerRegistry {
 				'is_limited'          => true,
 				'required_capability' => 'apollo_founder_badge',
 				'z_index_hint'        => 60,
-			),
-			'badge-premium'     => array(
+			],
+			'badge-premium'     => [
 				'id'                  => 'badge-premium',
 				'label'               => __( 'Premium', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/badges/premium-preview.png",
@@ -265,12 +265,12 @@ class StickerRegistry {
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
 				'z_index_hint'        => 60,
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Decorations
 			// ─────────────────────────────────────────────────────────────
-			'decor-ribbon'      => array(
+			'decor-ribbon'      => [
 				'id'                  => 'decor-ribbon',
 				'label'               => __( 'Fita', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/decorations/ribbon-preview.png",
@@ -281,8 +281,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 30,
-			),
-			'decor-frame'       => array(
+			],
+			'decor-frame'       => [
 				'id'                  => 'decor-frame',
 				'label'               => __( 'Moldura', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/decorations/frame-preview.png",
@@ -293,8 +293,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 20,
-			),
-			'decor-divider'     => array(
+			],
+			'decor-divider'     => [
 				'id'                  => 'decor-divider',
 				'label'               => __( 'Divisor', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/decorations/divider-preview.png",
@@ -305,12 +305,12 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 25,
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Social Icons
 			// ─────────────────────────────────────────────────────────────
-			'social-instagram'  => array(
+			'social-instagram'  => [
 				'id'                  => 'social-instagram',
 				'label'               => __( 'Instagram', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/social/instagram-preview.png",
@@ -321,8 +321,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 55,
-			),
-			'social-spotify'    => array(
+			],
+			'social-spotify'    => [
 				'id'                  => 'social-spotify',
 				'label'               => __( 'Spotify', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/social/spotify-preview.png",
@@ -333,8 +333,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 55,
-			),
-			'social-soundcloud' => array(
+			],
+			'social-soundcloud' => [
 				'id'                  => 'social-soundcloud',
 				'label'               => __( 'SoundCloud', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/social/soundcloud-preview.png",
@@ -345,12 +345,12 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 55,
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Music
 			// ─────────────────────────────────────────────────────────────
-			'music-headphones'  => array(
+			'music-headphones'  => [
 				'id'                  => 'music-headphones',
 				'label'               => __( 'Fones', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/music/headphones-preview.png",
@@ -361,8 +361,8 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 45,
-			),
-			'music-vinyl'       => array(
+			],
+			'music-vinyl'       => [
 				'id'                  => 'music-vinyl',
 				'label'               => __( 'Vinil', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/music/vinyl-preview.png",
@@ -373,12 +373,12 @@ class StickerRegistry {
 				'is_limited'          => false,
 				'required_capability' => '',
 				'z_index_hint'        => 40,
-			),
+			],
 
 			// ─────────────────────────────────────────────────────────────
 			// Premium Stickers
 			// ─────────────────────────────────────────────────────────────
-			'premium-crown'     => array(
+			'premium-crown'     => [
 				'id'                  => 'premium-crown',
 				'label'               => __( 'Coroa', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/premium/crown-preview.png",
@@ -389,8 +389,8 @@ class StickerRegistry {
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
 				'z_index_hint'        => 70,
-			),
-			'premium-wings'     => array(
+			],
+			'premium-wings'     => [
 				'id'                  => 'premium-wings',
 				'label'               => __( 'Asas', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/premium/wings-preview.png",
@@ -401,8 +401,8 @@ class StickerRegistry {
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
 				'z_index_hint'        => 15,
-			),
-			'premium-aura'      => array(
+			],
+			'premium-aura'      => [
 				'id'                  => 'premium-aura',
 				'label'               => __( 'Aura Brilhante', 'apollo-social' ),
 				'preview_url'         => "{$cdn_base}/premium/aura-preview.png",
@@ -413,7 +413,7 @@ class StickerRegistry {
 				'is_limited'          => true,
 				'required_capability' => 'apollo_premium_assets',
 				'z_index_hint'        => 10,
-			),
-		);
+			],
+		];
 	}
 }

@@ -23,7 +23,7 @@ class Apollo_Events_Release_Preparation {
 	 * @return string Current version
 	 */
 	public static function get_version() {
-		return APOLLO_WPEM_VERSION;
+		return APOLLO_APRIO_VERSION;
 	}
 
 	/**

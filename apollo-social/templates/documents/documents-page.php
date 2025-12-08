@@ -25,13 +25,13 @@ $user_id  = $user_obj->ID;
 // Buscar documentos
 $all_documents = function_exists( 'Apollo\CenaRio\CenaRioModule::getLibraryDocuments' )
 	? Apollo\CenaRio\CenaRioModule::getLibraryDocuments( 50 )
-	: array();
+	: [];
 
 $my_documents = function_exists( 'Apollo\CenaRio\CenaRioModule::getUserDocuments' )
 	? Apollo\CenaRio\CenaRioModule::getUserDocuments( $user_id )
-	: array();
+	: [];
 
-$signed_documents = array();
+$signed_documents = [];
 // TODO: Implementar busca de documentos assinados
 
 $current_filter = isset( $_GET['filter'] ) ? sanitize_text_field( $_GET['filter'] ) : 'all';

@@ -5,9 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WPEM_Rest_API_Dashboard class to show rest api data at front-end.
+ * APRIO_Rest_API_Dashboard class to show rest api data at front-end.
  */
-class WPEM_Rest_API_Dashboard {
+class APRIO_Rest_API_Dashboard {
 
 	/**
 	 * __construct function.
@@ -21,14 +21,14 @@ class WPEM_Rest_API_Dashboard {
 	 * @access public
 	 * @return void
 	 */
-	public function wpem_dashboard_menu_add( $menus ) {
+	public function aprio_dashboard_menu_add( $menus ) {
 		$menus['rest_api'] = array(
-			'title'   => __( 'Rest API', 'wpem-rest-api' ),
-			'icon'    => 'wpem-icon-loop',
+			'title'   => __( 'Rest API', 'aprio-rest-api' ),
+			'icon'    => 'aprio-icon-loop',
 			'submenu' => array(
-				'wpem_rest_api_setting' => array(
-					'title'     => __( 'Settings', 'wpem-rest-api' ),
-					'query_arg' => array( 'action' => 'wpem_rest_api_setting' ),
+				'aprio_rest_api_setting' => array(
+					'title'     => __( 'Settings', 'aprio-rest-api' ),
+					'query_arg' => array( 'action' => 'aprio_rest_api_setting' ),
 				),
 			),
 		);
@@ -41,13 +41,13 @@ class WPEM_Rest_API_Dashboard {
 	 * @access public
 	 * @return void
 	 */
-	public function wpem_rest_api_output_setting() {
+	public function aprio_rest_api_output_setting() {
 		get_event_manager_template(
-			'wpem-dashboard-rest-api-settings.php',
+			'aprio-dashboard-rest-api-settings.php',
 			array(),
-			'wpem-rest-api',
-			WPEM_REST_API_PLUGIN_DIR . '/templates/'
+			'aprio-rest-api',
+			APRIO_REST_API_PLUGIN_DIR . '/templates/'
 		);
 	}
 }
-new WPEM_Rest_API_Dashboard();
+new APRIO_Rest_API_Dashboard();

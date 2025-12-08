@@ -11,8 +11,8 @@
 
 // ✅ SIMPLY INCLUDE event-card.php - NO CODE DUPLICATION
 // event-card.php handles all the logic and HTML rendering
-$event_card_path = defined('APOLLO_WPEM_PATH') 
-    ? APOLLO_WPEM_PATH . 'templates/event-card.php'
+$event_card_path = defined('APOLLO_APRIO_PATH') 
+    ? APOLLO_APRIO_PATH . 'templates/event-card.php'
     : plugin_dir_path(__FILE__) . 'event-card.php';
 
 if (file_exists($event_card_path)) {

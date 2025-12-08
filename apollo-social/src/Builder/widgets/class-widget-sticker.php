@@ -52,29 +52,29 @@ class Apollo_Widget_Sticker extends Apollo_Widget_Base {
 	 * Settings
 	 */
 	public function get_settings() {
-		return array(
+		return [
 			'stickerId' => $this->field(
 				'select',
 				__( 'Sticker', 'apollo-social' ),
 				'',
-				array(
-					'options' => array(),
+				[
+					'options' => [],
 					// Populated dynamically from apollo_builder_stickers option
 															'dynamic' => true,
-				)
+				]
 			),
 			'rotation'  => $this->field(
 				'slider',
 				__( 'Rotation', 'apollo-social' ),
 				0,
-				array(
+				[
 					'min'  => -180,
 					'max'  => 180,
 					'unit' => '°',
-				)
+				]
 			),
 			'flip'      => $this->field( 'switch', __( 'Flip Horizontal', 'apollo-social' ), false ),
-		);
+		];
 	}
 
 	/**
@@ -83,7 +83,7 @@ class Apollo_Widget_Sticker extends Apollo_Widget_Base {
 	 * Data source: apollo_builder_stickers option (admin managed)
 	 */
 	public function render( $data ) {
-		$settings = $data['settings'] ?? array();
+		$settings = $data['settings'] ?? [];
 
 		$sticker_id = sanitize_key( $settings['stickerId'] ?? '' );
 		$rotation   = intval( $settings['rotation'] ?? 0 );
@@ -96,7 +96,7 @@ class Apollo_Widget_Sticker extends Apollo_Widget_Base {
 		}
 
 		// Get sticker from library
-		$stickers     = get_option( 'apollo_builder_stickers', array() );
+		$stickers     = get_option( 'apollo_builder_stickers', [] );
 		$sticker_data = null;
 
 		foreach ( $stickers as $s ) {
@@ -116,7 +116,7 @@ class Apollo_Widget_Sticker extends Apollo_Widget_Base {
 		$label     = $sticker_data['label'] ?? '';
 
 		// Build transform
-		$transform = array();
+		$transform = [];
 		if ( $rotation ) {
 			$transform[] = 'rotate(' . $rotation . 'deg)';
 		}

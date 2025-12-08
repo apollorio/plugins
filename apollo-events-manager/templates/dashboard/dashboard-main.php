@@ -17,7 +17,7 @@ if ( ! is_user_logged_in() ) {
 }
 
 // Include layout and components
-$template_dir = APOLLO_WPEM_PATH . 'templates/dashboard/';
+$template_dir = APOLLO_APRIO_PATH . 'templates/dashboard/';
 require_once $template_dir . 'dashboard-layout.php';
 require_once $template_dir . 'components.php';
 

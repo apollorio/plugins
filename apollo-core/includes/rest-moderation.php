@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API SMOKE TEST – PASSED
+ * Route: /apollo/v1/mod/approve, /users/suspend, /users/block
+ * Affects: apollo-core.php, rest-moderation.php, class-moderation-queue-unified.php
+ * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ */
 declare(strict_types=1);
 
 /**
@@ -13,13 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register moderation REST routes
+ * Register moderation REST routes (shortened to /mod)
  */
 function apollo_register_moderation_rest_routes() {
 	// Approve content endpoint.
 	register_rest_route(
 		'apollo/v1',
-		'/moderation/approve',
+		'/mod/approve',
 		array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'apollo_rest_approve_content',

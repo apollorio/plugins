@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$favorites_file = __DIR__ . '/favorites/wpem-bookmarks.php';
+$favorites_file = __DIR__ . '/favorites/aprio-bookmarks.php';
 
 if ( file_exists( $favorites_file ) ) {
 	require_once $favorites_file;

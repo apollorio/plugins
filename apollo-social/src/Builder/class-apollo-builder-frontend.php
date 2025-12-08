@@ -23,20 +23,20 @@ class Apollo_Builder_Frontend {
 	 */
 	public static function init() {
 		// Query vars for edit mode
-		add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
+		add_filter( 'query_vars', [ __CLASS__, 'add_query_vars' ] );
 
 		// Template loading
-		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
-		add_filter( 'template_include', array( __CLASS__, 'template_include' ) );
+		add_action( 'template_redirect', [ __CLASS__, 'template_redirect' ] );
+		add_filter( 'template_include', [ __CLASS__, 'template_include' ] );
 
 		// Enqueue assets
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 
 		// Render layout in content
-		add_filter( 'the_content', array( __CLASS__, 'render_home_content' ), 20 );
+		add_filter( 'the_content', [ __CLASS__, 'render_home_content' ], 20 );
 
 		// Body class
-		add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
+		add_filter( 'body_class', [ __CLASS__, 'body_class' ] );
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Apollo_Builder_Frontend {
 				wp_die(
 					__( 'You do not have permission to access the builder.', 'apollo-social' ),
 					__( 'Access Denied', 'apollo-social' ),
-					array( 'response' => 403 )
+					[ 'response' => 403 ]
 				);
 			}
 
@@ -77,7 +77,7 @@ class Apollo_Builder_Frontend {
 				wp_die(
 					__( 'You can only edit your own home.', 'apollo-social' ),
 					__( 'Access Denied', 'apollo-social' ),
-					array( 'response' => 403 )
+					[ 'response' => 403 ]
 				);
 			}
 		}//end if
@@ -155,7 +155,7 @@ class Apollo_Builder_Frontend {
 		wp_enqueue_style(
 			'apollo-builder-css',
 			plugins_url( 'assets/css/apollo-builder.css', dirname( __DIR__ ) ),
-			array(),
+			[],
 			APOLLO_BUILDER_VERSION
 		);
 
@@ -163,7 +163,7 @@ class Apollo_Builder_Frontend {
 		wp_enqueue_script(
 			'apollo-builder-js',
 			plugins_url( 'assets/js/apollo-builder.js', dirname( __DIR__ ) ),
-			array( 'jquery' ),
+			[ 'jquery' ],
 			APOLLO_BUILDER_VERSION,
 			true
 		);
@@ -172,14 +172,14 @@ class Apollo_Builder_Frontend {
 		wp_localize_script(
 			'apollo-builder-js',
 			'apolloBuilderConfig',
-			array(
+			[
 				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
 				'restUrl'       => rest_url( 'apollo/v1/' ),
 				'nonce'         => wp_create_nonce( 'apollo-builder-nonce' ),
 				'homePostId'    => $post->ID,
 				'userId'        => $user_id,
 				'userName'      => $user ? $user->display_name : '',
-				'userAvatar'    => get_avatar_url( $user_id, array( 'size' => 80 ) ),
+				'userAvatar'    => get_avatar_url( $user_id, [ 'size' => 80 ] ),
 				'homeUrl'       => get_permalink( $post ),
 				'stickers'      => self::get_stickers_for_js(),
 				'textures'      => self::get_textures_for_js(),
@@ -189,7 +189,7 @@ class Apollo_Builder_Frontend {
 				'gridSize'      => 24,
 				'canvasWidth'   => 800,
 				'canvasHeight'  => 600,
-				'i18n'          => array(
+				'i18n'          => [
 					'save'           => __( 'Save', 'apollo-social' ),
 					'saved'          => __( 'Saved!', 'apollo-social' ),
 					'saving'         => __( 'Saving...', 'apollo-social' ),
@@ -201,8 +201,8 @@ class Apollo_Builder_Frontend {
 					'widgets'        => __( 'Widgets', 'apollo-social' ),
 					'backgrounds'    => __( 'Backgrounds', 'apollo-social' ),
 					'music'          => __( 'Music', 'apollo-social' ),
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -213,14 +213,14 @@ class Apollo_Builder_Frontend {
 		wp_enqueue_style(
 			'apollo-home-css',
 			plugins_url( 'assets/css/apollo-home.css', dirname( __DIR__ ) ),
-			array(),
+			[],
 			APOLLO_BUILDER_VERSION
 		);
 
 		wp_enqueue_script(
 			'apollo-home-js',
 			plugins_url( 'assets/js/apollo-home.js', dirname( __DIR__ ) ),
-			array( 'jquery' ),
+			[ 'jquery' ],
 			APOLLO_BUILDER_VERSION,
 			true
 		);
@@ -233,13 +233,13 @@ class Apollo_Builder_Frontend {
 		wp_localize_script(
 			'apollo-home-js',
 			'apolloHomeConfig',
-			array(
+			[
 				'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 				'nonce'      => wp_create_nonce( 'apollo-builder-nonce' ),
 				'postId'     => $post ? $post->ID : 0,
 				'canEdit'    => $post ? Apollo_Home_CPT::user_can_edit( $post->ID ) : false,
 				'builderUrl' => $builder_url,
-			)
+			]
 		);
 	}
 
@@ -247,19 +247,19 @@ class Apollo_Builder_Frontend {
 	 * Get stickers for JS
 	 */
 	private static function get_stickers_for_js() {
-		$stickers = get_option( 'apollo_builder_stickers', array() );
-		$output   = array();
+		$stickers = get_option( 'apollo_builder_stickers', [] );
+		$output   = [];
 
 		foreach ( $stickers as $s ) {
 			if ( empty( $s['id'] ) || empty( $s['image_id'] ) ) {
 				continue;
 			}
 
-			$output[] = array(
+			$output[] = [
 				'id'       => $s['id'],
 				'label'    => $s['label'] ?? '',
 				'imageUrl' => wp_get_attachment_image_url( $s['image_id'], 'medium' ),
-			);
+			];
 		}
 
 		return $output;
@@ -269,20 +269,20 @@ class Apollo_Builder_Frontend {
 	 * Get textures for JS
 	 */
 	private static function get_textures_for_js() {
-		$textures = get_option( 'apollo_builder_textures', array() );
-		$output   = array();
+		$textures = get_option( 'apollo_builder_textures', [] );
+		$output   = [];
 
 		foreach ( $textures as $t ) {
 			if ( empty( $t['id'] ) || empty( $t['image_id'] ) ) {
 				continue;
 			}
 
-			$output[] = array(
+			$output[] = [
 				'id'       => $t['id'],
 				'label'    => $t['label'] ?? '',
 				'imageUrl' => wp_get_attachment_image_url( $t['image_id'], 'large' ),
 				'thumbUrl' => wp_get_attachment_image_url( $t['image_id'], 'thumbnail' ),
-			);
+			];
 		}
 
 		return $output;
@@ -310,7 +310,7 @@ class Apollo_Builder_Frontend {
 		// Get background URL
 		$bg_url = '';
 		if ( $background ) {
-			$textures = get_option( 'apollo_builder_textures', array() );
+			$textures = get_option( 'apollo_builder_textures', [] );
 			foreach ( $textures as $t ) {
 				if ( isset( $t['id'] ) && $t['id'] === $background && ! empty( $t['image_id'] ) ) {
 					$bg_url = wp_get_attachment_image_url( $t['image_id'], 'full' );

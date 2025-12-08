@@ -42,14 +42,14 @@ abstract class BaseController {
 
 		// Mock user for development
 		return new User(
-			array(
+			[
 				'id'           => 1,
 				'login'        => 'testuser',
 				'email'        => 'test@example.com',
 				'display_name' => 'Test User',
-				'roles'        => array( 'subscriber' ),
-				'capabilities' => array(),
-			)
+				'roles'        => [ 'subscriber' ],
+				'capabilities' => [],
+			]
 		);
 	}
 
@@ -57,7 +57,7 @@ abstract class BaseController {
 	 * Sanitize input parameters
 	 */
 	protected function sanitizeParams( array $params ): array {
-		$sanitized = array();
+		$sanitized = [];
 
 		foreach ( $params as $key => $value ) {
 			if ( is_string( $value ) ) {
@@ -90,10 +90,10 @@ abstract class BaseController {
 	 * Send success response
 	 */
 	protected function success( $data = null, string $message = 'Success' ): void {
-		$response = array(
+		$response = [
 			'ok'      => true,
 			'message' => $message,
-		);
+		];
 
 		if ( $data !== null ) {
 			$response['data'] = $data;
@@ -106,11 +106,11 @@ abstract class BaseController {
 	 * Send error response
 	 */
 	protected function error( string $message, int $code = 400, $details = null ): void {
-		$response = array(
+		$response = [
 			'ok'    => false,
 			'error' => $message,
 			'code'  => $code,
-		);
+		];
 
 		if ( $details !== null ) {
 			$response['details'] = $details;

@@ -17,4 +17,4 @@ class Apollo_User_Page_SEO {
 		}
 	}
 }
-add_action( 'wp_head', array( 'Apollo_User_Page_SEO', 'add_meta' ) );
+add_action( 'wp_head', [ 'Apollo_User_Page_SEO', 'add_meta' ] );

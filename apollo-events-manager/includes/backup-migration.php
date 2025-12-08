@@ -86,7 +86,7 @@ class Apollo_Events_Backup_Migration {
 	 */
 	public static function backup_settings() {
 		$settings = array(
-			'version' => APOLLO_WPEM_VERSION,
+			'version' => APOLLO_APRIO_VERSION,
 			'options' => get_option( 'apollo_events_settings', array() ),
 		);
 

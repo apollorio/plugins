@@ -24,12 +24,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *     @type bool   $show_search  Show search input. Default true.
  * }
  */
-function apollo_render_site_header( array $args = array() ) {
-	$defaults = array(
-		'breadcrumbs' => array(),
+function apollo_render_site_header( array $args = [] ) {
+	$defaults = [
+		'breadcrumbs' => [],
 		'title'       => '',
 		'show_search' => true,
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	$header_classes = 'apollo-site-header flex h-[--header-height] shrink-0 items-center gap-2 border-b bg-background px-4 lg:px-6';

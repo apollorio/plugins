@@ -32,53 +32,53 @@ class UsersController extends BaseController {
 	 */
 	private function getUserData( string $identifier ): ?array {
 		// Mock users data
-		$users = array(
-			array(
+		$users = [
+			[
 				'id'           => 1,
 				'login'        => 'joao-silva',
 				'email'        => 'joao@example.com',
 				'display_name' => 'João Silva',
 				'bio'          => 'Desenvolvedor PHP experiente',
-				'groups'       => array(
-					array(
+				'groups'       => [
+					[
 						'id'    => 1,
 						'title' => 'Desenvolvedores PHP',
 						'type'  => 'comunidade',
-					),
-					array(
+					],
+					[
 						'id'    => 2,
 						'title' => 'Core Team',
 						'type'  => 'nucleo',
-					),
-				),
-				'unions'       => array(
-					array(
+					],
+				],
+				'unions'       => [
+					[
 						'id'    => 1,
 						'title' => 'União dos Desenvolvedores',
-					),
-				),
-			),
-			array(
+					],
+				],
+			],
+			[
 				'id'           => 2,
 				'login'        => 'maria-santos',
 				'email'        => 'maria@example.com',
 				'display_name' => 'Maria Santos',
 				'bio'          => 'Designer UX/UI',
-				'groups'       => array(
-					array(
+				'groups'       => [
+					[
 						'id'    => 1,
 						'title' => 'Desenvolvedores PHP',
 						'type'  => 'comunidade',
-					),
-				),
-				'unions'       => array(
-					array(
+					],
+				],
+				'unions'       => [
+					[
 						'id'    => 2,
 						'title' => 'União dos Designers',
-					),
-				),
-			),
-		);
+					],
+				],
+			],
+		];
 
 		// Find by ID or login
 		foreach ( $users as $user ) {

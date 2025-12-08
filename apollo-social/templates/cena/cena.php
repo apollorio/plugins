@@ -12,13 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$user           = $view['data']['user'] ?? array();
-$calendar       = $view['data']['calendar'] ?? array();
-$pending_events = $view['data']['pending_events'] ?? array();
-$event_plans    = $view['data']['event_plans'] ?? array();
+$user           = $view['data']['user'] ?? [];
+$calendar       = $view['data']['calendar'] ?? [];
+$pending_events = $view['data']['pending_events'] ?? [];
+$event_plans    = $view['data']['event_plans'] ?? [];
 
 $current_month  = $calendar['current_month'] ?? date( 'Y-m' );
-$events_by_date = $calendar['events'] ?? array();
+$events_by_date = $calendar['events'] ?? [];
 
 $ajax_url          = admin_url( 'admin-ajax.php' );
 $rest_url          = rest_url( 'apollo/v1' );

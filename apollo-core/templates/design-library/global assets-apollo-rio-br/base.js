@@ -45,7 +45,7 @@ function loadScript(url) {
 }
 
 const scripts = [
- // 'https://assets.apollo.rio.br/clock.js',
+  // 'https://assets.apollo.rio.br/clock.js',
   'https://assets.apollo.rio.br/script.js'
 ];
 
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const baseTypeSpeed = 195, typeVariation = 110, eraseSpeed = 90, pauseTime = 3200, cursorBlinkSpeed = 530;
 
     const cursor = "|";
-    const thin  = "\u200A"; // espaço fino invisível
+    const thin = "\u200A"; // espaço fino invisível
     const setPH = (text, showCursor) => input.placeholder = text + (showCursor ? cursor : thin);
 
     let blinkOn = true;
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // === TOGGLE LAYOUT (com animação sutil) ===
-  window.toggleLayout = function(el) {
+  window.toggleLayout = function (el) {
     if (!el) return;
     const listings = document.querySelector('.event_listings');
     if (!listings) return;
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
       : '<i class="ri-list-check-2"></i><span class="visually-hidden">Lista</span>';
 
     listings.classList.toggle('list-view', !isList);
-    el.classList.toggle('wpem-active-layout', true);
+    el.classList.toggle('aprio-active-layout', true);
 
     // Animação suave no ícone
     el.style.transform = 'scale(0.9)';
@@ -174,11 +174,11 @@ document.addEventListener("DOMContentLoaded", function () {
   let activeCategory = 'all';
   let searchQuery = '';
   let displayDate = new Date();
-  displayDate.setHours(0,0,0,0);
+  displayDate.setHours(0, 0, 0, 0);
   displayDate.setDate(1); // primeiro dia do mês
 
-  const monthShortNames = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  const monthMap = { jan:0, fev:1, mar:2, abr:3, mai:4, jun:5, jul:6, ago:7, set:8, out:9, nov:10, dez:11 };
+  const monthShortNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const monthMap = { jan: 0, fev: 1, mar: 2, abr: 3, mai: 4, jun: 5, jul: 6, ago: 7, set: 8, out: 9, nov: 10, dez: 11 };
 
   // === DARK MODE ===
   if (darkModeToggle) {
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // === FADE DO "All/Todo/Tutto..." ===
   const xxall = document.getElementById('xxall');
   if (xxall) {
-    const words = ['All','Todo','Tutto','Alle','Todos','Tous'];
+    const words = ['All', 'Todo', 'Tutto', 'Alle', 'Todos', 'Tous'];
     let i = 0;
     xxall.textContent = words[0];
 
@@ -331,13 +331,13 @@ document.addEventListener("DOMContentLoaded", function () {
       // Check if already exists
       const existing = Array.from(container.children).find(c => c.dataset.value === value);
       if (existing) return;
-      
+
       const chip = document.createElement('div');
       chip.className = 'ap-chip active';
       chip.dataset.value = value;
       chip.innerHTML = `${value} <span class="ap-chip-remove" onclick="apolloChips.remove(this)">×</span>`;
       container.appendChild(chip);
-      
+
       if (typeof onRemove === 'function') {
         chip.querySelector('.ap-chip-remove').addEventListener('click', () => onRemove(value));
       }
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
     preview(input, previewImg, placeholder) {
       const file = input.files?.[0];
       if (!file || !previewImg) return;
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         previewImg.src = reader.result;
@@ -361,12 +361,12 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       reader.readAsDataURL(file);
     },
-    
+
     gallery(input, index, prefix = 'gal') {
       const file = input.files?.[0];
       const img = document.getElementById(prefix + index);
       if (!file || !img) return;
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         img.src = reader.result;
@@ -383,14 +383,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const selection = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
       const before = textarea.value.substring(0, textarea.selectionStart);
       const after = textarea.value.substring(textarea.selectionEnd);
-      
+
       let formatted = selection;
-      switch(cmd) {
+      switch (cmd) {
         case 'bold': formatted = `**${selection}**`; break;
         case 'italic': formatted = `_${selection}_`; break;
         case 'bullet': formatted = `\n• ${selection}`; break;
       }
-      
+
       textarea.value = before + formatted + after;
       textarea.focus();
     }
@@ -418,20 +418,20 @@ document.addEventListener("DOMContentLoaded", function () {
   window.apolloSlider = {
     init(slider, fill, bubble, formatValue) {
       if (!slider) return;
-      
+
       const update = () => {
         const min = parseFloat(slider.min) || 0;
         const max = parseFloat(slider.max) || 100;
         const val = parseFloat(slider.value);
         const pct = ((val - min) / (max - min)) * 100;
-        
+
         if (fill) fill.style.width = pct + '%';
         if (bubble) {
           bubble.style.left = pct + '%';
           bubble.textContent = typeof formatValue === 'function' ? formatValue(val) : val;
         }
       };
-      
+
       slider.addEventListener('input', update);
       update(); // Initialize
     }
@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Creates floating tooltips on hover for elements with data-ap-tooltip attribute
   (function initTooltips() {
     let tooltip = null;
-    
+
     // Create tooltip element
     const createTooltip = () => {
       if (tooltip) return tooltip;
@@ -468,15 +468,15 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.appendChild(tooltip);
       return tooltip;
     };
-    
+
     // Position tooltip near element
     const positionTooltip = (el, tip) => {
       const rect = el.getBoundingClientRect();
       const tipRect = tip.getBoundingClientRect();
-      
+
       let top = rect.top - tipRect.height - 8;
       let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
-      
+
       // Adjust if off-screen
       if (top < 8) {
         top = rect.bottom + 8; // Show below instead
@@ -485,22 +485,22 @@ document.addEventListener("DOMContentLoaded", function () {
       if (left + tipRect.width > window.innerWidth - 8) {
         left = window.innerWidth - tipRect.width - 8;
       }
-      
+
       tip.style.top = top + 'px';
       tip.style.left = left + 'px';
     };
-    
+
     // Event delegation for tooltips
     document.addEventListener('mouseenter', (e) => {
       const el = e.target.closest('[data-ap-tooltip]');
       if (!el) return;
-      
+
       const text = el.getAttribute('data-ap-tooltip');
       if (!text) return;
-      
+
       const tip = createTooltip();
       tip.textContent = text;
-      
+
       // Show tooltip after brief delay
       requestAnimationFrame(() => {
         positionTooltip(el, tip);
@@ -508,15 +508,15 @@ document.addEventListener("DOMContentLoaded", function () {
         tip.style.transform = 'translateY(0)';
       });
     }, true);
-    
+
     document.addEventListener('mouseleave', (e) => {
       const el = e.target.closest('[data-ap-tooltip]');
       if (!el || !tooltip) return;
-      
+
       tooltip.style.opacity = '0';
       tooltip.style.transform = 'translateY(4px)';
     }, true);
-    
+
     // Hide on scroll
     document.addEventListener('scroll', () => {
       if (tooltip) {
@@ -527,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // === 12. DATA ATTRIBUTE HANDLERS ===
   // Generic handlers for common data-ap-* attributes
-  
+
   // Toggle elements
   document.querySelectorAll('[data-ap-toggle]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -540,7 +540,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
-  
+
   // Modal triggers
   document.querySelectorAll('[data-ap-modal-target]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -548,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
       apolloModal.open(modalId);
     });
   });
-  
+
   // Modal close buttons
   document.querySelectorAll('[data-ap-modal-close]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -567,46 +567,46 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   window.apolloDashboard = {
     // Tab Navigation
-    initTabs: function(container = document) {
+    initTabs: function (container = document) {
       const tabBtns = container.querySelectorAll('.ap-tab-btn');
       const tabContents = container.querySelectorAll('.ap-tab-content');
-      
+
       tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           const tabId = btn.dataset.tab;
-          
+
           // Update active states
           tabBtns.forEach(b => b.classList.remove('active'));
           tabContents.forEach(c => c.classList.remove('active'));
-          
+
           btn.classList.add('active');
           const targetTab = container.querySelector(`#${tabId}`);
           if (targetTab) targetTab.classList.add('active');
-          
+
           // Dispatch custom event
-          container.dispatchEvent(new CustomEvent('ap-tab-change', { 
-            detail: { tabId, button: btn } 
+          container.dispatchEvent(new CustomEvent('ap-tab-change', {
+            detail: { tabId, button: btn }
           }));
         });
       });
     },
 
     // Mobile Sidebar Toggle
-    initSidebar: function() {
+    initSidebar: function () {
       const toggle = document.getElementById('mobileSidebarToggle');
       const sidebar = document.querySelector('.ap-dash-sidebar');
-      
+
       if (toggle && sidebar) {
         toggle.addEventListener('click', () => {
           sidebar.classList.toggle('open');
           toggle.setAttribute('aria-expanded', sidebar.classList.contains('open'));
         });
-        
+
         // Close on outside click
         document.addEventListener('click', (e) => {
-          if (sidebar.classList.contains('open') && 
-              !sidebar.contains(e.target) && 
-              !toggle.contains(e.target)) {
+          if (sidebar.classList.contains('open') &&
+            !sidebar.contains(e.target) &&
+            !toggle.contains(e.target)) {
             sidebar.classList.remove('open');
             toggle.setAttribute('aria-expanded', 'false');
           }
@@ -615,29 +615,29 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Kanban Drag & Drop
-    initKanban: function(container = document) {
+    initKanban: function (container = document) {
       const taskCards = container.querySelectorAll('.ap-task-card[draggable="true"]');
       const kanbanColumns = container.querySelectorAll('.ap-kanban-tasks');
-      
+
       taskCards.forEach(card => {
         card.addEventListener('dragstart', (e) => {
           card.classList.add('dragging');
           e.dataTransfer.setData('text/plain', card.dataset.taskId);
           e.dataTransfer.effectAllowed = 'move';
         });
-        
+
         card.addEventListener('dragend', () => {
           card.classList.remove('dragging');
           kanbanColumns.forEach(col => col.classList.remove('drag-over'));
         });
       });
-      
+
       kanbanColumns.forEach(column => {
         column.addEventListener('dragover', (e) => {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           column.classList.add('drag-over');
-          
+
           // Find position to insert
           const afterElement = getDragAfterElement(column, e.clientY);
           const dragging = container.querySelector('.dragging');
@@ -647,35 +647,35 @@ document.addEventListener("DOMContentLoaded", function () {
             column.appendChild(dragging);
           }
         });
-        
+
         column.addEventListener('dragleave', (e) => {
           if (!column.contains(e.relatedTarget)) {
             column.classList.remove('drag-over');
           }
         });
-        
+
         column.addEventListener('drop', (e) => {
           e.preventDefault();
           column.classList.remove('drag-over');
-          
+
           const taskId = e.dataTransfer.getData('text/plain');
           const newStatus = column.dataset.column || column.closest('.ap-kanban-column')?.dataset.column;
-          
+
           // Dispatch custom event for AJAX handling
           container.dispatchEvent(new CustomEvent('ap-task-moved', {
             detail: { taskId, newStatus, column }
           }));
         });
       });
-      
+
       // Helper function to find element after cursor
       function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.ap-task-card:not(.dragging)')];
-        
+
         return draggableElements.reduce((closest, child) => {
           const box = child.getBoundingClientRect();
           const offset = y - box.top - box.height / 2;
-          
+
           if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
           } else {
@@ -686,89 +686,89 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Stats Animation (count up effect)
-    animateStats: function(container = document) {
+    animateStats: function (container = document) {
       const statValues = container.querySelectorAll('.ap-stat-value');
-      
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const el = entry.target;
             const finalValue = el.textContent;
             const isNumeric = /^[\d,.%R$]+$/.test(finalValue.trim());
-            
+
             if (isNumeric) {
               const numericPart = parseFloat(finalValue.replace(/[^\d.]/g, ''));
               const prefix = finalValue.match(/^[^\d]*/)?.[0] || '';
               const suffix = finalValue.match(/[^\d]*$/)?.[0] || '';
-              
+
               let current = 0;
               const duration = 1000;
               const start = performance.now();
-              
+
               const animate = (now) => {
                 const progress = Math.min((now - start) / duration, 1);
                 current = Math.floor(numericPart * easeOutQuart(progress));
-                
+
                 el.textContent = prefix + current.toLocaleString('pt-BR') + suffix;
-                
+
                 if (progress < 1) {
                   requestAnimationFrame(animate);
                 } else {
                   el.textContent = finalValue; // Ensure final value is exact
                 }
               };
-              
+
               requestAnimationFrame(animate);
             }
-            
+
             observer.unobserve(el);
           }
         });
       }, { threshold: 0.5 });
-      
+
       statValues.forEach(el => observer.observe(el));
-      
+
       function easeOutQuart(x) {
         return 1 - Math.pow(1 - x, 4);
       }
     },
 
     // Progress Bar Animation
-    animateProgressBars: function(container = document) {
+    animateProgressBars: function (container = document) {
       const progressBars = container.querySelectorAll('.ap-progress-value');
-      
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const el = entry.target;
             const width = el.style.width;
             el.style.width = '0%';
-            
+
             requestAnimationFrame(() => {
               el.style.transition = 'width 0.8s ease-out';
               el.style.width = width;
             });
-            
+
             observer.unobserve(el);
           }
         });
       }, { threshold: 0.2 });
-      
+
       progressBars.forEach(el => observer.observe(el));
     },
 
     // Initialize all dashboard features
-    init: function(container = document) {
+    init: function (container = document) {
       this.initTabs(container);
       this.initSidebar();
       this.initKanban(container);
       this.animateStats(container);
       this.animateProgressBars(container);
-      
+
       console.log('[Apollo Dashboard] Initialized');
     }
   };
-  
+
   // Auto-init if dashboard elements exist
   if (document.querySelector('.ap-dashboard')) {
     apolloDashboard.init();
@@ -776,20 +776,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // === 14. GANTT CHART UTILITIES ===
   window.apolloGantt = {
-    init: function(container) {
+    init: function (container) {
       const toggles = container.querySelectorAll('.ap-gantt-toggle');
-      
+
       toggles.forEach(toggle => {
         toggle.addEventListener('click', () => {
           const project = toggle.closest('.ap-gantt-project');
           const tasks = project?.querySelector('.ap-gantt-tasks');
-          
+
           if (tasks) {
             tasks.classList.toggle('collapsed');
             const icon = toggle.querySelector('i');
             if (icon) {
-              icon.className = tasks.classList.contains('collapsed') 
-                ? 'ri-arrow-right-s-line' 
+              icon.className = tasks.classList.contains('collapsed')
+                ? 'ri-arrow-right-s-line'
                 : 'ri-arrow-down-s-line';
             }
           }
@@ -806,24 +806,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // === 15. CHAT UTILITIES ===
   window.apolloChat = {
-    autoResize: function(textarea) {
+    autoResize: function (textarea) {
       textarea.style.height = 'auto';
       textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
     },
-    
-    init: function(container) {
+
+    init: function (container) {
       const textareas = container.querySelectorAll('.ap-chat-input-wrapper textarea');
-      
+
       textareas.forEach(textarea => {
         textarea.addEventListener('input', () => this.autoResize(textarea));
-        
+
         // Send on Enter (without Shift)
         textarea.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             const form = textarea.closest('form');
             const submitBtn = container.querySelector('.ap-chat-input .ap-btn-primary');
-            
+
             if (form) form.submit();
             else if (submitBtn) submitBtn.click();
           }
@@ -871,15 +871,15 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Apply Apollo theme to Chart.js
-    configureChartDefaults: function() {
+    configureChartDefaults: function () {
       if (typeof Chart === 'undefined') return;
-      
+
       Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
       Chart.defaults.font.size = 11;
       Chart.defaults.color = '#64748b';
       Chart.defaults.plugins.legend.labels.boxWidth = 12;
       Chart.defaults.plugins.legend.labels.padding = 8;
-      
+
       // Check dark mode
       if (document.body.classList.contains('dark-mode')) {
         Chart.defaults.color = '#94a3b8';
@@ -887,19 +887,19 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Initialize filter pills
-    initFilterPills: function(container, onFilter) {
+    initFilterPills: function (container, onFilter) {
       const pills = container.querySelectorAll('.ap-tab-pill');
-      
+
       pills.forEach(pill => {
         pill.addEventListener('click', () => {
           pills.forEach(p => p.classList.remove('active'));
           pill.classList.add('active');
-          
+
           const filterValue = pill.dataset.filter;
           if (typeof onFilter === 'function') {
             onFilter(filterValue, pill);
           }
-          
+
           container.dispatchEvent(new CustomEvent('ap-filter-change', {
             detail: { filter: filterValue, element: pill }
           }));
@@ -908,30 +908,30 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Animate mini stat values
-    animateMiniStats: function(container = document) {
+    animateMiniStats: function (container = document) {
       const statValues = container.querySelectorAll('.ap-stat-mini-value');
-      
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const el = entry.target;
             const finalValue = el.textContent;
             const numericMatch = finalValue.match(/[\d,.]+/);
-            
+
             if (numericMatch) {
               const numericPart = parseFloat(numericMatch[0].replace(',', '.'));
               const prefix = finalValue.substring(0, finalValue.indexOf(numericMatch[0]));
               const suffix = finalValue.substring(finalValue.indexOf(numericMatch[0]) + numericMatch[0].length);
-              
+
               let current = 0;
               const duration = 800;
               const start = performance.now();
-              
+
               const animate = (now) => {
                 const progress = Math.min((now - start) / duration, 1);
                 const eased = 1 - Math.pow(1 - progress, 3);
                 current = numericPart * eased;
-                
+
                 // Format number
                 let formatted;
                 if (numericPart % 1 !== 0) {
@@ -939,42 +939,42 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                   formatted = Math.floor(current).toString();
                 }
-                
+
                 el.textContent = prefix + formatted + suffix;
-                
+
                 if (progress < 1) {
                   requestAnimationFrame(animate);
                 } else {
                   el.textContent = finalValue;
                 }
               };
-              
+
               requestAnimationFrame(animate);
             }
-            
+
             observer.unobserve(el);
           }
         });
       }, { threshold: 0.3 });
-      
+
       statValues.forEach(el => observer.observe(el));
     },
 
     // Export data to CSV
-    exportToCSV: function(data, filename = 'apollo-export') {
+    exportToCSV: function (data, filename = 'apollo-export') {
       if (!data || !data.length) return;
-      
+
       const headers = Object.keys(data[0]);
       const csvContent = [
         headers.join(','),
         ...data.map(row => headers.map(h => {
           const val = row[h];
-          return typeof val === 'string' && val.includes(',') 
-            ? `"${val}"` 
+          return typeof val === 'string' && val.includes(',')
+            ? `"${val}"`
             : val;
         }).join(','))
       ].join('\n');
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -983,20 +983,20 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Initialize all statistics features
-    init: function(container = document) {
+    init: function (container = document) {
       this.configureChartDefaults();
       this.animateMiniStats(container);
-      
+
       // Auto-init filter pills
       const filterContainer = container.querySelector('.ap-grid-filters');
       if (filterContainer) {
         this.initFilterPills(filterContainer);
       }
-      
+
       console.log('[Apollo Statistics] Initialized');
     }
   };
-  
+
   // Auto-init if statistics elements exist
   if (document.querySelector('.ap-stats-dashboard')) {
     apolloStats.init();
@@ -1012,19 +1012,19 @@ document.addEventListener("DOMContentLoaded", function () {
     currency: {
       rate: 5.80, // Default USD to BRL fallback rate
       lastUpdate: null,
-      
+
       // Fetch current exchange rate from API
       async fetchRate() {
         const apis = [
           'https://api.exchangerate.host/latest?base=USD&symbols=BRL',
           'https://api.frankfurter.app/latest?from=USD&to=BRL'
         ];
-        
+
         for (const url of apis) {
           try {
             const res = await fetch(url, { cache: 'no-store' });
             const data = await res.json();
-            
+
             if (data.rates?.BRL) {
               this.rate = data.rates.BRL;
               this.lastUpdate = new Date();
@@ -1032,21 +1032,21 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           } catch (e) { continue; }
         }
-        
+
         console.warn('[Apollo Currency] Using fallback rate:', this.rate);
         return this.rate;
       },
-      
+
       // Convert USD to BRL
       usdToBrl(usd) {
         return (usd * this.rate).toFixed(2);
       },
-      
+
       // Convert BRL to USD
       brlToUsd(brl) {
         return (brl / this.rate).toFixed(2);
       },
-      
+
       // Format currency for display
       format(value, currency = 'BRL') {
         return new Intl.NumberFormat('pt-BR', {
@@ -1057,30 +1057,30 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Initialize currency widget
-    initCurrencyWidget: function(container = document) {
+    initCurrencyWidget: function (container = document) {
       const toggle = container.querySelector('#currencyToggle, .ap-currency-toggle');
       const panel = container.querySelector('#currencyPanel, .ap-currency-panel');
       const closeBtn = container.querySelector('#currencyClose, .ap-currency-close');
       const swapBtn = container.querySelector('#currencySwap, .ap-currency-swap');
       const inputUSD = container.querySelector('#inputUSD');
       const inputBRL = container.querySelector('#inputBRL');
-      
+
       if (toggle && panel) {
         toggle.addEventListener('click', () => panel.classList.toggle('open'));
         closeBtn?.addEventListener('click', () => panel.classList.remove('open'));
       }
-      
+
       if (inputUSD && inputBRL) {
         inputUSD.addEventListener('input', () => {
           const usd = parseFloat(inputUSD.value) || 0;
           inputBRL.value = this.currency.usdToBrl(usd);
         });
-        
+
         inputBRL.addEventListener('input', () => {
           const brl = parseFloat(inputBRL.value) || 0;
           inputUSD.value = this.currency.brlToUsd(brl);
         });
-        
+
         swapBtn?.addEventListener('click', () => {
           const temp = inputUSD.value;
           inputUSD.value = inputBRL.value;
@@ -1090,27 +1090,27 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Initialize advert filtering
-    initAdvertFilters: function(container = document) {
+    initAdvertFilters: function (container = document) {
       const filterPills = container.querySelectorAll('.ap-filter-tabs .ap-tab-pill');
       const advertCards = container.querySelectorAll('.ap-advert-card');
       const searchInput = container.querySelector('#advertSearch');
       const sortSelect = container.querySelector('#advertSort');
-      
+
       let currentFilter = 'all';
       let currentSearch = '';
-      
+
       const filterAdverts = () => {
         advertCards.forEach(card => {
           const category = card.dataset.category;
           const text = card.textContent.toLowerCase();
-          
+
           const matchesFilter = currentFilter === 'all' || category === currentFilter;
           const matchesSearch = !currentSearch || text.includes(currentSearch.toLowerCase());
-          
+
           card.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
         });
       };
-      
+
       filterPills.forEach(pill => {
         pill.addEventListener('click', () => {
           filterPills.forEach(p => p.classList.remove('active'));
@@ -1119,43 +1119,43 @@ document.addEventListener("DOMContentLoaded", function () {
           filterAdverts();
         });
       });
-      
+
       searchInput?.addEventListener('input', (e) => {
         currentSearch = e.target.value;
         filterAdverts();
       });
-      
+
       sortSelect?.addEventListener('change', () => {
         const grid = container.querySelector('.ap-adverts-grid');
         if (!grid) return;
-        
+
         const cards = [...grid.querySelectorAll('.ap-advert-card')];
-        
+
         cards.sort((a, b) => {
           const priceA = parseInt(a.dataset.price) || 0;
           const priceB = parseInt(b.dataset.price) || 0;
-          
+
           switch (sortSelect.value) {
             case 'price-low': return priceA - priceB;
             case 'price-high': return priceB - priceA;
             default: return 0;
           }
         });
-        
+
         cards.forEach(card => grid.appendChild(card));
       });
     },
 
     // Initialize view toggle (grid/list)
-    initViewToggle: function(container = document) {
+    initViewToggle: function (container = document) {
       const viewButtons = container.querySelectorAll('[data-view]');
       const advertsGrid = container.querySelector('.ap-adverts-grid');
-      
+
       viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           viewButtons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          
+
           const view = btn.dataset.view;
           advertsGrid?.classList.toggle('ap-adverts-list', view === 'list');
         });
@@ -1163,31 +1163,31 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Initialize all classifieds features
-    init: async function(container = document) {
+    init: async function (container = document) {
       // Fetch exchange rate
       await this.currency.fetchRate();
-      
+
       // Initialize widgets
       this.initCurrencyWidget(container);
       this.initAdvertFilters(container);
       this.initViewToggle(container);
-      
+
       // Update currency display
       const usdEl = container.querySelector('#usdValue');
       const brlEl = container.querySelector('#brlValue');
       if (usdEl) usdEl.textContent = '1.00';
       if (brlEl) brlEl.textContent = this.currency.rate.toFixed(2);
-      
+
       // Auto-update rate every 5 minutes
       setInterval(async () => {
         await this.currency.fetchRate();
         if (brlEl) brlEl.textContent = this.currency.rate.toFixed(2);
       }, 300000);
-      
+
       console.log('[Apollo Classifieds] Initialized');
     }
   };
-  
+
   // Auto-init if classifieds elements exist
   if (document.querySelector('.ap-classifieds')) {
     apolloClassifieds.init();

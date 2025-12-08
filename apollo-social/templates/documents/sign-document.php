@@ -27,7 +27,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -35,7 +35,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -43,7 +43,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -91,7 +91,7 @@ $token_raw = get_query_var( 'signature_token' );
 $token     = ! empty( $token_raw ) ? $token_raw : ( isset( $args['token'] ) ? $args['token'] : '' );
 
 if ( empty( $token ) ) {
-	wp_die( 'Token inválido', 'Erro', array( 'response' => 400 ) );
+	wp_die( 'Token inválido', 'Erro', [ 'response' => 400 ] );
 }
 
 $doc_manager = new DocumentsManager();
@@ -113,7 +113,7 @@ $signature = $wpdb->get_row(
 );
 
 if ( ! $signature ) {
-	wp_die( 'Link de assinatura inválido ou expirado', 'Erro', array( 'response' => 404 ) );
+	wp_die( 'Link de assinatura inválido ou expirado', 'Erro', [ 'response' => 404 ] );
 }
 
 // Verificar se já foi assinado.
@@ -139,7 +139,7 @@ foreach ( $all_signers as $s ) {
 
 // Current user info - avoid overriding WP globals.
 $user_obj        = wp_get_current_user();
-$user_avatar     = get_avatar_url( $user_obj->ID, array( 'size' => 80 ) );
+$user_avatar     = get_avatar_url( $user_obj->ID, [ 'size' => 80 ] );
 $user_name_raw   = $user_obj->display_name;
 $user_name       = ! empty( $user_name_raw ) ? $user_name_raw : 'Visitante';
 $user_handle_raw = $user_obj->user_login;

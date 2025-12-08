@@ -17,10 +17,10 @@ class UserPageAutoCreate {
 
 	public function register() {
 		// Hook into user registration
-		add_action( 'user_register', array( $this, 'createUserPage' ), 10, 1 );
+		add_action( 'user_register', [ $this, 'createUserPage' ], 10, 1 );
 
 		// Also hook into registration completion
-		add_action( 'apollo_user_registered', array( $this, 'createUserPage' ), 10, 1 );
+		add_action( 'apollo_user_registered', [ $this, 'createUserPage' ], 10, 1 );
 	}
 
 	/**
@@ -54,14 +54,14 @@ class UserPageAutoCreate {
 			}
 
 			$page_id = wp_insert_post(
-				array(
+				[
 					'post_type'      => 'user_page',
 					'post_title'     => $user->display_name . ' - Perfil',
 					'post_status'    => 'publish',
 					'post_author'    => $user_id,
 					'comment_status' => 'open',
 				// P0-8: Enable comments for depoimentos
-				)
+				]
 			);
 
 			if ( is_wp_error( $page_id ) || ! $page_id ) {
@@ -94,10 +94,10 @@ class UserPageAutoCreate {
 
 		// P0-8: Enable comments for depoimentos (moderation required)
 		wp_update_post(
-			array(
+			[
 				'ID'             => $page_id,
 				'comment_status' => 'open',
-			)
+			]
 		);
 
 		// P0-8: Set comment moderation
@@ -119,88 +119,88 @@ class UserPageAutoCreate {
 			return;
 		}
 
-		$default_widgets = array(
-			array(
+		$default_widgets = [
+			[
 				'id'       => 'widget-profile-header',
 				'type'     => 'profile-header',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 0,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 12,
 					'h' => 3,
-				),
-				'config'   => array(
+				],
+				'config'   => [
 					'display_name' => $user->display_name,
 					'avatar'       => get_avatar_url( $user_id ),
-				),
-			),
-			array(
+				],
+			],
+			[
 				'id'       => 'widget-bio',
 				'type'     => 'bio',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 3,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 8,
 					'h' => 4,
-				),
-				'config'   => array(
+				],
+				'config'   => [
 					'bio' => get_user_meta( $user_id, 'description', true ) ?: '',
-				),
-			),
-			array(
+				],
+			],
+			[
 				'id'       => 'widget-stats',
 				'type'     => 'stats',
-				'position' => array(
+				'position' => [
 					'x' => 8,
 					'y' => 3,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 4,
 					'h' => 4,
-				),
-				'config'   => array(),
-			),
-			array(
+				],
+				'config'   => [],
+			],
+			[
 				'id'       => 'widget-playlist',
 				'type'     => 'playlist',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 7,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 6,
 					'h' => 6,
-				),
-				'config'   => array(
+				],
+				'config'   => [
 					'title'          => 'Playlist',
 					'spotify_url'    => '',
 					'soundcloud_url' => '',
-				),
-			),
-			array(
+				],
+			],
+			[
 				'id'       => 'widget-depoimentos',
 				'type'     => 'depoimentos',
-				'position' => array(
+				'position' => [
 					'x' => 6,
 					'y' => 7,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 6,
 					'h' => 6,
-				),
-				'config'   => array(
+				],
+				'config'   => [
 					'title'          => 'Depoimentos',
 					'allow_comments' => true,
 					'max_comments'   => 50,
 					'moderation'     => true,
 			// P0-8: Require moderation
-				),
-			),
-		);
+				],
+			],
+		];
 
 		// P0-8: Save widgets with version tracking
 		update_post_meta( $page_id, '_apollo_widgets', $default_widgets );

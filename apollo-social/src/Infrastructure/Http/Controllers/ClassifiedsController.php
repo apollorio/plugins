@@ -32,7 +32,7 @@ class ClassifiedsController extends BaseController {
 
 		// Apply view permissions
 		$user         = $this->getCurrentUser();
-		$filtered_ads = array();
+		$filtered_ads = [];
 
 		foreach ( $classifieds as $ad_data ) {
 			$ad = new AdEntity( $ad_data );
@@ -91,7 +91,7 @@ class ClassifiedsController extends BaseController {
 		$params = $this->bindSeason->apply( $params, $contextGroup );
 
 		// Create classified (mock implementation)
-		$ad_data = array(
+		$ad_data = [
 			'id'          => rand( 1000, 9999 ),
 			'title'       => $params['title'],
 			'slug'        => $this->sanitizeTitle( $params['title'] ),
@@ -103,7 +103,7 @@ class ClassifiedsController extends BaseController {
 			'author_id'   => $user->id,
 			'status'      => 'active',
 			'created_at'  => date( 'Y-m-d H:i:s' ),
-		);
+		];
 
 		$this->success( $ad_data, 'Classified created successfully' );
 	}
@@ -119,8 +119,8 @@ class ClassifiedsController extends BaseController {
 	 * Get classifieds data (mock implementation)
 	 */
 	private function getClassifiedsData( string $season = '', string $search = '' ): array {
-		$ads = array(
-			array(
+		$ads = [
+			[
 				'id'          => 1,
 				'title'       => 'Casa para Venda',
 				'slug'        => 'casa-venda-centro',
@@ -130,8 +130,8 @@ class ClassifiedsController extends BaseController {
 				'season_slug' => 'verao-2025',
 				'author_id'   => 1,
 				'status'      => 'active',
-			),
-			array(
+			],
+			[
 				'id'          => 2,
 				'title'       => 'Carro Usado',
 				'slug'        => 'carro-usado-2020',
@@ -141,8 +141,8 @@ class ClassifiedsController extends BaseController {
 				'season_slug' => null,
 				'author_id'   => 2,
 				'status'      => 'active',
-			),
-		);
+			],
+		];
 
 		// Apply filters
 		if ( $season ) {
@@ -174,12 +174,12 @@ class ClassifiedsController extends BaseController {
 		// Mock group data
 		if ( $id === 3 ) {
 			return new GroupEntity(
-				array(
+				[
 					'id'          => 3,
 					'title'       => 'Verão 2025',
 					'type'        => 'season',
 					'season_slug' => 'verao-2025',
-				)
+				]
 			);
 		}
 

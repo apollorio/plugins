@@ -22,7 +22,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -30,7 +30,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -38,7 +38,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -55,7 +55,7 @@ $user_obj = wp_get_current_user();
 $user_id  = $user_obj->ID;
 
 // Get documents with proper sorting.
-$documents_args = array(
+$documents_args = [
 	'post_type'      => 'apollo_document',
 	'post_status'    => 'publish',
 	'posts_per_page' => 50,
@@ -63,7 +63,7 @@ $documents_args = array(
 	'order'          => 'DESC',
 	'author'         => $user_id,
 // User's own documents.
-);
+];
 
 // If admin or cena-rio role, show all documents.
 if ( current_user_can( 'manage_options' ) || in_array( 'cena-rio', (array) $user_obj->roles, true ) ) {
@@ -76,7 +76,7 @@ $documents = get_posts( $documents_args );
 $current_filter = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'all';
 
 // Filter documents by status.
-$filtered_documents = array();
+$filtered_documents = [];
 foreach ( $documents as $doc ) {
 	$status_raw = get_post_meta( $doc->ID, '_document_status', true );
 	$status     = ! empty( $status_raw ) ? $status_raw : 'draft';
@@ -87,13 +87,13 @@ foreach ( $documents as $doc ) {
 }
 
 // Count by status.
-$status_counts = array(
+$status_counts = [
 	'all'       => count( $documents ),
 	'draft'     => 0,
 	'pending'   => 0,
 	'signed'    => 0,
 	'completed' => 0,
-);
+];
 
 foreach ( $documents as $doc ) {
 	$status_raw = get_post_meta( $doc->ID, '_document_status', true );
@@ -219,25 +219,25 @@ foreach ( $documents as $doc ) {
 
 						// Status badge class.
 						$status_class  = 'badge-' . $doc_status;
-						$status_labels = array(
+						$status_labels = [
 							'draft'     => __( 'Rascunho', 'apollo-social' ),
 							'pending'   => __( 'Pendente', 'apollo-social' ),
 							'signed'    => __( 'Assinado', 'apollo-social' ),
 							'completed' => __( 'Concluído', 'apollo-social' ),
-						);
+						];
 						$status_label  = isset( $status_labels[ $doc_status ] ) ? $status_labels[ $doc_status ] : ucfirst( $doc_status );
 
 						// Type icon.
-						$type_icons = array(
+						$type_icons = [
 							'contract'  => 'ri-file-text-line',
 							'agreement' => 'ri-handshake-line',
 							'invoice'   => 'ri-bill-line',
 							'proposal'  => 'ri-file-list-3-line',
-						);
+						];
 						$type_icon  = $type_icons[ $doc_type ] ?? 'ri-file-line';
 
 						// Parse parties.
-						$parties_array = array();
+						$parties_array = [];
 						if ( $parties ) {
 							$parties_array = is_array( $parties ) ? $parties : json_decode( $parties, true );
 						}

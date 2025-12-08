@@ -20,7 +20,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -28,7 +28,7 @@ add_action(
 		wp_enqueue_script(
 			'motion-one',
 			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			array(),
+			[],
 			'1.0.0',
 			true
 		);

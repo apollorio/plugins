@@ -10,8 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$conversations = $view['data']['conversations'] ?? array();
-$current_user  = $view['data']['current_user'] ?? array();
+$conversations = $view['data']['conversations'] ?? [];
+$current_user  = $view['data']['current_user'] ?? [];
 $ajax_url      = admin_url( 'admin-ajax.php' );
 $nonce         = wp_create_nonce( 'apollo_chat' );
 ?>

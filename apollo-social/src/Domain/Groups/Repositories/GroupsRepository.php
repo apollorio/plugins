@@ -20,11 +20,11 @@ class GroupsRepository {
 	/**
 	 * Get all groups with filters
 	 */
-	public function findAll( array $filters = array() ): array {
+	public function findAll( array $filters = [] ): array {
 		global $wpdb;
 
-		$where  = array( '1=1' );
-		$params = array();
+		$where  = [ '1=1' ];
+		$params = [];
 
 		// Filter by type
 		if ( ! empty( $filters['type'] ) ) {
@@ -66,7 +66,7 @@ class GroupsRepository {
 
 		$where_clause = implode( ' AND ', $where );
 
-		$allowed_order_columns = array( 'created_at', 'updated_at', 'title', 'status' );
+		$allowed_order_columns = [ 'created_at', 'updated_at', 'title', 'status' ];
 		$order_column          = $filters['order_by'] ?? 'created_at';
 		$order_direction       = strtoupper( $filters['order_dir'] ?? 'DESC' );
 
@@ -74,7 +74,7 @@ class GroupsRepository {
 			$order_column = 'created_at';
 		}
 
-		if ( ! in_array( $order_direction, array( 'ASC', 'DESC' ), true ) ) {
+		if ( ! in_array( $order_direction, [ 'ASC', 'DESC' ], true ) ) {
 			$order_direction = 'DESC';
 		}
 
@@ -90,7 +90,7 @@ class GroupsRepository {
 		$prepared = $wpdb->prepare( $sql, $params );
 		$results  = $wpdb->get_results( $prepared, ARRAY_A );
 
-		$groups = array();
+		$groups = [];
 		foreach ( $results as $row ) {
 			$groups[] = $this->mapToEntity( $row );
 		}
@@ -146,7 +146,7 @@ class GroupsRepository {
 	public function create( array $data ): int {
 		global $wpdb;
 
-		$defaults = array(
+		$defaults = [
 			'title'        => '',
 			'slug'         => '',
 			'description'  => '',
@@ -158,7 +158,7 @@ class GroupsRepository {
 			'created_at'   => current_time( 'mysql' ),
 			'updated_at'   => current_time( 'mysql' ),
 			'published_at' => null,
-		);
+		];
 
 		$data = array_merge( $defaults, $data );
 
@@ -199,9 +199,9 @@ class GroupsRepository {
 		$result = $wpdb->update(
 			$this->table_name,
 			$data,
-			array( 'id' => $id ),
+			[ 'id' => $id ],
 			null,
-			array( '%d' )
+			[ '%d' ]
 		);
 
 		return $result !== false;
@@ -215,8 +215,8 @@ class GroupsRepository {
 
 		$result = $wpdb->delete(
 			$this->table_name,
-			array( 'id' => $id ),
-			array( '%d' )
+			[ 'id' => $id ],
+			[ '%d' ]
 		);
 
 		return $result !== false;
@@ -225,11 +225,11 @@ class GroupsRepository {
 	/**
 	 * Get groups count
 	 */
-	public function count( array $filters = array() ): int {
+	public function count( array $filters = [] ): int {
 		global $wpdb;
 
-		$where  = array( '1=1' );
-		$params = array();
+		$where  = [ '1=1' ];
+		$params = [];
 
 		if ( ! empty( $filters['type'] ) ) {
 			$where[]  = 'type = %s';
@@ -309,31 +309,31 @@ class GroupsRepository {
 			// Update status to active if was left/banned
 			return $wpdb->update(
 				$members_table,
-				array(
+				[
 					'status'    => 'active',
 					'role'      => $role,
 					'joined_at' => current_time( 'mysql' ),
-				),
-				array(
+				],
+				[
 					'group_id' => $group_id,
 					'user_id'  => $user_id,
-				),
-				array( '%s', '%s', '%s' ),
-				array( '%d', '%d' )
+				],
+				[ '%s', '%s', '%s' ],
+				[ '%d', '%d' ]
 			) !== false;
 		}
 
 		// Insert new member
 		return $wpdb->insert(
 			$members_table,
-			array(
+			[
 				'group_id'  => $group_id,
 				'user_id'   => $user_id,
 				'role'      => $role,
 				'status'    => 'active',
 				'joined_at' => current_time( 'mysql' ),
-			),
-			array( '%d', '%d', '%s', '%s', '%s' )
+			],
+			[ '%d', '%d', '%s', '%s', '%s' ]
 		) !== false;
 	}
 
@@ -347,16 +347,16 @@ class GroupsRepository {
 
 		return $wpdb->update(
 			$members_table,
-			array(
+			[
 				'status'  => 'left',
 				'left_at' => current_time( 'mysql' ),
-			),
-			array(
+			],
+			[
 				'group_id' => $group_id,
 				'user_id'  => $user_id,
-			),
-			array( '%s', '%s' ),
-			array( '%d', '%d' )
+			],
+			[ '%s', '%s' ],
+			[ '%d', '%d' ]
 		) !== false;
 	}
 
@@ -384,7 +384,7 @@ class GroupsRepository {
 	 */
 	private function mapToEntity( array $row ): GroupEntity {
 		return new GroupEntity(
-			array(
+			[
 				'id'            => (int) $row['id'],
 				'title'         => $row['title'],
 				'slug'          => $row['slug'],
@@ -398,7 +398,7 @@ class GroupsRepository {
 				'updated_at'    => $row['updated_at'] ?? null,
 				'published_at'  => $row['published_at'] ?? null,
 				'members_count' => $this->getMembersCount( (int) $row['id'] ),
-			)
+			]
 		);
 	}
 
@@ -421,7 +421,7 @@ class GroupsRepository {
 
 		while ( true ) {
 			$sql    = "SELECT id FROM {$this->table_name} WHERE slug = %s";
-			$params = array( $slug );
+			$params = [ $slug ];
 
 			if ( $exclude_id > 0 ) {
 				$sql     .= ' AND id != %d';

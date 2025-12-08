@@ -1,7 +1,7 @@
 <?php
 namespace Apollo\Infrastructure\Rendering;
 
-use Apollo\Core\PWADetector;
+use Apollo\Core\PwaDetector;
 
 /**
  * Canvas Builder - Strong Constructor for Apollo Canvas Pages
@@ -20,14 +20,19 @@ class CanvasBuilder {
 	public function __construct() {
 		$this->assets_manager = new AssetsManager();
 		$this->output_guards  = new OutputGuards();
+		$this->route_config   = [];
+		$this->template_data  = [];
+		$this->handler_output = [];
 	}
 
 	/**
-	 * Build complete Canvas page
+	 * Build complete Canvas page.
 	 *
-	 * @param array $route_config Route configuration
+	 * @param array $route_config Route configuration.
+	 *
 	 * @return void
-	 * @throws \Exception If route config is invalid
+	 *
+	 * @throws \InvalidArgumentException If route config is invalid.
 	 */
 	public function build( $route_config ) {
 		// Validate route config
@@ -84,14 +89,14 @@ class CanvasBuilder {
 		$param   = get_query_var( 'apollo_param' );
 		$user_id = get_query_var( 'user_id' );
 
-		return array(
+		return [
 			'route'        => is_string( $route ) ? sanitize_text_field( $route ) : '',
 			'type'         => is_string( $type ) ? sanitize_text_field( $type ) : '',
 			'param'        => is_string( $param ) ? sanitize_text_field( $param ) : '',
 			'user_id'      => is_numeric( $user_id ) ? absint( $user_id ) : 0,
 			'route_config' => $route_config,
 			'current_user' => wp_get_current_user(),
-		);
+		];
 	}
 
 	/**
@@ -130,12 +135,12 @@ class CanvasBuilder {
 	private function renderDefaultHandler( $template_data ) {
 		$route       = isset( $template_data['route'] ) ? sanitize_text_field( $template_data['route'] ) : '';
 		$route_title = ucfirst( $route );
-		return array(
+		return [
 			'title'       => 'Apollo Social - ' . $route_title,
 			'content'     => '<p>Handler em desenvolvimento para: ' . esc_html( $route ) . '</p>',
-			'breadcrumbs' => array( 'Apollo Social', $route_title ),
-			'data'        => array(),
-		);
+			'breadcrumbs' => [ 'Apollo Social', $route_title ],
+			'data'        => [],
+		];
 	}
 
 	/**
@@ -184,7 +189,7 @@ class CanvasBuilder {
 				// Validate dependencies
 				$deps = isset( $config['deps'] ) && is_array( $config['deps'] )
 					? array_map( 'sanitize_key', $config['deps'] )
-					: array();
+					: [];
 
 				// Validate version
 				$version = isset( $config['version'] ) ? sanitize_text_field( $config['version'] ) : APOLLO_SOCIAL_VERSION;
@@ -215,7 +220,7 @@ class CanvasBuilder {
 				// Validate dependencies
 				$deps = isset( $config['deps'] ) && is_array( $config['deps'] )
 					? array_map( 'sanitize_key', $config['deps'] )
-					: array();
+					: [];
 
 				// Validate version
 				$version = isset( $config['version'] ) ? sanitize_text_field( $config['version'] ) : APOLLO_SOCIAL_VERSION;
@@ -232,7 +237,7 @@ class CanvasBuilder {
 	 * Localize route-specific data to JavaScript
 	 */
 	private function localizeRouteData() {
-		$js_data = array(
+		$js_data = [
 			'route'     => isset( $this->template_data['route'] ) ? sanitize_text_field( $this->template_data['route'] ) : '',
 			'type'      => isset( $this->template_data['type'] ) ? sanitize_text_field( $this->template_data['type'] ) : '',
 			'param'     => isset( $this->template_data['param'] ) ? sanitize_text_field( $this->template_data['param'] ) : '',
@@ -240,7 +245,7 @@ class CanvasBuilder {
 			'ajaxUrl'   => esc_url( admin_url( 'admin-ajax.php' ) ),
 			'nonce'     => wp_create_nonce( 'apollo_canvas_' . ( isset( $this->template_data['route'] ) ? sanitize_key( $this->template_data['route'] ) : 'default' ) ),
 			'pluginUrl' => esc_url( APOLLO_SOCIAL_PLUGIN_URL ),
-		);
+		];
 
 		// Merge handler output data if available (sanitize all values)
 		if ( isset( $this->handler_output['data'] ) && is_array( $this->handler_output['data'] ) ) {
@@ -291,7 +296,7 @@ class CanvasBuilder {
 
 		if ( file_exists( $layout_file ) ) {
 			// Get PWA detector
-			$pwa_detector = new \Apollo\Core\PWADetector();
+			$pwa_detector = new \Apollo\Core\PwaDetector();
 
 			// Make data available to template
 			$canvas_data = array_merge( $this->template_data, $this->handler_output );
@@ -299,13 +304,13 @@ class CanvasBuilder {
 			// For template compatibility
 
 			// Add PWA data
-			$view['pwa'] = array(
+			$view['pwa'] = [
 				'is_pwa'               => $pwa_detector->isPWAMode(),
 				'is_apollo_rio_active' => $pwa_detector->isApolloRioActive(),
 				'show_header'          => $pwa_detector->shouldShowApolloHeader(),
 				'is_clean_mode'        => $pwa_detector->isCleanMode(),
 				'instructions'         => $pwa_detector->getPWAInstructions(),
-			);
+			];
 
 			include $layout_file;
 		} else {
@@ -314,7 +319,8 @@ class CanvasBuilder {
 		}//end if
 
 		// Output and clean buffer
-		echo ob_get_clean();
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from templating
+			echo wp_kses_post( ob_get_clean() );
 	}
 
 	/**
@@ -325,7 +331,7 @@ class CanvasBuilder {
 		$content = isset( $this->handler_output['content'] ) ? $this->handler_output['content'] : '';
 
 		echo '<!DOCTYPE html>';
-		echo '<html ' . get_language_attributes() . '>';
+		echo '<html ' . esc_attr( get_language_attributes() ) . '>';
 		echo '<head>';
 		echo '<meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '">';
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
@@ -358,7 +364,7 @@ class CanvasBuilder {
 		}
 
 		echo '<!DOCTYPE html>';
-		echo '<html ' . get_language_attributes() . '>';
+		echo '<html ' . esc_attr( get_language_attributes() ) . '>';
 		echo '<head>';
 		echo '<meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '">';
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1">';

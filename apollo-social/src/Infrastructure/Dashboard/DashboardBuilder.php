@@ -28,7 +28,7 @@ class DashboardBuilder extends CanvasBuilder {
 		$this->user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 
 		if ( ! $this->user_id ) {
-			wp_die( 'Você precisa estar logado para acessar esta página.', 'Acesso Negado', array( 'response' => 403 ) );
+			wp_die( 'Você precisa estar logado para acessar esta página.', 'Acesso Negado', [ 'response' => 403 ] );
 		}
 
 		// Ensure user page exists
@@ -60,60 +60,60 @@ class DashboardBuilder extends CanvasBuilder {
 	 * Initialize default widgets for new user page
 	 */
 	private function initializeDefaultWidgets( $user_id, $page_id ) {
-		$default_widgets = array(
-			array(
+		$default_widgets = [
+			[
 				'type'     => 'profile-header',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 0,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 12,
 					'h' => 3,
-				),
-				'config'   => array(),
-			),
-			array(
+				],
+				'config'   => [],
+			],
+			[
 				'type'     => 'depoimentos',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 3,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 12,
 					'h' => 6,
-				),
-				'config'   => array(
+				],
+				'config'   => [
 					'title'          => 'Depoimentos',
 					'allow_comments' => true,
 					'max_comments'   => 50,
-				),
-			),
-			array(
+				],
+			],
+			[
 				'type'     => 'bio',
-				'position' => array(
+				'position' => [
 					'x' => 0,
 					'y' => 9,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 6,
 					'h' => 4,
-				),
-				'config'   => array(),
-			),
-			array(
+				],
+				'config'   => [],
+			],
+			[
 				'type'     => 'stats',
-				'position' => array(
+				'position' => [
 					'x' => 6,
 					'y' => 9,
-				),
-				'size'     => array(
+				],
+				'size'     => [
 					'w' => 6,
 					'h' => 4,
-				),
-				'config'   => array(),
-			),
-		);
+				],
+				'config'   => [],
+			],
+		];
 
 		update_post_meta( $page_id, '_apollo_widgets', $default_widgets );
 		update_post_meta( $page_id, '_apollo_layout_version', '1.0' );
@@ -126,23 +126,23 @@ class DashboardBuilder extends CanvasBuilder {
 		$user_page = apollo_get_user_page( $user_id );
 
 		if ( ! $user_page ) {
-			return array();
+			return [];
 		}
 
 		$widgets = get_post_meta( $user_page->ID, '_apollo_widgets', true );
 
-		return is_array( $widgets ) ? $widgets : array();
+		return is_array( $widgets ) ? $widgets : [];
 	}
 
 	/**
 	 * Get widgets data for JavaScript
 	 */
 	public function getWidgetsData() {
-		return array(
+		return [
 			'widgets'           => $this->page_layout,
 			'available_widgets' => $this->widget_registry->getAvailableWidgets(),
 			'user_id'           => $this->user_id,
 			'can_edit'          => current_user_can( 'edit_post', apollo_get_user_page( $this->user_id )->ID ?? 0 ),
-		);
+		];
 	}
 }

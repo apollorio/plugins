@@ -50,7 +50,7 @@ function apollo_get_event_views( $event_id ) {
 }
 
 /**
- * Get user's favorited events (using wpem-bookmarks if available)
+ * Get user's favorited events (using aprio-bookmarks if available)
  *
  * @param int|null $user_id User ID (defaults to current user)
  * @return array Array of event post IDs
@@ -64,7 +64,7 @@ function apollo_get_user_favorited_events( $user_id = null ) {
 		return array();
 	}
 
-	// Try wpem-bookmarks first
+	// Try aprio-bookmarks first
 	if ( function_exists( 'get_user_favorites' ) ) {
 		$favorites = get_user_favorites( $user_id, null, array( 'post_types' => 'event_listing' ) );
 		return is_array( $favorites ) ? array_map( 'absint', $favorites ) : array();

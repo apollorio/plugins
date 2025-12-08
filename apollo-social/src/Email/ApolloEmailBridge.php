@@ -40,24 +40,24 @@ class ApolloEmailBridge {
 	 */
 	public function init(): void {
 		// Hook into Apollo membership events
-		add_action( 'apollo_membership_approved', array( $this, 'onMembershipApproved' ), 10, 3 );
-		add_action( 'apollo_membership_rejected', array( $this, 'onMembershipRejected' ), 10, 3 );
-		add_action( 'apollo_user_registration_complete', array( $this, 'onRegistrationComplete' ), 10, 2 );
+		add_action( 'apollo_membership_approved', [ $this, 'onMembershipApproved' ], 10, 3 );
+		add_action( 'apollo_membership_rejected', [ $this, 'onMembershipRejected' ], 10, 3 );
+		add_action( 'apollo_user_registration_complete', [ $this, 'onRegistrationComplete' ], 10, 2 );
 
 		// Add Apollo placeholders to Email Templates plugin
-		add_filter( 'emailtpl/placeholders', array( $this, 'addApolloPlaceholders' ), 10, 2 );
+		add_filter( 'emailtpl/placeholders', [ $this, 'addApolloPlaceholders' ], 10, 2 );
 
 		// Hook into Newsletter plugin if active
 		if ( class_exists( 'Newsletter' ) ) {
-			add_action( 'newsletter_user_confirmed', array( $this, 'syncNewsletterUser' ) );
+			add_action( 'newsletter_user_confirmed', [ $this, 'syncNewsletterUser' ] );
 		}
 
 		// Admin menu for email settings
-		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
+		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 
 		// AJAX handlers
-		add_action( 'wp_ajax_apollo_send_test_email', array( $this, 'ajaxSendTestEmail' ) );
-		add_action( 'wp_ajax_apollo_save_email_template', array( $this, 'ajaxSaveTemplate' ) );
+		add_action( 'wp_ajax_apollo_send_test_email', [ $this, 'ajaxSendTestEmail' ] );
+		add_action( 'wp_ajax_apollo_save_email_template', [ $this, 'ajaxSaveTemplate' ] );
 	}
 
 	/**
@@ -75,16 +75,16 @@ class ApolloEmailBridge {
 		$subject  = $this->replacePlaceholders(
 			$template['subject'],
 			$user_id,
-			array(
+			[
 				'admin_name' => $admin ? $admin->display_name : 'Apollo Team',
-			)
+			]
 		);
 		$body     = $this->replacePlaceholders(
 			$template['body'],
 			$user_id,
-			array(
+			[
 				'admin_name' => $admin ? $admin->display_name : 'Apollo Team',
-			)
+			]
 		);
 
 		$this->sendEmail( $user->user_email, $subject, $body, 'membership_approved' );
@@ -106,10 +106,10 @@ class ApolloEmailBridge {
 		$body     = $this->replacePlaceholders(
 			$template['body'],
 			$user_id,
-			array(
+			[
 				'admin_name'       => $admin ? $admin->display_name : 'Apollo Team',
 				'rejection_reason' => $reason ?: 'Não especificado',
-			)
+			]
 		);
 
 		$this->sendEmail( $user->user_email, $subject, $body, 'membership_rejected' );
@@ -132,7 +132,7 @@ class ApolloEmailBridge {
 		$this->sendEmail( $user->user_email, $subject, $body, 'welcome' );
 
 		// If user requested memberships beyond clubber, send pending notification
-		$identities             = $data['cultura_identity'] ?? array();
+		$identities             = $data['cultura_identity'] ?? [];
 		$has_membership_request = count( $identities ) > 1 || ! in_array( 'clubber', $identities, true );
 
 		if ( $has_membership_request ) {
@@ -153,10 +153,10 @@ class ApolloEmailBridge {
 		$user_id = $user ? $user->ID : 0;
 
 		if ( $user_id ) {
-			$sounds               = get_user_meta( $user_id, 'apollo_sounds', true ) ?: array();
-			$identities           = get_user_meta( $user_id, 'apollo_cultura_identities', true ) ?: array();
+			$sounds               = get_user_meta( $user_id, 'apollo_sounds', true ) ?: [];
+			$identities           = get_user_meta( $user_id, 'apollo_cultura_identities', true ) ?: [];
 			$membership_status    = get_user_meta( $user_id, 'apollo_membership_status', true ) ?: 'none';
-			$membership_requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: array();
+			$membership_requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: [];
 
 			$placeholders['%%APOLLO_USER_NAME%%']            = $user->display_name;
 			$placeholders['%%APOLLO_FIRST_NAME%%']           = $user->first_name ?: explode( ' ', $user->display_name )[0];
@@ -193,24 +193,24 @@ class ApolloEmailBridge {
 	 */
 	public function getTemplate( string $key ): array {
 		$templates = $this->getDefaultTemplates();
-		$saved     = get_option( 'apollo_email_templates', array() );
+		$saved     = get_option( 'apollo_email_templates', [] );
 
 		if ( isset( $saved[ $key ] ) ) {
-			return array_merge( $templates[ $key ] ?? array(), $saved[ $key ] );
+			return array_merge( $templates[ $key ] ?? [], $saved[ $key ] );
 		}
 
-		return $templates[ $key ] ?? array(
+		return $templates[ $key ] ?? [
 			'subject' => 'Apollo::Rio Notification',
 			'body'    => 'Você tem uma nova notificação.',
-		);
+		];
 	}
 
 	/**
 	 * Get default templates
 	 */
 	public function getDefaultTemplates(): array {
-		return array(
-			'welcome'             => array(
+		return [
+			'welcome'             => [
 				'name'        => 'Boas-vindas',
 				'description' => 'Enviado após registro completo',
 				'subject'     => 'Bem-vindo(a) à Cultura::Rio, [user-first-name]! 🎉',
@@ -229,8 +229,8 @@ Você agora faz parte da nossa comunidade cultural digital. Como parte do BETA L
 
 Com carinho,
 Equipe Apollo::Rio',
-			),
-			'membership_pending'  => array(
+			],
+			'membership_pending'  => [
 				'name'        => 'Membership Pendente',
 				'description' => 'Enviado quando solicita membership especial',
 				'subject'     => '[user-first-name], recebemos sua solicitação! 📋',
@@ -242,8 +242,8 @@ Recebemos sua solicitação para os seguintes níveis de acesso:
 Nossa equipe irá analisar em breve. Você receberá uma notificação assim que tivermos uma resposta.
 
 Equipe Apollo::Rio',
-			),
-			'membership_approved' => array(
+			],
+			'membership_approved' => [
 				'name'        => 'Membership Aprovado',
 				'description' => 'Enviado quando admin aprova',
 				'subject'     => '🎉 Parabéns [user-first-name]! Seu membership foi APROVADO!',
@@ -259,8 +259,8 @@ Aprovado por: [admin-name]
 
 Bem-vindo(a) ao próximo nível!
 Equipe Apollo::Rio',
-			),
-			'membership_rejected' => array(
+			],
+			'membership_rejected' => [
 				'name'        => 'Membership Rejeitado',
 				'description' => 'Enviado quando admin rejeita',
 				'subject'     => '[user-first-name], atualização sobre sua solicitação',
@@ -273,8 +273,8 @@ Infelizmente, sua solicitação de membership não foi aprovada neste momento.
 Você continua tendo acesso como Clubber. Tente novamente no futuro!
 
 Equipe Apollo::Rio',
-			),
-			'journey_progress'    => array(
+			],
+			'journey_progress'    => [
 				'name'        => 'Jornada - Progressão',
 				'description' => 'Mensagem de progressão na jornada',
 				'subject'     => '[user-first-name], sua jornada está evoluindo! 🚀',
@@ -287,27 +287,27 @@ Você começou como [original-identity] e agora faz parte oficialmente da cena c
 Desejamos tudo de melhor!
 
 Equipe Apollo::Rio',
-			),
-		);
+			],
+		];
 	}
 
 	/**
 	 * Replace placeholders in content
 	 */
-	public function replacePlaceholders( string $content, int $user_id, array $extra = array() ): string {
+	public function replacePlaceholders( string $content, int $user_id, array $extra = [] ): string {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
 			return $content;
 		}
 
-		$sounds               = get_user_meta( $user_id, 'apollo_sounds', true ) ?: array();
-		$identities           = get_user_meta( $user_id, 'apollo_cultura_identities', true ) ?: array();
-		$original_identities  = get_user_meta( $user_id, 'apollo_cultura_original_identities', true ) ?: array();
+		$sounds               = get_user_meta( $user_id, 'apollo_sounds', true ) ?: [];
+		$identities           = get_user_meta( $user_id, 'apollo_cultura_identities', true ) ?: [];
+		$original_identities  = get_user_meta( $user_id, 'apollo_cultura_original_identities', true ) ?: [];
 		$membership_status    = get_user_meta( $user_id, 'apollo_membership_status', true ) ?: 'none';
-		$membership_requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: array();
+		$membership_requested = get_user_meta( $user_id, 'apollo_membership_requested', true ) ?: [];
 		$registration_date    = get_user_meta( $user_id, 'apollo_registration_date', true ) ?: '';
 
-		$replacements = array(
+		$replacements = [
 			'[user-name]'            => $user->display_name,
 			'[user-email]'           => $user->user_email,
 			'[user-first-name]'      => $user->first_name ?: explode( ' ', $user->display_name )[0],
@@ -326,7 +326,7 @@ Equipe Apollo::Rio',
 			'[rejection-reason]'     => $extra['rejection_reason'] ?? 'Não especificado',
 			'[current-date]'         => date_i18n( get_option( 'date_format' ) ),
 			'[current-year]'         => date( 'Y' ),
-		);
+		];
 
 		return str_replace( array_keys( $replacements ), array_values( $replacements ), $content );
 	}
@@ -356,10 +356,10 @@ Equipe Apollo::Rio',
 		// Fallback: wrap in simple HTML template
 		$html = $this->wrapInTemplate( $body, $subject );
 
-		$headers = array(
+		$headers = [
 			'Content-Type: text/html; charset=UTF-8',
 			'From: ' . get_bloginfo( 'name' ) . ' <' . get_option( 'admin_email' ) . '>',
-		);
+		];
 
 		$result = wp_mail( $to, $subject, $html, $headers );
 		$this->logEmailResult( $to, $subject, $template_key, $result );
@@ -419,7 +419,7 @@ Equipe Apollo::Rio',
 			__( '📧 Emails', 'apollo-social' ),
 			'manage_options',
 			'apollo-emails',
-			array( $this, 'renderAdminPage' )
+			[ $this, 'renderAdminPage' ]
 		);
 	}
 
@@ -429,7 +429,7 @@ Equipe Apollo::Rio',
 	public function renderAdminPage(): void {
 		$current_tab     = sanitize_key( $_GET['tab'] ?? 'templates' );
 		$templates       = $this->getDefaultTemplates();
-		$saved_templates = get_option( 'apollo_email_templates', array() );
+		$saved_templates = get_option( 'apollo_email_templates', [] );
 		?>
 		<div class="wrap">
 			<h1>📧 Apollo Emails</h1>
@@ -454,7 +454,7 @@ Equipe Apollo::Rio',
 						
 						<?php
 						foreach ( $templates as $key => $template ) :
-							$saved   = $saved_templates[ $key ] ?? array();
+							$saved   = $saved_templates[ $key ] ?? [];
 							$subject = $saved['subject'] ?? $template['subject'];
 							$body    = $saved['body'] ?? $template['body'];
 							?>
@@ -664,7 +664,7 @@ Equipe Apollo::Rio',
 		// Handle reset
 		if ( isset( $_GET['reset'] ) && wp_verify_nonce( $_GET['_wpnonce'] ?? '', 'apollo_reset_template' ) ) {
 			$key   = sanitize_key( $_GET['reset'] );
-			$saved = get_option( 'apollo_email_templates', array() );
+			$saved = get_option( 'apollo_email_templates', [] );
 			unset( $saved[ $key ] );
 			update_option( 'apollo_email_templates', $saved );
 			echo '<script>location.href = "?page=apollo-emails&tab=templates";</script>';
@@ -722,13 +722,13 @@ Equipe Apollo::Rio',
 			wp_send_json_error( 'Template inválido' );
 		}
 
-		$saved              = get_option( 'apollo_email_templates', array() );
-		$saved[ $template ] = array(
+		$saved              = get_option( 'apollo_email_templates', [] );
+		$saved[ $template ] = [
 			'subject'    => $subject,
 			'body'       => $body,
 			'updated_at' => current_time( 'mysql' ),
 			'updated_by' => get_current_user_id(),
-		);
+		];
 
 		update_option( 'apollo_email_templates', $saved );
 		wp_send_json_success( 'Salvo' );

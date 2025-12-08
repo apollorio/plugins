@@ -103,18 +103,18 @@ class ImageUploadHandler {
 
 		$this->allowed_mime_types = apply_filters(
 			'apollo_editor_allowed_mime_types',
-			array(
+			[
 				'image/jpeg',
 				'image/png',
 				'image/gif',
 				'image/webp',
-			)
+			]
 		);
 
 		// Register AJAX handlers
 		// wp_ajax_{action} - for logged-in users
 		// wp_ajax_nopriv_{action} - for non-logged-in users (we don't register this for security)
-		add_action( 'wp_ajax_' . self::ACTION, array( $this, 'handle_upload' ) );
+		add_action( 'wp_ajax_' . self::ACTION, [ $this, 'handle_upload' ] );
 
 		// Note: We intentionally don't register nopriv handler.
 		// Only logged-in users with upload_files capability can upload images.
@@ -135,10 +135,10 @@ class ImageUploadHandler {
 		// If the nonce is invalid or expired, we reject the request.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], self::NONCE_ACTION ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Sessão expirada. Recarregue a página e tente novamente.', 'apollo-social' ),
 					'code'    => 'invalid_nonce',
-				),
+				],
 				403
 			);
 			return;
@@ -149,10 +149,10 @@ class ImageUploadHandler {
 		// This is typically Contributor role and above in WordPress.
 		if ( ! current_user_can( 'upload_files' ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Você não tem permissão para enviar arquivos.', 'apollo-social' ),
 					'code'    => 'permission_denied',
-				),
+				],
 				403
 			);
 			return;
@@ -161,10 +161,10 @@ class ImageUploadHandler {
 		// Step 3: Check if file was uploaded
 		if ( empty( $_FILES['image'] ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Nenhum arquivo foi enviado.', 'apollo-social' ),
 					'code'    => 'no_file',
-				),
+				],
 				400
 			);
 			return;
@@ -177,10 +177,10 @@ class ImageUploadHandler {
 		if ( $file['error'] !== UPLOAD_ERR_OK ) {
 			$error_message = $this->get_upload_error_message( $file['error'] );
 			wp_send_json_error(
-				array(
+				[
 					'message' => $error_message,
 					'code'    => 'upload_error',
-				),
+				],
 				400
 			);
 			return;
@@ -190,14 +190,14 @@ class ImageUploadHandler {
 		// Even though we validate on the client, malicious users could bypass it.
 		if ( $file['size'] > $this->max_file_size ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => sprintf(
 						/* translators: %s: maximum file size */
 						__( 'Arquivo muito grande. O tamanho máximo permitido é %s.', 'apollo-social' ),
 						size_format( $this->max_file_size )
 					),
 					'code'    => 'file_too_large',
-				),
+				],
 				400
 			);
 			return;
@@ -218,10 +218,10 @@ class ImageUploadHandler {
 
 		if ( empty( $mime_type ) || ! in_array( $mime_type, $this->allowed_mime_types, true ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Tipo de arquivo não permitido. Use JPEG, PNG, GIF ou WebP.', 'apollo-social' ),
 					'code'    => 'invalid_mime_type',
-				),
+				],
 				400
 			);
 			return;
@@ -233,10 +233,10 @@ class ImageUploadHandler {
 			$scan_result = UploadSecurityScanner::scan( $file['tmp_name'], 'image' );
 			if ( ! $scan_result['safe'] ) {
 				wp_send_json_error(
-					array(
+					[
 						'message' => $scan_result['message'],
 						'code'    => $scan_result['code'],
-					),
+					],
 					403
 				);
 				return;
@@ -250,25 +250,25 @@ class ImageUploadHandler {
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 
-		$upload_overrides = array(
+		$upload_overrides = [
 			'test_form'             => false,
 			// We're not using a form, just AJAX
-							'mimes' => array(
+							'mimes' => [
 								'jpg|jpeg|jpe' => 'image/jpeg',
 								'png'          => 'image/png',
 								'gif'          => 'image/gif',
 								'webp'         => 'image/webp',
-							),
-		);
+							],
+		];
 
 		$uploaded_file = wp_handle_upload( $file, $upload_overrides );
 
 		if ( isset( $uploaded_file['error'] ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => $uploaded_file['error'],
 					'code'    => 'wp_upload_error',
-				),
+				],
 				500
 			);
 			return;
@@ -277,12 +277,12 @@ class ImageUploadHandler {
 		// Step 8: Create Media Library attachment
 		// This adds the image to WordPress Media Library so it can be managed,
 		// and generates thumbnails/sizes automatically.
-		$attachment_data = array(
+		$attachment_data = [
 			'post_mime_type' => $uploaded_file['type'],
 			'post_title'     => preg_replace( '/\.[^.]+$/', '', sanitize_file_name( $file['name'] ) ),
 			'post_content'   => '',
 			'post_status'    => 'inherit',
-		);
+		];
 
 		$attachment_id = wp_insert_attachment( $attachment_data, $uploaded_file['file'] );
 
@@ -291,10 +291,10 @@ class ImageUploadHandler {
 			wp_delete_file( $uploaded_file['file'] );
 
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Erro ao criar anexo na biblioteca de mídia.', 'apollo-social' ),
 					'code'    => 'attachment_error',
-				),
+				],
 				500
 			);
 			return;
@@ -307,13 +307,13 @@ class ImageUploadHandler {
 		// Step 10: Return success response with image URL
 		// We return both the URL and attachment ID in case client needs it.
 		wp_send_json_success(
-			array(
+			[
 				'url'        => $uploaded_file['url'],
 				'id'         => $attachment_id,
 				'filename'   => basename( $uploaded_file['file'] ),
 				'filesize'   => size_format( $file['size'] ),
 				'dimensions' => $this->get_image_dimensions( $uploaded_file['file'] ),
-			)
+			]
 		);
 	}
 
@@ -324,7 +324,7 @@ class ImageUploadHandler {
 	 * @return string Localized error message.
 	 */
 	private function get_upload_error_message( $error_code ) {
-		$messages = array(
+		$messages = [
 			UPLOAD_ERR_INI_SIZE   => __( 'O arquivo excede o tamanho máximo permitido pelo servidor.', 'apollo-social' ),
 			UPLOAD_ERR_FORM_SIZE  => __( 'O arquivo excede o tamanho máximo especificado no formulário.', 'apollo-social' ),
 			UPLOAD_ERR_PARTIAL    => __( 'O arquivo foi enviado apenas parcialmente.', 'apollo-social' ),
@@ -332,7 +332,7 @@ class ImageUploadHandler {
 			UPLOAD_ERR_NO_TMP_DIR => __( 'Erro no servidor: pasta temporária não encontrada.', 'apollo-social' ),
 			UPLOAD_ERR_CANT_WRITE => __( 'Erro no servidor: falha ao gravar arquivo.', 'apollo-social' ),
 			UPLOAD_ERR_EXTENSION  => __( 'O envio foi interrompido por uma extensão do servidor.', 'apollo-social' ),
-		);
+		];
 
 		return isset( $messages[ $error_code ] )
 			? $messages[ $error_code ]
@@ -348,10 +348,10 @@ class ImageUploadHandler {
 	private function get_image_dimensions( $file_path ) {
 		$size = getimagesize( $file_path );
 		if ( $size ) {
-			return array(
+			return [
 				'width'  => $size[0],
 				'height' => $size[1],
-			);
+			];
 		}
 		return null;
 	}

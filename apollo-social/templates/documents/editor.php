@@ -32,7 +32,7 @@ add_action(
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -40,7 +40,7 @@ add_action(
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -48,7 +48,7 @@ add_action(
 		wp_enqueue_style(
 			'material-symbols',
 			'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0',
-			array(),
+			[],
 			'1.0.0'
 		);
 
@@ -56,7 +56,7 @@ add_action(
 		wp_enqueue_style(
 			'google-fonts-editor',
 			'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
-			array(),
+			[],
 			'1.0.0'
 		);
 
@@ -64,7 +64,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-base-js',
 			'https://assets.apollo.rio.br/base.js',
-			array(),
+			[],
 			'2.0.0',
 			true
 		);
@@ -73,7 +73,7 @@ add_action(
 		wp_enqueue_script(
 			'apollo-sign-document',
 			plugins_url( 'assets/js/sign-document.js', dirname( __DIR__ ) ),
-			array(),
+			[],
 			'1.0.0',
 			true
 		);
@@ -101,7 +101,7 @@ $status_info = DocumentsHelpers::get_status_info( $doc_status );
 $type_info   = DocumentsHelpers::get_type_info( $type );
 
 // Field tooltips
-$tooltips = array(
+$tooltips = [
 	'title'        => DocumentsHelpers::get_field_tooltip( 'title' ),
 	'status'       => $status_info['tooltip'],
 	'type'         => $type_info['tooltip'],
@@ -114,7 +114,7 @@ $tooltips = array(
 	'font_weight'  => DocumentsHelpers::get_field_tooltip( 'font_weight' ),
 	'text_color'   => DocumentsHelpers::get_field_tooltip( 'text_color' ),
 	'text_align'   => DocumentsHelpers::get_field_tooltip( 'text_align' ),
-);
+];
 
 // Can edit/sign based on status
 $can_edit = DocumentsHelpers::can_edit( $doc_status );

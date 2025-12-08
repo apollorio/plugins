@@ -77,7 +77,7 @@ class Apollo_Social_Module {
 
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
-			'/feed',
+			'/explore',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( __CLASS__, 'get_feed' ),
@@ -109,7 +109,7 @@ class Apollo_Social_Module {
 
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
-			'/like',
+			'/wow',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( __CLASS__, 'toggle_like' ),

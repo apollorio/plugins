@@ -5,7 +5,9 @@ use Apollo\Domain\Entities\UnionEntity;
 use Apollo\Domain\Memberships\Policies\MembershipPolicy;
 
 /**
- * Memberships REST Controller
+ * Memberships REST Controller (Membro)
+ *
+ * Routes: /apollo/v1/membro (primary), /apollo/v1/uniao (legacy alias)
  */
 class MembershipsController extends BaseController {
 
@@ -16,32 +18,34 @@ class MembershipsController extends BaseController {
 	}
 
 	/**
-	 * GET /apollo/v1/unions
+	 * GET /apollo/v1/membro - Listar membros (Portuguese naming)
+	 * GET /apollo/v1/uniao - Legacy alias
 	 */
 	public function index(): void {
-		$unions = $this->getUnionsData();
+		$membros = $this->getMembrosData();
 
-		// Apply view permissions
-		$user            = $this->getCurrentUser();
-		$filtered_unions = array();
+		// Apply view permissions.
+		$user              = $this->getCurrentUser();
+		$filtered_membros = [];
 
-		foreach ( $unions as $union_data ) {
-			$union = new UnionEntity( $union_data );
+		foreach ( $membros as $membro_data ) {
+			$membro = new UnionEntity( $membro_data );
 
-			if ( $this->membershipPolicy->canViewUnion( $union, $user ) ) {
-				$filtered_unions[] = $union_data;
+			if ( $this->membershipPolicy->canViewUnion( $membro, $user ) ) {
+				$filtered_membros[] = $membro_data;
 			}
 		}
 
-		$this->success( $filtered_unions );
+		$this->success( $filtered_membros );
 	}
 
 	/**
-	 * POST /apollo/v1/unions/{id}/toggle-badges
+	 * POST /apollo/v1/membro/{id}/toggle-badges - Alternar emblemas
+	 * POST /apollo/v1/uniao/{id}/toggle-badges - Legacy alias
 	 */
 	public function toggleBadges(): void {
 		if ( ! $this->validateNonce() ) {
-			$this->authError( 'Invalid nonce' );
+			$this->authError( __( 'Nonce inválido', 'apollo-social' ) );
 		}
 
 		$user = $this->getCurrentUser();
@@ -49,69 +53,74 @@ class MembershipsController extends BaseController {
 			$this->authError();
 		}
 
-		$union_id = intval( $_GET['id'] ?? 0 );
-		if ( ! $union_id ) {
-			$this->validationError( 'Invalid union ID' );
+		$membro_id = intval( $_GET['id'] ?? 0 );
+		if ( ! $membro_id ) {
+			$this->validationError( __( 'ID de membro inválido', 'apollo-social' ) );
 		}
 
 		$params    = $this->sanitizeParams( $_POST );
 		$badges_on = isset( $params['on'] ) ? (bool) $params['on'] : true;
 
-		$union = $this->getUnionById( $union_id );
-		if ( ! $union ) {
-			$this->error( 'Union not found', 404 );
+		$membro = $this->getMembroById( $membro_id );
+		if ( ! $membro ) {
+			$this->error( __( 'Membro não encontrado', 'apollo-social' ), 404 );
 		}
 
-		if ( ! $this->membershipPolicy->canToggleBadges( $user, $union ) ) {
-			$this->permissionError( 'You cannot toggle badges for this union' );
+		if ( ! $this->membershipPolicy->canToggleBadges( $user, $membro ) ) {
+			$this->permissionError( __( 'Você não pode alternar emblemas deste membro', 'apollo-social' ) );
 		}
 
-		// TODO: Implement actual toggle logic
-		// For now, mock success
+		// TODO: Implement actual toggle logic.
+		// For now, mock success.
 		$this->success(
-			array(
-				'union_id'       => $union_id,
+			[
+				'membro_id'      => $membro_id,
 				'badges_enabled' => $badges_on,
-			),
-			'Badges toggle updated successfully'
+			],
+			__( 'Emblemas atualizados com sucesso', 'apollo-social' )
 		);
 	}
 
 	/**
-	 * Get unions data (mock implementation)
+	 * Get membros data (mock implementation)
+	 *
+	 * @return array Lista de membros.
 	 */
-	private function getUnionsData(): array {
-		return array(
-			array(
+	private function getMembrosData(): array {
+		return [
+			[
 				'id'            => 1,
-				'title'         => 'União dos Desenvolvedores',
+				'title'         => 'Membro Desenvolvedores',
 				'slug'          => 'desenvolvedores',
-				'description'   => 'União para profissionais de desenvolvimento',
+				'description'   => 'Membro para profissionais de desenvolvimento',
 				'badges_toggle' => true,
 				'members_count' => 150,
-				'managers'      => array( 1, 2 ),
-			),
-			array(
+				'managers'      => [ 1, 2 ],
+			],
+			[
 				'id'            => 2,
-				'title'         => 'União dos Designers',
+				'title'         => 'Membro Designers',
 				'slug'          => 'designers',
-				'description'   => 'União para profissionais de design',
+				'description'   => 'Membro para profissionais de design',
 				'badges_toggle' => false,
 				'members_count' => 89,
-				'managers'      => array( 1, 3 ),
-			),
-		);
+				'managers'      => [ 1, 3 ],
+			],
+		];
 	}
 
 	/**
-	 * Get union by ID (mock implementation)
+	 * Get membro by ID (mock implementation)
+	 *
+	 * @param int $id Membro ID.
+	 * @return UnionEntity|null Membro entity or null.
 	 */
-	private function getUnionById( int $id ): ?UnionEntity {
-		$unions = $this->getUnionsData();
+	private function getMembroById( int $id ): ?UnionEntity {
+		$membros = $this->getMembrosData();
 
-		foreach ( $unions as $union_data ) {
-			if ( $union_data['id'] === $id ) {
-				return new UnionEntity( $union_data );
+		foreach ( $membros as $membro_data ) {
+			if ( $membro_data['id'] === $id ) {
+				return new UnionEntity( $membro_data );
 			}
 		}
 

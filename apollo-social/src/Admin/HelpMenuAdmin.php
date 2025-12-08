@@ -17,8 +17,8 @@ class HelpMenuAdmin {
 	 * Constructor
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_help_menu' ), 999 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_help_styles' ) );
+		add_action( 'admin_menu', [ $this, 'register_help_menu' ], 999 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_help_styles' ] );
 	}
 
 	/**
@@ -34,7 +34,7 @@ class HelpMenuAdmin {
 			// Capability (todos os logados)
 			'apollo-help',
 			// Menu slug
-			array( $this, 'render_help_page' ),
+			[ $this, 'render_help_page' ],
 			// Callback
 			'dashicons-sos',
 			// Icon
@@ -130,7 +130,7 @@ class HelpMenuAdmin {
 				<div class="apollo-help-card">
 					<h2>📋 <?php esc_html_e( 'Tipos de Conteúdo Ativos', 'apollo-social' ); ?></h2>
 					<?php
-					$post_types = get_post_types( array( '_builtin' => false ), 'objects' );
+					$post_types = get_post_types( [ '_builtin' => false ], 'objects' );
 					if ( ! empty( $post_types ) ) {
 						echo '<ul>';
 						foreach ( $post_types as $post_type ) {

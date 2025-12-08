@@ -6,7 +6,7 @@
  * Provides an endpoint to retrieve/update matchmaking settings for the current user.
  * Structured similarly to the Events controller's route/permission/response style.
  *
- * Route base: /wp-json/wpem/matchmaking-settings
+ * Route base: /wp-json/aprio/matchmaking-settings
  * Methods: GET (retrieve), POST (update)
  *
  * @since 1.1.4
@@ -14,13 +14,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
-class WPEM_REST_Matchmaking_Settings_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Controller {
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base for matchmaking settings endpoints.
@@ -61,7 +61,7 @@ class WPEM_REST_Matchmaking_Settings_Controller extends WPEM_REST_CRUD_Controlle
 	 * @return bool|WP_Error
 	 */
 	public function permission_check( $request ) {
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			// Parent method returns standardized error payload if unauthorized.
 			return $auth_check;
@@ -79,10 +79,10 @@ class WPEM_REST_Matchmaking_Settings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function get_settings( $request ) {
 		$settings = array(
-			'request_mode'           => get_option( 'wpem_meeting_request_mode' ),
-			'scheduling_mode'        => get_option( 'wpem_meeting_scheduling_mode' ),
-			'attendee_limit'         => get_option( 'wpem_meeting_attendee_limit' ),
-			'meeting_expiration'     => get_option( 'wpem_meeting_expiration' ),
+			'request_mode'           => get_option( 'aprio_meeting_request_mode' ),
+			'scheduling_mode'        => get_option( 'aprio_meeting_scheduling_mode' ),
+			'attendee_limit'         => get_option( 'aprio_meeting_attendee_limit' ),
+			'meeting_expiration'     => get_option( 'aprio_meeting_expiration' ),
 			'enable_matchmaking'     => get_option( 'enable_matchmaking' ),
 			'participant_activation' => get_option( 'participant_activation' ),
 		);
@@ -93,4 +93,4 @@ class WPEM_REST_Matchmaking_Settings_Controller extends WPEM_REST_CRUD_Controlle
 	}
 }
 
-new WPEM_REST_Matchmaking_Settings_Controller();
+new APRIO_REST_Matchmaking_Settings_Controller();

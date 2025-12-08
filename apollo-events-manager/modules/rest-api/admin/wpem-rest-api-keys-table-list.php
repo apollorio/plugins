@@ -9,7 +9,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 /**
  * API Keys table list class for wp rest api.
  */
-class WPEM_API_Keys_Table_List extends WP_List_Table {
+class APRIO_API_Keys_Table_List extends WP_List_Table {
 
 	/**
 	 * Initialize the API key table list.
@@ -24,7 +24,7 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 	 * No items found text.
 	 */
 	public function no_items() {
-		esc_html_e( 'No keys found.', 'wpem-rest-api' );
+		esc_html_e( 'No keys found.', 'aprio-rest-api' );
 	}
 
 	/**
@@ -53,13 +53,13 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'            => '<input type="checkbox" />',
-			'app_key'       => __( 'App Key', 'wpem-rest-api' ),
-			'title'         => __( 'Description', 'wpem-rest-api' ),
-			'truncated_key' => __( 'Consumer key ending in', 'wpem-rest-api' ),
-			'user_id'       => __( 'User', 'wpem-rest-api' ),
-			'event_id'      => __( 'Event', 'wpem-rest-api' ),
-			'permissions'   => __( 'Permissions', 'wpem-rest-api' ),
-			'last_access'   => __( 'Last access', 'wpem-rest-api' ),
+			'app_key'       => __( 'App Key', 'aprio-rest-api' ),
+			'title'         => __( 'Description', 'aprio-rest-api' ),
+			'truncated_key' => __( 'Consumer key ending in', 'aprio-rest-api' ),
+			'user_id'       => __( 'User', 'aprio-rest-api' ),
+			'event_id'      => __( 'Event', 'aprio-rest-api' ),
+			'permissions'   => __( 'Permissions', 'aprio-rest-api' ),
+			'last_access'   => __( 'Last access', 'aprio-rest-api' ),
 		);
 	}
 
@@ -70,7 +70,7 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 	 * @return string
 	 */
 	public function column_title( $key ) {
-		$url     = admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=api-access&edit-key=' . $key['key_id'] );
+		$url     = admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=api-access&edit-key=' . $key['key_id'] );
 		$user_id = intval( $key['user_id'] );
 
 		// Check if current user can edit other users or if it's the same user.
@@ -81,7 +81,7 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 			$output .= '<a href="' . esc_url( $url ) . '" class="row-title">';
 		}
 		if ( empty( $key['description'] ) ) {
-			$output .= esc_html__( 'API key', 'wpem-rest-api' );
+			$output .= esc_html__( 'API key', 'aprio-rest-api' );
 		} else {
 			$output .= esc_html( $key['description'] );
 		}
@@ -93,22 +93,22 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 		// Get actions.
 		$actions = array(
 			/* translators: %s: API key ID. */
-			'id' => sprintf( __( 'ID: %d', 'wpem-rest-api' ), $key['key_id'] ),
+			'id' => sprintf( __( 'ID: %d', 'aprio-rest-api' ), $key['key_id'] ),
 		);
 
 		if ( $can_edit ) {
-			$actions['edit']  = '<a href="' . esc_url( $url ) . '">' . __( 'View/Edit', 'wpem-rest-api' ) . '</a>';
-			$actions['trash'] = '<a class="submitdelete" aria-label="' . esc_attr__( 'Revoke API key', 'wpem-rest-api' ) . '" href="' . esc_url(
+			$actions['edit']  = '<a href="' . esc_url( $url ) . '">' . __( 'View/Edit', 'aprio-rest-api' ) . '</a>';
+			$actions['trash'] = '<a class="submitdelete" aria-label="' . esc_attr__( 'Revoke API key', 'aprio-rest-api' ) . '" href="' . esc_url(
 				wp_nonce_url(
 					add_query_arg(
 						array(
 							'revoke-key' => $key['key_id'],
 						),
-						admin_url( 'edit.php?post_type=event_listing&page=wpem-rest-api-settings&tab=api-access' )
+						admin_url( 'edit.php?post_type=event_listing&page=aprio-rest-api-settings&tab=api-access' )
 					),
 					'revoke'
 				)
-			) . '">' . esc_html__( 'Revoke', 'wpem-rest-api' ) . '</a>';
+			) . '">' . esc_html__( 'Revoke', 'aprio-rest-api' ) . '</a>';
 		}
 
 		$row_actions = array();
@@ -171,9 +171,9 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 	public function column_permissions( $key ) {
 		$permission_key = $key['permissions'];
 		$permissions    = array(
-			'read'       => __( 'Read', 'wpem-rest-api' ),
-			'write'      => __( 'Write', 'wpem-rest-api' ),
-			'read_write' => __( 'Read/Write', 'wpem-rest-api' ),
+			'read'       => __( 'Read', 'aprio-rest-api' ),
+			'write'      => __( 'Write', 'aprio-rest-api' ),
+			'read_write' => __( 'Read/Write', 'aprio-rest-api' ),
 		);
 
 		if ( isset( $permissions[ $permission_key ] ) ) {
@@ -192,10 +192,10 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 	public function column_last_access( $key ) {
 		if ( ! empty( $key['last_access'] ) ) {
 			/* translators: 1: last access date 2: last access time */
-			$date = sprintf( __( '%1$s at %2$s', 'wpem-rest-api' ), date_i18n( 'Y-m-d', strtotime( $key['last_access'] ) ), date_i18n( 'H:s:i', strtotime( $key['last_access'] ) ) );
-			return apply_filters( 'wpem_api_key_last_access_datetime', $date, $key['last_access'] );
+			$date = sprintf( __( '%1$s at %2$s', 'aprio-rest-api' ), date_i18n( 'Y-m-d', strtotime( $key['last_access'] ) ), date_i18n( 'H:s:i', strtotime( $key['last_access'] ) ) );
+			return apply_filters( 'aprio_api_key_last_access_datetime', $date, $key['last_access'] );
 		}
-		return __( 'Unknown', 'wpem-rest-api' );
+		return __( 'Unknown', 'aprio-rest-api' );
 	}
 
 	/**
@@ -208,7 +208,7 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 			return array();
 		}
 		return array(
-			'revoke' => __( 'Revoke', 'wpem-rest-api' ),
+			'revoke' => __( 'Revoke', 'aprio-rest-api' ),
 		);
 	}
 
@@ -259,13 +259,13 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 
 		// Get the API keys.
 		$keys = $wpdb->get_results(
-			"SELECT key_id, app_key, user_id, event_id, description, permissions, truncated_key, last_access FROM {$wpdb->prefix}wpem_rest_api_keys WHERE 1 = 1 {$search}" .
+			"SELECT key_id, app_key, user_id, event_id, description, permissions, truncated_key, last_access FROM {$wpdb->prefix}aprio_rest_api_keys WHERE 1 = 1 {$search}" .
 			$wpdb->prepare( 'ORDER BY key_id DESC LIMIT %d OFFSET %d;', $per_page, $offset ),
 			ARRAY_A
 		); 
 		// WPCS: unprepared SQL ok.
 
-		$count = $wpdb->get_var( "SELECT COUNT(key_id) FROM {$wpdb->prefix}wpem_rest_api_keys WHERE 1 = 1 {$search};" ); 
+		$count = $wpdb->get_var( "SELECT COUNT(key_id) FROM {$wpdb->prefix}aprio_rest_api_keys WHERE 1 = 1 {$search};" ); 
 		// WPCS: unprepared SQL ok.
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 		$this->items           = $keys;
@@ -296,7 +296,7 @@ class WPEM_API_Keys_Table_List extends WP_List_Table {
 		$search_query = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : ''; 
 		// WPCS: input var okay, CSRF ok.
 
-		echo '<div class="wpem-admin-body">';
+		echo '<div class="aprio-admin-body">';
 		echo '<p class="search-box">';
 		echo '<label class="screen-reader-text" for="' . esc_attr( $input_id ) . '">' . esc_html( $text ) . ':</label>';
 		echo '<input type="search" id="' . esc_attr( $input_id ) . '" name="s" value="' . esc_attr( $search_query ) . '" />';

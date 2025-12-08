@@ -253,7 +253,7 @@ remove_action( 'wp_print_styles', 'print_emoji_styles' );
 				</div>
 				
 				<!-- LAYOUT TOGGLE -->
-				<button type="button" class="layout-toggle" id="wpem-event-toggle-layout" 
+				<button type="button" class="layout-toggle" id="aprio-event-toggle-layout" 
 						title="Alternar layout" aria-pressed="false" data-layout="card">
 					<i class="ri-building-3-fill"></i>
 					<span class="visually-hidden">Alternar layout</span>

@@ -1,13 +1,13 @@
 <?php
 // phpcs:ignoreFile
 /**
- * WPEM Rest Api public functions
+ * APRIO Rest Api public functions
  *
  * @version 1.0.0
  */
 defined( 'ABSPATH' ) || exit;
 
-if ( ! function_exists( 'wpem_rest_api_prepare_date_response' ) ) {
+if ( ! function_exists( 'aprio_rest_api_prepare_date_response' ) ) {
 	/**
 	 * Parses and formats a date for ISO8601/RFC3339.
 	 *
@@ -19,13 +19,13 @@ if ( ! function_exists( 'wpem_rest_api_prepare_date_response' ) ) {
 	 * @param  bool         $utc  Send false to get local/offset time.
 	 * @return string|null ISO8601/RFC3339 formatted datetime.
 	 */
-	function wpem_rest_api_prepare_date_response( $date, $utc = true ) {
-		// need improvements as per wpem date time class
+	function aprio_rest_api_prepare_date_response( $date, $utc = true ) {
+		// need improvements as per aprio date time class
 		return $date;
 	}
 }
 
-if ( ! function_exists( 'wpem_rest_api_check_post_permissions' ) ) {
+if ( ! function_exists( 'aprio_rest_api_check_post_permissions' ) ) {
 	/**
 	 * Check permissions of posts on REST API.
 	 *
@@ -35,7 +35,7 @@ if ( ! function_exists( 'wpem_rest_api_check_post_permissions' ) ) {
 	 * @param  int    $object_id Post ID.
 	 * @return bool
 	 */
-	function wpem_rest_api_check_post_permissions( $post_type, $context = 'read', $object_id = 0 ) {
+	function aprio_rest_api_check_post_permissions( $post_type, $context = 'read', $object_id = 0 ) {
 		global $wpdb;
 		$contexts   = array(
 			'read'   => 'read',
@@ -46,11 +46,11 @@ if ( ! function_exists( 'wpem_rest_api_check_post_permissions' ) ) {
 		);
 		$permission = true;
 
-		return apply_filters( 'wpem_rest_api_check_permissions', $permission, $context, $object_id, $post_type );
+		return apply_filters( 'aprio_rest_api_check_permissions', $permission, $context, $object_id, $post_type );
 	}
 }//end if
 
-if ( ! function_exists( 'wpem_rest_api_urlencode_rfc3986' ) ) {
+if ( ! function_exists( 'aprio_rest_api_urlencode_rfc3986' ) ) {
 	/**
 	 * Encodes a value according to RFC 3986.
 	 * Supports multidimensional arrays.
@@ -59,25 +59,25 @@ if ( ! function_exists( 'wpem_rest_api_urlencode_rfc3986' ) ) {
 	 * @param  string|array $value The value to encode.
 	 * @return string|array       Encoded values.
 	 */
-	function wpem_rest_api_urlencode_rfc3986( $value ) {
+	function aprio_rest_api_urlencode_rfc3986( $value ) {
 		if ( is_array( $value ) ) {
-			return array_map( 'wpem_rest_api_urlencode_rfc3986', $value );
+			return array_map( 'aprio_rest_api_urlencode_rfc3986', $value );
 		}
 
 		return str_replace( array( '+', '%7E' ), array( ' ', '~' ), rawurlencode( $value ) );
 	}
 }
 
-if ( ! function_exists( 'wpem_rest_api_color_brightness' ) ) {
+if ( ! function_exists( 'aprio_rest_api_color_brightness' ) ) {
 
 	/**
-	 * WPEM Color Brightness
+	 * APRIO Color Brightness
 	 *
 	 * @since  1.0.0
 	 * @param  string $data Message to be hashed.
 	 * @return string
 	 */
-	function wpem_rest_api_color_brightness( $hexCode, $adjustPercent ) {
+	function aprio_rest_api_color_brightness( $hexCode, $adjustPercent ) {
 		$hexCode = ltrim( $hexCode, '#' );
 
 		if ( strlen( $hexCode ) == 3 ) {
@@ -97,15 +97,15 @@ if ( ! function_exists( 'wpem_rest_api_color_brightness' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'wpem_rest_api_hex_to_rgb' ) ) {
+if ( ! function_exists( 'aprio_rest_api_hex_to_rgb' ) ) {
 	/**
-	 * WPEM hex to rgb
+	 * APRIO hex to rgb
 	 *
 	 * @since  1.0.0
 	 * @param  string $data Message to be hashed.
 	 * @return string
 	 */
-	function wpem_rest_api_hex_to_rgb( $colour ) {
+	function aprio_rest_api_hex_to_rgb( $colour ) {
 		if ( $colour[0] == '#' ) {
 			$colour = substr( $colour, 1 );
 		}
@@ -126,7 +126,7 @@ if ( ! function_exists( 'wpem_rest_api_hex_to_rgb' ) ) {
 		);
 	}
 }//end if
-if ( ! function_exists( 'wpem_rest_api_check_manager_permissions' ) ) {
+if ( ! function_exists( 'aprio_rest_api_check_manager_permissions' ) ) {
 	/**
 	 * Check manager permissions on REST API.
 	 *
@@ -135,142 +135,142 @@ if ( ! function_exists( 'wpem_rest_api_check_manager_permissions' ) ) {
 	 * @param  string $context Request context.
 	 * @return bool
 	 */
-	function wpem_rest_api_check_manager_permissions( $object, $context = 'read' ) {
+	function aprio_rest_api_check_manager_permissions( $object, $context = 'read' ) {
 		$permission = true;
 
-		return apply_filters( 'wpem_rest_api_check_permissions', $permission, $context, 0, $object );
+		return apply_filters( 'aprio_rest_api_check_permissions', $permission, $context, 0, $object );
 	}
 }
 
-if ( ! function_exists( 'wpem_response_default_status' ) ) {
+if ( ! function_exists( 'aprio_response_default_status' ) ) {
 	/**
 	 * This function is used to get error code, status, messages
 	 *
 	 * @since 1.0.1
 	 */
-	function wpem_response_default_status() {
+	function aprio_response_default_status() {
 		$error_info = apply_filters(
-			'wpem_rest_response_default_status',
+			'aprio_rest_response_default_status',
 			array(
 				array(
 					'code'    => 200,
 					'status'  => 'OK',
-					'message' => __( 'Request is successfully completed.', 'wpem-rest-api' ),
+					'message' => __( 'Request is successfully completed.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 201,
 					'status'  => 'Created',
-					'message' => __( 'Resource was successfully created.', 'wpem-rest-api' ),
+					'message' => __( 'Resource was successfully created.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 202,
 					'status'  => 'Updated',
-					'message' => __( 'Resource was successfully updated.', 'wpem-rest-api' ),
+					'message' => __( 'Resource was successfully updated.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 204,
 					'status'  => 'No Content',
-					'message' => __( 'Request was successfully processed and there is no content to return.', 'wpem-rest-api' ),
+					'message' => __( 'Request was successfully processed and there is no content to return.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 400,
 					'status'  => 'Bad request',
-					'message' => __( 'Invalid syntax, incorrectly formatted JSON, or data violating a database constraint.', 'wpem-rest-api' ),
+					'message' => __( 'Invalid syntax, incorrectly formatted JSON, or data violating a database constraint.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 401,
 					'status'  => 'Unauthorized',
-					'message' => __( 'Username or Password Wrong, Please try again.', 'wpem-rest-api' ),
+					'message' => __( 'Username or Password Wrong, Please try again.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 403,
 					'status'  => 'Forbidden',
-					'message' => __( 'Does not have permissions to access the requested resource.', 'wpem-rest-api' ),
+					'message' => __( 'Does not have permissions to access the requested resource.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 404,
 					'status'  => 'Not found',
-					'message' => __( 'Data not found.', 'wpem-rest-api' ),
+					'message' => __( 'Data not found.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 406,
 					'status'  => 'Unauthorized',
-					'message' => __( 'Username already exists.', 'wpem-rest-api' ),
+					'message' => __( 'Username already exists.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 407,
 					'status'  => 'Unauthorized',
-					'message' => __( 'Email already exists.', 'wpem-rest-api' ),
+					'message' => __( 'Email already exists.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 413,
 					'status'  => 'Error',
-					'message' => __( 'Unable to accept items for this request.', 'wpem-rest-api' ),
+					'message' => __( 'Unable to accept items for this request.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 408,
 					'status'  => 'Error',
-					'message' => __( 'Failed to create Resource.', 'wpem-rest-api' ),
+					'message' => __( 'Failed to create Resource.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 409,
 					'status'  => 'Error',
-					'message' => __( 'Failed to update Resource.', 'wpem-rest-api' ),
+					'message' => __( 'Failed to update Resource.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 410,
 					'status'  => 'Error',
-					'message' => __( 'The item already deleted.', 'wpem-rest-api' ),
+					'message' => __( 'The item already deleted.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 418,
 					'status'  => 'Error',
-					'message' => __( 'Already Checkin.', 'wpem-rest-api' ),
+					'message' => __( 'Already Checkin.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 416,
 					'status'  => 'Error',
-					'message' => __( 'You can Checkin only for confirmed ticket.', 'wpem-rest-api' ),
+					'message' => __( 'You can Checkin only for confirmed ticket.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 412,
 					'status'  => 'Error',
-					'message' => __( 'You Do Not Have Permission to Delete Resource.', 'wpem-rest-api' ),
+					'message' => __( 'You Do Not Have Permission to Delete Resource.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 500,
 					'status'  => 'Internal server error',
-					'message' => __( 'An unexpected error has occurred in processing the request. View the logs on the device for details.', 'wpem-rest-api' ),
+					'message' => __( 'An unexpected error has occurred in processing the request. View the logs on the device for details.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 503,
 					'status'  => 'Service unavailable',
-					'message' => __( 'You Do Not Have Permission to access this app.', 'wpem-rest-api' ),
+					'message' => __( 'You Do Not Have Permission to access this app.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 504,
 					'status'  => 'Permission Denied',
-					'message' => __( 'You do not have permission to edit this resource.', 'wpem-rest-api' ),
+					'message' => __( 'You do not have permission to edit this resource.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 505,
 					'status'  => 'Checkin Denied',
-					'message' => __( 'You do not have permission to checkin yet.', 'wpem-rest-api' ),
+					'message' => __( 'You do not have permission to checkin yet.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 506,
 					'status'  => 'Disabled Matchmaking',
-					'message' => __( 'Matchmaking functionality is not enabled.', 'wpem-rest-api' ),
+					'message' => __( 'Matchmaking functionality is not enabled.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 203,
 					'status'  => 'Non-Authorative Information',
-					'message' => __( 'You does not have read permissions.', 'wpem-rest-api' ),
+					'message' => __( 'You does not have read permissions.', 'aprio-rest-api' ),
 				),
 				array(
 					'code'    => 405,
 					'status'  => 'Authentication Failed',
-					'message' => __( 'User not exist.', 'wpem-rest-api' ),
+					'message' => __( 'User not exist.', 'aprio-rest-api' ),
 				),
 			)
 		);
@@ -278,25 +278,25 @@ if ( ! function_exists( 'wpem_response_default_status' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'get_wpem_rest_api_ecosystem_info' ) ) {
+if ( ! function_exists( 'get_aprio_rest_api_ecosystem_info' ) ) {
 	/**
 	 * This function is used to get ecosystem information of website
 	 *
 	 * @since 1.0.1
 	 */
-	function get_wpem_rest_api_ecosystem_info() {
-		// Create required plugin list for wpem rest api
+	function get_aprio_rest_api_ecosystem_info() {
+		// Create required plugin list for aprio rest api
 		$required_plugins = apply_filters(
-			'wpem_rest_api_required_plugin_list',
+			'aprio_rest_api_required_plugin_list',
 			array(
 				'woocommerce'                    => 'Woocommerce',
 				'wp-event-manager'               => 'WP Event Manager',
-				'wpem-rest-api'                  => 'WPEM Rest API',
+				'aprio-rest-api'                  => 'APRIO Rest API',
 				'wp-event-manager-sell-tickets'  => 'WP Event Manager Sell Tickets',
 				'wp-event-manager-registrations' => 'WP Event Manager Registrations',
-				'wpem-guests'                    => 'WP Event Manager Guests',
-				'wpem-speaker-schedule'          => 'WP Event Manager Speaker & Schedule',
-				'wpem-name-badges'               => 'WP Event Manager - Name Badges',
+				'aprio-guests'                    => 'WP Event Manager Guests',
+				'aprio-speaker-schedule'          => 'WP Event Manager Speaker & Schedule',
+				'aprio-name-badges'               => 'WP Event Manager - Name Badges',
 			)
 		);
 
@@ -305,7 +305,7 @@ if ( ! function_exists( 'get_wpem_rest_api_ecosystem_info' ) ) {
 		$ecosystem_info = array();
 
 		foreach ( $plugins as $filename => $plugin ) {
-			if ( 'woocommerce' == $plugin['TextDomain'] || 'wp-event-manager' == $plugin['TextDomain'] || 'wpem-rest-api' == $plugin['TextDomain'] ) {
+			if ( 'woocommerce' == $plugin['TextDomain'] || 'wp-event-manager' == $plugin['TextDomain'] || 'aprio-rest-api' == $plugin['TextDomain'] ) {
 				$ecosystem_info[ $plugin['TextDomain'] ] = array(
 					'version'     => $plugin['Version'],
 					'activated'   => is_plugin_active( $filename ),
@@ -315,7 +315,7 @@ if ( ! function_exists( 'get_wpem_rest_api_ecosystem_info' ) ) {
 					$licence_activate = get_option( $plugin['TextDomain'] . '_licence_key' );
 
 				if ( ! empty( $licence_activate ) ) {
-					$license_status                          = check_wpem_license_expire_date( $licence_activate );
+					$license_status                          = check_aprio_license_expire_date( $licence_activate );
 					$ecosystem_info[ $plugin['TextDomain'] ] = array(
 						'version'     => $plugin['Version'],
 						'activated'   => $license_status,
@@ -348,11 +348,11 @@ if ( ! function_exists( 'get_wpem_rest_api_ecosystem_info' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'check_wpem_license_expire_date' ) ) {
+if ( ! function_exists( 'check_aprio_license_expire_date' ) ) {
 	/**
 	 * This function is used to check plugin license key is expired or not
 	 */
-	function check_wpem_license_expire_date( $licence_key ) {
+	function check_aprio_license_expire_date( $licence_key ) {
 
 		$args     = array();
 		$defaults = array(
@@ -361,7 +361,7 @@ if ( ! function_exists( 'check_wpem_license_expire_date' ) ) {
 		);
 
 		$args    = wp_parse_args( $args, $defaults );
-		$request = wp_remote_get( WPEM_PLUGIN_ACTIVATION_API_URL . '&' . http_build_query( $args, '', '&' ) );
+		$request = wp_remote_get( APRIO_PLUGIN_ACTIVATION_API_URL . '&' . http_build_query( $args, '', '&' ) );
 
 		if ( is_wp_error( $request ) || wp_remote_retrieve_response_code( $request ) != 200 ) {
 			return false;
@@ -381,18 +381,18 @@ if ( ! function_exists( 'check_wpem_license_expire_date' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'get_wpem_event_users' ) ) {
+if ( ! function_exists( 'get_aprio_event_users' ) ) {
 
 	/**
 	 * This function used to get all event users
 	 *
 	 * @since 1.0.1
 	 */
-	function get_wpem_event_users() {
-		// Get allowed roles from settings; default to dj and wpem-scanner
-		$allowed_roles = get_option( 'wpem_rest_allowed_roles' );
+	function get_aprio_event_users() {
+		// Get allowed roles from settings; default to dj and aprio-scanner
+		$allowed_roles = get_option( 'aprio_rest_allowed_roles' );
 		if ( empty( $allowed_roles ) || ! is_array( $allowed_roles ) ) {
-			$allowed_roles = array( 'dj', 'wpem-scanner', 'administrator' );
+			$allowed_roles = array( 'dj', 'aprio-scanner', 'administrator' );
 		}
 		$allowed_roles = array_map( 'sanitize_key', $allowed_roles );
 
@@ -415,13 +415,13 @@ if ( ! function_exists( 'get_wpem_event_users' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'wpem_rest_get_current_user_id' ) ) {
+if ( ! function_exists( 'aprio_rest_get_current_user_id' ) ) {
 	/**
 	 * This function is used to check user is exist or not.
 	 *
 	 * @since 1.0.1
 	 */
-	function wpem_rest_get_current_user_id() {
+	function aprio_rest_get_current_user_id() {
 		// Get the authorization header
 		$headers = getallheaders();
 		$token   = '';
@@ -439,12 +439,12 @@ if ( ! function_exists( 'wpem_rest_get_current_user_id' ) ) {
 			$token = trim( str_replace( 'Bearer', '', $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) );
 		}
 		if ( empty( $token ) ) {
-			return WPEM_REST_CRUD_Controller::prepare_error_for_response( 401 );
+			return APRIO_REST_CRUD_Controller::prepare_error_for_response( 401 );
 		}
 
-		$user_data = WPEM_REST_CRUD_Controller::wpem_validate_jwt_token( $token );
+		$user_data = APRIO_REST_CRUD_Controller::aprio_validate_jwt_token( $token );
 		if ( ! $user_data ) {
-			return WPEM_REST_CRUD_Controller::prepare_error_for_response( 405 );
+			return APRIO_REST_CRUD_Controller::prepare_error_for_response( 405 );
 		}
 
 		$user_id = $user_data['id'];
@@ -452,7 +452,7 @@ if ( ! function_exists( 'wpem_rest_get_current_user_id' ) ) {
 	}
 }//end if
 
-if ( ! function_exists( 'check_wpem_plugin_activation' ) ) {
+if ( ! function_exists( 'check_aprio_plugin_activation' ) ) {
 	/**
 	 * This function is used to check perticular plugin license activated or not.
 	 *
@@ -460,22 +460,22 @@ if ( ! function_exists( 'check_wpem_plugin_activation' ) ) {
 	 * @param string $context Request context.
 	 * @return array
 	 */
-	function check_wpem_plugin_activation( $plugin_domain ) {
+	function check_aprio_plugin_activation( $plugin_domain ) {
 		if ( ! is_plugin_active( $plugin_domain . '/' . $plugin_domain . '.php' ) ) {
-			return WPEM_REST_CRUD_Controller::prepare_error_for_response( 203 );
+			return APRIO_REST_CRUD_Controller::prepare_error_for_response( 203 );
 		} else {
 			$licence_activate = get_option( $plugin_domain . '_licence_key' );
 
 			if ( ! empty( $licence_activate ) ) {
-				$license_status = check_wpem_license_expire_date( $licence_activate );
+				$license_status = check_aprio_license_expire_date( $licence_activate );
 
 				if ( $license_status ) {
 					return true;
 				} else {
-					return WPEM_REST_CRUD_Controller::prepare_error_for_response( 203 );
+					return APRIO_REST_CRUD_Controller::prepare_error_for_response( 203 );
 				}
 			} else {
-				return WPEM_REST_CRUD_Controller::prepare_error_for_response( 203 );
+				return APRIO_REST_CRUD_Controller::prepare_error_for_response( 203 );
 			}
 		}
 	}
@@ -486,11 +486,11 @@ if ( ! function_exists( 'check_wpem_plugin_activation' ) ) {
  *
  * @since 1.0.9
  */
-function wpem_base64url_encode( $data ) {
+function aprio_base64url_encode( $data ) {
 	return rtrim( strtr( base64_encode( $data ), '+/', '-_' ), '=' );
 }
 
-function wpem_base64url_decode( $data ) {
+function aprio_base64url_decode( $data ) {
 	$remainder = strlen( $data ) % 4;
 	if ( $remainder ) {
 		$padlen = 4 - $remainder;

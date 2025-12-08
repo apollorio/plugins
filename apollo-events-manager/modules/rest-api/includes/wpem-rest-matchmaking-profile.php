@@ -2,8 +2,8 @@
 // phpcs:ignoreFile
 defined( 'ABSPATH' ) || exit;
 
-class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
-	protected $namespace = 'wpem';
+class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
+	protected $namespace = 'aprio';
 
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
@@ -14,13 +14,13 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function register_routes() {
-		$auth_controller = new WPEM_REST_Authentication();
+		$auth_controller = new APRIO_REST_Authentication();
 		register_rest_route(
 			$this->namespace,
-			'/attendee-profile',
+			'/preferencias',
 			array(
 				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'wpem_get_matchmaking_profile_data' ),
+				'callback' => array( $this, 'aprio_get_matchmaking_profile_data' ),
 				'args'     => array(
 					'attendeeId' => array(
 						'required' => false,
@@ -32,10 +32,10 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/attendee-profile/update',
+			'/preferencias/update',
 			array(
 				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'wpem_update_matchmaking_profile' ),
+				'callback' => array( $this, 'aprio_update_matchmaking_profile' ),
 				'args'     => array(
 					'user_id' => array(
 						'required' => true,
@@ -47,7 +47,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/upload-user-file',
+			'/upload-photo',
 			array(
 				'methods'  => WP_REST_Server::CREATABLE,
 				'callback' => array( $this, 'upload_user_file' ),
@@ -71,7 +71,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function wpem_get_matchmaking_profile_data( $request ) {
+	public function aprio_get_matchmaking_profile_data( $request ) {
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
 				array(
@@ -83,12 +83,12 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
 			$attendee_id = $request->get_param( 'attendeeId' );
-			$countries   = wpem_get_all_countries();
+			$countries   = aprio_get_all_countries();
 			if ( $attendee_id ) {
 				// Check if user exists
 				$user = get_user_by( 'ID', $attendee_id );
@@ -106,11 +106,11 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 
 				// Get all user meta
 				$user_meta         = get_user_meta( $attendee_id );
-				$photo             = get_wpem_user_profile_photo( $attendee_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+				$photo             = get_aprio_user_profile_photo( $attendee_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
 				$organization_logo = get_user_meta( $attendee_id, '_organization_logo', true );
 				$organization_logo = maybe_unserialize( $organization_logo );
 				if ( is_array( $organization_logo ) ) {
-					$organization_logo = reset( $organization_logo ); 
+					$organization_logo = reset( $organization_logo );
 					// get first value in the array
 				}
 				$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
@@ -165,7 +165,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 						}
 					}
 				}
-				$skills_slugs = array_filter( $skills_slugs ); 
+				$skills_slugs = array_filter( $skills_slugs );
 				// remove blanks
 				$skills_serialized = serialize( $skills_slugs );
 
@@ -214,7 +214,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 					'organization_description'  => isset( $user_meta['_organization_description'][0] ) ? sanitize_textarea_field( $user_meta['_organization_description'][0] ) : '',
 					'organization_website'      => isset( $user_meta['_organization_website'][0] ) ? sanitize_text_field( $user_meta['_organization_website'][0] ) : '',
 					'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
-					'wpem_meeting_request_mode' => isset( $user_meta['_wpem_meeting_request_mode'][0] ) ? $user_meta['_wpem_meeting_request_mode'][0] : 'approval',
+					'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
 					'available_for_meeting'     => (int) $meeting_available,
 				);
 
@@ -239,7 +239,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 				$profiles = array();
 				foreach ( $users as $user ) {
 					$user_meta         = get_user_meta( $user->ID );
-					$photo             = get_wpem_user_profile_photo( $user->ID ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+					$photo             = get_aprio_user_profile_photo( $user->ID ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
 					$organization_logo = get_user_meta( $user->ID, '_organization_logo', true );
 					$organization_logo = maybe_unserialize( $organization_logo );
 					if ( is_array( $organization_logo ) ) {
@@ -292,7 +292,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 							}
 						}
 					}
-					$skills_slugs = array_filter( $skills_slugs ); 
+					$skills_slugs = array_filter( $skills_slugs );
 					// remove blanks
 					$skills_serialized = serialize( $skills_slugs );
 
@@ -340,7 +340,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 						'organization_description'  => isset( $user_meta['_organization_description'][0] ) ? sanitize_textarea_field( $user_meta['_organization_description'][0] ) : '',
 						'organization_website'      => isset( $user_meta['_organization_website'][0] ) ? sanitize_text_field( $user_meta['_organization_website'][0] ) : '',
 						'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
-						'wpem_meeting_request_mode' => isset( $user_meta['_wpem_meeting_request_mode'][0] ) ? $user_meta['_wpem_meeting_request_mode'][0] : 'approval',
+						'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
 						'available_for_meeting'     => (int) $meeting_available,
 					);
 				}//end foreach
@@ -364,7 +364,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function wpem_update_matchmaking_profile( $request ) {
+	public function aprio_update_matchmaking_profile( $request ) {
 		if ( ! get_option( 'enable_matchmaking', false ) ) {
 			return new WP_REST_Response(
 				array(
@@ -375,7 +375,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -430,7 +430,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 								return $v !== null && $v !== '';
 							}
 						);
-						$value = array_values( $value ); 
+						$value = array_values( $value );
 						// reindex after filtering
 
 						// Save as serialized array (produces a:2:{i:0;s:...;i:1;s:...;} format)
@@ -448,13 +448,13 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 									return $v !== null && $v !== '';
 								}
 							);
-							$value = array_values( $value ); 
+							$value = array_values( $value );
 							// reindex after filtering
 						}
 						if ( ! empty( $value ) ) {
 							update_user_meta( $user_id, '_' . $field, $value );
 						} else {
-							update_user_meta( $user_id, '_' . $field, '' ); 
+							update_user_meta( $user_id, '_' . $field, '' );
 							// cleanup if blank
 						}
 					}//end if
@@ -580,7 +580,7 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 				403
 			);
 		}
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
 			return self::prepare_error_for_response( 405 );
 		} else {
@@ -646,4 +646,4 @@ class WPEM_REST_MatchMaking_Profile extends WPEM_REST_CRUD_Controller {
 		}//end if
 	}
 }
-new WPEM_REST_MatchMaking_Profile();
+new APRIO_REST_MatchMaking_Profile();

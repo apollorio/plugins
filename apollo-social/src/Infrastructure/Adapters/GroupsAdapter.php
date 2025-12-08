@@ -13,7 +13,7 @@ class GroupsAdapter {
 
 	public function __construct() {
 		$this->config        = config( 'integrations.itthinx_groups' );
-		$this->group_mapping = $this->config['group_mapping'] ?? array();
+		$this->group_mapping = $this->config['group_mapping'] ?? [];
 
 		if ( $this->config['enabled'] ?? false ) {
 			$this->init_hooks();
@@ -25,20 +25,20 @@ class GroupsAdapter {
 	 */
 	private function init_hooks() {
 		// Group creation/deletion sync
-		add_action( 'groups_created_group', array( $this, 'on_group_created' ), 10, 2 );
-		add_action( 'groups_deleted_group', array( $this, 'on_group_deleted' ), 10, 1 );
+		add_action( 'groups_created_group', [ $this, 'on_group_created' ], 10, 2 );
+		add_action( 'groups_deleted_group', [ $this, 'on_group_deleted' ], 10, 1 );
 
 		// User group membership sync
-		add_action( 'groups_created_user_group', array( $this, 'on_user_added_to_group' ), 10, 2 );
-		add_action( 'groups_deleted_user_group', array( $this, 'on_user_removed_from_group' ), 10, 2 );
+		add_action( 'groups_created_user_group', [ $this, 'on_user_added_to_group' ], 10, 2 );
+		add_action( 'groups_deleted_user_group', [ $this, 'on_user_removed_from_group' ], 10, 2 );
 
 		// Capability sync
-		add_action( 'groups_created_group_capability', array( $this, 'on_capability_added' ), 10, 2 );
-		add_action( 'groups_deleted_group_capability', array( $this, 'on_capability_removed' ), 10, 2 );
+		add_action( 'groups_created_group_capability', [ $this, 'on_capability_added' ], 10, 2 );
+		add_action( 'groups_deleted_group_capability', [ $this, 'on_capability_removed' ], 10, 2 );
 
 		// Auto sync if enabled
 		if ( $this->config['auto_sync'] ?? false ) {
-			add_action( 'wp_scheduled_event', array( $this, 'sync_all_groups' ) );
+			add_action( 'wp_scheduled_event', [ $this, 'sync_all_groups' ] );
 
 			if ( ! wp_next_scheduled( 'apollo_groups_sync' ) ) {
 				wp_schedule_event( time(), $this->config['sync_frequency'] ?? 'hourly', 'apollo_groups_sync' );
@@ -138,10 +138,10 @@ class GroupsAdapter {
 	 */
 	public function get_user_apollo_groups( $user_id ): array {
 		if ( ! $this->is_available() ) {
-			return array();
+			return [];
 		}
 
-		$apollo_groups = array();
+		$apollo_groups = [];
 		$user_groups   = Groups_User_Group::get_user_groups( $user_id );
 
 		foreach ( $user_groups as $user_group ) {
@@ -149,12 +149,12 @@ class GroupsAdapter {
 			$apollo_type = Groups_Group::get_group_meta( $group_id, 'apollo_type' );
 
 			if ( $apollo_type ) {
-				$apollo_groups[] = array(
+				$apollo_groups[] = [
 					'id'           => $group_id,
 					'type'         => $apollo_type,
 					'name'         => Groups_Group::get_group( $group_id )->name,
 					'capabilities' => $this->get_group_capabilities( $group_id ),
-				);
+				];
 			}
 		}
 
@@ -194,10 +194,10 @@ class GroupsAdapter {
 		}
 
 		return Groups_User_Group::create(
-			array(
+			[
 				'user_id'  => $user_id,
 				'group_id' => $group_id,
-			)
+			]
 		);
 	}
 
@@ -284,17 +284,17 @@ class GroupsAdapter {
 		$groups_name = $this->group_mapping[ $apollo_type ];
 
 		// Try to find existing group
-		$groups = Groups_Group::get_groups( array( 'name' => $groups_name ) );
+		$groups = Groups_Group::get_groups( [ 'name' => $groups_name ] );
 		if ( ! empty( $groups ) ) {
 			return $groups[0]->group_id;
 		}
 
 		// Create new group
 		$group_id = Groups_Group::create(
-			array(
+			[
 				'name'        => $groups_name,
 				'description' => "Apollo {$apollo_type} group",
-			)
+			]
 		);
 
 		if ( $group_id ) {
@@ -304,10 +304,10 @@ class GroupsAdapter {
 			// Add default capability
 			$default_cap = $this->config['default_capability'] ?? 'read';
 			Groups_Group_Capability::create(
-				array(
+				[
 					'group_id'   => $group_id,
 					'capability' => $default_cap,
-				)
+				]
 			);
 		}
 
@@ -319,10 +319,10 @@ class GroupsAdapter {
 	 */
 	private function get_group_capabilities( $group_id ): array {
 		if ( ! $this->is_available() ) {
-			return array();
+			return [];
 		}
 
-		$capabilities       = array();
+		$capabilities       = [];
 		$group_capabilities = Groups_Group_Capability::get_group_capabilities( $group_id );
 
 		foreach ( $group_capabilities as $cap ) {

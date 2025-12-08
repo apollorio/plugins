@@ -80,7 +80,7 @@ abstract class Apollo_Widget_Base {
 	 * @return array Array of setting fields
 	 */
 	public function get_settings() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -89,7 +89,7 @@ abstract class Apollo_Widget_Base {
 	 * @return array
 	 */
 	public function get_defaults() {
-		$defaults = array();
+		$defaults = [];
 
 		foreach ( $this->get_settings() as $key => $field ) {
 			if ( isset( $field['std'] ) ) {
@@ -209,13 +209,13 @@ abstract class Apollo_Widget_Base {
 	 * @param array  $extra Extra options
 	 * @return array
 	 */
-	protected function field( $type, $title, $default = '', $extra = array() ) {
+	protected function field( $type, $title, $default = '', $extra = [] ) {
 		return array_merge(
-			array(
+			[
 				'type'  => $type,
 				'title' => $title,
 				'std'   => $default,
-			),
+			],
 			$extra
 		);
 	}

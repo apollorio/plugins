@@ -6,21 +6,21 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 // Delete options of rest api plugin
 $options = array(
-	'wpem_rest_api_version',
-	'wpem_primary_color',
-	'wpem_success_color',
-	'wpem_info_color',
-	'wpem_warning_color',
-	'wpem_danger_color',
-	'wpem_primary_dark_color',
-	'wpem_success_dark_color',
-	'wpem_info_dark_color',
-	'wpem_warning_dark_color',
-	'wpem_danger_dark_color',
-	'wpem_app_branding_settings',
-	'wpem_app_branding_dark_settings',
-	'wpem_rest_api_app_logo',
-	'wpem_rest_api_app_name',
+	'aprio_rest_api_version',
+	'aprio_primary_color',
+	'aprio_success_color',
+	'aprio_info_color',
+	'aprio_warning_color',
+	'aprio_danger_color',
+	'aprio_primary_dark_color',
+	'aprio_success_dark_color',
+	'aprio_info_dark_color',
+	'aprio_warning_dark_color',
+	'aprio_danger_dark_color',
+	'aprio_app_branding_settings',
+	'aprio_app_branding_dark_settings',
+	'aprio_rest_api_app_logo',
+	'aprio_rest_api_app_name',
 );
 
 foreach ( $options as $option ) {

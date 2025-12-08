@@ -18,10 +18,10 @@ echo "════════════════════════�
 echo "\n";
 
 $files_to_migrate = array(
-	APOLLO_WPEM_PATH . 'apollo-events-manager.php',
-	APOLLO_WPEM_PATH . 'includes/admin-metaboxes.php',
-	APOLLO_WPEM_PATH . 'includes/event-helpers.php',
-	APOLLO_WPEM_PATH . 'includes/ajax-handlers.php',
+	APOLLO_APRIO_PATH . 'apollo-events-manager.php',
+	APOLLO_APRIO_PATH . 'includes/admin-metaboxes.php',
+	APOLLO_APRIO_PATH . 'includes/event-helpers.php',
+	APOLLO_APRIO_PATH . 'includes/ajax-handlers.php',
 );
 
 $stats = array(

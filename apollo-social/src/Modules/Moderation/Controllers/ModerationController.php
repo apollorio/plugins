@@ -17,10 +17,10 @@ class ModerationController {
 		$this->moderationService = new ModerationService();
 
 		// Register AJAX handlers
-		\add_action( 'wp_ajax_apollo_moderate_approve', array( $this, 'handleApprove' ) );
-		\add_action( 'wp_ajax_apollo_moderate_reject', array( $this, 'handleReject' ) );
-		\add_action( 'wp_ajax_apollo_moderation_queue', array( $this, 'getModerationQueue' ) );
-		\add_action( 'wp_ajax_apollo_moderation_stats', array( $this, 'getModerationStats' ) );
+		\add_action( 'wp_ajax_apollo_moderate_approve', [ $this, 'handleApprove' ] );
+		\add_action( 'wp_ajax_apollo_moderate_reject', [ $this, 'handleReject' ] );
+		\add_action( 'wp_ajax_apollo_moderation_queue', [ $this, 'getModerationQueue' ] );
+		\add_action( 'wp_ajax_apollo_moderation_stats', [ $this, 'getModerationStats' ] );
 	}
 
 	/**
@@ -32,7 +32,7 @@ class ModerationController {
 			\wp_die( 'Acesso negado' );
 		}
 
-		$queue = $this->moderationService->getModerationQueue( array( 'status' => 'pending' ) );
+		$queue = $this->moderationService->getModerationQueue( [ 'status' => 'pending' ] );
 		$stats = $this->moderationService->getModerationStats();
 
 		?>
@@ -640,14 +640,14 @@ class ModerationController {
 		}
 
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( array( 'error' => 'Permissão negada' ) );
+			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
 		$moderation_id = intval( $_POST['moderation_id'] ?? 0 );
 		$notes         = \sanitize_textarea_field( $_POST['notes'] ?? '' );
 
 		if ( ! $moderation_id ) {
-			\wp_send_json_error( array( 'error' => 'ID de moderação inválido' ) );
+			\wp_send_json_error( [ 'error' => 'ID de moderação inválido' ] );
 		}
 
 		$result = $this->moderationService->approve( $moderation_id, \get_current_user_id(), $notes );
@@ -668,14 +668,14 @@ class ModerationController {
 		}
 
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( array( 'error' => 'Permissão negada' ) );
+			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
 		$moderation_id = intval( $_POST['moderation_id'] ?? 0 );
 		$reason        = \sanitize_textarea_field( $_POST['reason'] ?? '' );
 
 		if ( ! $moderation_id || ! $reason ) {
-			\wp_send_json_error( array( 'error' => 'Dados obrigatórios não fornecidos' ) );
+			\wp_send_json_error( [ 'error' => 'Dados obrigatórios não fornecidos' ] );
 		}
 
 		$result = $this->moderationService->reject( $moderation_id, \get_current_user_id(), $reason );
@@ -692,14 +692,14 @@ class ModerationController {
 	 */
 	public function getModerationQueue(): void {
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( array( 'error' => 'Permissão negada' ) );
+			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
-		$filters = array(
+		$filters = [
 			'status'      => \sanitize_text_field( $_POST['status'] ?? 'pending' ),
 			'entity_type' => \sanitize_text_field( $_POST['entity_type'] ?? '' ),
 			'priority'    => \sanitize_text_field( $_POST['priority'] ?? '' ),
-		);
+		];
 
 		$queue = $this->moderationService->getModerationQueue( $filters );
 		\wp_send_json_success( $queue );
@@ -710,7 +710,7 @@ class ModerationController {
 	 */
 	public function getModerationStats(): void {
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( array( 'error' => 'Permissão negada' ) );
+			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
 		$stats = $this->moderationService->getModerationStats();

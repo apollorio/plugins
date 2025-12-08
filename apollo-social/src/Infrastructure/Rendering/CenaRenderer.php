@@ -7,27 +7,27 @@ namespace Apollo\Infrastructure\Rendering;
  */
 class CenaRenderer {
 
-	public function render( $template_data ) {
+	public function render() {
 		// Get current user
 		$current_user = wp_get_current_user();
 
 		// Get cena data (events, communities, etc.)
 		$cena_data = $this->getCenaData();
 
-		return array(
+		return [
 			'title'                       => 'Cena::rio',
 			'content'                     => '',
 			// Rendered by template
-							'breadcrumbs' => array( 'Apollo Social', 'Cena::rio' ),
-			'data'                        => array(
-				'user' => array(
+							'breadcrumbs' => [ 'Apollo Social', 'Cena::rio' ],
+			'data'                        => [
+				'user' => [
 					'id'     => $current_user->ID,
 					'name'   => $current_user->display_name,
-					'avatar' => get_avatar_url( $current_user->ID, array( 'size' => 200 ) ),
-				),
+					'avatar' => get_avatar_url( $current_user->ID, [ 'size' => 200 ] ),
+				],
 				'cena' => $cena_data,
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -37,10 +37,10 @@ class CenaRenderer {
 		// Get events, communities, etc.
 		// This will be populated with actual data
 
-		return array(
-			'events'      => array(),
-			'communities' => array(),
-			'nucleos'     => array(),
-		);
+		return [
+			'events'      => [],
+			'communities' => [],
+			'nucleos'     => [],
+		];
 	}
 }

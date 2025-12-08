@@ -13,16 +13,16 @@ defined( 'ABSPATH' ) || exit;
 /**
  * REST API Matchmaking Meetings controller class.
  *
- * @extends WPEM_REST_CRUD_Controller
+ * @extends APRIO_REST_CRUD_Controller
  */
-class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controller {
+class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Controller {
 
 	/**
 	 * Endpoint namespace.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpem';
+	protected $namespace = 'aprio';
 
 	/**
 	 * Route base.
@@ -40,7 +40,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 
 	public function __construct() {
 		global $wpdb;
-		$this->table = $wpdb->prefix . 'wpem_matchmaking_users_meetings';
+		$this->table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
 		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
 	}
 
@@ -74,7 +74,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			array(
 				'args'   => array(
 					'id' => array(
-						'description' => __( 'Unique identifier for the resource.', 'wpem-rest-api' ),
+						'description' => __( 'Unique identifier for the resource.', 'aprio-rest-api' ),
 						'type'        => 'integer',
 					),
 				),
@@ -96,7 +96,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 					'args'                => array(
 						'force' => array(
 							'default'     => false,
-							'description' => __( 'Whether to bypass trash and force deletion.', 'wpem-rest-api' ),
+							'description' => __( 'Whether to bypass trash and force deletion.', 'aprio-rest-api' ),
 							'type'        => 'boolean',
 						),
 					),
@@ -112,7 +112,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Meeting ID.', 'wpem-rest-api' ),
+						'description' => __( 'Meeting ID.', 'aprio-rest-api' ),
 						'type'        => 'integer',
 					),
 				),
@@ -123,7 +123,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 					'args'                => array(
 						'status' => array(
 							'required'    => true,
-							'description' => __( 'Your participant status (-1 pending, 0 declined, 1 accepted).', 'wpem-rest-api' ),
+							'description' => __( 'Your participant status (-1 pending, 0 declined, 1 accepted).', 'aprio-rest-api' ),
 							'type'        => 'integer',
 							'enum'        => array( -1, 0, 1 ),
 						),
@@ -139,7 +139,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			array(
 				'args' => array(
 					'id' => array(
-						'description' => __( 'Meeting ID.', 'wpem-rest-api' ),
+						'description' => __( 'Meeting ID.', 'aprio-rest-api' ),
 						'type'        => 'integer',
 					),
 				),
@@ -176,9 +176,9 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 * @return bool|WP_Error True if allowed, or sends JSON error.
 	 */
 	public function permission_check( $request ) {
-		$auth_check = $this->wpem_check_authorized_user();
+		$auth_check = $this->aprio_check_authorized_user();
 		if ( $auth_check ) {
-			return $auth_check; 
+			return $auth_check;
 			// Standardized error already sent
 		}
 		return true;
@@ -217,8 +217,8 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			}
 
 			// Profile photo
-			$profile_photo = function_exists( 'get_wpem_user_profile_photo' )
-				? get_wpem_user_profile_photo( $pid )
+			$profile_photo = function_exists( 'get_aprio_user_profile_photo' )
+				? get_aprio_user_profile_photo( $pid )
 				: '';
 			if ( empty( $profile_photo ) && defined( 'EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL' ) ) {
 				$profile_photo = EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
@@ -257,7 +257,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			$ln        = get_user_meta( $host_id, 'last_name', true );
 			$host_name = trim( $fn . ' ' . $ln );
 		}
-		$host_profile = function_exists( 'get_wpem_user_profile_photo' ) ? get_wpem_user_profile_photo( $host_id ) : '';
+		$host_profile = function_exists( 'get_aprio_user_profile_photo' ) ? get_aprio_user_profile_photo( $host_id ) : '';
 		if ( empty( $host_profile ) && defined( 'EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL' ) ) {
 			$host_profile = EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
 		}
@@ -304,7 +304,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	public function get_items( $request ) {
 		global $wpdb;
 		// Get current user ID
-		$user_id  = isset( $request['user_id'] ) ? (int) $request['user_id'] : wpem_rest_get_current_user_id();
+		$user_id  = isset( $request['user_id'] ) ? (int) $request['user_id'] : aprio_rest_get_current_user_id();
 		$event_id = isset( $request['event_id'] ) ? (int) $request['event_id'] : 0;
 		$page     = max( 1, (int) $request->get_param( 'page' ) );
 		$per_page = max( 1, min( 100, (int) $request->get_param( 'per_page' ) ) );
@@ -335,7 +335,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			$sql_count = $wpdb->prepare( $sql_count, $params );
 			$sql_rows  = $wpdb->prepare( $sql_rows, array_merge( $params, array( $per_page, $offset ) ) );
 		} else {
-			$sql_rows .= $wpdb->prepare( ' LIMIT %d OFFSET %d', $per_page, $offset ); 
+			$sql_rows .= $wpdb->prepare( ' LIMIT %d OFFSET %d', $per_page, $offset );
 			// safety but should not reach here
 		}
 
@@ -369,7 +369,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function get_item( $request ) {
 		global $wpdb;
-		$user_id    = wpem_rest_get_current_user_id();
+		$user_id    = aprio_rest_get_current_user_id();
 		$meeting_id = (int) $request['id'];
 		$row        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND user_id = %d", $meeting_id, $user_id ), ARRAY_A );
 		if ( ! $row ) {
@@ -390,7 +390,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function create_item( $request ) {
 		global $wpdb;
-		$user_id      = wpem_rest_get_current_user_id();
+		$user_id      = aprio_rest_get_current_user_id();
 		$event_id     = sanitize_text_field( $request->get_param( 'event_id' ) );
 		$meeting_date = sanitize_text_field( $request->get_param( 'meeting_date' ) );
 		$slot         = sanitize_text_field( $request->get_param( 'slot' ) );
@@ -512,7 +512,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function update_item( $request ) {
 		global $wpdb;
-		$user_id    = wpem_rest_get_current_user_id();
+		$user_id    = aprio_rest_get_current_user_id();
 		$meeting_id = (int) $request['id'];
 		$row        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND user_id = %d", $meeting_id, $user_id ), ARRAY_A );
 		if ( ! $row ) {
@@ -563,7 +563,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 						if ( $pid <= 0 || ( $host_id && $pid === $host_id ) ) {
 							continue;
 						}
-						$participants_map[ $pid ] = -1; 
+						$participants_map[ $pid ] = -1;
 						// default pending
 					}
 				}//end if
@@ -599,7 +599,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	public function update_participant_status( $request ) {
 		global $wpdb;
 		$meeting_id = (int) $request['id'];
-		$user_id    = (int) wpem_rest_get_current_user_id();
+		$user_id    = (int) aprio_rest_get_current_user_id();
 		$status     = (int) $request->get_param( 'status' );
 
 		if ( ! in_array( $status, array( -1, 0, 1 ), true ) ) {
@@ -657,7 +657,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function cancel_item( $request ) {
 		global $wpdb;
-		$user_id    = wpem_rest_get_current_user_id();
+		$user_id    = aprio_rest_get_current_user_id();
 		$meeting_id = (int) $request['id'];
 		$row        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND user_id = %d", $meeting_id, $user_id ), ARRAY_A );
 		if ( ! $row ) {
@@ -691,7 +691,7 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function delete_item( $request ) {
 		global $wpdb;
-		$user_id    = wpem_rest_get_current_user_id();
+		$user_id    = aprio_rest_get_current_user_id();
 		$meeting_id = (int) $request['id'];
 		$row        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d AND user_id = %d", $meeting_id, $user_id ), ARRAY_A );
 		if ( ! $row ) {
@@ -720,48 +720,48 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			'type'       => 'object',
 			'properties' => array(
 				'id'             => array(
-					'description' => __( 'Unique identifier for the resource.', 'wpem-rest-api' ),
+					'description' => __( 'Unique identifier for the resource.', 'aprio-rest-api' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'event_id'       => array(
-					'description' => __( 'Event ID.', 'wpem-rest-api' ),
+					'description' => __( 'Event ID.', 'aprio-rest-api' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'host_id'        => array(
-					'description' => __( 'Host user ID.', 'wpem-rest-api' ),
+					'description' => __( 'Host user ID.', 'aprio-rest-api' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meeting_date'   => array(
-					'description' => __( 'Meeting date (Y-m-d).', 'wpem-rest-api' ),
+					'description' => __( 'Meeting date (Y-m-d).', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meeting_start'  => array(
-					'description' => __( 'Meeting start time (H:i).', 'wpem-rest-api' ),
+					'description' => __( 'Meeting start time (H:i).', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meeting_end'    => array(
-					'description' => __( 'Meeting end time (H:i).', 'wpem-rest-api' ),
+					'description' => __( 'Meeting end time (H:i).', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'message'        => array(
-					'description' => __( 'Optional message.', 'wpem-rest-api' ),
+					'description' => __( 'Optional message.', 'aprio-rest-api' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'participants'   => array(
-					'description' => __( 'Map of participant user_id => status (-1 pending, 0 declined, 1 accepted).', 'wpem-rest-api' ),
+					'description' => __( 'Map of participant user_id => status (-1 pending, 0 declined, 1 accepted).', 'aprio-rest-api' ),
 					'type'        => 'object',
 					'context'     => array( 'view', 'edit' ),
 				),
 				'meeting_status' => array(
-					'description' => __( 'Derived overall meeting status.', 'wpem-rest-api' ),
+					'description' => __( 'Derived overall meeting status.', 'aprio-rest-api' ),
 					'type'        => 'integer',
 					'context'     => array( 'view', 'edit' ),
 				),
@@ -776,12 +776,12 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	public function get_collection_params() {
 		$params             = parent::get_collection_params();
 		$params['user_id']  = array(
-			'description'       => __( 'Limit result set to meetings relevant to a user (host or participant).', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to meetings relevant to a user (host or participant).', 'aprio-rest-api' ),
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 		);
 		$params['event_id'] = array(
-			'description'       => __( 'Limit result set to meetings relevant to a specific event.', 'wpem-rest-api' ),
+			'description'       => __( 'Limit result set to meetings relevant to a specific event.', 'aprio-rest-api' ),
 			'type'              => 'integer',
 			'sanitize_callback' => 'absint',
 		);
@@ -798,10 +798,10 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	 */
 	public function get_available_slots( $request ) {
 
-		$user_id = $request->get_param( 'user_ids' ) ?: wpem_rest_get_current_user_id();
-		if ( $user_id == wpem_rest_get_current_user_id() ) {
+		$user_id = $request->get_param( 'user_ids' ) ?: aprio_rest_get_current_user_id();
+		if ( $user_id == aprio_rest_get_current_user_id() ) {
 			// Fetch default slots for user (helper aligns with existing implementation)
-			$slots = get_wpem_default_meeting_slots_for_user( $user_id );
+			$slots = get_aprio_default_meeting_slots_for_user( $user_id );
 
 			// Availability flag (_available_for_meeting); default to 1 if not set
 			$meta              = get_user_meta( $user_id, '_available_for_meeting', true );
@@ -820,11 +820,11 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 			if ( ! $date && ! is_array( $user_id ) ) {
 				return self::prepare_error_for_response( 404 );
 			}
-			$combined_slots = get_wpem_user_available_slots( $user_id, $date );
+			$combined_slots = get_aprio_user_available_slots( $user_id, $date );
 			foreach ( $combined_slots as $slot ) {
 				$time = $slot['time'];
 				// You can decide: set "1" if slot exists OR based on is_booked
-				$slots[ $time ] = $slot['is_booked'] ? '0' : '1'; 
+				$slots[ $time ] = $slot['is_booked'] ? '0' : '1';
 				// available=1, booked=0
 			}
 			$response_data         = self::prepare_error_for_response( 200 );
@@ -836,4 +836,4 @@ class WPEM_REST_Matchmaking_Meetings_Controller extends WPEM_REST_CRUD_Controlle
 	}
 }
 
-new WPEM_REST_Matchmaking_Meetings_Controller();
+new APRIO_REST_Matchmaking_Meetings_Controller();

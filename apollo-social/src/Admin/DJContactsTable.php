@@ -21,11 +21,11 @@ class DJContactsTable {
 	 * Initialize the table handler
 	 */
 	public function init(): void {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAssets' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueueAssets' ) );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAssets' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueueAssets' ] );
 
 		// Register shortcode
-		add_shortcode( 'apollo_dj_contacts', array( $this, 'renderShortcode' ) );
+		add_shortcode( 'apollo_dj_contacts', [ $this, 'renderShortcode' ] );
 	}
 
 	/**
@@ -33,7 +33,7 @@ class DJContactsTable {
 	 */
 	public function enqueueAssets( $hook = '' ): void {
 		// Only load on relevant pages
-		if ( ! is_admin() && ! in_array( $hook, array( 'toplevel_page_apollo-dj-contacts', 'apollo_page_apollo-dj-contacts' ) ) ) {
+		if ( ! is_admin() && ! in_array( $hook, [ 'toplevel_page_apollo-dj-contacts', 'apollo_page_apollo-dj-contacts' ] ) ) {
 			return;
 		}
 
@@ -44,7 +44,7 @@ class DJContactsTable {
 			wp_enqueue_style(
 				'uni-css',
 				'https://assets.apollo.rio.br/uni.css',
-				array(),
+				[],
 				'1.0.0'
 			);
 		}
@@ -53,7 +53,7 @@ class DJContactsTable {
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -61,7 +61,7 @@ class DJContactsTable {
 		wp_enqueue_style(
 			'apollo-dj-contacts-table',
 			$plugin_url . 'css/dj-contacts-table.css',
-			array( 'uni-css' ),
+			[ 'uni-css' ],
 			'1.0.0'
 		);
 	}
@@ -69,11 +69,11 @@ class DJContactsTable {
 	/**
 	 * Render the DJ contacts table
 	 */
-	public function renderTable( array $args = array() ): void {
-		$defaults = array(
+	public function renderTable( array $args = [] ): void {
+		$defaults = [
 			'title'    => __( 'DJ Contacts', 'apollo-social' ),
 			'contacts' => $this->getDJContacts(),
-		);
+		];
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -87,7 +87,7 @@ class DJContactsTable {
 	 * @return array Array of DJ contact data
 	 */
 	private function getDJContacts(): array {
-		$contacts = array();
+		$contacts = [];
 
 		// Use Events Manager Integration helper
 		if ( ! class_exists( '\Apollo\Infrastructure\Integration\EventsManagerIntegration' ) ) {
@@ -99,18 +99,18 @@ class DJContactsTable {
 
 		// Query DJs from Events Manager CPT (read-only integration)
 		if ( ! post_type_exists( 'event_dj' ) ) {
-			return array();
+			return [];
 			// Events Manager not active
 		}
 
 		$djs = get_posts(
-			array(
+			[
 				'post_type'      => 'event_dj',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
 		foreach ( $djs as $dj ) {
@@ -147,7 +147,7 @@ class DJContactsTable {
 			$score        = min( 10, ceil( $events_count / 5 ) );
 			// 1 point per 5 events, max 10
 
-			$contacts[] = array(
+			$contacts[] = [
 				'name'         => $dj->post_title,
 				'role'         => __( 'DJ/Producer', 'apollo-social' ),
 				'email'        => $email ?: __( 'No email', 'apollo-social' ),
@@ -158,7 +158,7 @@ class DJContactsTable {
 				'profile_url'  => get_permalink( $dj->ID ),
 				'message_url'  => $email ? 'mailto:' . $email : '#',
 				'platform_url' => $platform_url,
-			);
+			];
 		}//end foreach
 
 		return $contacts;
@@ -172,19 +172,19 @@ class DJContactsTable {
 	 */
 	private function getDJEventsCount( int $dj_id ): int {
 		$events = get_posts(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'     => '_event_dj_ids',
 						'value'   => sprintf( ':"%d";', $dj_id ),
 						'compare' => 'LIKE',
-					),
-				),
+					],
+				],
 				'fields'         => 'ids',
-			)
+			]
 		);
 
 		return count( $events );

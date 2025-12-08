@@ -29,12 +29,12 @@ class CanvasController {
 		}
 
 		// Set template variables
-		$template_vars = array(
+		$template_vars = [
 			'group'            => $group,
 			'status'           => $status,
 			'group_id'         => $group['id'],
 			'rejection_notice' => $rejection_notice,
-		);
+		];
 
 		return $this->renderTemplate( 'group-card', $template_vars );
 	}
@@ -52,11 +52,11 @@ class CanvasController {
 		}
 
 		// Set template variables for status badge
-		$template_vars = array(
+		$template_vars = [
 			'status'           => $status,
 			'group_id'         => $group['id'],
 			'rejection_notice' => $rejection_notice,
-		);
+		];
 
 		return $this->renderTemplate( 'group-status-badge', $template_vars );
 	}
@@ -73,16 +73,16 @@ class CanvasController {
 		}
 
 		// Only show for pending items
-		if ( ! in_array( $status, array( 'pending', 'pending_review' ) ) ) {
+		if ( ! in_array( $status, [ 'pending', 'pending_review' ] ) ) {
 			return '';
 		}
 
-		$template_vars = array(
+		$template_vars = [
 			'group'    => $group,
 			'status'   => $status,
 			'group_id' => $group['id'],
 			'user'     => $user,
-		);
+		];
 
 		return $this->renderTemplate( 'moderation-actions', $template_vars );
 	}
@@ -105,7 +105,7 @@ class CanvasController {
 			ARRAY_A
 		);
 
-		$dashboard_groups = array();
+		$dashboard_groups = [];
 
 		foreach ( $groups as $group ) {
 			$group_data = $group;
@@ -144,21 +144,21 @@ class CanvasController {
 		);
 
 		if ( ! $workflow ) {
-			return array();
+			return [];
 		}
 
-		return array(
+		return [
 			'submitted_at' => $workflow['submitted_at'],
 			'reviewed_at'  => $workflow['reviewed_at'],
 			'moderator_id' => $workflow['moderator_id'],
 			'status'       => $workflow['status'],
-		);
+		];
 	}
 
 	/**
 	 * Render template with variables
 	 */
-	private function renderTemplate( string $template_name, array $vars = array() ): string {
+	private function renderTemplate( string $template_name, array $vars = [] ): string {
 		// Extract variables for template
 		extract( $vars );
 
@@ -205,18 +205,18 @@ class CanvasController {
 		// Reset to draft status for editing
 		$wpdb->update(
 			$groups_table,
-			array(
+			[
 				'status'     => 'draft',
 				'updated_at' => current_time( 'mysql' ),
-			),
-			array( 'id' => $group_id )
+			],
+			[ 'id' => $group_id ]
 		);
 
 		wp_send_json_success(
-			array(
+			[
 				'message'  => 'Grupo movido para rascunho. Você pode editá-lo e reenviar.',
 				'redirect' => "/grupo/editar/{$group_id}/",
-			)
+			]
 		);
 	}
 }

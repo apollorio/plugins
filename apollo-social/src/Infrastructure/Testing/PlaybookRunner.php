@@ -9,7 +9,7 @@ namespace Apollo\Infrastructure\Testing;
  */
 class PlaybookRunner {
 
-	private array $results = array();
+	private array $results = [];
 	private int $passed    = 0;
 	private int $failed    = 0;
 
@@ -17,7 +17,7 @@ class PlaybookRunner {
 	 * Run complete test playbook
 	 */
 	public function runPlaybook(): array {
-		$this->results = array();
+		$this->results = [];
 		$this->passed  = 0;
 		$this->failed  = 0;
 
@@ -42,11 +42,11 @@ class PlaybookRunner {
 		// Summary
 		$this->printSummary();
 
-		return array(
+		return [
 			'passed'  => $this->passed,
 			'failed'  => $this->failed,
 			'results' => $this->results,
-		);
+		];
 	}
 
 	/**
@@ -73,11 +73,11 @@ class PlaybookRunner {
 
 		// Check required tables
 		global $wpdb;
-		$tables = array(
+		$tables = [
 			$wpdb->prefix . 'apollo_workflow_log',
 			$wpdb->prefix . 'apollo_moderation_queue',
 			$wpdb->prefix . 'apollo_groups',
-		);
+		];
 
 		foreach ( $tables as $table ) {
 			$exists = $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) === $table;
@@ -97,132 +97,132 @@ class PlaybookRunner {
 	private function runWorkflowMatrix(): void {
 		echo "🔄 Testing Workflow Matrix...\n";
 
-		$test_cases = array(
+		$test_cases = [
 			// Subscriber tests
-			array(
+			[
 				'role'     => 'subscriber',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'discussion' ),
+				'data'     => [ 'type' => 'discussion' ],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'content'  => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'content'  => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'nucleo' ),
+				'data'     => [ 'type' => 'nucleo' ],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'subscriber',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'comunidade' ),
+				'data'     => [ 'type' => 'comunidade' ],
 				'expected' => 'pending_review',
-			),
+			],
 
 			// Contributor tests
-			array(
+			[
 				'role'     => 'contributor',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'draft',
-			),
-			array(
+			],
+			[
 				'role'     => 'contributor',
 				'content'  => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'draft',
-			),
-			array(
+			],
+			[
 				'role'     => 'contributor',
 				'content'  => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'draft',
-			),
+			],
 
 			// Author tests
-			array(
+			[
 				'role'     => 'author',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'author',
 				'content'  => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'pending_review',
-			),
-			array(
+			],
+			[
 				'role'     => 'author',
 				'content'  => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
+			],
 			// Direct publish
 
 							// Editor tests
-							array(
+							[
 								'role'     => 'editor',
 								'content'  => 'group',
-								'data'     => array( 'type' => 'post' ),
+								'data'     => [ 'type' => 'post' ],
 								'expected' => 'published',
-							),
-			array(
+							],
+			[
 				'role'     => 'editor',
 				'content'  => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'editor',
 				'content'  => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'editor',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'nucleo' ),
+				'data'     => [ 'type' => 'nucleo' ],
 				'expected' => 'published',
-			),
+			],
 
 			// Administrator tests
-			array(
+			[
 				'role'     => 'administrator',
 				'content'  => 'group',
-				'data'     => array( 'type' => 'post' ),
+				'data'     => [ 'type' => 'post' ],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'administrator',
 				'content'  => 'ad',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-			array(
+			],
+			[
 				'role'     => 'administrator',
 				'content'  => 'event',
-				'data'     => array(),
+				'data'     => [],
 				'expected' => 'published',
-			),
-		);
+			],
+		];
 
 		foreach ( $test_cases as $test ) {
 			$actual = $this->simulateWorkflowTest( $test['role'], $test['content'], $test['data'] );
@@ -252,10 +252,10 @@ class PlaybookRunner {
 		$result = $this->testContentCreation(
 			'subscriber',
 			'group',
-			array(
+			[
 				'title' => 'Test Social Post',
 				'type'  => 'post',
-			)
+			]
 		);
 		$this->assert(
 			$result['status'] === 'published',
@@ -267,10 +267,10 @@ class PlaybookRunner {
 		$result = $this->testContentCreation(
 			'subscriber',
 			'ad',
-			array(
+			[
 				'title'       => 'Test Classified',
 				'season_slug' => 'verao-2026',
-			)
+			]
 		);
 		$this->assert(
 			$result['status'] === 'published',
@@ -282,9 +282,9 @@ class PlaybookRunner {
 		$result = $this->testContentCreation(
 			'author',
 			'event',
-			array(
+			[
 				'title' => 'Test Event by Author',
-			)
+			]
 		);
 		$this->assert(
 			$result['status'] === 'published',
@@ -296,10 +296,10 @@ class PlaybookRunner {
 		$result = $this->testContentCreation(
 			'subscriber',
 			'group',
-			array(
+			[
 				'title' => 'Test Núcleo',
 				'type'  => 'nucleo',
-			)
+			]
 		);
 		$this->assert(
 			$result['status'] === 'pending_review',
@@ -311,10 +311,10 @@ class PlaybookRunner {
 		$result = $this->testContentCreation(
 			'author',
 			'group',
-			array(
+			[
 				'title' => 'Test Comunidade',
 				'type'  => 'comunidade',
-			)
+			]
 		);
 		$this->assert(
 			$result['status'] === 'pending_review',
@@ -335,10 +335,10 @@ class PlaybookRunner {
 		$test_group = $this->testContentCreation(
 			'subscriber',
 			'group',
-			array(
+			[
 				'title' => 'Test Moderation Group',
 				'type'  => 'nucleo',
-			)
+			]
 		);
 
 		if ( $test_group['status'] === 'pending_review' ) {
@@ -347,9 +347,9 @@ class PlaybookRunner {
 				$test_group['id'],
 				'group',
 				'approve',
-				array(
+				[
 					'moderator_role' => 'editor',
-				)
+				]
 			);
 			$this->assert(
 				$approval_result['success'],
@@ -361,20 +361,20 @@ class PlaybookRunner {
 			$test_group2 = $this->testContentCreation(
 				'subscriber',
 				'group',
-				array(
+				[
 					'title' => 'Test Rejection Group',
 					'type'  => 'nucleo',
-				)
+				]
 			);
 
 			$rejection_result = $this->testModerationAction(
 				$test_group2['id'],
 				'group',
 				'reject',
-				array(
+				[
 					'moderator_role' => 'editor',
 					'reason'         => 'Dados incompletos',
-				)
+				]
 			);
 			$this->assert(
 				$rejection_result['success'],
@@ -392,7 +392,7 @@ class PlaybookRunner {
 	private function runPermissionTests(): void {
 		echo "🔐 Testing User Permissions...\n";
 
-		$roles = array( 'subscriber', 'contributor', 'author', 'editor', 'administrator' );
+		$roles = [ 'subscriber', 'contributor', 'author', 'editor', 'administrator' ];
 
 		foreach ( $roles as $role ) {
 			$permissions = $this->getUserPermissions( $role );
@@ -477,28 +477,28 @@ class PlaybookRunner {
 			if ( $content_type === 'group' ) {
 				$result = $wpdb->insert(
 					$wpdb->prefix . 'apollo_groups',
-					array(
+					[
 						'title'      => $data['title'],
 						'type'       => $data['type'] ?? 'post',
 						'status'     => $status,
 						'author_id'  => $user_id,
 						'created_at' => current_time( 'mysql' ),
-					)
+					]
 				);
 
-				return array(
+				return [
 					'success' => $result !== false,
 					'id'      => $wpdb->insert_id,
 					'status'  => $status,
-				);
+				];
 			}
 
 			// Add other content types as needed
-			return array(
+			return [
 				'success' => true,
 				'id'      => 0,
 				'status'  => $status,
-			);
+			];
 
 		} finally {
 			wp_delete_user( $user_id );
@@ -528,9 +528,9 @@ class PlaybookRunner {
 				$content_id,
 				$content_type,
 				$new_state,
-				array(
+				[
 					'reason' => $reason,
-				)
+				]
 			);
 
 			return $result;
@@ -552,12 +552,12 @@ class PlaybookRunner {
 		wp_set_current_user( $user_id );
 
 		try {
-			return array(
+			return [
 				'can_create_groups'  => current_user_can( 'create_apollo_groups' ),
 				'can_create_ads'     => current_user_can( 'create_apollo_ads' ),
 				'can_publish_events' => current_user_can( 'publish_eva_events' ),
 				'can_moderate'       => current_user_can( 'apollo_moderate' ),
-			);
+			];
 		} finally {
 			wp_delete_user( $user_id );
 			wp_set_current_user( 0 );
@@ -580,11 +580,11 @@ class PlaybookRunner {
 			++$this->failed;
 		}
 
-		$this->results[] = array(
+		$this->results[] = [
 			'passed'  => $condition,
 			'message' => $message,
 			'error'   => $error_detail,
-		);
+		];
 	}
 
 	/**

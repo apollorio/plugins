@@ -73,11 +73,11 @@ class MigrationManager {
 	 * P0-3: Run pending migrations
 	 */
 	public function migrate(): array {
-		$results = array(
+		$results = [
 			'success'        => true,
-			'migrations_run' => array(),
-			'errors'         => array(),
-		);
+			'migrations_run' => [],
+			'errors'         => [],
+		];
 
 		if ( ! $this->needsMigration() ) {
 			return $results;
@@ -99,10 +99,10 @@ class MigrationManager {
 					update_option( 'apollo_schema_version', $version );
 				} else {
 					$results['success']  = false;
-					$results['errors'][] = array(
+					$results['errors'][] = [
 						'version' => $version,
 						'error'   => $result['error'],
-					);
+					];
 					break;
 					// Stop on first error
 				}
@@ -117,7 +117,7 @@ class MigrationManager {
 	 */
 	private function getMigrationFiles(): array {
 		$migrations_dir = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Infrastructure/Database/migrations/';
-		$migrations     = array();
+		$migrations     = [];
 
 		if ( ! is_dir( $migrations_dir ) ) {
 			return $migrations;
@@ -160,21 +160,21 @@ class MigrationManager {
 		);
 
 		if ( $executed > 0 ) {
-			return array(
+			return [
 				'success' => true,
 				'skipped' => true,
-			);
+			];
 		}
 
 		// Mark as running
 		$wpdb->insert(
 			$this->migrations_table,
-			array(
+			[
 				'version'        => $version,
 				'migration_name' => $migration_name,
 				'status'         => 'running',
-			),
-			array( '%s', '%s', '%s' )
+			],
+			[ '%s', '%s', '%s' ]
 		);
 
 		try {
@@ -196,23 +196,23 @@ class MigrationManager {
 				// Mark as completed
 				$wpdb->update(
 					$this->migrations_table,
-					array(
+					[
 						'status'         => 'completed',
 						'execution_time' => $execution_time,
 						'rollback_data'  => maybe_serialize( $rollback_data ),
-					),
-					array(
+					],
+					[
 						'version'        => $version,
 						'migration_name' => $migration_name,
-					),
-					array( '%s', '%f', '%s' ),
-					array( '%s', '%s' )
+					],
+					[ '%s', '%f', '%s' ],
+					[ '%s', '%s' ]
 				);
 
-				return array(
+				return [
 					'success'       => true,
 					'rollback_data' => $rollback_data,
-				);
+				];
 			} else {
 				throw new \Exception( "Migration file not found: {$file}" );
 			}//end if
@@ -222,23 +222,23 @@ class MigrationManager {
 			// Mark as failed
 			$wpdb->update(
 				$this->migrations_table,
-				array(
+				[
 					'status'         => 'failed',
 					'execution_time' => $execution_time,
 					'error_message'  => $e->getMessage(),
-				),
-				array(
+				],
+				[
 					'version'        => $version,
 					'migration_name' => $migration_name,
-				),
-				array( '%s', '%f', '%s' ),
-				array( '%s', '%s' )
+				],
+				[ '%s', '%f', '%s' ],
+				[ '%s', '%s' ]
 			);
 
-			return array(
+			return [
 				'success' => false,
 				'error'   => $e->getMessage(),
-			);
+			];
 		}//end try
 	}
 
@@ -268,10 +268,10 @@ class MigrationManager {
 
 		$wpdb->update(
 			$this->migrations_table,
-			array( 'status' => 'rolled_back' ),
-			array( 'id' => $migration->id ),
-			array( '%s' ),
-			array( '%d' )
+			[ 'status' => 'rolled_back' ],
+			[ 'id' => $migration->id ],
+			[ '%s' ],
+			[ '%d' ]
 		);
 
 		return true;
@@ -283,12 +283,12 @@ class MigrationManager {
 	public function getStatus(): array {
 		global $wpdb;
 
-		$status = array(
+		$status = [
 			'current_version' => $this->current_version,
 			'target_version'  => $this->target_version,
 			'needs_migration' => $this->needsMigration(),
-			'migrations'      => array(),
-		);
+			'migrations'      => [],
+		];
 
 		$migrations = $wpdb->get_results(
 			"SELECT version, migration_name, status, executed_at, execution_time, error_message 
@@ -297,14 +297,14 @@ class MigrationManager {
 		);
 
 		foreach ( $migrations as $migration ) {
-			$status['migrations'][] = array(
+			$status['migrations'][] = [
 				'version'        => $migration->version,
 				'name'           => $migration->migration_name,
 				'status'         => $migration->status,
 				'executed_at'    => $migration->executed_at,
 				'execution_time' => $migration->execution_time,
 				'error'          => $migration->error_message,
-			);
+			];
 		}
 
 		return $status;

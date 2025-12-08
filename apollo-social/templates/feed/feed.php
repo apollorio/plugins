@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder.
-$feed_posts = $view['data']['posts'] ?? array();
-$user_data  = $view['data']['current_user'] ?? array();
+$feed_posts = $view['data']['posts'] ?? [];
+$user_data  = $view['data']['current_user'] ?? [];
 
 $ajax_url      = admin_url( 'admin-ajax.php' );
 $rest_url      = rest_url( 'apollo/v1' );
@@ -217,7 +217,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<div class="space-y-2" id="sidebar-upcoming-events">
 			<?php
 			// SIDEBAR: Fetch próximos eventos.
-			$upcoming_args   = array(
+			$upcoming_args   = [
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => 4,
@@ -226,15 +226,15 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for date ordering.
 				'meta_key'       => '_event_start_date',
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for date filtering.
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'     => '_event_start_date',
 						'value'   => wp_date( 'Y-m-d' ),
 						'compare' => '>=',
 						'type'    => 'DATE',
-					),
-				),
-			);
+					],
+				],
+			];
 			$upcoming_events = get_posts( $upcoming_args );
 
 			if ( ! empty( $upcoming_events ) ) :
@@ -242,7 +242,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 					$event_date = get_post_meta( $event->ID, '_event_start_date', true );
 					$date_obj   = $event_date ? DateTime::createFromFormat( 'Y-m-d', $event_date ) : null;
 					$day        = $date_obj ? $date_obj->format( 'd' ) : '--';
-					$day_name   = $date_obj ? strtoupper( substr( array( 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' )[ $date_obj->format( 'w' ) ], 0, 3 ) ) : '???';
+					$day_name   = $date_obj ? strtoupper( substr( [ 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' ][ $date_obj->format( 'w' ) ], 0, 3 ) ) : '???';
 
 					// Contar favoritos como "amigos vão".
 					$favorites_count = max( 0, (int) get_post_meta( $event->ID, '_favorites_count', true ) );
@@ -279,7 +279,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<div class="space-y-3" id="sidebar-communities">
 			<?php
 			// SIDEBAR: Fetch grupos/comunidades.
-			$groups_args = array(
+			$groups_args = [
 				'post_type'      => 'apollo_group',
 				'post_status'    => 'publish',
 				'posts_per_page' => 4,
@@ -287,28 +287,28 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for member count ordering.
 				'meta_key'       => '_group_members_count',
 				'order'          => 'DESC',
-			);
+			];
 			$groups      = get_posts( $groups_args );
 
 			if ( ! empty( $groups ) ) :
-				$colors = array(
-					array(
+				$colors = [
+					[
 						'bg'   => 'bg-purple-100',
 						'text' => 'text-purple-600',
-					),
-					array(
+					],
+					[
 						'bg'   => 'bg-pink-100',
 						'text' => 'text-pink-600',
-					),
-					array(
+					],
+					[
 						'bg'   => 'bg-blue-100',
 						'text' => 'text-blue-600',
-					),
-					array(
+					],
+					[
 						'bg'   => 'bg-emerald-100',
 						'text' => 'text-emerald-600',
-					),
-				);
+					],
+				];
 				$i      = 0;
 				foreach ( $groups as $group ) :
 					$color         = $colors[ $i % count( $colors ) ];

@@ -21,7 +21,7 @@ class BuilderServiceProvider {
 	}
 
 	public function register(): void {
-		add_action( 'plugins_loaded', array( $this, 'bootstrap' ), 25 );
+		add_action( 'plugins_loaded', [ $this, 'bootstrap' ], 25 );
 	}
 
 	public function bootstrap(): void {
@@ -54,11 +54,11 @@ class BuilderServiceProvider {
 	private function registerShortcodes(): void {
 		add_shortcode(
 			'apollo_profile',
-			function ( $atts = array() ) {
+			function ( $atts = [] ) {
 				$atts = shortcode_atts(
-					array(
+					[
 						'user_id' => get_current_user_id(),
-					),
+					],
 					$atts
 				);
 
@@ -82,7 +82,7 @@ class BuilderServiceProvider {
 					wp_register_style(
 						'apollo-uni-css',
 						'https://assets.apollo.rio.br/uni.css',
-						array(),
+						[],
 						'2025-11'
 					);
 				}
@@ -90,7 +90,7 @@ class BuilderServiceProvider {
 				wp_register_style(
 					'apollo-social-builder',
 					plugins_url( 'assets/css/builder.css', $pluginFile ),
-					array( 'apollo-uni-css' ),
+					[ 'apollo-uni-css' ],
 					APOLLO_SOCIAL_VERSION
 				);
 
@@ -98,7 +98,7 @@ class BuilderServiceProvider {
 				wp_register_script(
 					'apollo-social-builder-runtime',
 					plugins_url( 'assets/js/builder.js', $pluginFile ),
-					array( 'jquery' ),
+					[ 'jquery' ],
 					APOLLO_SOCIAL_VERSION,
 					true
 				);
@@ -107,7 +107,7 @@ class BuilderServiceProvider {
 				wp_register_script(
 					'apollo-builder-assets',
 					plugins_url( 'assets/js/apollo-builder-assets.js', $pluginFile ),
-					array( 'jquery', 'apollo-social-builder-runtime' ),
+					[ 'jquery', 'apollo-social-builder-runtime' ],
 					APOLLO_SOCIAL_VERSION,
 					true
 				);
@@ -116,10 +116,10 @@ class BuilderServiceProvider {
 				wp_localize_script(
 					'apollo-builder-assets',
 					'apolloBuilderConfig',
-					array(
+					[
 						'restNonce' => wp_create_nonce( 'wp_rest' ),
 						'restUrl'   => rest_url( 'apollo-social/v1/builder' ),
-					)
+					]
 				);
 			}
 		);
@@ -136,12 +136,12 @@ class BuilderServiceProvider {
 		add_filter(
 			'siteorigin_panels_widgets',
 			function ( $widgets ) {
-				$widgets['apollo_sticky_note'] = array(
+				$widgets['apollo_sticky_note'] = [
 					'title'        => __( 'Apollo Sticky Note', 'apollo-social' ),
 					'description'  => __( 'Nota adesiva estilo Habbo com Tailwind/Shadcn.', 'apollo-social' ),
 					'class'        => StickyNoteWidget::class,
 					'is_so_widget' => false,
-				);
+				];
 
 				return $widgets;
 			}

@@ -1065,11 +1065,11 @@ document.addEventListener("DOMContentLoaded", function() {
       
       
       
-                  <div class="wpem-col wpem-col-12 wpem-col-sm-6 wpem-col-md-6 wpem-col-lg-4">
-    <div class="wpem-event-layout-action-wrapper">
-        <div class="wpem-event-layout-action">
-            <div class="wpem-event-layout-icon wpem-event-list-layout wpem-active-layout" title="Events List View" id="wpem-event-toggle-layout" onclick="toggleLayout(this)">
-                <i class="wpem-icon-menu"></i>
+                  <div class="aprio-col aprio-col-12 aprio-col-sm-6 aprio-col-md-6 aprio-col-lg-4">
+    <div class="aprio-event-layout-action-wrapper">
+        <div class="aprio-event-layout-action">
+            <div class="aprio-event-layout-icon aprio-event-list-layout aprio-active-layout" title="Events List View" id="aprio-event-toggle-layout" onclick="toggleLayout(this)">
+                <i class="aprio-icon-menu"></i>
             </div>
         </div>
     </div>
@@ -1077,23 +1077,23 @@ document.addEventListener("DOMContentLoaded", function() {
      
       <script>
 function toggleLayout(element) {
-    if (element.classList.contains('wpem-event-list-layout')) {
+    if (element.classList.contains('aprio-event-list-layout')) {
         // Switch to box view
-        element.classList.remove('wpem-event-list-layout');
-        element.classList.add('wpem-event-box-layout');
+        element.classList.remove('aprio-event-list-layout');
+        element.classList.add('aprio-event-box-layout');
         element.title = 'Events Box View';
-        element.innerHTML = '<i class="wpem-icon-stop2"></i>';
+        element.innerHTML = '<i class="aprio-icon-stop2"></i>';
         // Add your code here to actually switch the display to boxes
     } else {
         // Switch to list view
-        element.classList.remove('wpem-event-box-layout');
-        element.classList.add('wpem-event-list-layout');
+        element.classList.remove('aprio-event-box-layout');
+        element.classList.add('aprio-event-list-layout');
         element.title = 'Events List View';
-        element.innerHTML = '<i class="wpem-icon-menu"></i>';
+        element.innerHTML = '<i class="aprio-icon-menu"></i>';
         // Add your code here to actually switch the display to list
     }
     // Toggle active class if needed
-    element.classList.toggle('wpem-active-layout');
+    element.classList.toggle('aprio-active-layout');
 }
 </script>
       
@@ -1384,23 +1384,23 @@ function updateTime() {
       <!--- inicio -->
 function toggleLayout(element) {
     const listings = document.querySelector('.event_listings');
-    if (element.classList.contains('wpem-event-list-layout')) {
+    if (element.classList.contains('aprio-event-list-layout')) {
         // Switch to box view
-        element.classList.remove('wpem-event-list-layout');
-        element.classList.add('wpem-event-box-layout');
+        element.classList.remove('aprio-event-list-layout');
+        element.classList.add('aprio-event-box-layout');
         element.title = 'Events Box View';
-        element.innerHTML = '<i class="wpem-icon-stop2"></i>';
+        element.innerHTML = '<i class="aprio-icon-stop2"></i>';
         listings.classList.remove('list-view'); // Switch to grid (boxes)
     } else {
         // Switch to list view
-        element.classList.remove('wpem-event-box-layout');
-        element.classList.add('wpem-event-list-layout');
+        element.classList.remove('aprio-event-box-layout');
+        element.classList.add('aprio-event-list-layout');
         element.title = 'Events List View';
-        element.innerHTML = '<i class="wpem-icon-menu"></i>';
+        element.innerHTML = '<i class="aprio-icon-menu"></i>';
         listings.classList.add('list-view'); // Switch to list
     }
     // Toggle active class if needed
-    element.classList.toggle('wpem-active-layout');
+    element.classList.toggle('aprio-active-layout');
 }
         // --- Datepicker Logic ---
         function updateDatepicker() {

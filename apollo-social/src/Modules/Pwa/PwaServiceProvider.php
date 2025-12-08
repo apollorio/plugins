@@ -5,8 +5,8 @@ namespace Apollo\Modules\Pwa;
 class PwaServiceProvider {
 
 	public function register(): void {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
-		add_action( 'wp_head', array( $this, 'addManifestLink' ) );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue' ] );
+		add_action( 'wp_head', [ $this, 'addManifestLink' ] );
 	}
 
 	public function enqueue(): void {
@@ -16,7 +16,7 @@ class PwaServiceProvider {
 		wp_register_script(
 			'apollo-social-pwa',
 			'',
-			array(),
+			[],
 			APOLLO_SOCIAL_VERSION,
 			true
 		);

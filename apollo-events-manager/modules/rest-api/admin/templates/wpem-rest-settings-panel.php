@@ -4,19 +4,19 @@ wp_enqueue_style( 'wp-color-picker' );
 
 $tab          = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'general';
 $tab_settings = isset( $this->settings[ $tab ] ) ? $this->settings[ $tab ] : array();?>
-<div class="wpem-admin-bottom-content">
+<div class="aprio-admin-bottom-content">
 	<?php
 	if ( isset( $tab_settings['type'] ) && $tab_settings['type'] == 'template' ) {
-		if ( isset( $tab ) && file_exists( __DIR__ . '/wpem-rest-settings-' . $tab . '.php' ) ) {
-			include 'wpem-rest-settings-' . $tab . '.php';
+		if ( isset( $tab ) && file_exists( __DIR__ . '/aprio-rest-settings-' . $tab . '.php' ) ) {
+			include 'aprio-rest-settings-' . $tab . '.php';
 		} else {
-			esc_html_e( 'Setting template file not exists', 'wpem-rest-api' );
+			esc_html_e( 'Setting template file not exists', 'aprio-rest-api' );
 		}
 	} elseif ( $tab_settings['type'] == 'fields' && isset( $tab_settings['fields'] ) && isset( $tab_settings['sections'] ) ) {
 		foreach ( $tab_settings['sections'] as $section_key => $section ) {
 
-			echo '<h3 class="wpem-admin-tab-title">' . esc_html( $section ) . '</h3>';
-			echo '<div class="wpem-admin-body">';
+			echo '<h3 class="aprio-admin-tab-title">' . esc_html( $section ) . '</h3>';
+			echo '<div class="aprio-admin-body">';
 			echo '<table class="form-table">';
 
 			if ( isset( $tab_settings['fields'][ $section_key ] ) ) {
@@ -115,9 +115,9 @@ $tab_settings = isset( $this->settings[ $tab ] ) ? $this->settings[ $tab ] : arr
 						case 'input':
 						case 'text':
 							$default_name = 'WP Event Manager';
-							$current_name = get_option( 'wpem_rest_api_app_name', $default_name );
+							$current_name = get_option( 'aprio_rest_api_app_name', $default_name );
 							if ( empty( $current_name ) ) {
-								update_option( 'wpem_rest_api_app_name', 'WP Event Manager' );
+								update_option( 'aprio_rest_api_app_name', 'WP Event Manager' );
 								$current_name = $default_name;
 							}
 							?>
@@ -132,7 +132,7 @@ $tab_settings = isset( $this->settings[ $tab ] ) ? $this->settings[ $tab ] : arr
 							break;
 						case 'color-picker':
 							?>
-						<input id="setting-<?php echo esc_attr( $option['name'] ); ?>" class="regular-text wpem-colorpicker" type="text" name="<?php echo esc_attr( $option['name'] ); ?>" value="<?php esc_attr_e( $value ); ?>" <?php echo implode( ' ', $attributes ); ?> <?php echo $placeholder; ?> />
+						<input id="setting-<?php echo esc_attr( $option['name'] ); ?>" class="regular-text aprio-colorpicker" type="text" name="<?php echo esc_attr( $option['name'] ); ?>" value="<?php esc_attr_e( $value ); ?>" <?php echo implode( ' ', $attributes ); ?> <?php echo $placeholder; ?> />
 							<?php
 							if ( $option['desc'] ) {
 								echo ' <p class="description">' . esc_html_e( $option['desc'] ) . '</p>';
@@ -147,8 +147,8 @@ $tab_settings = isset( $this->settings[ $tab ] ) ? $this->settings[ $tab ] : arr
 										?>
 									<span class="file_url">
 										<input type="text" name="<?php echo esc_attr( $option['name'] ); ?>[]" placeholder="<?php echo esc_attr( $option['cb_label'] ); ?>" value="<?php echo esc_attr( $value ); ?>" />
-										<button class="button button-small wp_event_manager_upload_file_button" data-uploader_button_text="<?php esc_html_e( 'Use file', 'wpem-rest-api' ); ?>">
-												<?php esc_html_e( 'Upload', 'wpem-rest-api' ); ?>
+										<button class="button button-small wp_event_manager_upload_file_button" data-uploader_button_text="<?php esc_html_e( 'Use file', 'aprio-rest-api' ); ?>">
+												<?php esc_html_e( 'Upload', 'aprio-rest-api' ); ?>
 										</button>
 									</span>
 										<?php
@@ -159,16 +159,16 @@ $tab_settings = isset( $this->settings[ $tab ] ) ? $this->settings[ $tab ] : arr
 									?>
 								<span class="file_url">
 									<input type="text" name="<?php echo esc_attr( $option['name'] ); ?>" id="<?php echo esc_attr( $option['name'] ); ?>" placeholder="<?php echo esc_attr( $option['cb_label'] ); ?>" value="<?php echo esc_attr( $value ); ?>" />
-									<button class="button button-small wp_event_manager_upload_file_button" data-uploader_button_text="<?php esc_html_e( 'Use file', 'wpem-rest-api' ); ?>">
-										<?php esc_html_e( 'Upload', 'wpem-rest-api' ); ?>
+									<button class="button button-small wp_event_manager_upload_file_button" data-uploader_button_text="<?php esc_html_e( 'Use file', 'aprio-rest-api' ); ?>">
+										<?php esc_html_e( 'Upload', 'aprio-rest-api' ); ?>
 									</button>
 								</span>
 									<?php
 								}//end if
 								if ( ! empty( $option['multiple'] ) ) {
 									?>
-								<button class="button button-small wp_event_manager_add_another_file_button" data-field_name="<?php echo esc_attr( $key ); ?>" data-field_placeholder="<?php echo esc_attr( $option['cb_label'] ); ?>" data-uploader_button_text="<?php esc_html_e( 'Use file', 'wpem-rest-api' ); ?>" data-uploader_button="<?php esc_html_e( 'Upload', 'wpem-rest-api' ); ?>">
-										<?php esc_html_e( 'Add file', 'wpem-rest-api' ); ?>
+								<button class="button button-small wp_event_manager_add_another_file_button" data-field_name="<?php echo esc_attr( $key ); ?>" data-field_placeholder="<?php echo esc_attr( $option['cb_label'] ); ?>" data-uploader_button_text="<?php esc_html_e( 'Use file', 'aprio-rest-api' ); ?>" data-uploader_button="<?php esc_html_e( 'Upload', 'aprio-rest-api' ); ?>">
+										<?php esc_html_e( 'Add file', 'aprio-rest-api' ); ?>
 								</button>
 									<?php
 								}

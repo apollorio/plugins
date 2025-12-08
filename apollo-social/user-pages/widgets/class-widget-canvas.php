@@ -5,17 +5,17 @@
  */
 class Apollo_User_Page_Widget_Canvas {
 	public static function register() {
-		add_filter( 'apollo_userpage_widgets', array( __CLASS__, 'add_widget' ) );
+		add_filter( 'apollo_userpage_widgets', [ __CLASS__, 'add_widget' ] );
 	}
 
 	public static function add_widget( $widgets ) {
-		$widgets['canvas_plano'] = array(
+		$widgets['canvas_plano'] = [
 			'title'       => 'Canvas Plano',
 			'icon'        => 'image-edit',
-			'propsSchema' => array(
+			'propsSchema' => [
 				'image_id'  => 'integer',
 				'image_url' => 'string',
-			),
+			],
 			'render'      => function ( $props, $ctx ) {
 				$image_url = $props['image_url'] ?? '';
 				if ( ! $image_url && ! empty( $props['image_id'] ) ) {
@@ -30,7 +30,7 @@ class Apollo_User_Page_Widget_Canvas {
 					. '<img src="' . esc_url( $image_url ) . '" alt="Canvas Plano" class="w-full h-auto">'
 					. '</div>';
 			},
-		);
+		];
 
 		return $widgets;
 	}

@@ -33,10 +33,10 @@ class VerifyInstagram {
 			// Validate user and verification status.
 			$validation = $this->validateDmRequest( $user_id );
 			if ( ! $validation['valid'] ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => $validation['message'],
-				);
+				];
 			}
 
 			// Get or generate token.
@@ -50,28 +50,28 @@ class VerifyInstagram {
 			$this->logVerificationEvent(
 				$user_id,
 				'verification_dm_requested',
-				array(
+				[
 					'token'     => $verify_token,
 					'instagram' => $instagram,
-				)
+				]
 			);
 
-			return array(
+			return [
 				'success'     => true,
 				'token'       => $verify_token,
 				'ig_username' => $instagram,
 				'status'      => 'dm_requested',
 				'phrase'      => $this->buildVerificationPhrase( $instagram, $verify_token ),
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::requestDmVerification error: ' . $e->getMessage() );
 
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno. Tente novamente.',
-			);
+			];
 		}//end try
 	}
 
@@ -87,10 +87,10 @@ class VerifyInstagram {
 			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Usuário não encontrado',
-				);
+				];
 			}
 
 			// Update verification status.
@@ -103,24 +103,24 @@ class VerifyInstagram {
 			$this->logVerificationEvent(
 				$user_id,
 				'verification_approved',
-				array(
+				[
 					'reviewer_id' => $reviewer_id,
-				)
+				]
 			);
 
-			return array(
+			return [
 				'success' => true,
 				'message' => 'Verificação confirmada com sucesso',
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::confirmVerification error: ' . $e->getMessage() );
 
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno. Tente novamente.',
-			);
+			];
 		}//end try
 	}
 
@@ -137,10 +137,10 @@ class VerifyInstagram {
 			// Validate user exists.
 			$user = get_user_by( 'ID', $user_id );
 			if ( ! $user ) {
-				return array(
+				return [
 					'success' => false,
 					'message' => 'Usuário não encontrado',
-				);
+				];
 			}
 
 			// Determine new status.
@@ -154,25 +154,25 @@ class VerifyInstagram {
 			$this->logVerificationEvent(
 				$user_id,
 				$event,
-				array(
+				[
 					'reviewer_id' => $reviewer_id,
 					'reason'      => $reason,
-				)
+				]
 			);
 
-			return array(
+			return [
 				'success' => true,
 				'message' => 'rejected' === $new_status ? 'Verificação rejeitada' : 'Verificação cancelada',
-			);
+			];
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'VerifyInstagram::cancelVerification error: ' . $e->getMessage() );
 
-			return array(
+			return [
 				'success' => false,
 				'message' => 'Erro interno. Tente novamente.',
-			);
+			];
 		}//end try
 	}
 
@@ -197,16 +197,16 @@ class VerifyInstagram {
 		);
 
 		if ( ! $verification ) {
-			return array(
+			return [
 				'status'  => 'not_found',
 				'message' => 'Verificação não encontrada',
-			);
+			];
 		}
 
 		$instagram    = get_user_meta( $user_id, 'apollo_instagram', true );
 		$verify_token = $verification['verify_token'] ?? $this->buildVerifyToken( $instagram );
 
-		return array(
+		return [
 			'status'             => $verification['verify_status'],
 			'instagram_username' => $instagram,
 			'verify_token'       => $verify_token,
@@ -215,7 +215,7 @@ class VerifyInstagram {
 			'reviewer_id'        => $verification['reviewer_id'],
 			'rejection_reason'   => $verification['rejection_reason'],
 			'phrase'             => $this->buildVerificationPhrase( $instagram, $verify_token ),
-		);
+		];
 	}
 
 	/**
@@ -228,19 +228,19 @@ class VerifyInstagram {
 		// Check if user exists and is onboarded.
 		$user = get_user_by( 'ID', $user_id );
 		if ( ! $user ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Usuário não encontrado',
-			);
+			];
 		}
 
 		// Check if onboarding is completed.
 		$onboarded = get_user_meta( $user_id, 'apollo_onboarded', true );
 		if ( ! $onboarded ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Complete o onboarding primeiro',
-			);
+			];
 		}
 
 		// Check verification record exists.
@@ -255,21 +255,21 @@ class VerifyInstagram {
 		);
 
 		if ( ! $verification ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Registro de verificação não encontrado',
-			);
+			];
 		}
 
 		// Check if already verified.
 		if ( 'verified' === $verification->verify_status ) {
-			return array(
+			return [
 				'valid'   => false,
 				'message' => 'Conta já verificada',
-			);
+			];
 		}
 
-		return array( 'valid' => true );
+		return [ 'valid' => true ];
 	}
 
 	/**
@@ -287,9 +287,9 @@ class VerifyInstagram {
 
 		$verification_table = $wpdb->prefix . 'apollo_verifications';
 
-		$update_data = array(
+		$update_data = [
 			'verify_status' => $status,
-		);
+		];
 
 		if ( null !== $token ) {
 			$update_data['verify_token'] = $token;
@@ -311,7 +311,7 @@ class VerifyInstagram {
 		}
 
 		// Build format array for each field.
-		$formats = array();
+		$formats = [];
 		foreach ( $update_data as $key => $value ) {
 			if ( 'reviewer_id' === $key ) {
 				$formats[] = '%d';
@@ -324,9 +324,9 @@ class VerifyInstagram {
 		$wpdb->update(
 			$verification_table,
 			$update_data,
-			array( 'user_id' => $user_id ),
+			[ 'user_id' => $user_id ],
 			$formats,
-			array( '%d' )
+			[ '%d' ]
 		);
 
 		// Update user meta.
@@ -383,7 +383,7 @@ class VerifyInstagram {
 		wp_mail( $user->user_email, $subject, $message );
 
 		// Log email sent.
-		$this->logVerificationEvent( $user_id, 'account_released_email_sent', array() );
+		$this->logVerificationEvent( $user_id, 'account_released_email_sent', [] );
 	}
 
 	/**
@@ -419,20 +419,20 @@ class VerifyInstagram {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logging.
 		$wpdb->insert(
 			$audit_table,
-			array(
+			[
 				'user_id'     => $user_id,
 				'action'      => $event,
 				'entity_type' => 'verification',
 				'entity_id'   => $user_id,
 				'metadata'    => wp_json_encode(
-					array(
+					[
 						'ip_hash' => $ip_hash,
 						'ua_hash' => $ua_hash,
 						'data'    => $data,
-					)
+					]
 				),
 				'created_at'  => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -442,7 +442,7 @@ class VerifyInstagram {
 	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
-		$ip_headers = array(
+		$ip_headers = [
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -450,7 +450,7 @@ class VerifyInstagram {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		);
+		];
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {

@@ -18,7 +18,7 @@ class AdEntity {
 	public $status;
 	public $created_at;
 
-	public function __construct( $data = array() ) {
+	public function __construct( $data = [] ) {
 		$this->id          = $data['id'] ?? 0;
 		$this->title       = $data['title'] ?? '';
 		$this->slug        = $data['slug'] ?? '';

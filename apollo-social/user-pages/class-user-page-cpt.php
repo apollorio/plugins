@@ -6,9 +6,9 @@ class Apollo_User_Page_CPT {
 	public static function register() {
 		register_post_type(
 			'user_page',
-			array(
+			[
 				'label'        => 'Página de Usuário',
-				'labels'       => array(
+				'labels'       => [
 					'name'               => 'Páginas de Usuário',
 					'singular_name'      => 'Página de Usuário',
 					'add_new'            => 'Adicionar Nova',
@@ -25,15 +25,15 @@ class Apollo_User_Page_CPT {
 					'comments'           => 'Depoimentos',
 					'comments_add'       => 'Adicionar Depoimento',
 					'comments_view'      => 'Ver Depoimentos',
-				),
+				],
 				'public'       => true,
 				'has_archive'  => false,
 				'rewrite'      => false,
-				'supports'     => array( 'title', 'thumbnail', 'comments', 'revisions' ),
+				'supports'     => [ 'title', 'thumbnail', 'comments', 'revisions' ],
 				'show_in_rest' => true,
 				'menu_icon'    => 'dashicons-id',
-			)
+			]
 		);
 	}
 }
-add_action( 'init', array( 'Apollo_User_Page_CPT', 'register' ) );
+add_action( 'init', [ 'Apollo_User_Page_CPT', 'register' ] );

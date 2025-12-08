@@ -42,7 +42,7 @@ class DocumentSignatureService {
 	 *
 	 * @var SignatureBackendInterface[]
 	 */
-	private array $backends = array();
+	private array $backends = [];
 
 	/**
 	 * Active backend instance.
@@ -176,13 +176,13 @@ class DocumentSignatureService {
 	 *
 	 * @return array|WP_Error Result array or error.
 	 */
-	public function sign_document( int $document_id, int $user_id, array $options = array() ): array|WP_Error {
+	public function sign_document( int $document_id, int $user_id, array $options = [] ): array|WP_Error {
 		// Check backend.
 		if ( ! $this->active_backend ) {
 			return new WP_Error(
 				'apollo_sign_no_backend',
 				__( 'Nenhum backend de assinatura disponível.', 'apollo-social' ),
-				array( 'status' => 503 )
+				[ 'status' => 503 ]
 			);
 		}
 
@@ -192,7 +192,7 @@ class DocumentSignatureService {
 			return new WP_Error(
 				'apollo_sign_invalid_user',
 				__( 'Usuário inválido.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -201,7 +201,7 @@ class DocumentSignatureService {
 			return new WP_Error(
 				'apollo_sign_permission_denied',
 				__( 'Você não tem permissão para assinar este documento.', 'apollo-social' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -211,7 +211,7 @@ class DocumentSignatureService {
 			return new WP_Error(
 				'apollo_sign_document_not_found',
 				__( 'Documento não encontrado.', 'apollo-social' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -220,24 +220,24 @@ class DocumentSignatureService {
 			return new WP_Error(
 				'apollo_sign_already_signed',
 				__( 'Este documento já foi assinado.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		// Log signature attempt (don't log password).
-		$safe_options = array_diff_key( $options, array( 'certificate_pass' => '' ) );
+		$safe_options = array_diff_key( $options, [ 'certificate_pass' => '' ] );
 		$this->audit->log(
 			$document_id,
 			'signature_requested',
-			array(
+			[
 				'actor_id'    => $user_id,
 				'actor_name'  => $user->display_name,
 				'actor_email' => $user->user_email,
-				'details'     => array(
+				'details'     => [
 					'backend' => $this->active_backend->get_identifier(),
 					'options' => $safe_options,
-				),
-			)
+				],
+			]
 		);
 
 		// Perform signature.
@@ -248,14 +248,14 @@ class DocumentSignatureService {
 			$this->audit->log(
 				$document_id,
 				'rejected',
-				array(
+				[
 					'actor_id'   => $user_id,
 					'actor_name' => $user->display_name,
-					'details'    => array(
+					'details'    => [
 						'error_code'    => $result->get_error_code(),
 						'error_message' => $result->get_error_message(),
-					),
-				)
+					],
+				]
 			);
 
 			return $result;
@@ -282,7 +282,7 @@ class DocumentSignatureService {
 		// Add signature to log.
 		$this->add_signature_log(
 			$document_id,
-			array(
+			[
 				'user_id'          => $user_id,
 				'user_name'        => $user->display_name,
 				'user_email'       => $user->user_email,
@@ -294,13 +294,13 @@ class DocumentSignatureService {
 				'hash'             => $result['hash'] ?? '',
 				'status'           => 'success',
 				'is_stub'          => $result['is_stub'] ?? false,
-			)
+			]
 		);
 
 		// Update document status.
 		$this->documents->updateDocument(
 			$document_id,
-			array( 'status' => 'signed' )
+			[ 'status' => 'signed' ]
 		);
 
 		// Update signed PDF path if available.
@@ -309,21 +309,21 @@ class DocumentSignatureService {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct update required.
 			$wpdb->update(
 				$wpdb->prefix . 'apollo_documents',
-				array( 'pdf_path' => $result['signed_pdf_path'] ),
-				array( 'id' => $document_id )
+				[ 'pdf_path' => $result['signed_pdf_path'] ],
+				[ 'id' => $document_id ]
 			);
 		}
 
 		// Log success in audit.
 		$this->audit->logSignature(
 			$document_id,
-			array(
+			[
 				'name'               => $user->display_name,
 				'cpf'                => $result['certificate']['cpf'] ?? '',
 				'email'              => $user->user_email,
 				'type'               => ( $result['is_stub'] ?? false ) ? 'electronic_stub' : 'qualified',
 				'certificate_serial' => $result['certificate']['serial'] ?? '',
-			),
+			],
 			$result['signature_id'] ?? '',
 			$result['hash'] ?? ''
 		);
@@ -363,7 +363,7 @@ class DocumentSignatureService {
 	 */
 	public function get_signatures( int $document_id ): array {
 		$signatures = get_post_meta( $document_id, '_apollo_document_signatures', true );
-		return is_array( $signatures ) ? $signatures : array();
+		return is_array( $signatures ) ? $signatures : [];
 	}
 
 	/**
@@ -394,12 +394,12 @@ class DocumentSignatureService {
 	 *
 	 * @return array|WP_Error Verification result.
 	 */
-	public function verify_document( string $pdf_path, array $options = array() ): array|WP_Error {
+	public function verify_document( string $pdf_path, array $options = [] ): array|WP_Error {
 		if ( ! $this->active_backend ) {
 			return new WP_Error(
 				'apollo_verify_no_backend',
 				__( 'Nenhum backend de verificação disponível.', 'apollo-social' ),
-				array( 'status' => 503 )
+				[ 'status' => 503 ]
 			);
 		}
 
@@ -412,16 +412,16 @@ class DocumentSignatureService {
 	 * @return array Backends information.
 	 */
 	public function get_backends_info(): array {
-		$info = array();
+		$info = [];
 
 		foreach ( $this->backends as $id => $backend ) {
-			$info[ $id ] = array(
+			$info[ $id ] = [
 				'identifier'   => $backend->get_identifier(),
 				'name'         => $backend->get_name(),
 				'available'    => $backend->is_available(),
 				'capabilities' => $backend->get_capabilities(),
 				'active'       => $this->active_backend === $backend,
-			);
+			];
 		}
 
 		return $info;
