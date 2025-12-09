@@ -11,8 +11,40 @@ class FeedRenderer {
 
 	private $current_user_id;
 
+	/**
+	 * IDs dos usuários na bolha do usuário atual.
+	 *
+	 * @var array
+	 */
+	private $bolha_user_ids = [];
+
 	public function __construct() {
 		$this->current_user_id = get_current_user_id();
+		$this->loadCurrentUserBolha();
+	}
+
+	/**
+	 * Carrega os IDs dos usuários na bolha do usuário atual.
+	 * Usado para destacar conteúdo de quem está na bolha.
+	 */
+	private function loadCurrentUserBolha() {
+		if ( ! $this->current_user_id ) {
+			$this->bolha_user_ids = [];
+			return;
+		}
+
+		$bolha = get_user_meta( $this->current_user_id, 'apollo_bolha', true );
+		$this->bolha_user_ids = is_array( $bolha ) ? array_map( 'intval', $bolha ) : [];
+	}
+
+	/**
+	 * Verifica se um usuário está na bolha do usuário atual.
+	 *
+	 * @param int $user_id ID do usuário a verificar.
+	 * @return bool True se está na bolha.
+	 */
+	private function isInBolha( $user_id ) {
+		return in_array( (int) $user_id, $this->bolha_user_ids, true );
 	}
 
 	public function render() {
@@ -40,6 +72,7 @@ class FeedRenderer {
 
 	/**
 	 * FASE 2: Obter posts de múltiplas fontes e mesclar por data
+	 * Adiciona flag is_bolha para destacar conteúdo de usuários na bolha.
 	 */
 	public function getUnifiedFeedPosts( $page = 1, $per_page = 20 ) {
 		$all_items = [];
@@ -47,44 +80,64 @@ class FeedRenderer {
 		// 1. Posts de usuários (apollo_social_post)
 		$user_posts = $this->getUserPosts( $per_page );
 		foreach ( $user_posts as $post ) {
+			$author_id = (int) $post->post_author;
+			$is_bolha  = $this->isInBolha( $author_id );
+
 			$all_items[] = [
-				'type' => 'user_post',
-				'id'   => $post->ID,
-				'date' => $post->post_date,
-				'data' => $this->formatUserPost( $post ),
+				'type'            => 'user_post',
+				'id'              => $post->ID,
+				'date'            => $post->post_date,
+				'data'            => $this->formatUserPost( $post ),
+				'is_bolha'        => $is_bolha,
+				'bolha_highlight' => $is_bolha ? 'featured' : '',
 			];
 		}
 
 		// 2. Eventos do Apollo Events Manager
 		$events = $this->getEvents( $per_page / 2 );
 		foreach ( $events as $event ) {
+			$author_id = (int) $event->post_author;
+			$is_bolha  = $this->isInBolha( $author_id );
+
 			$all_items[] = [
-				'type' => 'event',
-				'id'   => $event->ID,
-				'date' => get_post_meta( $event->ID, '_event_start_date', true ) ?: $event->post_date,
-				'data' => $this->formatEvent( $event ),
+				'type'            => 'event',
+				'id'              => $event->ID,
+				'date'            => get_post_meta( $event->ID, '_event_start_date', true ) ?: $event->post_date,
+				'data'            => $this->formatEvent( $event ),
+				'is_bolha'        => $is_bolha,
+				'bolha_highlight' => $is_bolha ? 'featured' : '',
 			];
 		}
 
 		// 3. Anúncios/Classificados (se existir CPT ou tabela)
 		$ads = $this->getAds( $per_page / 4 );
 		foreach ( $ads as $ad ) {
+			$author_id = (int) ( $ad->post_author ?? $ad->user_id ?? 0 );
+			$is_bolha  = $this->isInBolha( $author_id );
+
 			$all_items[] = [
-				'type' => 'ad',
-				'id'   => $ad->ID ?? $ad->id,
-				'date' => $ad->post_date ?? $ad->created_at ?? gmdate( 'Y-m-d H:i:s' ),
-				'data' => $this->formatAd( $ad ),
+				'type'            => 'ad',
+				'id'              => $ad->ID ?? $ad->id,
+				'date'            => $ad->post_date ?? $ad->created_at ?? gmdate( 'Y-m-d H:i:s' ),
+				'data'            => $this->formatAd( $ad ),
+				'is_bolha'        => $is_bolha,
+				'bolha_highlight' => $is_bolha ? 'featured' : '',
 			];
 		}
 
 		// 4. Notícias (posts WordPress com categoria específica)
 		$news = $this->getNews( $per_page / 4 );
 		foreach ( $news as $news_item ) {
+			$author_id = (int) $news_item->post_author;
+			$is_bolha  = $this->isInBolha( $author_id );
+
 			$all_items[] = [
-				'type' => 'news',
-				'id'   => $news_item->ID,
-				'date' => $news_item->post_date,
-				'data' => $this->formatNews( $news_item ),
+				'type'            => 'news',
+				'id'              => $news_item->ID,
+				'date'            => $news_item->post_date,
+				'data'            => $this->formatNews( $news_item ),
+				'is_bolha'        => $is_bolha,
+				'bolha_highlight' => $is_bolha ? 'featured' : '',
 			];
 		}
 

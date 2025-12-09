@@ -69,10 +69,6 @@ class SignatureEndpoints {
 	 * Register routes
 	 */
 	public function registerRoutes(): void {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
 
 		// ===== DOCUMENT LIBRARY ENDPOINTS =====
 
@@ -439,11 +435,6 @@ class SignatureEndpoints {
 	 * Get library documents
 	 */
 	public function getLibraryDocuments( \WP_REST_Request $request ): \WP_REST_Response {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		$library = $request->get_param( 'library' );
 		$args    = [
 			'status'   => $request->get_param( 'status' ),
@@ -560,11 +551,6 @@ class SignatureEndpoints {
 	 * Sign with certificate
 	 */
 	public function signWithCertificate( \WP_REST_Request $request ): \WP_REST_Response {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		global $wpdb;
 
 		$document_id = $request->get_param( 'document_id' );
@@ -899,10 +885,37 @@ class SignatureEndpoints {
 	// ===== PERMISSION CALLBACKS =====
 
 	/**
-	 * Check if user is authenticated
+	 * Check if user is authenticated and authorized.
+	 * Validates nonce and capability before allowing access.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 * @return bool|\WP_Error True if allowed, WP_Error otherwise.
 	 */
-	public function checkAuthenticated(): bool {
-		return is_user_logged_in();
+	public function checkAuthenticated( \WP_REST_Request $request ): bool|\WP_Error {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new \WP_Error(
+				'rest_invalid_nonce',
+				__( 'Invalid or missing WP REST nonce.', 'apollo-social' ),
+				[ 'status' => 403 ]
+			);
+		}
+		if ( ! is_user_logged_in() ) {
+			return new \WP_Error(
+				'rest_not_logged_in',
+				__( 'You must be logged in to access this endpoint.', 'apollo-social' ),
+				[ 'status' => 401 ]
+			);
+		}
+		// Require at minimum read capability; adjust to a stricter cap as needed.
+		if ( ! current_user_can( 'read' ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'You do not have permission to access this resource.', 'apollo-social' ),
+				[ 'status' => 403 ]
+			);
+		}
+		return true;
 	}
 
 	// ===== HELPERS =====

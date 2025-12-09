@@ -21,9 +21,12 @@ function apollo_create_db_tables(): void {
 	global $wpdb;
 
 	$charset_collate = $wpdb->get_charset_collate();
-	$table_name      = $wpdb->prefix . 'apollo_mod_log';
 
-	$sql = "CREATE TABLE $table_name (
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+	// Moderation log table.
+	$table_mod_log = $wpdb->prefix . 'apollo_mod_log';
+	$sql_mod_log   = "CREATE TABLE $table_mod_log (
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		actor_id bigint(20) unsigned NOT NULL,
 		actor_role varchar(50) NOT NULL,
@@ -39,9 +42,28 @@ function apollo_create_db_tables(): void {
 		KEY target_id_idx (target_id),
 		KEY created_at_idx (created_at)
 	) $charset_collate;";
+	dbDelta( $sql_mod_log );
 
-	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-	dbDelta( $sql );
+	// Audit log table (FASE 1 - more detailed for security events).
+	$table_audit_log = $wpdb->prefix . 'apollo_audit_log';
+	$sql_audit_log   = "CREATE TABLE $table_audit_log (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		event_type varchar(50) NOT NULL,
+		actor_id bigint(20) unsigned NOT NULL DEFAULT 0,
+		actor_ip_hash varchar(64) DEFAULT NULL,
+		target_type varchar(50) DEFAULT NULL,
+		target_id bigint(20) unsigned DEFAULT NULL,
+		severity enum('info','warning','critical') DEFAULT 'info',
+		message text,
+		context longtext,
+		created_at datetime DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY event_type_idx (event_type),
+		KEY actor_id_idx (actor_id),
+		KEY severity_idx (severity),
+		KEY created_at_idx (created_at)
+	) $charset_collate;";
+	dbDelta( $sql_audit_log );
 }
 
 /**

@@ -62,8 +62,18 @@ class APRIO_Rest_API {
 			define( 'EVENT_MANAGER_PLUGIN_URL', plugins_url( 'apollo-events-manager' ) );
 		}
 
+		/**
+		 * JWT_SECRET_KEY: NEVER use the hard-coded fallback in production.
+		 * Define APOLLO_JWT_SECRET in wp-config.php or use the apollo_jwt_secret option.
+		 */
 		if ( ! defined( 'JWT_SECRET_KEY' ) ) {
-			define( 'JWT_SECRET_KEY', '9s59d4s9d49ed94sf46dsf74d96' );
+			$jwt_secret = defined( 'APOLLO_JWT_SECRET' ) ? APOLLO_JWT_SECRET : get_option( 'apollo_jwt_secret', '' );
+			if ( empty( $jwt_secret ) ) {
+				// Generate a secure secret once and persist it.
+				$jwt_secret = wp_generate_password( 64, true, true );
+				update_option( 'apollo_jwt_secret', $jwt_secret );
+			}
+			define( 'JWT_SECRET_KEY', $jwt_secret );
 		}
 		if ( ! defined( 'JWT_ALGO' ) ) {
 			define( 'JWT_ALGO', 'HS256' );

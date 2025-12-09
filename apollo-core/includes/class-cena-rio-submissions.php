@@ -38,11 +38,6 @@ class Apollo_Cena_Rio_Submissions {
 	 * Register REST API routes
 	 */
 	public static function register_rest_routes(): void {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Get CENA-RIO internal events (for industry calendar)
 		register_rest_route(
 			'apollo/v1',
@@ -158,11 +153,6 @@ class Apollo_Cena_Rio_Submissions {
 	 * @return WP_REST_Response Response.
 	 */
 	public static function rest_get_events( WP_REST_Request $request ): WP_REST_Response {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// CENA-RIO calendar shows ALL internal events (private + pending + draft)
 		// These are NOT public events - only for industry members
 		$query = new WP_Query(

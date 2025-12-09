@@ -60,11 +60,6 @@ class BuilderRestController {
 	 * @return void
 	 */
 	public function registerRoutes(): void {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Layout CRUD.
 		register_rest_route(
 			self::NAMESPACE,
@@ -268,11 +263,6 @@ class BuilderRestController {
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
 	public function show( WP_REST_Request $request ) {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		$user_id = $this->resolveUserId( $request );
 		$layout  = $this->repository->getLayout( $user_id );
 

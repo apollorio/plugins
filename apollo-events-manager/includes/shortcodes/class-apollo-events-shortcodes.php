@@ -188,10 +188,41 @@ class Apollo_Events_Shortcodes {
 						break;
 
 					case 'duplicate':
-						// TODO: Implement duplicate functionality
-						$this->event_dashboard_message = '<div class="apollo-alert apollo-alert-info">' .
-							esc_html__( 'Duplicate functionality coming soon.', 'apollo-events-manager' ) .
-							'</div>';
+						// Duplicate the event: copy post data and all _event_* meta to a new draft.
+						$new_event_id = wp_insert_post(
+							array(
+								'post_type'    => 'event_listing',
+								'post_title'   => sprintf( __( '%s (Copy)', 'apollo-events-manager' ), $event->post_title ),
+								'post_content' => $event->post_content,
+								'post_status'  => 'draft',
+								'post_author'  => get_current_user_id(),
+							)
+						);
+
+						if ( is_wp_error( $new_event_id ) ) {
+							$this->event_dashboard_message = '<div class="apollo-alert apollo-alert-danger">' .
+								esc_html__( 'Failed to duplicate event.', 'apollo-events-manager' ) .
+								'</div>';
+						} else {
+							// Copy all _event_* meta keys.
+							$meta = get_post_meta( $event_id );
+							foreach ( $meta as $key => $values ) {
+								if ( 0 === strpos( $key, '_event_' ) ) {
+									foreach ( $values as $value ) {
+										add_post_meta( $new_event_id, $key, maybe_unserialize( $value ) );
+									}
+								}
+							}
+							$edit_link = admin_url( 'post.php?post=' . $new_event_id . '&action=edit' );
+							$this->event_dashboard_message = '<div class="apollo-alert apollo-alert-success">' .
+								sprintf(
+									/* translators: %1$s: original title, %2$s: link to edit */
+									__( '%1$s duplicated successfully. <a href="%2$s">Edit the copy</a>.', 'apollo-events-manager' ),
+									esc_html( $event->post_title ),
+									esc_url( $edit_link )
+								) .
+								'</div>';
+						}
 						break;
 
 					default:

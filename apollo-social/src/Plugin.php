@@ -259,6 +259,10 @@ class Plugin {
 				$cena_rio_endpoint = new \Apollo\API\Endpoints\CenaRioEventEndpoint();
 				$cena_rio_endpoint->register();
 
+				// Bolha (Bubble) endpoint - relação simétrica de até 15 pessoas.
+				$bolha_endpoint = new \Apollo\API\Endpoints\BolhaEndpoint();
+				$bolha_endpoint->register();
+
 				// P0-9: Register Documents endpoint (if class exists).
 				if ( class_exists( '\Apollo\API\Endpoints\DocumentsEndpoint' ) ) {
 					$documents_endpoint = new \Apollo\API\Endpoints\DocumentsEndpoint();

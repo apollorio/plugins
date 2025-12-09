@@ -2443,11 +2443,6 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX handler for loading single event
 	 */
 	public function ajax_load_event_single() {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		check_ajax_referer( 'apollo_events_nonce', '_ajax_nonce' );
 
 		$event_id = isset( $_POST['event_id'] ) ? intval( $_POST['event_id'] ) : 0;
@@ -2541,11 +2536,6 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Approve event (moderation)
 	 */
 	public function ajax_mod_approve_event() {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Verify nonce
 		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );
@@ -2594,11 +2584,6 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Reject event (moderation)
 	 */
 	public function ajax_mod_reject_event() {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Verify nonce
 		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );

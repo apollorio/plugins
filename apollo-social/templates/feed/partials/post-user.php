@@ -1,6 +1,7 @@
 <?php
 /**
  * FASE 2: Partial template para post de usuário
+ * Inclui destaque visual para posts de usuários na bolha.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -9,16 +10,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 $post      = $post_data ?? [];
 $post_type = $post['type'] ?? 'user_post';
 $data      = $post['data'] ?? [];
+
+// Bolha highlight: verifica se autor está na bolha do usuário atual.
+$is_bolha        = $post['is_bolha'] ?? false;
+$bolha_highlight = $post['bolha_highlight'] ?? '';
+$bolha_classes   = $is_bolha ? 'apollo-bolha-featured ring-2 ring-orange-300 bg-gradient-to-br from-orange-50/50 to-white' : '';
 ?>
-<article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-all apollo-feed-card" 
-		data-feed-card 
-		data-content-type="apollo_social_post" 
-		data-content-id="<?php echo esc_attr( $data['id'] ?? 0 ); ?>">
-	<div class="p-5">
+<article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden hover:shadow-md transition-all apollo-feed-card <?php echo esc_attr( $bolha_classes ); ?>"
+		data-feed-card
+		data-content-type="apollo_social_post"
+		data-content-id="<?php echo esc_attr( $data['id'] ?? 0 ); ?>"
+		<?php echo $is_bolha ? 'data-bolha="true"' : ''; ?>>
+	<?php if ( $is_bolha ) : ?>
+	<!-- Bolha Badge: sutil, apenas indicador visual -->
+	<div class="px-5 pt-3 pb-0 flex items-center gap-1.5 text-orange-600">
+		<i class="ri-bubble-chart-line text-xs"></i>
+		<span class="text-[11px] font-medium uppercase tracking-wider">Da sua Bolha</span>
+	</div>
+	<?php endif; ?>
+	<div class="p-5 <?php echo $is_bolha ? 'pt-2' : ''; ?>">
 	<div class="flex gap-3">
 		<div class="h-11 w-11 rounded-full overflow-hidden shrink-0 ring-2 ring-orange-100">
-		<img src="<?php echo esc_url( $data['author']['avatar'] ?? '' ); ?>" 
-			alt="<?php echo esc_attr( $data['author']['name'] ?? '' ); ?>" 
+		<img src="<?php echo esc_url( $data['author']['avatar'] ?? '' ); ?>"
+			alt="<?php echo esc_attr( $data['author']['name'] ?? '' ); ?>"
 			class="h-full w-full object-cover" />
 		</div>
 		<div class="flex-1 min-w-0">
@@ -28,7 +42,7 @@ $data      = $post['data'] ?? [];
 				<?php echo esc_html( $data['author']['name'] ?? '' ); ?>
 			</h3>
 			<p class="text-[13px] text-slate-500">
-				@<?php echo esc_html( $data['author']['name'] ?? '' ); ?> · 
+				@<?php echo esc_html( $data['author']['name'] ?? '' ); ?> ·
 				<?php echo esc_html( human_time_diff( strtotime( $data['date'] ?? 'now' ), current_time( 'timestamp' ) ) . ' atrás' ); ?>
 			</p>
 			</div>
@@ -36,15 +50,15 @@ $data      = $post['data'] ?? [];
 			<i class="ri-more-2-line text-slate-400"></i>
 			</button>
 		</div>
-		
+
 		<p class="mt-3 text-[15px] text-slate-800 leading-relaxed">
 			<?php echo wp_kses_post( $data['content'] ?? $data['excerpt'] ?? '' ); ?>
 		</p>
 
 		<?php if ( ! empty( $data['thumbnail'] ) ) : ?>
 			<div class="mt-4 rounded-xl overflow-hidden">
-			<img src="<?php echo esc_url( $data['thumbnail'] ); ?>" 
-				alt="<?php echo esc_attr( $data['title'] ?? '' ); ?>" 
+			<img src="<?php echo esc_url( $data['thumbnail'] ); ?>"
+				alt="<?php echo esc_attr( $data['title'] ?? '' ); ?>"
 				class="w-full h-auto" />
 			</div>
 		<?php endif; ?>
@@ -99,19 +113,19 @@ $data      = $post['data'] ?? [];
 
 	<!-- Actions -->
 	<div class="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-	<button class="flex items-center gap-2 text-slate-600 hover:text-orange-600 transition-colors group apollo-feed-like-btn" 
-			data-content-type="apollo_social_post" 
+	<button class="flex items-center gap-2 text-slate-600 hover:text-orange-600 transition-colors group apollo-feed-like-btn"
+			data-content-type="apollo_social_post"
 			data-content-id="<?php echo esc_attr( $data['id'] ?? 0 ); ?>"
 			data-liked="<?php echo $data['user_liked'] ? 'true' : 'false'; ?>">
 		<i class="ri-heart-3-<?php echo $data['user_liked'] ? 'fill' : 'line'; ?> text-xl group-hover:scale-110 transition-transform"></i>
 		<span class="text-[14px] font-medium apollo-like-count"><?php echo esc_html( $data['like_count'] ?? 0 ); ?></span>
 	</button>
-	<button class="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors group apollo-feed-comment-btn" 
+	<button class="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors group apollo-feed-comment-btn"
 			data-post-id="<?php echo esc_attr( $data['id'] ?? 0 ); ?>">
 		<i class="ri-chat-3-line text-xl group-hover:scale-110 transition-transform"></i>
 		<span class="text-[14px] font-medium apollo-comment-count"><?php echo esc_html( $data['comment_count'] ?? 0 ); ?></span>
 	</button>
-	<button class="flex items-center gap-2 text-slate-600 hover:text-green-600 transition-colors group apollo-feed-share-btn" 
+	<button class="flex items-center gap-2 text-slate-600 hover:text-green-600 transition-colors group apollo-feed-share-btn"
 			data-permalink="<?php echo esc_url( $data['permalink'] ?? '' ); ?>"
 			data-title="<?php echo esc_attr( $data['title'] ?? '' ); ?>">
 		<i class="ri-share-forward-line text-xl group-hover:scale-110 transition-transform"></i>
@@ -130,9 +144,9 @@ $data      = $post['data'] ?? [];
 	<form class="apollo-comment-form mt-3 flex gap-2">
 		<?php wp_nonce_field( 'apollo_comment_nonce', 'apollo_comment_nonce' ); ?>
 		<input type="hidden" name="post_id" value="<?php echo esc_attr( $data['id'] ?? 0 ); ?>">
-		<input type="text" 
-			name="comment" 
-			placeholder="Escreva um comentário..." 
+		<input type="text"
+			name="comment"
+			placeholder="Escreva um comentário..."
 			class="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
 		<button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors">
 		Enviar

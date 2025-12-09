@@ -228,54 +228,7 @@ CLASSES UNI.CSS:
 
     <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-h-screen">
-      <!-- Currency Converter Background Widget (Floating) -->
-      <div class="ap-currency-float" id="currencyWidget">
-        <div class="ap-currency-float-inner">
-          <div class="ap-currency-rate">
-            <span class="ap-currency-flag">🇺🇸</span>
-            <span class="ap-currency-value" id="usdValue">1.00</span>
-            <span class="ap-currency-code">USD</span>
-            <i class="ri-arrow-right-line"></i>
-            <span class="ap-currency-flag">🇧🇷</span>
-            <span class="ap-currency-value ap-currency-value-highlight" id="brlValue">5.80</span>
-            <span class="ap-currency-code">BRL</span>
-          </div>
-          <button class="ap-currency-toggle" id="currencyToggle" data-ap-tooltip="Abrir conversor">
-            <i class="ri-exchange-dollar-line"></i>
-          </button>
-        </div>
-
-        <!-- Expanded Converter Panel -->
-        <div class="ap-currency-panel" id="currencyPanel">
-          <div class="ap-currency-panel-header">
-            <h4><i class="ri-exchange-funds-line"></i> Conversor USD ↔ BRL</h4>
-            <button class="ap-currency-close" id="currencyClose">
-              <i class="ri-close-line"></i>
-            </button>
-          </div>
-          <div class="ap-currency-panel-body">
-            <div class="ap-currency-input-group">
-              <label>USD (Dólar)</label>
-              <input type="number" id="inputUSD" value="1" min="0" step="0.01">
-            </div>
-            <button class="ap-currency-swap" id="currencySwap" data-ap-tooltip="Inverter">
-              <i class="ri-arrow-up-down-line"></i>
-            </button>
-            <div class="ap-currency-input-group">
-              <label>BRL (Real)</label>
-              <input type="number" id="inputBRL" value="5.80" min="0" step="0.01">
-            </div>
-          </div>
-          <div class="ap-currency-panel-footer">
-            <span class="ap-currency-update" id="currencyUpdate">
-              <i class="ri-time-line"></i> Atualizado agora
-            </span>
-            <span class="ap-currency-source">Via ExchangeRate API</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ap-classifieds">
+            <div class="ap-classifieds">
         <!-- ====================================================================
          [HEADER] Classifieds Header with Brand & Safety Warning
          ==================================================================== -->

@@ -1,7 +1,9 @@
 <?php
-declare(strict_types=1);
-
 /**
+ * Apollo Core Plugin
+ *
+ * @package Apollo_Core
+ *
  * Plugin Name: Apollo Core
  * Plugin URI: https://apollo.rio.br
  * Description: Core plugin for Apollo ecosystem - unifies Events Manager and Social features
@@ -14,28 +16,13 @@ declare(strict_types=1);
  * Domain Path: /languages
  * Requires at least: 6.0
  * Requires PHP: 8.1
- *
- * @package Apollo_Core
  */
+
+declare(strict_types=1);
+
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-}
-
-/**
- * Xdebug polyfill - provides stub when Xdebug is not loaded.
- * This silences IDE "undefined function" warnings while keeping
- * the actual xdebug_break() calls safe with function_exists() checks.
- */
-if ( ! function_exists( 'xdebug_break' ) ) {
-	/**
-	 * Stub for xdebug_break() when Xdebug extension is not loaded.
-	 *
-	 * @return void
-	 */
-	function xdebug_break(): void {
-		// No-op when Xdebug is not available.
-	}
 }
 
 // Define plugin constants.
@@ -84,7 +71,7 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-canvas.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-submissions.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-moderation.php';
 
-// Design Library (internal reference for AI assistant)
+// Design Library (internal reference for AI assistant).
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-design-library.php';
 
 // Load admin pages.
@@ -93,10 +80,30 @@ if ( is_admin() ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/forms-admin.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderate-users-membership.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/migration-page.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/admin-apollo-cabin.php'; // FASE 3: Admin Cabin.
 }
 
 // Load public display.
 require_once APOLLO_CORE_PLUGIN_DIR . 'public/display-membership.php';
+
+// Load integration classes.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-push-notifications.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-seopress-integration.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-cookie-consent.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-integration.php';
+
+// FASE 1+2: Load user moderation and modules configuration.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-user-moderation.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-modules-config.php';
+
+// FASE 4: Cross-module integration (Social <-> Eventos <-> Bolha).
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-cross-module-integration.php';
+
+// Initialize moderation and modules systems.
+add_action( 'plugins_loaded', function () {
+	Apollo_User_Moderation::init();
+	Apollo_Modules_Config::init();
+}, 5 );
 
 // Load WP-CLI commands.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -126,7 +133,12 @@ register_activation_hook( __FILE__, array( 'Apollo_Core', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Apollo_Core', 'deactivate' ) );
 
 // Initialize plugin.
-function apollo_core() {
+/**
+ * Returns the singleton instance of Apollo_Core.
+ *
+ * @return Apollo_Core
+ */
+function apollo_core(): Apollo_Core {
 	return Apollo_Core::instance();
 }
 

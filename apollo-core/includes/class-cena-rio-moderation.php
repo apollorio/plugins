@@ -103,11 +103,6 @@ class Apollo_Cena_Rio_Moderation {
 	 * Register REST API routes
 	 */
 	public static function register_rest_routes(): void {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Get moderation queue
 		register_rest_route(
 			'apollo/v1',
@@ -178,11 +173,6 @@ class Apollo_Cena_Rio_Moderation {
 	 * @return WP_REST_Response Response.
 	 */
 	public static function rest_get_queue( $request ): WP_REST_Response {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		$events = self::get_pending_events();
 
 		$formatted = array();
@@ -207,11 +197,6 @@ class Apollo_Cena_Rio_Moderation {
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
 	public static function rest_approve_event( $request ) {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		$post_id = absint( $request->get_param( 'id' ) );
 		$note    = $request->get_param( 'note' ) ?? '';
 

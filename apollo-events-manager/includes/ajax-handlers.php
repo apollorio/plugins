@@ -26,11 +26,6 @@ add_action( 'wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_mo
  * @deprecated Use apollo_get_event_modal action instead
  */
 function apollo_ajax_load_event_modal() {
-	// TEMP: Xdebug breakpoint para depuração Apollo.
-	if ( function_exists( 'xdebug_break' ) ) {
-		xdebug_break();
-	}
-
 	try {
 		// Verify nonce (standardized)
 		check_ajax_referer( 'apollo_events_nonce', 'nonce' );

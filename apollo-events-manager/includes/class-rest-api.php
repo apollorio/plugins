@@ -42,11 +42,6 @@ class Apollo_Events_REST_API {
 	 * Register REST API routes
 	 */
 	public function register_routes() {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		// Eventos endpoints (Events in Portuguese)
 		register_rest_route(
 			$this->namespace,
@@ -138,11 +133,6 @@ class Apollo_Events_REST_API {
 	 * Get events
 	 */
 	public function get_events( $request ) {
-		// TEMP: Xdebug breakpoint para depuração Apollo.
-		if ( function_exists( 'xdebug_break' ) ) {
-			xdebug_break();
-		}
-
 		$args = array(
 			'post_type'      => 'event_listing',
 			'post_status'    => 'publish',
