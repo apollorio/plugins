@@ -403,12 +403,23 @@ class Apollo_Admin_Dashboard {
 			);
 		}
 
+		// SECURITY: phpcs:ignore - Query is safe as $table is constructed from $wpdb->prefix which is trusted
+		// No user input is used in this query
 		$results = $wpdb->get_results(
-			"SELECT event_id, COUNT(*) as count FROM {$table} GROUP BY event_id ORDER BY count DESC",
+			"SELECT event_id, COUNT(*) as count FROM {$table} GROUP BY event_id ORDER BY count DESC LIMIT 1000",
 			ARRAY_A
 		);
 
-		return new WP_REST_Response( $results, 200 );
+		// SECURITY: Sanitize output
+		$safe_results = array();
+		foreach ( $results as $row ) {
+			$safe_results[] = array(
+				'event_id' => absint( $row['event_id'] ),
+				'count'    => absint( $row['count'] ),
+			);
+		}
+
+		return new WP_REST_Response( $safe_results, 200 );
 	}
 
 	/**

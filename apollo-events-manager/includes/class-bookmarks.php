@@ -342,15 +342,18 @@ class Apollo_Events_Bookmarks {
 		$limit   = isset( $request['limit'] ) ? absint( $request['limit'] ) : 20;
 		$offset  = isset( $request['offset'] ) ? absint( $request['offset'] ) : 0;
 
+		// SECURITY: Ensure limit is reasonable to prevent DoS
+		$limit = min( $limit, 100 );
+
 		$bookmarks = $this->get_user_bookmarks( $user_id, $limit, $offset );
 
 		$formatted = array();
 		foreach ( $bookmarks as $event ) {
 			$formatted[] = array(
-				'id'            => $event->ID,
-				'title'         => $event->post_title,
-				'permalink'     => get_permalink( $event->ID ),
-				'bookmarked_at' => get_user_meta( $user_id, '_apollo_bookmark_' . $event->ID . '_date', true ),
+				'id'            => absint( $event->ID ),
+				'title'         => esc_html( $event->post_title ),
+				'permalink'     => esc_url( get_permalink( $event->ID ) ),
+				'bookmarked_at' => sanitize_text_field( get_user_meta( $user_id, '_apollo_bookmark_' . absint( $event->ID ) . '_date', true ) ),
 			);
 		}
 
@@ -452,11 +455,13 @@ class Apollo_Events_Bookmarks {
 	public function admin_page() {
 		global $wpdb;
 
-		// Use prepare for safety (table name is safe but good practice)
-		$table_name      = esc_sql( $this->table_name );
-		$total_bookmarks = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
-		$total_users     = $wpdb->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$table_name}" );
-		$total_events    = $wpdb->get_var( "SELECT COUNT(DISTINCT event_id) FROM {$table_name}" );
+		// SECURITY: Using direct table reference is safe here as table name is hardcoded in constructor
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total_bookmarks = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->table_name}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total_users     = $wpdb->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$this->table_name}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total_events    = $wpdb->get_var( "SELECT COUNT(DISTINCT event_id) FROM {$this->table_name}" );
 
 		?>
 		<div class="wrap">

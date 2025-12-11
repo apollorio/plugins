@@ -27,11 +27,11 @@ add_action( 'wp_ajax_nopriv_apollo_load_event_modal', 'apollo_ajax_load_event_mo
  */
 function apollo_ajax_load_event_modal() {
 	try {
-		// Verify nonce (standardized)
+		// SECURITY: Verify nonce (standardized)
 		check_ajax_referer( 'apollo_events_nonce', 'nonce' );
 
-		// Validate event ID
-		$event_id = isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0;
+		// SECURITY: Validate event ID with proper unslashing
+		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 		if ( ! $event_id ) {
 			wp_send_json_error( array( 'message' => 'ID inválido' ) );
 			return;

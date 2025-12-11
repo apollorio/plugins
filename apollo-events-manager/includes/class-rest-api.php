@@ -449,21 +449,25 @@ class Apollo_Events_REST_API {
 			}
 
 			$locations[] = array(
-				'id'         => $local->ID,
+				'id'         => absint( $local->ID ),
 				'name'       => sanitize_text_field( $location_name ),
 				'local_name' => sanitize_text_field( $local_name ),
-				'city'       => sanitize_text_field( $city ),
-				'state'      => sanitize_text_field( $state ),
+				'city'       => sanitize_text_field( $city ? $city : '' ),
+				'state'      => sanitize_text_field( $state ? $state : '' ),
 			);
 		}//end foreach
 
 		// Fallback: Also include text-based locations from _event_location meta
+		// SECURITY: Using $wpdb->prepare() for SQL safety
 		global $wpdb;
 		$text_locations = $wpdb->get_col(
-			"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
-            WHERE meta_key = '_event_location'
-            AND meta_value != ''
-            ORDER BY meta_value ASC"
+			$wpdb->prepare(
+				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
+				WHERE meta_key = %s
+				AND meta_value != ''
+				ORDER BY meta_value ASC",
+				'_event_location'
+			)
 		);
 
 		foreach ( $text_locations as $text_loc ) {

@@ -477,9 +477,18 @@ if ( ! $is_modal ) :
 
 				<!-- Map -->
 				<?php if ( $event_data['coords']['valid'] ) : ?>
+					<?php
+					$osm_zoom_option   = (int) get_option( 'event_manager_osm_default_zoom', 14 );
+					$osm_zoom          = ( $osm_zoom_option < 8 || $osm_zoom_option > 24 ) ? 14 : $osm_zoom_option;
+					$osm_tile_style    = get_option( 'event_manager_osm_tile_style', 'default' );
+					$osm_allowed_style = array( 'default', 'light', 'dark' );
+					if ( ! in_array( $osm_tile_style, $osm_allowed_style, true ) ) {
+						$osm_tile_style = 'default';
+					}
+					?>
 					<div class="map-view"
 						id="eventMap"
-						style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;"
+						style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;overflow:hidden;"
 						data-lat="<?php echo esc_attr( $event_data['coords']['lat'] ); ?>"
 						data-lng="<?php echo esc_attr( $event_data['coords']['lng'] ); ?>"
 						data-marker="<?php echo esc_attr( $event_data['venue_name'] ); ?>"></div>
@@ -492,6 +501,34 @@ if ( ! $is_modal ) :
 								var lat = parseFloat(mapEl.dataset.lat);
 								var lng = parseFloat(mapEl.dataset.lng);
 								if (!lat || !lng) return;
+
+								var defaultZoom = <?php echo (int) $osm_zoom; ?>;
+								var tileStyle   = '<?php echo esc_js( $osm_tile_style ); ?>';
+
+								function getTileConfig(style) {
+									switch (style) {
+										case 'light':
+											return {
+												url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+												attribution: '© OpenStreetMap © CARTO',
+												maxZoom: 22
+											};
+										case 'dark':
+											return {
+												url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+												attribution: '© OpenStreetMap © CARTO',
+												maxZoom: 22
+											};
+										default:
+											return {
+												url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+												attribution: '© OpenStreetMap',
+												maxZoom: 19
+											};
+									}
+								}
+
+								var tileConfig = getTileConfig(tileStyle);
 
 								try {
 									if (mapEl._leaflet_id) {
@@ -508,11 +545,11 @@ if ( ! $is_modal ) :
 										boxZoom: false,
 										keyboard: false,
 										attributionControl: false
-									}).setView([lat, lng], 15);
+									}).setView([lat, lng], defaultZoom);
 
-									L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-										maxZoom: 19,
-										attribution: '© OpenStreetMap'
+									L.tileLayer(tileConfig.url, {
+										maxZoom: tileConfig.maxZoom,
+										attribution: tileConfig.attribution
 									}).addTo(m);
 
 									L.marker([lat, lng]).addTo(m).bindPopup(mapEl.dataset.marker);

@@ -213,6 +213,34 @@
                                     var lat = parseFloat(mapEl.dataset.lat);
                                     var lng = parseFloat(mapEl.dataset.lng);
                                     if (lat && lng && lat !== 0 && lng !== 0) {
+                                        var osmSettings  = window.apolloOSM || {};
+                                        var defaultZoom  = parseInt(osmSettings.defaultZoom, 10);
+                                        defaultZoom      = defaultZoom && defaultZoom >= 1 ? defaultZoom : 15;
+                                        var tileStyle    = osmSettings.tileStyle || 'default';
+
+                                        var tileConfig = (function(style) {
+                                            switch (style) {
+                                                case 'light':
+                                                    return {
+                                                        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                                                        attribution: '© OpenStreetMap © CARTO',
+                                                        maxZoom: 22,
+                                                    };
+                                                case 'dark':
+                                                    return {
+                                                        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                                                        attribution: '© OpenStreetMap © CARTO',
+                                                        maxZoom: 22,
+                                                    };
+                                                default:
+                                                    return {
+                                                        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                                        attribution: '© OpenStreetMap',
+                                                        maxZoom: 19,
+                                                    };
+                                            }
+                                        })(tileStyle);
+
                                         // Check if map already initialized
                                         if (!mapEl._leaflet_id) {
                                             var map = L.map('eventMap', {
@@ -224,11 +252,11 @@
                                                 boxZoom: false,
                                                 keyboard: false,
                                                 attributionControl: false
-                                            }).setView([lat, lng], 15);
+                                            }).setView([lat, lng], defaultZoom);
                                             
-                                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                                attribution: '© OpenStreetMap',
-                                                maxZoom: 19
+                                            L.tileLayer(tileConfig.url, {
+                                                attribution: tileConfig.attribution,
+                                                maxZoom: tileConfig.maxZoom
                                             }).addTo(map);
                                             
                                             var markerText = mapEl.dataset.marker || 'Local do Evento';

@@ -13,7 +13,7 @@
  * Text Domain: apollo-events-manager
  * Domain Path: /languages
  * Requires at least: 6.0
- * Requires PHP: 8.1
+ * Requires PHP: 8.3
  */
 
 // Prevent direct access
@@ -1422,6 +1422,17 @@ class Apollo_Events_Manager_Plugin {
 			true
 		);
 
+		// Map settings (OSM)
+		$osm_default_zoom = (int) get_option( 'event_manager_osm_default_zoom', 14 );
+		if ( $osm_default_zoom < 8 || $osm_default_zoom > 24 ) {
+			$osm_default_zoom = 14;
+		}
+		$osm_tile_style     = get_option( 'event_manager_osm_tile_style', 'default' );
+		$osm_allowed_styles = array( 'default', 'light', 'dark' );
+		if ( ! in_array( $osm_tile_style, $osm_allowed_styles, true ) ) {
+			$osm_tile_style = 'default';
+		}
+
 		// Localize script for AJAX (MUST be after enqueue)
 		wp_localize_script(
 			'apollo-events-portal',
@@ -1429,6 +1440,16 @@ class Apollo_Events_Manager_Plugin {
 			array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'apollo_events_nonce' ),
+			)
+		);
+
+		// Localize OSM defaults for maps
+		wp_localize_script(
+			'apollo-events-portal',
+			'apolloOSM',
+			array(
+				'defaultZoom' => $osm_default_zoom,
+				'tileStyle'   => $osm_tile_style,
 			)
 		);
 
@@ -1926,13 +1947,17 @@ class Apollo_Events_Manager_Plugin {
 
 		$event_post_type = $config['cpt']['event'];
 
-		$category    = sanitize_text_field( $_POST['category'] ?? '' );
-		$search      = sanitize_text_field( $_POST['search'] ?? '' );
-		$date        = sanitize_text_field( $_POST['date'] ?? '' );
-		$local_slug  = sanitize_text_field( $_POST['local'] ?? '' );
+		// SECURITY: Sanitize all filter inputs with proper unslashing
+		$category    = isset( $_POST['category'] ) ? sanitize_text_field( wp_unslash( $_POST['category'] ) ) : '';
+		$search      = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+		$date        = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : '';
+		$local_slug  = isset( $_POST['local'] ) ? sanitize_text_field( wp_unslash( $_POST['local'] ) ) : '';
 		// Filter by local slug
-		$filter_type = sanitize_text_field( $_POST['filter_type'] ?? '' );
-		// 'local' or 'category'
+		$filter_type = isset( $_POST['filter_type'] ) ? sanitize_text_field( wp_unslash( $_POST['filter_type'] ) ) : '';
+		// SECURITY: Validate filter_type against whitelist
+		if ( ! in_array( $filter_type, array( 'local', 'category', '' ), true ) ) {
+			$filter_type = '';
+		}
 
 		$args = array(
 			'post_type'                  => $event_post_type,
@@ -2373,8 +2398,9 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['apollo_comment_nonce'] ?? '', 'apollo_event_comment' ) ) {
+		// SECURITY: Verify nonce with proper unslashing
+		$nonce = isset( $_POST['apollo_comment_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['apollo_comment_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'apollo_event_comment' ) ) {
 			wp_send_json_error(
 				array(
 					'message' => __( 'Sessão expirada. Recarregue a página.', 'apollo-events-manager' ),
@@ -2384,8 +2410,9 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		$event_id = isset( $_POST['event_id'] ) ? intval( $_POST['event_id'] ) : 0;
-		$content  = isset( $_POST['registro_content'] ) ? sanitize_textarea_field( $_POST['registro_content'] ) : '';
+		// SECURITY: Sanitize inputs with proper unslashing
+		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
+		$content  = isset( $_POST['registro_content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['registro_content'] ) ) : '';
 
 		if ( $event_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Evento inválido.', 'apollo-events-manager' ) ) );
@@ -2445,10 +2472,12 @@ class Apollo_Events_Manager_Plugin {
 	public function ajax_load_event_single() {
 		check_ajax_referer( 'apollo_events_nonce', '_ajax_nonce' );
 
-		$event_id = isset( $_POST['event_id'] ) ? intval( $_POST['event_id'] ) : 0;
+		// SECURITY: Sanitize event_id with absint
+		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
 		if ( $event_id <= 0 ) {
 			wp_send_json_error( 'Evento inválido' );
+			return;
 		}
 
 		global $post;
@@ -2456,6 +2485,13 @@ class Apollo_Events_Manager_Plugin {
 
 		if ( ! $post || $post->post_type !== 'event_listing' ) {
 			wp_send_json_error( 'Evento não encontrado' );
+			return;
+		}
+
+		// SECURITY: Verify event is published (or user can edit it)
+		if ( $post->post_status !== 'publish' && ! current_user_can( 'edit_post', $event_id ) ) {
+			wp_send_json_error( 'Evento não disponível' );
+			return;
 		}
 
 		setup_postdata( $post );
@@ -2475,7 +2511,7 @@ class Apollo_Events_Manager_Plugin {
 			wp_send_json_error(
 				array(
 					'message'   => __( 'Entre na sua conta para salvar favoritos.', 'apollo-events-manager' ),
-					'login_url' => wp_login_url( get_permalink() ),
+					'login_url' => esc_url( wp_login_url( get_permalink() ) ),
 				),
 				401
 			);
@@ -2484,24 +2520,30 @@ class Apollo_Events_Manager_Plugin {
 
 		check_ajax_referer( 'apollo_events_nonce', '_ajax_nonce' );
 
-		$event_id = isset( $_POST['event_id'] ) ? intval( $_POST['event_id'] ) : 0;
+		// SECURITY: Sanitize event_id with absint
+		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
 		if ( $event_id <= 0 ) {
 			wp_send_json_error( 'Evento inválido' );
+			return;
 		}
 
 		// Verify event exists
 		$event = get_post( $event_id );
 		if ( ! $event || $event->post_type !== 'event_listing' ) {
 			wp_send_json_error( 'Evento não encontrado' );
+			return;
 		}
 
 		// Get current favorites count
 		$current_count = apollo_get_post_meta( $event_id, '_favorites_count', true );
-		$current_count = $current_count ? intval( $current_count ) : 0;
+		$current_count = $current_count ? absint( $current_count ) : 0;
 
-		// FASE 4: Registrar ação na tabela de stats
-		$action = sanitize_text_field( $_POST['action_type'] ?? 'add' );
+		// SECURITY: Sanitize action_type and validate against whitelist
+		$action = isset( $_POST['action_type'] ) ? sanitize_text_field( wp_unslash( $_POST['action_type'] ) ) : 'add';
+		if ( ! in_array( $action, array( 'add', 'remove' ), true ) ) {
+			$action = 'add';
+		}
 
 		if ( class_exists( 'Apollo_Event_Stats' ) ) {
 			$stats_class = 'Apollo_Event_Stats';
@@ -2536,8 +2578,9 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Approve event (moderation)
 	 */
 	public function ajax_mod_approve_event() {
-		// Verify nonce
-		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
+		// SECURITY: Verify nonce with proper unslashing
+		$nonce = isset( $_POST['apollo_mod_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['apollo_mod_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );
 			return;
 		}
@@ -2548,7 +2591,7 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		// Sanitize input
+		// SECURITY: Sanitize input
 		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
 		if ( ! $event_id ) {
@@ -2584,8 +2627,9 @@ class Apollo_Events_Manager_Plugin {
 	 * AJAX: Reject event (moderation)
 	 */
 	public function ajax_mod_reject_event() {
-		// Verify nonce
-		if ( ! isset( $_POST['apollo_mod_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_mod_nonce'], 'apollo_mod_events' ) ) {
+		// SECURITY: Verify nonce with proper unslashing
+		$nonce = isset( $_POST['apollo_mod_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['apollo_mod_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'apollo_mod_events' ) ) {
 			wp_send_json_error( __( 'Nonce inválido.', 'apollo-events-manager' ), 403 );
 			return;
 		}
@@ -2596,7 +2640,7 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		// Sanitize input
+		// SECURITY: Sanitize input
 		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
 		if ( ! $event_id ) {
@@ -2943,10 +2987,12 @@ class Apollo_Events_Manager_Plugin {
 	public function validate_custom_event_fields( $validation_errors ) {
 		// Validate timetable format
 		if ( isset( $_POST['timetable'] ) && ! empty( $_POST['timetable'] ) ) {
-			$timetable = $_POST['timetable'];
+			$timetable = wp_unslash( $_POST['timetable'] );
 			if ( is_array( $timetable ) ) {
 				foreach ( $timetable as $slot ) {
-					if ( ! isset( $slot['time'] ) || ! isset( $slot['dj'] ) ) {
+					$slot_time = isset( $slot['time'] ) ? sanitize_text_field( wp_unslash( $slot['time'] ) ) : '';
+					$slot_dj   = isset( $slot['dj'] ) ? sanitize_text_field( wp_unslash( $slot['dj'] ) ) : '';
+					if ( $slot_time === '' || $slot_dj === '' ) {
 						$validation_errors[] = __( 'Invalid timetable format', 'apollo-events-manager' );
 						break;
 					}
@@ -2956,7 +3002,7 @@ class Apollo_Events_Manager_Plugin {
 
 		// Validate coupon code format
 		if ( isset( $_POST['cupom_ario'] ) && ! empty( $_POST['cupom_ario'] ) ) {
-			$coupon = sanitize_text_field( $_POST['cupom_ario'] );
+			$coupon = sanitize_text_field( wp_unslash( $_POST['cupom_ario'] ) );
 			if ( strlen( $coupon ) > 20 ) {
 				$validation_errors[] = __( 'Coupon code must be less than 20 characters', 'apollo-events-manager' );
 			}
@@ -3063,16 +3109,17 @@ class Apollo_Events_Manager_Plugin {
 
 		// Save final image (ID or URL)
 		if ( isset( $_POST['_imagem_final'] ) ) {
-			$final_image = is_numeric( sanitize_text_field( wp_unslash( $_POST['_imagem_final'] ) ) )
-				? absint( $_POST['_imagem_final'] )
-				: esc_url_raw( $_POST['_imagem_final'] );
+			$raw_final_image = wp_unslash( $_POST['_imagem_final'] );
+			$final_image     = is_numeric( sanitize_text_field( $raw_final_image ) )
+				? absint( $raw_final_image )
+				: esc_url_raw( $raw_final_image );
 
 			apollo_update_post_meta( $post_id, '_imagem_final', $final_image );
 		}
 
 		// Save coupon
 		if ( isset( $_POST['cupom_ario'] ) ) {
-			apollo_update_post_meta( $post_id, '_cupom_ario', sanitize_text_field( $_POST['cupom_ario'] ) );
+			apollo_update_post_meta( $post_id, '_cupom_ario', sanitize_text_field( wp_unslash( $_POST['cupom_ario'] ) ) );
 		}
 
 		// Clear cache after saving (safe for any WordPress installation)

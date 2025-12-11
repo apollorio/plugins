@@ -1255,9 +1255,11 @@ class Apollo_Events_Admin_Metaboxes {
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( 'Permission denied' );
+			return;
 		}
 
-		$name = sanitize_text_field( $_POST['name'] ?? '' );
+		// SECURITY: Sanitize input with proper unslashing
+		$name = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
 
 		if ( empty( $name ) ) {
 			wp_send_json_error( __( 'Por favor, digite um nome', 'apollo-events-manager' ) );
@@ -1321,11 +1323,13 @@ class Apollo_Events_Admin_Metaboxes {
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( 'Permission denied' );
+			return;
 		}
 
-		$name    = sanitize_text_field( $_POST['name'] ?? '' );
-		$address = sanitize_text_field( $_POST['address'] ?? '' );
-		$city    = sanitize_text_field( $_POST['city'] ?? '' );
+		// SECURITY: Sanitize inputs with proper unslashing
+		$name    = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+		$address = isset( $_POST['address'] ) ? sanitize_text_field( wp_unslash( $_POST['address'] ) ) : '';
+		$city    = isset( $_POST['city'] ) ? sanitize_text_field( wp_unslash( $_POST['city'] ) ) : '';
 
 		if ( empty( $name ) ) {
 			wp_send_json_error( __( 'Por favor, digite um nome', 'apollo-events-manager' ) );
