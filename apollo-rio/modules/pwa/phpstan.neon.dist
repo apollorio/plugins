@@ -1,0 +1,21 @@
+includes:
+	# @see https://github.com/phpstan/phpstan-src/blob/b9f62d63f2deaa0a5e97f51073e41a422c48aa01/conf/bleedingEdge.neon
+	- phar://phpstan.phar/conf/bleedingEdge.neon
+parameters:
+	level: 5
+	treatPhpDocTypesAsCertain: false
+	inferPrivatePropertyTypeFromConstructor: true
+	paths:
+		- %currentWorkingDirectory%/pwa.php
+		- %currentWorkingDirectory%/wp-admin
+		- %currentWorkingDirectory%/wp-includes
+		- %currentWorkingDirectory%/bundled-theme-support
+		- %currentWorkingDirectory%/integrations
+	bootstrapFiles:
+		- %currentWorkingDirectory%/tests/static-analysis-stubs/wordpress-defines.stub
+		- %currentWorkingDirectory%/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+	dynamicConstantNames:
+		- SCRIPT_DEBUG
+	ignoreErrors:
+		# Dynamically set attributes which will be eventually declared on WP_Query.
+		- '#^Access to an undefined property WP_Query::\$(is_offline|is_500)\.$#'

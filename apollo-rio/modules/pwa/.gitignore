@@ -1,0 +1,14 @@
+/build/
+/node_modules
+/vendor
+/phpcs.xml
+/.phpcs.xml
+*.zip
+/wp-includes/js/workbox*
+/wiki
+.vscode
+.phpunit.result.cache
+
+# Generated via bin/transform-readme.php
+/readme.txt
+/.wp-env.override.json

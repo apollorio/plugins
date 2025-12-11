@@ -1,0 +1,20 @@
+{
+  "config": {
+    "WP_SERVICE_WORKER_DEBUG_LOG": true
+  },
+  "env": {
+    "development": {
+      "plugins": [
+        "."
+      ]
+    },
+    "tests": {
+      "plugins": [
+        "."
+      ],
+      "mappings": {
+        "../wordpress-develop": "WordPress/wordpress-develop#trunk"
+      }
+    }
+  }
+}
