@@ -1,5 +1,0 @@
-{
-  "phpcs.standard": "WordPress",
-  "phpcs.executablePath": "${workspaceFolder}/vendor/bin/phpcs",
-  "php.validate.executablePath": "C:/path/para/seu/php.exe"
-}
