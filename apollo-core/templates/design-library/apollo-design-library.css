@@ -1,0 +1,1006 @@
+/* ============================================================================
+   APOLLO DESIGN LIBRARY - Centralized Stylesheets
+   Plugin: apollo-core
+   Path: /templates/design-library/apollo-design-library.css
+   
+   ORGANIZATION:
+   - Design Tokens (CSS Variables)
+   - Global Base Styles
+   - Layout Components (Sidebar, Header, Main, Grid)
+   - Widget Styles (Calendar, Cards, Forms, etc.)
+   - Utility Classes (.ap-*)
+   - Component-Specific Styles
+   - Responsive Breakpoints
+   
+   NO INLINE STYLES - ALL CENTRALIZED HERE
+   =========================================================================== */
+
+/* ============================================================================
+   SECTION 1: DESIGN TOKENS & ROOT VARIABLES
+   =========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg: #f8fafc;
+  --bg-main: #ffffff;
+  --bg-surface: #f5f5f5;
+  --muted: #64748b;
+  --text-main: rgba(19, 21, 23, 0.6);
+  --text-primary: rgba(19, 21, 23, 0.9);
+  --text-secondary: rgba(19, 21, 23, 0.65);
+  --text-muted: rgba(19, 21, 23, 0.4);
+  
+  /* Brand Colors */
+  --accent: #f97316;
+  --accent-strong: #ea580c;
+  --confirmed: #10b981;
+  --published: #3b82f6;
+  --danger: #ef4444;
+  
+  /* Component Colors */
+  --card: #ffffff;
+  --border: #e6eef6;
+  --border-light: #e0e2e4;
+  --shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+  
+  /* Typography */
+  --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --text-size: 14.75px;
+  
+  /* Spacing Scale */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 12px;
+  --sp-lg: 16px;
+  --sp-xl: 24px;
+  --sp-2xl: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+  
+  /* Layout Dimensions */
+  --sidebar-width: 14rem;
+  --nav-height: 70px;
+  --header-height: 60px;
+  
+  /* Z-Index Stack */
+  --z-base: 1;
+  --z-dropdown: 60;
+  --z-sticky: 40;
+  --z-modal: 100;
+  
+  /* Transitions */
+  --transition-fast: all 0.18s ease;
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+  --bg: #0b1220;
+  --bg-main: #0f172a;
+  --bg-surface: #1a1f35;
+  --text-main: #e5e7eb;
+  --text-primary: #f9fafb;
+  --card: #020617;
+  --border: #1f2937;
+}
+
+/* ============================================================================
+   SECTION 2: GLOBAL BASE STYLES
+   =========================================================================== */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.6);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================================================
+   SECTION 3: LAYOUT COMPONENTS
+   =========================================================================== */
+
+/* App Shell */
+.app {
+  display: flex;
+  min-height: 100vh;
+  gap: 0;
+  background: var(--bg);
+}
+
+/* Sidebar Navigation */
+aside.leftbar {
+  width: var(--sidebar-width);
+  background: #fff;
+  border-right: 1px solid #eef2f7;
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-sticky);
+  padding: 1rem 0;
+}
+
+@media (max-width: 980px) {
+  aside.leftbar {
+    display: none;
+  }
+}
+
+/* Main Content Area */
+main.content,
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header / Top Bar */
+header.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid #eef2f7;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-dropdown);
+  backdrop-filter: blur(6px);
+  height: var(--header-height);
+}
+
+/* Workspace Grid (Calendar Layout) */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "calendar map"
+    "events   events";
+  gap: 20px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+@media (max-width: 1100px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "calendar"
+      "events"
+      "map";
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .workspace {
+    gap: 12px;
+    padding: 12px;
+  }
+}
+
+/* ============================================================================
+   SECTION 4: CARD & CONTAINER COMPONENTS
+   =========================================================================== */
+
+.ap-card,
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition-smooth);
+}
+
+.ap-card:hover,
+.card:hover {
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Calendar Card */
+.calendar-card {
+  grid-area: calendar;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Map Card */
+.map-card {
+  grid-area: map;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Events List Card */
+.events-card {
+  grid-area: events;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Mobile Container (Phone app view) */
+.mobile-container {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-main);
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.05);
+  padding-bottom: 80px;
+  margin: 0 auto;
+}
+
+@media (min-width: 501px) {
+  body {
+    padding: 2rem 0;
+  }
+  .mobile-container {
+    border-radius: 2rem;
+    overflow: hidden;
+  }
+}
+
+/* ============================================================================
+   SECTION 5: CALENDAR & DATE WIDGETS
+   =========================================================================== */
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 12px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.calendar-day:hover {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: var(--accent);
+}
+
+.calendar-day.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.calendar-day.has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ============================================================================
+   SECTION 6: FORM COMPONENTS
+   =========================================================================== */
+
+.ap-text-input,
+.ap-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: var(--transition-fast);
+}
+
+.ap-text-input:focus,
+.ap-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.ap-text-input::placeholder,
+.ap-input::placeholder {
+  color: var(--muted);
+}
+
+.ap-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ap-form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ap-form-group-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ap-form-group-row > * {
+  flex: 1;
+}
+
+/* Hidden File Inputs */
+input[type='file'] {
+  display: none;
+}
+
+/* Sliders & Range Inputs */
+.ap-slider {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ap-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.ap-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.ap-slider-fill {
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.ap-slider-bubble {
+  position: absolute;
+  top: -28px;
+  padding: 4px 8px;
+  background: var(--text-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   SECTION 7: BUTTON & CTA COMPONENTS
+   =========================================================================== */
+
+.ap-btn,
+button {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.ap-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+
+.ap-btn-primary:hover {
+  background: var(--accent-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+}
+
+.ap-btn-secondary {
+  background: var(--border);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.ap-btn-secondary:hover {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: var(--accent);
+}
+
+.ap-btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.ap-btn-ghost:hover {
+  background: var(--bg-surface);
+  border-color: var(--text-primary);
+}
+
+.ap-btn-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ap-btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.ap-btn:disabled,
+.ap-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   SECTION 8: UPLOAD & FILE COMPONENTS
+   =========================================================================== */
+
+.ap-upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  background: rgba(249, 115, 22, 0.02);
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.ap-upload-zone:hover {
+  border-color: var(--accent);
+  background: rgba(249, 115, 22, 0.05);
+}
+
+.ap-upload-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 32px;
+  color: var(--accent);
+}
+
+.ap-upload-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.ap-upload-subtext {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ============================================================================
+   SECTION 9: AVATAR & USER COMPONENTS
+   =========================================================================== */
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.avatar-lg {
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+/* ============================================================================
+   SECTION 10: BADGE & STATUS COMPONENTS
+   =========================================================================== */
+
+.ap-badge,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ap-badge-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ap-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--confirmed);
+}
+
+.ap-badge-warning {
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--accent);
+}
+
+.ap-badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* Status Pills */
+.ap-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ap-status-confirmed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--confirmed);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ap-event-date {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.ap-status-pending {
+  background: rgba(249, 115, 22, 0.1);
+  color: var(--accent);
+}
+
+.ap-status-published {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--published);
+}
+
+/* ============================================================================
+   SECTION 11: MODAL & OVERLAY COMPONENTS
+   =========================================================================== */
+
+.modal-root,
+.ap-modal-container {
+  position: relative;
+  top: -18px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================================
+   SECTION 12: TABLE COMPONENTS
+   =========================================================================== */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+table th,
+table td {
+  padding: 8px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+table th {
+  background: var(--bg-surface);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+table tbody tr:hover {
+  background: rgba(249, 115, 22, 0.02);
+}
+
+/* ============================================================================
+   SECTION 13: NAVIGATION & MENU COMPONENTS
+   =========================================================================== */
+
+.ap-nav-section-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 6px 6px 2px;
+  margin-top: 1rem;
+}
+
+.aprio-sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  text-decoration: none;
+  transition: var(--transition-fast);
+  font-size: 13px;
+}
+
+.aprio-sidebar-nav a:hover {
+  background: rgba(249, 115, 22, 0.08);
+  color: var(--text-primary);
+}
+
+.aprio-sidebar-nav a[aria-current='page'] {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ============================================================================
+   SECTION 14: UTILITY CLASSES
+   =========================================================================== */
+
+/* Spacing Utilities */
+.ap-mt-0 { margin-top: 0; }
+.ap-mt-4 { margin-top: 4px; }
+.ap-mt-8 { margin-top: 8px; }
+.ap-mt-12 { margin-top: 12px; }
+.ap-mt-16 { margin-top: 16px; }
+.ap-mt-24 { margin-top: 24px; }
+.ap-mt-32 { margin-top: 32px; }
+
+.ap-mb-0 { margin-bottom: 0; }
+.ap-mb-4 { margin-bottom: 4px; }
+.ap-mb-8 { margin-bottom: 8px; }
+.ap-mb-12 { margin-bottom: 12px; }
+.ap-mb-16 { margin-bottom: 16px; }
+.ap-mb-24 { margin-bottom: 24px; }
+
+.ap-gap-0 { gap: 0; }
+.ap-gap-4 { gap: 4px; }
+.ap-gap-6 { gap: 6px; }
+.ap-gap-8 { gap: 8px; }
+.ap-gap-12 { gap: 12px; }
+
+.ap-p-16 { padding: 16px; }
+
+/* Display Utilities */
+.ap-flex-row { display: flex; align-items: center; gap: 8px; }
+.ap-flex-col { display: flex; flex-direction: column; }
+.ap-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.ap-flex-center { display: flex; align-items: center; justify-content: center; }
+.ap-flex-end { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.ap-inline-flex { display: inline-flex; align-items: center; gap: 6px; }
+.ap-hidden { display: none !important; }
+.ap-visible { display: block !important; }
+
+/* Text & Typography */
+.ap-text-xs { font-size: 10px; }
+.ap-text-sm { font-size: 12px; }
+.ap-text-base { font-size: 14px; }
+.ap-text-lg { font-size: 16px; }
+.ap-text-xl { font-size: 18px; }
+.ap-text-2xl { font-size: 32px; }
+
+.ap-font-light { font-weight: 300; }
+.ap-font-normal { font-weight: 400; }
+.ap-font-medium { font-weight: 500; }
+.ap-font-semibold { font-weight: 600; }
+.ap-font-bold { font-weight: 700; }
+.ap-font-black { font-weight: 800; }
+
+.ap-text-primary { color: var(--text-primary); }
+.ap-text-secondary { color: var(--text-secondary); }
+.ap-text-muted { color: var(--muted); }
+.ap-text-accent { color: var(--accent); }
+.ap-text-accent-strong { color: var(--accent-strong); }
+.ap-text-confirmed { color: var(--confirmed); }
+.ap-text-danger { color: var(--danger); }
+
+.ap-text-center { text-align: center; }
+.ap-text-left { text-align: left; }
+.ap-text-right { text-align: right; }
+
+/* Positioning & Transform */
+.ap-relative { position: relative; }
+.ap-absolute { position: absolute; }
+.ap-sticky { position: sticky; top: 0; }
+.ap-scale-lg { transform: scale(1.8); }
+.ap-scale-md { transform: scale(1.4); }
+
+/* Width & Height */
+.ap-w-full { width: 100%; }
+
+/* Icon Sizes */
+.ap-icon-sm { 
+  width: 28px; 
+  height: 28px; 
+  font-size: 14px; 
+}
+
+.ap-icon-md { 
+  width: 32px; 
+  height: 32px; 
+  font-size: 16px; 
+}
+
+/* Border & Radius */
+.ap-border-1 { border: 1px solid var(--border); }
+.ap-rounded-sm { border-radius: var(--radius-sm); }
+.ap-rounded-md { border-radius: var(--radius-md); }
+.ap-rounded-lg { border-radius: var(--radius-lg); }
+.ap-rounded-xl { border-radius: var(--radius-xl); }
+.ap-rounded-full { border-radius: var(--radius-full); }
+
+/* Background & Opacity */
+.ap-bg-accent-light { background: rgba(249, 115, 22, 0.1); }
+.ap-bg-confirmed-light { background: rgba(16, 185, 129, 0.1); }
+.ap-bg-danger-light { background: rgba(239, 68, 68, 0.1); }
+.ap-opacity-50 { opacity: 0.5; }
+.ap-opacity-60 { opacity: 0.6; }
+.ap-opacity-70 { opacity: 0.7; }
+.ap-opacity-80 { opacity: 0.8; }
+
+/* Cursor & Interactive */
+.ap-cursor-pointer { cursor: pointer; }
+.ap-cursor-default { cursor: default; }
+.ap-pointer-none { pointer-events: none; }
+
+/* ============================================================================
+   SECTION 15: RESPONSIVE BREAKPOINTS & MEDIA QUERIES
+   =========================================================================== */
+
+@media (max-width: 1200px) {
+  .workspace {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0;
+  }
+
+  aside.leftbar {
+    display: none;
+  }
+
+  main.content {
+    width: 100%;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  header.topbar {
+    padding: 10px 16px;
+  }
+
+  .ap-card,
+  .card {
+    padding: 12px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  html,
+  body {
+    font-size: 13px;
+  }
+
+  .ap-card,
+  .card {
+    border-radius: var(--radius-md);
+  }
+
+  .ap-text-2xl {
+    font-size: 24px;
+  }
+
+  .ap-form-group-row {
+    flex-direction: column;
+  }
+
+  .workspace {
+    padding: 8px;
+  }
+}
+
+/* ============================================================================
+   SECTION 16: PRINT STYLES
+   =========================================================================== */
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .ap-hidden-print {
+    display: none !important;
+  }
+}

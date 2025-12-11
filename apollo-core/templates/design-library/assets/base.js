@@ -166,10 +166,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const dateDisplay = document.getElementById('dateDisplay');
   const datePrev = document.getElementById('datePrev');
   const dateNext = document.getElementById('dateNext');
-  const categoryButtons = document.querySelectorAll('.event-category');
+  const categoryButtons = document.querySelectorAll('.ap-event-category');
   const searchInput = document.getElementById('eventSearchInput');
   const searchForm = document.getElementById('eventSearchForm');
-  const allEvents = document.querySelectorAll('.event_listing');
+  const allEvents = document.querySelectorAll('.ap-event-card');
 
   let activeCategory = 'all';
   let searchQuery = '';
@@ -192,8 +192,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // === USER MENU ===
   if (userMenuTrigger) {
     const userMenu = userMenuTrigger.parentElement;
-    userMenuTrigger.addEventListener('click', e => { e.stopPropagation(); userMenu.classList.toggle('open'); });
-    document.addEventListener('click', e => { if (!userMenu.contains(e.target)) userMenu.classList.remove('open'); });
+    userMenuTrigger.addEventListener('click', e => { e.stopPropagation(); userMenu.classList.toggle('ap-open'); });
+    document.addEventListener('click', e => { if (!userMenu.contains(e.target)) userMenu.classList.remove('ap-open'); });
   }
 
   // === RELÓGIO ===
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const show = showByDate && showByCategory && showBySearch;
 
-      event.classList.toggle('hidden', !show);
+      event.classList.toggle('ap-hidden', !show);
       if (show) event.style.display = ''; // reseta para o valor do CSS (grid/flex/block)
     });
   }
@@ -253,15 +253,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // === CATEGORIAS ===
   categoryButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      categoryButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      categoryButtons.forEach(b => b.classList.remove('ap-active'));
+      btn.classList.add('ap-active');
       activeCategory = btn.dataset.slug || 'all';
       filterEvents();
     });
   });
 
   // Botão "Todos" inicia ativo
-  document.querySelector('.event-category[data-slug="all"]')?.classList.add('active');
+  document.querySelector('.ap-event-category[data-slug="all"]')?.classList.add('ap-active');
 
   // === FADE DO "All/Todo/Tutto..." ===
   const xxall = document.getElementById('xxall');

@@ -11,6 +11,10 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+  <!-- APOLLO DESIGN LIBRARY -->
+  <link rel="stylesheet" href="./apollo-design-library.css">
+  <link rel="stylesheet" href="./_utilities.css">
+
   <style>
     /* =============================================
        APOLLO::RIO EVENT FORM
@@ -785,7 +789,7 @@
             <div class="ap-upload-icon"><i class="ph ph-camera"></i></div>
             <div class="ap-upload-text">Capa do Evento (Destaque)</div>
           </div>
-          <input type="file" id="ap-file-input" accept="image/*" onchange="apPreviewFile('ap-file-input','ap-preview-img')" style="display:none">
+          <input type="file" id="ap-file-input" accept="image/*" onchange="apPreviewFile('ap-file-input','ap-preview-img')" class="ap-hidden">
         </div>
 
         <!-- ========== BASIC INFO ========== -->
@@ -994,17 +998,17 @@
             <div class="ap-gallery-slot" onclick="apTriggerGallery(2)">
               <i class="ph ph-plus"></i>
               <img id="ap-gal-2" class="ap-gallery-preview">
-              <input type="file" onchange="apPreviewGallery(this,2)" style="display:none">
+              <input type="file" onchange="apPreviewGallery(this,2)" class="ap-hidden">
             </div>
             <div class="ap-gallery-slot" onclick="apTriggerGallery(3)">
               <i class="ph ph-plus"></i>
               <img id="ap-gal-3" class="ap-gallery-preview">
-              <input type="file" onchange="apPreviewGallery(this,3)" style="display:none">
+              <input type="file" onchange="apPreviewGallery(this,3)" class="ap-hidden">
             </div>
             <div class="ap-gallery-slot" onclick="apTriggerGallery(4)">
               <i class="ph ph-plus"></i>
               <img id="ap-gal-4" class="ap-gallery-preview">
-              <input type="file" onchange="apPreviewGallery(this,4)" style="display:none">
+              <input type="file" onchange="apPreviewGallery(this,4)" class="ap-hidden">
             </div>
           </div>
         </div>
@@ -1012,15 +1016,15 @@
         <!-- ========== FOOTER HIGHLIGHT ========== -->
         <div class="ap-form-group">
           <label class="ap-form-label">Imagem Destaque (Rodapé)</label>
-          <div class="ap-upload-zone" style="padding:16px; margin-bottom:0;" onclick="document.getElementById('ap-footer-img').click()">
+          <div class="ap-upload-zone ap-p-16 ap-mb-0" onclick="document.getElementById('ap-footer-img').click()">
             <img id="ap-preview-footer" class="ap-upload-preview" src="" alt="">
             <div class="ap-upload-content" id="ap-footer-placeholder">
-              <div class="ap-upload-icon" style="width:28px; height:28px; font-size:14px;">
+              <div class="ap-upload-icon ap-icon-sm">
                 <i class="ph ph-image"></i>
               </div>
               <div class="ap-upload-text">Adicionar imagem final</div>
             </div>
-            <input type="file" id="ap-footer-img" accept="image/*" onchange="apPreviewFile('ap-footer-img','ap-preview-footer')" style="display:none">
+            <input type="file" id="ap-footer-img" accept="image/*" onchange="apPreviewFile('ap-footer-img','ap-preview-footer')" class="ap-hidden">
           </div>
         </div>
 
@@ -1061,7 +1065,7 @@
         <div class="ap-lat-row">
           <input type="text" class="ap-text-input" id="ap-local-lat" placeholder="LAT" readonly>
           <input type="text" class="ap-text-input" id="ap-local-lon" placeholder="LON" readonly>
-          <button type="button" class="ap-btn-icon" onclick="apRefreshGeo()" style="width:100%">
+          <button type="button" class="ap-btn-icon ap-w-full" onclick="apRefreshGeo()">
             <i class="ph-bold ph-arrows-clockwise"></i>
           </button>
         </div>
@@ -1069,7 +1073,7 @@
 
       <div class="ap-form-group">
         <label class="ap-form-label">Contatos</label>
-        <input type="text" class="ap-text-input" placeholder="Website" style="margin-bottom:8px;">
+        <input type="text" class="ap-text-input ap-mb-8" placeholder="Website">
         <div class="ap-inputs-row">
           <input type="text" class="ap-text-input" placeholder="Instagram">
           <input type="text" class="ap-text-input" placeholder="Facebook">
@@ -1091,8 +1095,8 @@
         <i class="ph-bold ph-x"></i>
       </button>
       
-      <div class="ap-upload-zone" style="padding:16px; margin-bottom:16px;">
-        <div class="ap-upload-icon" style="width:32px; height:32px; font-size:14px;">
+      <div class="ap-upload-zone ap-p-16 ap-mb-16">
+        <div class="ap-upload-icon ap-icon-md">
           <i class="ph ph-user"></i>
         </div>
         <div class="ap-upload-text">Foto de Perfil</div>
