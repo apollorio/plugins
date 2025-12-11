@@ -50,6 +50,7 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-email-security-log.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/auth-filters.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/memberships.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-membership.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/template-tags.php';
 
 // Load forms system.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/schema-manager.php';

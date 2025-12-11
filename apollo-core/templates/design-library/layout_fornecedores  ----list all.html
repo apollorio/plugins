@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Apollo::rio :: Catálogo de Fornecedores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+  <!-- EXTERNAL DEPENDENCIES -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+  <script src="https://unpkg.com/@motionone/dom@10.16.4/dist/index.js"></script>
+
+  <style>
+    /* =============================================
+       APOLLO::RIO WORDPRESS TEMPLATE
+       Plugin: apollo-social
+       NO TAILWIND - Pure CSS with ap-* prefix
+       ============================================= */
+
+    /* ========================================= CSS VARIABLES ========================================= */
+    :root {
+      --ap-font-primary: "Urbanist", system-ui, -apple-system, sans-serif;
+      --ap-bg-main: #ffffff;
+      --ap-bg-surface: #f8fafc;
+      --ap-text-primary: rgba(19, 21, 23, 0.65);
+      --ap-text-secondary: rgba(15, 23, 42, 0.88);
+      --ap-text-muted: rgba(19, 21, 23, 0.4);
+      --ap-orange-500: #FF6925;
+      --ap-orange-600: #E55A1E;
+      --ap-glass-surface: rgba(255, 255, 255, 0.92);
+      --ap-glass-border: rgba(226, 232, 240, 0.8);
+      --ap-glass-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+      --ap-item-hover: rgba(15, 23, 42, 0.04);
+      --ap-card-bg: #ffffff;
+      --ap-nav-height: 55px;
+      --ap-sidebar-width: 256px;
+      --ap-menu-radius: 20px;
+      --ap-toggle-height: 16em;
+      --ap-toggle-width: 30em;
+      --ap-bg-night: #423966;
+      --ap-moon-color: #D9FBFF;
+    }
+
+    /* ========================================= BASE RESET ========================================= */
+    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: var(--ap-font-primary); background-color: var(--ap-bg-main); color: var(--ap-text-secondary); overflow-y: auto; overflow-x: hidden; min-height: 100vh; margin: 0; padding: 0; font-size:14px;font-weight:400; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background-color: rgba(148, 163, 184, 0.4); border-radius: 999px; }
+    .ap-no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* ========================================= NAVBAR ========================================= */
+    .ap-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; height: var(--ap-nav-height); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .ap-logo-wrapper { display: flex; align-items: center; }
+    .ap-logo-desktop { display: none; height: 4rem; align-items: center; gap: 0.75rem; margin-left: 1rem; }
+    .ap-logo-icon { height: 2.25rem; width: 2.25rem; border-radius: 0.75rem; background: linear-gradient(to bottom right, #fb923c, #ea580c); display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+    .ap-logo-icon i { color: white; font-size: 21px; }
+    .ap-logo-text { margin-left: 0.5rem; display: flex; flex-direction: column; line-height: 1.2; }
+    .ap-logo-title { font-size: 15px; font-weight: 700; color: #0f172a; opacity: 0.95; }
+    .ap-logo-subtitle { font-size: 8.5px; font-weight: 400; text-align: center; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.18em; }
+    .ap-logo-mobile { display: flex; height: 4rem; align-items: center; gap: 0.75rem; }
+    .ap-logo-mobile .ap-logo-icon { animation: ap-pulsar 6.2s ease-in-out infinite alternate; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); }
+    @keyframes ap-pulsar { 0%, 100% { filter: brightness(1); box-shadow: 0px 4px 5px rgba(255, 165, 0, 0.07); } 50% { filter: brightness(1.15) saturate(1.2); box-shadow: 0px 4px 15px rgba(255, 165, 0, 0.15); } }
+    
+    .ap-nav-controls { display: flex; align-items: center; gap: 0.5rem; }
+    .ap-clock { padding: 0.4rem 1rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; color: var(--ap-text-primary); cursor: default; margin-right: 0.5rem; background: transparent; display: none; }
+    .ap-nav-btn { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ap-text-primary); transition: all 0.2s ease; position: relative; background: transparent; border: none; cursor: pointer; }
+    .ap-nav-btn:hover, .ap-nav-btn[aria-expanded="true"] { background: rgba(0,0,0,0.05); color: var(--ap-orange-500); transform: scale(1.05); }
+    .ap-nav-btn svg, .ap-nav-btn i { width: 22px; height: 22px; font-size: 22px; }
+    .ap-badge { position: absolute; top: 20px; right: 18px; width: 5px; height: 5px; border-radius: 50%; z-index: 10; pointer-events: none; background: transparent; box-shadow: none; }
+    .ap-badge[data-notif="true"] { background: #ff8c00; box-shadow: 0 0 10px #ff8c00; animation: ap-pulsar-badge 2s infinite ease-in; }
+    @keyframes ap-pulsar-badge { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); } 100% { transform: scale(1.03); filter: brightness(1.3) saturate(1.5); box-shadow: 0 0 0 15px rgba(255, 140, 0, 0); } }
+    .ap-profile-btn { width: 36px; height: 36px; font-weight: 700; background: #f1f5f9; border-radius: 50%; font-size: 12px; }
+
+    /* ========================================= SIDEBAR (FIXED ON DESKTOP) ========================================= */
+    .ap-sidebar { display: none; position: fixed; left: 0; top: var(--ap-nav-height); width: var(--ap-sidebar-width); height: calc(100vh - var(--ap-nav-height)); flex-direction: column; padding-right: 1.5rem; padding-left: 1rem; padding-bottom: 1rem; overflow-y: auto; overflow-x: hidden; z-index: 100; }
+    .ap-sidebar-nav { flex: 1; padding-left: 1rem; padding-right: 0.75rem; margin-top: 0.25rem; padding-top: 1rem; padding-bottom: 0.5rem; overflow-y: auto; overflow-x: hidden; font-size: 13px; }
+    .ap-nav-section-title { padding-left: 0.25rem; padding-right: 0.25rem; margin-bottom: 0.5rem; font-size: 9.5px; font-weight: 400; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ap-sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 10px 12px; margin-bottom: 4px; border-radius: 12px; border-left: 2px solid transparent; font-size: 13px; color: #64748b; text-decoration: none; transition: all 0.2s; }
+    .ap-sidebar-link:hover { background-color: #f8fafc; color: #0f172a; }
+    .ap-sidebar-link[aria-current="page"] { background-color: #f1f5f9; color: #0f172a; border-left-color: #0f172a; font-weight: 600; }
+    .ap-sidebar-user { margin-top: auto; padding-top: 1rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 0.75rem; }
+    .ap-user-avatar { height: 2.5rem; width: 2.5rem; border-radius: 50%; background: #fed7aa; overflow: hidden; }
+    .ap-user-avatar img { object-fit: cover; width: 100%; height: 100%; }
+    .ap-user-info { display: flex; flex-direction: column; }
+    .ap-user-name { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+    .ap-user-role { font-size: 10px; color: #64748b; }
+
+    /* ========================================= LAYOUT ========================================= */
+    .ap-layout { display: flex; padding-top:35px; }
+    .ap-main-content { flex: 1; min-width: 0; padding-left: 1rem; padding-right: 1rem; }
+
+    /* ========================================= DROPDOWNS ========================================= */
+    .ap-dropdown { display: none; position: absolute; top: calc(var(--ap-nav-height) + 10px); right: 16px; width: 380px; max-width: 90vw; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid var(--ap-glass-border); border-radius: var(--ap-menu-radius); box-shadow: 0 20px 60px rgba(0,0,0,0.15); z-index: 999; flex-direction: column; opacity: 0; transform: translateY(-10px) scale(0.98); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; max-height: 85vh; }
+    .ap-dropdown.ap-active { display: flex; opacity: 1; transform: translateY(0) scale(1); }
+    .ap-section-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ap-text-muted); font-weight: 600; padding: 0.5rem 1.25rem; margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .ap-see-all { font-size: 10.5px; font-weight: 300; color: var(--ap-orange-500); cursor: pointer; text-transform: none; letter-spacing: 0; text-decoration: none; }
+
+    /* ========================================= NOTIFICATIONS ========================================= */
+    .ap-notif-list { display: flex; flex-direction: column; }
+    .ap-notif-item { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--ap-glass-border); display: flex; gap: 0.75rem; transition: background 0.2s; cursor: pointer; text-decoration: none; color: inherit; }
+    .ap-notif-item:hover { background: rgba(255, 255, 255, 0.6); }
+    .ap-notif-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: #fff; }
+    .ap-notif-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .ap-notif-title { font-size: 0.85rem; font-weight: 600; color: var(--ap-text-secondary); }
+    .ap-notif-desc { font-size: 0.8rem; color: var(--ap-text-primary); line-height: 1.3; }
+    .ap-notif-time { font-size: 0.7rem; color: var(--ap-text-muted); margin-top: 4px; }
+    .ap-load-more { padding: 1rem 1.25rem; border-top: 1px solid var(--ap-glass-border); text-align: center; cursor: pointer; transition: background 0.2s; color: var(--ap-orange-500); font-weight: 600; font-size: 0.85rem; }
+    .ap-load-more:hover { background: rgba(255, 105, 37, 0.05); }
+
+    /* ========================================= APP MENU ========================================= */
+    .ap-apps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 0 1.25rem; margin-bottom: 1.5rem; }
+    .ap-app-item { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-decoration: none; transition: transform 0.2s; }
+    .ap-app-item:hover { transform: translateY(-3px); }
+    .ap-app-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 1rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.2s; }
+    .ap-app-label { font-size: 0.7rem; color: var(--ap-text-secondary); text-align: center; }
+    
+    /* ========================================= MESSAGE SCROLL ========================================= */
+    .ap-scroll-row { display: flex; gap: 0.75rem; overflow-x: auto; padding: 10px 1.25rem; margin-bottom: 1.5rem; scrollbar-width: thin; }
+    .ap-scroll-row::-webkit-scrollbar { height: 4px; }
+    .ap-scroll-row::-webkit-scrollbar-track { background: transparent; }
+    .ap-scroll-row::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 2px; }
+    .ap-msg-card { flex: 0 0 13rem; background: var(--ap-card-bg); border: 1px solid var(--ap-glass-border); border-radius: 0.9rem; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer; text-decoration: none; color: inherit; }
+    .ap-msg-card:hover { background: #fff; transform: translateY(-4px); box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1); border-color: rgba(0, 0, 0, 0.1); }
+    .ap-msg-header { display: flex; align-items: center; gap: 0.5rem; }
+    .ap-msg-avatar { width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: white; flex-shrink: 0; }
+    .ap-msg-info { flex: 1; display: flex; flex-direction: column; line-height: 1.1; overflow: hidden; }
+    .ap-msg-name { font-size: 0.8rem; font-weight: 600; color: var(--ap-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ap-msg-time { font-size: 0.65rem; color: var(--ap-text-muted); }
+    .ap-msg-preview { font-size: 0.75rem; color: var(--ap-text-primary); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .ap-load-more-card { flex: 0 0 10rem; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.02); border-style: dashed; }
+    .ap-load-more-card:hover { background: rgba(0, 0, 0, 0.06); transform: translateY(-2px); }
+    .ap-load-more-text { font-weight: 300; color: rgba(19, 21, 23, 0.6); font-size: 0.85rem; pointer-events: none; }
+
+    /* ========================================= PROFILE MENU ========================================= */
+    #ap-menu-profile { width: 200px; }
+    .ap-profile-link { display: block; padding: 0.75rem 1.25rem; color: var(--ap-text-secondary); text-decoration: none; font-size: 0.875rem; transition: background 0.2s; }
+    .ap-profile-link:hover { background: rgba(0, 0, 0, 0.04); }
+    .ap-profile-divider { height: 1px; background: #f1f5f9; margin: 0.5rem 0; }
+    .ap-profile-link.ap-danger { color: #ef4444; }
+    .ap-profile-link.ap-danger:hover { background: rgba(239, 68, 68, 0.05); }
+    .ap-darkmode-wrapper { height: 40px; position: relative; overflow: hidden; padding: 0 1.25rem; display: flex; align-items: center; justify-content: center; }
+    .ap-tdnn { font-size: 1.2px; position: relative; height: var(--ap-toggle-height); width: var(--ap-toggle-width); border-radius: var(--ap-toggle-height); transition: all 500ms ease-in-out; background: var(--ap-bg-night); cursor: pointer; }
+    .ap-moon { position: absolute; display: block; border-radius: 50%; transition: all 400ms ease-in-out; top: 3em; left: 3em; transform: rotate(-75deg); width: 10em; height: 10em; background: var(--ap-bg-night); box-shadow: 3em 2.5em 0 0em var(--ap-moon-color) inset, rgba(255,255,255,0.1) 0em -7em 0 -4.5em; }
+    .ap-sun { top: 4.5em; left: 18em; transform: rotate(0deg); width: 7em; height: 7em; background: #fff; box-shadow: 3em 3em 0 5em #fff inset; }
+    .ap-day { background: #FFBF71; }
+
+    /* ========================================= COLORS ========================================= */
+    .ap-bg-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .ap-bg-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .ap-bg-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .ap-bg-purple { background: linear-gradient(135deg, #a855f7, #9333ea); }
+    .ap-bg-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .ap-bg-gray { background: #64748b; }
+
+    /* ========================================= CONTENT ========================================= */
+    .ap-breadcrumb { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; padding-bottom: 1.5rem; }
+    .ap-breadcrumb-inner { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #64748b; }
+    .ap-breadcrumb-active { font-weight: 500; color: #0f172a; }
+    .ap-content-wrapper { display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 6rem; }
+    .ap-search-bar { background: white; border-radius: 24px; padding: 1rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
+    .ap-search-input-wrapper { position: relative; margin-bottom: 1rem; }
+    .ap-search-icon { position: absolute; left: 1rem; top: 0.75rem; color: #94a3b8; font-size: 1.25rem; }
+    .ap-search-input { width: 100%; padding-left: 2.5rem; padding-right: 1rem; padding-top: 0.75rem; padding-bottom: 0.75rem; background: #f8fafc; border: none; border-radius: 12px; font-size: 0.875rem; color: #1e293b; font-weight: 500; }
+    .ap-search-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(255, 105, 37, 0.2); }
+    .ap-filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .ap-filter-chip { padding: 8px 16px; background: rgba(0,0,0,0.04); border-radius: 99px; font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+    .ap-filter-chip:hover { background: rgba(0,0,0,0.08); color: #334155; }
+    .ap-filter-chip.ap-active { background: #0f172a; color: white; }
+    .ap-results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .ap-results-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ap-results-count { font-size: 10px; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; color: #64748b; font-weight: 700; }
+    .ap-suppliers-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .ap-supplier-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 16px; transition: all 0.3s; cursor: pointer; display: flex; align-items: flex-start; gap: 1rem; }
+    .ap-supplier-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px -5px rgba(0,0,0,0.08); }
+    .ap-supplier-logo-wrapper { height: 4rem; width: 4rem; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9; overflow: hidden; flex-shrink: 0; position: relative; }
+    .ap-supplier-logo { width: 100%; height: 100%; object-fit: cover; }
+    .ap-verified-badge { position: absolute; bottom: 0; right: 0; height: 1rem; width: 1rem; background: #22c55e; border-radius: 4px 0 0 0; display: flex; align-items: center; justify-content: center; }
+    .ap-verified-badge i { color: white; font-size: 10px; }
+    .ap-supplier-info { flex: 1; min-width: 0; }
+    .ap-supplier-name { font-weight: 700; color: #0f172a; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ap-supplier-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem; }
+    .ap-supplier-category { color: #f97316; font-weight: 500; text-transform: uppercase; }
+    .ap-supplier-rating { display: flex; align-items: center; gap: 0.25rem; }
+    .ap-star { color: #fbbf24; }
+    .ap-rating-value { font-weight: 700; color: #1e293b; }
+    .ap-supplier-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .ap-tag { font-size: 10px; background: #f8fafc; padding: 0.125rem 0.5rem; border-radius: 6px; color: #64748b; text-transform: uppercase; border: 1px solid #f1f5f9; font-weight: 600; }
+    .ap-supplier-arrow { height: 2rem; width: 2rem; border-radius: 50%; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; transition: all 0.2s; }
+    .ap-supplier-card:hover .ap-supplier-arrow { background: #fed7aa; color: #f97316; }
+
+    /* ========================================= MOBILE NAV ========================================= */
+    .ap-mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: white; border-top: 1px solid #e2e8f0; padding-bottom: env(safe-area-inset-bottom); }
+    .ap-mobile-nav-inner { max-width: 28rem; margin-left: auto; margin-right: auto; width: 100%; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0.5rem; display: flex; align-items: flex-end; justify-content: space-between; height: 60px; }
+    .ap-mobile-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 3.5rem; gap: 0.25rem; text-decoration: none; color: #94a3b8; }
+    .ap-mobile-nav-item i { font-size: 1.25rem; }
+    .ap-mobile-nav-label { font-size: 10px; }
+    .ap-mobile-nav-item.ap-active { color: #0f172a; }
+    .ap-mobile-nav-item.ap-active .ap-mobile-nav-label { font-weight: 700; }
+    .ap-mobile-nav-fab { position: relative; top: -1.5rem; }
+    .ap-fab-button { height: 3.5rem; width: 3.5rem; border-radius: 50%; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3); border: none; cursor: pointer; transition: transform 0.2s; }
+    .ap-fab-button:active { transform: scale(0.95); }
+    .ap-fab-button i { font-size: 1.5rem; }
+
+    /* ========================================= RESPONSIVE ========================================= */
+    @media (min-width: 769px) {
+      .ap-logo-desktop { display: flex; }
+      .ap-logo-mobile { display: none; }
+      .ap-clock { display: block; }
+      .ap-nav-btn { display: flex; }
+      .ap-sidebar { display: flex; }
+      .ap-main-content { margin-left: var(--ap-sidebar-width); padding-left: 0; }
+    }
+    
+    @media (max-width: 768px) {
+      #ap-btn-notif { display: none !important; }
+      .ap-clock { display: none !important; }
+      #ap-btn-apps { display: flex !important; margin-left: auto; }
+      #ap-btn-profile { display: flex !important; }
+      .ap-mobile-nav { display: block; }
+      .ap-content-wrapper { padding-bottom: 5rem; }
+      
+      #ap-menu-notif { width: 80% !important; height: fit-content !important; max-height: 95vh !important; left: 50% !important; right: auto !important; transform: translateX(-50%) translateY(-10px) scale(0.98); }
+      #ap-menu-notif.ap-active { transform: translateX(-50%) translateY(0) scale(1); }
+      
+      #ap-menu-app { position: fixed !important; top: 50% !important; left: 50% !important; right: auto !important; width: 90vw !important; height: 90vh !important; max-width: none !important; max-height: none !important; transform: translate(-50%, -50%) scale(0.98); border-radius: var(--ap-menu-radius); padding-top: 1.5rem; }
+      #ap-menu-app.ap-active { transform: translate(-50%, -50%) scale(1); }
+    }
+    
+    @media (min-width: 1280px) {
+      .ap-suppliers-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ========================================= NAVBAR ========================================= -->
+<nav class="ap-navbar">
+  <div class="ap-logo-wrapper">
+    <div class="ap-logo-desktop">
+      <div class="ap-logo-icon"><i class="ri-slack-fill"></i></div>
+      <div class="ap-logo-text">
+        <span class="ap-logo-title">Apollo::rio</span>
+        <span class="ap-logo-subtitle">plataforma</span>
+      </div>
+    </div>
+    <div class="ap-logo-mobile">
+      <div class="ap-logo-icon"><i class="ri-slack-fill"></i></div>
+    </div>
+  </div>
+  <div class="ap-nav-controls">
+    <div class="ap-clock" id="ap-digital-clock">00:00:00</div>
+    <button id="ap-btn-notif" class="ap-nav-btn" aria-label="Notificações" aria-expanded="false">
+      <div class="ap-badge" id="ap-notif-badge" data-notif="true"></div>
+      <i class="ri-gps-line"></i>
+    </button>
+    <button id="ap-btn-apps" class="ap-nav-btn" aria-label="Aplicativos" aria-expanded="false">
+      <i class="ri-grid-fill"></i>
+    </button>
+    <button id="ap-btn-profile" class="ap-nav-btn ap-profile-btn" aria-expanded="false">V</button>
+  </div>
+</nav>
+
+<!-- ========================================= LAYOUT ========================================= -->
+<div class="ap-layout">
+
+  <!-- ========================================= SIDEBAR (FIXED ON DESKTOP) ========================================= -->
+  <aside class="ap-sidebar">
+    <nav class="ap-sidebar-nav ap-no-scrollbar">
+      <div class="ap-nav-section-title">Navegação</div>
+      <a href="#" class="ap-sidebar-link"><i class="ri-building-3-line"></i><span>Feed</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-calendar-event-line"></i><span>Eventos</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-user-community-fill"></i><span>Comunidades</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-team-fill"></i><span>Núcleos</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-megaphone-line"></i><span>Classificados</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-file-text-line"></i><span>Docs &amp; Contratos</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-user-smile-fill"></i><span>Perfil</span></a>
+      <div class="ap-nav-section-title" style="margin-top: 1.5rem;">Cena::rio</div>
+      <a href="#" class="ap-sidebar-link"><i class="ri-calendar-line"></i><span>Agenda</span></a>
+      <a href="#" class="ap-sidebar-link" aria-current="page"><i class="ri-bar-chart-grouped-line"></i><span>Fornecedores</span></a>
+      <a href="#" class="ap-sidebar-link"><i class="ri-file-text-line"></i><span>Documentos</span></a>
+      <div class="ap-nav-section-title" style="margin-top: 1rem;">Acesso Rápido</div>
+      <a href="#" class="ap-sidebar-link"><i class="ri-settings-6-line"></i><span>Ajustes</span></a>
+    </nav>
+    <div class="ap-sidebar-user">
+      <div class="ap-user-avatar"><img src="https://ui-avatars.com/api/?name=Valle&background=f97316&color=fff" alt="Valle"></div>
+      <div class="ap-user-info">
+        <span class="ap-user-name">Valle</span>
+        <span class="ap-user-role">Produtor</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================= MAIN CONTENT ========================================= -->
+  <main class="ap-main-content">
+    <div class="ap-breadcrumb">
+      <div class="ap-breadcrumb-inner">
+        <span class="ap-breadcrumb-active">Cena::rio</span>
+        <span>/</span>
+        <span>Fornecedores</span>
+      </div>
+    </div>
+    <div class="ap-content-wrapper">
+      <div class="ap-main-column">
+        <div class="ap-search-bar">
+          <div class="ap-search-input-wrapper">
+            <i class="ri-search-2-line ap-search-icon"></i>
+            <input type="text" id="ap-search-input" placeholder="Buscar nome, equipamento ou serviço..." class="ap-search-input">
+          </div>
+          <div class="ap-filter-chips">
+            <button class="ap-filter-chip ap-active" data-cat="all">Todos</button>
+            <button class="ap-filter-chip" data-cat="sound">Som</button>
+            <button class="ap-filter-chip" data-cat="light">Luz</button>
+            <button class="ap-filter-chip" data-cat="visuals">Visuals</button>
+            <button class="ap-filter-chip" data-cat="security">Segurança</button>
+            <button class="ap-filter-chip" data-cat="bar">Bar</button>
+          </div>
+        </div>
+        <div class="ap-results-header">
+          <h2 class="ap-results-title">Resultados</h2>
+          <span id="ap-count-label" class="ap-results-count">Carregando</span>
+        </div>
+        <div id="ap-suppliers-grid" class="ap-suppliers-grid"></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+<!-- ========================================= END OF MAIN ========================================= -->
+
+<!-- ========================================= MOBILE NAV ========================================= -->
+<div class="ap-mobile-nav">
+  <div class="ap-mobile-nav-inner">
+    <a href="#" class="ap-mobile-nav-item">
+      <i class="ri-calendar-line"></i>
+      <span class="ap-mobile-nav-label">Agenda</span>
+    </a>
+    <a href="#" class="ap-mobile-nav-item ap-active">
+      <i class="ri-bar-chart-grouped-line"></i>
+      <span class="ap-mobile-nav-label">Pro</span>
+    </a>
+    <div class="ap-mobile-nav-fab">
+      <button class="ap-fab-button"><i class="ri-add-line"></i></button>
+    </div>
+    <a href="#" class="ap-mobile-nav-item">
+      <i class="ri-file-text-line"></i>
+      <span class="ap-mobile-nav-label">Docs</span>
+    </a>
+    <a href="#" class="ap-mobile-nav-item">
+      <i class="ri-user-3-line"></i>
+      <span class="ap-mobile-nav-label">Perfil</span>
+    </a>
+  </div>
+</div>
+
+<!-- ========================================= NOTIFICATION DROPDOWN ========================================= -->
+<div id="ap-menu-notif" class="ap-dropdown">
+  <div class="ap-section-title">
+    <span>Notificações</span>
+    <a href="#" class="ap-see-all">Ver todas &gt;</a>
+  </div>
+  <div class="ap-notif-list" id="ap-notif-list">
+    <a href="#" class="ap-notif-item">
+      <div class="ap-notif-icon ap-bg-red"><i class="ri-alarm-warning-line"></i></div>
+      <div class="ap-notif-content">
+        <span class="ap-notif-title">Sistema</span>
+        <span class="ap-notif-desc">Backup do servidor finalizado.</span>
+        <span class="ap-notif-time">2m atrás</span>
+      </div>
+    </a>
+    <a href="#" class="ap-notif-item">
+      <div class="ap-notif-icon ap-bg-blue"><i class="ri-user-follow-line"></i></div>
+      <div class="ap-notif-content">
+        <span class="ap-notif-title">Novo Seguidor</span>
+        <span class="ap-notif-desc">Spectra Visuals começou a seguir você.</span>
+        <span class="ap-notif-time">1h atrás</span>
+      </div>
+    </a>
+    <a href="#" class="ap-notif-item">
+      <div class="ap-notif-icon ap-bg-green"><i class="ri-check-double-line"></i></div>
+      <div class="ap-notif-content">
+        <span class="ap-notif-title">Pagamento Aprovado</span>
+        <span class="ap-notif-desc">Orçamento #4523 foi aprovado.</span>
+        <span class="ap-notif-time">3h atrás</span>
+      </div>
+    </a>
+  </div>
+  <div class="ap-load-more" id="ap-load-more-notif">Carregar mais notificações</div>
+</div>
+
+<!-- ========================================= APP MENU DROPDOWN ========================================= -->
+<div id="ap-menu-app" class="ap-dropdown">
+  <div class="ap-section-title">Aplicativos</div>
+  <div class="ap-apps-grid">
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-green">XL</div>
+      <span class="ap-app-label">Excel</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-blue">WD</div>
+      <span class="ap-app-label">Word</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-orange">PP</div>
+      <span class="ap-app-label">Slide</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-purple">TM</div>
+      <span class="ap-app-label">Teams</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-red">PDF</div>
+      <span class="ap-app-label">Leitor</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-gray">DR</div>
+      <span class="ap-app-label">Drive</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-blue">MT</div>
+      <span class="ap-app-label">Meet</span>
+    </a>
+    <a href="#" class="ap-app-item">
+      <div class="ap-app-icon ap-bg-gray">+</div>
+      <span class="ap-app-label">Add</span>
+    </a>
+  </div>
+
+  <div class="ap-section-title">
+    <span>Mensagens Recentes</span>
+    <a href="#" class="ap-see-all">Abrir Messenger &gt;</a>
+  </div>
+  <div class="ap-scroll-row" id="ap-chat-scroller">
+    <a href="#" class="ap-msg-card">
+      <div class="ap-msg-header">
+        <div class="ap-msg-avatar ap-bg-gray">M</div>
+        <div class="ap-msg-info">
+          <span class="ap-msg-name">Matheus</span>
+          <span class="ap-msg-time">Agora</span>
+        </div>
+      </div>
+      <div class="ap-msg-preview">Cara, você viu o novo layout? Ficou insano!</div>
+    </a>
+    <a href="#" class="ap-msg-card">
+      <div class="ap-msg-header">
+        <div class="ap-msg-avatar ap-bg-purple">B</div>
+        <div class="ap-msg-info">
+          <span class="ap-msg-name">Bruna</span>
+          <span class="ap-msg-time">5m atrás</span>
+        </div>
+      </div>
+      <div class="ap-msg-preview">Reunião adiada para as 16h.</div>
+    </a>
+    <a href="#" class="ap-msg-card">
+      <div class="ap-msg-header">
+        <div class="ap-msg-avatar ap-bg-blue">L</div>
+        <div class="ap-msg-info">
+          <span class="ap-msg-name">Lucas</span>
+          <span class="ap-msg-time">20m atrás</span>
+        </div>
+      </div>
+      <div class="ap-msg-preview">Enviou os documentos do projeto.</div>
+    </a>
+    <div class="ap-msg-card ap-load-more-card" id="ap-load-more-msgs">
+      <span class="ap-load-more-text">+ Carregar Mais</span>
+    </div>
+  </div>
+
+  <div class="ap-section-title">
+    <span>Notificações</span>
+    <a href="#" class="ap-see-all">Ver todas &gt;</a>
+  </div>
+  <div class="ap-scroll-row">
+    <a href="#" class="ap-msg-card">
+      <div class="ap-msg-header">
+        <div class="ap-msg-avatar ap-bg-red">A</div>
+        <div class="ap-msg-info">
+          <span class="ap-msg-name">Alerta Sistema</span>
+          <span class="ap-msg-time">2m atrás</span>
+        </div>
+      </div>
+      <div class="ap-msg-preview">Backup concluído com sucesso.</div>
+    </a>
+    <a href="#" class="ap-msg-card">
+      <div class="ap-msg-header">
+        <div class="ap-msg-avatar ap-bg-green">J</div>
+        <div class="ap-msg-info">
+          <span class="ap-msg-name">Júlia M.</span>
+          <span class="ap-msg-time">15m atrás</span>
+        </div>
+      </div>
+      <div class="ap-msg-preview">Marcou você em "Revisão UI".</div>
+    </a>
+  </div>
+</div>
+
+<!-- ========================================= PROFILE DROPDOWN ========================================= -->
+<div id="ap-menu-profile" class="ap-dropdown">
+  <a href="#" class="ap-profile-link">Perfil</a>
+  <a href="#" class="ap-profile-link">Ajustes</a>
+  <div class="ap-profile-divider"></div>
+  <div class="ap-darkmode-wrapper">
+    <div class="ap-tdnn"><div class="ap-moon"></div></div>
+  </div>
+  <a href="#" class="ap-profile-link ap-danger">Sair</a>
+</div>
+
+<!-- ========================================= JAVASCRIPT ========================================= -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // Clock
+  const clockEl = document.getElementById('ap-digital-clock');
+  function updateClock() {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString('pt-BR', { hour12: false });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Menu Toggle System
+  const menuApp = document.getElementById('ap-menu-app');
+  const btnApps = document.getElementById('ap-btn-apps');
+  const menuNotif = document.getElementById('ap-menu-notif');
+  const btnNotif = document.getElementById('ap-btn-notif');
+  const menuProfile = document.getElementById('ap-menu-profile');
+  const btnProfile = document.getElementById('ap-btn-profile');
+
+  function toggleMenu(menu, btn) {
+    const isActive = menu.classList.contains('ap-active');
+    document.querySelectorAll('.ap-dropdown').forEach(m => {
+      m.classList.remove('ap-active');
+      setTimeout(() => { if (!m.classList.contains('ap-active')) m.style.display = 'none'; }, 300);
+    });
+    document.querySelectorAll('.ap-nav-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+    if (!isActive) {
+      menu.style.display = 'flex';
+      setTimeout(() => menu.classList.add('ap-active'), 10);
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  if(btnApps) btnApps.onclick = (e) => { e.stopPropagation(); toggleMenu(menuApp, btnApps); };
+  if(btnNotif) btnNotif.onclick = (e) => { e.stopPropagation(); toggleMenu(menuNotif, btnNotif); };
+  if(btnProfile) btnProfile.onclick = (e) => { e.stopPropagation(); toggleMenu(menuProfile, btnProfile); };
+
+  document.onclick = () => {
+    document.querySelectorAll('.ap-dropdown').forEach(m => {
+      m.classList.remove('ap-active');
+      setTimeout(() => { if (!m.classList.contains('ap-active')) m.style.display = 'none'; }, 300);
+    });
+    document.querySelectorAll('.ap-nav-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  };
+  
+  document.querySelectorAll('.ap-dropdown').forEach(m => m.onclick = (e) => e.stopPropagation());
+
+  // Dark Mode Toggle
+  $('.ap-tdnn').click(function(){
+    $("body").toggleClass('dark-mode');
+    $(".ap-moon").toggleClass('ap-sun');
+    $(".ap-tdnn").toggleClass('ap-day');
+  });
+
+  // Suppliers Data
+  const suppliers = [
+    { id: 1, name: "Loudness Som", type: "sound", cat: "Audio", tags: ["Funktion-One", "Raves"], desc: "Especialistas em sonorização de grande porte.", logo: "https://ui-avatars.com/api/?name=LS&background=0f172a&color=fff", banner: "https://images.unsplash.com/photo-1520166012956-add9ba083599?auto=format&fit=crop&w=800" },
+    { id: 2, name: "Spectra Visuals", type: "visuals", cat: "Visuals", tags: ["Mapping", "VJ"], desc: "Experiências visuais imersivas.", logo: "https://ui-avatars.com/api/?name=SV&background=7c3aed&color=fff", banner: "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=800" },
+    { id: 3, name: "DrinkLab", type: "bar", cat: "Bar", tags: ["Cocktails", "Staff"], desc: "Operação completa de bar.", logo: "https://ui-avatars.com/api/?name=DL&background=f97316&color=fff", banner: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800" },
+    { id: 4, name: "Guerreiros", type: "security", cat: "Segurança", tags: ["Vigilancia", "Acesso"], desc: "Segurança especializada em eventos.", logo: "https://ui-avatars.com/api/?name=GS&background=1e293b&color=fff", banner: "https://images.unsplash.com/photo-1555699898-19d298099684?auto=format&fit=crop&w=800" },
+    { id: 5, name: "LedStar Luz", type: "light", cat: "Iluminação", tags: ["Beam", "Lasers"], desc: "Equipamentos de iluminação de ponta.", logo: "https://ui-avatars.com/api/?name=LS&background=0ea5e9&color=fff", banner: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800" },
+    { id: 6, name: "Heavy Bass", type: "sound", cat: "Audio", tags: ["Subwoofers", "Line Array"], desc: "Sistemas de som focados em graves.", logo: "https://ui-avatars.com/api/?name=HB&background=334155&color=fff", banner: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800" }
+  ];
+
+  const grid = document.getElementById('ap-suppliers-grid');
+  const countLabel = document.getElementById('ap-count-label');
+
+  function render(data) {
+    grid.innerHTML = '';
+    countLabel.textContent = `${data.length} resultados`;
+    data.forEach((s, idx) => {
+      const div = document.createElement('div');
+      div.className = 'ap-supplier-card';
+      div.innerHTML = `
+        <div class="ap-supplier-logo-wrapper">
+          <img src="${s.logo}" class="ap-supplier-logo">
+          <div class="ap-verified-badge"><i class="ri-check-line"></i></div>
+        </div>
+        <div class="ap-supplier-info">
+          <h3 class="ap-supplier-name">${s.name}</h3>
+          <div class="ap-supplier-meta">
+            <span class="ap-supplier-category">${s.cat}</span>
+            <span style="color: #cbd5e1;">•</span>
+            <div class="ap-supplier-rating">
+              <i class="ri-star-fill ap-star"></i>
+              <span class="ap-rating-value">5.0</span>
+            </div>
+          </div>
+          <div class="ap-supplier-tags">
+            ${s.tags.slice(0,2).map(t => `<span class="ap-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+        <div class="ap-supplier-arrow"><i class="ri-arrow-right-s-line"></i></div>
+      `;
+      grid.appendChild(div);
+      if(window.Motion) {
+        window.Motion.animate(div, { opacity: [0, 1], y: [10, 0] }, { duration: 0.3, delay: idx * 0.05 });
+      }
+    });
+  }
+
+  // Filter
+  document.querySelectorAll('.ap-filter-chip').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.ap-filter-chip').forEach(b => b.classList.remove('ap-active'));
+      btn.classList.add('ap-active');
+      const cat = btn.dataset.cat;
+      const filtered = cat === 'all' ? suppliers : suppliers.filter(s => s.type === cat);
+      render(filtered);
+    };
+  });
+
+  // Search
+  document.getElementById('ap-search-input').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtered = suppliers.filter(s => 
+      s.name.toLowerCase().includes(term) || 
+      s.tags.some(t => t.toLowerCase().includes(term))
+    );
+    render(filtered);
+  });
+
+  // Load More Messages
+  const loadMoreMsgs = document.getElementById('ap-load-more-msgs');
+  const chatScroller = document.getElementById('ap-chat-scroller');
+  if(loadMoreMsgs && chatScroller) {
+    loadMoreMsgs.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const textSpan = loadMoreMsgs.querySelector('.ap-load-more-text');
+      textSpan.textContent = 'Carregando...';
+      loadMoreMsgs.style.opacity = '0.5';
+      setTimeout(() => {
+        const newMsgs = [
+          { name: 'Ana', time: '1h atrás', msg: 'Reunião confirmada.', avatar: 'A', color: 'ap-bg-blue' },
+          { name: 'Pedro', time: '2h atrás', msg: 'Preciso do relatório.', avatar: 'P', color: 'ap-bg-green' }
+        ];
+        newMsgs.forEach(m => {
+          const card = document.createElement('a');
+          card.href = '#';
+          card.className = 'ap-msg-card';
+          card.innerHTML = `
+            <div class="ap-msg-header">
+              <div class="ap-msg-avatar ${m.color}">${m.avatar}</div>
+              <div class="ap-msg-info">
+                <span class="ap-msg-name">${m.name}</span>
+                <span class="ap-msg-time">${m.time}</span>
+              </div>
+            </div>
+            <div class="ap-msg-preview">${m.msg}</div>
+          `;
+          chatScroller.insertBefore(card, loadMoreMsgs);
+        });
+        textSpan.textContent = '+ Carregar Mais';
+        loadMoreMsgs.style.opacity = '1';
+        chatScroller.scrollBy({ left: 100, behavior: 'smooth' });
+      }, 800);
+    });
+  }
+
+  // Load More Notifications
+  const loadMoreNotif = document.getElementById('ap-load-more-notif');
+  if(loadMoreNotif) {
+    loadMoreNotif.addEventListener('click', (e) => {
+      e.stopPropagation();
+      loadMoreNotif.textContent = 'Carregando...';
+      loadMoreNotif.style.opacity = '0.6';
+      setTimeout(() => {
+        const notifList = document.getElementById('ap-notif-list');
+        const newNotifs = [
+          { icon: 'ap-bg-purple', initial: 'C', title: 'Novo Contrato', desc: 'Contrato enviado para assinatura.', time: '3h atrás' },
+          { icon: 'ap-bg-orange', initial: 'E', title: 'Evento Próximo', desc: 'Festival Miscelanea em 2 dias.', time: '5h atrás' }
+        ];
+        newNotifs.forEach(n => {
+          const item = document.createElement('a');
+          item.href = '#';
+          item.className = 'ap-notif-item';
+          item.innerHTML = `
+            <div class="ap-notif-icon ${n.icon}">${n.initial}</div>
+            <div class="ap-notif-content">
+              <span class="ap-notif-title">${n.title}</span>
+              <span class="ap-notif-desc">${n.desc}</span>
+              <span class="ap-notif-time">${n.time}</span>
+            </div>
+          `;
+          notifList.appendChild(item);
+        });
+        loadMoreNotif.textContent = 'Carregar mais notificações';
+        loadMoreNotif.style.opacity = '1';
+      }, 600);
+    });
+  }
+
+  render(suppliers);
+});
+</script>
+
+</body>
+</html>

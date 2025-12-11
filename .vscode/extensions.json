@@ -1,6 +1,17 @@
 {
-    "recommendations": [
-        "github.copilot",
-"xdebug.php-debug" 
-    ]
+  "recommendations": [
+    "johnbillion.vscode-wordpress-hooks",
+    "DEVSENSE.phptools-vscode",
+    "ikappas.phpcs",
+    "valeryanm.vscode-phpsab",
+    "sanderronde.phpstan-vscode",
+    "felixfbecker.php-debug",
+    "neilbrayfield.php-docblocker",
+    "wordpresstoolbox.wordpress-toolbox",
+    "anthonydiametrix.ACF-Snippet",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "humao.rest-client",
+    "jpagano.wordpress-vscode-extensionpack"
+  ]
 }
