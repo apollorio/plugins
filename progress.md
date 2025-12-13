@@ -27,7 +27,7 @@ Meta: Introduzir um “núcleo de configuração” em apollo-core que centraliz
 
 Principais tarefas:
 
-Criar opção apollo_modules com flags (social, events, chat, docs, matchmaking, bolha, etc.) e helpers apollo_is_module_enabled().
+Criar opção apollo_modules com flags (social, events, chat, docs, compatibilidade, bolha, etc.) e helpers apollo_is_module_enabled().
 
 Criar opção apollo_limits com chaves (max_events_per_user_month, max_comunas_per_user, max_bubble_members, max_social_posts_per_day, etc.) e helpers apollo_get_limit() e apollo_check_limit().
 

@@ -729,8 +729,8 @@ class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 				$user_id = $user->ID;
 
 				$token              = $this->aprio_generate_jwt_token( $user->ID, $password );
-				$is_matchmaking     = get_user_meta( $user_id, '_matchmaking_profile', true );
-				$enable_matchmaking = get_option( 'enable_matchmaking', false ) ? 1 : 0;
+				$is_compatibilidade     = get_user_meta( $user_id, '_compatibilidade_profile', true );
+				$enable_compatibilidade = get_option( 'enable_compatibilidade', false ) ? 1 : 0;
 
 				$all_mobile_pages = array( 'dashboard', 'attendees', 'guest_list', 'orders', 'arrivals' );
 				$user_mobile_menu = get_user_meta( $user_id, '_mobile_menu', true );
@@ -755,13 +755,13 @@ class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 						'first_name'          => $first_name,
 						'last_name'           => $last_name,
 						'username'            => $user_login,
-						'matchmaking_profile' => $is_matchmaking,
-						'enable_matchmaking'  => $enable_matchmaking,
+						'compatibilidade_profile' => $is_compatibilidade,
+						'enable_compatibilidade'  => $enable_compatibilidade,
 						'mobile_menu'         => $mobile_menu_status,
 					),
 				);
 
-				if ( $is_matchmaking && $enable_matchmaking ) {
+				if ( $is_compatibilidade && $enable_compatibilidade ) {
 					$user_meta         = get_user_meta( $user_id );
 					$organization_logo = get_user_meta( $user_id, '_organization_logo', true );
 					$organization_logo = maybe_unserialize( $organization_logo );
@@ -826,8 +826,8 @@ class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 						$profession_slug = '';
 					}
 
-					// Get matchmaking data from user meta instead of custom table
-					$matchmaking_details = array(
+					// Get compatibilidade data from user meta instead of custom table
+					$compatibilidade_details = array(
 						'attendeeId'                => $user_id,
 						'first_name'                => $first_name,
 						'last_name'                 => $last_name,
@@ -849,13 +849,13 @@ class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 						'organization_description'  => get_user_meta( $user_id, '_organization_description', true ) ?: '',
 						'message_notification'      => get_user_meta( $user_id, '_message_notification', true ) ?: '',
 						'approve_profile_status'    => get_user_meta( $user_id, '_approve_profile_status', true ) ?: '',
-						'matchmaking_profile'       => isset( $user_meta['_matchmaking_profile'][0] ) ? (int) $user_meta['_matchmaking_profile'][0] : 0,
+						'compatibilidade_profile'       => isset( $user_meta['_compatibilidade_profile'][0] ) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
 						'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
 						'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
 						'available_for_meeting'     => (int) $meeting_available,
 					);
 
-					$data['user']['matchmaking_details'] = $matchmaking_details;
+					$data['user']['compatibilidade_details'] = $compatibilidade_details;
 				}//end if
 
 				// Keep the API key check logic unchanged
@@ -875,7 +875,7 @@ class APRIO_REST_Authentication extends APRIO_REST_CRUD_Controller {
 					$data['dj_info'] = $key_data;
 				}
 
-				if ( empty( $key_data ) && ! get_user_meta( $user_id, '_matchmaking_profile', true ) ) {
+				if ( empty( $key_data ) && ! get_user_meta( $user_id, '_compatibilidade_profile', true ) ) {
 					return parent::prepare_error_for_response( 405 );
 				}
 

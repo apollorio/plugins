@@ -78,7 +78,7 @@ add_action(
 				--border:#e6eef6;
 				--shadow: 0 8px 30px rgba(15,23,42,0.06);
 			}
-			html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial;}
+			html,body{height:100%;margin:0;background:var(--bg-main);font-family:Inter,system-ui,Arial;}
 
 			/* Layout Structure */
 			.app { display:flex; min-height:100vh; gap:0; }

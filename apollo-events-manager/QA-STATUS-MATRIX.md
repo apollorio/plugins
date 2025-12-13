@@ -18,7 +18,7 @@
 | REST /categorias | ✅ Phase 3+4 | None known | None known | Implemented | Not run | <20% | Approved |
 | REST /locais | ✅ Phase 3+4 | None known | None known | Implemented | Not run | <20% | Approved |
 | REST /my-events | ✅ Phase 3+4 | None known | None known | Skeleton | Not run | <10% | Approved |
-| REST /bookmarks | ✅ Phase 3+4 | None known | None known | Implemented | Partial | 20-40% | Approved |
+| REST /salvos | ✅ Phase 3+4 | None known | None known | Implemented | Partial | 20-40% | Approved |
 | AJAX filter_events | ✅ Phase 3+4 | None known | None known | Skeleton | Not run | <10% | Approved |
 | AJAX load_event_single | ✅ Phase 3+4 | None known | None known | Skeleton | Not run | <10% | Approved |
 | AJAX get_event_modal | ✅ Phase 3+4 | None known | None known | Skeleton | Not run | <10% | Approved |

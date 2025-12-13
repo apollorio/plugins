@@ -182,7 +182,7 @@ class Apollo_Admin_Dashboard {
 	public function register_rest_routes() {
 		register_rest_route(
 			'apollo/v1',
-			'/estatisticas',
+			'estatisticas',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_analytics' ),
@@ -192,7 +192,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/estatisticas',
+			'estatisticas',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_analytics' ),
@@ -220,7 +220,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/likes',
+			'wow',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_likes' ),
@@ -230,7 +230,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/likes',
+			'wow',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_like' ),
@@ -247,7 +247,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/technotes/(?P<venue_id>\d+)',
+			'technotes/(?P<venue_id>\d+)',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_technotes' ),
@@ -257,7 +257,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/technotes/(?P<venue_id>\d+)',
+			'technotes/(?P<venue_id>\d+)',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_technotes' ),

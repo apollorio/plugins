@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Cena::rio · Novo Evento - Apollo::rio</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  
+  <!-- External Dependencies -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/base.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* =============================================
+       APOLLO::RIO EVENT FORM
+       WordPress Template: page-new-event.php
+       NO TAILWIND - Pure CSS with ap-* prefix
+       ============================================= */
+
+    /* ========================================= VARIABLES ========================================= */
+    :root {
+      --ap-font-primary: "Urbanist", system-ui, -apple-system, sans-serif;
+      --ap-bg-main: #fafafa;
+      --ap-card-bg: rgba(255, 255, 255, 0.65);
+      --ap-accent: #f97316;
+      --ap-accent-soft: rgba(249,115,22,0.08);
+      --ap-text: #1a1a1a;
+      --ap-text-muted: #737373;
+      --ap-text-light: #a3a3a3;
+      --ap-radius-box: 24px;
+      --ap-radius-field: 12px;
+      --ap-radius-pill: 999px;
+      --ap-shadow-soft: 0 20px 40px rgba(0,0,0,0.04);
+      --ap-border-subtle: rgba(0, 0, 0, 0.08);
+      --ap-border-width: 0.5px;
+    }
+
+    /* ========================================= BASE ========================================= */
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+    
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ap-bg-main);
+      font-family: var(--ap-font-primary);
+      color: var(--ap-text);
+      padding: 24px;
+      transition: padding 0.3s ease;
+    }
+
+    /* ========================================= FORM BOX ========================================= */
+    .ap-form-box {
+      width: 100%;
+      max-width: 520px;
+      background: var(--ap-card-bg);
+      border-radius: var(--ap-radius-box);
+      padding: 24px 22px 26px;
+      box-shadow: var(--ap-shadow-soft);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-radius 0.3s ease;
+    }
+    
+    /* Gradient Overlays */
+    .ap-form-box::before {
+      content: "";
+      position: absolute;
+      top: -300px;
+      left: -350px;
+      width: 750px;
+      height: 750px;
+      background: radial-gradient(circle, rgba(255, 160, 122, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .ap-form-box::after {
+      content: "";
+      position: absolute;
+      top: 60%;
+      right: -300px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .ap-form-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ========================================= TYPOGRAPHY ========================================= */
+    .ap-form-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-left: 5px;
+      color: rgba(26, 26, 26, 0.5);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .ap-form-title i {
+      color: var(--ap-accent);
+      font-size: 2rem;
+      margin-right: 5px;
+    }
+    
+    .ap-section-heading {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 24px 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ap-text-muted);
+    }
+    
+    .ap-section-heading i {
+      color: var(--ap-accent);
+    }
+
+    /* ========================================= FORM ELEMENTS ========================================= */
+    .ap-form-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .ap-form-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ap-text-muted);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 600;
+    }
+
+    .ap-text-input,
+    .ap-textarea,
+    .ap-select {
+      width: 100%;
+      border-radius: var(--ap-radius-field);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      background: rgba(255,255,255,0.5);
+      color: var(--ap-text);
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    
+    .ap-text-input:focus,
+    .ap-textarea:focus,
+    .ap-select:focus {
+      border-color: var(--ap-accent);
+      box-shadow: 0 0 0 1px var(--ap-accent-soft);
+      background: #ffffff;
+    }
+    
+    .ap-text-input::placeholder,
+    .ap-textarea::placeholder {
+      color: rgba(0, 0, 0, 0.3);
+      font-size: 12.5px;
+      font-weight: 400;
+    }
+
+    /* ========================================= RICH EDITOR ========================================= */
+    .ap-rich-editor {
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      border-radius: var(--ap-radius-field);
+      background: rgba(255,255,255,0.5);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    
+    .ap-rich-editor:focus-within {
+      border-color: var(--ap-accent);
+      box-shadow: 0 0 0 1px var(--ap-accent-soft);
+      background: #ffffff;
+    }
+    
+    .ap-toolbar {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px 6px;
+      border-bottom: 0.5px solid rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.4);
+    }
+    
+    .ap-tool-btn {
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      color: var(--ap-text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ap-tool-btn:hover {
+      color: var(--ap-accent);
+      background: rgba(255,255,255,0.8);
+    }
+    
+    .ap-rich-editor .ap-textarea {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 10px 12px;
+      margin: 0;
+      resize: vertical;
+    }
+    
+    .ap-rich-editor .ap-textarea:focus {
+      box-shadow: none;
+      border: none;
+    }
+
+    /* ========================================= UPLOAD ZONE ========================================= */
+    .ap-upload-zone {
+      border: 0.7px dashed var(--ap-border-subtle);
+      border-radius: var(--ap-radius-field);
+      background: radial-gradient(circle at 0 100%, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .ap-upload-zone:hover {
+      background: var(--ap-accent-soft);
+      border-color: var(--ap-accent);
+    }
+    
+    .ap-upload-icon {
+      color: var(--ap-accent);
+      background: #ffffff;
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      margin: 0 auto 8px auto;
+    }
+    
+    .ap-upload-text {
+      font-size: 11px;
+      color: var(--ap-text-muted);
+    }
+    
+    .ap-upload-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    /* ========================================= GALLERY GRID ========================================= */
+    .ap-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    
+    .ap-gallery-slot {
+      aspect-ratio: 1;
+      border: 0.7px dashed var(--ap-border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.3);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .ap-gallery-slot:hover {
+      border-color: var(--ap-accent);
+    }
+    
+    .ap-gallery-slot i {
+      color: var(--ap-text-muted);
+      font-size: 1.2rem;
+    }
+    
+    .ap-gallery-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    /* ========================================= COMBOBOX ========================================= */
+    .ap-combobox-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    
+    .ap-combobox-dropdown {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      border-radius: var(--ap-radius-field);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      z-index: 50;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      padding: 4px;
+    }
+    
+    .ap-combobox-dropdown.ap-active {
+      display: block;
+    }
+    
+    .ap-combobox-option {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: var(--ap-text);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .ap-combobox-option:hover {
+      background: var(--ap-accent-soft);
+      color: var(--ap-accent);
+    }
+    
+    .ap-combobox-option.ap-hidden {
+      display: none;
+    }
+
+    /* ========================================= CHIPS ========================================= */
+    .ap-chips-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    
+    .ap-chip {
+      padding: 4px 10px;
+      border-radius: var(--ap-radius-pill);
+      background: #fff;
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      font-size: 10px;
+      color: var(--ap-text-muted);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .ap-chip.ap-active {
+      background: var(--ap-accent-soft);
+      border-color: var(--ap-accent);
+      color: var(--ap-accent);
+    }
+    
+    .ap-chip-remove {
+      margin-left: 4px;
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    /* ========================================= TIMETABLE ========================================= */
+    .ap-timetable-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .ap-timetable-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.4);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      border-radius: var(--ap-radius-field);
+      padding: 8px;
+    }
+    
+    .ap-drag-handle {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .ap-drag-handle i {
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0.4;
+    }
+    
+    .ap-drag-handle i:hover {
+      opacity: 1;
+      color: var(--ap-accent);
+    }
+    
+    .ap-dj-name {
+      flex: 1;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ap-text);
+    }
+    
+    .ap-time-inputs {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    
+    .ap-time-inputs input {
+      width: 55px;
+      padding: 4px;
+      font-size: 0.7rem;
+      border-radius: 6px;
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      background: #fff;
+      text-align: center;
+    }
+
+    /* ========================================= DURATION SLIDER ========================================= */
+    .ap-slider-wrap {
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 0 0, rgba(0,0,0,0.03), rgba(0,0,0,0.01));
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      margin-bottom: 20px;
+    }
+    
+    .ap-pill-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    
+    .ap-pill {
+      width: 40%;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: var(--ap-radius-pill);
+      background: #fff;
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ap-text-muted);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .ap-slider-rail {
+      position: relative;
+      width: 100%;
+      padding-top: 20px;
+      z-index: 2;
+    }
+    
+    .ap-slider-rail::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 15px;
+      height: 4px;
+      border-radius: 999px;
+      background: #e5e5e5;
+    }
+    
+    .ap-slider-fill {
+      position: absolute;
+      left: 0;
+      top: 15px;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #fdba74 0%, #f97316 100%);
+      pointer-events: none;
+    }
+    
+    .ap-range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .ap-range-input:focus {
+      outline: none;
+    }
+    
+    .ap-range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 2px solid var(--ap-accent);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      margin-top: -8px;
+    }
+    
+    .ap-slider-bubble {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translateX(-50%) translateY(-8px);
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.4);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      font-size: 0.7rem;
+      color: var(--ap-text);
+      white-space: nowrap;
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    
+    .ap-duration-badge {
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateY(-13px) translateX(-15px);
+      padding: 2px 10px 4px 12px;
+      border-radius: 0 0 4px 4px;
+      background: var(--ap-accent-soft);
+      color: rgba(249, 115, 22, 0.88);
+      font-size: 8.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: -5;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ========================================= ACTION BUTTONS ========================================= */
+    .ap-action-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    
+    .ap-btn-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--ap-radius-field);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      background: #fff;
+      color: var(--ap-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    
+    .ap-btn-icon:hover {
+      background: var(--ap-accent);
+      color: #FFF;
+    }
+
+    /* ========================================= FORM LAYOUT ========================================= */
+    .ap-inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .ap-lat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 40px;
+      gap: 8px;
+    }
+
+    /* ========================================= FORM FOOTER ========================================= */
+    .ap-form-footer {
+      border-top: 0.5px dashed var(--ap-border-subtle);
+      padding-top: 16px;
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    
+    .ap-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--ap-radius-field);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .ap-btn-ghost {
+      background: transparent;
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      color: var(--ap-text-muted);
+    }
+    
+    .ap-btn-ghost:hover {
+      background: #e5e5e5;
+      color: var(--ap-text);
+    }
+    
+    .ap-btn-primary {
+      background: var(--ap-text);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .ap-btn-primary:hover {
+      background: var(--ap-accent);
+      box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+    }
+
+    /* ========================================= MODALS ========================================= */
+    .ap-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    
+    .ap-modal-overlay.ap-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .ap-modal-card {
+      background: #FFF;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      border-radius: var(--ap-radius-box);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      border: var(--ap-border-width) solid var(--ap-border-subtle);
+      position: relative;
+    }
+    
+    .ap-modal-header {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--ap-text);
+    }
+    
+    .ap-modal-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 0.5px dashed var(--ap-border-subtle);
+    }
+
+    /* Close button (X) for modals */
+    .ap-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--ap-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ap-modal-close:hover {
+      color: var(--ap-text);
+    }
+
+    /* ========================================= MOBILE RESPONSIVE ========================================= */
+    @media (max-width: 600px) {
+      body {
+        padding: 0;
+        align-items: flex-start;
+        background: #fff;
+      }
+      
+      .ap-form-box {
+        max-width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        padding: 24px 20px 80px 20px;
+      }
+      
+      .ap-form-box::before,
+      .ap-form-box::after {
+        position: fixed;
+      }
+      
+      .ap-modal-card {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================= FORM CONTAINER ========================================= -->
+  <!-- @TEMPLATE: templates/page-new-event.php -->
+  <div class="ap-form-box">
+    <div class="ap-form-inner">
+    
+      <!-- Form Title -->
+      <h1 class="ap-form-title">
+        <i class="ph-fill ph-calendar-plus"></i>
+        Registrar Evento
+      </h1>
+
+      <!-- @FORM: Event Registration -->
+      <form id="ap-event-form" onsubmit="event.preventDefault();">
+        
+        <!-- ========== FEATURED IMAGE ========== -->
+        <div class="ap-upload-zone" onclick="document.getElementById('ap-file-input').click()">
+          <img id="ap-preview-img" class="ap-upload-preview" src="" alt="">
+          <div class="ap-upload-content" id="ap-upload-placeholder">
+            <div class="ap-upload-icon"><i class="ph ph-camera"></i></div>
+            <div class="ap-upload-text">Capa do Evento (Destaque)</div>
+          </div>
+          <input type="file" id="ap-file-input" accept="image/*" onchange="apPreviewFile('ap-file-input','ap-preview-img')" style="display:none">
+        </div>
+
+        <!-- ========== BASIC INFO ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Título</label>
+          <input type="text" class="ap-text-input" id="ap-event-title" placeholder="Ex: Sunset Jazz">
+        </div>
+        
+        <!-- Rich Editor -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Descrição</label>
+          <div class="ap-rich-editor">
+            <div class="ap-toolbar">
+              <button type="button" class="ap-tool-btn" onclick="apFormatText('bold')">
+                <i class="ph-bold ph-text-b"></i>
+              </button>
+              <button type="button" class="ap-tool-btn" onclick="apFormatText('italic')">
+                <i class="ph-bold ph-text-italic"></i>
+              </button>
+              <button type="button" class="ap-tool-btn" onclick="apInsertBullet()">
+                <i class="ph-bold ph-list-bullets"></i>
+              </button>
+            </div>
+            <textarea id="ap-event-desc" class="ap-textarea" rows="3" placeholder="Detalhes do evento..."></textarea>
+          </div>
+        </div>
+
+        <div class="ap-form-group">
+          <label class="ap-form-label">Vídeo Youtube (Opcional)</label>
+          <input type="url" class="ap-text-input" placeholder="https://youtube.com/...">
+        </div>
+
+        <!-- ========== SCHEDULE ========== -->
+        <div style="margin-top:24px; margin-bottom: 8px;">
+          <h3 class="ap-section-heading">
+            Cronograma
+            <i class="ph ph-clock"></i>
+          </h3>
+          
+          <div class="ap-inputs-row">
+            <div class="ap-form-group">
+              <label class="ap-form-label">Data Início</label>
+              <input type="date" class="ap-text-input" id="ap-start-date">
+            </div>
+            <div class="ap-form-group">
+              <label class="ap-form-label">Hora Início</label>
+              <input type="time" class="ap-text-input" id="ap-start-time" step="3600">
+            </div>
+          </div>
+          
+          <!-- Duration Slider -->
+          <div class="ap-slider-wrap">
+            <div class="ap-pill-row">
+              <div class="ap-pill">
+                <span>Início</span>
+                <span id="ap-label-start">12/12 · 23h</span>
+              </div>
+              <div class="ap-pill">
+                <span>Término</span>
+                <span id="ap-label-end">13/12 · 08h</span>
+              </div>
+            </div>
+            <div class="ap-slider-rail">
+              <div class="ap-slider-fill" id="ap-slider-fill" style="width: 34.78%;"></div>
+              <div class="ap-slider-bubble" id="ap-bubble" style="left: 34.78%;">Fim 08h</div>
+              <span class="ap-duration-badge" id="ap-duration-label">DURAÇÃO: 9H</span>
+              <input type="range" class="ap-range-input" id="ap-duration-slider" min="1" max="24" step="1" value="9">
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== SOUNDS (GENRES) ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Sons (Gêneros)</label>
+          <div class="ap-combobox-wrapper">
+            <input type="text" class="ap-text-input" placeholder="Buscar gêneros..." 
+                   oninput="apFilterCombobox(this)" 
+                   onfocus="apOpenCombobox(this)" 
+                   onblur="apCloseCombobox(this)">
+            <div class="ap-combobox-dropdown" id="ap-sounds-dropdown">
+              <div class="ap-combobox-option" onmousedown="apSelectSound('House', this)">House</div>
+              <div class="ap-combobox-option" onmousedown="apSelectSound('Techno', this)">Techno</div>
+              <div class="ap-combobox-option" onmousedown="apSelectSound('Jazz', this)">Jazz</div>
+              <div class="ap-combobox-option" onmousedown="apSelectSound('MPB', this)">MPB</div>
+              <div class="ap-combobox-option" onmousedown="apSelectSound('Funk', this)">Funk</div>
+            </div>
+          </div>
+          <div class="ap-chips-area" id="ap-sounds-container"></div>
+        </div>
+
+        <!-- ========== DJS LINEUP ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Line-up (DJs)</label>
+          <div class="ap-action-row">
+            <div class="ap-combobox-wrapper">
+              <input type="text" class="ap-text-input" id="ap-dj-input" placeholder="Buscar DJ..." 
+                     oninput="apFilterCombobox(this)" 
+                     onfocus="apOpenCombobox(this)" 
+                     onblur="apCloseCombobox(this)">
+              <div class="ap-combobox-dropdown" id="ap-dj-dropdown">
+                <div class="ap-combobox-option" onmousedown="apAddDJ('DJ Alok', this)">DJ Alok</div>
+                <div class="ap-combobox-option" onmousedown="apAddDJ('KVSH', this)">KVSH</div>
+                <div class="ap-combobox-option" onmousedown="apAddDJ('Vintage Culture', this)">Vintage Culture</div>
+              </div>
+            </div>
+            <button type="button" class="ap-btn-icon" onclick="apOpenModal('ap-dj-modal')" title="Novo DJ">
+              <i class="ph-bold ph-plus"></i>
+            </button>
+          </div>
+          
+          <!-- Timetable -->
+          <div class="ap-timetable-list" id="ap-timetable-list"></div>
+        </div>
+
+        <!-- ========== LOCAL ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Local</label>
+          <div class="ap-action-row">
+            <div class="ap-combobox-wrapper">
+              <input type="text" class="ap-text-input" id="ap-local-input" placeholder="Buscar Local..." 
+                     oninput="apFilterCombobox(this)" 
+                     onfocus="apOpenCombobox(this)" 
+                     onblur="apCloseCombobox(this)">
+              <div class="ap-combobox-dropdown" id="ap-local-dropdown">
+                <div class="ap-combobox-option" onmousedown="apSelectLocal('Fundição Progresso', this)">Fundição Progresso</div>
+                <div class="ap-combobox-option" onmousedown="apSelectLocal('Circo Voador', this)">Circo Voador</div>
+                <div class="ap-combobox-option" onmousedown="apSelectLocal('Museu do Amanhã', this)">Museu do Amanhã</div>
+                <div class="ap-combobox-option" onmousedown="apSelectLocal('other', this)">Outro (Inserir manual)</div>
+              </div>
+            </div>
+            <button type="button" class="ap-btn-icon" onclick="apOpenModal('ap-local-modal')" title="Novo Local">
+              <i class="ph-bold ph-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Manual Local Fallback -->
+        <div class="ap-form-group" id="ap-manual-local" style="display:none; margin-top:8px;">
+          <input type="text" class="ap-text-input" placeholder="Nome do Local" style="margin-bottom:8px;">
+          <input type="text" class="ap-text-input" placeholder="Endereço Completo (sem CEP)">
+        </div>
+
+        <!-- ========== CATEGORY & TYPE ========== -->
+       <!-- ========== CATEGORY & TYPE (COMBOBOX STYLE) ========== -->
+<div class="ap-inputs-row">
+  <div class="ap-form-group">
+    <label class="ap-form-label">Categoria</label>
+    <div class="ap-combobox-wrapper">
+      <input
+        type="text"
+        class="ap-text-input"
+        id="ap-cat-input"
+        placeholder="Selecionar categoria..."
+        oninput="apFilterCombobox(this)"
+        onfocus="apOpenCombobox(this)"
+        onblur="apCloseCombobox(this)"
+      >
+      <div class="ap-combobox-dropdown" id="ap-cat-dropdown">
+        <div class="ap-combobox-option" onmousedown="apSelectCategoria('Festa', this)">Festa</div>
+        <div class="ap-combobox-option" onmousedown="apSelectCategoria('Show', this)">Show</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ap-form-group">
+    <label class="ap-form-label">Tipo</label>
+    <div class="ap-combobox-wrapper">
+      <input
+        type="text"
+        class="ap-text-input"
+        id="ap-type-input"
+        placeholder="Selecionar tipo..."
+        oninput="apFilterCombobox(this)"
+        onfocus="apOpenCombobox(this)"
+        onblur="apCloseCombobox(this)"
+      >
+      <div class="ap-combobox-dropdown" id="ap-type-dropdown">
+        <div class="ap-combobox-option" onmousedown="apSelectTipo('Público', this)">Público</div>
+        <div class="ap-combobox-option" onmousedown="apSelectTipo('Privado', this)">Privado</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+        
+        <!-- ========== TAGS ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Tags</label>
+          <input type="text" class="ap-text-input" placeholder="Ex: Verão, Outdoor, Grátis...">
+        </div>
+
+        <!-- ========== GALLERY ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Galeria (Max 5)</label>
+          <div class="ap-gallery-grid">
+            <div class="ap-gallery-slot" onclick="apTriggerGallery(0)">
+              <i class="ph ph-plus"></i>
+              <img id="ap-gal-0" class="ap-gallery-preview">
+              <input type="file" onchange="apPreviewGallery(this,0)" style="display:none">
+            </div>
+            <div class="ap-gallery-slot" onclick="apTriggerGallery(1)">
+              <i class="ph ph-plus"></i>
+              <img id="ap-gal-1" class="ap-gallery-preview">
+              <input type="file" onchange="apPreviewGallery(this,1)" style="display:none">
+            </div>
+            <div class="ap-gallery-slot" onclick="apTriggerGallery(2)">
+              <i class="ph ph-plus"></i>
+              <img id="ap-gal-2" class="ap-gallery-preview">
+              <input type="file" onchange="apPreviewGallery(this,2)" style="display:none">
+            </div>
+            <div class="ap-gallery-slot" onclick="apTriggerGallery(3)">
+              <i class="ph ph-plus"></i>
+              <img id="ap-gal-3" class="ap-gallery-preview">
+              <input type="file" onchange="apPreviewGallery(this,3)" style="display:none">
+            </div>
+            <div class="ap-gallery-slot" onclick="apTriggerGallery(4)">
+              <i class="ph ph-plus"></i>
+              <img id="ap-gal-4" class="ap-gallery-preview">
+              <input type="file" onchange="apPreviewGallery(this,4)" style="display:none">
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== FOOTER HIGHLIGHT ========== -->
+        <div class="ap-form-group">
+          <label class="ap-form-label">Imagem Destaque (Rodapé)</label>
+          <div class="ap-upload-zone" style="padding:16px; margin-bottom:0;" onclick="document.getElementById('ap-footer-img').click()">
+            <img id="ap-preview-footer" class="ap-upload-preview" src="" alt="">
+            <div class="ap-upload-content" id="ap-footer-placeholder">
+              <div class="ap-upload-icon" style="width:28px; height:28px; font-size:14px;">
+                <i class="ph ph-image"></i>
+              </div>
+              <div class="ap-upload-text">Adicionar imagem final</div>
+            </div>
+            <input type="file" id="ap-footer-img" accept="image/*" onchange="apPreviewFile('ap-footer-img','ap-preview-footer')" style="display:none">
+          </div>
+        </div>
+
+        <!-- ========== FORM FOOTER ========== -->
+        <div class="ap-form-footer">
+          <button class="ap-btn ap-btn-ghost" type="button">Voltar</button>
+          <button class="ap-btn ap-btn-primary" type="button" onclick="apSubmitForm()">Publicar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================= MODAL: NEW LOCAL ========================================= -->
+  <div class="ap-modal-overlay" id="ap-local-modal">
+    <div class="ap-modal-card">
+      <div class="ap-modal-header">Novo Local</div>
+      <button type="button" class="ap-modal-close" onclick="apCloseModal('ap-local-modal')">
+        <i class="ph-bold ph-x"></i>
+      </button>
+      
+      <div class="ap-form-group">
+        <label class="ap-form-label">Nome do Local</label>
+        <input type="text" class="ap-text-input" id="ap-new-local-name">
+      </div>
+      
+      <div class="ap-form-group">
+        <label class="ap-form-label">Descrição</label>
+        <textarea class="ap-textarea" rows="2"></textarea>
+      </div>
+      
+      <div class="ap-form-group">
+        <label class="ap-form-label">Endereço Completo</label>
+        <input type="text" class="ap-text-input" id="ap-new-local-address">
+      </div>
+      
+      <div class="ap-form-group">
+        <label class="ap-form-label">Geolocalização</label>
+        <div class="ap-lat-row">
+          <input type="text" class="ap-text-input" id="ap-local-lat" placeholder="LAT" readonly>
+          <input type="text" class="ap-text-input" id="ap-local-lon" placeholder="LON" readonly>
+          <button type="button" class="ap-btn-icon" onclick="apRefreshGeo()" style="width:100%">
+            <i class="ph-bold ph-arrows-clockwise"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="ap-form-group">
+        <label class="ap-form-label">Contatos</label>
+        <input type="text" class="ap-text-input" placeholder="Website" style="margin-bottom:8px;">
+        <div class="ap-inputs-row">
+          <input type="text" class="ap-text-input" placeholder="Instagram">
+          <input type="text" class="ap-text-input" placeholder="Facebook">
+        </div>
+      </div>
+
+      <div class="ap-modal-footer">
+        <button class="ap-btn ap-btn-ghost" onclick="apCloseModal('ap-local-modal')">Cancelar</button>
+        <button class="ap-btn ap-btn-primary" onclick="apSaveNewLocal()">Salvar Local</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= MODAL: NEW DJ ========================================= -->
+  <div class="ap-modal-overlay" id="ap-dj-modal">
+    <div class="ap-modal-card">
+      <div class="ap-modal-header">Novo DJ</div>
+      <button type="button" class="ap-modal-close" onclick="apCloseModal('ap-dj-modal')">
+        <i class="ph-bold ph-x"></i>
+      </button>
+      
+      <div class="ap-upload-zone" style="padding:16px; margin-bottom:16px;">
+        <div class="ap-upload-icon" style="width:32px; height:32px; font-size:14px;">
+          <i class="ph ph-user"></i>
+        </div>
+        <div class="ap-upload-text">Foto de Perfil</div>
+      </div>
+
+      <div class="ap-form-group">
+        <label class="ap-form-label">Nome do DJ</label>
+        <input type="text" class="ap-text-input" id="ap-new-dj-name">
+      </div>
+      
+      <div class="ap-form-group">
+        <label class="ap-form-label">Descrição</label>
+        <textarea class="ap-textarea" rows="2"></textarea>
+      </div>
+
+      <div class="ap-form-group">
+        <label class="ap-form-label">Links Sociais</label>
+        <div class="ap-inputs-row" style="margin-bottom:8px;">
+          <input type="text" class="ap-text-input" placeholder="Website">
+          <input type="text" class="ap-text-input" placeholder="Instagram">
+        </div>
+        <div class="ap-inputs-row" style="margin-bottom:8px;">
+          <input type="text" class="ap-text-input" placeholder="SoundCloud">
+          <input type="text" class="ap-text-input" placeholder="Spotify">
+        </div>
+      </div>
+
+      <div class="ap-modal-footer">
+        <button class="ap-btn ap-btn-ghost" onclick="apCloseModal('ap-dj-modal')">Cancelar</button>
+        <button class="ap-btn ap-btn-primary" onclick="apSaveNewDJ()">Salvar DJ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= JAVASCRIPT ========================================= -->
+  <script>
+    /* ========== UTILITY FUNCTIONS ========== */
+    function apPad(n) { return String(n).padStart(2, '0'); }
+    function apFormatDateLabel(d) { 
+      return `${apPad(d.getDate())}/${apPad(d.getMonth() + 1)} · ${apPad(d.getHours())}h`; 
+    }
+
+    /* ========== MODAL MANAGEMENT ========== */
+    function apOpenModal(id) { 
+      document.getElementById(id).classList.add('ap-open'); 
+    }
+    function apCloseModal(id) { 
+      document.getElementById(id).classList.remove('ap-open'); 
+    }
+
+    /* Close modal when clicking outside the card */
+    document.querySelectorAll('.ap-modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          apCloseModal(overlay.id);
+        }
+      });
+    });
+
+    /* ========== TIME & SLIDER LOGIC ========== */
+    const apEls = {
+      sd: document.getElementById('ap-start-date'),
+      st: document.getElementById('ap-start-time'),
+      sl: document.getElementById('ap-duration-slider'),
+      dl: document.getElementById('ap-duration-label'),
+      sf: document.getElementById('ap-slider-fill'),
+      bb: document.getElementById('ap-bubble'),
+      ls: document.getElementById('ap-label-start'),
+      le: document.getElementById('ap-label-end')
+    };
+
+    function apUpdateAll() {
+      const d = apEls.sd.value;
+      const t = apEls.st.value;
+      if (!d || !t) return;
+      
+      const start = new Date(`${d}T${t}:00`);
+      const dur = parseInt(apEls.sl.value, 10) || 1;
+      const end = new Date(start.getTime() + dur * 3600 * 1000);
+
+      apEls.ls.textContent = apFormatDateLabel(start);
+      apEls.le.textContent = apFormatDateLabel(end);
+      apEls.dl.textContent = `DURAÇÃO: ${dur}H`;
+      
+      const min = parseInt(apEls.sl.min, 10);
+      const max = parseInt(apEls.sl.max, 10);
+      const pct = ((dur - min) / (max - min)) * 100;
+
+      apEls.sf.style.width = pct + '%';
+      apEls.bb.style.left = pct + '%';
+      apEls.bb.textContent = `Fim ${apPad(end.getHours())}h`;
+    }
+
+    /* Initialize defaults */
+    (function apInitDefaults() {
+      const now = new Date();
+      now.setHours(23, 0, 0, 0);
+      apEls.sd.valueAsDate = now;
+      apEls.st.value = "23:00";
+      apEls.sl.value = 9;
+      apUpdateAll();
+    })();
+
+    apEls.sd.addEventListener('change', apUpdateAll);
+    apEls.st.addEventListener('change', apUpdateAll);
+    apEls.sl.addEventListener('input', apUpdateAll);
+
+    /* ========== COMBOBOX LOGIC ========== */
+    function apOpenCombobox(input) {
+      input.nextElementSibling.classList.add('ap-active');
+    }
+    
+    function apCloseCombobox(input) {
+      setTimeout(() => input.nextElementSibling.classList.remove('ap-active'), 200);
+    }
+    
+    function apFilterCombobox(input) {
+      const filter = input.value.toLowerCase();
+      const options = input.nextElementSibling.getElementsByClassName('ap-combobox-option');
+      for (let i = 0; i < options.length; i++) {
+        const txt = options[i].innerText;
+        options[i].classList.toggle('ap-hidden', txt.toLowerCase().indexOf(filter) === -1);
+      }
+    }
+
+    /* ========== SOUND CHIPS ========== */
+    function apSelectSound(val, el) {
+      const input = el.parentElement.previousElementSibling;
+      const container = document.getElementById('ap-sounds-container');
+      
+      if(!Array.from(container.children).some(c => c.innerText.includes(val))) {
+        const chip = document.createElement('div');
+        chip.className = 'ap-chip ap-active';
+        chip.innerHTML = `${val} <span class="ap-chip-remove" onclick="this.parentElement.remove()">×</span>`;
+        container.appendChild(chip);
+      }
+      input.value = "";
+      apFilterCombobox(input);
+    }
+
+    /* ========== LOCAL SELECTION ========== */
+    function apSelectLocal(val, el) {
+      const input = el.parentElement.previousElementSibling;
+      if(val === 'other') {
+        input.value = "Outro";
+        document.getElementById('ap-manual-local').style.display = 'block';
+      } else {
+        input.value = val;
+        document.getElementById('ap-manual-local').style.display = 'none';
+      }
+    }
+
+    /* ========== DJ LINEUP ========== */
+    function apAddTimetableRow(name) {
+      const container = document.getElementById('ap-timetable-list');
+      if (!container) return;
+
+      const row = document.createElement('div');
+      row.className = 'ap-timetable-row';
+      row.innerHTML = `
+        <div class="ap-drag-handle">
+          <i class="ph-bold ph-caret-up" onclick="apMoveRow(this, -1)"></i>
+          <i class="ph-bold ph-caret-down" onclick="apMoveRow(this, 1)"></i>
+        </div>
+        <div class="ap-dj-name">${name}</div>
+        <div class="ap-time-inputs">
+          <input type="time"> <span style="font-size:10px;color:var(--ap-text-muted)">às</span> <input type="time">
+        </div>
+        <i class="ph-bold ph-x" style="cursor:pointer; font-size:12px; opacity:0.6" onclick="this.parentElement.remove()"></i>
+      `;
+      container.appendChild(row);
+    }
+
+    function apAddDJ(name, el) {
+      const input = document.getElementById('ap-dj-input');
+      const container = document.getElementById('ap-timetable-list');
+      if (input) input.value = name;
+
+      if (container) {
+        const exists = Array.from(container.children).some(function(row) {
+          const dj = row.querySelector('.ap-dj-name');
+          return dj && dj.textContent === name;
+        });
+        if (!exists) {
+          apAddTimetableRow(name);
+        }
+      }
+    }
+
+    function apMoveRow(btn, direction) {
+      const row = btn.closest('.ap-timetable-row');
+      if (!row) return;
+      const parent = row.parentElement;
+      if (direction === -1 && row.previousElementSibling) {
+        parent.insertBefore(row, row.previousElementSibling);
+      } else if (direction === 1 && row.nextElementSibling) {
+        parent.insertBefore(row.nextElementSibling, row);
+      }
+    }
+
+    /* ========== NEW LOCAL / DJ SAVE ========== */
+    function apSaveNewLocal() {
+      const nameEl = document.getElementById('ap-new-local-name');
+      const addrEl = document.getElementById('ap-new-local-address');
+      const name = nameEl ? nameEl.value.trim() : '';
+
+      if (!name) return;
+
+      const input = document.getElementById('ap-local-input');
+      const dropdown = document.getElementById('ap-local-dropdown');
+      if (dropdown) {
+        const newOption = document.createElement('div');
+        newOption.className = 'ap-combobox-option';
+        newOption.innerText = name;
+        newOption.onmousedown = function() { apSelectLocal(name, this); };
+        if (dropdown.lastElementChild) {
+          dropdown.insertBefore(newOption, dropdown.lastElementChild);
+        } else {
+          dropdown.appendChild(newOption);
+        }
+      }
+
+      if (input) {
+        input.value = name;
+      }
+      const manual = document.getElementById('ap-manual-local');
+      if (manual) manual.style.display = 'none';
+
+      if (nameEl) nameEl.value = '';
+      if (addrEl) addrEl.value = '';
+      const lat = document.getElementById('ap-local-lat');
+      const lon = document.getElementById('ap-local-lon');
+      if (lat) lat.value = '';
+      if (lon) lon.value = '';
+
+      apCloseModal('ap-local-modal');
+    }
+
+    function apSaveNewDJ() {
+      const nameEl = document.getElementById('ap-new-dj-name');
+      const name = nameEl ? nameEl.value.trim() : '';
+      if (!name) return;
+
+      const dropdown = document.getElementById('ap-dj-dropdown');
+      if (dropdown) {
+        const newOption = document.createElement('div');
+        newOption.className = 'ap-combobox-option';
+        newOption.innerText = name;
+        newOption.onmousedown = function() { apAddDJ(name, this); };
+        dropdown.appendChild(newOption);
+      }
+
+      apAddTimetableRow(name);
+
+      if (nameEl) nameEl.value = '';
+
+      apCloseModal('ap-dj-modal');
+    }
+
+    /* ========== GEOLOCATION (MOCK) ========== */
+    function apRefreshGeo() {
+      const icon = document.querySelector('#ap-local-modal .ph-arrows-clockwise');
+      if (icon) icon.classList.add('ph-spin');
+
+      setTimeout(function() {
+        const lat = document.getElementById('ap-local-lat');
+        const lon = document.getElementById('ap-local-lon');
+        if (lat) lat.value = '-22.9068';
+        if (lon) lon.value = '-43.1729';
+        if (icon) icon.classList.remove('ph-spin');
+      }, 1000);
+    }
+
+    /* ========== RICH TEXT UTILITIES ========== */
+    function apFormatText(cmd) {
+      const t = document.getElementById('ap-event-desc');
+      if (!t) return;
+      t.value += ` [${cmd}] `;
+      t.focus();
+    }
+
+    function apInsertBullet() {
+      const t = document.getElementById('ap-event-desc');
+      if (!t) return;
+      const prefix = t.value && !t.value.endsWith('\n') ? '\n' : '';
+      t.value += prefix + '• ';
+      t.focus();
+    }
+
+    /* ========== FILE & GALLERY PREVIEW ========== */
+    function apPreviewFile(inputId, imgId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(imgId);
+      if (!input || !preview || !input.files || !input.files[0]) return;
+
+      const placeholder = preview.nextElementSibling;
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+        if (placeholder) {
+          placeholder.style.opacity = '0';
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    function apTriggerGallery(idx) {
+      const inputs = document.querySelectorAll('.ap-gallery-slot input[type="file"]');
+      if (inputs[idx]) {
+        inputs[idx].click();
+      }
+    }
+
+    function apPreviewGallery(input, idx) {
+      if (!input.files || !input.files[0]) return;
+      const img = document.getElementById('ap-gal-' + idx);
+      if (!img) return;
+
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        img.src = reader.result;
+        img.style.display = 'block';
+
+        const slot = input.parentElement;
+        if (slot) {
+          const icon = slot.querySelector('i');
+          if (icon) icon.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+
+    /* ========== FORM SUBMIT (MOCK) ========== */
+    function apSubmitForm() {
+      const btn = document.querySelector('.ap-btn-primary');
+      if (!btn) return;
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = 'Salvando...';
+
+      setTimeout(function() {
+        alert('Formulário Enviado!');
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }, 1000);
+    }
+    /* ========== GENERIC SIMPLE COMBOBOX (CATEGORIA / TIPO) ========== */
+function apSelectCategoria(val, el) {
+  const input = el.parentElement.previousElementSibling;
+  if (!input) return;
+  input.value = val;
+  // Atualiza filtro só para esconder outras opções se o usuário digitar depois
+  apFilterCombobox(input);
+}
+
+function apSelectTipo(val, el) {
+  const input = el.parentElement.previousElementSibling;
+  if (!input) return;
+  input.value = val;
+  apFilterCombobox(input);
+}
+
+  </script>
+</body>
+</html>

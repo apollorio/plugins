@@ -52,7 +52,7 @@ class Apollo_Rate_Limiting_Test extends WP_UnitTestCase {
 	 */
 	public function test_rate_limit_different_endpoints() {
 		// Quiz endpoint has limit of 5
-		$quiz_request = new WP_REST_Request( 'POST', '/apollo/v1/quiz/attempt' );
+		$quiz_request = new WP_REST_Request( 'POST', '/apollo/v1tentantiva' );
 
 		// Make 6 requests
 		for ( $i = 0; $i < 6; $i++ ) {

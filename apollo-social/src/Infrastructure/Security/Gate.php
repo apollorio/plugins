@@ -181,12 +181,12 @@ class Gate {
 			return false;
 		}
 
-		// Check general moderation capability
+		// Check general mod capability
 		if ( $user->has_cap( 'apollo_moderate' ) ) {
 			return true;
 		}
 
-		// Check specific moderation capability
+		// Check specific mod capability
 		if ( $content_type && $user->has_cap( "apollo_moderate_{$content_type}s" ) ) {
 			return true;
 		}

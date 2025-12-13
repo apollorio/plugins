@@ -8,9 +8,9 @@ declare(strict_types=1);
  * and Email Templates plugin (apollo-email-templates) with the entire Apollo ecosystem.
  *
  * Provides rich connectors to:
- * - Apollo Core: memberships, moderation actions, user journeys
+ * - Apollo Core: memberships, mod actions, user journeys
  * - Apollo Social: document signatures, group invites, social posts
- * - Apollo Events: event publishing, CENA-RIO moderation, event reminders
+ * - Apollo Events: event publishing, CENA-RIO mod, event reminders
  * - Apollo Rio: PWA notifications, consent updates
  *
  * @package Apollo_Core
@@ -55,56 +55,67 @@ class Apollo_Email_Integration {
 	 * Initialize the integration
 	 */
 	public function init(): void {
-		// Check plugin availability.
-		$this->newsletter_active       = class_exists( 'Newsletter' );
-		$this->email_templates_active  = class_exists( 'Mailtpl_Woomail_Composer' );
+		// Load centralized email service.
+		if ( ! class_exists( 'Apollo_Email_Service' ) ) {
+			require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-service.php';
+		}
+
+		// Load email templates CPT.
+		if ( ! class_exists( 'Apollo_Email_Templates_CPT' ) ) {
+			require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-templates-cpt.php';
+		}
+
+		// Check plugin availability (optional integrations).
+		$this->newsletter_active      = class_exists( 'Newsletter' );
+		// Email Templates plugin is optional - don't require WooCommerce.
+		$this->email_templates_active = class_exists( 'Mailtpl_Woomail_Composer' );
 
 		// Show admin notices about integration status.
-		add_action( 'admin_notices', [ $this, 'admin_notice' ] );
+		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 
 		// Core Hooks - Memberships & Moderation.
-		add_action( 'apollo_membership_approved', [ $this, 'on_membership_approved' ], 10, 3 );
-		add_action( 'apollo_membership_rejected', [ $this, 'on_membership_rejected' ], 10, 3 );
-		add_action( 'apollo_user_suspended', [ $this, 'on_user_suspended' ], 10, 3 );
-		add_action( 'apollo_user_blocked', [ $this, 'on_user_blocked' ], 10, 2 );
-		add_action( 'apollo_content_approved', [ $this, 'on_content_approved' ], 10, 2 );
-		add_action( 'apollo_content_rejected', [ $this, 'on_content_rejected' ], 10, 3 );
+		add_action( 'apollo_membership_approved', array( $this, 'on_membership_approved' ), 10, 3 );
+		add_action( 'apollo_membership_rejected', array( $this, 'on_membership_rejected' ), 10, 3 );
+		add_action( 'apollo_user_suspended', array( $this, 'on_user_suspended' ), 10, 3 );
+		add_action( 'apollo_user_blocked', array( $this, 'on_user_blocked' ), 10, 2 );
+		add_action( 'apollo_content_approved', array( $this, 'on_content_approved' ), 10, 2 );
+		add_action( 'apollo_content_rejected', array( $this, 'on_content_rejected' ), 10, 3 );
 
 		// Social Hooks - Documents, Groups, Posts.
-		add_action( 'apollo_document_finalized', [ $this, 'on_document_finalized' ], 10, 2 );
-		add_action( 'apollo_document_signed', [ $this, 'on_document_signed' ], 10, 3 );
-		add_action( 'apollo_group_invite', [ $this, 'on_group_invite' ], 10, 3 );
-		add_action( 'apollo_group_approved', [ $this, 'on_group_approved' ], 10, 2 );
-		add_action( 'apollo_social_post_mention', [ $this, 'on_social_mention' ], 10, 3 );
+		add_action( 'apollo_document_finalized', array( $this, 'on_document_finalized' ), 10, 2 );
+		add_action( 'apollo_document_signed', array( $this, 'on_document_signed' ), 10, 3 );
+		add_action( 'apollo_group_invite', array( $this, 'on_group_invite' ), 10, 3 );
+		add_action( 'apollo_group_approved', array( $this, 'on_group_approved' ), 10, 2 );
+		add_action( 'apollo_social_post_mention', array( $this, 'on_social_mention' ), 10, 3 );
 
 		// Events Hooks - Event Publishing, CENA-RIO.
-		add_action( 'publish_event_listing', [ $this, 'on_event_published' ], 10, 2 );
-		add_action( 'apollo_cena_rio_event_confirmed', [ $this, 'on_cena_rio_confirmed' ], 10, 2 );
-		add_action( 'apollo_cena_rio_event_approved', [ $this, 'on_cena_rio_approved' ], 10, 3 );
-		add_action( 'apollo_cena_rio_event_rejected', [ $this, 'on_cena_rio_rejected' ], 10, 3 );
-		add_action( 'apollo_event_reminder', [ $this, 'on_event_reminder' ], 10, 2 );
+		add_action( 'publish_event_listing', array( $this, 'on_event_published' ), 10, 2 );
+		add_action( 'apollo_cena_rio_event_confirmed', array( $this, 'on_cena_rio_confirmed' ), 10, 2 );
+		add_action( 'apollo_cena_rio_event_approved', array( $this, 'on_cena_rio_approved' ), 10, 3 );
+		add_action( 'apollo_cena_rio_event_rejected', array( $this, 'on_cena_rio_rejected' ), 10, 3 );
+		add_action( 'apollo_event_reminder', array( $this, 'on_event_reminder' ), 10, 2 );
 
 		// User Journey Hooks.
-		add_action( 'apollo_user_registration_complete', [ $this, 'on_registration_complete' ], 10, 2 );
-		add_action( 'apollo_user_verification_complete', [ $this, 'on_verification_complete' ], 10, 1 );
-		add_action( 'apollo_user_onboarding_complete', [ $this, 'on_onboarding_complete' ], 10, 1 );
+		add_action( 'apollo_user_registration_complete', array( $this, 'on_registration_complete' ), 10, 2 );
+		add_action( 'apollo_user_verification_complete', array( $this, 'on_verification_complete' ), 10, 1 );
+		add_action( 'apollo_user_onboarding_complete', array( $this, 'on_onboarding_complete' ), 10, 1 );
 
 		// Newsletter sync.
 		if ( $this->newsletter_active ) {
-			add_action( 'newsletter_user_confirmed', [ $this, 'sync_newsletter_user' ] );
+			add_action( 'newsletter_user_confirmed', array( $this, 'sync_newsletter_user' ) );
 		}
 
 		// Add Apollo placeholders to Email Templates.
 		if ( $this->email_templates_active ) {
-			add_filter( 'emailtpl/placeholders', [ $this, 'add_apollo_placeholders' ], 10, 2 );
+			add_filter( 'emailtpl/placeholders', array( $this, 'add_apollo_placeholders' ), 10, 2 );
 		}
 
 		// Admin menu.
-		add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 
 		// AJAX handlers.
-		add_action( 'wp_ajax_apollo_send_test_email', [ $this, 'ajax_send_test_email' ] );
-		add_action( 'wp_ajax_apollo_save_email_template', [ $this, 'ajax_save_template' ] );
+		add_action( 'wp_ajax_apollo_send_test_email', array( $this, 'ajax_send_test_email' ) );
+		add_action( 'wp_ajax_apollo_save_email_template', array( $this, 'ajax_save_template' ) );
 	}
 
 	/**
@@ -122,13 +133,13 @@ class Apollo_Email_Integration {
 	 * @return array
 	 */
 	public function get_status(): array {
-		$status = [
+		$status = array(
 			'available'         => $this->is_available(),
 			'newsletter'        => $this->newsletter_active,
 			'email_templates'   => $this->email_templates_active,
 			'wp_mail'           => function_exists( 'wp_mail' ),
 			'emails_sent_today' => $this->get_emails_sent_today(),
-		];
+		);
 
 		return $status;
 	}
@@ -152,7 +163,7 @@ class Apollo_Email_Integration {
 		}
 
 		$screen = get_current_screen();
-		if ( ! $screen || ! in_array( $screen->parent_base, [ 'apollo-core-hub', 'apollo-control' ], true ) ) {
+		if ( ! $screen || ! in_array( $screen->parent_base, array( 'apollo-core-hub', 'apollo-control' ), true ) ) {
 			return;
 		}
 
@@ -194,7 +205,7 @@ class Apollo_Email_Integration {
 			__( '📧 Email Hub', 'apollo-core' ),
 			'manage_options',
 			'apollo-email-hub',
-			[ $this, 'render_admin_page' ]
+			array( $this, 'render_admin_page' )
 		);
 	}
 
@@ -260,7 +271,7 @@ class Apollo_Email_Integration {
 			<div class="card">
 				<h2><?php esc_html_e( 'Integration Points', 'apollo-core' ); ?></h2>
 				<ul style="list-style: disc; margin-left: 20px;">
-					<li><strong>Apollo Core:</strong> Membership approvals/rejections, user suspensions/blocks, content moderation</li>
+					<li><strong>Apollo Core:</strong> Membership approvals/rejections, user suspensions/blocks, content mod</li>
 					<li><strong>Apollo Social:</strong> Document signatures, group invites, social mentions</li>
 					<li><strong>Apollo Events:</strong> Event publishing, CENA-RIO workflows, event reminders</li>
 					<li><strong>Apollo Rio:</strong> PWA updates, consent changes</li>
@@ -276,98 +287,98 @@ class Apollo_Email_Integration {
 	 * @return array
 	 */
 	public function get_default_templates(): array {
-		return [
-			'membership_approved'  => [
+		return array(
+			'membership_approved'  => array(
 				'name'    => 'Membership Approved',
 				'trigger' => 'Admin approves membership',
 				'hook'    => 'apollo_membership_approved',
-			],
-			'membership_rejected'  => [
+			),
+			'membership_rejected'  => array(
 				'name'    => 'Membership Rejected',
 				'trigger' => 'Admin rejects membership',
 				'hook'    => 'apollo_membership_rejected',
-			],
-			'user_suspended'       => [
+			),
+			'user_suspended'       => array(
 				'name'    => 'User Suspended',
 				'trigger' => 'Moderator suspends user',
 				'hook'    => 'apollo_user_suspended',
-			],
-			'user_blocked'         => [
+			),
+			'user_blocked'         => array(
 				'name'    => 'User Blocked',
 				'trigger' => 'Moderator blocks user',
 				'hook'    => 'apollo_user_blocked',
-			],
-			'content_approved'     => [
+			),
+			'content_approved'     => array(
 				'name'    => 'Content Approved',
 				'trigger' => 'Moderator approves content',
 				'hook'    => 'apollo_content_approved',
-			],
-			'content_rejected'     => [
+			),
+			'content_rejected'     => array(
 				'name'    => 'Content Rejected',
 				'trigger' => 'Moderator rejects content',
 				'hook'    => 'apollo_content_rejected',
-			],
-			'document_finalized'   => [
+			),
+			'document_finalized'   => array(
 				'name'    => 'Document Finalized',
 				'trigger' => 'User finalizes document',
 				'hook'    => 'apollo_document_finalized',
-			],
-			'document_signed'      => [
+			),
+			'document_signed'      => array(
 				'name'    => 'Document Signed',
 				'trigger' => 'User signs document',
 				'hook'    => 'apollo_document_signed',
-			],
-			'group_invite'         => [
+			),
+			'group_invite'         => array(
 				'name'    => 'Group Invite',
 				'trigger' => 'User invited to group',
 				'hook'    => 'apollo_group_invite',
-			],
-			'group_approved'       => [
+			),
+			'group_approved'       => array(
 				'name'    => 'Group Approved',
 				'trigger' => 'Moderator approves group',
 				'hook'    => 'apollo_group_approved',
-			],
-			'event_published'      => [
+			),
+			'event_published'      => array(
 				'name'    => 'Event Published',
 				'trigger' => 'Event goes live',
 				'hook'    => 'publish_event_listing',
-			],
-			'cena_rio_confirmed'   => [
+			),
+			'cena_rio_confirmed'   => array(
 				'name'    => 'CENA-RIO Confirmed',
 				'trigger' => 'CENA-RIO event confirmed',
 				'hook'    => 'apollo_cena_rio_event_confirmed',
-			],
-			'cena_rio_approved'    => [
+			),
+			'cena_rio_approved'    => array(
 				'name'    => 'CENA-RIO Approved',
 				'trigger' => 'Moderator approves CENA-RIO',
 				'hook'    => 'apollo_cena_rio_event_approved',
-			],
-			'cena_rio_rejected'    => [
+			),
+			'cena_rio_rejected'    => array(
 				'name'    => 'CENA-RIO Rejected',
 				'trigger' => 'Moderator rejects CENA-RIO',
 				'hook'    => 'apollo_cena_rio_event_rejected',
-			],
-			'event_reminder'       => [
+			),
+			'event_reminder'       => array(
 				'name'    => 'Event Reminder',
 				'trigger' => '24h before event starts',
 				'hook'    => 'apollo_event_reminder',
-			],
-			'registration_welcome' => [
+			),
+			'registration_welcome' => array(
 				'name'    => 'Welcome Email',
 				'trigger' => 'User completes registration',
 				'hook'    => 'apollo_user_registration_complete',
-			],
-			'verification_done'    => [
+			),
+			'verification_done'    => array(
 				'name'    => 'Verification Complete',
 				'trigger' => 'User verification approved',
 				'hook'    => 'apollo_user_verification_complete',
-			],
-			'onboarding_done'      => [
+			),
+			'onboarding_done'      => array(
 				'name'    => 'Onboarding Complete',
 				'trigger' => 'User finishes onboarding',
 				'hook'    => 'apollo_user_onboarding_complete',
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -380,40 +391,19 @@ class Apollo_Email_Integration {
 	 * @return bool
 	 */
 	private function send_email( string $to, string $subject, string $body, string $type = 'general' ): bool {
-		if ( ! $this->is_available() ) {
-			error_log( '[Apollo Email] Email system not available' );
-			return false;
-		}
+		// Use centralized email service.
+		$email_service = Apollo_Email_Service::instance();
 
-		// Rate limiting.
-		$count = $this->get_emails_sent_today();
-		if ( $count > 1000 ) {
-			error_log( '[Apollo Email] Daily limit exceeded: ' . $count );
-			return false;
-		}
+		$result = $email_service->send(
+			array(
+				'to'        => $to,
+				'subject'   => $subject,
+				'body_html' => $body,
+				'flow'      => $type,
+			)
+		);
 
-		// Send via Newsletter plugin if available.
-		if ( $this->newsletter_active && class_exists( 'Newsletter' ) ) {
-			// Newsletter plugin integration would go here.
-			// For now, fall back to wp_mail.
-		}
-
-		// Send via wp_mail.
-		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
-		$result  = wp_mail( $to, $subject, $body, $headers );
-
-		if ( $result ) {
-			// Increment counter.
-			$key = 'apollo_emails_sent_' . gmdate( 'Y-m-d' );
-			set_transient( $key, $count + 1, DAY_IN_SECONDS );
-
-			// Log send.
-			error_log( sprintf( '[Apollo Email] Sent %s to %s', $type, $to ) );
-		} else {
-			error_log( sprintf( '[Apollo Email] FAILED to send %s to %s', $type, $to ) );
-		}
-
-		return $result;
+		return ! is_wp_error( $result ) && $result;
 	}
 
 	// ========================================
@@ -962,7 +952,7 @@ class Apollo_Email_Integration {
 		check_ajax_referer( 'apollo_email_test', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( [ 'message' => 'Permission denied' ] );
+			wp_send_json_error( array( 'message' => 'Permission denied' ) );
 		}
 
 		$to      = sanitize_email( $_POST['to'] ?? '' );
@@ -970,15 +960,15 @@ class Apollo_Email_Integration {
 		$body    = wp_kses_post( $_POST['body'] ?? 'This is a test email from Apollo.' );
 
 		if ( ! is_email( $to ) ) {
-			wp_send_json_error( [ 'message' => 'Invalid email address' ] );
+			wp_send_json_error( array( 'message' => 'Invalid email address' ) );
 		}
 
 		$result = $this->send_email( $to, $subject, $body, 'test' );
 
 		if ( $result ) {
-			wp_send_json_success( [ 'message' => 'Test email sent successfully' ] );
+			wp_send_json_success( array( 'message' => 'Test email sent successfully' ) );
 		} else {
-			wp_send_json_error( [ 'message' => 'Failed to send test email' ] );
+			wp_send_json_error( array( 'message' => 'Failed to send test email' ) );
 		}
 	}
 
@@ -989,26 +979,26 @@ class Apollo_Email_Integration {
 		check_ajax_referer( 'apollo_email_template', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( [ 'message' => 'Permission denied' ] );
+			wp_send_json_error( array( 'message' => 'Permission denied' ) );
 		}
 
-		$key      = sanitize_key( $_POST['key'] ?? '' );
-		$subject  = sanitize_text_field( $_POST['subject'] ?? '' );
-		$body     = wp_kses_post( $_POST['body'] ?? '' );
+		$key     = sanitize_key( $_POST['key'] ?? '' );
+		$subject = sanitize_text_field( $_POST['subject'] ?? '' );
+		$body    = wp_kses_post( $_POST['body'] ?? '' );
 
 		if ( ! $key || ! $subject || ! $body ) {
-			wp_send_json_error( [ 'message' => 'Missing required fields' ] );
+			wp_send_json_error( array( 'message' => 'Missing required fields' ) );
 		}
 
-		$templates         = get_option( 'apollo_email_templates', [] );
-		$templates[ $key ] = [
+		$templates         = get_option( 'apollo_email_templates', array() );
+		$templates[ $key ] = array(
 			'subject' => $subject,
 			'body'    => $body,
-		];
+		);
 
 		update_option( 'apollo_email_templates', $templates );
 
-		wp_send_json_success( [ 'message' => 'Template saved successfully' ] );
+		wp_send_json_success( array( 'message' => 'Template saved successfully' ) );
 	}
 }
 

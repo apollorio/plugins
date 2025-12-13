@@ -43,8 +43,8 @@ Apollo Events Manager provides a complete event management solution for the Apol
 | `/apollo/v1/categorias` | GET | List event categories |
 | `/apollo/v1/locais` | GET | List venues |
 | `/apollo/v1/my-events` | GET | User's events (auth required) |
-| `/apollo/v1/bookmarks` | GET | User's bookmarks (auth required) |
-| `/apollo/v1/bookmarks/{id}` | POST | Toggle bookmark (auth required) |
+| `/apollo/v1/salvos` | GET | User's bookmarks (auth required) |
+| `/apollo/v1/salvos/{id}` | POST | Toggle bookmark (auth required) |
 
 ### AJAX Actions
 

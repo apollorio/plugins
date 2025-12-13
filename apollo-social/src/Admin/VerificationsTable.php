@@ -42,11 +42,11 @@ class VerificationsTable {
 	 * Initialize admin page
 	 */
 	public function init(): void {
-		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueAssets' ] );
-		add_action( 'wp_ajax_apollo_verify_user', [ $this, 'handleVerifyUser' ] );
-		add_action( 'wp_ajax_apollo_reject_user', [ $this, 'handleRejectUser' ] );
-		add_action( 'wp_ajax_apollo_get_verification_details', [ $this, 'getVerificationDetails' ] );
+		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAssets' ) );
+		add_action( 'wp_ajax_apollo_verify_user', array( $this, 'handleVerifyUser' ) );
+		add_action( 'wp_ajax_apollo_reject_user', array( $this, 'handleRejectUser' ) );
+		add_action( 'wp_ajax_apollo_get_verification_details', array( $this, 'getVerificationDetails' ) );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class VerificationsTable {
 			'Verificações',
 			'manage_options',
 			'apollo-verifications',
-			[ $this, 'renderVerificationsPage' ],
+			array( $this, 'renderVerificationsPage' ),
 			'dashicons-shield-alt',
 			30
 		);
@@ -69,7 +69,7 @@ class VerificationsTable {
 			'Analytics',
 			'manage_options',
 			'apollo-verification-analytics',
-			[ $this, 'renderAnalyticsPage' ]
+			array( $this, 'renderAnalyticsPage' )
 		);
 	}
 
@@ -88,7 +88,7 @@ class VerificationsTable {
 		wp_enqueue_style(
 			'apollo-verifications-admin',
 			plugin_dir_url( __FILE__ ) . '../../assets/admin/verifications.css',
-			[],
+			array(),
 			'1.0.0'
 		);
 
@@ -96,7 +96,7 @@ class VerificationsTable {
 		wp_enqueue_script(
 			'apollo-verifications-admin',
 			plugin_dir_url( __FILE__ ) . '../../assets/admin/verifications.js',
-			[ 'jquery' ],
+			array( 'jquery' ),
 			'1.0.0',
 			true
 		);
@@ -105,18 +105,18 @@ class VerificationsTable {
 		wp_localize_script(
 			'apollo-verifications-admin',
 			'apolloAdmin',
-			[
+			array(
 				'nonce'    => wp_create_nonce( 'apollo_admin_nonce' ),
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'messages' => [
+				'messages' => array(
 					'verify_confirm' => 'Tem certeza que deseja verificar este usuário?',
 					'reject_confirm' => 'Tem certeza que deseja rejeitar esta verificação?',
 					'processing'     => 'Processando...',
 					'error'          => 'Erro ao processar solicitação',
 					'success_verify' => 'Usuário verificado com sucesso',
 					'success_reject' => 'Verificação rejeitada',
-				],
-			]
+				),
+			)
 		);
 	}
 
@@ -245,8 +245,8 @@ class VerificationsTable {
 	 */
 	private function renderVerificationCard( array $verification ): void {
 		$status_class = $this->getStatusClass( $verification['verify_status'] );
-		$metadata     = $verification['metadata'] ?? [];
-		$assets       = $verification['verify_assets'] ?? [];
+		$metadata     = $verification['metadata'] ?? array();
+		$assets       = $verification['verify_assets'] ?? array();
 		$display_name = ! empty( $verification['display_name'] ) ? $verification['display_name'] : $verification['user_login'];
 
 		?>
@@ -318,7 +318,7 @@ class VerificationsTable {
 					Ver Detalhes
 				</button>
 
-				<?php if ( in_array( $verification['verify_status'], [ 'dm_requested', 'awaiting_instagram_verify' ], true ) ) : ?>
+				<?php if ( in_array( $verification['verify_status'], array( 'dm_requested', 'awaiting_instagram_verify' ), true ) ) : ?>
 					<button class="apollo-btn small success verify-user" data-user-id="<?php echo esc_attr( $verification['user_id'] ); ?>" title="Marcar como verificado (DM OK)">
 						<span class="btn-icon">✅</span>
 						Marcar como verificado (DM OK)
@@ -329,7 +329,7 @@ class VerificationsTable {
 					</button>
 				<?php endif; ?>
 
-				<?php if ( in_array( $verification['verify_status'], [ 'dm_requested', 'awaiting_instagram_verify' ], true ) ) : ?>
+				<?php if ( in_array( $verification['verify_status'], array( 'dm_requested', 'awaiting_instagram_verify' ), true ) ) : ?>
 					<button class="apollo-btn small danger reject-user" data-user-id="<?php echo esc_attr( $verification['user_id'] ); ?>" title="Rejeitar (opcional)">
 						<span class="btn-icon">❌</span>
 						Rejeitar (opcional)
@@ -417,10 +417,10 @@ class VerificationsTable {
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		if ( ! $user_id ) {
 			wp_send_json(
-				[
+				array(
 					'success' => false,
 					'message' => 'Invalid user ID',
-				]
+				)
 			);
 			return;
 		}
@@ -444,10 +444,10 @@ class VerificationsTable {
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		if ( ! $user_id ) {
 			wp_send_json(
-				[
+				array(
 					'success' => false,
 					'message' => 'Invalid user ID',
-				]
+				)
 			);
 			return;
 		}
@@ -473,10 +473,10 @@ class VerificationsTable {
 		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id'] ) : 0;
 		if ( ! $user_id ) {
 			wp_send_json(
-				[
+				array(
 					'success' => false,
 					'message' => 'Invalid user ID',
-				]
+				)
 			);
 			return;
 		}
@@ -484,10 +484,10 @@ class VerificationsTable {
 
 		if ( ! $verification ) {
 			wp_send_json(
-				[
+				array(
 					'success' => false,
 					'message' => 'Verificação não encontrada',
-				]
+				)
 			);
 			return;
 		}
@@ -497,10 +497,10 @@ class VerificationsTable {
 		$html = ob_get_clean();
 
 		wp_send_json(
-			[
+			array(
 				'success' => true,
 				'html'    => $html,
-			]
+			)
 		);
 	}
 
@@ -520,21 +520,21 @@ class VerificationsTable {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$updated = $wpdb->update(
 				$verification_table,
-				[
+				array(
 					'verify_status' => 'verified',
 					'reviewed_at'   => current_time( 'mysql' ),
 					'reviewer_id'   => get_current_user_id(),
-				],
-				[ 'user_id' => $user_id ],
-				[ '%s', '%s', '%d' ],
-				[ '%d' ]
+				),
+				array( 'user_id' => $user_id ),
+				array( '%s', '%s', '%d' ),
+				array( '%d' )
 			);
 
 			if ( false === $updated ) {
-				return [
+				return array(
 					'success' => false,
 					'message' => 'Erro ao atualizar banco de dados',
-				];
+				);
 			}
 
 			// Update user meta.
@@ -544,18 +544,18 @@ class VerificationsTable {
 			// Log action.
 			$this->logAdminAction( $user_id, 'user_verified' );
 
-			return [
+			return array(
 				'success' => true,
 				'message' => 'Usuário verificado com sucesso',
-			];
+			);
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'Error verifying user: ' . $e->getMessage() );
-			return [
+			return array(
 				'success' => false,
 				'message' => 'Erro interno',
-			];
+			);
 		}//end try
 	}
 
@@ -575,40 +575,40 @@ class VerificationsTable {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$updated = $wpdb->update(
 				$verification_table,
-				[
+				array(
 					'verify_status'    => 'rejected',
 					'reviewed_at'      => current_time( 'mysql' ),
 					'reviewer_id'      => get_current_user_id(),
 					'rejection_reason' => $reason,
-				],
-				[ 'user_id' => $user_id ],
-				[ '%s', '%s', '%d', '%s' ],
-				[ '%d' ]
+				),
+				array( 'user_id' => $user_id ),
+				array( '%s', '%s', '%d', '%s' ),
+				array( '%d' )
 			);
 
 			if ( false === $updated ) {
-				return [
+				return array(
 					'success' => false,
 					'message' => 'Erro ao atualizar banco de dados',
-				];
+				);
 			}
 
 			update_user_meta( $user_id, 'apollo_verify_status', 'rejected' );
 
-			$this->logAdminAction( $user_id, 'user_rejected', [ 'reason' => $reason ] );
+			$this->logAdminAction( $user_id, 'user_rejected', array( 'reason' => $reason ) );
 
-			return [
+			return array(
 				'success' => true,
 				'message' => 'Verificação rejeitada',
-			];
+			);
 
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'Error rejecting user: ' . $e->getMessage() );
-			return [
+			return array(
 				'success' => false,
 				'message' => 'Erro interno',
-			];
+			);
 		}//end try
 	}
 
@@ -648,9 +648,9 @@ class VerificationsTable {
 	 */
 	private function renderVerificationModal( array $verification ): void {
 		$metadata_decoded = json_decode( $verification['metadata'], true );
-		$metadata         = is_array( $metadata_decoded ) ? $metadata_decoded : [];
+		$metadata         = is_array( $metadata_decoded ) ? $metadata_decoded : array();
 		$assets_decoded   = json_decode( $verification['verify_assets'], true );
-		$assets           = is_array( $assets_decoded ) ? $assets_decoded : [];
+		$assets           = is_array( $assets_decoded ) ? $assets_decoded : array();
 		$display_name     = ! empty( $verification['display_name'] ) ? $verification['display_name'] : $verification['user_login'];
 
 		?>
@@ -695,7 +695,7 @@ class VerificationsTable {
 			<?php endif; ?>
 		</div>
 
-		<?php if ( in_array( $verification['verify_status'], [ 'assets_submitted' ], true ) ) : ?>
+		<?php if ( in_array( $verification['verify_status'], array( 'assets_submitted' ), true ) ) : ?>
 			<div class="modal-actions">
 				<button class="apollo-btn success verify-user" data-user-id="<?php echo esc_attr( $verification['user_id'] ); ?>">
 					✅ Verificar Usuário
@@ -719,12 +719,12 @@ class VerificationsTable {
 	 * @return string CSS class name.
 	 */
 	private function getStatusClass( string $status ): string {
-		$classes = [
+		$classes = array(
 			'awaiting_instagram_verify' => 'status-awaiting',
 			'assets_submitted'          => 'status-submitted',
 			'verified'                  => 'status-verified',
 			'rejected'                  => 'status-rejected',
-		];
+		);
 
 		return $classes[ $status ] ?? 'status-unknown';
 	}
@@ -736,12 +736,12 @@ class VerificationsTable {
 	 * @return string Human-readable status label.
 	 */
 	private function getStatusLabel( string $status ): string {
-		$labels = [
+		$labels = array(
 			'awaiting_instagram_verify' => 'Aguardando Assets',
 			'assets_submitted'          => 'Assets Enviados',
 			'verified'                  => 'Verificado',
 			'rejected'                  => 'Rejeitado',
-		];
+		);
 
 		return $labels[ $status ] ?? 'Desconhecido';
 	}
@@ -754,7 +754,7 @@ class VerificationsTable {
 	 * @param array  $data    Additional data.
 	 * @return void
 	 */
-	private function logAdminAction( int $user_id, string $action, array $data = [] ): void {
+	private function logAdminAction( int $user_id, string $action, array $data = array() ): void {
 		global $wpdb;
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
@@ -778,7 +778,7 @@ class VerificationsTable {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
 			$audit_table,
-			[
+			array(
 				'user_id'     => get_current_user_id(),
 				'action'      => $action,
 				'entity_type' => 'verification',
@@ -786,15 +786,15 @@ class VerificationsTable {
 				'metadata'    => wp_json_encode(
 					array_merge(
 						$data,
-						[
+						array(
 							'target_user_id' => $user_id,
 							'user_agent'     => $user_agent,
 							'ip_address'     => $this->getClientIp(),
-						]
+						)
 					)
 				),
 				'created_at'  => current_time( 'mysql' ),
-			]
+			)
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
@@ -805,7 +805,7 @@ class VerificationsTable {
 	 * @return string Client IP address.
 	 */
 	private function getClientIp(): string {
-		$ip_headers = [
+		$ip_headers = array(
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -813,7 +813,7 @@ class VerificationsTable {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		];
+		);
 
 		foreach ( $ip_headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {

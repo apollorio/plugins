@@ -11,6 +11,6 @@ class ClassifiedsServiceProvider {
 	}
 
 	public function boot() {
-		// TODO: setup classifieds routes, templates, moderation hooks
+		// TODO: setup classifieds routes, templates, mod hooks
 	}
 }

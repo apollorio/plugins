@@ -13,8 +13,8 @@ const assetTargets = [
   'assets/js/builder.js',
   'assets/js/canvas.js',
   'assets/js/canvas-mode.js',
-  'assets/js/apollo-moderation.js',
-  'assets/js/onboarding.js',
+  'assets/js/apollo-mod.js',
+  'assets/js/integra.js',
   'assets/js/widgets.js',
   'assets/js/admin/analytics.js',
   'public/service-worker.js'

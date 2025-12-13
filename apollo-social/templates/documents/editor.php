@@ -157,7 +157,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		/* --- Top Navigation Bar --- */
 		.apollo-navbar {
 			height: 50px;
-			background: var(--ap-bg-card, #fff);
+			background: var((--bg-main)-card, #fff);
 			border-bottom: 1px solid var(--ap-border-light, #e0e0e0);
 			display: flex;
 			align-items: center;
@@ -204,7 +204,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		.file-name:hover,
 		.file-name:focus {
 			border-color: var(--ap-border-default, #e0e0e0);
-			background: var(--ap-bg-muted, #f9f9f9);
+			background: var((--bg-main)-muted, #f9f9f9);
 		}
 
 		.navbar-actions {
@@ -242,7 +242,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		.btn-navbar {
 			padding: 8px 16px;
 			border: 1px solid var(--ap-border-default, #ddd);
-			background: var(--ap-bg-card, #fff);
+			background: var((--bg-main)-card, #fff);
 			border-radius: var(--ap-radius-md, 8px);
 			font-size: 13px;
 			font-weight: 600;
@@ -255,13 +255,13 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		}
 
 		.btn-navbar:hover {
-			background: var(--ap-bg-muted, #f5f5f5);
+			background: var((--bg-main)-muted, #f5f5f5);
 			border-color: var(--ap-border-dark, #ccc);
 		}
 
 		.btn-navbar.primary {
 			background: var(--ap-text-primary, #0f172a);
-			color: var(--ap-bg-main, #fff);
+			color: var((--bg-main)-main, #fff);
 			border-color: var(--ap-text-primary, #0f172a);
 		}
 
@@ -277,7 +277,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 
 		/* --- Editor Toolbar --- */
 		.editor-toolbar {
-			background: var(--ap-bg-card, #fff);
+			background: var((--bg-main)-card, #fff);
 			padding: 10px 20px;
 			border-bottom: 1px solid var(--ap-border-light, #e0e0e0);
 			display: flex;
@@ -308,7 +308,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 			font-size: 13px;
 			cursor: pointer;
 			padding: 6px 10px;
-			background: var(--ap-bg-card, #fff);
+			background: var((--bg-main)-card, #fff);
 			color: var(--ap-text-primary, #333);
 		}
 
@@ -332,7 +332,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		}
 
 		.btn-tool:hover {
-			background: var(--ap-bg-muted, #f5f5f5);
+			background: var((--bg-main)-muted, #f5f5f5);
 			border-color: var(--ap-border-default, #ddd);
 		}
 
@@ -367,7 +367,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		}
 
 		.document-page {
-			background: var(--ap-bg-card, white);
+			background: var((--bg-main)-card, white);
 			width: var(--paper-width);
 			min-height: var(--paper-height);
 			padding: 25mm;
@@ -422,13 +422,13 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		}
 
 		.document-page th {
-			background: var(--ap-bg-muted, #f5f5f5);
+			background: var((--bg-main)-muted, #f5f5f5);
 			font-weight: 600;
 		}
 
 		/* Scrollbar */
 		::-webkit-scrollbar { width: 8px; height: 8px; }
-		::-webkit-scrollbar-track { background: var(--ap-bg-muted, #f1f1f1); }
+		::-webkit-scrollbar-track { background: var((--bg-main)-muted, #f1f1f1); }
 		::-webkit-scrollbar-thumb { background: var(--ap-border-default, #ccc); border-radius: 4px; }
 		::-webkit-scrollbar-thumb:hover { background: var(--ap-border-dark, #bbb); }
 
@@ -474,7 +474,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		}
 
 		.spreadsheet-grid th {
-			background: var(--ap-bg-muted, #f7fafc);
+			background: var((--bg-main)-muted, #f7fafc);
 			border: 1px solid var(--ap-border-light, #e2e8f0);
 			padding: 8px;
 			font-weight: 600;
@@ -942,7 +942,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 				window.ApolloSignatureModal.open({
 					documentId: config.documentId,
 					title: document.getElementById('document-title').textContent.trim(),
-					restUrl: '/wp-json/apollo-social/v1/documents/' + config.documentId + '/sign'
+					restUrl: '/wp-json/apollo-social/v1/doc/' + config.documentId + '/sign'
 				});
 			} else {
 				// Fallback to old behavior if modal not available

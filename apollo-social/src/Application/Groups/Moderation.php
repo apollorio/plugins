@@ -16,7 +16,7 @@ class Moderation {
 		global $wpdb;
 
 		$groups_table     = $wpdb->prefix . 'apollo_groups';
-		$moderation_table = $wpdb->prefix . 'apollo_moderation_queue';
+		$mod= $wpdb->prefix . 'apollo_mod_quemod
 
 		// Update group status
 		$wpdb->update(
@@ -28,9 +28,9 @@ class Moderation {
 			[ 'id' => $group_id ]
 		);
 
-		// Add to moderation queue
+		// Add to mod
 		$wpdb->insert(
-			$moderation_table,
+			$mod
 			[
 				'entity_id'       => $group_id,
 				'entity_type'     => 'group',
@@ -66,7 +66,7 @@ class Moderation {
 		global $wpdb;
 
 		$groups_table     = $wpdb->prefix . 'apollo_groups';
-		$moderation_table = $wpdb->prefix . 'apollo_moderation_queue';
+		$mod= $wpdb->prefix . 'apollo_mod_quemod
 
 		// Update group status
 		$wpdb->update(
@@ -79,9 +79,9 @@ class Moderation {
 			[ 'id' => $group_id ]
 		);
 
-		// Update moderation record
+		// Update mod
 		$wpdb->update(
-			$moderation_table,
+			$mod
 			[
 				'status'          => 'approved',
 				'moderator_id'    => $moderator_id,
@@ -120,7 +120,7 @@ class Moderation {
 		global $wpdb;
 
 		$groups_table     = $wpdb->prefix . 'apollo_groups';
-		$moderation_table = $wpdb->prefix . 'apollo_moderation_queue';
+		$mod= $wpdb->prefix . 'apollo_mod_quemod
 
 		// Sanitize rejection reason - allow only <br> and <span class="apollo-reason">
 		$sanitized_reason = $this->sanitizeRejectionReason( $reason );
@@ -140,9 +140,9 @@ class Moderation {
 				[ '%d' ]
 			);
 
-			// Update moderation record
+			// Update mod
 			$queue_updated = $wpdb->update(
-				$moderation_table,
+				$mod
 				[
 					'status'          => 'rejected',
 					'moderator_id'    => $moderator_id,
@@ -220,7 +220,7 @@ class Moderation {
 	}
 
 	/**
-	 * Calculate moderation priority
+	 * Calculate modty
 	 */
 	private function calculatePriority( array $data ): string {
 		// High priority for urgent requests
@@ -257,11 +257,11 @@ class Moderation {
 			$this->createNotification(
 				$moderator_id,
 				[
-					'type'        => 'moderation_request',
+					'type'        => 'modt',
 					'entity_id'   => $entity_id,
 					'entity_type' => $entity_type,
 					'message'     => 'Novo ' . $entity_type . ' aguardando aprovação',
-					'action_url'  => '/apollo/admin/moderation',
+					'action_url'  => '/apollo/admin/mod
 				]
 			);
 		}
@@ -285,11 +285,11 @@ class Moderation {
 		$this->createNotification(
 			$user_id,
 			[
-				'type'        => 'moderation_result',
+				'type'        => 'mod',
 				'decision'    => $decision,
 				'entity_name' => $entity_name,
 				'message'     => $message,
-				'action_url'  => $decision === 'approved' ? '/apollo/groups/' . urlencode( $entity_name ) : '/apollo/groups/create',
+				'action_url'  => $decision === 'approved' ? '/apollo/groups/' . urlencode( $entity_name ) : '/apollo/groups/criar/',
 			]
 		);
 	}
@@ -427,7 +427,7 @@ class Moderation {
 		$rejection = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT moderator_notes as reason, reviewed_at, moderator_id
-             FROM {$wpdb->prefix}apollo_moderation_queue 
+             FROM {$wpdb->prefix}apollo_mod
              WHERE entity_id = %d AND entity_type = 'group' AND status = 'rejected'
              ORDER BY reviewed_at DESC LIMIT 1",
 				$group_id

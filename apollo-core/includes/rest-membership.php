@@ -177,6 +177,30 @@ function apollo_register_membership_rest_routes() {
 		)
 	);
 
+	// POST /membros/badges - Definir badges do usuário (múltiplos badges).
+	register_rest_route(
+		'apollo/v1',
+		'/membros/badges',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'apollo_rest_set_user_badges',
+			'permission_callback' => 'apollo_rest_can_edit_users',
+			'args'                => array(
+				'user_id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+					'validate_callback' => 'apollo_rest_validate_user_id',
+				),
+				'badges'  => array(
+					'required' => false,
+					'type'     => 'array',
+					'default'  => array(),
+				),
+			),
+		)
+	);
+
 	// =========================================================================
 	// LEGACY ROUTES: /memberships/* (deprecated, backward compatibility)
 	// =========================================================================
@@ -226,10 +250,10 @@ function apollo_register_legacy_membership_routes() {
 		)
 	);
 
-	// POST /memberships/create - Legacy alias.
+	// POST /memberships/criar/ - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
-		'/memberships/create',
+		'/memberships/criar/',
 		array(
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_create_membership',
@@ -764,4 +788,108 @@ function apollo_rest_import_memberships( $request ) {
 		),
 		200
 	);
+}
+
+/**
+ * REST callback: Set user badges (multiple badges support)
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response Response object.
+ */
+function apollo_rest_set_user_badges( $request ) {
+	try {
+		$user_id = $request->get_param( 'user_id' );
+		$badges  = $request->get_param( 'badges' );
+
+		// Validate user exists.
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'User not found', 'apollo-core' ),
+				),
+				404
+			);
+		}
+
+		// Sanitize badges array.
+		$badges = is_array( $badges ) ? $badges : array();
+		$badges = array_map( 'sanitize_key', $badges );
+		$badges = array_filter( $badges ); // Remove empty values.
+
+		// Validate all badges exist.
+		$memberships = apollo_get_memberships();
+		foreach ( $badges as $badge_slug ) {
+			if ( ! isset( $memberships[ $badge_slug ] ) && 'nao-verificado' !== $badge_slug ) {
+				return new WP_REST_Response(
+					array(
+						'success' => false,
+						'message' => sprintf( __( 'Invalid badge: %s', 'apollo-core' ), $badge_slug ),
+					),
+					400
+				);
+			}
+		}
+
+		// Remove 'nao-verificado' from badges (it's a default, not a badge).
+		$badges = array_filter( $badges, fn( $slug ) => 'nao-verificado' !== $slug );
+
+		// Save badges array.
+		$result = update_user_meta( $user_id, '_apollo_badges', array_values( $badges ) );
+
+		if ( ! $result ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'message' => __( 'Failed to update badges', 'apollo-core' ),
+				),
+				500
+			);
+		}
+
+		// Log action.
+		if ( function_exists( 'apollo_mod_log_action' ) ) {
+			apollo_mod_log_action(
+				get_current_user_id(),
+				'user_badges_updated',
+				'user',
+				$user_id,
+				array(
+					'badges'    => $badges,
+					'timestamp' => current_time( 'mysql' ),
+				)
+			);
+		}
+
+		return new WP_REST_Response(
+			array(
+				'success' => true,
+				'message' => __( 'Badges updated successfully', 'apollo-core' ),
+				'user_id' => $user_id,
+				'badges'  => $badges,
+			),
+			200
+		);
+	} catch ( Exception $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log(
+				sprintf(
+					'[Apollo Core] Badges update error - User: %d, Message: %s',
+					$user_id ?? 0,
+					$e->getMessage()
+				)
+			);
+		}
+
+		return new WP_Error(
+			'badges_update_failed',
+			__( 'Failed to update badges. Please try again.', 'apollo-core' ),
+			array(
+				'status'     => 500,
+				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
+			)
+		);
+	}//end try
 }

@@ -7,24 +7,24 @@ use Apollo\Modules\Moderation\Services\ModerationService;
 /**
  * Moderation Dashboard Controller
  *
- * Handles moderation dashboard and AJAX requests.
+ * Handles mod dashboard and AJAX requests.
  */
 class ModerationController {
 
-	private ModerationService $moderationService;
+	private ModerationService $modService;
 
 	public function __construct() {
-		$this->moderationService = new ModerationService();
+		$this->modService = new ModerationService();
 
 		// Register AJAX handlers
 		\add_action( 'wp_ajax_apollo_moderate_approve', [ $this, 'handleApprove' ] );
 		\add_action( 'wp_ajax_apollo_moderate_reject', [ $this, 'handleReject' ] );
-		\add_action( 'wp_ajax_apollo_moderation_queue', [ $this, 'getModerationQueue' ] );
-		\add_action( 'wp_ajax_apollo_moderation_stats', [ $this, 'getModerationStats' ] );
+		\add_action( 'wp_ajax_apollo_mod_queue', [ $this, 'getModerationQueue' ] );
+		\add_action( 'wp_ajax_apollo_mod_stats', [ $this, 'getModerationStats' ] );
 	}
 
 	/**
-	 * Render moderation dashboard
+	 * Render mod dashboard
 	 */
 	public function renderDashboard(): void {
 		// Check permissions
@@ -32,8 +32,8 @@ class ModerationController {
 			\wp_die( 'Acesso negado' );
 		}
 
-		$queue = $this->moderationService->getModerationQueue( [ 'status' => 'pending' ] );
-		$stats = $this->moderationService->getModerationStats();
+		$queue = $this->modService->getModerationQueue( [ 'status' => 'pending' ] );
+		$stats = $this->modService->getModerationStats();
 
 		?>
 		<!DOCTYPE html>
@@ -108,7 +108,7 @@ class ModerationController {
 					font-size: 14px;
 				}
 
-				.moderation-queue {
+				.mod-queue {
 					background: white;
 					border-radius: 12px;
 					box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -382,7 +382,7 @@ class ModerationController {
 				</div>
 
 				<!-- Moderation Queue -->
-				<div class="moderation-queue">
+				<div class="mod-queue">
 					<div class="queue-header">
 						<h2>📋 Fila de Moderação</h2>
 						<div class="queue-filters">
@@ -495,13 +495,13 @@ class ModerationController {
 			<script>
 				let currentModerationId = null;
 
-				function showApprovalModal(moderationId) {
-					currentModerationId = moderationId;
+				function showApprovalModal(modId) {
+					currentModerationId = modId;
 					document.getElementById('approvalModal').style.display = 'block';
 				}
 
-				function showRejectionModal(moderationId) {
-					currentModerationId = moderationId;
+				function showRejectionModal(modId) {
+					currentModerationId = modId;
 					document.getElementById('rejectionModal').style.display = 'block';
 				}
 
@@ -526,9 +526,9 @@ class ModerationController {
 							},
 							body: new URLSearchParams({
 								action: 'apollo_moderate_approve',
-								moderation_id: currentModerationId,
+								mod_id: currentModerationId,
 								notes: notes,
-								nonce: '<?php echo wp_create_nonce( 'apollo_moderation' ); ?>'
+								nonce: '<?php echo wp_create_nonce( 'apollo_mod' ); ?>'
 							})
 						});
 						
@@ -564,9 +564,9 @@ class ModerationController {
 							},
 							body: new URLSearchParams({
 								action: 'apollo_moderate_reject',
-								moderation_id: currentModerationId,
+								mod_id: currentModerationId,
 								reason: reason,
-								nonce: '<?php echo wp_create_nonce( 'apollo_moderation' ); ?>'
+								nonce: '<?php echo wp_create_nonce( 'apollo_mod' ); ?>'
 							})
 						});
 						
@@ -586,9 +586,9 @@ class ModerationController {
 					closeModals();
 				}
 
-				function viewDetails(moderationId) {
+				function viewDetails(modId) {
 					// Open detailed view in new tab or modal
-					window.open(`/apollo/moderation/details/${moderationId}`, '_blank');
+					window.open(`/apollo/mod/details/${modId}`, '_blank');
 				}
 
 				// Filter functionality
@@ -635,7 +635,7 @@ class ModerationController {
 	 * Handle approval AJAX request
 	 */
 	public function handleApprove(): void {
-		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_moderation' ) ) {
+		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_mod' ) ) {
 			\wp_die( 'Security check failed' );
 		}
 
@@ -643,14 +643,14 @@ class ModerationController {
 			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
-		$moderation_id = intval( $_POST['moderation_id'] ?? 0 );
+		$mod_id = intval( $_POST['mod_id'] ?? 0 );
 		$notes         = \sanitize_textarea_field( $_POST['notes'] ?? '' );
 
-		if ( ! $moderation_id ) {
+		if ( ! $mod_id ) {
 			\wp_send_json_error( [ 'error' => 'ID de moderação inválido' ] );
 		}
 
-		$result = $this->moderationService->approve( $moderation_id, \get_current_user_id(), $notes );
+		$result = $this->modService->approve( $mod_id, \get_current_user_id(), $notes );
 
 		if ( $result['success'] ) {
 			\wp_send_json_success( $result );
@@ -663,7 +663,7 @@ class ModerationController {
 	 * Handle rejection AJAX request
 	 */
 	public function handleReject(): void {
-		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_moderation' ) ) {
+		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_mod' ) ) {
 			\wp_die( 'Security check failed' );
 		}
 
@@ -671,14 +671,14 @@ class ModerationController {
 			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
-		$moderation_id = intval( $_POST['moderation_id'] ?? 0 );
+		$mod_id = intval( $_POST['mod_id'] ?? 0 );
 		$reason        = \sanitize_textarea_field( $_POST['reason'] ?? '' );
 
-		if ( ! $moderation_id || ! $reason ) {
+		if ( ! $mod_id || ! $reason ) {
 			\wp_send_json_error( [ 'error' => 'Dados obrigatórios não fornecidos' ] );
 		}
 
-		$result = $this->moderationService->reject( $moderation_id, \get_current_user_id(), $reason );
+		$result = $this->modService->reject( $mod_id, \get_current_user_id(), $reason );
 
 		if ( $result['success'] ) {
 			\wp_send_json_success( $result );
@@ -688,7 +688,7 @@ class ModerationController {
 	}
 
 	/**
-	 * Get moderation queue via AJAX
+	 * Get mod queue via AJAX
 	 */
 	public function getModerationQueue(): void {
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
@@ -701,19 +701,19 @@ class ModerationController {
 			'priority'    => \sanitize_text_field( $_POST['priority'] ?? '' ),
 		];
 
-		$queue = $this->moderationService->getModerationQueue( $filters );
+		$queue = $this->modService->getModerationQueue( $filters );
 		\wp_send_json_success( $queue );
 	}
 
 	/**
-	 * Get moderation stats via AJAX
+	 * Get mod stats via AJAX
 	 */
 	public function getModerationStats(): void {
 		if ( ! \current_user_can( 'apollo_moderate' ) ) {
 			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
 		}
 
-		$stats = $this->moderationService->getModerationStats();
+		$stats = $this->modService->getModerationStats();
 		\wp_send_json_success( $stats );
 	}
 }

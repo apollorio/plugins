@@ -43,7 +43,7 @@ $draft_events = new WP_Query(
 );
 ?>
 
-<div class="apollo-moderation-page min-h-screen bg-background py-8 px-4">
+<div class="apollo-mod-page min-h-screen bg-background py-8 px-4">
 	<div class="max-w-7xl mx-auto">
 		
 		<!-- Header -->

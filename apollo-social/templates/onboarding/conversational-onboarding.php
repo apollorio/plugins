@@ -53,7 +53,7 @@ add_action(
 				background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600));
 			}
 			.ap-onboarding-container {
-				background: var(--ap-bg-card);
+				background: var((--bg-main)-card);
 				border-radius: var(--ap-radius-2xl);
 				box-shadow: var(--ap-shadow-xl);
 				max-width: 480px;
@@ -137,7 +137,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		flex: 1;
 		padding: 20px;
 		overflow-y: auto;
-		background: var(--ap-bg-surface);
+		background: var((--bg-main)-surface);
 	}
 
 	.ap-onboarding-message {
@@ -146,7 +146,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 	}
 
 	.ap-onboarding-bubble {
-		background: var(--ap-bg-card);
+		background: var((--bg-main)-card);
 		border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
 		padding: 16px 20px;
 		box-shadow: var(--ap-shadow-sm);
@@ -166,7 +166,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 	}
 
 	.ap-onboarding-input {
-		background: var(--ap-bg-card);
+		background: var((--bg-main)-card);
 		border-top: 1px solid var(--ap-border-light);
 		padding: 20px;
 	}
@@ -188,7 +188,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		padding: 12px 16px;
 		border: 2px solid var(--ap-border-default);
 		border-radius: var(--ap-radius-lg);
-		background: var(--ap-bg-card);
+		background: var((--bg-main)-card);
 		color: var(--ap-text-secondary);
 		font-size: var(--ap-text-sm);
 		font-weight: 500;
@@ -220,7 +220,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 		padding: 10px 12px;
 		border: 2px solid var(--ap-border-default);
 		border-radius: var(--ap-radius-md);
-		background: var(--ap-bg-card);
+		background: var((--bg-main)-card);
 		color: var(--ap-text-secondary);
 		font-size: var(--ap-text-sm);
 		cursor: pointer;

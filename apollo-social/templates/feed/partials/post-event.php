@@ -37,16 +37,34 @@ $bolha_classes   = $is_bolha ? 'apollo-bolha-featured ring-2 ring-orange-300 bg-
 		<div class="flex-1 min-w-0">
 		<div class="flex items-center justify-between">
 			<div>
-			<div class="flex items-center gap-2">
-				<span class="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-medium">Evento</span>
-				<h3 class="font-semibold text-[15px] text-slate-900">
-				<?php echo esc_html( $data['author']['name'] ?? '' ); ?>
-				</h3>
-			</div>
-			<p class="text-[13px] text-slate-500">
-				@<?php echo esc_html( $data['author']['name'] ?? '' ); ?> ·
-				<?php echo esc_html( human_time_diff( strtotime( $data['date'] ?? 'now' ), current_time( 'timestamp' ) ) . ' atrás' ); ?>
-			</p>
+			<section class="ap-social-user-data">
+				<p>
+					<span class="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full font-medium">Evento</span>
+					<span class="ap-social-username">
+						<?php echo esc_html( $data['author']['name'] ?? '' ); ?>
+					</span>
+					<?php
+					// Render badges
+					$author_id = isset( $data['author']['id'] ) ? (int) $data['author']['id'] : 0;
+					if ( $author_id && function_exists( 'apollo_social_get_user_badges' ) ) {
+						$badges = apollo_social_get_user_badges( $author_id );
+						if ( ! empty( $badges ) ) {
+							foreach ( $badges as $badge ) {
+								?>
+								<span class="ap-social-badge <?php echo esc_attr( $badge['class'] ); ?>">
+									<?php echo esc_html( $badge['label'] ); ?>
+								</span>
+								<?php
+							}
+						}
+					}
+					?>
+				</p>
+				<p class="text-[13px] text-slate-500 ap-social-second">
+					@<?php echo esc_html( $data['author']['name'] ?? '' ); ?> ·
+					<span class="ap-social-second"><?php echo esc_html( human_time_diff( strtotime( $data['date'] ?? 'now' ), current_time( 'timestamp' ) ) . ' atrás' ); ?></span>
+				</p>
+			</section>
 			</div>
 			<button class="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100">
 			<i class="ri-more-2-line text-slate-400"></i>

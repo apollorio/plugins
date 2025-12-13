@@ -136,12 +136,12 @@ class Schema {
 	}
 
 	/**
-	 * Create moderation queue table
+	 * Create modtable
 	 */
 	private function createModerationQueueTable(): void {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod;
 
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -464,7 +464,7 @@ class Schema {
 
 		$tables = [
 			$wpdb->prefix . 'apollo_workflow_log',
-			$wpdb->prefix . 'apollo_moderation_queue',
+			$wpdb->prefix . 'apollo_mod,
 			$wpdb->prefix . 'apollo_analytics',
 			$wpdb->prefix . 'apollo_signature_requests',
 			$wpdb->prefix . 'apollo_onboarding_progress',
@@ -487,7 +487,7 @@ class Schema {
 
 		$tables = [
 			'workflow_log'        => $wpdb->prefix . 'apollo_workflow_log',
-			'moderation_queue'    => $wpdb->prefix . 'apollo_moderation_queue',
+			'mod    => $wpdb->prefix . 'apollo_mod_quemod
 			'analytics'           => $wpdb->prefix . 'apollo_analytics',
 			'signature_requests'  => $wpdb->prefix . 'apollo_signature_requests',
 			'onboarding_progress' => $wpdb->prefix . 'apollo_onboarding_progress',
@@ -526,8 +526,8 @@ class Schema {
 		);
 
 		// Moderation queue statistics
-		$stats['pending_moderation'] = $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}apollo_moderation_queue WHERE status = 'pending'"
+		$stats['pending_modpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}apollo_modWHERE status = 'pending'"
 		);
 
 		// Analytics statistics

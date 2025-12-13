@@ -57,15 +57,15 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 
 	// Different limits for different endpoint types
 	$limits = array(
-		'/apollo/v1/forms/submit'                   => 10,
+		'/apollo/v1/forms/submit'                => 10,
 		// 10 submissions per minute
-					'/apollo/v1/quiz/attempt'       => 5,
+					'/apollo/v1tentantiva'       => 5,
 		// 5 quiz attempts per minute
-					'/apollo/v1/memberships/set'    => 20,
+					'/apollo/v1/memberships/set' => 20,
 		// 20 membership changes per minute
-					'/apollo/v1/moderation/approve' => 30,
+					'/apollo/v1/modaprovar'      => 30,
 		// 30 approvals per minute
-					'default'                       => 100,
+					'default'                    => 100,
 	// 100 requests per minute for other endpoints
 	);
 

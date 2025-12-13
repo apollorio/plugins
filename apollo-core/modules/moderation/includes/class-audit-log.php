@@ -33,7 +33,7 @@ class Apollo_Moderation_Audit_Log {
 	}
 
 	/**
-	 * Log moderation action
+	 * Log mod action
 	 *
 	 * @param int    $actor_id Actor user ID.
 	 * @param string $action Action name.

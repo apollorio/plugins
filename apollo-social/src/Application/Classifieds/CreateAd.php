@@ -5,7 +5,7 @@ namespace Apollo\Application\Classifieds;
  * Create Ad use case (stub)
  *
  * Handles classified ad creation.
- * TODO: Implement ad creation with validation and moderation.
+ * TODO: Implement ad creation with validation and mod.
  */
 class CreateAd {
 
@@ -18,7 +18,7 @@ class CreateAd {
 		// 1. Validate ad data
 		// 2. Check creation permissions
 		// 3. Create ad entity
-		// 4. Set initial moderation status
+		// 4. Set initial mod status
 		// 5. Bind to season if specified
 	}
 }

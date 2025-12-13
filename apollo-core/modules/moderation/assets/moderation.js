@@ -40,14 +40,14 @@
 		},
 
 		/**
-		 * Load moderation queue
+		 * Load mod queue
 		 */
 		loadQueue: function() {
 			const $tbody = $('#apollo-queue-tbody');
 			$tbody.html('<tr><td colspan="7" style="text-align: center;"><span class="spinner is-active" style="float: none;"></span> Loading...</td></tr>');
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/queue',
+				url: apolloModeration.restUrl + '/mod/fila',
 				method: 'GET',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -112,7 +112,7 @@
 			$button.prop('disabled', true).text('Approving...');
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/approve',
+				url: apolloModeration.restUrl + '/modaprovar',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -157,7 +157,7 @@
 			$button.prop('disabled', true).text('Rejecting...');
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/reject',
+				url: apolloModeration.restUrl + '/mod/reject',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -201,7 +201,7 @@
 			$button.prop('disabled', true);
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/notify-user',
+				url: apolloModeration.restUrl + '/mod/notificar-user',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -243,7 +243,7 @@
 			$button.prop('disabled', true);
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/suspend-user',
+				url: apolloModeration.restUrl + '/mod/suspender/-user',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -283,7 +283,7 @@
 			$button.prop('disabled', true);
 
 			$.ajax({
-				url: apolloModeration.restUrl + '/moderation/block-user',
+				url: apolloModeration.restUrl + '/mod/bloquear/-user',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModeration.nonce);
@@ -327,7 +327,7 @@
 
 	// Initialize on document ready.
 	$(document).ready(function() {
-		if ($('.apollo-moderation-wrap').length) {
+		if ($('.apollo-mod-wrap').length) {
 			apolloModAdmin.init();
 		}
 	});

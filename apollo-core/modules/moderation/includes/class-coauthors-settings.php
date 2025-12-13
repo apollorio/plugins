@@ -625,7 +625,7 @@ class Apollo_Coauthors_Settings {
 			);
 		}
 
-		wp_safe_redirect( admin_url( 'admin.php?page=apollo-moderation&tab=coauthors&updated=1' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=apollo-mod&tab=coauthors&updated=1' ) );
 		exit;
 	}
 

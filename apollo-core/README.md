@@ -9,7 +9,7 @@ Core plugin for Apollo ecosystem - unifies Events Manager and Social features in
 - **Canvas Mode**: Isolated template rendering for plugin pages
 - **REST API**: Unified `/apollo/v1` namespace for all endpoints
 - **Migration System**: Automated migration from old plugins
-- **Audit Logging**: Track all moderation actions in `wp_apollo_mod_log` table
+- **Audit Logging**: Track all mod actions in `wp_apollo_mod_log` table
 
 ## Installation
 

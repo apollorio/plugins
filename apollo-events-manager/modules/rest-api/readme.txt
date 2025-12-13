@@ -139,7 +139,7 @@ Fixed : Not able to create rest API access key
 Fixed : Taxonomy API Not working
 Fixed : When Passing empty profile photo then set to default User Image
 Fixed : Access to API always open to everyone everytime
-Fixed : Add API for matchmaking setting GET and POST
+Fixed : Add API for compatibilidade setting GET and POST
 Fixed : Add API related to visibility setting
 Fixed : Add API for meeting setting
 Fixed : Password change then user will auto logout from mobile application

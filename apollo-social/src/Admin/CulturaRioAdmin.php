@@ -21,23 +21,23 @@ class CulturaRioAdmin {
 	 */
 	public static function init(): void {
 		// Add columns to users list
-		add_filter( 'manage_users_columns', [ self::class, 'addUserColumns' ] );
-		add_filter( 'manage_users_custom_column', [ self::class, 'renderUserColumn' ], 10, 3 );
+		add_filter( 'manage_users_columns', array( self::class, 'addUserColumns' ) );
+		add_filter( 'manage_users_custom_column', array( self::class, 'renderUserColumn' ), 10, 3 );
 
 		// Add user profile fields (admin view only)
-		add_action( 'show_user_profile', [ self::class, 'renderProfileFields' ] );
-		add_action( 'edit_user_profile', [ self::class, 'renderProfileFields' ] );
+		add_action( 'show_user_profile', array( self::class, 'renderProfileFields' ) );
+		add_action( 'edit_user_profile', array( self::class, 'renderProfileFields' ) );
 
 		// Save profile fields
-		add_action( 'personal_options_update', [ self::class, 'saveProfileFields' ] );
-		add_action( 'edit_user_profile_update', [ self::class, 'saveProfileFields' ] );
+		add_action( 'personal_options_update', array( self::class, 'saveProfileFields' ) );
+		add_action( 'edit_user_profile_update', array( self::class, 'saveProfileFields' ) );
 
 		// Add admin menu
-		add_action( 'admin_menu', [ self::class, 'addAdminMenu' ] );
+		add_action( 'admin_menu', array( self::class, 'addAdminMenu' ) );
 
 		// AJAX handlers
-		add_action( 'wp_ajax_apollo_approve_membership', [ self::class, 'ajaxApproveMembership' ] );
-		add_action( 'wp_ajax_apollo_reject_membership', [ self::class, 'ajaxRejectMembership' ] );
+		add_action( 'wp_ajax_apollo_approve_membership', array( self::class, 'ajaxApproveMembership' ) );
+		add_action( 'wp_ajax_apollo_reject_membership', array( self::class, 'ajaxRejectMembership' ) );
 	}
 
 	/**
@@ -67,7 +67,7 @@ class CulturaRioAdmin {
 				if ( empty( $identities ) ) {
 					return '<span style="color: #888;">—</span>';
 				}
-				$labels = [];
+				$labels = array();
 				foreach ( $identities as $key ) {
 					$identity = CulturaRioIdentity::getIdentities()[ $key ] ?? null;
 					if ( $identity ) {
@@ -81,12 +81,12 @@ class CulturaRioAdmin {
 				$status       = CulturaRioIdentity::getMembershipStatus( $user_id );
 				$status_label = $status['status'];
 
-				$colors = [
+				$colors = array(
 					'pending'  => '#f0ad4e',
 					'approved' => '#5cb85c',
 					'rejected' => '#d9534f',
 					'none'     => '#888',
-				];
+				);
 
 				$color = $colors[ $status_label ] ?? '#888';
 				$label = ucfirst( $status_label );
@@ -270,7 +270,7 @@ class CulturaRioAdmin {
 			__( 'Membership Requests', 'apollo-social' ),
 			'manage_options',
 			'apollo-membership-requests',
-			[ self::class, 'renderMembershipPage' ]
+			array( self::class, 'renderMembershipPage' )
 		);
 	}
 
@@ -280,10 +280,10 @@ class CulturaRioAdmin {
 	public static function renderMembershipPage(): void {
 		// Get pending users
 		$pending_users = get_users(
-			[
+			array(
 				'meta_key'   => 'apollo_membership_status',
 				'meta_value' => 'pending',
-			]
+			)
 		);
 
 		?>

@@ -19,9 +19,9 @@
 	<arg name="extensions" value="php"/>
 
 	<!-- Performance Optimization -->
-	<arg name="parallel" value="20"/>
+	<arg name="parallel" value="1"/>
 	<arg name="cache" value=".phpcs-cache"/>
-	<ini name="memory_limit" value="512M"/>
+	<ini name="memory_limit" value="2G"/>
 
 	<!-- Intelligent Exclusions -->
 	<exclude-pattern>*/vendor/*</exclude-pattern>

@@ -173,7 +173,7 @@ function apollo_core_render_intro_content(): void {
 				<h3><span class="dashicons dashicons-shield"></span> Moderação</h3>
 				<p>Sistema unificado de moderação para aprovar/rejeitar conteúdo.</p>
 				<ul>
-					<li>Página: <a href="<?php echo admin_url( 'admin.php?page=apollo-moderation' ); ?>">Moderation Queue</a></li>
+					<li>Página: <a href="<?php echo admin_url( 'admin.php?page=apollo-mod' ); ?>">Moderation Queue</a></li>
 					<li>REST API: <code>/wp-json/apollo-mod/v1/*</code></li>
 				</ul>
 			</div>
@@ -536,7 +536,7 @@ function apollo_core_render_settings_content(): void {
 	if ( isset( $_POST['apollo_core_settings_nonce'] ) &&
 		wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_core_settings_nonce'] ) ), 'apollo_core_save_settings' ) ) {
 
-		update_option( 'apollo_core_moderation_enabled', isset( $_POST['moderation_enabled'] ) ? 1 : 0 );
+		update_option( 'apollo_core_mod_enabled', isset( $_POST['mod_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_core_cenario_enabled', isset( $_POST['cenario_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_core_forms_enabled', isset( $_POST['forms_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_core_quiz_enabled', isset( $_POST['quiz_enabled'] ) ? 1 : 0 );
@@ -547,7 +547,7 @@ function apollo_core_render_settings_content(): void {
 	}
 
 	// Get current settings
-	$moderation_enabled    = get_option( 'apollo_core_moderation_enabled', 1 );
+	$mod_enabled           = get_option( 'apollo_core_mod_enabled', 1 );
 	$cenario_enabled       = get_option( 'apollo_core_cenario_enabled', 1 );
 	$forms_enabled         = get_option( 'apollo_core_forms_enabled', 1 );
 	$quiz_enabled          = get_option( 'apollo_core_quiz_enabled', 1 );
@@ -566,8 +566,8 @@ function apollo_core_render_settings_content(): void {
 					<td>
 						<fieldset>
 							<label>
-								<input type="checkbox" name="moderation_enabled" value="1" 
-										<?php checked( $moderation_enabled, 1 ); ?>>
+								<input type="checkbox" name="mod_enabled" value="1" 
+										<?php checked( $mod_enabled, 1 ); ?>>
 								<?php esc_html_e( 'Habilitar Sistema de Moderação', 'apollo-core' ); ?>
 							</label>
 							<br>
@@ -799,7 +799,7 @@ function apollo_core_get_all_shortcodes(): array {
 				'attributes'  => '',
 			),
 			array(
-				'code'        => '[apollo_cena_moderation_queue]',
+				'code'        => '[apollo_cena_mod_queue]',
 				'description' => 'Queue de moderação CENA-RIO',
 				'attributes'  => '',
 			),
@@ -1022,7 +1022,7 @@ function apollo_core_get_all_roles(): array {
 				'name'        => 'Apollo Moderator',
 				'slug'        => 'apollo',
 				'description' => 'Moderador geral do sistema Apollo',
-				'caps'        => array( 'view_moderation_queue', 'approve_content', 'reject_content', 'send_mod_notifications' ),
+				'caps'        => array( 'view_mod_queue', 'approve_content', 'reject_content', 'send_mod_notifications' ),
 			),
 			array(
 				'name'        => 'CENA-RIO User',
@@ -1038,7 +1038,7 @@ function apollo_core_get_all_roles(): array {
 			),
 		),
 		'capabilities' => array(
-			'view_moderation_queue'  => array(
+			'view_mod_queue'         => array(
 				'label'      => 'Ver Fila de Moderação',
 				'admin'      => true,
 				'apollo'     => true,

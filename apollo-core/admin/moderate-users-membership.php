@@ -24,20 +24,23 @@ function apollo_render_membership_types_manager() {
 	$custom_only = get_option( 'apollo_memberships', array() );
 	$defaults    = apollo_get_default_memberships();
 	?>
-	<div class="apollo-membership-types-manager" style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
-		<h2><?php esc_html_e( 'Membership Types Manager', 'apollo-core' ); ?></h2>
-		<p class="description">
+	<div class="apollo-membership-types-manager" style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;" data-ap-tooltip="<?php esc_attr_e( 'Gerenciar tipos de membership disponíveis no sistema', 'apollo-core' ); ?>">
+		<h2 data-ap-tooltip="<?php esc_attr_e( 'Título da seção de gerenciamento', 'apollo-core' ); ?>"><?php esc_html_e( 'Membership Types Manager', 'apollo-core' ); ?></h2>
+		<p class="description" data-ap-tooltip="<?php esc_attr_e( 'Descrição das funcionalidades disponíveis', 'apollo-core' ); ?>">
 			<?php esc_html_e( 'Manage membership types available in the system. Only administrators can create, edit, or delete membership types.', 'apollo-core' ); ?>
 		</p>
 
 		<p style="margin-bottom: 15px;">
-			<button type="button" class="button button-primary" id="apollo-add-membership-btn">
+			<button type="button" class="button button-primary" id="apollo-add-membership-btn" 
+				data-ap-tooltip="<?php esc_attr_e( 'Criar novo tipo de membership', 'apollo-core' ); ?>">
 				<?php esc_html_e( 'Add Membership Type', 'apollo-core' ); ?>
 			</button>
-			<button type="button" class="button" id="apollo-export-memberships-btn">
+			<button type="button" class="button" id="apollo-export-memberships-btn"
+				data-ap-tooltip="<?php esc_attr_e( 'Exportar configurações de membership como JSON', 'apollo-core' ); ?>">
 				<?php esc_html_e( 'Export JSON', 'apollo-core' ); ?>
 			</button>
-			<button type="button" class="button" id="apollo-import-memberships-btn">
+			<button type="button" class="button" id="apollo-import-memberships-btn"
+				data-ap-tooltip="<?php esc_attr_e( 'Importar configurações de membership de arquivo JSON', 'apollo-core' ); ?>">
 				<?php esc_html_e( 'Import JSON', 'apollo-core' ); ?>
 			</button>
 		</p>
@@ -60,20 +63,22 @@ function apollo_render_membership_types_manager() {
 					$is_default   = isset( $defaults[ $slug ] );
 					$is_protected = 'nao-verificado' === $slug || $is_default;
 					?>
-					<tr data-membership-slug="<?php echo esc_attr( $slug ); ?>">
-						<td>
-							<div style="width: 30px; height: 30px; border-radius: 4px; background-color: <?php echo esc_attr( $data['color'] ); ?>; border: 1px solid #ddd;"></div>
+					<tr data-membership-slug="<?php echo esc_attr( $slug ); ?>" data-ap-tooltip="<?php echo esc_attr( sprintf( __( 'Tipo de membership: %s', 'apollo-core' ), $data['label'] ) ); ?>">
+						<td data-ap-tooltip="<?php esc_attr_e( 'Cor de fundo do badge', 'apollo-core' ); ?>">
+							<div style="width: 30px; height: 30px; border-radius: 4px; background-color: <?php echo esc_attr( $data['color'] ); ?>; border: 1px solid #ddd;" 
+								title="<?php echo esc_attr( $data['color'] ); ?>"></div>
 						</td>
-						<td><code><?php echo esc_html( $slug ); ?></code></td>
-						<td><?php echo esc_html( $data['label'] ); ?></td>
-						<td><?php echo esc_html( $data['frontend_label'] ); ?></td>
-						<td>
+						<td data-ap-tooltip="<?php esc_attr_e( 'Identificador único do tipo de membership', 'apollo-core' ); ?>"><code><?php echo esc_html( $slug ); ?></code></td>
+						<td data-ap-tooltip="<?php esc_attr_e( 'Rótulo interno (admin)', 'apollo-core' ); ?>"><?php echo esc_html( $data['label'] ); ?></td>
+						<td data-ap-tooltip="<?php esc_attr_e( 'Rótulo exibido no frontend', 'apollo-core' ); ?>"><?php echo esc_html( $data['frontend_label'] ); ?></td>
+						<td data-ap-tooltip="<?php esc_attr_e( 'Cor do texto do badge', 'apollo-core' ); ?>">
 							<div style="display: flex; align-items: center; gap: 8px;">
-								<div style="width: 20px; height: 20px; border-radius: 2px; background-color: <?php echo esc_attr( $data['text_color'] ); ?>; border: 1px solid #ddd;"></div>
+								<div style="width: 20px; height: 20px; border-radius: 2px; background-color: <?php echo esc_attr( $data['text_color'] ); ?>; border: 1px solid #ddd;" 
+									title="<?php echo esc_attr( $data['text_color'] ); ?>"></div>
 								<code><?php echo esc_html( $data['text_color'] ); ?></code>
 							</div>
 						</td>
-						<td>
+						<td data-ap-tooltip="<?php echo esc_attr( $is_protected ? __( 'Tipo padrão do sistema (não pode ser removido)', 'apollo-core' ) : __( 'Tipo personalizado (pode ser editado ou removido)', 'apollo-core' ) ); ?>">
 							<?php if ( $is_protected ) : ?>
 								<span class="badge" style="background: #2271b1; color: white; padding: 2px 8px; border-radius: 3px; font-size: 11px;">
 									<?php esc_html_e( 'Default', 'apollo-core' ); ?>
@@ -84,16 +89,21 @@ function apollo_render_membership_types_manager() {
 								</span>
 							<?php endif; ?>
 						</td>
-						<td>
+						<td data-ap-tooltip="<?php esc_attr_e( 'Ações disponíveis para este tipo', 'apollo-core' ); ?>">
 							<?php if ( ! $is_protected ) : ?>
-								<button type="button" class="button button-small apollo-edit-membership-btn" data-slug="<?php echo esc_attr( $slug ); ?>">
+								<button type="button" class="button button-small apollo-edit-membership-btn" 
+									data-slug="<?php echo esc_attr( $slug ); ?>"
+									data-ap-tooltip="<?php echo esc_attr( sprintf( __( 'Editar tipo de membership: %s', 'apollo-core' ), $data['label'] ) ); ?>">
 									<?php esc_html_e( 'Edit', 'apollo-core' ); ?>
 								</button>
-								<button type="button" class="button button-small apollo-delete-membership-btn" data-slug="<?php echo esc_attr( $slug ); ?>" style="color: #b32d2e;">
+								<button type="button" class="button button-small apollo-delete-membership-btn" 
+									data-slug="<?php echo esc_attr( $slug ); ?>" 
+									style="color: #b32d2e;"
+									data-ap-tooltip="<?php echo esc_attr( sprintf( __( 'Excluir tipo de membership: %s', 'apollo-core' ), $data['label'] ) ); ?>">
 									<?php esc_html_e( 'Delete', 'apollo-core' ); ?>
 								</button>
 							<?php else : ?>
-								<span style="color: #999;">—</span>
+								<span style="color: #999;" data-ap-tooltip="<?php esc_attr_e( 'Tipo padrão não pode ser editado', 'apollo-core' ); ?>">—</span>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -173,22 +183,53 @@ function apollo_render_membership_types_manager() {
 }
 
 /**
- * Render per-user membership selector in Moderate Users tab
+ * Render per-user badges selector in Moderate Users tab
+ * Supports multiple badges per user
  *
  * @param WP_User $user User object.
  */
 function apollo_render_user_membership_selector( $user ) {
 	$memberships = apollo_get_memberships();
-	$current     = apollo_get_user_membership( $user->ID );
 	$can_edit    = current_user_can( 'edit_apollo_users' );
+	
+	// Get current badges (new system: array)
+	$current_badges = get_user_meta( $user->ID, '_apollo_badges', true );
+	if ( empty( $current_badges ) || ! is_array( $current_badges ) ) {
+		// Fallback: legacy single membership
+		$legacy_membership = apollo_get_user_membership( $user->ID );
+		$current_badges    = ! empty( $legacy_membership ) && $legacy_membership !== 'nao-verificado' ? array( $legacy_membership ) : array();
+	}
+	$current_badges = array_map( 'sanitize_key', $current_badges );
+	
 	?>
-	<select class="apollo-user-membership-select" data-user-id="<?php echo esc_attr( $user->ID ); ?>" <?php disabled( ! $can_edit ); ?>>
-		<?php foreach ( $memberships as $slug => $data ) : ?>
-			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $current, $slug ); ?>>
-				<?php echo esc_html( $data['label'] ); ?>
-			</option>
-		<?php endforeach; ?>
-	</select>
+	<div class="apollo-user-badges-selector" data-user-id="<?php echo esc_attr( $user->ID ); ?>">
+		<div style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 300px;">
+			<?php foreach ( $memberships as $slug => $data ) : ?>
+				<?php
+				// Skip nao-verificado from badges (it's a default, not a badge)
+				if ( 'nao-verificado' === $slug ) {
+					continue;
+				}
+				$checked = in_array( $slug, $current_badges, true ) ? 'checked' : '';
+				?>
+				<label style="display: flex; align-items: center; gap: 4px; font-size: 12px; cursor: <?php echo $can_edit ? 'pointer' : 'default'; ?>;">
+					<input type="checkbox" 
+						class="apollo-badge-checkbox" 
+						value="<?php echo esc_attr( $slug ); ?>"
+						<?php echo esc_attr( $checked ); ?>
+						<?php disabled( ! $can_edit ); ?>
+						style="margin: 0;">
+					<span style="display: inline-block; width: 12px; height: 12px; border-radius: 2px; background-color: <?php echo esc_attr( $data['color'] ?? '#9AA0A6' ); ?>; border: 1px solid #ddd;"></span>
+					<span><?php echo esc_html( $data['frontend_label'] ?? $data['label'] ?? $slug ); ?></span>
+				</label>
+			<?php endforeach; ?>
+		</div>
+		<?php if ( empty( $memberships ) || count( $memberships ) === 1 && isset( $memberships['nao-verificado'] ) ) : ?>
+			<p class="description" style="margin-top: 5px; font-size: 11px; color: #666;">
+				<?php esc_html_e( 'Nenhum badge disponível. Configure tipos de membership primeiro.', 'apollo-core' ); ?>
+			</p>
+		<?php endif; ?>
+	</div>
 	<?php
 }
 
@@ -198,12 +239,12 @@ function apollo_render_user_membership_selector( $user ) {
  * @param string $hook Current admin page hook.
  */
 function apollo_enqueue_membership_admin_assets( $hook ) {
-	if ( 'toplevel_page_apollo-moderation' !== $hook ) {
+	if ( 'toplevel_page_apollo-mod' !== $hook ) {
 		return;
 	}
 
 	wp_add_inline_script(
-		'apollo-moderation-admin',
+		'apollo-mod-admin',
 		'
 		jQuery(document).ready(function($) {
 			const restUrl = "' . esc_url( rest_url( 'apollo/v1/' ) ) . '";
@@ -367,32 +408,38 @@ function apollo_enqueue_membership_admin_assets( $hook ) {
 				});
 			});
 
-			// User membership select change
-			$(".apollo-user-membership-select").on("change", function() {
-				const select = $(this);
-				const userId = select.data("user-id");
-				const membership = select.val();
+			// User badges checkbox change (multiple badges support)
+			$(".apollo-badge-checkbox").on("change", function() {
+				const checkbox = $(this);
+				const container = checkbox.closest(".apollo-user-badges-selector");
+				const userId = container.data("user-id");
+				
+				// Collect all checked badges
+				const badges = [];
+				container.find(".apollo-badge-checkbox:checked").each(function() {
+					badges.push($(this).val());
+				});
 
-				if (!confirm("' . esc_js( __( 'Change membership for this user?', 'apollo-core' ) ) . '")) {
-					select.val(select.find("option[selected]").val());
-					return;
-				}
-
+				// Save badges via REST API
 				$.ajax({
-					url: restUrl + "membros/definir",
+					url: restUrl + "membros/badges",
 					method: "POST",
 					headers: { "X-WP-Nonce": nonce },
 					data: {
 						user_id: userId,
-						membership_slug: membership
+						badges: badges
 					},
 					success: function(response) {
-						alert(response.message || "' . esc_js( __( 'Membership updated', 'apollo-core' ) ) . '");
-						location.reload();
+						// Silent update (no alert, just visual feedback)
+						container.css("background-color", "#d4edda");
+						setTimeout(function() {
+							container.css("background-color", "");
+						}, 500);
 					},
 					error: function(xhr) {
-						alert(xhr.responseJSON?.message || "' . esc_js( __( 'Error updating membership', 'apollo-core' ) ) . '");
-						select.val(select.find("option[selected]").val());
+						// Revert checkbox state on error
+						checkbox.prop("checked", !checkbox.prop("checked"));
+						alert(xhr.responseJSON?.message || "' . esc_js( __( 'Error updating badges', 'apollo-core' ) ) . '");
 					}
 				});
 			});

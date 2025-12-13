@@ -436,7 +436,7 @@ HTML;
 	private function findWkhtmltopdf(): ?string {
 		$paths = [
 			'/usr/bin/wkhtmltopdf',
-			'/usr/local/bin/wkhtmltopdf',
+			'/usr/loc/bin/wkhtmltopdf',
 			'wkhtmltopdf',
 		// System PATH
 		];

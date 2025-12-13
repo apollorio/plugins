@@ -37,7 +37,8 @@ $steps = $steps ?? array(
 		</button>
 	</header>
 	<ol class="space-y-4">
-		<?php foreach ( $steps as $index => $step ) :
+		<?php
+		foreach ( $steps as $index => $step ) :
 			$variant = $step['variant'] ?? 'up-next';
 			$colors  = array(
 				'done'    => 'bg-emerald-400 text-slate-900',

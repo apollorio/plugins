@@ -709,7 +709,7 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		// Configure Co-Authors Plus support
-		add_action( 'init', array( $this, 'configure_coauthors_support' ), 20 );
+		add_action( 'init', array( $this, 'configure_gestao_support' ), 20 );
 
 		// Migrate legacy meta keys (run once on admin_init)
 		add_action( 'admin_init', array( $this, 'migrate_legacy_meta_keys' ), 5 );
@@ -1061,7 +1061,7 @@ class Apollo_Events_Manager_Plugin {
 		}
 
 		// FORCE MOD EVENTS TEMPLATE
-		// Page with slug 'mod-events' uses moderation template
+		// Page with slug 'mod-events' uses mod template
 		if ( is_page( 'mod-events' ) ) {
 			$plugin_template = APOLLO_APRIO_PATH . 'templates/page-mod-events.php';
 			if ( file_exists( $plugin_template ) ) {
@@ -2575,7 +2575,7 @@ class Apollo_Events_Manager_Plugin {
 	 * Returns HTML for the lightbox modal
 	 */
 	/**
-	 * AJAX: Approve event (moderation)
+	 * AJAX: Approve event (mod)
 	 */
 	public function ajax_mod_approve_event() {
 		// SECURITY: Verify nonce with proper unslashing
@@ -2585,7 +2585,7 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		// Check capabilities for moderation
+		// Check capabilities for mod
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_event_listings' ) ) {
 			wp_send_json_error( __( 'Você não tem permissão para aprovar eventos.', 'apollo-events-manager' ), 403 );
 			return;
@@ -2624,7 +2624,7 @@ class Apollo_Events_Manager_Plugin {
 	}
 
 	/**
-	 * AJAX: Reject event (moderation)
+	 * AJAX: Reject event (mod)
 	 */
 	public function ajax_mod_reject_event() {
 		// SECURITY: Verify nonce with proper unslashing
@@ -2634,7 +2634,7 @@ class Apollo_Events_Manager_Plugin {
 			return;
 		}
 
-		// Check capabilities for moderation
+		// Check capabilities for mod
 		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_event_listings' ) ) {
 			wp_send_json_error( __( 'Você não tem permissão para rejeitar eventos.', 'apollo-events-manager' ), 403 );
 			return;
@@ -3276,7 +3276,7 @@ class Apollo_Events_Manager_Plugin {
 	/**
 	 * Configure Co-Authors Plus support for event_listing and event_dj
 	 */
-	public function configure_coauthors_support() {
+	public function configure_gestao_support() {
 		// Check if Co-Authors Plus is active
 		if ( ! function_exists( 'coauthors_support_theme' ) ) {
 			// Plugin not active, log warning only in debug mode
@@ -3295,7 +3295,7 @@ class Apollo_Events_Manager_Plugin {
 		// Register event_listing with Co-Authors Plus
 		if ( function_exists( 'coauthors_plus_init' ) ) {
 			// Ensure Co-Authors Plus recognizes our post types
-			add_filter( 'coauthors_supported_post_types', array( $this, 'add_coauthors_supported_post_types' ) );
+			add_filter( 'coauthors_supported_post_types', array( $this, 'add_gestao_supported_post_types' ) );
 		}
 
 		// Log success
@@ -3307,7 +3307,7 @@ class Apollo_Events_Manager_Plugin {
 	/**
 	 * Add Apollo post types to Co-Authors Plus supported types
 	 */
-	public function add_coauthors_supported_post_types( $post_types ) {
+	public function add_gestao_supported_post_types( $post_types ) {
 		if ( ! is_array( $post_types ) ) {
 			$post_types = array();
 		}
@@ -3713,7 +3713,7 @@ class Apollo_Events_Manager_Plugin {
 								<thead>
 									<tr>
 										<th><?php echo esc_html__( 'User', 'apollo-events-manager' ); ?></th>
-										<th><?php echo esc_html__( 'Co-Author', 'apollo-events-manager' ); ?></th>
+										<th><?php echo esc_html__( 'Gestão', 'apollo-events-manager' ); ?></th>
 										<th><?php echo esc_html__( 'Favorited', 'apollo-events-manager' ); ?></th>
 										<th><?php echo esc_html__( 'Total', 'apollo-events-manager' ); ?></th>
 									</tr>
@@ -3734,7 +3734,7 @@ class Apollo_Events_Manager_Plugin {
 														</div>
 													</div>
 												</td>
-												<td><span class="apollo-badge"><?php echo esc_html( number_format_i18n( $user_data['coauthor_count'] ) ); ?></span></td>
+												<td><span class="apollo-badge"><?php echo esc_html( number_format_i18n( $user_data['gestao_count'] ) ); ?></span></td>
 												<td><span class="apollo-badge"><?php echo esc_html( number_format_i18n( $user_data['favorited_count'] ) ); ?></span></td>
 												<td><span class="apollo-badge apollo-badge-primary"><?php echo esc_html( number_format_i18n( $user_data['total_interactions'] ) ); ?></span></td>
 											</tr>
@@ -4173,8 +4173,8 @@ class Apollo_Events_Manager_Plugin {
 			<h2><?php echo esc_html__( 'User Statistics', 'apollo-events-manager' ); ?></h2>
 			<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
 				<div class="card">
-					<h3><?php echo esc_html__( 'Co-Author Events', 'apollo-events-manager' ); ?></h3>
-					<p style="font-size: 32px; font-weight: bold; margin: 0;"><?php echo esc_html( number_format_i18n( $stats['coauthor_count'] ) ); ?></p>
+					<h3><?php echo esc_html__( 'Eventos em Gestão', 'apollo-events-manager' ); ?></h3>
+					<p style="font-size: 32px; font-weight: bold; margin: 0;"><?php echo esc_html( number_format_i18n( $stats['gestao_count'] ) ); ?></p>
 				</div>
 				<div class="card">
 					<h3><?php echo esc_html__( 'Favorited Events', 'apollo-events-manager' ); ?></h3>
@@ -4265,8 +4265,8 @@ class Apollo_Events_Manager_Plugin {
 
 			<div class="apollo-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0;">
 				<div class="apollo-stat-card" style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
-					<strong><?php echo esc_html__( 'Co-Author Events', 'apollo-events-manager' ); ?></strong>
-					<p style="font-size: 24px; margin: 10px 0 0 0; font-weight: bold;"><?php echo esc_html( number_format_i18n( $stats['coauthor_count'] ) ); ?></p>
+					<strong><?php echo esc_html__( 'Eventos em Gestão', 'apollo-events-manager' ); ?></strong>
+					<p style="font-size: 24px; margin: 10px 0 0 0; font-weight: bold;"><?php echo esc_html( number_format_i18n( $stats['gestao_count'] ) ); ?></p>
 				</div>
 				<div class="apollo-stat-card" style="background: #f5f5f5; padding: 15px; border-radius: 5px;">
 					<strong><?php echo esc_html__( 'Favorited Events', 'apollo-events-manager' ); ?></strong>
@@ -4581,7 +4581,7 @@ class Apollo_Events_Manager_Plugin {
 		);
 
 		// FASE 2: Co-autores (sanitizados)
-		$co_authors = isset( $_POST['event_co_authors'] ) && is_array( $_POST['event_co_authors'] ) ? array_map( 'absint', $_POST['event_co_authors'] ) : array();
+		$gestao = isset( $_POST['event_gestao'] ) && is_array( $_POST['event_gestao'] ) ? array_map( 'absint', $_POST['event_gestao'] ) : array();
 
 		// Validações
 		if ( empty( $title ) ) {
@@ -4671,9 +4671,9 @@ class Apollo_Events_Manager_Plugin {
 				apollo_update_post_meta( $post_id, '_event_dj_ids', $dj_ids );
 			}
 
-			// FASE 2: Co-autores
-			if ( ! empty( $co_authors ) ) {
-				apollo_update_post_meta( $post_id, '_event_co_authors', $co_authors );
+			// FASE 2: Gestão
+			if ( ! empty( $gestao ) ) {
+				apollo_update_post_meta( $post_id, '_event_gestao', $gestao );
 			}
 
 			// FASE 2: Links
@@ -4787,8 +4787,8 @@ class Apollo_Events_Manager_Plugin {
 		$local_id   = $is_edit ? apollo_get_post_meta( $event_id, '_event_local_ids', true ) : ( isset( $_POST['event_local'] ) ? absint( $_POST['event_local'] ) : 0 );
 		$dj_ids     = $is_edit ? apollo_get_post_meta( $event_id, '_event_dj_ids', true ) : ( isset( $_POST['event_djs'] ) ? array_map( 'absint', $_POST['event_djs'] ) : array() );
 		$dj_ids     = is_array( $dj_ids ) ? $dj_ids : array();
-		$co_authors = $is_edit ? apollo_get_post_meta( $event_id, '_event_co_authors', true ) : ( isset( $_POST['event_co_authors'] ) ? array_map( 'absint', $_POST['event_co_authors'] ) : array() );
-		$co_authors = is_array( $co_authors ) ? $co_authors : array();
+		$gestao = $is_edit ? apollo_get_post_meta( $event_id, '_event_gestao', true ) : ( isset( $_POST['event_gestao'] ) ? array_map( 'absint', $_POST['event_gestao'] ) : array() );
+		$gestao = is_array( $gestao ) ? $gestao : array();
 
 		// Links
 		$links = array(
@@ -5054,18 +5054,18 @@ class Apollo_Events_Manager_Plugin {
 
 				<!-- FASE 2: Co-autores -->
 				<div>
-					<label for="event_co_authors" class="block text-sm font-medium mb-2">
+					<label for="event_gestao" class="block text-sm font-medium mb-2">
 						<?php esc_html_e( 'Colaboradores / Co-autores', 'apollo-events-manager' ); ?> <span class="text-gray-500 text-xs">(<?php esc_html_e( 'Opcional', 'apollo-events-manager' ); ?>)</span>
 					</label>
 					<select
 						multiple
-						id="event_co_authors"
-						name="event_co_authors[]"
+						id="event_gestao"
+						name="event_gestao[]"
 						size="6"
 						class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
 						<?php
 						foreach ( $all_users as $user ) {
-							$selected = in_array( $user->ID, $co_authors ) ? 'selected' : '';
+							$selected = in_array( $user->ID, $gestao ) ? 'selected' : '';
 							echo '<option value="' . esc_attr( $user->ID ) . '" ' . $selected . '>' . esc_html( $user->display_name . ' (' . $user->user_email . ')' ) . '</option>';
 						}
 						?>
@@ -6113,7 +6113,7 @@ function apollo_events_manager_activate() {
 			}//end if
 		}//end if
 
-		// Create /locais/ page if shortcode exists
+		// Create /loc/ page if shortcode exists
 		if ( shortcode_exists( 'event_locals' ) || shortcode_exists( 'locals_listing' ) ) {
 			$locais_page = get_page_by_path( 'locais' );
 			if ( ! $locais_page ) {
@@ -6134,10 +6134,10 @@ function apollo_events_manager_activate() {
 				);
 
 				if ( $locais_page_id && ! is_wp_error( $locais_page_id ) ) {
-					error_log( '✅ Apollo: Created /locais/ page (ID: ' . $locais_page_id . ')' );
+					error_log( '✅ Apollo: Created /loc/ page (ID: ' . $locais_page_id . ')' );
 				}
 			} else {
-				error_log( '✅ Apollo: /locais/ page already exists (ID: ' . $locais_page->ID . ')' );
+				error_log( '✅ Apollo: /loc/ page already exists (ID: ' . $locais_page->ID . ')' );
 			}//end if
 		}//end if
 

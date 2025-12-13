@@ -1,0 +1,771 @@
+<!--
+  @template: docs-editor
+  @name: Apollo Word Editor
+  @versi
+
+    <!-- UNI.CSS Global Design System -->
+    <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+    <script src="https://assets.apollo.rio.br/base.js" defer></script>
+    
+    <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Default Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --apollo-primary: rgb(237, 73, 4);
+            --apollo-bg: #f0f2f5;
+            --paper-width: 210mm;
+            --paper-height: 297mm;
+            --toolbar-height: 70px;
+        }
+        
+        body {
+            font-family: system-ui, sans-serif;
+            background-color: var(--apollo-bg);
+            color: #1a1a1a;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+margin: 0; padding: 0; font-size:18px;font-weight:400;
+        }
+        
+        /* --- Top Navigation Bar --- */
+        .apollo-navbar {
+            height: 50px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .ripple-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--apollo-primary);
+            border-radius: 50%;
+            position: relative;
+            margin-right: 15px;
+            animation: rippleShadow 2s infinite ease-out;
+        }
+        
+        @keyframes rippleShadow {
+            0% { box-shadow: 0 0 0 0 rgba(237, 73, 4, 0.6); }
+            100% { box-shadow: 0 0 0 12px rgba(237, 73, 4, 0); }
+        }
+        
+        .file-name {
+            margin-left: 10px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            padding: 2px 8px;
+            border-radius: 4px;
+            outline: none;
+            min-width: 200px;
+        }
+        
+        .file-name:hover, .file-name:focus {
+            border-color: #e0e0e0;
+            background: #f9f9f9;
+        }
+        
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .save-status {
+            font-size: 19px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .save-status.saving { color: #f39c12; }
+        .save-status.saved { color: #27ae60; }
+        .save-status.error { color: #e74c3c; }
+        
+        .btn-navbar {
+            padding: 3px 5px;
+            border: 0px solid #ddd;
+            background: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+          & span, i, .ico {font-size:19px}
+         }
+        #save-text {font-size:10px!important;}
+        .btn-navbar:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+          
+        }
+        
+        .btn-navbar.primary {
+            background: #0f172a;
+            color: #fff;
+            border-color: #0f172a;
+        }
+        
+        .btn-navbar.primary:hover {
+            background: #1e293b;
+        }
+        
+        /* --- Editor Toolbar --- */
+        .editor-toolbar {
+            background: #fff;
+            padding: 10px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-right: 12px;
+            border-right: 1px solid #eee;
+        }
+        
+        .tool-group:last-child {
+            border-right: none;
+        }
+        
+        .form-select-sm {
+            border-radius: 4px;
+            border-color: #ddd;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        #fontSelector { width: 180px; }
+        #fontWeight { width: 130px; }
+        #fontSize { width: 70px; }
+        
+        .btn-tool {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            background: transparent;
+            border-radius: 4px;
+            color: #555;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .btn-tool:hover {
+            background: #f5f5f5;
+            border-color: #ddd;
+        }
+        
+        .btn-tool.active {
+            background: rgba(237, 73, 4,.02);
+            color: var(--apollo-primary);
+            border-color: rgba(237, 73, 4,.1);
+        }
+        
+        .btn-tool .material-symbols-rounded {
+            font-size: 20px;
+        }
+        
+        #textColor {
+            width: 32px;
+            height: 32px;
+            padding: 2px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        
+        /* --- Main Workspace --- */
+        .workspace {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .document-page {
+            background: white;
+            width: var(--paper-width);
+            min-height: var(--paper-height);
+            padding: 25mm;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 40px;
+            outline: none;
+            line-height: 1.6;
+        }
+        
+        .document-page:focus {
+            outline: none;
+        }
+        
+        .document-page h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .document-page h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .document-page h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .document-page p {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #444;
+        }
+        
+        .active-element::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--apollo-primary);
+            opacity: 0.5;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #bbb; }
+        
+        /* Print / PDF Styles */
+        @media print {
+            .apollo-navbar, .editor-toolbar { display: none !important; }
+            .workspace { padding: 0; overflow: visible; }
+            .document-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 20mm;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .document-page {
+                width: 100%;
+                padding: 20px;
+            }
+            .navbar-actions .btn-navbar span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- @section:navbar -->
+    <div class="apollo-navbar">
+        <div class="brand">
+            <div class="ripple-dot"></div>
+            <span>Apollo::Rio</span>
+            <span class="mx-2" style="color: #ccc;">/</span>
+            <span class="file-name" contenteditable="true" id="document-title">{{document.title}}</span>
+        </div>
+        
+        <div class="navbar-actions">
+            <span class="save-status" id="save-status">
+                <span class="material-symbols-rounded" style="font-size: 16px;">cloud_done</span>
+                <span id="save-text">Salvo</span>
+            </span>
+            
+            <button class="btn-navbar" onclick="window.location.href='/sign'" title="Voltar">
+                <span class="material-symbols-rounded">arrow_back</span>
+                <span>Voltar</span>
+            </button>
+            
+            <button class="btn-navbar" id="btn-save" title="Salvar">
+                <i class="ri-save-3-fill ico"></i>
+            </button>
+            
+            <button class="btn-navbar primary" id="btn-export-pdf" title="Exportar PDF">
+                <i class="ri-file-pdf-2-line ico"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- @section:toolbar -->
+    <div class="editor-toolbar">
+        <!-- Font Family -->
+        <div class="tool-group">
+            <select id="fontSelector" class="form-select form-select-sm" title="Fonte">
+                <option value="Poppins">Poppins</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lato">Lato</option>
+                <option value="Inter">Inter</option>
+                <option value="Oswald">Oswald</option>
+                <option value="Raleway">Raleway</option>
+                <option value="Nunito">Nunito</option>
+                <option value="Ubuntu">Ubuntu</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="PT Sans">PT Sans</option>
+                <option value="Work Sans">Work Sans</option>
+                <option value="DM Sans">DM Sans</option>
+                <option value="Fira Sans">Fira Sans</option>
+                <option value="Quicksand">Quicksand</option>
+                <option value="Barlow">Barlow</option>
+                <option value="Manrope">Manrope</option>
+                <option value="IBM Plex Sans">IBM Plex Sans</option>
+                <option value="Bebas Neue">Bebas Neue</option>
+                <option value="Josefin Sans">Josefin Sans</option>
+                <option value="Source Sans 3">Source Sans 3</option>
+            </select>
+        </div>
+        
+        <!-- Weight & Size -->
+        <div class="tool-group">
+            <select id="fontWeight" class="form-select form-select-sm" title="Peso">
+                <option value="300">Light (300)</option>
+                <option value="400" selected>Regular (400)</option>
+                <option value="500">Medium (500)</option>
+                <option value="600">Semi Bold (600)</option>
+                <option value="700">Bold (700)</option>
+                <option value="800">Extra Bold (800)</option>
+            </select>
+            <select id="fontSize" class="form-select form-select-sm" title="Tamanho">
+                <option value="10px">10</option>
+                <option value="12px">12</option>
+                <option value="14px" selected>14</option>
+                <option value="16px">16</option>
+                <option value="18px">18</option>
+                <option value="20px">20</option>
+                <option value="24px">24</option>
+                <option value="28px">28</option>
+                <option value="32px">32</option>
+                <option value="36px">36</option>
+                <option value="48px">48</option>
+            </select>
+        </div>
+        
+        <!-- Formatting -->
+        <div class="tool-group">
+            <button id="styleBold" class="btn-tool" title="Negrito (Ctrl+B)">
+                <span class="material-symbols-rounded">format_bold</span>
+            </button>
+            <button id="styleItalic" class="btn-tool" title="Itálico (Ctrl+I)">
+                <span class="material-symbols-rounded">format_italic</span>
+            </button>
+            <button id="styleUnderline" class="btn-tool" title="Sublinhado (Ctrl+U)">
+                <span class="material-symbols-rounded">format_underlined</span>
+            </button>
+            <input type="color" id="textColor" title="Cor do texto" value="#000000">
+        </div>
+        
+        <!-- Alignment -->
+        <div class="tool-group">
+            <button id="alignLeft" class="btn-tool alignment-btn active" title="Alinhar à esquerda">
+                <span class="material-symbols-rounded">format_align_left</span>
+            </button>
+            <button id="alignCenter" class="btn-tool alignment-btn" title="Centralizar">
+                <span class="material-symbols-rounded">format_align_center</span>
+            </button>
+            <button id="alignRight" class="btn-tool alignment-btn" title="Alinhar à direita">
+                <span class="material-symbols-rounded">format_align_right</span>
+            </button>
+            <button id="alignJustify" class="btn-tool alignment-btn" title="Justificar">
+                <span class="material-symbols-rounded">format_align_justify</span>
+            </button>
+        </div>
+        
+        <!-- Insert -->
+        <div class="tool-group">
+            <button id="insertHeading" class="btn-tool" title="Inserir título">
+                <span class="material-symbols-rounded">title</span>
+            </button>
+            <button id="insertList" class="btn-tool" title="Inserir lista">
+                <span class="material-symbols-rounded">format_list_bulleted</span>
+            </button>
+            <button id="insertTable" class="btn-tool" title="Inserir tabela">
+                <span class="material-symbols-rounded">table_chart</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- @section:workspace -->
+    <div id="main" class="workspace">
+        <div class="document-page" contenteditable="true" spellcheck="true" id="editor-content">
+            {{#if is_new}}
+            <h1>Novo Documento</h1>
+            <p>Comece a escrever seu documento aqui...</p>
+            {{else}}
+            {{{document.content}}}
+            {{/if}}
+        </div>
+    </div>
+    
+    <!-- Hidden form data -->
+    <input type="hidden" id="document-id" value="{{document.id}}">
+    <input type="hidden" id="document-file-id" value="{{document.file_id}}">
+    <input type="hidden" id="ajax-nonce" value="{{nonce}}">
+    <input type="hidden" id="ajax-url" value="{{ajax_url}}">
+
+    <script>
+    (function($) {
+        'use strict';
+        
+        // Configuration
+        const config = {
+            documentId: $('#document-id').val() || null,
+            fileId: $('#document-file-id').val() || null,
+            nonce: $('#ajax-nonce').val(),
+            ajaxUrl: $('#ajax-url').val() || '/wp-admin/admin-ajax.php',
+            autosaveInterval: 2000
+        };
+        
+        // State
+        let activeElement = null;
+        let saveTimeout = null;
+        let isDirty = false;
+        let loadedFonts = new Set(['system-ui', 'apple-system']);
+        
+        // Google Fonts loader
+        function loadGoogleFont(font) {
+            if (loadedFonts.has(font)) return;
+            
+            const fontQuery = font.replace(/ /g, '+');
+            const url = `https://fonts.googleapis.com/css2?family=${fontQuery}:wght@300;400;500;600;700;800&display=swap`;
+            
+            $('head').append(`<link rel="stylesheet" href="${url}" class="dynamic-font">`);
+            loadedFonts.add(font);
+        }
+        
+        // Save status UI
+        function updateSaveStatus(status, text) {
+            const $status = $('#save-status');
+            const $text = $('#save-text');
+            const $icon = $status.find('.material-symbols-rounded');
+            
+            $status.removeClass('saving saved error');
+            
+            switch(status) {
+                case 'saving':
+                    $status.addClass('saving');
+                    $icon.text('sync');
+                    $text.text(text || 'Salvando...');
+                    break;
+                case 'saved':
+                    $status.addClass('saved');
+                    $icon.text('cloud_done');
+                    $text.text(text || 'Salvo');
+                    break;
+                case 'error':
+                    $status.addClass('error');
+                    $icon.text('error');
+                    $text.text(text || 'Erro ao salvar');
+                    break;
+            }
+        }
+        
+        // Mark as dirty (needs save)
+        function markDirty() {
+            isDirty = true;
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(autoSave, config.autosaveInterval);
+        }
+        
+        // Auto-save function
+        function autoSave() {
+            if (!isDirty) return;
+            
+            updateSaveStatus('saving');
+            
+            const data = {
+                action: 'apollo_save_document',
+                nonce: config.nonce,
+                document_id: config.documentId,
+                title: $('#document-title').text().trim(),
+                content: $('#editor-content').html()
+            };
+            
+            $.post(config.ajaxUrl, data)
+                .done(function(response) {
+                    if (response.success) {
+                        isDirty = false;
+                        config.documentId = response.data.document_id;
+                        config.fileId = response.data.file_id;
+                        updateSaveStatus('saved');
+                        
+                        // Update URL if new document
+                        if (response.data.is_new && response.data.file_id) {
+                            window.history.replaceState({}, '', '/doc/' + response.data.file_id);
+                        }
+                    } else {
+                        updateSaveStatus('error', response.data?.message || 'Erro');
+                    }
+                })
+                .fail(function() {
+                    updateSaveStatus('error', 'Falha na conexão');
+                });
+        }
+        
+        // Export PDF
+        function exportPDF() {
+            updateSaveStatus('saving', 'Gerando PDF...');
+            
+            const data = {
+                action: 'apollo_export_pdf',
+                nonce: config.nonce,
+                document_id: config.documentId,
+                title: $('#document-title').text().trim(),
+                content: $('#editor-content').html()
+            };
+            
+            $.post(config.ajaxUrl, data)
+                .done(function(response) {
+                    if (response.success && response.data.pdf_url) {
+                        updateSaveStatus('saved', 'PDF gerado!');
+                        // Open PDF in new tab
+                        window.open(response.data.pdf_url, '_blank');
+                    } else {
+                        updateSaveStatus('error', response.data?.message || 'Erro ao gerar PDF');
+                    }
+                })
+                .fail(function() {
+                    updateSaveStatus('error', 'Falha ao gerar PDF');
+                });
+        }
+        
+        // Apply style to selection/element
+        function applyStyle(property, value) {
+            document.execCommand('styleWithCSS', false, true);
+            
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && !selection.isCollapsed) {
+                // Apply to selection
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style[property] = value;
+                range.surroundContents(span);
+            } else if (activeElement) {
+                // Apply to active element
+                $(activeElement).css(property, value);
+            }
+            
+            markDirty();
+        }
+        
+        // Initialize
+        $(document).ready(function() {
+            
+            // Select element on click
+            $('#editor-content').on('click', 'h1, h2, h3, p, li, td, th, span, div', function(e) {
+                e.stopPropagation();
+                
+                $('.document-page *').removeClass('active-element');
+                $(this).addClass('active-element');
+                activeElement = this;
+                
+                // Update toolbar to reflect current styles
+                const $el = $(this);
+                const fontFamily = $el.css('font-family').split(',')[0].replace(/['"]/g, '');
+                const fontSize = $el.css('font-size');
+                const fontWeight = $el.css('font-weight');
+                const color = rgbToHex($el.css('color'));
+                const textAlign = $el.css('text-align');
+                
+                $('#fontSelector').val(fontFamily);
+                $('#fontSize').val(fontSize);
+                $('#fontWeight').val(fontWeight);
+                $('#textColor').val(color);
+                
+                $('.alignment-btn').removeClass('active');
+                $(`#align${textAlign.charAt(0).toUpperCase() + textAlign.slice(1)}`).addClass('active');
+            });
+            
+            // Input events for auto-save
+            $('#editor-content').on('input', markDirty);
+            $('#document-title').on('input', markDirty);
+            
+            // Font selector
+            $('#fontSelector').on('change', function() {
+                const font = $(this).val();
+                loadGoogleFont(font);
+                applyStyle('fontFamily', `"${font}", sans-serif`);
+            });
+            
+            // Font weight
+            $('#fontWeight').on('change', function() {
+                applyStyle('fontWeight', $(this).val());
+            });
+            
+            // Font size
+            $('#fontSize').on('change', function() {
+                applyStyle('fontSize', $(this).val());
+            });
+            
+            // Text color
+            $('#textColor').on('input', function() {
+                applyStyle('color', $(this).val());
+            });
+            
+            // Bold
+            $('#styleBold').on('click', function() {
+                document.execCommand('bold', false, null);
+                $(this).toggleClass('active');
+                markDirty();
+            });
+            
+            // Italic
+            $('#styleItalic').on('click', function() {
+                document.execCommand('italic', false, null);
+                $(this).toggleClass('active');
+                markDirty();
+            });
+            
+            // Underline
+            $('#styleUnderline').on('click', function() {
+                document.execCommand('underline', false, null);
+                $(this).toggleClass('active');
+                markDirty();
+            });
+            
+            // Alignment
+            $('#alignLeft, #alignCenter, #alignRight, #alignJustify').on('click', function() {
+                const align = $(this).attr('id').replace('align', '').toLowerCase();
+                document.execCommand('justify' + align.charAt(0).toUpperCase() + align.slice(1), false, null);
+                
+                $('.alignment-btn').removeClass('active');
+                $(this).addClass('active');
+                markDirty();
+            });
+            
+            // Insert heading
+            $('#insertHeading').on('click', function() {
+                document.execCommand('formatBlock', false, 'h2');
+                markDirty();
+            });
+            
+            // Insert list
+            $('#insertList').on('click', function() {
+                document.execCommand('insertUnorderedList', false, null);
+                markDirty();
+            });
+            
+            // Insert table
+            $('#insertTable').on('click', function() {
+                const table = `<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 1</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 2</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">Coluna 3</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Valor 1</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Valor 2</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Valor 3</td>
+                    </tr>
+                </table>`;
+                document.execCommand('insertHTML', false, table);
+                markDirty();
+            });
+            
+            // Save button
+            $('#btn-save').on('click', function() {
+                isDirty = true;
+                autoSave();
+            });
+            
+            // Export PDF button
+            $('#btn-export-pdf').on('click', exportPDF);
+            
+            // Keyboard shortcuts
+            $(document).on('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key.toLowerCase()) {
+                        case 's':
+                            e.preventDefault();
+                            isDirty = true;
+                            autoSave();
+                            break;
+                        case 'b':
+                            e.preventDefault();
+                            $('#styleBold').click();
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            $('#styleItalic').click();
+                            break;
+                        case 'u':
+                            e.preventDefault();
+                            $('#styleUnderline').click();
+                            break;
+                    }
+                }
+            });
+            
+            // Warn before leaving with unsaved changes
+            $(window).on('beforeunload', function() {
+                if (isDirty) {
+                    return 'Você tem alterações não salvas. Deseja sair?';
+                }
+            });
+        });
+        
+        // Helper: RGB to Hex
+        function rgbToHex(rgb) {
+            if (!rgb || rgb === 'rgba(0, 0, 0, 0)') return '#000000';
+            const result = rgb.match(/\d+/g);
+            if (!result) return '#000000';
+            return '#' + ((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1).toUpperCase();
+        }
+        
+    })(jQuery);
+    </script>
+</body>
+</html>
+

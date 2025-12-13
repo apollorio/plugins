@@ -360,17 +360,17 @@ define( 'APOLLO_DEMOISELLE_CRL_CHECK', true );
 					</thead>
 					<tbody>
 						<tr>
-							<td><code>/wp-json/apollo-social/v1/documents/{id}/sign</code></td>
+							<td><code>/wp-json/apollo-social/v1/doc/{id}/sign</code></td>
 							<td>POST</td>
 							<td><?php esc_html_e( 'Assinar documento', 'apollo-social' ); ?></td>
 						</tr>
 						<tr>
-							<td><code>/wp-json/apollo-social/v1/documents/{id}/signatures</code></td>
+							<td><code>/wp-json/apollo-social/v1/doc/{id}/signatures</code></td>
 							<td>GET</td>
 							<td><?php esc_html_e( 'Listar assinaturas', 'apollo-social' ); ?></td>
 						</tr>
 						<tr>
-							<td><code>/wp-json/apollo-social/v1/documents/{id}/verify</code></td>
+							<td><code>/wp-json/apollo-social/v1/doc/{id}/verify</code></td>
 							<td>POST</td>
 							<td><?php esc_html_e( 'Verificar assinatura', 'apollo-social' ); ?></td>
 						</tr>

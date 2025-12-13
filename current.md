@@ -14,13 +14,13 @@
 ## Opções relevantes
 - Versão/flags: `apollo_aprio_version`, `apollo_events_auto_create_eventos_page`, `apollo_events_manager_activated_version`, `apollo_events_manager_missing_core`.
 - JWT/REST: `apollo_jwt_secret`, `aprio_rest_api_version`, `aprio_rest_api_app_name/logo/splash`, `aprio_app_branding_settings/_dark`, paleta `aprio_*_color`, `aprio_active_mode`.
-- Matchmaking: `enable_matchmaking`, `participant_activation`, `aprio_meeting_*`.
+- Matchmaking: `enable_compatibilidade`, `participant_activation`, `aprio_meeting_*`.
 - Unidades: `aprio_weight_unit`, `aprio_dimension_unit`.
 - Permissões/licenças: `aprio_rest_allowed_roles`, `<plugin>_licence_key`.
 
 ## Endpoints REST carregados (namespace `apollo/v1`)
 - Eventos: `GET /eventos`, `GET /evento/{id}`, `GET /categorias`, `GET /locais`, `GET /my-events`.
-- Bookmarks: `GET /bookmarks`, `POST /bookmarks/{id}`.
+- Bookmarks: `GET /salvos`, `POST /salvos/{id}`.
 - Dashboard/analytics: `GET|POST /estatisticas`, `GET|POST /likes`, `GET|POST /technotes/{venue_id}`.
 
 ## Endpoints AJAX

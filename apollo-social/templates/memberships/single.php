@@ -200,7 +200,7 @@ get_header();
 
 <div class="ap-page ap-page-membership-single">
 	<!-- Hero Section -->
-	<header class="ap-hero ap-hero-sm" style="background: linear-gradient(135deg, <?php echo esc_attr( $membership['color'] ); ?>20, var(--ap-bg-surface));">
+	<header class="ap-hero ap-hero-sm" style="background: linear-gradient(135deg, <?php echo esc_attr( $membership['color'] ); ?>20, var((--bg-main)-surface));">
 		<div class="ap-container">
 			<div class="ap-breadcrumb">
 				<a href="<?php echo esc_url( home_url() ); ?>" data-ap-tooltip="Voltar ao início">

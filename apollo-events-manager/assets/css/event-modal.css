@@ -249,6 +249,21 @@ body.apollo-modal-open {
     }
 }
 
+/* Optional visual zoom wrapper for event maps */
+.ap-map-zoom-wrapper {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 16px;
+}
+
+.ap-map-zoom-wrapper .leaflet-container {
+    transform: scale(1.2);
+    transform-origin: center center;
+    /* Uncomment to disable interaction entirely */
+    /* pointer-events: none; */
+}
+
 /* Responsive: Tablet - 2 cards per row */
 @media (min-width: 641px) and (max-width: 1024px) {
     .event_listings.card-view .event_listing {

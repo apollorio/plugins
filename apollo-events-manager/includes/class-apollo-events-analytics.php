@@ -93,12 +93,12 @@ function apollo_get_user_favorited_events( $user_id = null ) {
 }
 
 /**
- * Get events where user is co-author
+ * Get events where user is in gestão
  *
  * @param int|null $user_id User ID (defaults to current user)
  * @return array Array of event post IDs
  */
-function apollo_get_user_coauthor_events( $user_id = null ) {
+function apollo_get_user_gestao_events( $user_id = null ) {
 	if ( ! $user_id ) {
 		$user_id = get_current_user_id();
 	}
@@ -107,14 +107,14 @@ function apollo_get_user_coauthor_events( $user_id = null ) {
 		return array();
 	}
 
-	// Query events where user is in _apollo_coauthors meta
+	// Query events where user is in _event_gestao meta
 	$args = array(
 		'post_type'      => 'event_listing',
 		'posts_per_page' => -1,
 		'post_status'    => 'publish',
 		'meta_query'     => array(
 			array(
-				'key'     => '_apollo_coauthors',
+				'key'     => '_event_gestao',
 				'value'   => $user_id,
 				'compare' => 'LIKE',
 			),
@@ -289,22 +289,22 @@ function apollo_get_user_event_stats( $user_id ) {
 	$stats = array(
 		'user_id'                => $user_id,
 		'user_name'              => $user->display_name,
-		'coauthor_count'         => 0,
+		'gestao_count'         => 0,
 		'favorited_count'        => 0,
 		'sounds_distribution'    => array(),
 		'locations_distribution' => array(),
 	);
 
-	// Get co-author events
-	$coauthor_events         = apollo_get_user_coauthor_events( $user_id );
-	$stats['coauthor_count'] = count( $coauthor_events );
+	// Get gestão events
+	$gestao_events         = apollo_get_user_gestao_events( $user_id );
+	$stats['gestao_count'] = count( $gestao_events );
 
 	// Get favorited events
 	$favorited_events         = apollo_get_user_favorited_events( $user_id );
 	$stats['favorited_count'] = count( $favorited_events );
 
 	// Combine events for distribution analysis
-	$all_user_events = array_unique( array_merge( $coauthor_events, $favorited_events ) );
+	$all_user_events = array_unique( array_merge( $gestao_events, $favorited_events ) );
 
 	if ( empty( $all_user_events ) ) {
 		return $stats;
@@ -409,16 +409,16 @@ function apollo_get_top_users_by_interactions( $limit = 10 ) {
 	);
 
 	foreach ( $users as $user ) {
-		$coauthor_count     = count( apollo_get_user_coauthor_events( $user->ID ) );
+		$gestao_count     = count( apollo_get_user_gestao_events( $user->ID ) );
 		$favorited_count    = count( apollo_get_user_favorited_events( $user->ID ) );
-		$total_interactions = $coauthor_count + $favorited_count;
+		$total_interactions = $gestao_count + $favorited_count;
 
 		if ( $total_interactions > 0 ) {
 			$users_data[] = array(
 				'id'                 => $user->ID,
 				'name'               => $user->display_name,
 				'email'              => $user->user_email,
-				'coauthor_count'     => $coauthor_count,
+				'gestao_count'     => $gestao_count,
 				'favorited_count'    => $favorited_count,
 				'total_interactions' => $total_interactions,
 			);

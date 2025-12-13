@@ -92,7 +92,7 @@ class UserPageAutoCreate {
 		update_post_meta( $page_id, '_wp_page_template', 'apollo-user-dashboard' );
 		update_post_meta( $page_id, '_apollo_canvas_page', true );
 
-		// P0-8: Enable comments for depoimentos (moderation required)
+		// P0-8: Enable comments for depoimentos (mod required)
 		wp_update_post(
 			[
 				'ID'             => $page_id,
@@ -100,8 +100,8 @@ class UserPageAutoCreate {
 			]
 		);
 
-		// P0-8: Set comment moderation
-		update_post_meta( $page_id, '_apollo_comment_moderation', true );
+		// P0-8: Set comment mod
+		update_post_meta( $page_id, '_apollo_comment_mod', true );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( 'Apollo: User page created for user ID: ' . $user_id . ' (Page ID: ' . $page_id . ')' );
@@ -196,8 +196,8 @@ class UserPageAutoCreate {
 					'title'          => 'Depoimentos',
 					'allow_comments' => true,
 					'max_comments'   => 50,
-					'moderation'     => true,
-			// P0-8: Require moderation
+					'mod'     => true,
+			// P0-8: Require mod
 				],
 			],
 		];

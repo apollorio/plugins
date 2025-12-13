@@ -12,10 +12,10 @@ use WP_REST_Response;
  */
 class ModerationController {
 
-	private $moderation;
+	private $mod;
 
 	public function __construct() {
-		$this->moderation = new Moderation();
+		$this->mod = new Moderation();
 	}
 
 	/**
@@ -24,75 +24,75 @@ class ModerationController {
 	public function register_routes(): void {
 		register_rest_route(
 			'apollo/v1',
-			'/groups/(?P<id>\d+)/approve',
-			[
+			'/groups/(?P<id>\d+)aprovar',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'approve_group' ],
-				'permission_callback' => [ $this, 'can_moderate' ],
-				'args'                => [
-					'id' => [
+				'callback'            => array( $this, 'approve_group' ),
+				'permission_callback' => array( $this, 'can_moderate' ),
+				'args'                => array(
+					'id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'/groups/(?P<id>\d+)/reject',
-			[
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'reject_group' ],
-				'permission_callback' => [ $this, 'can_moderate' ],
-				'args'                => [
-					'id'     => [
+				'callback'            => array( $this, 'reject_group' ),
+				'permission_callback' => array( $this, 'can_moderate' ),
+				'args'                => array(
+					'id'     => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-					'reason' => [
+					),
+					'reason' => array(
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'/groups/(?P<id>\d+)/resubmit',
-			[
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'resubmit_group' ],
-				'permission_callback' => [ $this, 'can_resubmit' ],
-				'args'                => [
-					'id' => [
+				'callback'            => array( $this, 'resubmit_group' ),
+				'permission_callback' => array( $this, 'can_resubmit' ),
+				'args'                => array(
+					'id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'/groups/(?P<id>\d+)/status',
-			[
+			array(
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'get_group_status' ],
+				'callback'            => array( $this, 'get_group_status' ),
 				'permission_callback' => '__return_true',
-				'args'                => [
-					'id' => [
+				'args'                => array(
+					'id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 	}
 
@@ -107,44 +107,44 @@ class ModerationController {
 		$group = $this->get_group( $group_id );
 		if ( ! $group ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não encontrado',
-				],
+				),
 				404
 			);
 		}
 
 		// Check if group is in pending status
-		if ( ! in_array( $group['status'], [ 'pending', 'pending_review' ] ) ) {
+		if ( ! in_array( $group['status'], array( 'pending', 'pending_review' ) ) ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não está aguardando moderação',
-				],
+				),
 				400
 			);
 		}
 
 		// Approve the group
-		$result = $this->moderation->approveGroup( $group_id, $moderator_id );
+		$result = $this->mod->approveGroup( $group_id, $moderator_id );
 
 		if ( $result['success'] ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success'    => true,
 					'message'    => 'Grupo aprovado com sucesso',
 					'new_status' => 'published',
 					'group'      => $this->get_group( $group_id ),
-				],
+				),
 				200
 			);
 		} else {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => $result['message'] ?? 'Erro ao aprovar grupo',
-				],
+				),
 				500
 			);
 		}
@@ -162,46 +162,46 @@ class ModerationController {
 		$group = $this->get_group( $group_id );
 		if ( ! $group ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não encontrado',
-				],
+				),
 				404
 			);
 		}
 
 		// Check if group is in pending status
-		if ( ! in_array( $group['status'], [ 'pending', 'pending_review' ] ) ) {
+		if ( ! in_array( $group['status'], array( 'pending', 'pending_review' ) ) ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não está aguardando moderação',
-				],
+				),
 				400
 			);
 		}
 
 		// Reject the group with sanitized reason
-		$result = $this->moderation->rejectGroup( $group_id, $moderator_id, $reason );
+		$result = $this->mod->rejectGroup( $group_id, $moderator_id, $reason );
 
 		if ( $result['success'] ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success'          => true,
 					'message'          => 'Grupo rejeitado com sucesso',
 					'new_status'       => 'rejected',
 					'rejection_reason' => $result['reason'] ?? $reason,
 					'standard_message' => "Apollo rejeitou sua inclusão..<br>Motivo: <span class=\"apollo-reason\">{$result['reason']}</span>",
 					'group'            => $this->get_group( $group_id ),
-				],
+				),
 				200
 			);
 		} else {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => $result['message'] ?? 'Erro ao rejeitar grupo',
-				],
+				),
 				500
 			);
 		}//end if
@@ -218,10 +218,10 @@ class ModerationController {
 		$group = $this->get_group( $group_id );
 		if ( ! $group ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não encontrado',
-				],
+				),
 				404
 			);
 		}
@@ -229,10 +229,10 @@ class ModerationController {
 		// Check ownership
 		if ( $group['creator_id'] != $user_id ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Você não tem permissão para reenviar este grupo',
-				],
+				),
 				403
 			);
 		}
@@ -240,10 +240,10 @@ class ModerationController {
 		// Check if group is rejected
 		if ( $group['status'] !== 'rejected' ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Apenas grupos rejeitados podem ser reenviados',
-				],
+				),
 				400
 			);
 		}
@@ -254,32 +254,32 @@ class ModerationController {
 
 		$updated = $wpdb->update(
 			$groups_table,
-			[
+			array(
 				'status'     => 'draft',
 				'updated_at' => current_time( 'mysql' ),
-			],
-			[ 'id' => $group_id ],
-			[ '%s', '%s' ],
-			[ '%d' ]
+			),
+			array( 'id' => $group_id ),
+			array( '%s', '%s' ),
+			array( '%d' )
 		);
 
 		if ( $updated !== false ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success'      => true,
 					'message'      => 'Grupo movido para rascunho. Você pode editá-lo e reenviar.',
 					'new_status'   => 'draft',
 					'redirect_url' => "/grupo/editar/{$group_id}/",
 					'group'        => $this->get_group( $group_id ),
-				],
+				),
 				200
 			);
 		} else {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro ao atualizar status do grupo',
-				],
+				),
 				500
 			);
 		}
@@ -294,34 +294,34 @@ class ModerationController {
 		$group = $this->get_group( $group_id );
 		if ( ! $group ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Grupo não encontrado',
-				],
+				),
 				404
 			);
 		}
 
-		$status_data = [
+		$status_data = array(
 			'group_id'   => $group_id,
 			'status'     => $group['status'],
 			'created_at' => $group['created_at'],
 			'updated_at' => $group['updated_at'],
-		];
+		);
 
 		// Add rejection notice if rejected
 		if ( $group['status'] === 'rejected' ) {
-			$rejection_notice = $this->moderation->getRejectionNotice( $group_id );
+			$rejection_notice = $this->mod->getRejectionNotice( $group_id );
 			if ( $rejection_notice ) {
 				$status_data['rejection_notice'] = $rejection_notice;
 			}
 		}
 
 		return new WP_REST_Response(
-			[
+			array(
 				'success' => true,
 				'data'    => $status_data,
-			],
+			),
 			200
 		);
 	}

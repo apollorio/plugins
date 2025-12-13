@@ -366,6 +366,11 @@ $user_obj = wp_get_current_user();
 			<span class="hidden md:inline"><?php esc_html_e( 'Preview', 'apollo-social' ); ?></span>
 		</button>
 
+		<button class="btn btn-secondary" id="btnSavePdf" data-ap-tooltip="<?php esc_attr_e( 'Salvar como PDF', 'apollo-social' ); ?>" <?php echo $document_id ? '' : 'style="display:none;"'; ?>>
+			<i class="ri-file-pdf-line"></i>
+			<span class="hidden md:inline"><?php esc_html_e( 'PDF', 'apollo-social' ); ?></span>
+		</button>
+
 		<button class="btn btn-primary" id="btnSave" data-ap-tooltip="<?php esc_attr_e( 'Salvar documento', 'apollo-social' ); ?>">
 			<i class="ri-save-line"></i>
 			<span class="hidden md:inline"><?php esc_html_e( 'Salvar', 'apollo-social' ); ?></span>
@@ -536,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		};
 
 		try {
-			const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/documents/save' ) ); ?>', {
+			const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/doc/save' ) ); ?>', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -776,6 +781,57 @@ document.addEventListener('DOMContentLoaded', function() {
 		`);
 		previewWindow.document.close();
 	});
+
+	// Save as PDF button
+	const btnSavePdf = document.getElementById('btnSavePdf');
+	if (btnSavePdf) {
+		btnSavePdf.addEventListener('click', async function() {
+			if (!documentId) {
+				alert('<?php echo esc_js( __( 'Salve o documento primeiro antes de gerar PDF.', 'apollo-social' ) ); ?>');
+				return;
+			}
+
+			const $btn = this;
+			const originalHtml = $btn.innerHTML;
+			$btn.disabled = true;
+			$btn.innerHTML = '<i class="ri-loader-4-line"></i> <span class="hidden md:inline"><?php echo esc_js( __( 'Gerando...', 'apollo-social' ) ); ?></span>';
+
+			try {
+				const response = await fetch('<?php echo esc_url( rest_url( 'apollo/v1/doc/' ) ); ?>' + documentId + '/gerar-pdf', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
+					}
+				});
+
+				const result = await response.json();
+
+				if (result.success) {
+					window.open(result.pdf_url, '_blank');
+					alert('<?php echo esc_js( __( 'PDF gerado com sucesso!', 'apollo-social' ) ); ?>');
+				} else {
+					alert(result.message || '<?php echo esc_js( __( 'Erro ao gerar PDF', 'apollo-social' ) ); ?>');
+				}
+			} catch (err) {
+				console.error(err);
+				alert('<?php echo esc_js( __( 'Erro de conexão', 'apollo-social' ) ); ?>');
+			} finally {
+				$btn.disabled = false;
+				$btn.innerHTML = originalHtml;
+			}
+		});
+
+		// Show PDF button after document is saved
+		const originalSaveDocument = saveDocument;
+		saveDocument = async function(publish = false) {
+			const result = await originalSaveDocument(publish);
+			if (result && documentId) {
+				btnSavePdf.style.display = 'inline-flex';
+			}
+			return result;
+		};
+	}
 });
 </script>
 

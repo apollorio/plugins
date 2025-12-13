@@ -136,22 +136,22 @@ class Caps {
 	}
 
 	/**
-	 * Register moderation capabilities
+	 * Register mod capabilities
 	 */
 	private function registerModerationCapabilities(): void {
 		$capabilities = [
-			// General moderation
+			// General mod
 			'apollo_moderate',
 
-			// Specific moderation
+			// Specific mod
 			'apollo_moderate_groups',
 			'apollo_moderate_events',
 			'apollo_moderate_ads',
 			'apollo_moderate_users',
 
-			// Advanced moderation
+			// Advanced mod
 			'apollo_moderate_all',
-			'apollo_view_moderation_queue',
+			'apollo_view_mod_queue',
 			'apollo_manage_moderators',
 		];
 
@@ -244,7 +244,7 @@ class Caps {
 			'apollo_moderate_ads',
 			'apollo_moderate_users',
 			'apollo_moderate_all',
-			'apollo_view_moderation_queue',
+			'apollo_view_mod_queue',
 			'apollo_manage_moderators',
 
 			// Analytics - Full access
@@ -314,7 +314,7 @@ class Caps {
 			'apollo_moderate_groups',
 			'apollo_moderate_events',
 			'apollo_moderate_ads',
-			'apollo_view_moderation_queue',
+			'apollo_view_mod_queue',
 
 			// Analytics - View and manage
 			'apollo_view_analytics',
@@ -633,7 +633,7 @@ class Caps {
 			'apollo_moderate_ads',
 			'apollo_moderate_users',
 			'apollo_moderate_all',
-			'apollo_view_moderation_queue',
+			'apollo_view_mod_queue',
 			'apollo_manage_moderators',
 
 			// Analytics

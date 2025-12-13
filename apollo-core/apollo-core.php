@@ -44,7 +44,7 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/settings-defaults.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/roles.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/db-schema.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-rate-limiting.php';
-require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-moderation.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-mod.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-api-response.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-email-security-log.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/auth-filters.php';
@@ -60,24 +60,24 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/rest.php';
 // Load quiz system.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/quiz-defaults.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/schema-manager.php';
-require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/attempts.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includestentantivas.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/rest.php';
 
-// Load unified moderation queue (auto-detects ALL pending posts).
-require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-moderation-queue-unified.php';
+// Load unified mod queue (auto-detects ALL pending posts).
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-mod-queue-unified.php';
 
-// Load CENA-RIO system (order matters - submissions/moderation depend on Roles).
+// Load CENA-RIO system (order matters - submissions/mod depend on Roles).
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-roles.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-canvas.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-submissions.php';
-require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-moderation.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-cena-rio-mod.php';
 
 // Design Library (internal reference for AI assistant).
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-design-library.php';
 
 // Load admin pages.
 if ( is_admin() ) {
-	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderation-page.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/mod-page.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/forms-admin.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderate-users-membership.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/migration-page.php';
@@ -91,20 +91,28 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'public/display-membership.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-push-notifications.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-seopress-integration.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-cookie-consent.php';
+// Email system (modular, non-WooCommerce)
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-service.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-templates-cpt.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-admin-ui.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-integration.php';
 
-// FASE 1+2: Load user moderation and modules configuration.
-require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-user-moderation.php';
+// FASE 1+2: Load user mod and modules configuration.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-user-mod.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-modules-config.php';
 
 // FASE 4: Cross-module integration (Social <-> Eventos <-> Bolha).
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-cross-module-integration.php';
 
-// Initialize moderation and modules systems.
-add_action( 'plugins_loaded', function () {
-	Apollo_User_Moderation::init();
-	Apollo_Modules_Config::init();
-}, 5 );
+// Initialize mod and modules systems.
+add_action(
+	'plugins_loaded',
+	function () {
+		Apollo_User_Moderation::init();
+		Apollo_Modules_Config::init();
+	},
+	5
+);
 
 // Load WP-CLI commands.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

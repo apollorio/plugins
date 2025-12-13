@@ -172,7 +172,7 @@ class Commands {
 
 			\WP_CLI::log( '📊 Content Workflow:' );
 			\WP_CLI::log( "  • Total state transitions: {$stats['workflow_transitions']}" );
-			\WP_CLI::log( "  • Pending moderation: {$stats['pending_moderation']}" );
+			\WP_CLI::log( "  • Pending modts['pending_mod']}"mod
 
 			\WP_CLI::log( '📈 Analytics:' );
 			\WP_CLI::log( "  • Total events tracked: {$stats['total_events']}" );

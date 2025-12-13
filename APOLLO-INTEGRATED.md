@@ -30,7 +30,7 @@ ____________________________________
 | `on_cena_rio_rejected()` | `apollo_cena_rio_event_rejected` | Notifies user CENA-RIO rejection with reason | Core CENA-RIO (`/cena-rio/reject/{id}`) |
 | `on_event_reminder()` | `apollo_event_reminder` | Sends 24h reminder to attendees | Events Manager (cron job for reminders) |
 | `on_registration_complete()` | `apollo_user_registration_complete` | Sends welcome email to new user | Social Onboarding (`/onboarding/complete`) |
-| `on_verification_complete()` | `apollo_user_verification_complete` | Notifies user verification approved | Social Onboarding (`/onboarding/verify/confirm`) |
+| `on_verification_complete()` | `apollo_user_verification_complete` | Notifies user verification approved | Social Onboarding (`/onboarding/verificar/confirm`) |
 | `on_onboarding_complete()` | `apollo_user_onboarding_complete` | Congratulates user on completing onboarding | Social Onboarding (final step) |
 
 **Admin Features**:

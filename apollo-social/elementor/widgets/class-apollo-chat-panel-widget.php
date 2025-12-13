@@ -22,7 +22,7 @@ class Apollo_Chat_Panel_Widget extends \Elementor\Widget_Base {
 	}
 
 	public function get_categories() {
-		return [ 'apollo-social' ];
+		return array( 'apollo-social' );
 	}
 
 	protected function register_controls() {

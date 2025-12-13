@@ -485,7 +485,11 @@ if ( ! $is_modal ) :
 					if ( ! in_array( $osm_tile_style, $osm_allowed_style, true ) ) {
 						$osm_tile_style = 'default';
 					}
+					$map_visual_zoom = (bool) get_option( 'apollo_events_map_visual_zoom', false );
 					?>
+					<?php if ( $map_visual_zoom ) : ?>
+					<div class="ap-map-zoom-wrapper">
+					<?php endif; ?>
 					<div class="map-view"
 						id="eventMap"
 						style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;overflow:hidden;"
@@ -569,6 +573,9 @@ if ( ! $is_modal ) :
 							}
 						})();
 					</script>
+					<?php if ( $map_visual_zoom ) : ?>
+					</div>
+					<?php endif; ?>
 				<?php else : ?>
 					<div class="map-view"
 						style="height:285px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;"

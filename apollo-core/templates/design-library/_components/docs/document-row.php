@@ -5,30 +5,30 @@
  * @var array $document
  */
 
-$document = $document ?? array();
-$status   = $document['status'] ?? 'draft';
-$icon_map = array(
+$document      = $document ?? array();
+$status        = $document['status'] ?? 'draft';
+$icon_map      = array(
 	'contrato'  => 'ri-file-text-line',
 	'checklist' => 'ri-clipboard-line',
 );
 $badge_classes = array(
-	'signed' => 'bg-emerald-50 text-emerald-700',
-	'draft'  => 'bg-amber-50 text-amber-700',
-	'waiting'=> 'bg-sky-50 text-sky-700',
+	'signed'  => 'bg-emerald-50 text-emerald-700',
+	'draft'   => 'bg-amber-50 text-amber-700',
+	'waiting' => 'bg-sky-50 text-sky-700',
 );
-$badge_icons = array(
-	'signed' => 'ri-shield-check-line',
-	'draft'  => 'ri-time-line',
-	'waiting'=> 'ri-mail-send-line',
+$badge_icons   = array(
+	'signed'  => 'ri-shield-check-line',
+	'draft'   => 'ri-time-line',
+	'waiting' => 'ri-mail-send-line',
 );
-$badge_labels = array(
-	'signed' => 'Assinado',
-	'draft'  => 'Em rascunho',
-	'waiting'=> 'Aguardando',
+$badge_labels  = array(
+	'signed'  => 'Assinado',
+	'draft'   => 'Em rascunho',
+	'waiting' => 'Aguardando',
 );
-$badge_class = $badge_classes[ $status ] ?? 'bg-slate-100 text-slate-600';
-$badge_icon  = $badge_icons[ $status ] ?? 'ri-information-line';
-$badge_label = $badge_labels[ $status ] ?? ucfirst( $status );
+$badge_class   = $badge_classes[ $status ] ?? 'bg-slate-100 text-slate-600';
+$badge_icon    = $badge_icons[ $status ] ?? 'ri-information-line';
+$badge_label   = $badge_labels[ $status ] ?? ucfirst( $status );
 ?>
 <button class="aprio-doc-row text-left" data-id="<?php echo esc_attr( $document['id'] ?? '' ); ?>" data-status="<?php echo esc_attr( $status ); ?>">
 	<div class="flex items-center gap-3 min-w-0">

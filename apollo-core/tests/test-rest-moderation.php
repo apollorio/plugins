@@ -64,7 +64,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 	public function test_approve_permission_denied() {
 		wp_set_current_user( $this->user_id );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/moderation/approve' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/modaprovar' );
 		$request->set_param( 'post_id', $this->post_id );
 
 		$response = rest_do_request( $request );
@@ -78,7 +78,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 	public function test_approve_success() {
 		wp_set_current_user( $this->moderator_id );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/moderation/approve' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/modaprovar' );
 		$request->set_param( 'post_id', $this->post_id );
 		$request->set_param( 'note', 'Approved by test' );
 
@@ -104,7 +104,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		$settings['enabled_caps']['publish_events'] = false;
 		update_option( 'apollo_mod_settings', $settings );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/moderation/approve' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/modaprovar' );
 		$request->set_param( 'post_id', $this->post_id );
 
 		$response = rest_do_request( $request );
@@ -118,7 +118,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 	public function test_suspend_user_success() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspend' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspender/' );
 		$request->set_param( 'user_id', $this->user_id );
 		$request->set_param( 'days', 7 );
 		$request->set_param( 'reason', 'Test suspension' );
@@ -141,7 +141,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 	public function test_suspend_user_permission_denied() {
 		wp_set_current_user( $this->moderator_id );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspend' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspender/' );
 		$request->set_param( 'user_id', $this->user_id );
 		$request->set_param( 'days', 7 );
 
@@ -156,7 +156,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 	public function test_block_user_success() {
 		wp_set_current_user( $this->admin_id );
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/block' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/bloquear/' );
 		$request->set_param( 'user_id', $this->user_id );
 		$request->set_param( 'reason', 'Test block' );
 
@@ -183,7 +183,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 			)
 		);
 
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspend' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspender/' );
 		$request->set_param( 'user_id', $another_admin );
 		$request->set_param( 'days', 7 );
 
@@ -199,7 +199,7 @@ class Test_Apollo_REST_Moderation extends WP_UnitTestCase {
 		wp_set_current_user( $this->admin_id );
 
 		// Suspend user.
-		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspend' );
+		$request = new WP_REST_Request( 'POST', '/apollo/v1/users/suspender/' );
 		$request->set_param( 'user_id', $this->user_id );
 		$request->set_param( 'days', 7 );
 		$request->set_param( 'reason', 'Test audit' );

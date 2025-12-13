@@ -153,11 +153,14 @@ class Apollo_SEOPress_Integration {
 
 		// Mark as initialized only if no critical errors.
 		if ( empty( $errors ) ) {
-			update_option( self::INIT_FLAG, array(
-				'timestamp' => current_time( 'mysql' ),
-				'version'   => self::$seopress_version,
-				'user'      => get_current_user_id(),
-			) );
+			update_option(
+				self::INIT_FLAG,
+				array(
+					'timestamp' => current_time( 'mysql' ),
+					'version'   => self::$seopress_version,
+					'user'      => get_current_user_id(),
+				)
+			);
 
 			// Log success.
 			self::log_info( 'SEOPress defaults configured successfully' );
@@ -313,11 +316,13 @@ class Apollo_SEOPress_Integration {
 	 */
 	private static function log_error( string $message, array $context = array() ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-			error_log( sprintf(
-				'[Apollo SEOPress ERROR] %s | Context: %s',
-				$message,
-				wp_json_encode( $context )
-			) );
+			error_log(
+				sprintf(
+					'[Apollo SEOPress ERROR] %s | Context: %s',
+					$message,
+					wp_json_encode( $context )
+				)
+			);
 		}
 	}
 }

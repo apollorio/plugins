@@ -75,7 +75,7 @@ $doc = $manager->createDocument([
 
 **Endpoint REST:**
 ```
-POST /wp-json/apollo-social/v1/documents
+POST /wp-json/apollo-social/v1/doc
 Content-Type: application/json
 
 {
@@ -95,7 +95,7 @@ $pdf_path = $manager->generatePdf($document_id);
 
 **Endpoint REST:**
 ```
-POST /wp-json/apollo-social/v1/documents/{id}/pdf
+POST /wp-json/apollo-social/v1/doc/{id}/pdf
 ```
 
 ### 3. Assinar Documento
@@ -273,7 +273,7 @@ add_action('apollo_register_signature_backends', function($service) {
 |-----|-----------|
 | `/wp-json/apollo-social/v1/documents` | CRUD documentos |
 | `/wp-json/apollo-social/v1/documents/{id}/sign` | Assinar |
-| `/wp-json/apollo-social/v1/documents/{id}/signatures` | Listar assinaturas |
+| `/wp-json/apollo-social/v1/doc/{id}/signatures` | Listar assinaturas |
 | `/wp-json/apollo-social/v1/documents/{id}/verify` | Verificar |
 | `/wp-json/apollo-social/v1/signatures/backends` | Backends disponíveis |
 

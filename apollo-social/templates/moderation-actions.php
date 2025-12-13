@@ -9,13 +9,13 @@
 
 ?>
 
-<div class="apollo-moderation-actions" data-group-id="<?php echo esc_attr( $group_id ); ?>">
-	<div class="apollo-moderation-header">
+<div class="apollo-mod-actions" data-group-id="<?php echo esc_attr( $group_id ); ?>">
+	<div class="apollo-mod-header">
 		<h4>Ações de Moderação</h4>
 		<span class="apollo-group-status" data-ap-tooltip="<?php esc_attr_e( 'Status atual de moderação', 'apollo-social' ); ?>">Status: <?php echo esc_html( $status ); ?></span>
 	</div>
 
-	<div class="apollo-moderation-buttons">
+	<div class="apollo-mod-buttons">
 		<button type="button" class="apollo-btn apollo-btn-success apollo-approve-btn"
 				data-group-id="<?php echo esc_attr( $group_id ); ?>"
 				data-ap-tooltip="<?php esc_attr_e( 'Aprovar e publicar este grupo', 'apollo-social' ); ?>">
@@ -69,7 +69,7 @@
 </div>
 
 <style>
-.apollo-moderation-actions {
+.apollo-mod-actions {
 	background-color: #f9fafb;
 	border: 1px solid #e5e7eb;
 	border-radius: 6px;
@@ -77,14 +77,14 @@
 	margin: 16px 0;
 }
 
-.apollo-moderation-header {
+.apollo-mod-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 12px;
 }
 
-.apollo-moderation-header h4 {
+.apollo-mod-header h4 {
 	margin: 0;
 	font-size: 16px;
 	color: #374151;
@@ -96,7 +96,7 @@
 	font-weight: 500;
 }
 
-.apollo-moderation-buttons {
+.apollo-mod-buttons {
 	display: flex;
 	gap: 8px;
 }
@@ -192,7 +192,7 @@
 
 /* Responsive */
 @media (max-width: 640px) {
-	.apollo-moderation-buttons {
+	.apollo-mod-buttons {
 		flex-direction: column;
 	}
 
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function apolloModerateGroup(groupId, action, reason = '') {
-	// TODO: Implement AJAX call to moderation endpoint
+	// TODO: Implement AJAX call to mod endpoint
 	console.log('Moderating group:', groupId, action, reason);
 
 	// For now, just show success message

@@ -3,10 +3,10 @@
 /**
  * REST API Matchmaking Settings controller (Event Controller style)
  *
- * Provides an endpoint to retrieve/update matchmaking settings for the current user.
+ * Provides an endpoint to retrieve/update compatibilidade settings for the current user.
  * Structured similarly to the Events controller's route/permission/response style.
  *
- * Route base: /wp-json/aprio/matchmaking-settings
+ * Route base: /wp-json/aprio/compatibilidade-settings
  * Methods: GET (retrieve), POST (update)
  *
  * @since 1.1.4
@@ -23,11 +23,11 @@ class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Control
 	protected $namespace = 'aprio';
 
 	/**
-	 * Route base for matchmaking settings endpoints.
+	 * Route base for compatibilidade settings endpoints.
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'matchmaking-settings';
+	protected $rest_base = 'compatibilidade-settings';
 
 	/**
 	 * Initialize routes.
@@ -37,7 +37,7 @@ class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Register matchmaking settings routes (event-controller style structure).
+	 * Register compatibilidade settings routes (event-controller style structure).
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -55,7 +55,7 @@ class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Permission callback: ensure user is authorized (mirrors other matchmaking controllers).
+	 * Permission callback: ensure user is authorized (mirrors other compatibilidade controllers).
 	 *
 	 * @param WP_REST_Request $request
 	 * @return bool|WP_Error
@@ -70,8 +70,8 @@ class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * GET /matchmaking-settings
-	 * Retrieve matchmaking settings for the current user. If event_id is provided,
+	 * GET /compatibilidade-settings
+	 * Retrieve compatibilidade settings for the current user. If event_id is provided,
 	 * include participation for that event; otherwise include all events.
 	 *
 	 * @param WP_REST_Request $request
@@ -83,7 +83,7 @@ class APRIO_REST_Matchmaking_Settings_Controller extends APRIO_REST_CRUD_Control
 			'scheduling_mode'        => get_option( 'aprio_meeting_scheduling_mode' ),
 			'attendee_limit'         => get_option( 'aprio_meeting_attendee_limit' ),
 			'meeting_expiration'     => get_option( 'aprio_meeting_expiration' ),
-			'enable_matchmaking'     => get_option( 'enable_matchmaking' ),
+			'enable_compatibilidade'     => get_option( 'enable_compatibilidade' ),
 			'participant_activation' => get_option( 'participant_activation' ),
 		);
 

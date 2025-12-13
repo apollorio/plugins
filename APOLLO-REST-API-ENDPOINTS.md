@@ -51,7 +51,7 @@
 
 ---
 
-#### Moderation - Simple API (rest-moderation.php)
+#### Moderation - Simple API (rest-mod.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -61,37 +61,37 @@
 
 ---
 
-#### Moderation - Full Module (modules/moderation/includes/class-rest-api.php)
+#### Moderation - Full Module (modules/mod/includes/class-rest-api.php)
 
-**⚠️ NOTE:** This module still uses legacy `/moderation/*` routes (not yet refactored to `/mod/*`)
+**⚠️ NOTE:** This module still uses legacy `/mod/*` routes (not yet refactored to `/mod/*`)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/moderation/approve` | POST | Approve/publish post | `post_id` (int, required), `note` (optional) | Moderate permission |
-| `/moderation/reject` | POST | Reject post | `post_id` (int, required), `note` (optional) | Moderate permission |
-| `/moderation/queue` | GET | Get moderation queue | None | View queue permission |
-| `/moderation/suspend-user` | POST | Suspend user | `user_id` (int, required), `days` (int, required), `reason` (optional) | Suspend permission |
-| `/moderation/block-user` | POST | Block user | `user_id` (int, required), `reason` (optional) | Block permission |
-| `/moderation/notify-user` | POST | Send notification to user | `user_id` (int, required), `message` (string, required) | Notify permission |
+| `/mod/approve` | POST | Approve/publish post | `post_id` (int, required), `note` (optional) | Moderate permission |
+| `/mod/reject` | POST | Reject post | `post_id` (int, required), `note` (optional) | Moderate permission |
+| `/mod/queue` | GET | Get mod queue | None | View queue permission |
+| `/mod/suspend-user` | POST | Suspend user | `user_id` (int, required), `days` (int, required), `reason` (optional) | Suspend permission |
+| `/mod/block-user` | POST | Block user | `user_id` (int, required), `reason` (optional) | Block permission |
+| `/mod/notify-user` | POST | Send notification to user | `user_id` (int, required), `message` (string, required) | Notify permission |
 
 ---
 
-#### Unified Moderation Queue (class-moderation-queue-unified.php)
+#### Unified Moderation Queue (class-mod-queue-unified.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/mod/unified-queue` | GET | Get unified moderation queue | `post_type` (optional), `source` (optional) | `view_moderation_queue` or `apollo_cena_moderate_events` or `moderate_apollo_content` or `manage_options` |
+| `/mod/em-filae` | GET | Get unified mod queue | `post_type` (optional), `source` (optional) | `view_mod_queue` or `apollo_cena_moderate_events` or `moderate_apollo_content` or `manage_options` |
 | `/mod/pending-count` | GET | Get count of pending items | None | Same as above |
 
 ---
 
-#### CENA-RIO Moderation (class-cena-rio-moderation.php)
+#### CENA-RIO Moderation (class-cena-rio-mod.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/cena-rio/queue` | GET | Get CENA-RIO moderation queue | None | CENA-RIO moderation role |
-| `/cena-rio/approve/{id}` | POST | Approve CENA-RIO event | `id` (int, path, required), `note` (optional) | CENA-RIO moderation role |
-| `/cena-rio/reject/{id}` | POST | Reject CENA-RIO event | `id` (int, path, required), `reason` (optional) | CENA-RIO moderation role |
+| `/cena-rio/queue` | GET | Get CENA-RIO mod queue | None | CENA-RIO mod role |
+| `/cena-rio/approve/{id}` | POST | Approve CENA-RIO event | `id` (int, path, required), `note` (optional) | CENA-RIO mod role |
+| `/cena-rio/reject/{id}` | POST | Reject CENA-RIO event | `id` (int, path, required), `reason` (optional) | CENA-RIO mod role |
 
 ---
 
@@ -130,7 +130,7 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/quiz/attempt` | POST | Record a quiz attempt | `question_id` (int, required), `answers` (array, required), `form_type` (string, required) | Logged in or valid nonce |
+| `tentantiva` | POST | Record a quiz attempt | `question_id` (int, required), `answers` (array, required), `form_type` (string, required) | Logged in or valid nonce |
 | `/quiz/stats` | GET | Get quiz statistics | `question_id` (int, required), `form_type` (string, required) | `manage_options` |
 | `/quiz/user-attempts` | GET | Get user attempts for a question | `question_id` (int, required) | Logged in |
 
@@ -165,10 +165,10 @@
 | `/onboarding/options` | GET | Get onboarding options (industries, roles, memberships) | None | Logged in |
 | `/onboarding/begin` | POST | Begin onboarding process | Onboarding form fields | Logged in |
 | `/onboarding/complete` | POST | Complete onboarding process | Completion form fields | Logged in |
-| `/onboarding/verify/request-dm` | POST | Request DM verification | None | Logged in |
-| `/onboarding/verify/status` | GET | Get verification status | None | Logged in |
-| `/onboarding/verify/confirm` | POST | Confirm verification (admin) | `user_id` (int, required) | Admin permission |
-| `/onboarding/verify/cancel` | POST | Cancel verification (admin) | `user_id` (int, required), `reason` (optional) | Admin permission |
+| `/onboarding/verificar/request-dm` | POST | Request DM verification | None | Logged in |
+| `/onboarding/verificar/status` | GET | Get verification status | None | Logged in |
+| `/onboarding/verificar/confirm` | POST | Confirm verification (admin) | `user_id` (int, required) | Admin permission |
+| `/onboarding/verificar/cancel` | POST | Cancel verification (admin) | `user_id` (int, required), `reason` (optional) | Admin permission |
 | `/onboarding/profile` | GET | Get user profile | None | Logged in |
 
 ---
@@ -209,8 +209,8 @@
 | `/comunas/{id}/join` | POST | Join a group | `id` (int, path) | Logged in |
 | `/comunas/{id}/invite` | POST | Invite user to group | `id` (int, path) | Logged in |
 | `/comunas/{id}/approve-invite` | POST | Approve group invite | `id` (int, path) | Logged in |
-| `/comunas/{id}/approve` | POST | Approve group (moderation) | `id` (int, path) | Moderator |
-| `/comunas/{id}/reject` | POST | Reject group (moderation) | `id` (int, path), `reason` (required) | Moderator |
+| `/comunas/{id}/approve` | POST | Approve group (mod) | `id` (int, path) | Moderator |
+| `/comunas/{id}/reject` | POST | Reject group (mod) | `id` (int, path), `reason` (required) | Moderator |
 | `/comunas/{id}/resubmit` | POST | Resubmit group for review | `id` (int, path) | Owner |
 | `/comunas/{id}/status` | GET | Get group status | `id` (int, path) | Public |
 
@@ -295,16 +295,16 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/verify/protocol/{code}` | GET | Verify by protocol code | `code` (path) | Public |
-| `/verify/hash` | POST | Verify by document hash | `hash` (required) | Public |
-| `/verify/file` | POST | Verify PDF file | File upload | Public |
+| `/verificar/protocol/{code}` | GET | Verify by protocol code | `code` (path) | Public |
+| `/verificar/hash` | POST | Verify by document hash | `hash` (required) | Public |
+| `/verificar/file` | POST | Verify PDF file | File upload | Public |
 
 #### Audit
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/audit/{file_id}` | GET | Get document audit log | `file_id` (path) | Authenticated |
-| `/audit/{file_id}/report` | GET | Generate verification report | `file_id` (path) | Authenticated |
+| `/auditar/{file_id}` | GET | Get document audit log | `file_id` (path) | Authenticated |
+| `/auditar/{file_id}/report` | GET | Generate verification report | `file_id` (path) | Authenticated |
 | `/protocol/generate` | POST | Generate protocol | `document_id` (int, required) | Authenticated |
 
 #### Templates
@@ -380,8 +380,8 @@
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/bookmarks` | GET | Get user bookmarks | `limit`, `offset` | Logged in |
-| `/bookmarks/{id}` | POST | Toggle bookmark | `id` (int, path) | Logged in |
+| `/salvos` | GET | Get user bookmarks | `limit`, `offset` | Logged in |
+| `/salvos/{id}` | POST | Toggle bookmark | `id` (int, path) | Logged in |
 
 ---
 
@@ -448,58 +448,58 @@
 
 ### Namespace: `aprio` (Matchmaking)
 
-#### Attendee Profile (aprio-rest-matchmaking-profile.php & aprio-rest-matchmaking-profile-controller.php)
+#### Attendee Profile (aprio-rest-compatibilidade-profile.php & aprio-rest-compatibilidade-profile-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/preferencias` | GET | Get matchmaking profile | `attendeeId` (optional), `user_id` (optional) | Authorized |
-| `/preferencias` | PUT/PATCH | Update matchmaking profile | Profile data | Authorized |
-| `/preferencias/update` | PUT/PATCH | Update matchmaking profile (alt) | `user_id` (required), profile data | Authorized |
-| `/preferencias/search` | GET | Search/filter matchmaking users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `search`, `per_page`, `page` | Authorized |
-| `/preferencias/filter` | GET/POST | Filter matchmaking users (alias) | Same as search | Authorized |
+| `/preferencias` | GET | Get compatibilidade profile | `attendeeId` (optional), `user_id` (optional) | Authorized |
+| `/preferencias` | PUT/PATCH | Update compatibilidade profile | Profile data | Authorized |
+| `/preferencias/update` | PUT/PATCH | Update compatibilidade profile (alt) | `user_id` (required), profile data | Authorized |
+| `/preferencias/search` | GET | Search/filter compatibilidade users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `search`, `per_page`, `page` | Authorized |
+| `/preferencias/filter` | GET/POST | Filter compatibilidade users (alias) | Same as search | Authorized |
 | `/upload-photo` | POST | Upload user file (profile photo) | `user_id` (required), file | Authorized |
 
 ---
 
-#### Matchmaking Settings (aprio-rest-matchmaking-settings-controller.php)
+#### Matchmaking Settings (aprio-rest-compatibilidade-settings-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/matchmaking-settings` | GET | Get matchmaking settings | None | Authorized |
+| `/compatibilidade-settings` | GET | Get compatibilidade settings | None | Authorized |
 
 ---
 
-#### User Settings (aprio-rest-matchmaking-user-settings.php)
+#### User Settings (aprio-rest-compatibilidade-user-settings.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/matchmaking-attendee-settings` | GET | Get user matchmaking settings | `user_id`, `event_id` | Logged in |
-| `/update-matchmaking-attendee-settings` | POST | Update user matchmaking settings | `user_id`, `enable_matchmaking`, `message_notification`, `meeting_request_mode`, `event_participation[]` | Logged in |
+| `/compatibilidade-attendee-settings` | GET | Get user compatibilidade settings | `user_id`, `event_id` | Logged in |
+| `/ajustar-atual-compatibilidade` | POST | Update user compatibilidade settings | `user_id`, `enable_compatibilidade`, `message_notification`, `meeting_request_mode`, `event_participation[]` | Logged in |
 
 ---
 
-#### Profile Settings (aprio-rest-matchmaking-profile-controller.php)
+#### Profile Settings (aprio-rest-compatibilidade-profile-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/matchmaking-profile-settings` | GET | Get profile settings | `user_id`, `event_id` | Authorized |
-| `/matchmaking-profile-settings` | POST | Update profile settings | `user_id`, `enable_matchmaking`, `message_notification`, `meeting_request_mode`, `event_participation[]` | Authorized |
+| `/ajustes-compatibilidade` | GET | Get profile settings | `user_id`, `event_id` | Authorized |
+| `/ajustes-compatibilidade` | POST | Update profile settings | `user_id`, `enable_compatibilidade`, `message_notification`, `meeting_request_mode`, `event_participation[]` | Authorized |
 
 ---
 
-#### Filter Users (aprio-rest-matchmaking-filter-users.php)
+#### Filter Users (aprio-rest-compatibilidade-filter-users.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/filter-users` | POST | Filter matchmaking users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `user_id` (required), `search`, `per_page`, `page` | Logged in |
+| `/filter-users` | POST | Filter compatibilidade users | `profession`, `company_name`, `country[]`, `city`, `experience`, `skills[]`, `interests[]`, `event_id`, `user_id` (required), `search`, `per_page`, `page` | Logged in |
 
 ---
 
-#### Meetings (aprio-rest-matchmaking-create-meetings.php)
+#### Meetings (aprio-rest-compatibilidade-create-meetings.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/create-meeting` | POST | Create matchmaking meeting | `user_id` (required), `event_id` (required), `meeting_date` (required), `slot` (required), `meeting_participants[]` (required), `write_a_message` | Logged in |
+| `/create-meeting` | POST | Create compatibilidade meeting | `user_id` (required), `event_id` (required), `meeting_date` (required), `slot` (required), `meeting_participants[]` (required), `write_a_message` | Logged in |
 | `/get-meetings` | POST | Get user meetings | User context | Logged in |
 | `/cancel-meeting` | POST | Cancel meeting | `meeting_id` (required), `user_id` (required) | Logged in |
 | `/update-meeting-status` | POST | Update meeting status | `meeting_id` (required), `user_id` (required), `status` (enum: 0, 1, required) | Logged in |
@@ -509,7 +509,7 @@
 
 ---
 
-#### Meetings Controller (aprio-rest-matchmaking-meetings-controller.php)
+#### Meetings Controller (aprio-rest-compatibilidade-meetings-controller.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
@@ -523,21 +523,21 @@
 
 ---
 
-#### Messages (aprio-rest-matchmaking-user-messages.php)
+#### Messages (aprio-rest-compatibilidade-user-messages.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/send-message` | POST | Send matchmaking message | `senderId` (required), `receiverId` (required), `message`, `image` | Logged in |
+| `/send-message` | POST | Send compatibilidade message | `senderId` (required), `receiverId` (required), `message`, `image` | Logged in |
 | `/get-messages` | GET | Get messages between users | `senderId` (required), `receiverId` (required), `page`, `per_page` | Logged in |
 | `/get-conversation-list` | GET | Get conversation list | `user_id` (required), `event_ids[]` (required), `paged`, `per_page` | Logged in |
 
 ---
 
-#### Taxonomy (aprio-rest-matchmaking-get-texonomy.php)
+#### Taxonomy (aprio-rest-compatibilidade-get-texonomy.php)
 
 | Endpoint | Method | Purpose | Dependencies | Permission |
 |----------|--------|---------|--------------|------------|
-| `/taxonomy-list` | GET | Get taxonomy terms | `taxonomy` (required) | Authorized (matchmaking enabled) |
+| `/taxonomy-list` | GET | Get taxonomy terms | `taxonomy` (required) | Authorized (compatibilidade enabled) |
 
 ---
 
@@ -562,7 +562,7 @@
 
 **Total: ~128 REST API endpoints across the Apollo ecosystem**
 
-**Note:** Venues (`/venues`, `/locals`) and Organizers (`/organizers`, `/djs`) endpoints are NOT registered. These modules were deprecated in favor of taxonomy-based management.
+**Note:** Venues (`/venues`, `/locals`) and Organizers (`/dj`, `/djs`) endpoints are NOT registered. These modules were deprecated in favor of taxonomy-based management.
 
 ---
 

@@ -308,7 +308,7 @@ class Apollo_Events_Bookmarks {
 	public function register_rest_routes() {
 		register_rest_route(
 			'apollo/v1',
-			'/bookmarks',
+			'salvos',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_bookmarks' ),
@@ -318,7 +318,7 @@ class Apollo_Events_Bookmarks {
 
 		register_rest_route(
 			'apollo/v1',
-			'/bookmarks/(?P<id>\d+)',
+			'salvos/(?P<id>\d+)',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_toggle_bookmark' ),

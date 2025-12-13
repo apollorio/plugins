@@ -2,7 +2,7 @@
 
 **Generated:** 2024-12-08  
 **Scope:** apollo-core, apollo-social, apollo-events-manager, apollo-rio  
-**Exclusions:** chat/messages, notifications, moderation, coauthors, analytics, mail/email, SEO, PWA
+**Exclusions:** chat/messages, notifications, mod, coauthors, analytics, mail/email, SEO, PWA
 
 ---
 
@@ -14,7 +14,7 @@
 | `apollo-core-hub` | — | `manage_options` | `apollo_core_render_hub_page` |
 | `apollo-core-cenario` | apollo-core-hub | `manage_options` | `apollo_core_render_cenario_page` |
 | `apollo-core-design` | apollo-core-hub | `manage_options` | `apollo_core_render_design_page` |
-| `apollo-moderation` | — | `view_moderation_queue` | `apollo_render_moderation_page` |
+| `apollo-mod` | — | `view_mod_queue` | `apollo_render_mod_page` |
 
 ### Apollo Social (position 27)
 | Menu Slug | Parent | Capability | Callback |
@@ -43,11 +43,11 @@
 **Location:** `includes/class-module-loader.php`
 
 **Settings Key:** `apollo_mod_settings` with `enabled_modules` array  
-**Default Modules:** `['events', 'social', 'moderation']`
+**Default Modules:** `['events', 'social', 'mod']`
 
 **Available Modules:** (in `modules/` directory)
 - `events/bootstrap.php` → `Apollo_Events_Module`
-- `moderation/bootstrap.php`
+- `mod/bootstrap.php`
 - `social/bootstrap.php`
 
 ### Feature Toggles
@@ -66,7 +66,7 @@
 | File | Routes |
 |------|--------|
 | `class-cena-rio-submissions.php` | 4 routes (submissions CRUD) |
-| `class-moderation-queue-unified.php` | 2 routes (queue management) |
+| `class-mod-queue-unified.php` | 2 routes (queue management) |
 | `class-rest-bootstrap.php` | 1 base route + hook |
 | `rest-membership.php` | 9 routes (membership management) |
 
@@ -114,19 +114,19 @@
 ## 5. User Roles & Capabilities
 
 ### Custom Role: `apollo_moderator`
-**Location:** `apollo-core/includes/roles.php`, `modules/moderation/includes/class-roles.php`
+**Location:** `apollo-core/includes/roles.php`, `modules/mod/includes/class-roles.php`
 
 | Capability | Description |
 |------------|-------------|
 | `moderate_apollo_content` | Moderate user-submitted content |
 | `edit_apollo_users` | Edit Apollo user profiles |
-| `view_moderation_queue` | View moderation queue |
+| `view_mod_queue` | View mod queue |
 | `send_user_notifications` | Send notifications to users |
 
 ### Administrator Additions
 | Capability | Description |
 |------------|-------------|
-| `manage_apollo_mod_settings` | Manage moderation settings |
+| `manage_apollo_mod_settings` | Manage mod settings |
 | `suspend_users` | Suspend user accounts |
 | `block_users` | Block user accounts |
 | All moderator caps | Inherits all moderator capabilities |

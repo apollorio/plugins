@@ -18,7 +18,7 @@ if ( ! current_user_can( 'cena-rio' ) && ! current_user_can( 'administrator' ) )
 	wp_die(
 		esc_html__( 'Acesso negado. Você precisa da permissão "cena-rio" para acessar esta página.', 'apollo-social' ),
 		esc_html__( 'Acesso Negado', 'apollo-social' ),
-		[ 'response' => 403 ]
+		array( 'response' => 403 )
 	);
 }
 
@@ -27,7 +27,7 @@ $user_id       = $current_user->ID;
 $user_initials = strtoupper( substr( $current_user->display_name, 0, 2 ) );
 
 // Buscar documentos do usuário
-$user_documents = [];
+$user_documents = array();
 if ( class_exists( 'Apollo\CenaRio\CenaRioModule' ) && method_exists( 'Apollo\CenaRio\CenaRioModule', 'getUserDocuments' ) ) {
 	$user_documents = Apollo\CenaRio\CenaRioModule::getUserDocuments( $user_id );
 }
@@ -39,10 +39,10 @@ $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'da
 if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
 	apollo_enqueue_global_assets();
 } else {
-	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '5.2.0' );
-	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', [], '4.2.0', true );
+	wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', array(), '5.2.0' );
+	wp_enqueue_script( 'apollo-base-js', 'https://assets.apollo.rio.br/base.js', array(), '4.2.0', true );
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
+wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', array(), '4.7.0' );
 
 get_header();
 ?>

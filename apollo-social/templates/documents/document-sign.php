@@ -619,24 +619,40 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (btnIcp) btnIcp.disabled = true;
 
 		try {
-			const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/documents/' . $document_id . '/sign' ) ); ?>', {
+			// Get signer info
+			const signerName = '<?php echo esc_js( $user_obj->display_name ); ?>';
+			const signerEmail = '<?php echo esc_js( $user_obj->user_email ); ?>';
+			const signerId = <?php echo $current_user_id > 0 ? (int) $current_user_id : 'null'; ?>;
+
+			const response = await fetch('<?php echo esc_url( rest_url( 'apollo/v1/doc/' . $document_id . '/assinar' ) ); ?>', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
 				},
-				body: JSON.stringify({ provider: provider })
+				body: JSON.stringify({
+					name: signerName,
+					email: signerEmail,
+					role: 'signer',
+					consent: true,
+					signature_method: provider === 'icp' ? 'pki-external-v1' : 'e-sign-basic'
+				})
 			});
 
 			const data = await response.json();
 
 			if (data.success) {
-				const now = new Date();
-				const formatted = now.toLocaleString('pt-BR');
+				const signature = data.signature || {};
+				const signedDate = signature.signed_at || new Date().toISOString();
+				const formatted = new Date(signedDate).toLocaleString('pt-BR');
 
 				if (signedAt) signedAt.textContent = '<?php echo esc_js( __( 'Data:', 'apollo-social' ) ); ?> ' + formatted;
-				if (signedCode) signedCode.textContent = '<?php echo esc_js( __( 'Cod:', 'apollo-social' ) ); ?> ' + (data.code || provider.toUpperCase() + '-' + Math.floor(Math.random() * 999999).toString().padStart(6, '0'));
-				if (signedHash) signedHash.textContent = 'Hash: ' + (data.hash || generateHash());
+				if (signedCode) signedCode.textContent = '<?php echo esc_js( __( 'Método:', 'apollo-social' ) ); ?> ' + (signature.signature_method || 'e-sign-basic');
+				if (signedHash) {
+					const hash = signature.pdf_hash || '';
+					const hashShort = hash ? hash.substring(0, 16) + '...' : '--';
+					signedHash.textContent = 'Hash: ' + hashShort;
+				}
 
 				if (signResult) signResult.classList.remove('hidden');
 
@@ -651,8 +667,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					signerYouStatus.innerHTML = '<i class="ri-check-line"></i> <?php echo esc_js( __( 'Assinado', 'apollo-social' ) ); ?>';
 				}
 
-				if (signCountLabel && data.signed_count && data.total_signers) {
-					signCountLabel.textContent = data.signed_count + '/' + data.total_signers;
+				if (signCountLabel && data.total_signatures) {
+					// Update count (assuming we know total signers from page load)
+					const currentText = signCountLabel.textContent;
+					const parts = currentText.split('/');
+					if (parts.length === 2) {
+						const total = parseInt(parts[1]) || 1;
+						signCountLabel.textContent = data.total_signatures + '/' + total;
+					} else {
+						signCountLabel.textContent = data.total_signatures + '/1';
+					}
 				}
 			} else {
 				alert(data.message || '<?php echo esc_js( __( 'Erro ao assinar documento', 'apollo-social' ) ); ?>');

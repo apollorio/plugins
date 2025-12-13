@@ -5,7 +5,7 @@ declare(strict_types=1);
  * CENA-RIO Roles Manager
  *
  * Manages CENA-ROLE (community) and CENA-MOD (moderator) roles
- * with granular permissions for event submission and moderation.
+ * with granular permissions for event submission and mod.
  *
  * @package Apollo_Core
  * @since 3.1.0
@@ -101,14 +101,14 @@ class Apollo_Cena_Rio_Roles {
 				'edit_event_listings'             => true,
 				'delete_event_listing'            => true,
 
-				// Plus moderation capabilities
+				// Plus mod capabilities
 				'edit_others_event_listings'      => true,
 				'publish_event_listings'          => true,
 				'delete_others_event_listings'    => true,
 				'delete_published_event_listings' => true,
 				'read_private_event_listings'     => true,
 
-				// Custom CENA moderation capability
+				// Custom CENA mod capability
 				'apollo_cena_moderate_events'     => true,
 			)
 		);
@@ -116,17 +116,17 @@ class Apollo_Cena_Rio_Roles {
 		if ( $cena_mod ) {
 			// Log success
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( '✅ Apollo: Created cena_moderator with full moderation permissions' );
+				error_log( '✅ Apollo: Created cena_moderator with full mod permissions' );
 			}
 		}
 
-		// Add moderation capability to administrator
+		// Add mod capability to administrator
 		$admin = get_role( 'administrator' );
 		if ( $admin ) {
 			$admin->add_cap( 'apollo_cena_moderate_events' );
 		}
 
-		// Add moderation capability to existing apollo moderator role
+		// Add mod capability to existing apollo moderator role
 		$apollo_mod = get_role( 'apollo' );
 		if ( $apollo_mod ) {
 			$apollo_mod->add_cap( 'apollo_cena_moderate_events' );

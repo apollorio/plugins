@@ -1,7 +1,7 @@
 <?php
 /**
  * REST API SMOKE TEST – PASSED
- * Route: /apollo/v1/eventos, /categorias, /locais, /my-events
+ * Route: /apollo/v1/eventos, /categorias, /locais, /meus-eventos
  * Affects: apollo-events-manager.php, class-rest-api.php, class-bookmarks.php
  * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
  */
@@ -45,7 +45,7 @@ class Apollo_Events_REST_API {
 		// Eventos endpoints (Events in Portuguese)
 		register_rest_route(
 			$this->namespace,
-			'/eventos',
+			'eventos',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_events' ),
@@ -80,7 +80,7 @@ class Apollo_Events_REST_API {
 
 		register_rest_route(
 			$this->namespace,
-			'/evento/(?P<id>\d+)',
+			'evento/(?P<id>\d+)',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_event' ),
@@ -98,7 +98,7 @@ class Apollo_Events_REST_API {
 		// Categories endpoint
 		register_rest_route(
 			$this->namespace,
-			'/categorias',
+			'categorias',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_categories' ),
@@ -109,7 +109,7 @@ class Apollo_Events_REST_API {
 		// Locations endpoint
 		register_rest_route(
 			$this->namespace,
-			'/locais',
+			'locais',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_locations' ),
@@ -120,7 +120,7 @@ class Apollo_Events_REST_API {
 		// User events endpoint (requires auth)
 		register_rest_route(
 			$this->namespace,
-			'/my-events',
+			'meus-eventos',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_my_events' ),
@@ -462,9 +462,9 @@ class Apollo_Events_REST_API {
 		global $wpdb;
 		$text_locations = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
+			"SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
 				WHERE meta_key = %s
-				AND meta_value != ''
+            AND meta_value != ''
 				ORDER BY meta_value ASC",
 				'_event_location'
 			)

@@ -119,10 +119,10 @@ class GroupsController extends BaseController {
 			return;
 		}
 
-		// If needs moderation, submit to queue
+		// If needs mod, submit to queue
 		if ( in_array( $initial_status, [ 'pending', 'pending_review' ] ) ) {
-			$moderation = new \Apollo\Application\Groups\Moderation();
-			$moderation->submitForReview(
+			$mod = new \Apollo\Application\Groups\Moderation();
+			$mod->submitForReview(
 				$group_id,
 				$user->id,
 				'group',
@@ -230,7 +230,7 @@ class GroupsController extends BaseController {
 	}
 
 	/**
-	 * POST /apollo/v1/groups/{id}/approve-invite
+	 * POST /apollo/v1/groups/{id}aprovar-invite
 	 */
 	public function approveInvite(): void {
 		if ( ! $this->validateNonce() ) {

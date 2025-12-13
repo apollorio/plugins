@@ -55,11 +55,11 @@ class Apollo_Events_Admin_Metaboxes {
 			'high'
 		);
 
-		// FASE 2: Metabox de Colaboradores/Co-autores
+		// FASE 2: Metabox de Gestão
 		add_meta_box(
-			'apollo_event_coauthors',
-			__( 'Colaboradores / Co-autores', 'apollo-events-manager' ),
-			array( $this, 'render_coauthors_metabox' ),
+			'apollo_event_gestao',
+			__( 'Gestão', 'apollo-events-manager' ),
+			array( $this, 'render_gestao_metabox' ),
 			'event_listing',
 			'side',
 			'default'
@@ -888,15 +888,15 @@ class Apollo_Events_Admin_Metaboxes {
 			apollo_update_post_meta( $post_id, '_favorites_count', 0 );
 		}
 
-		// FASE 2: Salvar co-autores
-		if ( isset( $_POST['apollo_event_co_authors'] ) && is_array( $_POST['apollo_event_co_authors'] ) ) {
-			$co_authors = array_map( 'absint', $_POST['apollo_event_co_authors'] );
-			$co_authors = array_filter( $co_authors ); 
+		// FASE 2: Salvar gestão
+		if ( isset( $_POST['apollo_event_gestao'] ) && is_array( $_POST['apollo_event_gestao'] ) ) {
+			$gestao = array_map( 'absint', $_POST['apollo_event_gestao'] );
+			$gestao = array_filter( $gestao ); 
 			// Remove zeros
-			apollo_update_post_meta( $post_id, '_event_co_authors', $co_authors );
+			apollo_update_post_meta( $post_id, '_event_gestao', $gestao );
 		} else {
-			// Se não foi enviado, limpar co-autores
-			apollo_update_post_meta( $post_id, '_event_co_authors', array() );
+			// Se não foi enviado, limpar gestão
+			apollo_update_post_meta( $post_id, '_event_gestao', array() );
 		}
 
 		// ✅ SAVE DJs - CRITICAL
@@ -1397,11 +1397,11 @@ class Apollo_Events_Admin_Metaboxes {
 	/**
 	 * FASE 2: Render metabox de Colaboradores/Co-autores
 	 */
-	public function render_coauthors_metabox( $post ) {
+	public function render_gestao_metabox( $post ) {
 		wp_nonce_field( 'apollo_event_meta_save', 'apollo_event_meta_nonce' );
 
-		$co_authors = apollo_get_post_meta( $post->ID, '_event_co_authors', true );
-		$co_authors = is_array( $co_authors ) ? array_map( 'absint', $co_authors ) : array();
+		$gestao = apollo_get_post_meta( $post->ID, '_event_gestao', true );
+		$gestao = is_array( $gestao ) ? array_map( 'absint', $gestao ) : array();
 
 		// Buscar todos os usuários (limitado para performance)
 		$all_users = get_users(
@@ -1413,22 +1413,22 @@ class Apollo_Events_Admin_Metaboxes {
 		);
 
 		?>
-		<div class="apollo-coauthors-metabox">
+		<div class="apollo-gestao-metabox">
 			<p class="description" style="margin-bottom: 15px;">
 				<?php esc_html_e( 'Selecione usuários que podem visualizar e editar este evento.', 'apollo-events-manager' ); ?>
 			</p>
 			
 			<select 
 				multiple 
-				name="apollo_event_co_authors[]" 
-				id="apollo_event_co_authors" 
+				name="apollo_event_gestao[]" 
+				id="apollo_event_gestao" 
 				class="widefat" 
 				size="8"
 				style="width: 100%;"
 			>
 				<?php
 				foreach ( $all_users as $user ) {
-					$selected = in_array( $user->ID, $co_authors ) ? 'selected' : '';
+					$selected = in_array( $user->ID, $gestao ) ? 'selected' : '';
 					$display  = $user->display_name . ' (' . $user->user_email . ')';
 					echo '<option value="' . esc_attr( $user->ID ) . '" ' . $selected . '>' . esc_html( $display ) . '</option>';
 				}
@@ -1440,12 +1440,12 @@ class Apollo_Events_Admin_Metaboxes {
 				<?php esc_html_e( 'Segure Ctrl (Windows) ou Cmd (Mac) para selecionar múltiplos usuários.', 'apollo-events-manager' ); ?>
 			</p>
 			
-			<?php if ( ! empty( $co_authors ) ) : ?>
+			<?php if ( ! empty( $gestao ) ) : ?>
 				<div style="margin-top: 15px; padding: 10px; background: #f0f0f1; border-radius: 4px;">
-					<strong><?php esc_html_e( 'Co-autores atuais:', 'apollo-events-manager' ); ?></strong>
+					<strong><?php esc_html_e( 'Gestão atual:', 'apollo-events-manager' ); ?></strong>
 					<ul style="margin: 5px 0 0 0; padding-left: 20px;">
 						<?php
-						foreach ( $co_authors as $user_id ) {
+						foreach ( $gestao as $user_id ) {
 							$user = get_user_by( 'ID', $user_id );
 							if ( $user ) {
 								echo '<li>' . esc_html( $user->display_name ) . '</li>';

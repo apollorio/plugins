@@ -37,23 +37,23 @@ if ( function_exists( 'get_user_favorites' ) ) {
 	$favorites_count = is_array( $favorites_meta ) ? count( $favorites_meta ) : 0;
 }
 
-// Get co-authored events
-$coauthored_count = 0;
+// Get eventos em gestão
+$gestao_count = 0;
 if ( function_exists( 'get_coauthors' ) ) {
-	$coauthored       = get_posts(
+	$gestao_events       = get_posts(
 		array(
 			'post_type'      => 'event_listing',
 			'posts_per_page' => -1,
 			'meta_query'     => array(
 				array(
-					'key'     => '_apollo_coauthors',
+					'key'     => '_event_gestao',
 					'value'   => $user_id,
 					'compare' => 'LIKE',
 				),
 			),
 		)
 	);
-	$coauthored_count = count( $coauthored );
+	$gestao_count = count( $gestao_events );
 }
 
 // Enqueue Apollo Global Assets (UNI.CSS + base.js)
@@ -168,7 +168,7 @@ wp_localize_script(
 					</div>
 					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__( 'Eventos onde você é co-autor/colaborador', 'apollo-events-manager' ); ?>">
 					<span class="aprioEXP-card-numbers-title">Co-autor</span>
-					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html( $coauthored_count ); ?></span>
+					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html( $gestao_count ); ?></span>
 					</div>
 				</div>
 				<button class="aprioEXP-edit-btn" id="editProfileBtn">
@@ -285,7 +285,7 @@ wp_localize_script(
 						</div>
 						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__( 'Eventos onde você colaborou como co-autor', 'apollo-events-manager' ); ?>">
 						<span>Co-autorado</span>
-						<strong><?php echo esc_html( $coauthored_count ); ?></strong>
+						<strong><?php echo esc_html( $gestao_count ); ?></strong>
 						</div>
 					</div>
 					</div>

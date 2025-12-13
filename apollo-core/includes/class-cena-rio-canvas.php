@@ -46,7 +46,7 @@ class Apollo_Cena_Rio_Canvas {
 	 */
 	public static function add_rewrite_rules(): void {
 		add_rewrite_rule( '^cena-rio/?$', 'index.php?apollo_cena=calendar', 'top' );
-		add_rewrite_rule( '^cena-rio/mod/?$', 'index.php?apollo_cena=moderation', 'top' );
+		add_rewrite_rule( '^cena-rio/mod/?$', 'index.php?apollo_cena=mod', 'top' );
 	}
 
 	/**
@@ -81,7 +81,7 @@ class Apollo_Cena_Rio_Canvas {
 			}
 		}
 
-		if ( 'moderation' === $page ) {
+		if ( 'mod' === $page ) {
 			if ( ! Apollo_Cena_Rio_Roles::user_can_moderate() ) {
 				wp_die(
 					esc_html__( 'Você não tem permissão para acessar a moderação.', 'apollo-core' ),
@@ -107,8 +107,8 @@ class Apollo_Cena_Rio_Canvas {
 
 		// Define template paths
 		$template_map = array(
-			'calendar'   => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-calendar.php',
-			'moderation' => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-moderation.php',
+			'calendar' => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-calendar.php',
+			'mod'      => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-mod.php',
 		);
 
 		// Return template if exists

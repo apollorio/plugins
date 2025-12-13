@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Get default moderation settings
+ * Get default mod settings
  *
  * @return array Default settings array
  */
@@ -35,7 +35,7 @@ function apollo_get_default_mod_settings(): array {
 }
 
 /**
- * Get current moderation settings with defaults fallback
+ * Get current mod settings with defaults fallback
  *
  * @return array Settings array
  */
@@ -45,7 +45,7 @@ function apollo_get_mod_settings(): array {
 }
 
 /**
- * Update moderation settings
+ * Update mod settings
  *
  * @param array $settings Settings array to save.
  * @return bool True on success, false on failure.

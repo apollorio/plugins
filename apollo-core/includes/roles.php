@@ -33,7 +33,7 @@ function apollo_create_roles() {
 	if ( $apollo ) {
 		$apollo->add_cap( 'moderate_apollo_content' );
 		$apollo->add_cap( 'edit_apollo_users' );
-		$apollo->add_cap( 'view_moderation_queue' );
+		$apollo->add_cap( 'view_mod_queue' );
 		$apollo->add_cap( 'send_user_notifications' );
 	}
 
@@ -45,7 +45,7 @@ function apollo_create_roles() {
 		$admin->add_cap( 'block_users' );
 		$admin->add_cap( 'moderate_apollo_content' );
 		$admin->add_cap( 'edit_apollo_users' );
-		$admin->add_cap( 'view_moderation_queue' );
+		$admin->add_cap( 'view_mod_queue' );
 		$admin->add_cap( 'send_user_notifications' );
 	}
 }
@@ -66,7 +66,7 @@ function apollo_remove_roles() {
 		$admin->remove_cap( 'block_users' );
 		$admin->remove_cap( 'moderate_apollo_content' );
 		$admin->remove_cap( 'edit_apollo_users' );
-		$admin->remove_cap( 'view_moderation_queue' );
+		$admin->remove_cap( 'view_mod_queue' );
 		$admin->remove_cap( 'send_user_notifications' );
 	}
 }

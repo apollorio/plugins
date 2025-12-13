@@ -13,73 +13,70 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register moderation admin menu
+ * Register mod admin menu
  */
-function apollo_register_moderation_menu(): void {
-	// Get pending count for badge
-	$pending_count = 0;
+function apollo_register_mod_menu(): void {
+	// Get em-fila count for badge
+	$em_fila_count = 0;
 	if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
-		$pending_count = Apollo_Moderation_Queue_Unified::get_pending_count();
+		$em_fila_count = Apollo_Moderation_Queue_Unified::get_em_fila_count();
 	}
 
-	// Build menu title with badge if there are pending items
+	// Build menu title with badge if there are em-fila items
 	$menu_title = __( 'Moderation', 'apollo-core' );
-	if ( $pending_count > 0 ) {
+	if ( $em_fila_count > 0 ) {
 		$menu_title = sprintf(
-			/* translators: %1$s: Menu title, %2$d: pending count, %3$d: pending count for badge */
-			'%1$s <span class="awaiting-mod count-%2$d"><span class="pending-count">%3$d</span></span>',
+			/* translators: %1$s: Menu title, %2$d: em-fila count, %3$d: em-fila count for badge */
+			'%1$s <span class="awaiting-mod count-%2$d"><span class="em-fila-count">%3$d</span></span>',
 			esc_html__( 'Moderation', 'apollo-core' ),
-			$pending_count,
-			$pending_count
+			$em - fila_count,
+			$em - fila_count
 		);
 	}
 
 	add_menu_page(
 		__( 'Apollo Moderation', 'apollo-core' ),
 		$menu_title,
-		'view_moderation_queue',
-		'apollo-moderation',
-		'apollo_render_moderation_page',
+		'view_mod_queue',
+		'apollo-mod',
+		'apollo_render_mod_page',
 		'dashicons-shield',
 		25
 	);
 }
-add_action( 'admin_menu', 'apollo_register_moderation_menu' );
+add_action( 'admin_menu', 'apollo_register_mod_menu' );
 
 /**
  * Enqueue admin assets
  *
  * @param string $hook Current admin page hook.
  */
-function apollo_enqueue_moderation_assets( $hook ) {
-	if ( 'toplevel_page_apollo-moderation' !== $hook ) {
+function apollo_enqueue_mod_assets( $hook ) {
+	if ( 'toplevel_page_apollo-mod' !== $hook ) {
 		return;
 	}
 
 	wp_enqueue_script(
-		'apollo-moderation-admin',
-		APOLLO_CORE_PLUGIN_URL . 'admin/js/moderation-admin.js',
+		'apollo-mod-admin',
+		APOLLO_CORE_PLUGIN_URL . 'admin/js/mod-admin.js',
 		array( 'jquery', 'wp-api' ),
 		APOLLO_CORE_VERSION,
 		true
 	);
 
 	wp_localize_script(
-		'apollo-moderation-admin',
+		'apollo-mod-admin',
 		'apolloModerationAdmin',
 		array(
 			'restUrl'   => rest_url( 'apollo/v1/' ),
 			'nonce'     => wp_create_nonce( 'wp_rest' ),
 			'canManage' => current_user_can( 'manage_apollo_mod_settings' ),
 		)
-	);
-}
-add_action( 'admin_enqueue_scripts', 'apollo_enqueue_moderation_assets' );
 
 /**
- * Render moderation page
+ * Render mod page
  */
-function apollo_render_moderation_page() {
+function apollo_render_mod_page() {
 	// Get current tab.
 	$current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings';
 
@@ -90,24 +87,24 @@ function apollo_render_moderation_page() {
 	}
 
 	?>
-	<div class="wrap apollo-moderation-wrap">
+	<div class="wrap apollo-mod-wrap">
 		<h1><?php esc_html_e( 'Apollo Moderation', 'apollo-core' ); ?></h1>
 
 		<nav class="nav-tab-wrapper">
 			<?php if ( $can_manage ) : ?>
-			<a href="?page=apollo-moderation&tab=settings" class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
+			<a href="?page=apollo-mod&tab=settings" class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
 				<?php esc_html_e( 'Settings', 'apollo-core' ); ?>
 			</a>
 			<?php endif; ?>
-			<a href="?page=apollo-moderation&tab=queue" class="nav-tab <?php echo 'queue' === $current_tab ? 'nav-tab-active' : ''; ?>">
+			<a href="?page=apollo-mod&tab=queue" class="nav-tab <?php echo 'queue' === $current_tab ? 'nav-tab-active' : ''; ?>">
 				<?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?>
 			</a>
-			<a href="?page=apollo-moderation&tab=users" class="nav-tab <?php echo 'users' === $current_tab ? 'nav-tab-active' : ''; ?>">
+			<a href="?page=apollo-mod&tab=users" class="nav-tab <?php echo 'users' === $current_tab ? 'nav-tab-active' : ''; ?>">
 				<?php esc_html_e( 'Moderate Users', 'apollo-core' ); ?>
 			</a>
 		</nav>
 
-		<div class="apollo-moderation-content">
+		<div class="apollo-mod-content">
 			<?php
 			switch ( $current_tab ) {
 				case 'settings':
@@ -174,39 +171,7 @@ function apollo_render_settings_tab() {
 				<td>
 					<fieldset>
 						<?php
-						$capabilities = array(
-							'publish_events'      => __( 'Publish Events', 'apollo-core' ),
-							'publish_locals'      => __( 'Publish Venues', 'apollo-core' ),
-							'publish_djs'         => __( 'Publish DJs', 'apollo-core' ),
-							'publish_nucleos'     => __( 'Publish Núcleos', 'apollo-core' ),
-							'publish_comunidades' => __( 'Publish Comunidades', 'apollo-core' ),
-							'edit_posts'          => __( 'Edit Social Posts', 'apollo-core' ),
-							'edit_classifieds'    => __( 'Edit Classifieds', 'apollo-core' ),
-						);
 
-						foreach ( $capabilities as $cap => $label ) {
-							$checked = ! empty( $settings['enabled_caps'][ $cap ] ) ? 'checked' : '';
-							?>
-							<label>
-								<input type="checkbox" name="enabled_caps[<?php echo esc_attr( $cap ); ?>]" value="1" <?php echo esc_attr( $checked ); ?>>
-								<?php echo esc_html( $label ); ?>
-							</label><br>
-							<?php
-						}
-						?>
-					</fieldset>
-					<p class="description"><?php esc_html_e( 'Select which content types Apollo moderators can publish.', 'apollo-core' ); ?></p>
-				</td>
-			</tr>
-
-			<tr>
-				<th scope="row">
-					<label for="apollo-audit-log"><?php esc_html_e( 'Audit Log', 'apollo-core' ); ?></label>
-				</th>
-				<td>
-					<label>
-						<input type="checkbox" name="audit_log_enabled" id="apollo-audit-log" value="1" <?php checked( $settings['audit_log_enabled'] ); ?>>
-						<?php esc_html_e( 'Enable audit logging for moderation actions', 'apollo-core' ); ?>
 					</label>
 				</td>
 			</tr>
@@ -221,14 +186,14 @@ function apollo_render_settings_tab() {
  * Render Tab 2: Moderation Queue
  */
 function apollo_render_queue_tab(): void {
-	if ( ! current_user_can( 'view_moderation_queue' ) ) {
+	if ( ! current_user_can( 'view_mod_queue' ) ) {
 		wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
 	}
 
 	// Use unified queue if available
 	$enabled_types = array();
 	if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
-		$enabled_types = Apollo_Moderation_Queue_Unified::get_moderation_cpts();
+		$enabled_types = Apollo_Moderation_Queue_Unified::get_mod_cpts();
 	} else {
 		// Fallback to legacy method
 		$settings = apollo_get_mod_settings();
@@ -246,11 +211,11 @@ function apollo_render_queue_tab(): void {
 		$enabled_types = array( 'event_listing', 'post' );
 	}
 
-	// Query ALL pending/draft posts
+	// Query ALL em-fila/draft posts
 	$query = new WP_Query(
 		array(
 			'post_type'      => $enabled_types,
-			'post_status'    => array( 'draft', 'pending' ),
+			'post_status'    => array( 'draft', 'em-fila' ),
 			'posts_per_page' => 100,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
@@ -273,23 +238,23 @@ function apollo_render_queue_tab(): void {
 	$current_filter = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : 'all';
 
 	?>
-	<div id="apollo-moderation-queue">
+	<div id="apollo-mod-queue">
 		<h2><?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Review and approve pending content from all sources.', 'apollo-core' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Review and approve em-fila content from all sources.', 'apollo-core' ); ?></p>
 
 		<!-- Source filter tabs -->
 		<div class="apollo-queue-source-filter" style="margin: 16px 0; display: flex; gap: 8px;">
-			<a href="?page=apollo-moderation&tab=queue&source=all"
+			<a href="?page=apollo-mod&tab=queue&source=all"
 				class="button <?php echo 'all' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Todos (%d)', 'apollo-core' ), $query->found_posts ) ); ?>
 			</a>
-			<a href="?page=apollo-moderation&tab=queue&source=cena-rio"
+			<a href="?page=apollo-mod&tab=queue&source=cena-rio"
 				class="button <?php echo 'cena-rio' === $current_filter ? 'button-primary' : ''; ?>"
 				style="<?php echo $cena_rio_count > 0 ? 'background: #f97316; border-color: #f97316; color: #fff;' : ''; ?>">
 				<span class="dashicons dashicons-calendar-alt" style="margin-top: 3px;"></span>
 				<?php echo esc_html( sprintf( __( 'CENA-RIO (%d)', 'apollo-core' ), $cena_rio_count ) ); ?>
 			</a>
-			<a href="?page=apollo-moderation&tab=queue&source=other"
+			<a href="?page=apollo-mod&tab=queue&source=other"
 				class="button <?php echo 'other' === $current_filter ? 'button-primary' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Outros (%d)', 'apollo-core' ), $other_count ) ); ?>
 			</a>
@@ -402,7 +367,7 @@ function apollo_render_queue_tab(): void {
 		</table>
 
 		<style>
-			.apollo-moderation-queue tr:hover { background: #f9fafb !important; }
+			.apollo-mod-queue tr:hover { background: #f9fafb !important; }
 			.apollo-approve-btn:hover { background: #059669 !important; border-color: #059669 !important; }
 			.apollo-reject-btn:hover { background: #fef2f2 !important; border-color: #dc2626 !important; }
 		</style>
@@ -484,7 +449,7 @@ function apollo_render_users_tab() {
 }
 
 /**
- * Save moderation settings
+ * Save mod settings
  */
 function apollo_handle_save_settings() {
 	// Verify nonce.
@@ -511,7 +476,7 @@ function apollo_handle_save_settings() {
 	apollo_update_mod_settings( $settings );
 
 	// Redirect back.
-	wp_safe_redirect( admin_url( 'admin.php?page=apollo-moderation&tab=settings&updated=1' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=apollo-mod&tab=settings&updated=1' ) );
 	exit;
 }
 add_action( 'admin_post_apollo_save_mod_settings', 'apollo_handle_save_settings' );

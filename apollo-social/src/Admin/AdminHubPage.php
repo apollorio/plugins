@@ -50,8 +50,8 @@ class AdminHubPage {
 	 * Initialize the admin hub
 	 */
 	public function init(): void {
-		add_action( 'admin_menu', [ $this, 'registerMenuPage' ], 5 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueueStyles' ] );
+		add_action( 'admin_menu', array( $this, 'registerMenuPage' ), 5 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueStyles' ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class AdminHubPage {
 			__( 'Apollo Social', 'apollo-social' ),
 			'manage_options',
 			'apollo-social-hub',
-			[ $this, 'renderHubPage' ],
+			array( $this, 'renderHubPage' ),
 			'dashicons-share',
 			27
 		);
@@ -74,7 +74,7 @@ class AdminHubPage {
 			__( 'Documentação', 'apollo-social' ),
 			'manage_options',
 			'apollo-social-hub',
-			[ $this, 'renderHubPage' ]
+			array( $this, 'renderHubPage' )
 		);
 
 		add_submenu_page(
@@ -83,7 +83,7 @@ class AdminHubPage {
 			__( 'Shortcodes', 'apollo-social' ),
 			'manage_options',
 			'apollo-social-shortcodes',
-			[ $this, 'renderShortcodesPage' ]
+			array( $this, 'renderShortcodesPage' )
 		);
 
 		add_submenu_page(
@@ -92,7 +92,7 @@ class AdminHubPage {
 			__( 'Segurança', 'apollo-social' ),
 			'manage_options',
 			'apollo-social-security',
-			[ $this, 'renderSecurityPage' ]
+			array( $this, 'renderSecurityPage' )
 		);
 	}
 
@@ -489,7 +489,7 @@ class AdminHubPage {
 	 */
 	private function renderSecurityContent(): void {
 		// Get security threats log
-		$threats = get_option( 'apollo_security_threats', [] );
+		$threats = get_option( 'apollo_security_threats', array() );
 		$threats = array_reverse( $threats );
 		// Most recent first
 		?>
@@ -691,88 +691,88 @@ class AdminHubPage {
 	 * @return array
 	 */
 	private function getAllShortcodes(): array {
-		return [
-			'Documentos'      => [
-				[
+		return array(
+			'Documentos'      => array(
+				array(
 					'code'        => '[apollo_documents]',
 					'description' => 'Lista de documentos',
 					'attributes'  => 'library="apollo|cenario|private"',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_document_editor]',
 					'description' => 'Editor WYSIWYG de documentos',
 					'attributes'  => 'doc_id',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_sign_document]',
 					'description' => 'Página de assinatura digital',
 					'attributes'  => 'doc_id',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_verify_document]',
 					'description' => 'Verificar autenticidade de documento',
 					'attributes'  => '',
-				],
-			],
-			'Grupos'          => [
-				[
+				),
+			),
+			'Grupos'          => array(
+				array(
 					'code'        => '[apollo_groups]',
 					'description' => 'Lista de comunidades e núcleos',
 					'attributes'  => 'type="community|nucleo"',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_group_single]',
 					'description' => 'Página single de grupo',
 					'attributes'  => 'group_id',
-				],
-			],
-			'Perfil e Social' => [
-				[
+				),
+			),
+			'Perfil e Social' => array(
+				array(
 					'code'        => '[apollo_profile]',
 					'description' => 'Perfil do usuário',
 					'attributes'  => 'user_id',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_profile_card]',
 					'description' => 'Card compacto de perfil',
 					'attributes'  => 'user_id',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_user_mention]',
 					'description' => 'Menção de usuário inline',
 					'attributes'  => 'user_id',
-				],
-			],
-			'Feed'            => [
-				[
+				),
+			),
+			'Feed'            => array(
+				array(
 					'code'        => '[apollo_feed]',
 					'description' => 'Feed social principal',
 					'attributes'  => '',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_post_form]',
 					'description' => 'Formulário de criação de post',
 					'attributes'  => '',
-				],
-			],
-			'Autenticação'    => [
-				[
+				),
+			),
+			'Autenticação'    => array(
+				array(
 					'code'        => '[apollo_login]',
 					'description' => 'Formulário de login',
 					'attributes'  => 'redirect',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_register]',
 					'description' => 'Formulário de registro',
 					'attributes'  => '',
-				],
-				[
+				),
+				array(
 					'code'        => '[apollo_aptitude_quiz]',
 					'description' => 'Quiz de aptitude para registro',
 					'attributes'  => '',
-				],
-			],
-		];
+				),
+			),
+		);
 	}
 
 	/**
@@ -781,99 +781,99 @@ class AdminHubPage {
 	 * @return array
 	 */
 	private function getAllPlaceholders(): array {
-		return [
-			'Usuário'   => [
-				[
+		return array(
+			'Usuário'   => array(
+				array(
 					'code'        => '{{user_name}}',
 					'description' => 'Nome do usuário',
 					'example'     => 'João Silva',
-				],
-				[
+				),
+				array(
 					'code'        => '{{user_handle}}',
 					'description' => 'Handle do usuário',
 					'example'     => '@joaosilva',
-				],
-				[
+				),
+				array(
 					'code'        => '{{user_avatar_url}}',
 					'description' => 'URL do avatar',
 					'example'     => 'https://...',
-				],
-				[
+				),
+				array(
 					'code'        => '{{user_permalink}}',
 					'description' => 'URL do perfil',
 					'example'     => '/perfil/joaosilva',
-				],
-				[
+				),
+				array(
 					'code'        => '{{is_verified}}',
 					'description' => 'Se usuário é verificado',
 					'example'     => 'true/false',
-				],
-				[
+				),
+				array(
 					'code'        => '{{badges}}',
 					'description' => 'Array de badges',
 					'example'     => "['apollo', 'dj']",
-				],
-				[
+				),
+				array(
 					'code'        => '{{nucleos}}',
 					'description' => 'Array de núcleos',
 					'example'     => "['Núcleo Apollo']",
-				],
-			],
-			'Documento' => [
-				[
+				),
+			),
+			'Documento' => array(
+				array(
 					'code'        => '{{doc_title}}',
 					'description' => 'Título do documento',
 					'example'     => 'Contrato de Serviço',
-				],
-				[
+				),
+				array(
 					'code'        => '{{doc_protocol}}',
 					'description' => 'Código do protocolo',
 					'example'     => 'APR-DOC-2025-A1B2C',
-				],
-				[
+				),
+				array(
 					'code'        => '{{doc_hash}}',
 					'description' => 'Hash SHA-256',
 					'example'     => 'abc123...',
-				],
-				[
+				),
+				array(
 					'code'        => '{{doc_status}}',
 					'description' => 'Status do documento',
 					'example'     => 'draft|ready|signed',
-				],
-				[
+				),
+				array(
 					'code'        => '{{signer_name}}',
 					'description' => 'Nome do assinante',
 					'example'     => 'João Silva',
-				],
-				[
+				),
+				array(
 					'code'        => '{{signer_cpf}}',
 					'description' => 'CPF mascarado',
 					'example'     => '***.456.789-**',
-				],
-			],
-			'Grupo'     => [
-				[
+				),
+			),
+			'Grupo'     => array(
+				array(
 					'code'        => '{{group_name}}',
 					'description' => 'Nome do grupo',
 					'example'     => 'Núcleo Apollo',
-				],
-				[
+				),
+				array(
 					'code'        => '{{group_type}}',
 					'description' => 'Tipo do grupo',
 					'example'     => 'community|nucleo',
-				],
-				[
+				),
+				array(
 					'code'        => '{{group_members_count}}',
 					'description' => 'Número de membros',
 					'example'     => '42',
-				],
-				[
+				),
+				array(
 					'code'        => '{{group_avatar_url}}',
 					'description' => 'Avatar do grupo',
 					'example'     => 'https://...',
-				],
-			],
-		];
+				),
+			),
+		);
 	}
 
 	/**
@@ -882,103 +882,103 @@ class AdminHubPage {
 	 * @return array
 	 */
 	private function getAllForms(): array {
-		return [
-			[
+		return array(
+			array(
 				'name'        => 'Registro de Usuário',
 				'description' => 'Formulário de registro com CPF, gêneros musicais e quiz.',
 				'shortcode'   => '[apollo_register]',
 				'permission'  => 'Visitantes (não logados)',
-				'fields'      => [
-					[
+				'fields'      => array(
+					array(
 						'label'    => 'Nome social & Sobrenome',
 						'type'     => 'text',
 						'required' => true,
 						'meta_key' => 'display_name',
-					],
-					[
+					),
+					array(
 						'label'    => 'Tipo de Documento',
 						'type'     => 'select',
 						'required' => true,
 						'meta_key' => 'apollo_doc_type',
-					],
-					[
+					),
+					array(
 						'label'    => 'CPF',
 						'type'     => 'cpf',
 						'required' => false,
 						'meta_key' => 'apollo_cpf',
-					],
-					[
+					),
+					array(
 						'label'    => 'Passaporte',
 						'type'     => 'text',
 						'required' => false,
 						'meta_key' => 'apollo_passport',
-					],
-					[
+					),
+					array(
 						'label'    => 'E-mail',
 						'type'     => 'email',
 						'required' => true,
 						'meta_key' => 'user_email',
-					],
-					[
+					),
+					array(
 						'label'    => 'Senha',
 						'type'     => 'password',
 						'required' => true,
 						'meta_key' => 'user_pass',
-					],
-					[
+					),
+					array(
 						'label'    => 'Gêneros Musicais (SOUNDS)',
 						'type'     => 'multiselect',
 						'required' => true,
 						'meta_key' => 'apollo_sounds',
-					],
-					[
+					),
+					array(
 						'label'    => 'Quiz de Registro',
 						'type'     => 'quiz',
 						'required' => true,
 						'meta_key' => 'apollo_quiz_completed',
-					],
-				],
-			],
-			[
+					),
+				),
+			),
+			array(
 				'name'        => 'Editor de Documento',
 				'description' => 'Editor WYSIWYG com Quill para criar documentos.',
 				'shortcode'   => '[apollo_document_editor]',
 				'permission'  => 'Usuários logados (edit_posts)',
-				'fields'      => [],
-			],
-			[
+				'fields'      => array(),
+			),
+			array(
 				'name'        => 'Assinatura Digital',
 				'description' => 'Formulário de assinatura com verificação de CPF.',
 				'shortcode'   => '[apollo_sign_document]',
 				'permission'  => 'Usuários com CPF válido',
-				'fields'      => [
-					[
+				'fields'      => array(
+					array(
 						'label'    => 'Nome Completo',
 						'type'     => 'text',
 						'required' => true,
 						'meta_key' => '—',
-					],
-					[
+					),
+					array(
 						'label'    => 'CPF',
 						'type'     => 'cpf',
 						'required' => true,
 						'meta_key' => '—',
-					],
-					[
+					),
+					array(
 						'label'    => 'Aceitar Termos',
 						'type'     => 'checkbox',
 						'required' => true,
 						'meta_key' => '—',
-					],
-					[
+					),
+					array(
 						'label'    => 'Assinatura Canvas',
 						'type'     => 'canvas',
 						'required' => true,
 						'meta_key' => '—',
-					],
-				],
-			],
-		];
+					),
+				),
+			),
+		);
 	}
 
 	/**
@@ -987,146 +987,146 @@ class AdminHubPage {
 	 * @return array
 	 */
 	private function getAllMetakeys(): array {
-		return [
-			'User Meta'                     => [
-				[
+		return array(
+			'User Meta'                     => array(
+				array(
 					'key'         => 'apollo_doc_type',
 					'type'        => 'string',
 					'description' => 'Tipo de documento (cpf|passport)',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_cpf',
 					'type'        => 'string',
 					'description' => 'CPF do usuário',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_cpf_formatted',
 					'type'        => 'string',
 					'description' => 'CPF formatado',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_passport',
 					'type'        => 'string',
 					'description' => 'Número do passaporte',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_passport_country',
 					'type'        => 'string',
 					'description' => 'País do passaporte',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_can_sign_documents',
 					'type'        => 'bool',
 					'description' => 'Se pode assinar documentos',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_sounds',
 					'type'        => 'array',
 					'description' => 'Gêneros musicais preferidos',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_quiz_completed',
 					'type'        => 'bool',
 					'description' => 'Quiz de registro completado',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_quiz_score',
 					'type'        => 'int',
 					'description' => 'Pontuação do quiz',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_membership_type',
 					'type'        => 'string',
 					'description' => 'Tipo de membership',
-				],
-				[
+				),
+				array(
 					'key'         => 'apollo_badges',
 					'type'        => 'array',
 					'description' => 'Badges do usuário',
-				],
-			],
-			'Documento (apollo_document)'   => [
-				[
+				),
+			),
+			'Documento (apollo_document)'   => array(
+				array(
 					'key'         => '_apollo_doc_protocol',
 					'type'        => 'string',
 					'description' => 'Código do protocolo',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_doc_hash',
 					'type'        => 'string',
 					'description' => 'Hash SHA-256 do conteúdo',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_doc_library',
 					'type'        => 'string',
 					'description' => 'Biblioteca (apollo|cenario|private)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_doc_status',
 					'type'        => 'string',
 					'description' => 'Status (draft|ready|signed)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_doc_delta',
 					'type'        => 'json',
 					'description' => 'Conteúdo Delta do Quill',
-				],
-			],
-			'Assinatura (apollo_signature)' => [
-				[
+				),
+			),
+			'Assinatura (apollo_signature)' => array(
+				array(
 					'key'         => '_apollo_sig_type',
 					'type'        => 'string',
 					'description' => 'Tipo (canvas|icp-brasil)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_sig_signer_id',
 					'type'        => 'int',
 					'description' => 'ID do assinante',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_sig_cpf',
 					'type'        => 'string',
 					'description' => 'CPF (criptografado)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_sig_timestamp',
 					'type'        => 'datetime',
 					'description' => 'Data/hora UTC',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_sig_ip',
 					'type'        => 'string',
 					'description' => 'IP do assinante',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_sig_canvas_data',
 					'type'        => 'text',
 					'description' => 'Imagem da assinatura (base64)',
-				],
-			],
-			'Grupo (apollo_group)'          => [
-				[
+				),
+			),
+			'Grupo (apollo_group)'          => array(
+				array(
 					'key'         => '_apollo_group_type',
 					'type'        => 'string',
 					'description' => 'Tipo (community|nucleo)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_group_visibility',
 					'type'        => 'string',
 					'description' => 'Visibilidade (public|private)',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_group_members',
 					'type'        => 'array',
 					'description' => 'IDs dos membros',
-				],
-				[
+				),
+				array(
 					'key'         => '_apollo_group_admins',
 					'type'        => 'array',
 					'description' => 'IDs dos admins',
-				],
-			],
-		];
+				),
+			),
+		);
 	}
 }
 

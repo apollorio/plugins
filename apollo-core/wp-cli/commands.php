@@ -90,7 +90,7 @@ class Apollo_Core_CLI_Commands {
 			$apollo_caps = array(
 				'moderate_apollo_content',
 				'edit_apollo_users',
-				'view_moderation_queue',
+				'view_mod_queue',
 				'send_user_notifications',
 			);
 			foreach ( $apollo_caps as $cap ) {
@@ -121,7 +121,7 @@ class Apollo_Core_CLI_Commands {
 	}
 
 	/**
-	 * View recent moderation log
+	 * View recent mod log
 	 *
 	 * ## OPTIONS
 	 *

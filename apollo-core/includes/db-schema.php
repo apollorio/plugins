@@ -67,7 +67,7 @@ function apollo_create_db_tables(): void {
 }
 
 /**
- * Log moderation action to database
+ * Log mod action to database
  *
  * @param int    $actor_id    User ID performing the action.
  * @param string $action      Action name (e.g., 'approve_post', 'suspend_user').
@@ -111,7 +111,7 @@ function apollo_mod_log_action( int $actor_id, string $action, string $target_ty
 }
 
 /**
- * Get moderation log entries
+ * Get mod log entries
  *
  * @param array $args Query arguments.
  * @return array Array of log entries.

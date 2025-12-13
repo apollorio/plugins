@@ -18,8 +18,8 @@ class CommentsEndpoint {
 	 * Register AJAX handlers
 	 */
 	public function register(): void {
-		add_action( 'wp_ajax_apollo_submit_comment', [ $this, 'submitComment' ] );
-		add_action( 'wp_ajax_nopriv_apollo_submit_comment', [ $this, 'submitComment' ] );
+		add_action( 'wp_ajax_apollo_submit_comment', array( $this, 'submitComment' ) );
+		add_action( 'wp_ajax_nopriv_apollo_submit_comment', array( $this, 'submitComment' ) );
 	}
 
 	/**
@@ -29,7 +29,7 @@ class CommentsEndpoint {
 		check_ajax_referer( 'apollo_comment_nonce', 'nonce' );
 
 		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( [ 'message' => __( 'Você precisa estar logado para comentar.', 'apollo-social' ) ] );
+			wp_send_json_error( array( 'message' => __( 'Você precisa estar logado para comentar.', 'apollo-social' ) ) );
 			return;
 		}
 
@@ -37,12 +37,12 @@ class CommentsEndpoint {
 		$comment_content = sanitize_textarea_field( $_POST['comment'] ?? '' );
 
 		if ( ! $post_id || ! $comment_content ) {
-			wp_send_json_error( [ 'message' => __( 'Dados inválidos.', 'apollo-social' ) ] );
+			wp_send_json_error( array( 'message' => __( 'Dados inválidos.', 'apollo-social' ) ) );
 			return;
 		}
 
 		$user         = wp_get_current_user();
-		$comment_data = [
+		$comment_data = array(
 			'comment_post_ID'      => $post_id,
 			'comment_author'       => $user->display_name,
 			'comment_author_email' => $user->user_email,
@@ -52,12 +52,12 @@ class CommentsEndpoint {
 			'user_id'              => $user->ID,
 			'comment_approved'     => 1,
 		// Auto-aprovar para usuários logados
-		];
+		);
 
 		$comment_id = wp_insert_comment( $comment_data );
 
 		if ( is_wp_error( $comment_id ) ) {
-			wp_send_json_error( [ 'message' => $comment_id->get_error_message() ] );
+			wp_send_json_error( array( 'message' => $comment_id->get_error_message() ) );
 			return;
 		}
 
@@ -68,11 +68,11 @@ class CommentsEndpoint {
 		$comment_html = ob_get_clean();
 
 		wp_send_json_success(
-			[
+			array(
 				'comment_id'    => $comment_id,
 				'html'          => $comment_html,
 				'comment_count' => get_comments_number( $post_id ),
-			]
+			)
 		);
 	}
 

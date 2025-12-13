@@ -17,14 +17,32 @@ $stats = wp_parse_args(
 );
 
 $quick_actions = $quick_actions ?? array(
-	array('icon' => 'ri-add-line', 'label' => 'Novo documento em branco', 'href' => '/doc/new'),
-	array('icon' => 'ri-upload-2-line', 'label' => 'Subir PDF para assinatura', 'href' => '#'),
-	array('icon' => 'ri-download-2-line', 'label' => 'Exportar como PDF', 'href' => '#'),
+	array(
+		'icon'  => 'ri-add-line',
+		'label' => 'Novo documento em branco',
+		'href'  => '/doc/new',
+	),
+	array(
+		'icon'  => 'ri-upload-2-line',
+		'label' => 'Subir PDF para assinatura',
+		'href'  => '#',
+	),
+	array(
+		'icon'  => 'ri-download-2-line',
+		'label' => 'Exportar como PDF',
+		'href'  => '#',
+	),
 );
 
 $shortcuts = $shortcuts ?? array(
-	array('label' => 'Privacidade', 'href' => '#'),
-	array('label' => 'Termos', 'href' => '#'),
+	array(
+		'label' => 'Privacidade',
+		'href'  => '#',
+	),
+	array(
+		'label' => 'Termos',
+		'href'  => '#',
+	),
 );
 ?>
 <aside class="hidden lg:block space-y-4">

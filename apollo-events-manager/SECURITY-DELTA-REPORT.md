@@ -20,8 +20,8 @@ This security audit focused on input sanitization, output escaping, CSRF/nonce v
 - ✅ GET `/categorias`
 - ✅ GET `/locais`
 - ✅ GET `/my-events`
-- ✅ GET `/bookmarks`
-- ✅ POST `/bookmarks/{id}`
+- ✅ GET `/salvos`
+- ✅ POST `/salvos/{id}`
 
 ### AJAX Handlers (Public + Logged-in)
 - ✅ `filter_events`

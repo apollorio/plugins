@@ -5,7 +5,7 @@ namespace Apollo\Domain\Classifieds;
  * Ad entity (stub)
  *
  * Represents a classified advertisement.
- * TODO: Define ad properties, moderation status and season binding.
+ * TODO: Define ad properties, mod and season binding.
  */
 class AdEntity {
 
@@ -29,7 +29,7 @@ class AdEntity {
 
 	/**
 	 * Moderation status
-	 * TODO: implement moderation workflow
+	 * TODO: implement modow
 	 */
 	protected $status;
 
@@ -43,7 +43,7 @@ class AdEntity {
 
 	/**
 	 * Check if ad is approved
-	 * TODO: implement moderation status checking
+	 * TODO: implement mod checking
 	 */
 	public function isApproved() {
 		// TODO: implement approval checking logic

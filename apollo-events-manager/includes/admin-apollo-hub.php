@@ -543,10 +543,11 @@ function apollo_events_render_settings_content() {
 		// Save settings
 		update_option( 'apollo_events_per_page', intval( $_POST['apollo_events_per_page'] ?? 12 ) );
 		update_option( 'apollo_events_map_enabled', isset( $_POST['apollo_events_map_enabled'] ) ? 1 : 0 );
+		update_option( 'apollo_events_map_visual_zoom', isset( $_POST['apollo_events_map_visual_zoom'] ) ? 1 : 0 );
 		update_option( 'apollo_events_favorites_enabled', isset( $_POST['apollo_events_favorites_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_events_analytics_enabled', isset( $_POST['apollo_events_analytics_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_events_submission_enabled', isset( $_POST['apollo_events_submission_enabled'] ) ? 1 : 0 );
-		update_option( 'apollo_events_submission_moderation', isset( $_POST['apollo_events_submission_moderation'] ) ? 1 : 0 );
+		update_option( 'apollo_events_submission_mod', isset( $_POST['apollo_events_submission_mod'] ) ? 1 : 0 );
 
 		// Map defaults (OSM)
 		$zoom = isset( $_POST['event_manager_osm_default_zoom'] ) ? absint( wp_unslash( $_POST['event_manager_osm_default_zoom'] ) ) : 14;
@@ -566,10 +567,11 @@ function apollo_events_render_settings_content() {
 	// Get current settings
 	$per_page              = get_option( 'apollo_events_per_page', 12 );
 	$map_enabled           = get_option( 'apollo_events_map_enabled', 1 );
+	$map_visual_zoom       = get_option( 'apollo_events_map_visual_zoom', 0 );
 	$favorites_enabled     = get_option( 'apollo_events_favorites_enabled', 1 );
 	$analytics_enabled     = get_option( 'apollo_events_analytics_enabled', 1 );
 	$submission_enabled    = get_option( 'apollo_events_submission_enabled', 1 );
-	$submission_moderation = get_option( 'apollo_events_submission_moderation', 1 );
+	$submission_mod = get_option( 'apollo_events_submission_mod', 1 );
 	$osm_zoom              = (int) get_option( 'event_manager_osm_default_zoom', 14 );
 	$osm_zoom              = ( $osm_zoom < 8 || $osm_zoom > 24 ) ? 14 : $osm_zoom;
 	$osm_tile_style        = get_option( 'event_manager_osm_tile_style', 'default' );
@@ -616,6 +618,17 @@ function apollo_events_render_settings_content() {
 										<?php checked( $map_enabled, 1 ); ?>>
 								<?php esc_html_e( 'Habilitar Mapa (Leaflet)', 'apollo-events-manager' ); ?>
 							</label>
+							<br>
+							<label>
+								<input type="checkbox" 
+										name="apollo_events_map_visual_zoom" 
+										value="1" 
+										<?php checked( $map_visual_zoom, 1 ); ?>>
+								<?php esc_html_e( 'Ativar zoom visual do mapa', 'apollo-events-manager' ); ?>
+							</label>
+							<p class="description" style="margin-top:4px;">
+								<?php esc_html_e( 'Aplica um zoom visual (recorte cinematográfico) no mapa do evento, sem alterar o zoom real do Leaflet.', 'apollo-events-manager' ); ?>
+							</p>
 							<br>
 							<label>
 								<input type="checkbox" 
@@ -693,9 +706,9 @@ function apollo_events_render_settings_content() {
 							<br>
 							<label>
 								<input type="checkbox" 
-										name="apollo_events_submission_moderation" 
+										name="apollo_events_submission_mod" 
 										value="1" 
-										<?php checked( $submission_moderation, 1 ); ?>>
+										<?php checked( $submission_mod, 1 ); ?>>
 								<?php esc_html_e( 'Exigir moderação antes de publicar', 'apollo-events-manager' ); ?>
 							</label>
 						</fieldset>
