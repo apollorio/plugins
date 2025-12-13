@@ -156,7 +156,7 @@ class Apollo_Core_Activation {
 		$default_settings = array(
 			'auto_approve_events' => false,
 			'auto_approve_posts'  => false,
-			'require_moderation'  => array( 'event_listing', 'apollo_social_post' ),
+			'require_mod'         => array( 'event_listing', 'apollo_social_post' ),
 			'mod_roles'           => array( 'apollo', 'editor', 'administrator' ),
 			'audit_log_enabled'   => true,
 			'canvas_mode_enabled' => true,

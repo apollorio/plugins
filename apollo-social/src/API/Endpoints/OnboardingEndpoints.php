@@ -74,116 +74,116 @@ class OnboardingEndpoints {
 		// Get onboarding options (industries, roles, memberships).
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/options',
-			[
+			'bem-vinde/options',
+			array(
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'getOnboardingOptions' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
-			]
+				'callback'            => array( $this, 'getOnboardingOptions' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
+			)
 		);
 
 		// Begin onboarding process.
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/begin',
-			[
+			'bem-vinde/begin',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'beginOnboardingProcess' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
+				'callback'            => array( $this, 'beginOnboardingProcess' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
 				'args'                => $this->getBeginOnboardingArgs(),
-			]
+			)
 		);
 
 		// Complete onboarding process.
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/complete',
-			[
+			'bem-vinde/complete',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'completeOnboardingProcess' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
+				'callback'            => array( $this, 'completeOnboardingProcess' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
 				'args'                => $this->getCompleteOnboardingArgs(),
-			]
+			)
 		);
 
 		// Request DM verification (user).
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/verify/request-dm',
-			[
+			'bem-vinde/verificar/request-dm',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'requestDmVerification' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
-			]
+				'callback'            => array( $this, 'requestDmVerification' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
+			)
 		);
 
 		// Get verification status.
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/verify/status',
-			[
+			'bem-vinde/verificar/status',
+			array(
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'getVerificationStatus' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
-			]
+				'callback'            => array( $this, 'getVerificationStatus' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
+			)
 		);
 
 		// Confirm verification (admin/mod).
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/verify/confirm',
-			[
+			'bem-vinde/verificar/confirm',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'confirmVerification' ],
-				'permission_callback' => [ $this, 'checkAdminPermission' ],
-				'args'                => [
-					'user_id' => [
+				'callback'            => array( $this, 'confirmVerification' ),
+				'permission_callback' => array( $this, 'checkAdminPermission' ),
+				'args'                => array(
+					'user_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'validate_callback' => function ( $param ) {
 							return is_numeric( $param ) && $param > 0;
 						},
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		// Cancel verification (admin/mod).
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/verify/cancel',
-			[
+			'bem-vinde/verificar/cancel',
+			array(
 				'methods'             => 'POST',
-				'callback'            => [ $this, 'cancelVerification' ],
-				'permission_callback' => [ $this, 'checkAdminPermission' ],
-				'args'                => [
-					'user_id' => [
+				'callback'            => array( $this, 'cancelVerification' ),
+				'permission_callback' => array( $this, 'checkAdminPermission' ),
+				'args'                => array(
+					'user_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'validate_callback' => function ( $param ) {
 							return is_numeric( $param ) && $param > 0;
 						},
-					],
-					'reason'  => [
+					),
+					'reason'  => array(
 						'required'          => false,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 
 		// Get user profile.
 		register_rest_route(
 			'apollo/v1',
-			'/onboarding/profile',
-			[
+			'bem-vinde/profile',
+			array(
 				'methods'             => 'GET',
-				'callback'            => [ $this, 'getUserProfile' ],
-				'permission_callback' => [ $this, 'checkUserPermission' ],
-			]
+				'callback'            => array( $this, 'getUserProfile' ),
+				'permission_callback' => array( $this, 'checkUserPermission' ),
+			)
 		);
 	}
 
@@ -198,17 +198,17 @@ class OnboardingEndpoints {
 	 */
 	public function getOnboardingOptions( \WP_REST_Request $_request ): \WP_REST_Response {
 		try {
-			$options = [
+			$options = array(
 				'industries'  => $this->userRepo->getIndustryOptions(),
 				'roles'       => $this->userRepo->getRoleOptions(),
 				'memberships' => $this->userRepo->getMembershipOptions(),
-			];
+			);
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => true,
 					'data'    => $options,
-				],
+				),
 				200
 			);
 
@@ -217,10 +217,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::getOnboardingOptions error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro ao carregar opções',
-				],
+				),
 				500
 			);
 		}//end try
@@ -237,10 +237,10 @@ class OnboardingEndpoints {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Usuário não autenticado',
-					],
+					),
 					401
 				);
 			}
@@ -254,11 +254,11 @@ class OnboardingEndpoints {
 			$validation = $this->validateBeginOnboardingData( $data );
 			if ( ! $validation['valid'] ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Dados inválidos',
 						'errors'  => $validation['errors'],
-					],
+					),
 					400
 				);
 			}
@@ -273,10 +273,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::beginOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro interno no servidor',
-				],
+				),
 				500
 			);
 		}//end try
@@ -293,10 +293,10 @@ class OnboardingEndpoints {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Usuário não autenticado',
-					],
+					),
 					401
 				);
 			}
@@ -307,10 +307,10 @@ class OnboardingEndpoints {
 			$rate_check = $this->completeOnboarding->checkRateLimit( $user_id );
 			if ( ! $rate_check['allowed'] ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => "Aguarde {$rate_check['wait_time']} segundos",
-					],
+					),
 					429
 				);
 			}
@@ -325,10 +325,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::completeOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro interno no servidor',
-				],
+				),
 				500
 			);
 		}//end try
@@ -347,10 +347,10 @@ class OnboardingEndpoints {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Usuário não autenticado',
-					],
+					),
 					401
 				);
 			}
@@ -359,10 +359,10 @@ class OnboardingEndpoints {
 			$rate_check = $this->checkDmRequestRateLimit( $user_id );
 			if ( ! $rate_check['allowed'] ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => "Aguarde {$rate_check['wait_time']} segundos antes de solicitar novamente",
-					],
+					),
 					429
 				);
 			}
@@ -377,10 +377,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::requestDmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro interno no servidor',
-				],
+				),
 				500
 			);
 		}//end try
@@ -399,10 +399,10 @@ class OnboardingEndpoints {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Usuário não autenticado',
-					],
+					),
 					401
 				);
 			}
@@ -410,10 +410,10 @@ class OnboardingEndpoints {
 			$status = $this->verifyInstagram->getVerificationStatus( $user_id );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => true,
 					'data'    => $status,
-				],
+				),
 				200
 			);
 
@@ -422,10 +422,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::getVerificationStatus error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro ao carregar status',
-				],
+				),
 				500
 			);
 		}//end try
@@ -441,10 +441,10 @@ class OnboardingEndpoints {
 		try {
 			if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_users' ) ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Sem permissão',
-					],
+					),
 					403
 				);
 			}
@@ -454,10 +454,10 @@ class OnboardingEndpoints {
 
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'ID do usuário inválido',
-					],
+					),
 					400
 				);
 			}
@@ -471,10 +471,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::confirmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro interno no servidor',
-				],
+				),
 				500
 			);
 		}//end try
@@ -490,10 +490,10 @@ class OnboardingEndpoints {
 		try {
 			if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_users' ) ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Sem permissão',
-					],
+					),
 					403
 				);
 			}
@@ -504,10 +504,10 @@ class OnboardingEndpoints {
 
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'ID do usuário inválido',
-					],
+					),
 					400
 				);
 			}
@@ -521,10 +521,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::cancelVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro interno no servidor',
-				],
+				),
 				500
 			);
 		}//end try
@@ -543,10 +543,10 @@ class OnboardingEndpoints {
 			$user_id = get_current_user_id();
 			if ( ! $user_id ) {
 				return new \WP_REST_Response(
-					[
+					array(
 						'success' => false,
 						'message' => 'Usuário não autenticado',
-					],
+					),
 					401
 				);
 			}
@@ -554,10 +554,10 @@ class OnboardingEndpoints {
 			$profile = $this->userRepo->getUserProfile( $user_id );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => true,
 					'data'    => $profile,
-				],
+				),
 				200
 			);
 
@@ -566,10 +566,10 @@ class OnboardingEndpoints {
 			error_log( 'OnboardingEndpoints::getUserProfile error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => 'Erro ao carregar perfil',
-				],
+				),
 				500
 			);
 		}//end try
@@ -627,15 +627,15 @@ class OnboardingEndpoints {
 		$last_request = wp_cache_get( $cache_key );
 
 		if ( $last_request && ( time() - $last_request ) < 60 ) {
-			return [
+			return array(
 				'allowed'   => false,
 				'wait_time' => 60 - ( time() - $last_request ),
-			];
+			);
 		}
 
 		wp_cache_set( $cache_key, time(), '', 60 );
 
-		return [ 'allowed' => true ];
+		return array( 'allowed' => true );
 	}
 
 	/**
@@ -645,10 +645,10 @@ class OnboardingEndpoints {
 	 * @return array The sanitized onboarding data.
 	 */
 	private function sanitizeOnboardingData( array $data ): array {
-		$sanitized = [];
+		$sanitized = array();
 
 		// Sanitize string fields.
-		$string_fields = [ 'name', 'industry', 'whatsapp', 'instagram' ];
+		$string_fields = array( 'name', 'industry', 'whatsapp', 'instagram' );
 		foreach ( $string_fields as $field ) {
 			if ( isset( $data[ $field ] ) ) {
 				$sanitized[ $field ] = sanitize_text_field( $data[ $field ] );
@@ -656,7 +656,7 @@ class OnboardingEndpoints {
 		}
 
 		// Sanitize array fields (roles, member_of).
-		$array_fields = [ 'roles', 'member_of' ];
+		$array_fields = array( 'roles', 'member_of' );
 		foreach ( $array_fields as $field ) {
 			if ( isset( $data[ $field ] ) && is_array( $data[ $field ] ) ) {
 				$sanitized[ $field ] = array_map( 'sanitize_key', $data[ $field ] );
@@ -678,10 +678,10 @@ class OnboardingEndpoints {
 	 * @return array Validation result with valid flag and errors.
 	 */
 	private function validateBeginOnboardingData( array $data ): array {
-		$errors = [];
+		$errors = array();
 
 		// Required fields.
-		$required_fields = [ 'name', 'industry' ];
+		$required_fields = array( 'name', 'industry' );
 		foreach ( $required_fields as $field ) {
 			if ( empty( $data[ $field ] ) ) {
 				$errors[ $field ] = "Campo {$field} é obrigatório";
@@ -718,10 +718,10 @@ class OnboardingEndpoints {
 			}
 		}
 
-		return [
+		return array(
 			'valid'  => empty( $errors ),
 			'errors' => $errors,
-		];
+		);
 	}
 
 	/**
@@ -730,7 +730,7 @@ class OnboardingEndpoints {
 	 * @return string The client IP address or 'unknown'.
 	 */
 	private function getClientIp(): string {
-		$ip_headers = [
+		$ip_headers = array(
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
 			'HTTP_X_FORWARDED',
@@ -738,7 +738,7 @@ class OnboardingEndpoints {
 			'HTTP_FORWARDED_FOR',
 			'HTTP_FORWARDED',
 			'REMOTE_ADDR',
-		];
+		);
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
@@ -756,60 +756,60 @@ class OnboardingEndpoints {
 	 * @return array The endpoint arguments configuration.
 	 */
 	private function getBeginOnboardingArgs(): array {
-		return [
-			'name'      => [
+		return array(
+			'name'      => array(
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => function ( $param ) {
 					return ! empty( $param ) && strlen( $param ) <= 100;
 				},
-			],
-			'industry'  => [
+			),
+			'industry'  => array(
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_key',
 				'validate_callback' => function ( $param ) {
 					return ! empty( $param );
 				},
-			],
-			'roles'     => [
+			),
+			'roles'     => array(
 				'required'          => false,
 				'type'              => 'array',
 				'sanitize_callback' => function ( $value ) {
 					if ( ! is_array( $value ) ) {
-						return [];
+						return array();
 					}
 					return array_map( 'sanitize_key', $value );
 				},
 				'validate_callback' => function ( $value ) {
 					return is_array( $value ) || empty( $value );
 				},
-			],
-			'member_of' => [
+			),
+			'member_of' => array(
 				'required'          => false,
 				'type'              => 'array',
 				'sanitize_callback' => function ( $value ) {
 					if ( ! is_array( $value ) ) {
-						return [];
+						return array();
 					}
 					return array_map( 'sanitize_key', $value );
 				},
 				'validate_callback' => function ( $value ) {
 					return is_array( $value ) || empty( $value );
 				},
-			],
-			'whatsapp'  => [
+			),
+			'whatsapp'  => array(
 				'required'          => false,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			],
-			'instagram' => [
+			),
+			'instagram' => array(
 				'required'          => false,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-			],
-		];
+			),
+		);
 	}
 
 	/**
@@ -818,15 +818,15 @@ class OnboardingEndpoints {
 	 * @return array The endpoint arguments configuration.
 	 */
 	private function getCompleteOnboardingArgs(): array {
-		return [
-			'confirm' => [
+		return array(
+			'confirm' => array(
 				'required'          => true,
 				'type'              => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'validate_callback' => function ( $param ) {
 					return is_bool( $param ) || 'true' === $param || 'false' === $param || 1 === $param || 0 === $param;
 				},
-			],
-		];
+			),
+		);
 	}
 }

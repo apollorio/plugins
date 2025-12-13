@@ -10,27 +10,72 @@ $sections = $sections ?? array(
 	array(
 		'title' => 'Navegação',
 		'items' => array(
-			array('icon' => 'ri-building-3-line', 'label' => 'Feed', 'href' => '#'),
-			array('icon' => 'ri-calendar-event-line', 'label' => 'Eventos', 'href' => '#'),
-			array('icon' => 'ri-user-community-fill', 'label' => 'Comunidades', 'href' => '#'),
-			array('icon' => 'ri-team-fill', 'label' => 'Núcleos', 'href' => '#'),
-			array('icon' => 'ri-megaphone-line', 'label' => 'Classificados', 'href' => '#'),
-			array('icon' => 'ri-file-text-line', 'label' => 'Docs & Contratos', 'href' => '#'),
-			array('icon' => 'ri-user-smile-fill', 'label' => 'Perfil', 'href' => '#'),
+			array(
+				'icon'  => 'ri-building-3-line',
+				'label' => 'Feed',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-calendar-event-line',
+				'label' => 'Eventos',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-user-community-fill',
+				'label' => 'Comunidades',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-team-fill',
+				'label' => 'Núcleos',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-megaphone-line',
+				'label' => 'Classificados',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-file-text-line',
+				'label' => 'Docs & Contratos',
+				'href'  => '#',
+			),
+			array(
+				'icon'  => 'ri-user-smile-fill',
+				'label' => 'Perfil',
+				'href'  => '#',
+			),
 		),
 	),
 	array(
 		'title' => 'Cena::rio',
 		'items' => array(
-			array('icon' => 'ri-calendar-line', 'label' => 'Agenda', 'href' => '#'),
-			array('icon' => 'ri-bar-chart-grouped-line', 'label' => 'Fornecedores', 'href' => '#', 'current' => true),
-			array('icon' => 'ri-file-text-line', 'label' => 'Documentos', 'href' => '#'),
+			array(
+				'icon'  => 'ri-calendar-line',
+				'label' => 'Agenda',
+				'href'  => '#',
+			),
+			array(
+				'icon'    => 'ri-bar-chart-grouped-line',
+				'label'   => 'Fornecedores',
+				'href'    => '#',
+				'current' => true,
+			),
+			array(
+				'icon'  => 'ri-file-text-line',
+				'label' => 'Documentos',
+				'href'  => '#',
+			),
 		),
 	),
 	array(
 		'title' => 'Acesso Rápido',
 		'items' => array(
-			array('icon' => 'ri-settings-6-line', 'label' => 'Ajustes', 'href' => '#'),
+			array(
+				'icon'  => 'ri-settings-6-line',
+				'label' => 'Ajustes',
+				'href'  => '#',
+			),
 		),
 	),
 );
@@ -48,7 +93,8 @@ $user = wp_parse_args(
 	<nav class="ap-sidebar-nav ap-no-scrollbar">
 		<?php foreach ( $sections as $section ) : ?>
 			<div class="ap-nav-section-title"><?php echo esc_html( $section['title'] ); ?></div>
-			<?php foreach ( $section['items'] as $item ) :
+			<?php
+			foreach ( $section['items'] as $item ) :
 				$current = ! empty( $item['current'] );
 				?>
 				<a

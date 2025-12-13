@@ -892,12 +892,20 @@ function apollo_events_ajax_create_canvas_page() {
 		return;
 	}
 
-	$shortcode_tag  = sanitize_text_field( $_POST['shortcode_tag'] ?? '' );
-	$shortcode_full = sanitize_text_field( $_POST['shortcode_full'] ?? '' );
-	$slug           = sanitize_title( $_POST['slug'] ?? '' );
-	$page_title     = sanitize_text_field( $_POST['page_title'] ?? '' );
-	$template       = sanitize_text_field( $_POST['template'] ?? 'pagx_appclean' );
-	$publish        = isset( $_POST['publish'] ) && $_POST['publish'] === 'true';
+	// SECURITY: Sanitize all inputs with proper unslashing
+	$shortcode_tag  = isset( $_POST['shortcode_tag'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcode_tag'] ) ) : '';
+	$shortcode_full = isset( $_POST['shortcode_full'] ) ? sanitize_text_field( wp_unslash( $_POST['shortcode_full'] ) ) : '';
+	$slug           = isset( $_POST['slug'] ) ? sanitize_title( wp_unslash( $_POST['slug'] ) ) : '';
+	$page_title     = isset( $_POST['page_title'] ) ? sanitize_text_field( wp_unslash( $_POST['page_title'] ) ) : '';
+	$template       = isset( $_POST['template'] ) ? sanitize_text_field( wp_unslash( $_POST['template'] ) ) : 'pagx_appclean';
+	$publish_raw    = isset( $_POST['publish'] ) ? sanitize_text_field( wp_unslash( $_POST['publish'] ) ) : 'false';
+	$publish        = ( $publish_raw === 'true' );
+
+	// SECURITY: Validate template against whitelist
+	$valid_templates = array( 'pagx_appclean', 'pagx_app', 'pagx_site', 'default' );
+	if ( ! in_array( $template, $valid_templates, true ) ) {
+		$template = 'pagx_appclean';
+	}
 
 	if ( empty( $slug ) ) {
 		wp_send_json_error( 'Slug é obrigatório' );

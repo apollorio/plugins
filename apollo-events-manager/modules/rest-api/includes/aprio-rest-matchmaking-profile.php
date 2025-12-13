@@ -20,7 +20,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 			'/preferencias',
 			array(
 				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'aprio_get_matchmaking_profile_data' ),
+				'callback' => array( $this, 'aprio_get_compatibilidade_profile_data' ),
 				'args'     => array(
 					'attendeeId' => array(
 						'required' => false,
@@ -35,7 +35,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 			'/preferencias/update',
 			array(
 				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'aprio_update_matchmaking_profile' ),
+				'callback' => array( $this, 'aprio_update_compatibilidade_profile' ),
 				'args'     => array(
 					'user_id' => array(
 						'required' => true,
@@ -71,8 +71,8 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function aprio_get_matchmaking_profile_data( $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function aprio_get_compatibilidade_profile_data( $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -196,7 +196,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 					'first_name'                => isset( $user_meta['first_name'][0] ) ? sanitize_text_field( $user_meta['first_name'][0] ) : '',
 					'last_name'                 => isset( $user_meta['last_name'][0] ) ? sanitize_text_field( $user_meta['last_name'][0] ) : '',
 					'email'                     => $user->user_email,
-					'matchmaking_profile'       => isset( $user_meta['_matchmaking_profile'][0] ) ? (int) $user_meta['_matchmaking_profile'][0] : 0,
+					'compatibilidade_profile'       => isset( $user_meta['_compatibilidade_profile'][0] ) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
 					'profile_photo'             => $photo,
 					'profession'                => $profession_slug,
 					'experience'                => isset( $user_meta['_experience'][0] ) ? (float) $user_meta['_experience'][0] : 0,
@@ -228,9 +228,9 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 					200
 				);
 			} else {
-				// Get all users with matchmaking profiles
+				// Get all users with compatibilidade profiles
 				$args  = array(
-					'meta_key'     => '_matchmaking_profile',
+					'meta_key'     => '_compatibilidade_profile',
 					'meta_value'   => '1',
 					'meta_compare' => '=',
 				);
@@ -322,7 +322,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 						'first_name'                => isset( $user_meta['first_name'][0] ) ? sanitize_text_field( $user_meta['first_name'][0] ) : '',
 						'last_name'                 => isset( $user_meta['last_name'][0] ) ? sanitize_text_field( $user_meta['last_name'][0] ) : '',
 						'email'                     => $user->user_email,
-						'matchmaking_profile'       => isset( $user_meta['_matchmaking_profile'][0] ) ? (int) $user_meta['_matchmaking_profile'][0] : 0,
+						'compatibilidade_profile'       => isset( $user_meta['_compatibilidade_profile'][0] ) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
 						'profile_photo'             => $photo,
 						'profession'                => $profession_slug,
 						'experience'                => isset( $user_meta['_experience'][0] ) ? (float) $user_meta['_experience'][0] : 0,
@@ -358,14 +358,14 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 		}//end if
 	}
 	/**
-	 * Update a user's matchmaking profile.
+	 * Update a user's compatibilidade profile.
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function aprio_update_matchmaking_profile( $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function aprio_update_compatibilidade_profile( $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -410,7 +410,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 				'organization_description',
 				'organization_website',
 				'message_notification',
-				'matchmaking_profile',
+				'compatibilidade_profile',
 			);
 
 			// Handle normal meta fields
@@ -570,7 +570,7 @@ class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function upload_user_file( $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,

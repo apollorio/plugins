@@ -153,7 +153,7 @@ function apollo_get_seo_type_description( $type_key ) {
 		'comunidade'  => __( 'Community group pages (/comunidade/slug)', 'apollo-rio' ),
 		'nucleo'      => __( 'Núcleo group pages (/nucleo/slug)', 'apollo-rio' ),
 		'dj'          => __( 'DJ profile pages (/dj/slug)', 'apollo-rio' ),
-		'local'       => __( 'Venue pages (/local/slug)', 'apollo-rio' ),
+		'local'       => __( 'Venue pages (/loc/slug)', 'apollo-rio' ),
 		'event'       => __( 'Event listing pages (/event/slug)', 'apollo-rio' ),
 		'classifieds' => __( 'Classified ad pages', 'apollo-rio' ),
 	);

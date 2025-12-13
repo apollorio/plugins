@@ -1,0 +1,63 @@
+# PHPStan WordPress Extension é carregado automaticamente via extension-installer
+# Não precisa incluir manualmente
+
+parameters:
+    level: 6
+
+    # Analise somente seus plugins Apollo por padrão
+    # Começando com apollo-core para gerar baseline
+    paths:
+        - apollo-core
+        # Descomente os outros plugins após gerar baseline:
+        # - apollo-events-manager
+        # - apollo-social
+        # - apollo-email-newsletter
+        # - apollo-email-templates
+        # - apollo-rio
+
+    # Cache local do PHPStan
+    tmpDir: .phpstan/cache
+
+    # Bootstrap para constantes globais WP
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+
+    # Excluir diretórios - MARQUE COMO OPCIONAL com (?)
+    excludePaths:
+        analyseAndScan:
+            - vendor (?)
+            - node_modules (?)
+            - dist (?)
+            - build (?)
+            - assets (?)
+            - languages (?)
+            - .git (?)
+            - .phpstan (?)
+            - dev-vendor (?)
+            - icons (?)
+            - buddyboss-platform (?)
+            - wordpress (?)
+            - wp (?)
+            # Excluir subdiretórios dentro dos plugins
+            - apollo-*/node_modules (?)
+            - apollo-*/vendor (?)
+            - apollo-*/assets (?)
+            - apollo-*/languages (?)
+            - apollo-*/tiny_mce (?)
+            - apollo-*/emails (?)
+            - apollo-*/images (?)
+            - apollo-*/css (?)
+            - apollo-*/js (?)
+            - apollo-*/templates (?)
+            - apollo-*/tests (?)
+            - apollo-email-newsletter/tiny_mce (?)
+            - apollo-email-newsletter/emails (?)
+            - apollo-email-newsletter/images (?)
+            - apollo-social/vendor (?)
+            - apollo-social/node_modules (?)
+            - apollo-events-manager/node_modules (?)
+
+    # Configurações saudáveis
+    reportUnmatchedIgnoredErrors: true
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false

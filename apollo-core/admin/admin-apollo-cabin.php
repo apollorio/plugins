@@ -232,62 +232,62 @@ function apollo_admin_cabin_render_page(): void {
 	$modules = Apollo_Modules_Config::get_modules();
 
 	$module_info = array(
-		'social'        => array(
+		'social'          => array(
 			'name' => __( 'Social', 'apollo-core' ),
 			'desc' => __( 'Feed social, posts, likes, comentários.', 'apollo-core' ),
 			'icon' => 'dashicons-share',
 		),
-		'events'        => array(
+		'events'          => array(
 			'name' => __( 'Eventos', 'apollo-core' ),
 			'desc' => __( 'Apollo Events Manager - calendário e eventos.', 'apollo-core' ),
 			'icon' => 'dashicons-calendar-alt',
 		),
-		'bolha'         => array(
+		'bolha'           => array(
 			'name' => __( 'Bolha', 'apollo-core' ),
 			'desc' => __( 'Sistema de bolha (até 15 pessoas).', 'apollo-core' ),
 			'icon' => 'dashicons-groups',
 		),
-		'chat'          => array(
+		'chat'            => array(
 			'name' => __( 'Chat', 'apollo-core' ),
 			'desc' => __( 'Mensagens diretas entre usuários.', 'apollo-core' ),
 			'icon' => 'dashicons-format-chat',
 		),
-		'docs'          => array(
+		'docs'            => array(
 			'name' => __( 'Documentos', 'apollo-core' ),
 			'desc' => __( 'Documentos e assinaturas digitais.', 'apollo-core' ),
 			'icon' => 'dashicons-media-document',
 		),
-		'comunas'       => array(
+		'comunas'         => array(
 			'name' => __( 'Comunas', 'apollo-core' ),
 			'desc' => __( 'Comunidades e grupos.', 'apollo-core' ),
 			'icon' => 'dashicons-networking',
 		),
-		'matchmaking'   => array(
+		'compatibilidade' => array(
 			'name' => __( 'Matchmaking', 'apollo-core' ),
 			'desc' => __( 'Match entre usuários (futuro).', 'apollo-core' ),
 			'icon' => 'dashicons-heart',
 		),
-		'cena_rio'      => array(
+		'cena_rio'        => array(
 			'name' => __( 'CENA::RIO', 'apollo-core' ),
 			'desc' => __( 'Submissões e curadoria de eventos.', 'apollo-core' ),
 			'icon' => 'dashicons-location-alt',
 		),
-		'classifieds'   => array(
+		'classifieds'     => array(
 			'name' => __( 'Classificados', 'apollo-core' ),
 			'desc' => __( 'Anúncios e marketplace.', 'apollo-core' ),
 			'icon' => 'dashicons-megaphone',
 		),
-		'notifications' => array(
+		'notifications'   => array(
 			'name' => __( 'Notificações', 'apollo-core' ),
 			'desc' => __( 'Sistema de notificações push/in-app.', 'apollo-core' ),
 			'icon' => 'dashicons-bell',
 		),
-		'onboarding'    => array(
+		'onboarding'      => array(
 			'name' => __( 'Onboarding', 'apollo-core' ),
 			'desc' => __( 'Trilha de boas-vindas para novos usuários.', 'apollo-core' ),
 			'icon' => 'dashicons-welcome-learn-more',
 		),
-		'achievements'  => array(
+		'achievements'    => array(
 			'name' => __( 'Conquistas', 'apollo-core' ),
 			'desc' => __( 'Conquistas privadas (futuro).', 'apollo-core' ),
 			'icon' => 'dashicons-awards',

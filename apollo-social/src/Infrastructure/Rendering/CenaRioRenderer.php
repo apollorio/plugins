@@ -53,7 +53,7 @@ class CenaRioRenderer {
 		// P0-10: Get events for calendar (draft + publish)
 		$calendar_events = $this->getCalendarEvents( $current_month );
 
-		// P0-10: Get pending events for moderation (if user is MOD/ADMIN)
+		// P0-10: Get pending events for mod (if user is MOD/ADMIN)
 		$pending_events = [];
 		if ( current_user_can( 'edit_others_posts' ) ) {
 			$pending_events = $this->getPendingEvents();
@@ -156,7 +156,7 @@ class CenaRioRenderer {
 	}
 
 	/**
-	 * P0-10: Get pending events for moderation
+	 * P0-10: Get pending events for mod
 	 */
 	private function getPendingEvents() {
 		if ( ! post_type_exists( 'event_listing' ) ) {

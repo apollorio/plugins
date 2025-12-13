@@ -1,0 +1,19 @@
+image: php:8.3
+
+stages: [qa]
+
+cache:
+  paths:
+    - vendor/
+    - .composer-cache/
+
+before_script:
+  - php -v
+  - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+  - composer install --no-interaction --prefer-dist --no-progress
+
+qa:
+  stage: qa
+  script:
+    - composer lint:phpcs
+    - composer analyze:phpstan

@@ -165,7 +165,7 @@ get_header();
 	<!-- Image Gallery -->
 	<div class="ap-card" style="padding: 0; overflow: hidden; margin-bottom: 16px;">
 	<?php if ( $featured_image ) : ?>
-	<div style="position: relative; aspect-ratio: 16/10; background: var(--ap-bg-muted);">
+	<div style="position: relative; aspect-ratio: 16/10; background: var((--bg-main)-muted);">
 		<img src="<?php echo esc_url( $featured_image ); ?>" alt="<?php echo esc_attr( $title ); ?>"
 			style="width: 100%; height: 100%; object-fit: cover;"
 			data-ap-tooltip="Imagem principal do anúncio">
@@ -183,7 +183,7 @@ get_header();
 		<?php endif; ?>
 	</div>
 	<?php else : ?>
-	<div style="aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; background: var(--ap-bg-muted);">
+	<div style="aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; background: var((--bg-main)-muted);">
 		<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size: 64px; color: var(--ap-text-muted);"></i>
 	</div>
 	<?php endif; ?>
@@ -247,7 +247,7 @@ get_header();
 
 	<?php if ( 'tickets' === $category && $event_title ) : ?>
 	<!-- Event Info for Tickets -->
-	<div style="margin-top: 16px; padding: 12px; background: var(--ap-bg-muted); border-radius: var(--ap-radius-lg);">
+	<div style="margin-top: 16px; padding: 12px; background: var((--bg-main)-muted); border-radius: var(--ap-radius-lg);">
 		<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
 		<i class="ri-calendar-event-fill" style="color: var(--ap-orange-500);"></i>
 		<div>
@@ -392,7 +392,7 @@ get_header();
 			$rel_thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium' );
 			?>
 		<a href="<?php the_permalink(); ?>" class="ap-card" style="padding: 0; overflow: hidden; text-decoration: none;">
-		<div style="aspect-ratio: 4/3; background: var(--ap-bg-muted);">
+		<div style="aspect-ratio: 4/3; background: var((--bg-main)-muted);">
 			<?php if ( $rel_thumb ) : ?>
 			<img src="<?php echo esc_url( $rel_thumb ); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
 			<?php endif; ?>

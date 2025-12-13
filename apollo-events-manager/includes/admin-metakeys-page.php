@@ -328,7 +328,7 @@ if ( ! function_exists( 'apollo_events_get_all_metakeys' ) ) {
 						'example'     => '1234',
 					),
 					array(
-						'key'         => '_apollo_coauthors',
+						'key'         => '_event_gestao',
 						'type'        => 'array',
 						'required'    => false,
 						'description' => __( 'Array de user IDs dos co-autores', 'apollo-events-manager' ),

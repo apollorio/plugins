@@ -31,7 +31,7 @@ class RestRoutes {
 		// Comunas routes (Groups in Portuguese)
 		register_rest_route(
 			'apollo/v1',
-			'/comunas',
+			'comunas',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ new GroupsController(), 'index' ],
@@ -51,7 +51,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/comunas/(?P<id>\d+)/join',
+			'comunas/(?P<id>\d+)/join',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new GroupsController(), 'join' ],
@@ -61,7 +61,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/comunas/(?P<id>\d+)/invite',
+			'comunas/(?P<id>\d+)/invite',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new GroupsController(), 'invite' ],
@@ -71,7 +71,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/comunas/(?P<id>\d+)/approve-invite',
+			'comunas/(?P<id>\d+)/aprovar-invite',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new GroupsController(), 'approveInvite' ],
@@ -84,7 +84,7 @@ class RestRoutes {
 		// =====================================================================
 		register_rest_route(
 			'apollo/v1',
-			'/membro',
+			'membro',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ new MembershipsController(), 'index' ],
@@ -94,7 +94,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/membro/(?P<id>\d+)/toggle-badges',
+			'membro/(?P<id>\d+)/toggle-badges',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new MembershipsController(), 'toggleBadges' ],
@@ -107,7 +107,7 @@ class RestRoutes {
 		// =====================================================================
 		register_rest_route(
 			'apollo/v1',
-			'/uniao',
+			'uniao',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ new MembershipsController(), 'index' ],
@@ -117,7 +117,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/uniao/(?P<id>\d+)/toggle-badges',
+			'uniao/(?P<id>\d+)/toggle-badges',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new MembershipsController(), 'toggleBadges' ],
@@ -128,7 +128,7 @@ class RestRoutes {
 		// Anúncios routes (Classifieds in Portuguese - WPAdverts integration)
 		register_rest_route(
 			'apollo/v1',
-			'/anuncios',
+			'anuncios',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'restGetClassifieds' ],
@@ -138,7 +138,7 @@ class RestRoutes {
 
 		register_rest_route(
 			'apollo/v1',
-			'/anuncio/(?P<id>\d+)',
+			'anuncio/(?P<id>\d+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'restGetClassified' ],
@@ -149,7 +149,7 @@ class RestRoutes {
 		// Post anúncio
 		register_rest_route(
 			'apollo/v1',
-			'/anuncios',
+			'anuncio/add',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ new ClassifiedsController(), 'create' ],
@@ -160,7 +160,7 @@ class RestRoutes {
 		// User ID routes (shortened from /users to /id)
 		register_rest_route(
 			'apollo/v1',
-			'/id/(?P<id>[a-zA-Z0-9_-]+)',
+			'id/(?P<id>[a-zA-Z0-9_-]+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ new UsersController(), 'show' ],

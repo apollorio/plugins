@@ -10,7 +10,7 @@ echo  ██████  APOLLO → WORDPRESS CODING STANDARDS CHECK (PHPCS)
 echo  ===========================================================
 set XDEBUG_MODE=off
 
-phpcs -d memory_limit=2G --extensions=php --colors -sp .\apollo-core\ .\apollo-events-manager\ .\apollo-social\
+phpcs -d memory_limit=1054G --extensions=php --colors -sp .\apollo-core\ .\apollo-events-manager\ .\apollo-social\
 
 echo.
 echo  ╔═══════════════════════════════════════════════════════════╗

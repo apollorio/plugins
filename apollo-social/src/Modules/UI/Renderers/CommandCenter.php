@@ -241,21 +241,21 @@ class CommandCenter {
 					</h3>
 					<div class="command-actions">
 						<?php if ( $permissions['can_create_groups'] ) : ?>
-						<a href="/apollo/groups/create" class="command-btn primary">
+						<a href="/apollo/groups/criar/" class="command-btn primary">
 							<span>Criar Grupo</span>
 							<span class="btn-icon">➕</span>
 						</a>
 						<?php endif; ?>
 						
 						<?php if ( $permissions['can_create_events'] ) : ?>
-						<a href="/apollo/events/create" class="command-btn success">
+						<a href="/apollo/events/criar/" class="command-btn success">
 							<span>Criar Evento</span>
 							<span class="btn-icon">📅</span>
 						</a>
 						<?php endif; ?>
 						
 						<?php if ( $permissions['can_create_ads'] ) : ?>
-						<a href="/apollo/ads/create" class="command-btn warning">
+						<a href="/apollo/ads/criar/" class="command-btn warning">
 							<span>Criar Anúncio</span>
 							<span class="btn-icon">📢</span>
 						</a>
@@ -277,15 +277,15 @@ class CommandCenter {
 						<span class="permission-badge">Moderador</span>
 					</h3>
 					<div class="command-actions">
-						<a href="/apollo/moderation/queue" class="command-btn danger">
+						<a href="/apollo/mod
 							<span>Fila de Moderação</span>
 							<span class="btn-icon">🔍</span>
 						</a>
-						<a href="/apollo/moderation/reports" class="command-btn">
+						<a href="/apollo/mod
 							<span>Denúncias</span>
 							<span class="btn-icon">⚠️</span>
 						</a>
-						<a href="/apollo/moderation/rules" class="command-btn">
+						<a href="/apollo/mod
 							<span>Configurar Regras</span>
 							<span class="btn-icon">⚙️</span>
 						</a>
@@ -308,7 +308,7 @@ class CommandCenter {
 							<span>Dashboard Principal</span>
 							<span class="btn-icon">📈</span>
 						</a>
-						<a href="/apollo/analytics/realtime" class="command-btn success">
+						<a href="/apollo/dados/realtime" class="command-btn success">
 							<span>Tempo Real</span>
 							<span class="status-indicator status-online"></span>
 						</a>
@@ -359,7 +359,7 @@ class CommandCenter {
 						<span class="permission-badge">Admin</span>
 					</h3>
 					<div class="command-actions">
-						<a href="/apollo/onboarding" class="command-btn primary">
+						<a href="/apollo/integra" class="command-btn primary">
 							<span>Onboarding</span>
 							<span class="btn-icon">🎯</span>
 						</a>
@@ -436,11 +436,11 @@ class CommandCenter {
 						switch(e.key) {
 							case 'g': // Ctrl+G for groups
 								e.preventDefault();
-								window.location.href = '/apollo/groups/create';
+								window.location.href = '/apollo/groups/criar/';
 								break;
 							case 'e': // Ctrl+E for events
 								e.preventDefault();
-								window.location.href = '/apollo/events/create';
+								window.location.href = '/apollo/events/criar/';
 								break;
 							case 'f': // Ctrl+F for search
 								e.preventDefault();

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $user_id        = get_current_user_id();
-$user_documents = [];
+$user_documents = array();
 $max_documents  = 5;
 
 if ( class_exists( 'Apollo\CenaRio\CenaRioModule' ) ) {
@@ -75,28 +75,28 @@ $can_create = $docs_count < $max_documents;
 		<?php
 		foreach ( $user_documents as $doc ) :
 			$doc_status    = $doc->post_status;
-			$status_config = [
-				'publish' => [
+			$status_config = array(
+				'publish' => array(
 					'label'   => 'Publicado',
 					'class'   => 'ap-badge-success',
 					'tooltip' => __( 'Documento publicado e disponível', 'apollo-social' ),
-				],
-				'draft'   => [
+				),
+				'draft'   => array(
 					'label'   => 'Rascunho',
 					'class'   => 'ap-badge-warning',
 					'tooltip' => __( 'Documento em rascunho, não publicado', 'apollo-social' ),
-				],
-				'pending' => [
+				),
+				'pending' => array(
 					'label'   => 'Pendente',
 					'class'   => 'ap-badge-info',
 					'tooltip' => __( 'Aguardando revisão/aprovação', 'apollo-social' ),
-				],
-			];
-			$status        = $status_config[ $doc_status ] ?? [
+				),
+			);
+			$status        = $status_config[ $doc_status ] ?? array(
 				'label'   => ucfirst( $doc_status ),
 				'class'   => 'ap-badge-secondary',
 				'tooltip' => sprintf( __( 'Status: %s', 'apollo-social' ), ucfirst( $doc_status ) ),
-			];
+			);
 			?>
 		<a href="<?php echo esc_url( get_permalink( $doc->ID ) ); ?>"
 			class="ap-card ap-card-hover"

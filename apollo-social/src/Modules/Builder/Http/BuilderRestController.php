@@ -63,7 +63,7 @@ class BuilderRestController {
 		// Layout CRUD.
 		register_rest_route(
 			self::NAMESPACE,
-			'/builder/layout',
+			'fabrica/layout',
 			[
 				[
 					'methods'             => 'GET',
@@ -98,7 +98,7 @@ class BuilderRestController {
 		// Asset catalogs (backgrounds + stickers).
 		register_rest_route(
 			self::NAMESPACE,
-			'/builder/assets',
+			'fabrica/assets',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getAssets' ],
@@ -109,7 +109,7 @@ class BuilderRestController {
 		// Background selection.
 		register_rest_route(
 			self::NAMESPACE,
-			'/builder/background',
+			'fabrica/background',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'setBackground' ],
@@ -132,7 +132,7 @@ class BuilderRestController {
 		// Sticker management.
 		register_rest_route(
 			self::NAMESPACE,
-			'/builder/stickers',
+			'fabrica/adesivos',
 			[
 				[
 					'methods'             => 'GET',
@@ -187,7 +187,7 @@ class BuilderRestController {
 		// Single sticker update/delete.
 		register_rest_route(
 			self::NAMESPACE,
-			'/builder/stickers/(?P<instance_id>[a-z0-9_-]+)',
+			'fabrica/adesivos/(?P<instance_id>[a-z0-9_-]+)',
 			[
 				[
 					'methods'             => 'PATCH',

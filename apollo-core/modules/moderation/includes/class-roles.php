@@ -29,10 +29,10 @@ class Apollo_Moderation_Roles {
 		// Apollo role - moderator.
 		$apollo = get_role( 'apollo' );
 		if ( $apollo ) {
-			// Add moderation capabilities.
+			// Add mod capabilities.
 			$apollo->add_cap( 'moderate_apollo_content' );
 			$apollo->add_cap( 'edit_apollo_users' );
-			$apollo->add_cap( 'view_moderation_queue' );
+			$apollo->add_cap( 'view_mod_queue' );
 			$apollo->add_cap( 'send_user_notifications' );
 
 			// Note: Do NOT add suspend_users, block_users, manage_apollo_mod_settings.
@@ -46,7 +46,7 @@ class Apollo_Moderation_Roles {
 			$admin->add_cap( 'block_users' );
 			$admin->add_cap( 'moderate_apollo_content' );
 			$admin->add_cap( 'edit_apollo_users' );
-			$admin->add_cap( 'view_moderation_queue' );
+			$admin->add_cap( 'view_mod_queue' );
 			$admin->add_cap( 'send_user_notifications' );
 		}
 
@@ -131,7 +131,7 @@ class Apollo_Moderation_Roles {
 	}
 
 	/**
-	 * Get enabled content types for moderation queue
+	 * Get enabled content types for mod queue
 	 *
 	 * Auto-includes all CPTs with pending posts for visibility.
 	 *

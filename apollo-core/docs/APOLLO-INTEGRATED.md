@@ -162,7 +162,7 @@ if ( apollo_is_module_enabled( 'events' ) ) {
 - `events` - Eventos e agenda
 - `chat` - Mensagens/chat
 - `docs` - Documentos Docuseal
-- `matchmaking` - Sistema de match
+- `compatibilidade` - Sistema de match
 - `bolha` - Círculo íntimo
 
 **Retorna:** `bool` - `true` se módulo ativo
@@ -306,7 +306,7 @@ $weighted = apollo_get_weighted_feed_items( $items, $user_id );
 ### Moderação
 
 ```
-POST /wp-json/apollo/v1/moderation/suspend
+POST /wp-json/apollo/v1/mod/suspend
 ```
 Suspende um usuário.
 
@@ -322,7 +322,7 @@ Suspende um usuário.
 ---
 
 ```
-POST /wp-json/apollo/v1/moderation/ban
+POST /wp-json/apollo/v1/mod/ban
 ```
 Bane um usuário permanentemente.
 
@@ -337,7 +337,7 @@ Bane um usuário permanentemente.
 ---
 
 ```
-POST /wp-json/apollo/v1/moderation/unsuspend
+POST /wp-json/apollo/v1/mod/unsuspend
 ```
 Remove suspensão/banimento.
 
@@ -351,7 +351,7 @@ Remove suspensão/banimento.
 ---
 
 ```
-GET /wp-json/apollo/v1/moderation/status/{user_id}
+GET /wp-json/apollo/v1/mod/status/{user_id}
 ```
 Retorna status de moderação de um usuário.
 
@@ -439,7 +439,7 @@ add_filter( 'apollo_can_suspend_user', function( $can, $user_id, $actor_id ) {
 
 | Arquivo | Propósito |
 |---------|-----------|
-| `includes/class-apollo-user-moderation.php` | Sistema de moderação |
+| `includes/class-apollo-user-mod.php` | Sistema de moderação |
 | `includes/class-apollo-modules-config.php` | Configuração de módulos |
 | `includes/class-apollo-cross-module-integration.php` | Integração entre módulos |
 | `admin/admin-apollo-cabin.php` | Painel Admin Cabin |

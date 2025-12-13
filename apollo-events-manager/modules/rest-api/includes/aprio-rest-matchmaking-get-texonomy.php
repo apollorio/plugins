@@ -37,8 +37,8 @@ class APRIO_REST_Taxonomy_List_Controller extends APRIO_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 */
 	public function get_taxonomy_terms( $request ) {
-		// Check if matchmaking is enabled
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		// Check if compatibilidade is enabled
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,

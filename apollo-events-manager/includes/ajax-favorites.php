@@ -12,23 +12,27 @@ if ( ! function_exists( 'apollo_ajax_handle_toggle_favorite' ) ) {
 				array( 'message' => __( 'Entre na sua conta para salvar favoritos.', 'apollo-events-manager' ) ),
 				401
 			);
+			return;
 		}
 
-		// Verify nonce
-		if ( ! isset( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'apollo_events_nonce' ) ) {
+		// SECURITY: Verify nonce with proper unslashing
+		$nonce = isset( $_POST['_ajax_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_ajax_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'apollo_events_nonce' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Nonce inválido.', 'apollo-events-manager' ) ), 403 );
 			return;
 		}
 
-		// Sanitize input
+		// SECURITY: Sanitize input
 		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 		if ( ! $event_id ) {
 			wp_send_json_error( array( 'message' => __( 'Evento inválido.', 'apollo-events-manager' ) ), 400 );
+			return;
 		}
 
 		$event = get_post( $event_id );
 		if ( ! $event || $event->post_type !== 'event_listing' ) {
 			wp_send_json_error( array( 'message' => __( 'Evento não encontrado.', 'apollo-events-manager' ) ), 404 );
+			return;
 		}
 
 		$user_id = get_current_user_id();
@@ -38,7 +42,8 @@ if ( ! function_exists( 'apollo_ajax_handle_toggle_favorite' ) ) {
 			$user_favorites = array();
 		}
 
-		$user_favorites = array_values( array_unique( array_map( 'intval', $user_favorites ) ) );
+		// SECURITY: Ensure all IDs are integers
+		$user_favorites = array_values( array_unique( array_map( 'absint', $user_favorites ) ) );
 
 		$already_favorited = in_array( $event_id, $user_favorites, true );
 
@@ -66,12 +71,13 @@ if ( ! function_exists( 'apollo_ajax_handle_toggle_favorite' ) ) {
 
 		$snapshot = apollo_get_event_favorites_snapshot( $event_id );
 
+		// SECURITY: Sanitize output
 		wp_send_json_success(
 			array(
-				'fav'       => $snapshot['current_user_has_favorited'],
-				'count'     => $snapshot['count'],
-				'avatars'   => $snapshot['avatars'],
-				'remaining' => $snapshot['remaining'],
+				'fav'       => (bool) $snapshot['current_user_has_favorited'],
+				'count'     => absint( $snapshot['count'] ),
+				'avatars'   => array_map( 'esc_url', (array) $snapshot['avatars'] ),
+				'remaining' => absint( $snapshot['remaining'] ),
 			)
 		);
 	}

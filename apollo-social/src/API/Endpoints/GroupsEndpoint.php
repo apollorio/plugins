@@ -25,7 +25,7 @@ class GroupsEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
+		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
 	}
 
 	/**
@@ -36,39 +36,39 @@ class GroupsEndpoint {
 		register_rest_route(
 			'apollo/v1',
 			'/groups',
-			[
+			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'createGroup' ],
-				'permission_callback' => [ $this, 'permissionCheck' ],
-				'args'                => [
-					'title'       => [
+				'callback'            => array( $this, 'createGroup' ),
+				'permission_callback' => array( $this, 'permissionCheck' ),
+				'args'                => array(
+					'title'       => array(
 						'required'          => true,
 						'type'              => 'string',
 						'description'       => __( 'Group title.', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'type'        => [
+					),
+					'type'        => array(
 						'required'          => true,
 						'type'              => 'string',
-						'enum'              => [ 'comunidade', 'nucleo' ],
+						'enum'              => array( 'comunidade', 'nucleo' ),
 						'description'       => __( 'Group type.', 'apollo-social' ),
 						'sanitize_callback' => 'sanitize_key',
-					],
-					'description' => [
+					),
+					'description' => array(
 						'required'          => false,
 						'type'              => 'string',
 						'description'       => __( 'Group description.', 'apollo-social' ),
 						'sanitize_callback' => 'wp_kses_post',
-					],
-					'visibility'  => [
+					),
+					'visibility'  => array(
 						'required'          => false,
 						'type'              => 'string',
-						'enum'              => [ 'public', 'private', 'members_only' ],
+						'enum'              => array( 'public', 'private', 'members_only' ),
 						'default'           => 'public',
 						'sanitize_callback' => 'sanitize_key',
-					],
-				],
-			]
+					),
+				),
+			)
 		);
 	}
 
@@ -80,7 +80,7 @@ class GroupsEndpoint {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in to create groups.', 'apollo-social' ),
-				[ 'status' => 401 ]
+				array( 'status' => 401 )
 			);
 		}
 
@@ -91,7 +91,7 @@ class GroupsEndpoint {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'Only CENA RIO members can create núcleos.', 'apollo-social' ),
-				[ 'status' => 403 ]
+				array( 'status' => 403 )
 			);
 		}
 
@@ -111,10 +111,10 @@ class GroupsEndpoint {
 
 		if ( empty( $title ) ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => __( 'Group title is required.', 'apollo-social' ),
-				],
+				),
 				400
 			);
 		}
@@ -139,26 +139,26 @@ class GroupsEndpoint {
 		// Insert group
 		$result = $wpdb->insert(
 			$table_name,
-			[
+			array(
 				'title'       => $title,
 				'slug'        => $slug,
 				'description' => $description,
 				'type'        => $type,
 				'status'      => 'pending_review',
-				// P0-7: Require moderation
+				// P0-7: Require mod
 												'visibility' => $visibility,
 				'creator_id'  => get_current_user_id(),
 				'created_at'  => current_time( 'mysql' ),
-			],
-			[ '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' ]
+			),
+			array( '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' )
 		);
 
 		if ( $result === false ) {
 			return new WP_REST_Response(
-				[
+				array(
 					'success' => false,
 					'message' => __( 'Error creating group.', 'apollo-social' ),
-				],
+				),
 				500
 			);
 		}
@@ -169,42 +169,42 @@ class GroupsEndpoint {
 		$members_table = $wpdb->prefix . 'apollo_group_members';
 		$wpdb->insert(
 			$members_table,
-			[
+			array(
 				'group_id'  => $group_id,
 				'user_id'   => get_current_user_id(),
 				'role'      => 'admin',
 				'status'    => 'active',
 				'joined_at' => current_time( 'mysql' ),
-			],
-			[ '%d', '%d', '%s', '%s', '%s' ]
+			),
+			array( '%d', '%d', '%s', '%s', '%s' )
 		);
 
-		// P0-7: Add to moderation queue
-		$moderation_table = $wpdb->prefix . 'apollo_moderation_queue';
+		// P0-7: Add to mod queue
+		$mod_table = $wpdb->prefix . 'apollo_mod_queue';
 		$wpdb->insert(
-			$moderation_table,
-			[
+			$mod_table,
+			array(
 				'content_id'    => $group_id,
 				'content_type'  => 'apollo_group',
 				'content_title' => $title,
 				'author_id'     => get_current_user_id(),
 				'status'        => 'pending',
 				'submitted_at'  => current_time( 'mysql' ),
-			],
-			[ '%d', '%s', '%s', '%d', '%s', '%s' ]
+			),
+			array( '%d', '%s', '%s', '%d', '%s', '%s' )
 		);
 
 		return new WP_REST_Response(
-			[
+			array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'id'     => $group_id,
 					'title'  => $title,
 					'slug'   => $slug,
 					'status' => 'pending_review',
-				],
+				),
 				'message' => __( 'Group created successfully. It will be reviewed before publication.', 'apollo-social' ),
-			],
+			),
 			201
 		);
 	}

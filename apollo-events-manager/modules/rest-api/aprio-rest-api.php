@@ -94,15 +94,15 @@ class APRIO_Rest_API {
 		include 'includes/aprio-rest-ecosystem-controller.php';
 
 		// match making api
-		include 'includes/aprio-rest-matchmaking-profile.php';
-		include 'includes/aprio-rest-matchmaking-get-texonomy.php';
-		include 'includes/aprio-rest-matchmaking-user-messages.php';
-		include 'includes/aprio-rest-matchmaking-filter-users.php';
-		include 'includes/aprio-rest-matchmaking-user-settings.php';
-		include 'includes/aprio-rest-matchmaking-create-meetings.php';
-		include 'includes/aprio-rest-matchmaking-meetings-controller.php';
-		include 'includes/aprio-rest-matchmaking-profile-controller.php';
-		include 'includes/aprio-rest-matchmaking-settings-controller.php';
+		include 'includes/aprio-rest-compatibilidade-profile.php';
+		include 'includes/aprio-rest-compatibilidade-get-texonomy.php';
+		include 'includes/aprio-rest-compatibilidade-user-messages.php';
+		include 'includes/aprio-rest-compatibilidade-filter-users.php';
+		include 'includes/aprio-rest-compatibilidade-user-settings.php';
+		include 'includes/aprio-rest-compatibilidade-create-meetings.php';
+		include 'includes/aprio-rest-compatibilidade-meetings-controller.php';
+		include 'includes/aprio-rest-compatibilidade-profile-controller.php';
+		include 'includes/aprio-rest-compatibilidade-settings-controller.php';
 		include 'includes/aprio-rest-user-registered-events-controller.php';
 
 		// Activate

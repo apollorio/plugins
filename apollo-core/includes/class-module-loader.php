@@ -97,7 +97,7 @@ class Apollo_Core_Module_Loader {
 	 */
 	private function is_module_enabled( $module_slug ) {
 		$settings        = get_option( 'apollo_mod_settings', array() );
-		$enabled_modules = isset( $settings['enabled_modules'] ) ? $settings['enabled_modules'] : array( 'events', 'social', 'moderation' );
+		$enabled_modules = isset( $settings['enabled_modules'] ) ? $settings['enabled_modules'] : array( 'events', 'social', 'mod' );
 
 		return in_array( $module_slug, $enabled_modules, true );
 	}

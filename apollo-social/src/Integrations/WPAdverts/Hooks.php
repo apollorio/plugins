@@ -11,6 +11,6 @@ class Hooks {
 	}
 
 	public function syncAdModeration( $ad_id, $status ) {
-		// TODO: sync ad moderation with Apollo classifieds
+		// TODO: sync ad mod with Apollo classifieds
 	}
 }

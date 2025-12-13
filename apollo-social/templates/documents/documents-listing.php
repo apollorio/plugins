@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 			const docId = this.dataset.docId;
 			try {
-				const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/documents/' ) ); ?>' + docId, {
+				const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/doc; ?>' + docId, {
 					method: 'DELETE',
 					headers: {
 						'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'

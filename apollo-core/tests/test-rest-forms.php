@@ -150,7 +150,7 @@ class Test_Apollo_REST_Forms extends WP_UnitTestCase {
 
 		$this->assertEquals( 'event_listing', $post->post_type );
 		$this->assertEquals( 'Test Event', $post->post_title );
-		$this->assertEquals( 'draft', $post->post_status ); // Should be draft for moderation.
+		$this->assertEquals( 'draft', $post->post_status ); // Should be draft for mod.
 
 		// Check meta saved.
 		$start_date = get_post_meta( $post_id, '_event_start_date', true );

@@ -548,3 +548,46 @@ class Apollo_Post_Types {
 if ( ! defined( 'APOLLO_EVENTS_MANAGER_ACTIVATING' ) ) {
 	new Apollo_Post_Types();
 }
+
+/**
+ * Check for rewrite rule conflicts and flush if necessary
+ * This runs once after init to detect if another plugin registered event_listing with wrong slug
+ */
+add_action(
+	'wp_loaded',
+	function () {
+		// Only run in admin and only once per session
+		if ( ! is_admin() || get_transient( 'apollo_rewrite_conflict_checked' ) ) {
+			return;
+		}
+
+		// Mark as checked for this session
+		set_transient( 'apollo_rewrite_conflict_checked', 1, 3600 );
+
+		// Get the registered rewrite rules
+		$post_type_obj = get_post_type_object( 'event_listing' );
+		if ( ! $post_type_obj || ! isset( $post_type_obj->rewrite['slug'] ) ) {
+			return;
+		}
+
+		// Check if the slug is correct (should be 'evento', not 'events')
+		$current_slug = $post_type_obj->rewrite['slug'];
+		if ( $current_slug !== 'evento' ) {
+			// Conflict detected! Force flush rewrite rules
+			if ( defined( 'APOLLO_DEBUG' ) && APOLLO_DEBUG ) {
+				error_log( '⚠️ Apollo: Rewrite conflict detected! Current slug: ' . $current_slug . ', expected: evento. Flushing rules...' );
+			}
+
+			// Delete the transient to allow re-registration
+			delete_transient( 'apollo_rewrite_rules_last_flush' );
+
+			// Flush rules
+			flush_rewrite_rules( false );
+
+			if ( defined( 'APOLLO_DEBUG' ) && APOLLO_DEBUG ) {
+				error_log( '✅ Apollo: Rewrite rules flushed to fix conflict' );
+			}
+		}
+	},
+	999
+);

@@ -3,7 +3,7 @@
 /**
  * Apollo Events Manager - Favorites Module Loader
  *
- * Loads the favorites/bookmarks module if available
+ * Loads the favorites/salvos module if available
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

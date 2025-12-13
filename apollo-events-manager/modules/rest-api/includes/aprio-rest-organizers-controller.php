@@ -7,7 +7,7 @@
 	/**
 	 * REST API SMOKE TEST – PASSED
 	 * Route: /aprio/djs (Organizers renamed to DJs)
-	 * Affects: apollo-events-manager.php, aprio-rest-organizers-controller.php
+	 * Affects: apollo-events-manager.php, aprio-rest-dj-controller.php
 	 * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
 	 */
 	/**

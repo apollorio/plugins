@@ -536,7 +536,7 @@
                 modal.open({
                     documentId: documentId,
                     title: title,
-                    restUrl: `/wp-json/apollo-social/v1/documents/${documentId}/sign`
+                    restUrl: `/wp-json/apollo-social/v1/doc/${documentId}/sign`
                 });
             });
         });

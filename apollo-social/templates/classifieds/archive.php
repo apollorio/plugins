@@ -319,7 +319,7 @@ get_header();
 			<?php if ( $thumb ) : ?>
 			<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>">
 			<?php else : ?>
-			<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--ap-bg-muted);">
+			<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var((--bg-main)-muted);">
 				<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size:48px;color:var(--ap-text-muted);"></i>
 			</div>
 			<?php endif; ?>

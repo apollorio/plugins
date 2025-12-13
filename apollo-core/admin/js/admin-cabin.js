@@ -62,7 +62,7 @@
             $btn.prop('disabled', true).text('...');
 
             $.ajax({
-                url: apolloCabin.restUrl + '/moderation/unblock-ip',
+                url: apolloCabin.restUrl + '/mod/unblock-ip',
                 method: 'POST',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-WP-Nonce', apolloCabin.nonce);

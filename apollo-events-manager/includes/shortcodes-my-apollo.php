@@ -30,7 +30,7 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 
 	// Get active tab from URL or default to 'created'
 	$active_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'created';
-	$valid_tabs = array( 'created', 'coauthored', 'favorites' );
+	$valid_tabs = array( 'created', 'gestao', 'favorites' );
 	if ( ! in_array( $active_tab, $valid_tabs ) ) {
 		$active_tab = 'created';
 	}
@@ -56,8 +56,8 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 			$tab_title = 'Meus Eventos Criados';
 			break;
 
-		case 'coauthored':
-			// Events co-authored by user (using Co-Authors Plus if available)
+		case 'gestao':
+			// Events em gestão pelo usuário (using Co-Authors Plus if available)
 			$event_ids = array();
 
 			if ( function_exists( 'get_coauthors' ) ) {
@@ -80,7 +80,7 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 					}
 				}
 			} else {
-				// Fallback: check _apollo_coauthors meta
+				// Fallback: check _event_gestao meta
 				$query     = new WP_Query(
 					array(
 						'post_type'      => 'event_listing',
@@ -88,7 +88,7 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 						'post_status'    => array( 'publish', 'pending', 'draft' ),
 						'meta_query'     => array(
 							array(
-								'key'     => '_apollo_coauthors',
+								'key'     => '_event_gestao',
 								'value'   => $current_user_id,
 								'compare' => 'LIKE',
 							),
@@ -164,11 +164,11 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 					<?php endif; ?>
 				</a>
 				<a 
-					href="<?php echo esc_url( add_query_arg( 'tab', 'coauthored', get_permalink() ) ); ?>" 
-					class="px-4 py-2 font-medium <?php echo $active_tab === 'coauthored' ? 'border-b-2 border-primary text-primary' : 'text-gray-600 hover:text-primary'; ?>"
+					href="<?php echo esc_url( add_query_arg( 'tab', 'gestao', get_permalink() ) ); ?>" 
+					class="px-4 py-2 font-medium <?php echo $active_tab === 'gestao' ? 'border-b-2 border-primary text-primary' : 'text-gray-600 hover:text-primary'; ?>"
 				>
-					<i class="ri-team-line"></i> Co-Autorados
-					<?php if ( $active_tab === 'coauthored' ) : ?>
+					<i class="ri-team-line"></i> Gestão
+					<?php if ( $active_tab === 'gestao' ) : ?>
 						<span class="ml-2 text-sm text-gray-500">(<?php echo count( $events ); ?>)</span>
 					<?php endif; ?>
 				</a>
@@ -197,8 +197,8 @@ function apollo_my_apollo_dashboard_shortcode( $atts ) {
 							case 'created':
 								echo 'Você ainda não criou nenhum evento.';
 								break;
-							case 'coauthored':
-								echo 'Você ainda não co-autorou nenhum evento.';
+							case 'gestao':
+								echo 'Você ainda não está em gestão de nenhum evento.';
 								break;
 							case 'favorites':
 								echo 'Você ainda não favoritou nenhum evento.';

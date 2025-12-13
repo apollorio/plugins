@@ -33,7 +33,7 @@ class PlaybookRunner {
 		// 3. Run content creation scenarios
 		$this->runContentScenarios();
 
-		// 4. Test moderation workflows
+		// 4. Test mod workflows
 		$this->runModerationTests();
 
 		// 5. Test user permissions
@@ -75,7 +75,7 @@ class PlaybookRunner {
 		global $wpdb;
 		$tables = [
 			$wpdb->prefix . 'apollo_workflow_log',
-			$wpdb->prefix . 'apollo_moderation_queue',
+			$wpdb->prefix . 'apollo_mod_queue',
 			$wpdb->prefix . 'apollo_groups',
 		];
 
@@ -326,7 +326,7 @@ class PlaybookRunner {
 	}
 
 	/**
-	 * Run moderation tests
+	 * Run mod tests
 	 */
 	private function runModerationTests(): void {
 		echo "⚖️ Testing Moderation Workflows...\n";
@@ -424,7 +424,7 @@ class PlaybookRunner {
 					$this->assert(
 						$permissions['can_moderate'],
 						"{$role} can moderate content",
-						'Editors should have moderation capabilities'
+						'Editors should have mod capabilities'
 					);
 					break;
 			}//end switch
@@ -507,7 +507,7 @@ class PlaybookRunner {
 	}
 
 	/**
-	 * Test moderation action
+	 * Test mod action
 	 */
 	private function testModerationAction( int $content_id, string $content_type, string $action, array $options ): array {
 		$moderator_role = $options['moderator_role'] ?? 'editor';

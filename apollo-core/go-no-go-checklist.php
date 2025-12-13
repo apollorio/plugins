@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 if ( ! defined( 'ABSPATH' ) ) {
 	// Allow running as standalone script.
-	require_once dirname( __FILE__ ) . '/wp-load.php';
+	require_once __DIR__ . '/wp-load.php';
 }
 
 // Only allow admins.
@@ -34,7 +34,7 @@ if ( ! current_user_can( 'manage_options' ) && ! defined( 'WP_CLI' ) ) {
  */
 class Apollo_GONO_Checklist {
 
-	private array $results = [];
+	private array $results = array();
 	private int $passed    = 0;
 	private int $failed    = 0;
 	private int $warnings  = 0;
@@ -54,7 +54,7 @@ class Apollo_GONO_Checklist {
 		$this->check_required_plugins();
 		$this->check_rest_routes();
 		$this->check_db_tables();
-		$this->check_user_moderation();
+		$this->check_user_mod();
 		$this->check_modules_config();
 		$this->check_admin_pages();
 		$this->check_capabilities();
@@ -116,11 +116,11 @@ class Apollo_GONO_Checklist {
 	private function check_required_plugins(): void {
 		$this->output( '--- Plugins Requeridos ---' );
 
-		$plugins = [
+		$plugins = array(
 			'apollo-core'           => 'Apollo Core',
 			'apollo-social'         => 'Apollo Social',
 			'apollo-events-manager' => 'Apollo Events Manager',
-		];
+		);
 
 		foreach ( $plugins as $slug => $name ) {
 			$active = is_plugin_active( "$slug/$slug.php" ) || is_plugin_active( "$slug/plugin.php" );
@@ -141,15 +141,15 @@ class Apollo_GONO_Checklist {
 		$server = rest_get_server();
 		$routes = $server->get_routes();
 
-		$apollo_routes      = 0;
-		$routes_without_perm = [];
+		$apollo_routes       = 0;
+		$routes_without_perm = array();
 
 		foreach ( $routes as $route => $handlers ) {
 			if ( strpos( $route, '/apollo/' ) === false ) {
 				continue;
 			}
 
-			$apollo_routes++;
+			++$apollo_routes;
 
 			foreach ( $handlers as $handler ) {
 				if ( ! isset( $handler['callback'] ) ) {
@@ -160,7 +160,7 @@ class Apollo_GONO_Checklist {
 				$has_perm = isset( $handler['permission_callback'] ) && $handler['permission_callback'] !== null;
 
 				if ( ! $has_perm ) {
-					$methods = isset( $handler['methods'] ) ? implode( ',', array_keys( (array) $handler['methods'] ) ) : 'GET';
+					$methods               = isset( $handler['methods'] ) ? implode( ',', array_keys( (array) $handler['methods'] ) ) : 'GET';
 					$routes_without_perm[] = "[$methods] $route";
 				}
 			}
@@ -177,12 +177,12 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check specific sensitive routes.
-		$sensitive_routes = [
-			'/apollo/v1/moderation/suspend',
-			'/apollo/v1/moderation/ban',
+		$sensitive_routes = array(
+			'/apollo/v1/mod/suspender/er/er/',
+			'/apollo/v1/mod/ban',
 			'/apollo/v1/bolha/pedir',
 			'/apollo/v1/bolha/aceitar',
-		];
+		);
 
 		foreach ( $sensitive_routes as $route ) {
 			$found = false;
@@ -207,10 +207,10 @@ class Apollo_GONO_Checklist {
 
 		global $wpdb;
 
-		$tables = [
+		$tables = array(
 			$wpdb->prefix . 'apollo_mod_log',
 			$wpdb->prefix . 'apollo_audit_log',
-		];
+		);
 
 		foreach ( $tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
@@ -223,23 +223,23 @@ class Apollo_GONO_Checklist {
 	}
 
 	/**
-	 * Check user moderation class
+	 * Check user mod class
 	 */
-	private function check_user_moderation(): void {
+	private function check_user_mod(): void {
 		$this->output( '--- Sistema de Moderação ---' );
 
 		if ( class_exists( 'Apollo_User_Moderation' ) ) {
 			$this->pass( 'Classe Apollo_User_Moderation existe' );
 
 			// Check constants.
-			$constants = [
+			$constants = array(
 				'STATUS_ACTIVE',
 				'STATUS_SUSPENDED',
 				'STATUS_BANNED',
 				'MOD_LEVEL_BASIC',
 				'MOD_LEVEL_ADVANCED',
 				'MOD_LEVEL_FULL',
-			];
+			);
 
 			foreach ( $constants as $const ) {
 				if ( defined( "Apollo_User_Moderation::$const" ) ) {
@@ -253,7 +253,7 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check helper functions.
-		$functions = [
+		$functions = array(
 			'apollo_suspend_user',
 			'apollo_unsuspend_user',
 			'apollo_ban_user',
@@ -261,7 +261,7 @@ class Apollo_GONO_Checklist {
 			'apollo_can_user_perform',
 			'apollo_get_mod_level',
 			'apollo_can_moderate',
-		];
+		);
 
 		foreach ( $functions as $func ) {
 			if ( function_exists( $func ) ) {
@@ -291,11 +291,11 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check helper functions.
-		$functions = [
+		$functions = array(
 			'apollo_is_module_enabled',
 			'apollo_get_limit',
 			'apollo_check_limit',
-		];
+		);
 
 		foreach ( $functions as $func ) {
 			if ( function_exists( $func ) ) {
@@ -344,13 +344,13 @@ class Apollo_GONO_Checklist {
 			return;
 		}
 
-		$required_caps = [
+		$required_caps = array(
 			'apollo_moderate_basic',
 			'apollo_moderate_advanced',
 			'apollo_moderate_full',
 			'apollo_block_ip',
 			'apollo_manage_moderators',
-		];
+		);
 
 		foreach ( $required_caps as $cap ) {
 			if ( $admin->has_cap( $cap ) ) {
@@ -367,8 +367,8 @@ class Apollo_GONO_Checklist {
 	private function check_cron_jobs(): void {
 		$this->output( '--- Cron Jobs ---' );
 
-		$crons = _get_cron_array();
-		$apollo_crons = [];
+		$crons        = _get_cron_array();
+		$apollo_crons = array();
 
 		foreach ( $crons as $timestamp => $hooks ) {
 			foreach ( $hooks as $hook => $events ) {
@@ -399,17 +399,17 @@ class Apollo_GONO_Checklist {
 	}
 
 	private function pass( string $message ): void {
-		$this->passed++;
+		++$this->passed;
 		$this->output( '  ✅ ' . $message );
 	}
 
 	private function fail( string $message ): void {
-		$this->failed++;
+		++$this->failed;
 		$this->output( '  ❌ ' . $message );
 	}
 
 	private function warn( string $message ): void {
-		$this->warnings++;
+		++$this->warnings;
 		$this->output( '  ⚠️  ' . $message );
 	}
 }

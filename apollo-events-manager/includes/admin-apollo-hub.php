@@ -543,10 +543,23 @@ function apollo_events_render_settings_content() {
 		// Save settings
 		update_option( 'apollo_events_per_page', intval( $_POST['apollo_events_per_page'] ?? 12 ) );
 		update_option( 'apollo_events_map_enabled', isset( $_POST['apollo_events_map_enabled'] ) ? 1 : 0 );
+		update_option( 'apollo_events_map_visual_zoom', isset( $_POST['apollo_events_map_visual_zoom'] ) ? 1 : 0 );
 		update_option( 'apollo_events_favorites_enabled', isset( $_POST['apollo_events_favorites_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_events_analytics_enabled', isset( $_POST['apollo_events_analytics_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_events_submission_enabled', isset( $_POST['apollo_events_submission_enabled'] ) ? 1 : 0 );
-		update_option( 'apollo_events_submission_moderation', isset( $_POST['apollo_events_submission_moderation'] ) ? 1 : 0 );
+		update_option( 'apollo_events_submission_mod', isset( $_POST['apollo_events_submission_mod'] ) ? 1 : 0 );
+
+		// Map defaults (OSM)
+		$zoom = isset( $_POST['event_manager_osm_default_zoom'] ) ? absint( wp_unslash( $_POST['event_manager_osm_default_zoom'] ) ) : 14;
+		if ( $zoom < 8 || $zoom > 24 ) {
+			$zoom = 14;
+		}
+		update_option( 'event_manager_osm_default_zoom', $zoom );
+
+		$tile_style      = isset( $_POST['event_manager_osm_tile_style'] ) ? sanitize_key( wp_unslash( $_POST['event_manager_osm_tile_style'] ) ) : 'default';
+		$allowed_styles  = array( 'default', 'light', 'dark' );
+		$tile_style_safe = in_array( $tile_style, $allowed_styles, true ) ? $tile_style : 'default';
+		update_option( 'event_manager_osm_tile_style', $tile_style_safe );
 
 		echo '<div class="notice notice-success"><p>' . esc_html__( 'Configurações salvas!', 'apollo-events-manager' ) . '</p></div>';
 	}
@@ -554,10 +567,18 @@ function apollo_events_render_settings_content() {
 	// Get current settings
 	$per_page              = get_option( 'apollo_events_per_page', 12 );
 	$map_enabled           = get_option( 'apollo_events_map_enabled', 1 );
+	$map_visual_zoom       = get_option( 'apollo_events_map_visual_zoom', 0 );
 	$favorites_enabled     = get_option( 'apollo_events_favorites_enabled', 1 );
 	$analytics_enabled     = get_option( 'apollo_events_analytics_enabled', 1 );
 	$submission_enabled    = get_option( 'apollo_events_submission_enabled', 1 );
-	$submission_moderation = get_option( 'apollo_events_submission_moderation', 1 );
+	$submission_mod = get_option( 'apollo_events_submission_mod', 1 );
+	$osm_zoom              = (int) get_option( 'event_manager_osm_default_zoom', 14 );
+	$osm_zoom              = ( $osm_zoom < 8 || $osm_zoom > 24 ) ? 14 : $osm_zoom;
+	$osm_tile_style        = get_option( 'event_manager_osm_tile_style', 'default' );
+	$osm_allowed_styles    = array( 'default', 'light', 'dark' );
+	if ( ! in_array( $osm_tile_style, $osm_allowed_styles, true ) ) {
+		$osm_tile_style = 'default';
+	}
 	?>
 	<div class="apollo-hub-section">
 		<h2><?php esc_html_e( 'Configurações Gerais', 'apollo-events-manager' ); ?></h2>
@@ -600,6 +621,17 @@ function apollo_events_render_settings_content() {
 							<br>
 							<label>
 								<input type="checkbox" 
+										name="apollo_events_map_visual_zoom" 
+										value="1" 
+										<?php checked( $map_visual_zoom, 1 ); ?>>
+								<?php esc_html_e( 'Ativar zoom visual do mapa', 'apollo-events-manager' ); ?>
+							</label>
+							<p class="description" style="margin-top:4px;">
+								<?php esc_html_e( 'Aplica um zoom visual (recorte cinematográfico) no mapa do evento, sem alterar o zoom real do Leaflet.', 'apollo-events-manager' ); ?>
+							</p>
+							<br>
+							<label>
+								<input type="checkbox" 
 										name="apollo_events_favorites_enabled" 
 										value="1" 
 										<?php checked( $favorites_enabled, 1 ); ?>>
@@ -614,6 +646,49 @@ function apollo_events_render_settings_content() {
 								<?php esc_html_e( 'Habilitar Analytics de Views', 'apollo-events-manager' ); ?>
 							</label>
 						</fieldset>
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">
+						<label for="event_manager_osm_default_zoom">
+							<?php esc_html_e( 'Zoom padrão do mapa (OSM)', 'apollo-events-manager' ); ?>
+						</label>
+					</th>
+					<td>
+						<select id="event_manager_osm_default_zoom" name="event_manager_osm_default_zoom">
+							<?php
+							$zoom_options = array( 8, 10, 12, 14, 16, 18, 20, 22, 24 );
+							foreach ( $zoom_options as $zoom_value ) {
+								printf(
+									'<option value="%1$d" %2$s>%1$02d</option>',
+									$zoom_value,
+									selected( $osm_zoom, $zoom_value, false )
+								);
+							}
+							?>
+						</select>
+						<p class="description">
+							<?php esc_html_e( 'Defina o nível de zoom padrão para os mapas dos eventos.', 'apollo-events-manager' ); ?>
+						</p>
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row">
+						<label for="event_manager_osm_tile_style">
+							<?php esc_html_e( 'Estilo do mapa (OSM)', 'apollo-events-manager' ); ?>
+						</label>
+					</th>
+					<td>
+						<select id="event_manager_osm_tile_style" name="event_manager_osm_tile_style">
+							<option value="default" <?php selected( $osm_tile_style, 'default' ); ?>><?php esc_html_e( 'OSM padrão', 'apollo-events-manager' ); ?></option>
+							<option value="light" <?php selected( $osm_tile_style, 'light' ); ?>><?php esc_html_e( 'Claro / minimalista', 'apollo-events-manager' ); ?></option>
+							<option value="dark" <?php selected( $osm_tile_style, 'dark' ); ?>><?php esc_html_e( 'Escuro', 'apollo-events-manager' ); ?></option>
+						</select>
+						<p class="description">
+							<?php esc_html_e( 'Escolha o estilo visual das tiles do mapa.', 'apollo-events-manager' ); ?>
+						</p>
 					</td>
 				</tr>
 				
@@ -631,9 +706,9 @@ function apollo_events_render_settings_content() {
 							<br>
 							<label>
 								<input type="checkbox" 
-										name="apollo_events_submission_moderation" 
+										name="apollo_events_submission_mod" 
 										value="1" 
-										<?php checked( $submission_moderation, 1 ); ?>>
+										<?php checked( $submission_mod, 1 ); ?>>
 								<?php esc_html_e( 'Exigir moderação antes de publicar', 'apollo-events-manager' ); ?>
 							</label>
 						</fieldset>

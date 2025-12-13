@@ -30,7 +30,7 @@ class Apollo_Moderation_WP_CLI {
 	}
 
 	/**
-	 * Show recent moderation log
+	 * Show recent mod log
 	 *
 	 * ## OPTIONS
 	 *
@@ -80,7 +80,7 @@ class Apollo_Moderation_WP_CLI {
 	}
 
 	/**
-	 * Show moderation statistics
+	 * Show mod statistics
 	 *
 	 * ## EXAMPLES
 	 *

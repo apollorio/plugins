@@ -8,7 +8,7 @@ namespace Apollo\Admin;
  *
  * Central admin panel for all email settings across:
  * - Apollo Social (account, membership, journey)
- * - Apollo Core (system, moderation)
+ * - Apollo Core (system, mod)
  * - Apollo Events Manager (event notifications, bookmarks)
  *
  * @package Apollo_Social
@@ -22,12 +22,12 @@ class EmailHubAdmin {
 	/**
 	 * All available placeholders with descriptions
 	 */
-	private static array $placeholders = [];
+	private static array $placeholders = array();
 
 	/**
 	 * All email templates organized by category
 	 */
-	private static array $template_categories = [];
+	private static array $template_categories = array();
 
 	/**
 	 * Initialize the Email Hub
@@ -36,384 +36,384 @@ class EmailHubAdmin {
 		self::registerPlaceholders();
 		self::registerTemplateCategories();
 
-		add_action( 'admin_menu', [ self::class, 'addAdminMenu' ] );
-		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueueAssets' ] );
-		add_action( 'wp_ajax_apollo_email_hub_save', [ self::class, 'ajaxSaveSettings' ] );
-		add_action( 'wp_ajax_apollo_email_hub_test', [ self::class, 'ajaxSendTestEmail' ] );
-		add_action( 'wp_ajax_apollo_email_hub_preview', [ self::class, 'ajaxPreviewEmail' ] );
+		add_action( 'admin_menu', array( self::class, 'addAdminMenu' ) );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueueAssets' ) );
+		add_action( 'wp_ajax_apollo_email_hub_save', array( self::class, 'ajaxSaveSettings' ) );
+		add_action( 'wp_ajax_apollo_email_hub_test', array( self::class, 'ajaxSendTestEmail' ) );
+		add_action( 'wp_ajax_apollo_email_hub_preview', array( self::class, 'ajaxPreviewEmail' ) );
 	}
 
 	/**
 	 * Register all available placeholders
 	 */
 	private static function registerPlaceholders(): void {
-		self::$placeholders = [
+		self::$placeholders = array(
 			// User placeholders
-			'user'        => [
+			'user'        => array(
 				'category' => '👤 Usuário',
-				'items'    => [
-					'[user-name]'       => [
+				'items'    => array(
+					'[user-name]'       => array(
 						'label'       => 'Nome do usuário',
 						'description' => 'Nome de login do WordPress',
 						'example'     => 'joao_silva',
 						'source'      => 'wp_users.user_login',
-					],
-					'[display-name]'    => [
+					),
+					'[display-name]'    => array(
 						'label'       => 'Nome de exibição',
 						'description' => 'Nome público escolhido pelo usuário',
 						'example'     => 'João Silva',
 						'source'      => 'wp_users.display_name',
-					],
-					'[user-email]'      => [
+					),
+					'[user-email]'      => array(
 						'label'       => 'Email do usuário',
 						'description' => 'Email registrado na conta',
 						'example'     => 'joao@email.com',
 						'source'      => 'wp_users.user_email',
-					],
-					'[user-id]'         => [
+					),
+					'[user-id]'         => array(
 						'label'       => 'ID do usuário',
 						'description' => 'ID único no banco de dados',
 						'example'     => '42',
 						'source'      => 'wp_users.ID',
-					],
-					'[user-registered]' => [
+					),
+					'[user-registered]' => array(
 						'label'       => 'Data de registro',
 						'description' => 'Quando a conta foi criada',
 						'example'     => '15/03/2024',
 						'source'      => 'wp_users.user_registered',
-					],
-					'[first-name]'      => [
+					),
+					'[first-name]'      => array(
 						'label'       => 'Primeiro nome',
 						'description' => 'Primeiro nome do perfil',
 						'example'     => 'João',
 						'source'      => 'usermeta.first_name',
-					],
-					'[last-name]'       => [
+					),
+					'[last-name]'       => array(
 						'label'       => 'Sobrenome',
 						'description' => 'Sobrenome do perfil',
 						'example'     => 'Silva',
 						'source'      => 'usermeta.last_name',
-					],
-				],
-			],
+					),
+				),
+			),
 			// Cultura::Rio placeholders
-			'cultura'     => [
+			'cultura'     => array(
 				'category' => '🎭 Cultura::Rio',
-				'items'    => [
-					'[cultura-identities]'       => [
+				'items'    => array(
+					'[cultura-identities]'       => array(
 						'label'       => 'Identidades culturais',
 						'description' => 'Lista de identidades selecionadas no registro',
 						'example'     => 'Clubber, DJ Profissional, Producer',
 						'source'      => 'usermeta.apollo_cultura_identities',
-					],
-					'[membership-status]'        => [
+					),
+					'[membership-status]'        => array(
 						'label'       => 'Status do membership',
 						'description' => 'Estado atual da solicitação',
 						'example'     => 'Aprovado',
 						'source'      => 'usermeta.apollo_membership_status',
-					],
-					'[membership-requested]'     => [
+					),
+					'[membership-requested]'     => array(
 						'label'       => 'Identidades solicitadas',
 						'description' => 'Identidades que precisam de aprovação',
 						'example'     => 'DJ Profissional',
 						'source'      => 'usermeta.apollo_membership_requested',
-					],
-					'[membership-approved-date]' => [
+					),
+					'[membership-approved-date]' => array(
 						'label'       => 'Data de aprovação',
 						'description' => 'Quando o membership foi aprovado',
 						'example'     => '20/03/2024',
 						'source'      => 'usermeta.apollo_membership_approved_at',
-					],
-				],
-			],
+					),
+				),
+			),
 			// Preferences placeholders
-			'preferences' => [
+			'preferences' => array(
 				'category' => '🎵 Preferências',
-				'items'    => [
-					'[fav-sounds]'       => [
+				'items'    => array(
+					'[fav-sounds]'       => array(
 						'label'       => 'Gêneros favoritos',
 						'description' => 'Lista de gêneros musicais separados por vírgula',
 						'example'     => 'House, Techno, Drum & Bass',
 						'source'      => 'usermeta.apollo_sounds',
-					],
-					'[fav-sounds-count]' => [
+					),
+					'[fav-sounds-count]' => array(
 						'label'       => 'Quantidade de gêneros',
 						'description' => 'Número de gêneros selecionados',
 						'example'     => '3',
 						'source'      => 'usermeta.apollo_sounds (count)',
-					],
-				],
-			],
+					),
+				),
+			),
 			// Event placeholders
-			'event'       => [
+			'event'       => array(
 				'category' => '📅 Eventos',
-				'items'    => [
-					'[event-name]'    => [
+				'items'    => array(
+					'[event-name]'    => array(
 						'label'       => 'Nome do evento',
 						'description' => 'Título do evento',
 						'example'     => 'Sunset Sessions Vol. 5',
 						'source'      => 'post.post_title',
-					],
-					'[event-date]'    => [
+					),
+					'[event-date]'    => array(
 						'label'       => 'Data do evento',
 						'description' => 'Data formatada do evento',
 						'example'     => 'Sábado, 25 de Março',
 						'source'      => 'postmeta.event_date',
-					],
-					'[event-time]'    => [
+					),
+					'[event-time]'    => array(
 						'label'       => 'Horário',
 						'description' => 'Hora de início do evento',
 						'example'     => '22:00',
 						'source'      => 'postmeta.event_time',
-					],
-					'[event-venue]'   => [
+					),
+					'[event-venue]'   => array(
 						'label'       => 'Local do evento',
 						'description' => 'Nome do venue/local',
 						'example'     => 'Club Rio',
 						'source'      => 'postmeta.event_venue',
-					],
-					'[event-address]' => [
+					),
+					'[event-address]' => array(
 						'label'       => 'Endereço',
 						'description' => 'Endereço completo do local',
 						'example'     => 'Rua das Flores, 123 - Lapa, RJ',
 						'source'      => 'postmeta.event_address',
-					],
-					'[event-url]'     => [
+					),
+					'[event-url]'     => array(
 						'label'       => 'Link do evento',
 						'description' => 'URL da página do evento',
 						'example'     => 'https://site.com/evento/sunset-sessions',
 						'source'      => 'get_permalink()',
-					],
-					'[event-djs]'     => [
+					),
+					'[event-djs]'     => array(
 						'label'       => 'DJs do evento',
 						'description' => 'Lista de DJs que vão tocar',
 						'example'     => 'DJ Marky, Patife, XRS',
 						'source'      => 'postmeta.event_djs',
-					],
-				],
-			],
+					),
+				),
+			),
 			// Site placeholders
-			'site'        => [
+			'site'        => array(
 				'category' => '🌐 Site',
-				'items'    => [
-					'[site-name]'     => [
+				'items'    => array(
+					'[site-name]'     => array(
 						'label'       => 'Nome do site',
 						'description' => 'Título do WordPress',
 						'example'     => 'Apollo::Rio',
 						'source'      => 'get_bloginfo("name")',
-					],
-					'[site-url]'      => [
+					),
+					'[site-url]'      => array(
 						'label'       => 'URL do site',
 						'description' => 'Endereço principal do site',
 						'example'     => 'https://apollo.rio',
 						'source'      => 'home_url()',
-					],
-					'[login-url]'     => [
+					),
+					'[login-url]'     => array(
 						'label'       => 'URL de login',
 						'description' => 'Link para página de login',
 						'example'     => 'https://apollo.rio/entrar',
 						'source'      => 'wp_login_url()',
-					],
-					'[profile-url]'   => [
+					),
+					'[profile-url]'   => array(
 						'label'       => 'URL do perfil',
 						'description' => 'Link para o perfil do usuário',
 						'example'     => 'https://apollo.rio/perfil/joao',
 						'source'      => 'apollo_get_profile_url()',
-					],
-					'[dashboard-url]' => [
+					),
+					'[dashboard-url]' => array(
 						'label'       => 'URL do dashboard',
 						'description' => 'Link para o painel do usuário',
 						'example'     => 'https://apollo.rio/minha-conta',
 						'source'      => 'apollo_get_dashboard_url()',
-					],
-					'[current-year]'  => [
+					),
+					'[current-year]'  => array(
 						'label'       => 'Ano atual',
 						'description' => 'Ano para copyright e datas',
 						'example'     => '2024',
 						'source'      => 'date("Y")',
-					],
-				],
-			],
+					),
+				),
+			),
 			// Admin placeholders
-			'admin'       => [
+			'admin'       => array(
 				'category' => '🔧 Admin',
-				'items'    => [
-					'[admin-name]'       => [
+				'items'    => array(
+					'[admin-name]'       => array(
 						'label'       => 'Nome do admin',
 						'description' => 'Nome de quem aprovou/rejeitou',
 						'example'     => 'Admin Apollo',
 						'source'      => 'usermeta.apollo_membership_approved_by',
-					],
-					'[admin-message]'    => [
+					),
+					'[admin-message]'    => array(
 						'label'       => 'Mensagem do admin',
 						'description' => 'Mensagem personalizada do admin',
 						'example'     => 'Bem-vindo à equipe!',
 						'source'      => 'custom',
-					],
-					'[rejection-reason]' => [
+					),
+					'[rejection-reason]' => array(
 						'label'       => 'Motivo da rejeição',
 						'description' => 'Explicação se membership foi rejeitado',
 						'example'     => 'Documentação incompleta',
 						'source'      => 'usermeta.apollo_membership_rejection_reason',
-					],
-				],
-			],
-		];
+					),
+				),
+			),
+		);
 	}
 
 	/**
 	 * Register all email template categories
 	 */
 	private static function registerTemplateCategories(): void {
-		self::$template_categories = [
-			'social' => [
+		self::$template_categories = array(
+			'social' => array(
 				'label'       => '🔵 Apollo Social',
 				'description' => 'Emails de conta, perfil e interações sociais',
 				'plugin'      => 'apollo-social',
-				'templates'   => [
-					'welcome'                   => [
+				'templates'   => array(
+					'welcome'                   => array(
 						'name'                  => 'Boas-vindas',
 						'description'           => 'Enviado após criação de conta',
 						'trigger'               => 'user_register',
 						'icon'                  => '👋',
-						'required_placeholders' => [ '[user-name]', '[display-name]', '[login-url]' ],
+						'required_placeholders' => array( '[user-name]', '[display-name]', '[login-url]' ),
 						'default_subject'       => 'Bem-vindo(a) à Cultura::Rio, [display-name]! 🎉',
 						'default_body'          => self::getDefaultWelcomeTemplate(),
-					],
-					'membership_approved'       => [
+					),
+					'membership_approved'       => array(
 						'name'                  => 'Membership Aprovado',
 						'description'           => 'Enviado quando membership é aprovado',
 						'trigger'               => 'apollo_membership_approved',
 						'icon'                  => '✅',
-						'required_placeholders' => [ '[display-name]', '[membership-status]', '[cultura-identities]' ],
+						'required_placeholders' => array( '[display-name]', '[membership-status]', '[cultura-identities]' ),
 						'default_subject'       => 'Parabéns [display-name]! Seu membership foi aprovado 🎭',
 						'default_body'          => self::getDefaultApprovedTemplate(),
-					],
-					'membership_rejected'       => [
+					),
+					'membership_rejected'       => array(
 						'name'                  => 'Membership Rejeitado',
 						'description'           => 'Enviado quando membership é rejeitado',
 						'trigger'               => 'apollo_membership_rejected',
 						'icon'                  => '❌',
-						'required_placeholders' => [ '[display-name]', '[rejection-reason]' ],
+						'required_placeholders' => array( '[display-name]', '[rejection-reason]' ),
 						'default_subject'       => '[display-name], sobre sua solicitação de membership',
 						'default_body'          => self::getDefaultRejectedTemplate(),
-					],
-					'membership_pending'        => [
+					),
+					'membership_pending'        => array(
 						'name'                  => 'Membership em Análise',
 						'description'           => 'Confirmação de solicitação recebida',
 						'trigger'               => 'apollo_membership_requested',
 						'icon'                  => '⏳',
-						'required_placeholders' => [ '[display-name]', '[membership-requested]' ],
+						'required_placeholders' => array( '[display-name]', '[membership-requested]' ),
 						'default_subject'       => 'Recebemos sua solicitação, [display-name]!',
 						'default_body'          => self::getDefaultPendingTemplate(),
-					],
-					'journey_dj_progress'       => [
+					),
+					'journey_dj_progress'       => array(
 						'name'                  => 'Journey: DJ Progresso',
 						'description'           => 'Mensagem de progressão para DJs',
 						'trigger'               => 'apollo_journey_dj_progress',
 						'icon'                  => '🎧',
-						'required_placeholders' => [ '[display-name]', '[cultura-identities]' ],
+						'required_placeholders' => array( '[display-name]', '[cultura-identities]' ),
 						'default_subject'       => '[display-name], você está evoluindo como DJ! 🎧',
 						'default_body'          => self::getDefaultJourneyDJTemplate(),
-					],
-					'journey_producer_progress' => [
+					),
+					'journey_producer_progress' => array(
 						'name'                  => 'Journey: Producer Progresso',
 						'description'           => 'Mensagem de progressão para Producers',
 						'trigger'               => 'apollo_journey_producer_progress',
 						'icon'                  => '🎛️',
-						'required_placeholders' => [ '[display-name]' ],
+						'required_placeholders' => array( '[display-name]' ),
 						'default_subject'       => 'Sua jornada como Producer continua! 🎛️',
 						'default_body'          => self::getDefaultJourneyProducerTemplate(),
-					],
-				],
-			],
-			'core'   => [
+					),
+				),
+			),
+			'core'   => array(
 				'label'       => '🟢 Apollo Core',
 				'description' => 'Emails de sistema, moderação e segurança',
 				'plugin'      => 'apollo-core',
-				'templates'   => [
-					'password_reset'    => [
+				'templates'   => array(
+					'password_reset' => array(
 						'name'                  => 'Redefinir Senha',
 						'description'           => 'Link para redefinição de senha',
 						'trigger'               => 'retrieve_password',
 						'icon'                  => '🔑',
-						'required_placeholders' => [ '[user-name]', '[site-name]' ],
+						'required_placeholders' => array( '[user-name]', '[site-name]' ),
 						'default_subject'       => 'Redefinição de senha - [site-name]',
 						'default_body'          => self::getDefaultPasswordResetTemplate(),
-					],
-					'security_alert'    => [
+					),
+					'security_alert' => array(
 						'name'                  => 'Alerta de Segurança',
 						'description'           => 'Notificação de atividade suspeita',
 						'trigger'               => 'apollo_security_alert',
 						'icon'                  => '🚨',
-						'required_placeholders' => [ '[user-name]', '[site-name]' ],
+						'required_placeholders' => array( '[user-name]', '[site-name]' ),
 						'default_subject'       => '⚠️ Alerta de segurança - [site-name]',
 						'default_body'          => self::getDefaultSecurityAlertTemplate(),
-					],
-					'moderation_notice' => [
+					),
+					'mod_notice'     => array(
 						'name'                  => 'Aviso de Moderação',
 						'description'           => 'Quando conteúdo é moderado',
 						'trigger'               => 'apollo_content_moderated',
 						'icon'                  => '⚖️',
-						'required_placeholders' => [ '[display-name]', '[admin-message]' ],
+						'required_placeholders' => array( '[display-name]', '[admin-message]' ),
 						'default_subject'       => 'Aviso sobre seu conteúdo - [site-name]',
 						'default_body'          => self::getDefaultModerationTemplate(),
-					],
-				],
-			],
-			'events' => [
+					),
+				),
+			),
+			'events' => array(
 				'label'       => '🟣 Apollo Events',
 				'description' => 'Emails de eventos, bookmarks e lembretes',
 				'plugin'      => 'apollo-events-manager',
-				'templates'   => [
-					'event_reminder'  => [
+				'templates'   => array(
+					'event_reminder'  => array(
 						'name'                  => 'Lembrete de Evento',
 						'description'           => 'Enviado 24h antes do evento',
 						'trigger'               => 'apollo_event_reminder',
 						'icon'                  => '⏰',
-						'required_placeholders' => [ '[display-name]', '[event-name]', '[event-date]', '[event-venue]' ],
+						'required_placeholders' => array( '[display-name]', '[event-name]', '[event-date]', '[event-venue]' ),
 						'default_subject'       => '⏰ Amanhã: [event-name]!',
 						'default_body'          => self::getDefaultEventReminderTemplate(),
-					],
-					'event_bookmark'  => [
+					),
+					'event_bookmark'  => array(
 						'name'                  => 'Evento Salvo',
 						'description'           => 'Confirmação de bookmark de evento',
 						'trigger'               => 'apollo_event_bookmarked',
 						'icon'                  => '🔖',
-						'required_placeholders' => [ '[display-name]', '[event-name]', '[event-url]' ],
+						'required_placeholders' => array( '[display-name]', '[event-name]', '[event-url]' ),
 						'default_subject'       => '🔖 Você salvou: [event-name]',
 						'default_body'          => self::getDefaultEventBookmarkTemplate(),
-					],
-					'event_update'    => [
+					),
+					'event_update'    => array(
 						'name'                  => 'Atualização de Evento',
 						'description'           => 'Quando um evento salvo é atualizado',
 						'trigger'               => 'apollo_event_updated',
 						'icon'                  => '📢',
-						'required_placeholders' => [ '[display-name]', '[event-name]' ],
+						'required_placeholders' => array( '[display-name]', '[event-name]' ),
 						'default_subject'       => '📢 Atualização: [event-name]',
 						'default_body'          => self::getDefaultEventUpdateTemplate(),
-					],
-					'event_cancelled' => [
+					),
+					'event_cancelled' => array(
 						'name'                  => 'Evento Cancelado',
 						'description'           => 'Quando um evento é cancelado',
 						'trigger'               => 'apollo_event_cancelled',
 						'icon'                  => '🚫',
-						'required_placeholders' => [ '[display-name]', '[event-name]' ],
+						'required_placeholders' => array( '[display-name]', '[event-name]' ),
 						'default_subject'       => '🚫 Evento cancelado: [event-name]',
 						'default_body'          => self::getDefaultEventCancelledTemplate(),
-					],
-					'weekly_digest'   => [
+					),
+					'weekly_digest'   => array(
 						'name'                  => 'Digest Semanal',
 						'description'           => 'Resumo semanal de eventos',
 						'trigger'               => 'apollo_weekly_digest',
 						'icon'                  => '📰',
-						'required_placeholders' => [ '[display-name]', '[fav-sounds]' ],
+						'required_placeholders' => array( '[display-name]', '[fav-sounds]' ),
 						'default_subject'       => '🎉 Eventos desta semana no Rio!',
 						'default_body'          => self::getDefaultWeeklyDigestTemplate(),
-					],
-				],
-			],
-		];
+					),
+				),
+			),
+		);
 	}
 
 	/**
@@ -425,7 +425,7 @@ class EmailHubAdmin {
 			__( 'Apollo Emails', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-hub',
-			[ self::class, 'renderHubPage' ],
+			array( self::class, 'renderHubPage' ),
 			'dashicons-email-alt',
 			57
 		);
@@ -436,7 +436,7 @@ class EmailHubAdmin {
 			__( 'Dashboard', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-hub',
-			[ self::class, 'renderHubPage' ]
+			array( self::class, 'renderHubPage' )
 		);
 
 		add_submenu_page(
@@ -445,7 +445,7 @@ class EmailHubAdmin {
 			__( '📝 Templates', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-templates',
-			[ self::class, 'renderTemplatesPage' ]
+			array( self::class, 'renderTemplatesPage' )
 		);
 
 		add_submenu_page(
@@ -454,7 +454,7 @@ class EmailHubAdmin {
 			__( '🏷️ Placeholders', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-placeholders',
-			[ self::class, 'renderPlaceholdersPage' ]
+			array( self::class, 'renderPlaceholdersPage' )
 		);
 
 		add_submenu_page(
@@ -463,7 +463,7 @@ class EmailHubAdmin {
 			__( '⚙️ Configurações', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-settings',
-			[ self::class, 'renderSettingsPage' ]
+			array( self::class, 'renderSettingsPage' )
 		);
 
 		add_submenu_page(
@@ -472,7 +472,7 @@ class EmailHubAdmin {
 			__( '📊 Logs', 'apollo-social' ),
 			'manage_options',
 			'apollo-email-logs',
-			[ self::class, 'renderLogsPage' ]
+			array( self::class, 'renderLogsPage' )
 		);
 	}
 
@@ -497,14 +497,14 @@ class EmailHubAdmin {
 	 * Render Hub Dashboard
 	 */
 	public static function renderHubPage(): void {
-		$settings  = get_option( self::OPTION_KEY, [] );
-		$templates = get_option( self::TEMPLATES_KEY, [] );
+		$settings  = get_option( self::OPTION_KEY, array() );
+		$templates = get_option( self::TEMPLATES_KEY, array() );
 
-		$stats = [
+		$stats = array(
 			'total_templates' => 0,
 			'configured'      => 0,
 			'pending'         => 0,
-		];
+		);
 
 		foreach ( self::$template_categories as $cat ) {
 			$stats['total_templates'] += count( $cat['templates'] );
@@ -608,7 +608,7 @@ class EmailHubAdmin {
 	 * Render Templates Page
 	 */
 	public static function renderTemplatesPage(): void {
-		$templates       = get_option( self::TEMPLATES_KEY, [] );
+		$templates       = get_option( self::TEMPLATES_KEY, array() );
 		$active_category = sanitize_key( $_GET['category'] ?? 'social' );
 		$active_template = sanitize_key( $_GET['template'] ?? '' );
 		?>
@@ -646,7 +646,7 @@ class EmailHubAdmin {
 					<?php
 					if ( $active_template && isset( self::$template_categories[ $active_category ]['templates'][ $active_template ] ) ) :
 						$tpl   = self::$template_categories[ $active_category ]['templates'][ $active_template ];
-						$saved = $templates[ $active_template ] ?? [];
+						$saved = $templates[ $active_template ] ?? array();
 						?>
 						<div class="editor-header">
 							<h2>
@@ -847,7 +847,7 @@ class EmailHubAdmin {
 	 * Render Settings Page
 	 */
 	public static function renderSettingsPage(): void {
-		$settings = get_option( self::OPTION_KEY, [] );
+		$settings = get_option( self::OPTION_KEY, array() );
 		?>
 		<div class="wrap apollo-email-hub">
 			<h1>⚙️ Configurações de Email</h1>
@@ -953,28 +953,28 @@ class EmailHubAdmin {
 						<h2>🔔 Notificações</h2>
 						<table class="form-table">
 							<?php
-							$notifications = [
-								'welcome_email'     => [
+							$notifications = array(
+								'welcome_email'     => array(
 									'label'   => 'Email de boas-vindas',
 									'default' => true,
-								],
-								'membership_emails' => [
+								),
+								'membership_emails' => array(
 									'label'   => 'Emails de membership',
 									'default' => true,
-								],
-								'event_reminders'   => [
+								),
+								'event_reminders'   => array(
 									'label'   => 'Lembretes de eventos',
 									'default' => true,
-								],
-								'weekly_digest'     => [
+								),
+								'weekly_digest'     => array(
 									'label'   => 'Digest semanal',
 									'default' => false,
-								],
-								'security_alerts'   => [
+								),
+								'security_alerts'   => array(
 									'label'   => 'Alertas de segurança',
 									'default' => true,
-								],
-							];
+								),
+							);
 							foreach ( $notifications as $key => $notif ) :
 								?>
 								<tr>
@@ -1017,13 +1017,13 @@ class EmailHubAdmin {
 		// Use EmailSecurityLog if available
 		if ( class_exists( '\Apollo\Security\EmailSecurityLog' ) ) {
 			$result      = \Apollo\Security\EmailSecurityLog::getLogs(
-				[
+				array(
 					'type'     => $filter_type,
 					'severity' => $filter_severity,
 					'template' => $filter_template,
 					'page'     => $page,
 					'per_page' => $per_page,
-				]
+				)
 			);
 			$logs        = $result['items'];
 			$total       = $result['total'];
@@ -1032,16 +1032,16 @@ class EmailHubAdmin {
 			$stats = \Apollo\Security\EmailSecurityLog::getStats( 'today' );
 		} else {
 			// Fallback to wp_options
-			$all_logs    = get_option( 'apollo_email_logs', [] );
+			$all_logs    = get_option( 'apollo_email_logs', array() );
 			$logs        = array_slice( array_reverse( $all_logs ), 0, $per_page );
 			$total       = count( $all_logs );
 			$total_pages = 1;
-			$stats       = [
+			$stats       = array(
 				'total_sent'       => 0,
 				'total_failed'     => 0,
 				'total_blocked'    => 0,
 				'total_suspicious' => 0,
-			];
+			);
 		}//end if
 		?>
 		<div class="wrap apollo-email-hub">
@@ -1127,7 +1127,7 @@ class EmailHubAdmin {
 						<?php
 					else :
 						foreach ( $logs as $log ) :
-							$type_icons      = [
+							$type_icons      = array(
 								'sent'             => '✅',
 								'failed'           => '❌',
 								'blocked'          => '🚫',
@@ -1135,13 +1135,13 @@ class EmailHubAdmin {
 								'rate_limited'     => '⏱️',
 								'template_updated' => '📝',
 								'test_sent'        => '🧪',
-							];
-							$severity_colors = [
+							);
+							$severity_colors = array(
 								'info'     => '#0073aa',
 								'warning'  => '#f0ad4e',
 								'error'    => '#dc3232',
 								'critical' => '#8b0000',
-							];
+							);
 							$type            = $log['type'] ?? 'sent';
 							$severity        = $log['severity'] ?? 'info';
 							?>
@@ -1249,13 +1249,13 @@ endif;
 			wp_send_json_error( 'Template inválido' );
 		}
 
-		$templates                  = get_option( self::TEMPLATES_KEY, [] );
-		$templates[ $template_key ] = [
+		$templates                  = get_option( self::TEMPLATES_KEY, array() );
+		$templates[ $template_key ] = array(
 			'subject'    => $subject,
 			'body'       => $body,
 			'updated_at' => current_time( 'mysql' ),
 			'updated_by' => get_current_user_id(),
-		];
+		);
 
 		update_option( self::TEMPLATES_KEY, $templates );
 		wp_send_json_success( 'Template salvo com sucesso!' );
@@ -1287,7 +1287,7 @@ endif;
 		// Wrap in HTML template
 		$html = self::wrapInHtmlTemplate( $body, $subject );
 
-		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 		$sent    = wp_mail( $to, '[TESTE] ' . $subject, $html, $headers );
 
 		// Log
@@ -1316,10 +1316,10 @@ endif;
 		$html = self::wrapInHtmlTemplate( $body, $subject );
 
 		wp_send_json_success(
-			[
+			array(
 				'subject' => $subject,
 				'html'    => $html,
-			]
+			)
 		);
 	}
 
@@ -1338,7 +1338,7 @@ endif;
 	 */
 	private static function getTestData(): array {
 		$user = wp_get_current_user();
-		return [
+		return array(
 			'[user-name]'                => $user->user_login,
 			'[display-name]'             => $user->display_name,
 			'[user-email]'               => $user->user_email,
@@ -1368,14 +1368,14 @@ endif;
 			'[admin-name]'               => 'Admin Apollo',
 			'[admin-message]'            => 'Mensagem de teste do administrador.',
 			'[rejection-reason]'         => 'Documentação incompleta.',
-		];
+		);
 	}
 
 	/**
 	 * Wrap body in HTML email template
 	 */
 	private static function wrapInHtmlTemplate( string $body, string $subject ): string {
-		$settings      = get_option( self::OPTION_KEY, [] );
+		$settings      = get_option( self::OPTION_KEY, array() );
 		$primary_color = $settings['primary_color'] ?? '#00d4ff';
 		$logo_url      = $settings['logo_url'] ?? '';
 		$footer_text   = $settings['footer_text'] ?? '© ' . date( 'Y' ) . ' ' . get_bloginfo( 'name' );
@@ -1426,14 +1426,14 @@ endif;
 	 * Log email
 	 */
 	private static function logEmail( string $to, string $template, string $subject, string $status ): void {
-		$logs   = get_option( 'apollo_email_logs', [] );
-		$logs[] = [
+		$logs   = get_option( 'apollo_email_logs', array() );
+		$logs[] = array(
 			'to'        => $to,
 			'template'  => $template,
 			'subject'   => $subject,
 			'status'    => $status,
 			'timestamp' => time(),
-		];
+		);
 
 		// Keep only last 1000
 		if ( count( $logs ) > 1000 ) {
@@ -1463,7 +1463,7 @@ endif;
 				return $cat['items'][ $placeholder ];
 			}
 		}
-		return [];
+		return array();
 	}
 
 	/**
@@ -1978,5 +1978,5 @@ endif;
 }
 
 // Initialize
-add_action( 'plugins_loaded', [ EmailHubAdmin::class, 'init' ], 20 );
+add_action( 'plugins_loaded', array( EmailHubAdmin::class, 'init' ), 20 );
 

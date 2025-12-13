@@ -33,26 +33,86 @@ $notifications = $notifications ?? array(
 );
 
 $app_grid = $app_grid ?? array(
-	array('label' => 'Excel', 'abbr' => 'XL', 'class' => 'ap-bg-green'),
-	array('label' => 'Word', 'abbr' => 'WD', 'class' => 'ap-bg-blue'),
-	array('label' => 'Slide', 'abbr' => 'PP', 'class' => 'ap-bg-orange'),
-	array('label' => 'Teams', 'abbr' => 'TM', 'class' => 'ap-bg-purple'),
-	array('label' => 'Leitor', 'abbr' => 'PDF', 'class' => 'ap-bg-red'),
-	array('label' => 'Drive', 'abbr' => 'DR', 'class' => 'ap-bg-gray'),
-	array('label' => 'Meet', 'abbr' => 'MT', 'class' => 'ap-bg-blue'),
-	array('label' => 'Add', 'abbr' => '+', 'class' => 'ap-bg-gray'),
+	array(
+		'label' => 'Excel',
+		'abbr'  => 'XL',
+		'class' => 'ap-bg-green',
+	),
+	array(
+		'label' => 'Word',
+		'abbr'  => 'WD',
+		'class' => 'ap-bg-blue',
+	),
+	array(
+		'label' => 'Slide',
+		'abbr'  => 'PP',
+		'class' => 'ap-bg-orange',
+	),
+	array(
+		'label' => 'Teams',
+		'abbr'  => 'TM',
+		'class' => 'ap-bg-purple',
+	),
+	array(
+		'label' => 'Leitor',
+		'abbr'  => 'PDF',
+		'class' => 'ap-bg-red',
+	),
+	array(
+		'label' => 'Drive',
+		'abbr'  => 'DR',
+		'class' => 'ap-bg-gray',
+	),
+	array(
+		'label' => 'Meet',
+		'abbr'  => 'MT',
+		'class' => 'ap-bg-blue',
+	),
+	array(
+		'label' => 'Add',
+		'abbr'  => '+',
+		'class' => 'ap-bg-gray',
+	),
 );
 
 $messages = $messages ?? array(
-	array('avatar' => 'M', 'color' => 'ap-bg-gray', 'name' => 'Matheus', 'time' => 'Agora', 'preview' => 'Cara, você viu o novo layout? Ficou insano!'),
-	array('avatar' => 'B', 'color' => 'ap-bg-purple', 'name' => 'Bruna', 'time' => '5m atrás', 'preview' => 'Reunião adiada para as 16h.'),
-	array('avatar' => 'L', 'color' => 'ap-bg-blue', 'name' => 'Lucas', 'time' => '20m atrás', 'preview' => 'Enviou os documentos do projeto.'),
+	array(
+		'avatar'  => 'M',
+		'color'   => 'ap-bg-gray',
+		'name'    => 'Matheus',
+		'time'    => 'Agora',
+		'preview' => 'Cara, você viu o novo layout? Ficou insano!',
+	),
+	array(
+		'avatar'  => 'B',
+		'color'   => 'ap-bg-purple',
+		'name'    => 'Bruna',
+		'time'    => '5m atrás',
+		'preview' => 'Reunião adiada para as 16h.',
+	),
+	array(
+		'avatar'  => 'L',
+		'color'   => 'ap-bg-blue',
+		'name'    => 'Lucas',
+		'time'    => '20m atrás',
+		'preview' => 'Enviou os documentos do projeto.',
+	),
 );
 
 $profile_links = $profile_links ?? array(
-	array('label' => 'Perfil', 'href' => '#'),
-	array('label' => 'Ajustes', 'href' => '#'),
-	array('label' => 'Sair', 'href' => '#', 'class' => 'ap-danger'),
+	array(
+		'label' => 'Perfil',
+		'href'  => '#',
+	),
+	array(
+		'label' => 'Ajustes',
+		'href'  => '#',
+	),
+	array(
+		'label' => 'Sair',
+		'href'  => '#',
+		'class' => 'ap-danger',
+	),
 );
 ?>
 <div id="ap-menu-notif" class="ap-dropdown">

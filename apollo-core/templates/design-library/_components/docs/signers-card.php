@@ -6,7 +6,7 @@
  * @var string $count_label
  */
 
-$signers = $signers ?? array(
+$signers     = $signers ?? array(
 	array(
 		'name'    => 'Você',
 		'avatar'  => 'VC',
@@ -42,7 +42,8 @@ $count_label = $count_label ?? '1/2';
 		</span>
 	</div>
 	<div class="space-y-3">
-		<?php foreach ( $signers as $signer ) :
+		<?php
+		foreach ( $signers as $signer ) :
 			$badge = $signer['badge'] ?? array();
 			?>
 			<div class="flex items-center justify-between p-3 rounded-xl <?php echo esc_attr( $signer['color'] ?? 'bg-white' ); ?>">

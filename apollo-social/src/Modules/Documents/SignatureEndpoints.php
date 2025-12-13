@@ -75,7 +75,7 @@ class SignatureEndpoints {
 		// Get documents by library
 		register_rest_route(
 			self::NAMESPACE,
-			'/library/(?P<library>[a-z]+)',
+			'library/(?P<library>[a-z]+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getLibraryDocuments' ],
@@ -103,7 +103,7 @@ class SignatureEndpoints {
 		// Get library stats
 		register_rest_route(
 			self::NAMESPACE,
-			'/library/(?P<library>[a-z]+)/stats',
+			'library/(?P<library>[a-z]+)/stats',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getLibraryStats' ],
@@ -114,7 +114,7 @@ class SignatureEndpoints {
 		// Create document
 		register_rest_route(
 			self::NAMESPACE,
-			'/document',
+			'doc',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'createDocument' ],
@@ -146,7 +146,7 @@ class SignatureEndpoints {
 		// Get document
 		register_rest_route(
 			self::NAMESPACE,
-			'/document/(?P<file_id>[a-zA-Z0-9]+)',
+			'doc/(?P<file_id>[a-zA-Z0-9]+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getDocument' ],
@@ -157,7 +157,7 @@ class SignatureEndpoints {
 		// Update document
 		register_rest_route(
 			self::NAMESPACE,
-			'/document/(?P<file_id>[a-zA-Z0-9]+)',
+			'doc/(?P<file_id>[a-zA-Z0-9]+)',
 			[
 				'methods'             => 'PUT',
 				'callback'            => [ $this, 'updateDocument' ],
@@ -182,7 +182,7 @@ class SignatureEndpoints {
 		// Finalize document
 		register_rest_route(
 			self::NAMESPACE,
-			'/document/(?P<file_id>[a-zA-Z0-9]+)/finalize',
+			'doc/(?P<file_id>[a-zA-Z0-9]+)/finalize',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'finalizeDocument' ],
@@ -193,7 +193,7 @@ class SignatureEndpoints {
 		// Move document
 		register_rest_route(
 			self::NAMESPACE,
-			'/document/(?P<file_id>[a-zA-Z0-9]+)/move',
+			'doc/(?P<file_id>[a-zA-Z0-9]+)/mover',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'moveDocument' ],
@@ -213,7 +213,7 @@ class SignatureEndpoints {
 		// Sign with certificate (ICP-Brasil)
 		register_rest_route(
 			self::NAMESPACE,
-			'/sign/certificate',
+			'assina/certificado',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'signWithCertificate' ],
@@ -247,7 +247,7 @@ class SignatureEndpoints {
 		// Sign with canvas (electronic)
 		register_rest_route(
 			self::NAMESPACE,
-			'/sign/canvas',
+			'assina/canvas',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'signWithCanvas' ],
@@ -284,7 +284,7 @@ class SignatureEndpoints {
 		// Request signature from another person
 		register_rest_route(
 			self::NAMESPACE,
-			'/sign/request',
+			'assina/request',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'requestSignature' ],
@@ -318,7 +318,7 @@ class SignatureEndpoints {
 		// Verify by protocol (public)
 		register_rest_route(
 			self::NAMESPACE,
-			'/verify/protocol/(?P<code>[A-Z0-9-]+)',
+			'verificar/protocolo/(?P<code>[A-Z0-9-]+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'verifyByProtocol' ],
@@ -329,7 +329,7 @@ class SignatureEndpoints {
 		// Verify by hash (public)
 		register_rest_route(
 			self::NAMESPACE,
-			'/verify/hash',
+			'verificar/hash',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'verifyByHash' ],
@@ -346,7 +346,7 @@ class SignatureEndpoints {
 		// Verify PDF file (public)
 		register_rest_route(
 			self::NAMESPACE,
-			'/verify/file',
+			'verificar/arquivo',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'verifyFile' ],
@@ -359,7 +359,7 @@ class SignatureEndpoints {
 		// Get document audit log
 		register_rest_route(
 			self::NAMESPACE,
-			'/audit/(?P<file_id>[a-zA-Z0-9]+)',
+			'auditar/(?P<file_id>[a-zA-Z0-9]+)',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getAuditLog' ],
@@ -370,7 +370,7 @@ class SignatureEndpoints {
 		// Generate verification report
 		register_rest_route(
 			self::NAMESPACE,
-			'/audit/(?P<file_id>[a-zA-Z0-9]+)/report',
+			'auditar/(?P<file_id>[a-zA-Z0-9]+)/report',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getVerificationReport' ],
@@ -381,7 +381,7 @@ class SignatureEndpoints {
 		// Generate protocol
 		register_rest_route(
 			self::NAMESPACE,
-			'/protocol/generate',
+			'protocolo/gerar',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'generateProtocol' ],
@@ -400,7 +400,7 @@ class SignatureEndpoints {
 		// Get templates
 		register_rest_route(
 			self::NAMESPACE,
-			'/templates',
+			'templates',
 			[
 				'methods'             => 'GET',
 				'callback'            => [ $this, 'getTemplates' ],
@@ -414,7 +414,7 @@ class SignatureEndpoints {
 		// Create from template
 		register_rest_route(
 			self::NAMESPACE,
-			'/templates/(?P<file_id>[a-zA-Z0-9]+)/use',
+			'templates/(?P<file_id>[a-zA-Z0-9]+)/use',
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'createFromTemplate' ],

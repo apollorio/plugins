@@ -7,7 +7,7 @@ echo  ██████  APOLLO → AUTO-FIX WORDPRESS CODING STANDARDS (PHPCBF
 echo  ================================================================
 echo .
 set XDEBUG_MODE=off
-phpcbf -d memory_limit=2G --extensions=php -sp .\apollo-core\ .\apollo-events-manager\ .\apollo-social\
+phpcbf -d memory_limit=1054G --extensions=php -sp .\apollo-core\ .\apollo-events-manager\ .\apollo-social\
 echo.
 echo  ╔══════════════════════════════════════════════════╗
 echo  ║    AUTO-FIX CONCLUÍDO!                           ║

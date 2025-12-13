@@ -10,14 +10,14 @@ namespace Apollo\Modules\Moderation\Services;
 class ModerationService {
 
 	/**
-	 * Submit group/núcleo for moderation
+	 * Submit group/núcleo for mod
 	 */
 	public function submitForReview( int $entity_id, string $entity_type, array $submission_data ): array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod
 
-		// Check if already in moderation
+		// Check if already in mod
 		$existing = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM {$table_name} WHERE entity_id = %d AND entity_type = %s AND status = 'pending'",
@@ -33,7 +33,7 @@ class ModerationService {
 			];
 		}
 
-		$moderation_data = [
+		$mod
 			'entity_id'                    => $entity_id,
 			'entity_type'                  => $entity_type,
 			// 'group', 'nucleo', 'event', 'ad'
@@ -51,7 +51,7 @@ class ModerationService {
 			),
 		];
 
-		$result = $wpdb->insert( $table_name, $moderation_data );
+		$result = $wpdb->insert( $table_name, $mod
 
 		if ( $result ) {
 			// Update entity status
@@ -62,7 +62,7 @@ class ModerationService {
 
 			return [
 				'success'       => true,
-				'moderation_id' => $wpdb->insert_id,
+				'mod
 				'message'       => 'Enviado para moderação com sucesso',
 			];
 		}
@@ -74,26 +74,26 @@ class ModerationService {
 	}
 
 	/**
-	 * Approve moderation request
+	 * Approve mod
 	 */
-	public function approve( int $moderation_id, int $moderator_id, string $notes = '' ): array {
+	public function approve( int $mod
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod
 
-		$moderation = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $moderation_id ),
+		$mod
+			$wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $mod
 			ARRAY_A
 		);
 
-		if ( ! $moderation || $moderation['status'] !== 'pending' ) {
+		if ( ! $modmod
 			return [
 				'success' => false,
 				'error'   => 'Item de moderação não encontrado ou já processado',
 			];
 		}
 
-		// Update moderation record
+		// Update mod
 		$wpdb->update(
 			$table_name,
 			[
@@ -108,20 +108,20 @@ class ModerationService {
 					]
 				),
 			],
-			[ 'id' => $moderation_id ]
+			[ 'id' => $mod
 		);
 
 		// Update entity status
-		$this->updateEntityStatus( $moderation['entity_id'], $moderation['entity_type'], 'active' );
+		$this->updateEntityStatus( $modmod
 
 		// Apply approved changes
-		$this->applyApprovedChanges( $moderation );
+		$this->applyApprovedChanges( $mod
 
 		// Notify submitter
-		$this->notifySubmitter( $moderation, 'approved', $notes );
+		$this->notifySubmitter( $mod
 
-		// Award moderation badges
-		$this->awardModerationBadges( $moderation['entity_id'], $moderation['entity_type'], 'approved' );
+		// Award mod
+		$this->awardModerationBadges( $modmod
 
 		return [
 			'success' => true,
@@ -130,26 +130,26 @@ class ModerationService {
 	}
 
 	/**
-	 * Reject moderation request
+	 * Reject mod
 	 */
-	public function reject( int $moderation_id, int $moderator_id, string $reason ): array {
+	public function reject( int $mod
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod
 
-		$moderation = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $moderation_id ),
+		$mod
+			$wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $mod
 			ARRAY_A
 		);
 
-		if ( ! $moderation || $moderation['status'] !== 'pending' ) {
+		if ( ! $modmod
 			return [
 				'success' => false,
 				'error'   => 'Item de moderação não encontrado ou já processado',
 			];
 		}
 
-		// Update moderation record
+		// Update mod
 		$wpdb->update(
 			$table_name,
 			[
@@ -164,14 +164,14 @@ class ModerationService {
 					]
 				),
 			],
-			[ 'id' => $moderation_id ]
+			[ 'id' => $mod
 		);
 
 		// Update entity status
-		$this->updateEntityStatus( $moderation['entity_id'], $moderation['entity_type'], 'rejected' );
+		$this->updateEntityStatus( $modmod
 
 		// Notify submitter
-		$this->notifySubmitter( $moderation, 'rejected', $reason );
+		$this->notifySubmitter( $mod
 
 		return [
 			'success' => true,
@@ -180,12 +180,12 @@ class ModerationService {
 	}
 
 	/**
-	 * Get moderation queue
+	 * Get mod
 	 */
 	public function getModerationQueue( array $filters = [] ): array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod
 
 		$where_conditions = [ '1=1' ];
 		$where_values     = [];
@@ -229,12 +229,12 @@ class ModerationService {
 	}
 
 	/**
-	 * Get moderation statistics
+	 * Get mod
 	 */
 	public function getModerationStats(): array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_moderation_queue';
+		$table_name = $wpdb->prefix . 'apollo_mod
 
 		$stats = $wpdb->get_results(
 			"
@@ -328,22 +328,22 @@ class ModerationService {
 	/**
 	 * Apply approved changes to entity
 	 */
-	private function applyApprovedChanges( array $moderation ): void {
-		$submission_data = json_decode( $moderation['submission_data'], true );
+	private function applyApprovedChanges( array $mod
+		$submission_data = json_decode( $mod
 
 		// Apply changes based on entity type
-		switch ( $moderation['entity_type'] ) {
+		switch ( $mod
 			case 'group':
 			case 'nucleo':
-				$this->applyGroupChanges( $moderation['entity_id'], $submission_data );
+				$this->applyGroupChanges( $mod
 				break;
 
 			case 'event':
-				$this->applyEventChanges( $moderation['entity_id'], $submission_data );
+				$this->applyEventChanges( $mod
 				break;
 
 			case 'ad':
-				$this->applyAdChanges( $moderation['entity_id'], $submission_data );
+				$this->applyAdChanges( $mod
 				break;
 		}
 	}
@@ -388,7 +388,7 @@ class ModerationService {
 		$moderators = $this->getModeratorsForEntityType( $entity_type );
 
 		$notification_data = [
-			'type'         => 'moderation_request',
+			'type'         => 'mod
 			'entity_id'    => $entity_id,
 			'entity_type'  => $entity_type,
 			'priority'     => $this->calculatePriority( $entity_type, $submission_data ),
@@ -401,7 +401,7 @@ class ModerationService {
 	}
 
 	/**
-	 * Award moderation badges
+	 * Award mod
 	 */
 	private function awardModerationBadges( int $entity_id, string $entity_type, string $decision ): void {
 		$user_id = get_current_user_id();
@@ -499,7 +499,7 @@ class ModerationService {
 	 * Get moderators for entity type
 	 */
 	private function getModeratorsForEntityType( string $entity_type ): array {
-		// Get users with moderation capabilities
+		// Get users with mod
 		$moderators = get_users(
 			[
 				'capability' => 'apollo_moderate_' . $entity_type,
@@ -533,15 +533,15 @@ class ModerationService {
 	/**
 	 * Notify submitter of decision
 	 */
-	private function notifySubmitter( array $moderation, string $decision, string $notes ): void {
+	private function notifySubmitter( array $mod
 		$notification_data = [
-			'type'        => 'moderation_result',
+			'type'        => 'mod
 			'decision'    => $decision,
-			'entity_id'   => $moderation['entity_id'],
-			'entity_type' => $moderation['entity_type'],
+			'entity_id'   => $mod
+			'entity_type' => $mod
 			'notes'       => $notes,
 		];
 
-		$this->createNotification( $moderation['submitter_id'], $notification_data );
+		$this->createNotification( $mod
 	}
 }

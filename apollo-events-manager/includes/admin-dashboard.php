@@ -182,7 +182,7 @@ class Apollo_Admin_Dashboard {
 	public function register_rest_routes() {
 		register_rest_route(
 			'apollo/v1',
-			'/estatisticas',
+			'estatisticas',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_analytics' ),
@@ -192,7 +192,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/estatisticas',
+			'estatisticas',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_analytics' ),
@@ -220,7 +220,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/likes',
+			'wow',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_likes' ),
@@ -230,7 +230,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/likes',
+			'wow',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_like' ),
@@ -247,7 +247,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/technotes/(?P<venue_id>\d+)',
+			'technotes/(?P<venue_id>\d+)',
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'rest_get_technotes' ),
@@ -257,7 +257,7 @@ class Apollo_Admin_Dashboard {
 
 		register_rest_route(
 			'apollo/v1',
-			'/technotes/(?P<venue_id>\d+)',
+			'technotes/(?P<venue_id>\d+)',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'rest_post_technotes' ),
@@ -403,12 +403,23 @@ class Apollo_Admin_Dashboard {
 			);
 		}
 
+		// SECURITY: phpcs:ignore - Query is safe as $table is constructed from $wpdb->prefix which is trusted
+		// No user input is used in this query
 		$results = $wpdb->get_results(
-			"SELECT event_id, COUNT(*) as count FROM {$table} GROUP BY event_id ORDER BY count DESC",
+			"SELECT event_id, COUNT(*) as count FROM {$table} GROUP BY event_id ORDER BY count DESC LIMIT 1000",
 			ARRAY_A
 		);
 
-		return new WP_REST_Response( $results, 200 );
+		// SECURITY: Sanitize output
+		$safe_results = array();
+		foreach ( $results as $row ) {
+			$safe_results[] = array(
+				'event_id' => absint( $row['event_id'] ),
+				'count'    => absint( $row['count'] ),
+			);
+		}
+
+		return new WP_REST_Response( $safe_results, 200 );
 	}
 
 	/**

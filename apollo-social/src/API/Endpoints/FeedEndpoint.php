@@ -26,7 +26,7 @@ class FeedEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
+		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
 	}
 
 	/**
@@ -36,33 +36,33 @@ class FeedEndpoint {
 		// Get unified feed
 		register_rest_route(
 			'apollo/v1',
-			'/feed',
-			[
+			'explore',
+			array(
 				'methods'                              => WP_REST_Server::READABLE,
-				'callback'                             => [ $this, 'getFeed' ],
+				'callback'                             => array( $this, 'getFeed' ),
 				'permission_callback'                  => '__return_true',
 				// Publicly readable
-												'args' => [
-													'page' => [
+												'args' => array(
+													'page' => array(
 														'default'     => 1,
 														'type'        => 'integer',
 														'description' => __( 'Page number for pagination.', 'apollo-social' ),
-													],
-													'per_page' => [
+													),
+													'per_page' => array(
 														'default'     => 20,
 														'type'        => 'integer',
 														'description' => __( 'Number of items per page.', 'apollo-social' ),
 														'minimum'     => 1,
 														'maximum'     => 100,
-													],
-													'type' => [
+													),
+													'type' => array(
 														'default'     => 'all',
 														'type'        => 'string',
-														'enum'        => [ 'all', 'user_post', 'event', 'ad', 'news' ],
+														'enum'        => array( 'all', 'user_post', 'event', 'ad', 'news' ),
 														'description' => __( 'Filter by content type.', 'apollo-social' ),
-													],
-												],
-			]
+													),
+												),
+			)
 		);
 	}
 
@@ -90,17 +90,17 @@ class FeedEndpoint {
 		}
 
 		return new WP_REST_Response(
-			[
+			array(
 				'success' => true,
-				'data'    => [
+				'data'    => array(
 					'posts'      => $posts,
-					'pagination' => [
+					'pagination' => array(
 						'page'     => $page,
 						'per_page' => $per_page,
 						'total'    => count( $posts ),
-					],
-				],
-			],
+					),
+				),
+			),
 			200
 		);
 	}

@@ -683,7 +683,7 @@ abstract class APRIO_REST_CRUD_Controller extends APRIO_REST_Posts_Controller {
 				return self::prepare_error_for_response( 405 );
 			} else {
 				$user_info = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}aprio_rest_api_keys WHERE user_id = $user->ID " ) );
-				$user_meta = get_user_meta( $user->ID, '_matchmaking_profile', true );
+				$user_meta = get_user_meta( $user->ID, '_compatibilidade_profile', true );
 				if ( $user_info ) {
 					$date_expires = date( 'Y-m-d', strtotime( $user_info->date_expires ) );
 					if ( $user_info->permissions == 'write' ) {
@@ -694,7 +694,7 @@ abstract class APRIO_REST_CRUD_Controller extends APRIO_REST_Posts_Controller {
 						return false;
 					}
 				} elseif ( ! empty( $user_meta ) && $user_meta == 1 ) {
-					if ( ! get_option( 'enable_matchmaking', false ) ) {
+					if ( ! get_option( 'enable_compatibilidade', false ) ) {
 						return self::prepare_error_for_response( 506 );
 					} else {
 						return false;

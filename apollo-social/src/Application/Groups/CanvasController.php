@@ -10,10 +10,10 @@ use Apollo\Application\Groups\Moderation;
  */
 class CanvasController {
 
-	private $moderation;
+	private $mod
 
 	public function __construct() {
-		$this->moderation = new Moderation();
+		$this->mod
 	}
 
 	/**
@@ -25,7 +25,7 @@ class CanvasController {
 
 		// Get rejection notice if group is rejected
 		if ( $status === 'rejected' ) {
-			$rejection_notice = $this->moderation->getRejectionNotice( $group['id'] );
+			$rejection_notice = $this->mod $group['id'] );
 		}
 
 		// Set template variables
@@ -48,7 +48,7 @@ class CanvasController {
 
 		// Get rejection notice if group is rejected
 		if ( $status === 'rejected' ) {
-			$rejection_notice = $this->moderation->getRejectionNotice( $group['id'] );
+			$rejection_notice = $this->mod $group['id'] );
 		}
 
 		// Set template variables for status badge
@@ -62,12 +62,12 @@ class CanvasController {
 	}
 
 	/**
-	 * Render moderation action bar for editors/admins
+	 * Render modrs/admins
 	 */
 	public function renderModerationActions( array $group, \WP_User $user ): string {
 		$status = $group['status'] ?? 'draft';
 
-		// Only show moderation actions to editors/admins
+		// Only show moddmins
 		if ( ! user_can( $user, 'edit_posts' ) ) {
 			return '';
 		}
@@ -84,7 +84,7 @@ class CanvasController {
 			'user'     => $user,
 		];
 
-		return $this->renderTemplate( 'moderation-actions', $template_vars );
+		return $this->renderTemplate( 'modvars );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class CanvasController {
 
 			// Add rejection notice if rejected
 			if ( $status === 'rejected' ) {
-				$group_data['rejection_notice'] = $this->moderation->getRejectionNotice( $group['id'] );
+				$group_data['rejection_notice'] = $this->mod $group['id'] );
 			}
 
 			// Add workflow metadata
@@ -131,11 +131,11 @@ class CanvasController {
 	private function getWorkflowMetadata( int $group_id ): array {
 		global $wpdb;
 
-		$moderation_table = $wpdb->prefix . 'apollo_moderation_queue';
+		$modx . 'apollo_mod_quemodmodmod
 
 		$workflow = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$moderation_table} 
+				"SELECT * FROM {$mod
              WHERE entity_id = %d AND entity_type = 'group' 
              ORDER BY submitted_at DESC LIMIT 1",
 				$group_id

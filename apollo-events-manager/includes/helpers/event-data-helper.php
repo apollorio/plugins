@@ -857,11 +857,11 @@ if ( ! function_exists( 'apollo_can_user_edit_event' ) ) {
 			return true;
 		}
 
-		// Verificar se é co-autor
-		$co_authors = apollo_get_post_meta( $event_id, '_event_co_authors', true );
-		$co_authors = is_array( $co_authors ) ? array_map( 'absint', $co_authors ) : array();
+		// Verificar se está em gestão
+		$gestao = apollo_get_post_meta( $event_id, '_event_gestao', true );
+		$gestao = is_array( $gestao ) ? array_map( 'absint', $gestao ) : array();
 
-		if ( in_array( $user_id, $co_authors, true ) ) {
+		if ( in_array( $user_id, $gestao, true ) ) {
 			return true;
 		}
 
@@ -869,7 +869,7 @@ if ( ! function_exists( 'apollo_can_user_edit_event' ) ) {
 	}
 }//end if
 
-// FASE 2: Filtro WordPress para permitir que co-autores editem eventos
+// FASE 2: Filtro WordPress para permitir que usuários em gestão editem eventos
 add_filter(
 	'user_has_cap',
 	function ( $allcaps, $cap, $args ) {

@@ -198,7 +198,7 @@ class Apollo_Push_Notifications {
 		$message = __( 'A new document has been published.', 'apollo-core' );
 
 		// SAFETY: Build and validate URL.
-		$url = home_url( '/documents/' . absint( $document_id ) );
+		$url = home_url( '/doc/' . absint( $document_id ) );
 
 		self::send_notification( $title, $message, $url );
 	}
@@ -265,11 +265,13 @@ class Apollo_Push_Notifications {
 	 */
 	private static function log_error( string $message, array $context = array() ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-			error_log( sprintf(
-				'[Apollo Push Notifications] %s | Context: %s',
-				$message,
-				wp_json_encode( $context )
-			) );
+			error_log(
+				sprintf(
+					'[Apollo Push Notifications] %s | Context: %s',
+					$message,
+					wp_json_encode( $context )
+				)
+			);
 		}
 	}
 

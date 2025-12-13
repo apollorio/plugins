@@ -184,7 +184,7 @@ O Command Center mostra as permissões e ações disponíveis baseadas no papel 
 
 ### Tabelas de Banco
 - `apollo_workflow_log`: Log de transições
-- `apollo_moderation_queue`: Fila de moderação
+- `apollo_mod_queue`: Fila de moderação
 - `apollo_analytics`: Eventos de sistema
 
 ## 📝 Notas de Implementação

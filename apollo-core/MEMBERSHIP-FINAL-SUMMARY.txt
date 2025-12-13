@@ -70,7 +70,7 @@ Versão: Apollo Core 3.0.0
    - Adicionado self::init_memberships()
    - Método privado init_memberships()
 
-3. admin/moderation-page.php
+3. admin/mod-page.php
    - Coluna "Membership" na tabela de usuários
    - apollo_render_user_membership_selector()
    - apollo_render_membership_types_manager()

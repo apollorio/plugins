@@ -265,7 +265,7 @@
             return;
         }
 
-        fetch(restUrl + '/cena-rio/event/' + eventId + '/approve', {
+        fetch(restUrl + '/cena-rio/event/' + eventId + 'aprovar, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

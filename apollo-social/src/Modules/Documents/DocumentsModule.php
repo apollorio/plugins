@@ -258,7 +258,7 @@ class DocumentsModule {
 		// Extract args for template
 		extract( $args );
 
-		$template_file = APOLLO_SOCIAL_PLUGIN_DIR . "templates/documents/{$template}.php";
+		$template_file = APOLLO_SOCIAL_PLUGIN_DIR . "templates/doc/{$template}.php";
 
 		if ( file_exists( $template_file ) ) {
 			include $template_file;
@@ -394,12 +394,12 @@ class DocumentsModule {
 							<td>Assinar com canvas (eletrônica)</td>
 						</tr>
 						<tr>
-							<td><code>/wp-json/apollo-docs/v1/verify/protocol/{code}</code></td>
+							<td><code>/wp-json/apollo-docs/v1/verificar/protocolo/{code}</code></td>
 							<td>GET</td>
 							<td>Verificar documento por protocolo</td>
 						</tr>
 						<tr>
-							<td><code>/wp-json/apollo-docs/v1/verify/hash</code></td>
+							<td><code>/wp-json/apollo-docs/v1/verificar/hash</code></td>
 							<td>POST</td>
 							<td>Verificar documento por hash</td>
 						</tr>
@@ -535,11 +535,11 @@ class DocumentsModule {
 			try {
 				let response;
 				if (protocol) {
-					response = await fetch('<?php echo esc_url( rest_url( 'apollo-docs/v1/verify/protocol/' ) ); ?>' + protocol);
+					response = await fetch('<?php echo esc_url( rest_url( 'apollo-docs/v1/verificar/protocolo/' ) ); ?>' + protocol);
 				} else if (file) {
 					const formData = new FormData();
 					formData.append('file', file);
-					response = await fetch('<?php echo esc_url( rest_url( 'apollo-docs/v1/verify/file' ) ); ?>', {
+					response = await fetch('<?php echo esc_url( rest_url( 'apollo-docs/v1/verificar/file' ) ); ?>', {
 						method: 'POST',
 						body: formData
 					});

@@ -55,13 +55,13 @@ add_action(
 			.ap-profile-stats { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; }
 			@media (min-width: 768px) { .ap-profile-stats { align-items: flex-end; } }
 			.ap-stats-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-			.ap-stat-mini { display: flex; flex-direction: column; align-items: center; padding: 0.25rem 0.5rem; background: var(--ap-bg-muted); border-radius: var(--ap-radius-md); min-width: 3rem; }
+			.ap-stat-mini { display: flex; flex-direction: column; align-items: center; padding: 0.25rem 0.5rem; background: var((--bg-main)-muted); border-radius: var(--ap-radius-md); min-width: 3rem; }
 			.ap-stat-label { font-size: 0.625rem; text-transform: uppercase; color: var(--ap-text-muted); letter-spacing: 0.05em; }
 			.ap-stat-value { font-size: 0.875rem; font-weight: 700; color: var(--ap-text); }
 			.ap-avatar-gradient { background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-pink-500)); padding: 3px; }
 			.ap-avatar-gradient img { border-radius: 50%; }
-			.ap-avatar-badge { position: absolute; bottom: 0; right: 0; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; border: 2px solid var(--ap-bg); }
-			.ap-chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--ap-bg-muted); border-radius: var(--ap-radius-full); color: var(--ap-text-muted); }
+			.ap-avatar-badge { position: absolute; bottom: 0; right: 0; width: 1.25rem; height: 1.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.625rem; border: 2px solid var((--bg-main)); }
+			.ap-chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var((--bg-main)-muted); border-radius: var(--ap-radius-full); color: var(--ap-text-muted); }
 			.ap-chip-sm { font-size: 0.625rem; padding: 0.125rem 0.375rem; }
             ';
 			wp_add_inline_style( 'apollo-uni-css', $profile_css );

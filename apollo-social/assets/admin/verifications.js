@@ -518,7 +518,7 @@ class ApolloVerificationsAdmin {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/confirm', {
+            const response = await fetch('/wp-json/apollo/v1/integra/verificar/confirm', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -557,7 +557,7 @@ class ApolloVerificationsAdmin {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/cancel', {
+            const response = await fetch('/wp-json/apollo/v1/integra/verificar/cancel', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -599,7 +599,7 @@ class ApolloVerificationsAdmin {
         try {
             this.showLoading(true);
             
-            const response = await fetch('/wp-json/apollo/v1/onboarding/verify/cancel', {
+            const response = await fetch('/wp-json/apollo/v1/integra/verificar/cancel', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

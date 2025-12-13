@@ -36,8 +36,8 @@ class Apollo_Moderation_Admin_UI {
 		add_menu_page(
 			__( 'Apollo Moderation', 'apollo-core' ),
 			__( 'Moderation', 'apollo-core' ),
-			'view_moderation_queue',
-			'apollo-moderation',
+			'view_mod_queue',
+			'apollo-mod',
 			array( __CLASS__, 'render_page' ),
 			'dashicons-shield',
 			25
@@ -50,27 +50,27 @@ class Apollo_Moderation_Admin_UI {
 	 * @param string $hook Hook name.
 	 */
 	public static function enqueue_assets( $hook ) {
-		if ( 'toplevel_page_apollo-moderation' !== $hook ) {
+		if ( 'toplevel_page_apollo-mod' !== $hook ) {
 			return;
 		}
 
 		wp_enqueue_style(
-			'apollo-moderation',
-			APOLLO_CORE_PLUGIN_URL . 'modules/moderation/assets/moderation.css',
+			'apollo-mod',
+			APOLLO_CORE_PLUGIN_URL . 'modules/mod/assets/mod.css',
 			array(),
 			APOLLO_CORE_VERSION
 		);
 
 		wp_enqueue_script(
-			'apollo-moderation',
-			APOLLO_CORE_PLUGIN_URL . 'modules/moderation/assets/moderation.js',
+			'apollo-mod',
+			APOLLO_CORE_PLUGIN_URL . 'modules/mod/assets/mod.js',
 			array( 'jquery', 'wp-api' ),
 			APOLLO_CORE_VERSION,
 			true
 		);
 
 		wp_localize_script(
-			'apollo-moderation',
+			'apollo-mod',
 			'apolloModeration',
 			array(
 				'restUrl'   => rest_url( Apollo_Core_Rest_Bootstrap::get_namespace() ),
@@ -96,29 +96,29 @@ class Apollo_Moderation_Admin_UI {
 			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Configurações salvas com sucesso!', 'apollo-core' ) . '</p></div>';
 		}
 		?>
-		<div class="wrap apollo-moderation-wrap">
+		<div class="wrap apollo-mod-wrap">
 			<h1><?php esc_html_e( 'Apollo Moderation', 'apollo-core' ); ?></h1>
 
 			<nav class="nav-tab-wrapper">
 				<?php if ( $can_manage ) : ?>
-				<a href="?page=apollo-moderation&tab=settings" class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=apollo-mod&tab=settings" class="nav-tab <?php echo 'settings' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Settings', 'apollo-core' ); ?>
 				</a>
 				<?php endif; ?>
-				<a href="?page=apollo-moderation&tab=queue" class="nav-tab <?php echo 'queue' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=apollo-mod&tab=queue" class="nav-tab <?php echo 'queue' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?>
 				</a>
-				<a href="?page=apollo-moderation&tab=users" class="nav-tab <?php echo 'users' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=apollo-mod&tab=users" class="nav-tab <?php echo 'users' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Moderate Users', 'apollo-core' ); ?>
 				</a>
 				<?php if ( $can_manage ) : ?>
-				<a href="?page=apollo-moderation&tab=coauthors" class="nav-tab <?php echo 'coauthors' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=apollo-mod&tab=coauthors" class="nav-tab <?php echo 'coauthors' === $current_tab ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Co-autores', 'apollo-core' ); ?>
 				</a>
 				<?php endif; ?>
 			</nav>
 
-			<div class="apollo-moderation-content">
+			<div class="apollo-mod-content">
 				<?php
 				switch ( $current_tab ) {
 					case 'settings':
@@ -223,7 +223,7 @@ class Apollo_Moderation_Admin_UI {
 					<td>
 						<label>
 							<input type="checkbox" name="audit_log_enabled" id="audit-log-enabled" value="1" <?php checked( ! empty( $settings['audit_log_enabled'] ) ); ?>>
-							<?php esc_html_e( 'Enable audit logging for moderation actions', 'apollo-core' ); ?>
+							<?php esc_html_e( 'Enable audit logging for mod actions', 'apollo-core' ); ?>
 						</label>
 					</td>
 				</tr>
@@ -239,7 +239,7 @@ class Apollo_Moderation_Admin_UI {
 	 */
 	private static function render_tab_queue() {
 		?>
-		<div id="apollo-moderation-queue">
+		<div id="apollo-mod-queue">
 			<h2><?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Review and approve pending content.', 'apollo-core' ); ?></p>
 
@@ -384,7 +384,7 @@ class Apollo_Moderation_Admin_UI {
 		// Update role capabilities.
 		Apollo_Moderation_Roles::setup_content_type_capabilities();
 
-		wp_safe_redirect( admin_url( 'admin.php?page=apollo-moderation&tab=settings&updated=1' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=apollo-mod&tab=settings&updated=1' ) );
 		exit;
 	}
 }

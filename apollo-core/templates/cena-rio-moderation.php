@@ -50,13 +50,13 @@ add_action(
 			false
 		);
 
-		// Inline moderation-specific styles.
-		$moderation_css = '
+		// Inline mod-specific styles.
+		$mod_css = '
 			body { margin: 0; padding: 0; font-family: Inter, system-ui, Arial; background: #f8fafc; }
 			.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 			.topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 		';
-		wp_add_inline_style( 'apollo-uni-css', $moderation_css );
+		wp_add_inline_style( 'apollo-uni-css', $mod_css );
 	},
 	10
 );
@@ -110,8 +110,8 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 		?>
 
 		<?php
-		// Render moderation queue shortcode
-		echo do_shortcode( '[apollo_cena_moderation_queue]' );
+		// Render mod queue shortcode
+		echo do_shortcode( '[apollo_cena_mod_queue]' );
 		?>
 	</div>
 

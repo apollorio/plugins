@@ -6,11 +6,28 @@
  * @var string $primary_cta
  */
 
-$filters = $filters ?? array(
-	array('slug' => 'all', 'label' => 'Todos', 'icon' => 'ri-apps-2-line', 'active' => true),
-	array('slug' => 'draft', 'label' => 'Em rascunho', 'icon' => 'ri-edit-box-line'),
-	array('slug' => 'waiting', 'label' => 'Aguardando assinatura', 'icon' => 'ri-file-shield-2-line'),
-	array('slug' => 'signed', 'label' => 'Assinados', 'icon' => 'ri-check-double-line'),
+$filters     = $filters ?? array(
+	array(
+		'slug'   => 'all',
+		'label'  => 'Todos',
+		'icon'   => 'ri-apps-2-line',
+		'active' => true,
+	),
+	array(
+		'slug'  => 'draft',
+		'label' => 'Em rascunho',
+		'icon'  => 'ri-edit-box-line',
+	),
+	array(
+		'slug'  => 'waiting',
+		'label' => 'Aguardando assinatura',
+		'icon'  => 'ri-file-shield-2-line',
+	),
+	array(
+		'slug'  => 'signed',
+		'label' => 'Assinados',
+		'icon'  => 'ri-check-double-line',
+	),
 );
 $primary_cta = $primary_cta ?? 'Novo documento';
 ?>
@@ -27,7 +44,8 @@ $primary_cta = $primary_cta ?? 'Novo documento';
 	</div>
 
 	<div class="flex flex-wrap gap-2 mb-4">
-		<?php foreach ( $filters as $filter ) :
+		<?php
+		foreach ( $filters as $filter ) :
 			$classes = 'menutag' . ( ! empty( $filter['active'] ) ? '" data-active="true' : '' );
 			?>
 			<button class="menutag<?php echo ! empty( $filter['active'] ) ? '" data-active="true' : ''; ?>" data-filter="<?php echo esc_attr( $filter['slug'] ); ?>">

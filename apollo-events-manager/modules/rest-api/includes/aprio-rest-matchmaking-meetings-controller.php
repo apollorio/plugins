@@ -3,7 +3,7 @@
 /**
  * REST API Matchmaking Meetings controller
  *
- * Handles requests to the /matchmaking-meetings endpoint.
+ * Handles requests to the /compatibilidade-meetings endpoint.
  *
  * @since 1.1.0
  */
@@ -29,7 +29,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'matchmaking-meetings';
+	protected $rest_base = 'compatibilidade-meetings';
 
 	/**
 	 * DB table for meetings
@@ -40,7 +40,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 
 	public function __construct() {
 		global $wpdb;
-		$this->table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+		$this->table = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
 	}
 
@@ -167,7 +167,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Permission callback: ensure matchmaking is enabled and user is authorized.
+	 * Permission callback: ensure compatibilidade is enabled and user is authorized.
 	 *
 	 * Note: This follows the plugin's pattern of returning the standardized
 	 * error payload via prepare_error_for_response on failure.
@@ -294,8 +294,8 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Retrieves a specific matchmaking meeting by ID.
-	 * GET /matchmaking-meetings
+	 * Retrieves a specific compatibilidade meeting by ID.
+	 * GET /compatibilidade-meetings
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -359,9 +359,9 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * GET /matchmaking-meetings/{id}
+	 * GET /compatibilidade-meetings/{id}
 	 *
-	 * Retrieves a specific matchmaking meeting by ID.
+	 * Retrieves a specific compatibilidade meeting by ID.
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -381,8 +381,8 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Create a new matchmaking meeting.
-	 * POST /matchmaking-meetings
+	 * Create a new compatibilidade meeting.
+	 * POST /compatibilidade-meetings
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -495,7 +495,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 			return self::prepare_error_for_response( 500 );
 		}
 		$registrations = new WP_Event_Manager_Registrations_Register();
-		$registrations->send_matchmaking_meeting_emails( $wpdb->insert_id, $user_id, $event_id, $participants_raw, $meeting_date, $start_time, $end_time, $message );
+		$registrations->send_compatibilidade_meeting_emails( $wpdb->insert_id, $user_id, $event_id, $participants_raw, $meeting_date, $start_time, $end_time, $message );
 		$row                   = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table} WHERE id = %d", $wpdb->insert_id ), ARRAY_A );
 		$response_data         = self::prepare_error_for_response( 200 );
 		$response_data['data'] = $this->format_meeting_row( $row );
@@ -503,8 +503,8 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Update an existing matchmaking meeting.
-	 * PUT/PATCH /matchmaking-meetings/{id}
+	 * Update an existing compatibilidade meeting.
+	 * PUT/PATCH /compatibilidade-meetings/{id}
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -590,7 +590,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 
 	/**
 	 * Update your participant status on a meeting without overwriting others.
-	 * PUT/PATCH /matchmaking-meetings/{id}/participant-status
+	 * PUT/PATCH /compatibilidade-meetings/{id}/participant-status
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -649,7 +649,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 
 	/**
 	 * Cancel a meeting by setting meeting_status = -1.
-	 * PUT/PATCH /matchmaking-meetings/{id}/cancel
+	 * PUT/PATCH /compatibilidade-meetings/{id}/cancel
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -682,8 +682,8 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	}
 
 	/**
-	 * Delete a matchmaking meeting.
-	 * DELETE /matchmaking-meetings/{id}
+	 * Delete a compatibilidade meeting.
+	 * DELETE /compatibilidade-meetings/{id}
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
@@ -716,7 +716,7 @@ class APRIO_REST_Matchmaking_Meetings_Controller extends APRIO_REST_CRUD_Control
 	public function get_item_schema() {
 		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'matchmaking_meeting',
+			'title'      => 'compatibilidade_meeting',
 			'type'       => 'object',
 			'properties' => array(
 				'id'             => array(

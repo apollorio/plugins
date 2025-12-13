@@ -13,7 +13,7 @@
 |---|---------|--------|---------------|
 | 1 | Membership Meta Key | ✅ FIXED | `shortcodes-auth.php:79` uses `_apollo_membership` + `nao-verificado` |
 | 2 | Event Popup/Lightbox | ✅ WORKING | Click handler at line 2271, AJAX handler at line 2445 |
-| 3 | Calendar Cena-Rio Filter | ✅ FIXED | `filter_cena_rio_events()` in `class-cena-rio-moderation.php:42-98` |
+| 3 | Calendar Cena-Rio Filter | ✅ FIXED | `filter_cena_rio_events()` in `class-cena-rio-mod.php:42-98` |
 | 4 | Role Compatibility | ✅ BRIDGED | `user_can_submit()` includes both `cena_role` and `cena-rio` |
 
 ---
@@ -63,7 +63,7 @@ update_user_meta( $user_id, '_apollo_membership', 'nao-verificado' );
 
 ### Problem 3: Cena-Rio Events Appearing in Public Calendar Before Approval ✅ FIXED
 
-**File**: `apollo-core/includes/class-cena-rio-moderation.php`  
+**File**: `apollo-core/includes/class-cena-rio-mod.php`  
 **Lines**: 42-98 (new method)
 
 **Smoke Test Verification**:
@@ -124,7 +124,7 @@ $meta_query[] = array(
 | File | Change | Lines |
 |------|--------|-------|
 | `apollo-events-manager/includes/shortcodes-auth.php` | Fixed membership meta key | 79 |
-| `apollo-core/includes/class-cena-rio-moderation.php` | Added calendar filter | 42-98 |
+| `apollo-core/includes/class-cena-rio-mod.php` | Added calendar filter | 42-98 |
 | `apollo-core/includes/class-cena-rio-roles.php` | Added cena-rio to allowed roles | 180 |
 
 ---
@@ -147,7 +147,7 @@ $meta_query[] = array(
 - [ ] Verify it does NOT appear in public `/eventos/`
 - [ ] Confirm event → status 'confirmed' (via industry confirmation)
 - [ ] Verify it still does NOT appear in public `/eventos/`
-- [ ] Approve event → status 'approved' (via moderation queue)
+- [ ] Approve event → status 'approved' (via mod queue)
 - [ ] Verify it NOW appears in public `/eventos/`
 
 ### Role Compatibility
@@ -162,7 +162,7 @@ $meta_query[] = array(
 | File | Purpose |
 |------|---------|
 | `apollo-core/includes/memberships.php` | Canonical membership system |
-| `apollo-core/includes/class-cena-rio-moderation.php` | Cena-Rio event moderation |
+| `apollo-core/includes/class-cena-rio-mod.php` | Cena-Rio event mod |
 | `apollo-core/includes/class-cena-rio-roles.php` | Cena-Rio role definitions |
 | `apollo-core/includes/class-cena-rio-submissions.php` | Cena-Rio event submission |
 | `apollo-events-manager/templates/event-card.php` | Event card template |
@@ -253,7 +253,7 @@ Step 6: verification_rules → Código de verificação
 | Role | `cena_moderator` | `apollo-core/includes/class-cena-rio-roles.php:92` | Cena::Rio Moderador (full mod) |
 | Page | `cena-rio` | `apollo-social/src/CenaRio/CenaRioModule.php:150` | Página principal /cena-rio |
 | Route | `/cena-rio/` | `apollo-core/includes/class-cena-rio-canvas.php:51` | Canvas calendar |
-| Route | `/cena-rio/mod/` | `apollo-core/includes/class-cena-rio-canvas.php:52` | Canvas moderation |
+| Route | `/cena-rio/mod/` | `apollo-core/includes/class-cena-rio-canvas.php:52` | Canvas mod |
 
 ### 2.2 Roles & Capabilities
 
@@ -282,7 +282,7 @@ Step 6: verification_rules → Código de verificação
 | Item | Status | Observação |
 |------|--------|------------|
 | Roles específicas para indústria/Cena-Rio definidas | ✅ | `cena_role`, `cena_moderator` em class-cena-rio-roles.php |
-| Capability para mover eventos da área privada → oficial | ✅ | `apollo_cena_moderate_events` usada em class-cena-rio-moderation.php |
+| Capability para mover eventos da área privada → oficial | ✅ | `apollo_cena_moderate_events` usada em class-cena-rio-mod.php |
 | Verificação de role em páginas privadas | ✅ | `Apollo_Cena_Rio_Roles::user_can_submit()` e `user_can_moderate()` |
 | Role atribuída automaticamente no onboarding | ⚠️ | Não há lógica automática de atribuição |
 
@@ -310,7 +310,7 @@ $allowed = array( 'administrator', 'editor', 'author', self::ROLE );
 ```php
 // apollo-core/includes/class-cena-rio-canvas.php:51-52
 add_rewrite_rule( '^cena-rio/?$', 'index.php?apollo_cena=calendar', 'top' );
-add_rewrite_rule( '^cena-rio/mod/?$', 'index.php?apollo_cena=moderation', 'top' );
+add_rewrite_rule( '^cena-rio/mod/?$', 'index.php?apollo_cena=mod', 'top' );
 ```
 
 **Checklist Página Privada:**
@@ -372,7 +372,7 @@ APPROVED (publish) → Publicado no calendário oficial
 
 **Arquivos:**
 - `apollo-core/includes/class-cena-rio-submissions.php` – Criação e confirmação
-- `apollo-core/includes/class-cena-rio-moderation.php` – Aprovação/Rejeição
+- `apollo-core/includes/class-cena-rio-mod.php` – Aprovação/Rejeição
 
 **Fluxo Completo:**
 
@@ -403,7 +403,7 @@ APPROVED (publish) → Publicado no calendário oficial
 
 **Fila de Moderação:**
 ```php
-// class-cena-rio-moderation.php:326
+// class-cena-rio-mod.php:326
 $query = new WP_Query(array(
     'post_type'   => 'event_listing',
     'post_status' => 'pending', // ⚠️ Deveria ser 'draft' baseado no fluxo
@@ -418,7 +418,7 @@ $query = new WP_Query(array(
 | Item | Status | Observação |
 |------|--------|------------|
 | Fluxo Cena-Rio → event_listing draft implementado | ✅ | `rest_confirm_event()` muda para draft |
-| Somente admin/mod pode aprovar/mover | ✅ | `check_moderation_permission()` verifica `apollo_cena_moderate_events` |
+| Somente admin/mod pode aprovar/mover | ✅ | `check_mod_permission()` verifica `apollo_cena_moderate_events` |
 | Sem duplicação de eventos | ✅ | Fluxo apenas atualiza status, não cria novos posts |
 | Metas consistentes | ✅ | `_apollo_cena_approved_by`, `_apollo_cena_approved_at` salvos |
 
@@ -1030,10 +1030,10 @@ DocumentsManager::prepareForSigning()
 | `/apollo-docs/v1/sign/certificate` | POST | `signWithCertificate()` | ✅ `is_user_logged_in()` |
 | `/apollo-docs/v1/sign/canvas` | POST | `signWithCanvas()` | ⚠️ `__return_true` (público c/ token) |
 | `/apollo-docs/v1/sign/request` | POST | `requestSignature()` | ✅ `is_user_logged_in()` |
-| `/apollo-docs/v1/verify/protocol/{code}` | GET | `verifyByProtocol()` | ✅ Público (verificação) |
-| `/apollo-docs/v1/verify/hash` | POST | `verifyByHash()` | ✅ Público (verificação) |
-| `/apollo-docs/v1/verify/file` | POST | `verifyFile()` | ✅ Público (verificação) |
-| `/apollo-docs/v1/audit/{file_id}` | GET | `getAuditLog()` | ✅ `is_user_logged_in()` |
+| `/apollo-docs/v1/verificar/protocol/{code}` | GET | `verifyByProtocol()` | ✅ Público (verificação) |
+| `/apollo-docs/v1/verificar/hash` | POST | `verifyByHash()` | ✅ Público (verificação) |
+| `/apollo-docs/v1/verificar/file` | POST | `verifyFile()` | ✅ Público (verificação) |
+| `/apollo-docs/v1/auditar/{file_id}` | GET | `getAuditLog()` | ✅ `is_user_logged_in()` |
 | `/apollo-docs/v1/protocol/generate` | POST | `generateProtocol()` | ✅ `is_user_logged_in()` |
 
 #### Backends de Assinatura

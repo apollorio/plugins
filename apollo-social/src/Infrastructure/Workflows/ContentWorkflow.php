@@ -250,14 +250,14 @@ class ContentWorkflow {
 			return true;
 		}
 
-		// Transitions that require moderation capabilities
-		$moderation_transitions = [
+		// Transitions that require mod capabilities
+		$mod_transitions = [
 			'pending_review' => 'published',
 			'pending_review' => 'rejected',
 		];
 		$transition_key         = "{$from_state} => {$to_state}";
 
-		if ( in_array( $transition_key, $moderation_transitions ) ) {
+		if ( in_array( $transition_key, $mod_transitions ) ) {
 			return current_user_can( 'apollo_moderate' ) || current_user_can( "apollo_moderate_{$content_type}s" );
 		}
 

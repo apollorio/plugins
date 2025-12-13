@@ -14,15 +14,22 @@ add_action( 'wp_ajax_apollo_track_event_view', 'apollo_ajax_track_event_view' );
 add_action( 'wp_ajax_nopriv_apollo_track_event_view', 'apollo_ajax_track_event_view' );
 
 function apollo_ajax_track_event_view() {
-	// Verify nonce
-	$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( $_POST['nonce'] ) : '';
+	// SECURITY: Verify nonce with proper unslashing
+	$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 	if ( ! wp_verify_nonce( $nonce, 'apollo_track_event_view' ) ) {
 		wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
 		return;
 	}
 
-	$event_id = isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0;
-	$type     = isset( $_POST['type'] ) ? sanitize_text_field( $_POST['type'] ) : 'page';
+	// SECURITY: Sanitize inputs
+	$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
+	$type     = isset( $_POST['type'] ) ? sanitize_text_field( wp_unslash( $_POST['type'] ) ) : 'page';
+
+	// SECURITY: Validate type against whitelist
+	$allowed_types = array( 'popup', 'page', 'modal' );
+	if ( ! in_array( $type, $allowed_types, true ) ) {
+		$type = 'page';
+	}
 
 	if ( ! $event_id ) {
 		wp_send_json_error( array( 'message' => 'Invalid event ID' ) );
@@ -36,14 +43,22 @@ function apollo_ajax_track_event_view() {
 		return;
 	}
 
+	// TODO: Before production, consider adding rate-limiting for this public telemetry endpoint.
+
 	// Track view
 	if ( class_exists( 'Apollo_Event_Statistics' ) ) {
 		$result = Apollo_Event_Statistics::track_event_view( $event_id, $type );
 		if ( $result ) {
+			$stats = Apollo_Event_Statistics::get_event_stats( $event_id );
 			wp_send_json_success(
 				array(
 					'message' => 'View tracked',
-					'stats'   => Apollo_Event_Statistics::get_event_stats( $event_id ),
+					'stats'   => array(
+						'popup_count'  => absint( isset( $stats['popup_count'] ) ? $stats['popup_count'] : 0 ),
+						'page_count'   => absint( isset( $stats['page_count'] ) ? $stats['page_count'] : 0 ),
+						'total_views'  => absint( isset( $stats['total_views'] ) ? $stats['total_views'] : 0 ),
+						'last_updated' => sanitize_text_field( isset( $stats['last_updated'] ) ? $stats['last_updated'] : '' ),
+					),
 				)
 			);
 		} else {
@@ -59,14 +74,15 @@ add_action( 'wp_ajax_apollo_get_event_stats', 'apollo_ajax_get_event_stats' );
 add_action( 'wp_ajax_nopriv_apollo_get_event_stats', 'apollo_ajax_get_event_stats' );
 
 function apollo_ajax_get_event_stats() {
-	// Verify nonce
-	$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( $_POST['nonce'] ) : '';
+	// SECURITY: Verify nonce with proper unslashing
+	$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 	if ( ! wp_verify_nonce( $nonce, 'apollo_get_event_stats' ) ) {
 		wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
 		return;
 	}
 
-	$event_id = isset( $_POST['event_id'] ) ? absint( $_POST['event_id'] ) : 0;
+	// SECURITY: Sanitize event_id
+	$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
 	if ( ! $event_id ) {
 		wp_send_json_error( array( 'message' => 'Invalid event ID' ) );
@@ -89,7 +105,14 @@ function apollo_ajax_get_event_stats() {
 	}
 
 	if ( ! empty( $stats ) ) {
-		wp_send_json_success( array( 'stats' => $stats ) );
+		// SECURITY: Sanitize output stats
+		$safe_stats = array(
+			'popup_count'  => absint( isset( $stats['popup_count'] ) ? $stats['popup_count'] : 0 ),
+			'page_count'   => absint( isset( $stats['page_count'] ) ? $stats['page_count'] : 0 ),
+			'total_views'  => absint( isset( $stats['total_views'] ) ? $stats['total_views'] : 0 ),
+			'last_updated' => sanitize_text_field( isset( $stats['last_updated'] ) ? $stats['last_updated'] : '' ),
+		);
+		wp_send_json_success( array( 'stats' => $safe_stats ) );
 	} else {
 		wp_send_json_error( array( 'message' => 'No statistics available' ) );
 	}

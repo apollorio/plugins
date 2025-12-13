@@ -26,7 +26,7 @@
 		 */
 		updatePendingCount: function() {
 			$.ajax({
-				url: apolloModerationAdmin.restUrl + 'moderation/pending-count',
+				url: apolloModerationAdmin.restUrl + 'mod/em-fila-count',
 				method: 'GET',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModerationAdmin.nonce);
@@ -60,7 +60,7 @@
 			$button.find('.dashicons').removeClass('dashicons-yes').addClass('dashicons-update spin');
 
 			$.ajax({
-				url: apolloModerationAdmin.restUrl + 'moderation/approve',
+				url: apolloModerationAdmin.restUrl + 'modaprovar',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModerationAdmin.nonce);
@@ -121,7 +121,7 @@
 			$button.find('.dashicons').removeClass('dashicons-no').addClass('dashicons-update spin');
 
 			$.ajax({
-				url: apolloModerationAdmin.restUrl + 'moderation/reject',
+				url: apolloModerationAdmin.restUrl + 'mod/reject',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModerationAdmin.nonce);
@@ -161,7 +161,7 @@
 		 * Check if queue is empty and show message
 		 */
 		checkEmptyQueue: function() {
-			const $tbody = $('#apollo-moderation-queue tbody');
+			const $tbody = $('#apollo-mod-queue tbody');
 			if ($tbody.find('tr:visible').length === 0) {
 				$tbody.html(`
 					<tr>
@@ -206,7 +206,7 @@
 			$button.prop('disabled', true);
 
 			$.ajax({
-				url: apolloModerationAdmin.restUrl + 'moderation/suspend-user',
+				url: apolloModerationAdmin.restUrl + 'mod/suspender/-user',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModerationAdmin.nonce);
@@ -248,7 +248,7 @@
 			$button.prop('disabled', true);
 
 			$.ajax({
-				url: apolloModerationAdmin.restUrl + 'moderation/block-user',
+				url: apolloModerationAdmin.restUrl + 'mod/bloquear/-user',
 				method: 'POST',
 				beforeSend: function(xhr) {
 					xhr.setRequestHeader('X-WP-Nonce', apolloModerationAdmin.nonce);
@@ -280,7 +280,7 @@
 
 	// Initialize on document ready
 	$(document).ready(function() {
-		if ($('.apollo-moderation-wrap').length) {
+		if ($('.apollo-mod-wrap').length) {
 			ApolloModeration.init();
 		}
 	});

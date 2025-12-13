@@ -22,7 +22,7 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_matchmaking_filter_users' ),
+				'callback'            => array( $this, 'aprio_compatibilidade_filter_users' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'profession'   => array(
@@ -93,7 +93,7 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 	}
 
 	/**
-	 * Check user permission for matchmaking endpoints.
+	 * Check user permission for compatibilidade endpoints.
 	 *
 	 * @return bool|WP_Error True if user is logged in, WP_Error otherwise.
 	 */
@@ -101,7 +101,7 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
 				'rest_not_logged_in',
-				__( 'You must be logged in to use matchmaking.', 'apollo-events-manager' ),
+				__( 'You must be logged in to use compatibilidade.', 'apollo-events-manager' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -115,10 +115,10 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 	 * @param $request
 	 * @return WP_REST_Response
 	 */
-	public function aprio_matchmaking_filter_users( $request ) {
+	public function aprio_compatibilidade_filter_users( $request ) {
 		global $wpdb;
 
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -210,7 +210,7 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 				if ( $uid == $user_id ) {
 					continue;
 				}
-				if ( ! get_user_meta( $uid, '_matchmaking_profile', true ) ) {
+				if ( ! get_user_meta( $uid, '_compatibilidade_profile', true ) ) {
 					continue;
 				}
 
@@ -300,7 +300,7 @@ class APRIO_REST_Filter_Users_Controller extends APRIO_REST_CRUD_Controller {
 					'first_name'               => get_user_meta( $uid, 'first_name', true ),
 					'last_name'                => get_user_meta( $uid, 'last_name', true ),
 					'email'                    => get_userdata( $uid )->user_email,
-					'matchmaking_profile'      => get_user_meta( $uid, '_matchmaking_profile', true ),
+					'compatibilidade_profile'      => get_user_meta( $uid, '_compatibilidade_profile', true ),
 					'profile_photo'            => $photo,
 					'profession'               => $profession_slug,
 					'experience'               => get_user_meta( $uid, '_experience', true ),

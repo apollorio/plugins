@@ -20,12 +20,12 @@ $show_clock = isset( $show_clock ) ? (bool) $show_clock : true;
 $clock_id   = $clock_id ?? 'ap-digital-clock';
 $buttons    = $buttons ?? array(
 	array(
-		'id'       => 'ap-btn-notif',
-		'label'    => 'Notificações',
-		'icon'     => 'ri-gps-line',
-		'browser'  => 'button',
-		'class'    => '',
-		'badge'    => true,
+		'id'      => 'ap-btn-notif',
+		'label'   => 'Notificações',
+		'icon'    => 'ri-gps-line',
+		'browser' => 'button',
+		'class'   => '',
+		'badge'   => true,
 	),
 	array(
 		'id'    => 'ap-btn-apps',
@@ -57,7 +57,8 @@ $buttons    = $buttons ?? array(
 		<?php if ( $show_clock ) : ?>
 			<div class="ap-clock" id="<?php echo esc_attr( $clock_id ); ?>">00:00:00</div>
 		<?php endif; ?>
-		<?php foreach ( $buttons as $button ) :
+		<?php
+		foreach ( $buttons as $button ) :
 			$button_id    = $button['id'] ?? '';
 			$button_label = $button['label'] ?? '';
 			$button_icon  = $button['icon'] ?? '';
@@ -65,7 +66,10 @@ $buttons    = $buttons ?? array(
 			$button_class = 'ap-nav-btn ' . trim( (string) ( $button['class'] ?? '' ) );
 			?>
 			<button
-				<?php if ( $button_id ) : ?>id="<?php echo esc_attr( $button_id ); ?>"<?php endif; ?>
+				<?php
+				if ( $button_id ) :
+					?>
+					id="<?php echo esc_attr( $button_id ); ?>"<?php endif; ?>
 				class="<?php echo esc_attr( $button_class ); ?>"
 				aria-label="<?php echo esc_attr( $button_label ); ?>"
 				aria-expanded="false"

@@ -453,19 +453,21 @@ class Apollo_Cookie_Consent {
 		$value = ( 'accept' === $consent ) ? 'accepted' : 'declined';
 
 		// SAFETY: Set secure cookie.
-		$expiry  = time() + self::COOKIE_EXPIRY;
-		$secure  = is_ssl();
-		$result  = setcookie( self::COOKIE_NAME, $value, $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure, true );
+		$expiry = time() + self::COOKIE_EXPIRY;
+		$secure = is_ssl();
+		$result = setcookie( self::COOKIE_NAME, $value, $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure, true );
 
 		if ( ! $result ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to set cookie.', 'apollo-core' ) ), 500 );
 			return;
 		}
 
-		wp_send_json_success( array(
-			'consent'   => $value,
-			'timestamp' => current_time( 'mysql' ),
-		) );
+		wp_send_json_success(
+			array(
+				'consent'   => $value,
+				'timestamp' => current_time( 'mysql' ),
+			)
+		);
 	}
 
 	/**

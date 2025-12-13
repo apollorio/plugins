@@ -4,7 +4,7 @@
  * Simple analytics with Plausible script injection on Canvas routes
  */
 
-return [
+return array(
 	/*
 	|--------------------------------------------------------------------------
 	| Analytics Driver
@@ -27,7 +27,7 @@ return [
 	| Simple Plausible integration without API - just script injection
 	|
 	*/
-	'plausible'        => [
+	'plausible'        => array(
 		'domain'                   => '',
 		// Your domain (e.g., 'mysite.com')
 				'script_url'       => 'https://plausible.io/js/script.js',
@@ -40,7 +40,7 @@ return [
 		// Track outbound clicks
 				'file_downloads'   => false,
 // Track file downloads
-	],
+	),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -50,7 +50,7 @@ return [
 	| Analytics will only be injected on these Apollo routes
 	|
 	*/
-	'canvas_routes'    => [
+	'canvas_routes'    => array(
 		'/a/*',
 		'/comunidade/*',
 		'/nucleo/*',
@@ -59,7 +59,7 @@ return [
 		'/uniao/*',
 		'/anuncio/*',
 		'/apollo/*',
-	],
+	),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -69,49 +69,49 @@ return [
 	| Standard events tracked across the platform
 	|
 	*/
-	'events'           => [
+	'events'           => array(
 		// Groups & Communities
-		'group_view'           => [
+		'group_view'           => array(
 			'enabled'     => true,
 			'description' => 'Usuário visualizou página de grupo',
-		],
-		'group_join'           => [
+		),
+		'group_join'           => array(
 			'enabled'     => true,
 			'description' => 'Usuário se juntou a um grupo',
-		],
-		'invite_sent'          => [
+		),
+		'invite_sent'          => array(
 			'enabled'     => true,
 			'description' => 'Convite para grupo enviado',
-		],
-		'invite_approved'      => [
+		),
+		'invite_approved'      => array(
 			'enabled'     => true,
 			'description' => 'Convite para grupo aprovado',
-		],
+		),
 
 		// Classified Ads
-		'ad_view'              => [
+		'ad_view'              => array(
 			'enabled'     => true,
 			'description' => 'Visualização de anúncio',
-		],
-		'ad_create'            => [
+		),
+		'ad_create'            => array(
 			'enabled'     => true,
 			'description' => 'Criação de novo anúncio',
-		],
-		'ad_publish'           => [
+		),
+		'ad_publish'           => array(
 			'enabled'     => true,
 			'description' => 'Anúncio publicado',
-		],
+		),
 
 		// Events
-		'event_view'           => [
+		'event_view'           => array(
 			'enabled'     => true,
 			'description' => 'Visualização de evento',
-		],
-		'event_filter_applied' => [
+		),
+		'event_filter_applied' => array(
 			'enabled'     => true,
 			'description' => 'Filtro aplicado na listagem de eventos',
-		],
-	],
+		),
+	),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -121,14 +121,14 @@ return [
 	| Simple session-based counters for Canvas statistics panel
 	|
 	*/
-	'local_counters'   => [
+	'local_counters'   => array(
 		'session_page_views' => true,
 		'session_events'     => true,
 		'total_interactions' => true,
 		'group_interactions' => true,
 		'ad_interactions'    => true,
 		'event_interactions' => true,
-	],
+	),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -138,13 +138,13 @@ return [
 	| Configuration for the Canvas statistics page
 	|
 	*/
-	'statistics_panel' => [
+	'statistics_panel' => array(
 		'enabled'                => true,
 		'show_session_stats'     => true,
 		'show_local_counters'    => true,
 		'show_plausible_embed'   => false,
 		// Set to true if you have public dashboard
 				'cache_duration' => 300,
-// 5 minutes
-	],
-];
+	// 5 minutes
+	),
+);

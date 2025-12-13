@@ -22,14 +22,14 @@ class FilterBySeason {
 
 		// For now, add season meta query preparation
 		if ( ! isset( $queryArgs['meta_query'] ) ) {
-			$queryArgs['meta_query'] = [];
+			$queryArgs['meta_query'] = array();
 		}
 
-		$queryArgs['meta_query'][] = [
+		$queryArgs['meta_query'][] = array(
 			'key'     => 'apollo_season_slug',
 			'value'   => $season_slug,
 			'compare' => '=',
-		];
+		);
 
 		return $queryArgs;
 	}
@@ -41,19 +41,19 @@ class FilterBySeason {
 	 * @param array  $args
 	 * @return array
 	 */
-	public function getEventsForSeason( string $season_slug, array $args = [] ): array {
+	public function getEventsForSeason( string $season_slug, array $args = array() ): array {
 		// TODO: Implement real WP Event Manager query
 		// For now, return mock data
 
-		return [
-			[
+		return array(
+			array(
 				'id'          => 1,
 				'title'       => 'Evento Season ' . ucfirst( $season_slug ),
 				'season_slug' => $season_slug,
 				'date'        => date( 'Y-m-d', strtotime( '+1 week' ) ),
 				'location'    => 'Local do Evento',
-			],
-		];
+			),
+		);
 	}
 
 	/**

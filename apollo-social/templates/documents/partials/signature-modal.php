@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $document_id    = $document_id ?? 0;
 $document_title = $document_title ?? '';
 $rest_nonce     = wp_create_nonce( 'wp_rest' );
-$rest_url       = rest_url( 'apollo-social/v1/documents/' . $document_id . '/sign' );
+$rest_url       = rest_url( 'apollo-social/v1/doc/' . $document_id . '/sign' );
 $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 ?>
 <!-- Signature Modal Overlay -->
@@ -278,7 +278,7 @@ echo wp_json_encode(
 }
 
 .ap-modal {
-	background: var(--ap-bg-card, #fff);
+	background: var((--bg-main)-card, #fff);
 	border-radius: var(--ap-radius-xl, 1rem);
 	box-shadow: var(--ap-shadow-xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
 	max-height: 90vh;
@@ -342,7 +342,7 @@ echo wp_json_encode(
 }
 
 .ap-modal__close:hover {
-	background: var(--ap-bg-muted, #f1f5f9);
+	background: var((--bg-main)-muted, #f1f5f9);
 	color: var(--ap-text-primary, #0f172a);
 }
 
@@ -359,7 +359,7 @@ echo wp_json_encode(
 .ap-modal__footer {
 	padding: 1rem 1.5rem;
 	border-top: 1px solid var(--ap-border-light, #e5e7eb);
-	background: var(--ap-bg-muted, #f8fafc);
+	background: var((--bg-main)-muted, #f8fafc);
 }
 
 /* Checkbox Card */
@@ -375,7 +375,7 @@ echo wp_json_encode(
 }
 
 .ap-checkbox-card:hover {
-	background: var(--ap-bg-muted, #f8fafc);
+	background: var((--bg-main)-muted, #f8fafc);
 	border-color: var(--ap-border-default, #cbd5e1);
 }
 
@@ -568,7 +568,7 @@ echo wp_json_encode(
 
 /* Card muted */
 .ap-card--muted {
-	background: var(--ap-bg-muted, #f8fafc);
+	background: var((--bg-main)-muted, #f8fafc);
 	border: 1px solid var(--ap-border-light, #e5e7eb);
 }
 
@@ -597,7 +597,7 @@ echo wp_json_encode(
 }
 
 .ap-btn--ghost:hover {
-	background: var(--ap-bg-muted, #f8fafc);
+	background: var((--bg-main)-muted, #f8fafc);
 	color: var(--ap-text-primary, #0f172a);
 }
 

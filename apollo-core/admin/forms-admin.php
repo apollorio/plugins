@@ -20,8 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function apollo_register_forms_admin_menu() {
 	add_submenu_page(
-		'apollo-moderation',
-		// Parent slug (assuming moderation is parent).
+		'apollo-mod',
+		// Parent slug (assuming mod is parent).
 		__( 'Forms', 'apollo-core' ),
 		__( 'Formulários', 'apollo-core' ),
 		'manage_options',
@@ -37,7 +37,7 @@ add_action( 'admin_menu', 'apollo_register_forms_admin_menu' );
  * @param string $hook Current admin page hook.
  */
 function apollo_enqueue_forms_admin_assets( $hook ) {
-	if ( 'moderation_page_apollo-forms' !== $hook && 'toplevel_page_apollo-forms' !== $hook ) {
+	if ( 'mod_page_apollo-forms' !== $hook && 'toplevel_page_apollo-forms' !== $hook ) {
 		return;
 	}
 

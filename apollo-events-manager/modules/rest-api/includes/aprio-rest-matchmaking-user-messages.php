@@ -23,7 +23,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_send_matchmaking_messages' ),
+				'callback'            => array( $this, 'aprio_send_compatibilidade_messages' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'senderId'   => array(
@@ -55,7 +55,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 			'/get-messages',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'aprio_get_matchmaking_messages' ),
+				'callback'            => array( $this, 'aprio_get_compatibilidade_messages' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'senderId'   => array(
@@ -89,7 +89,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 			'/get-conversation-list',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'aprio_get_matchmaking_conversation_list' ),
+				'callback'            => array( $this, 'aprio_get_compatibilidade_conversation_list' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'   => array(
@@ -149,10 +149,10 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function aprio_send_matchmaking_messages( $request ) {
+	public function aprio_send_compatibilidade_messages( $request ) {
 		global $wpdb;
 
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -237,7 +237,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 			}
 
 			// Insert into DB
-			$table            = $wpdb->prefix . 'aprio_matchmaking_users_messages';
+			$table            = $wpdb->prefix . 'aprio_compatibilidade_users_messages';
 			$first_message_id = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT id FROM $table
@@ -332,10 +332,10 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function aprio_get_matchmaking_messages( $request ) {
+	public function aprio_get_compatibilidade_messages( $request ) {
 		global $wpdb;
 
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -368,7 +368,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 			}
 
 			$offset = ( $page - 1 ) * $per_page;
-			$table  = $wpdb->prefix . 'aprio_matchmaking_users_messages';
+			$table  = $wpdb->prefix . 'aprio_compatibilidade_users_messages';
 
 			// Get total message count
 			$total_messages = $wpdb->get_var(
@@ -453,9 +453,9 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 	 * @since 1.1.0
 	 * @return WP_REST_Response
 	 */
-	public function aprio_get_matchmaking_conversation_list( $request ) {
+	public function aprio_get_compatibilidade_conversation_list( $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -485,7 +485,7 @@ class APRIO_REST_Send_Message_Controller extends APRIO_REST_CRUD_Controller {
 				);
 			}
 
-			$messages_tbl = $wpdb->prefix . 'aprio_matchmaking_users_messages';
+			$messages_tbl = $wpdb->prefix . 'aprio_compatibilidade_users_messages';
 
 			/**
 			 * Step 1: Get all unique conversation partners

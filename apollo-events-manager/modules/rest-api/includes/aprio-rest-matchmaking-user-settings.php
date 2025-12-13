@@ -20,10 +20,10 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 		// GET - Retrieve settings
 		register_rest_route(
 			$this->namespace,
-			'/matchmaking-attendee-settings',
+			'/compatibilidade-attendee-settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_matchmaking_attendee_settings' ),
+				'callback'            => array( $this, 'get_compatibilidade_attendee_settings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'  => array(
@@ -43,10 +43,10 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 		// POST - Update settings
 		register_rest_route(
 			$this->namespace,
-			'/update-matchmaking-attendee-settings',
+			'/ajustar-atual-compatibilidade',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'update_matchmaking_attendee_settings' ),
+				'callback'            => array( $this, 'update_compatibilidade_attendee_settings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'              => array(
@@ -54,7 +54,7 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 					),
-					'enable_matchmaking'   => array(
+					'enable_compatibilidade'   => array(
 						'required'          => false,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
@@ -80,7 +80,7 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 							return array_map( function( $item ) {
 								return array(
 									'event_id'           => isset( $item['event_id'] ) ? absint( $item['event_id'] ) : 0,
-									'create_matchmaking' => isset( $item['create_matchmaking'] ) ? (bool) $item['create_matchmaking'] : false,
+									'create_compatibilidade' => isset( $item['create_compatibilidade'] ) ? (bool) $item['create_compatibilidade'] : false,
 								);
 							}, $arr );
 						},
@@ -108,18 +108,18 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 
 	/**
 	 * Retrieve attendee settings for a given user, including:
-	 * - `enable_matchmaking` (int): Whether matchmaking is enabled for this user.
+	 * - `enable_compatibilidade` (int): Whether compatibilidade is enabled for this user.
 	 * - `message_notification` (int): Whether this user wants to receive notifications for new messages.
-	 * - `event_participation` (array of objects): Array of objects with `event_id` and `create_matchmaking` properties,
-	 *   indicating whether the user has enabled matchmaking for each event they are registered for.
+	 * - `event_participation` (array of objects): Array of objects with `event_id` and `create_compatibilidade` properties,
+	 *   indicating whether the user has enabled compatibilidade for each event they are registered for.
 	 * - `meeting_request_mode` (string): The meeting request mode for this user, either 'approval' or 'auto_accept'.
 	 *
 	 * @param WP_REST_Request $request The request that was sent to the API.
 	 * @return WP_REST_Response Response object that contains the settings.
 	 * @since 1.1.0
 	 */
-	public function get_matchmaking_attendee_settings( $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function get_compatibilidade_attendee_settings( $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -165,10 +165,10 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 				);
 
 				if ( ! empty( $registration_post_ids ) ) {
-					$create_matchmaking         = (int) get_post_meta( $registration_post_ids[0], '_create_matchmaking', true );
+					$create_compatibilidade         = (int) get_post_meta( $registration_post_ids[0], '_create_compatibilidade', true );
 					$user_event_participation[] = array(
 						'event_id'           => $event_id,
-						'create_matchmaking' => $create_matchmaking,
+						'create_compatibilidade' => $create_compatibilidade,
 					);
 				}
 			} else {
@@ -188,16 +188,16 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 					if ( ! $parent_event_id ) {
 						continue;
 					}
-					$create_matchmaking         = (int) get_post_meta( $registration_id, '_create_matchmaking', true );
+					$create_compatibilidade         = (int) get_post_meta( $registration_id, '_create_compatibilidade', true );
 					$user_event_participation[] = array(
 						'event_id'           => $parent_event_id,
-						'create_matchmaking' => $create_matchmaking,
+						'create_compatibilidade' => $create_compatibilidade,
 					);
 				}
 			}//end if
 
 			$settings = array(
-				'enable_matchmaking'   => (int) get_user_meta( $user_id, '_matchmaking_profile', true )[0],
+				'enable_compatibilidade'   => (int) get_user_meta( $user_id, '_compatibilidade_profile', true )[0],
 				'message_notification' => (int) get_user_meta( $user_id, '_message_notification', true ),
 				'event_participation'  => $user_event_participation,
 				'meeting_request_mode' => get_user_meta( $user_id, '_aprio_meeting_request_mode', true ) ?: 'approval',
@@ -216,14 +216,14 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 	}
 
 	/**
-	 * Update matchmaking attendee settings.
+	 * Update compatibilidade attendee settings.
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function update_matchmaking_attendee_settings( $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function update_compatibilidade_attendee_settings( $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -253,8 +253,8 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 			}
 
 			// Update user meta
-			if ( ! is_null( $request->get_param( 'enable_matchmaking' ) ) ) {
-				update_user_meta( $user_id, '_matchmaking_profile', (int) $request->get_param( 'enable_matchmaking' ) );
+			if ( ! is_null( $request->get_param( 'enable_compatibilidade' ) ) ) {
+				update_user_meta( $user_id, '_compatibilidade_profile', (int) $request->get_param( 'enable_compatibilidade' ) );
 			}
 			if ( ! is_null( $request->get_param( 'message_notification' ) ) ) {
 				update_user_meta( $user_id, '_message_notification', (int) $request->get_param( 'message_notification' ) );
@@ -271,7 +271,7 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 						continue;
 					}
 					$eid   = (int) $event['event_id'];
-					$value = isset( $event['create_matchmaking'] ) ? (int) $event['create_matchmaking'] : 0;
+					$value = isset( $event['create_compatibilidade'] ) ? (int) $event['create_compatibilidade'] : 0;
 
 					$registration_post_ids = get_posts(
 						array(
@@ -285,7 +285,7 @@ class APRIO_REST_Attendee_Settings_Controller extends APRIO_REST_CRUD_Controller
 					);
 
 					foreach ( $registration_post_ids as $registration_post_id ) {
-						update_post_meta( $registration_post_id, '_create_matchmaking', $value );
+						update_post_meta( $registration_post_id, '_create_compatibilidade', $value );
 					}
 				}//end foreach
 			}//end if

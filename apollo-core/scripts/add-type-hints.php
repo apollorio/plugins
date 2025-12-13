@@ -114,8 +114,8 @@ $replacements = array(
 		),
 	),
 
-	// includes/quiz/attempts.php
-	'includes/quiz/attempts.php'        => array(
+	// includestentantivas.php
+	'includestentantivas.php'        => array(
 		array(
 			'search'  => 'function apollo_create_quiz_attempts_table() {',
 			'replace' => 'function apollo_create_quiz_attempts_table(): void {',

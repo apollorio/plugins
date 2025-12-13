@@ -30,18 +30,18 @@ class Apollo_Modules_Config {
 	 * Available modules with defaults
 	 */
 	private static array $default_modules = array(
-		'social'        => true,  // Feed social, posts, likes, comments.
-		'events'        => true,  // Apollo Events Manager.
-		'bolha'         => true,  // Sistema de bolha (15 pessoas).
-		'chat'          => true,  // Mensagens diretas.
-		'docs'          => true,  // Documentos e assinaturas.
-		'comunas'       => true,  // Comunidades/grupos.
-		'matchmaking'   => false, // Match entre usuários (futuro).
-		'cena_rio'      => true,  // Submissões CENA::RIO.
-		'classifieds'   => true,  // Classificados.
-		'notifications' => true, // Sistema de notificações.
-		'onboarding'    => true,  // Trilha de onboarding.
-		'achievements'  => false, // Conquistas privadas (futuro).
+		'social'          => true,  // Feed social, posts, likes, comments.
+		'events'          => true,  // Apollo Events Manager.
+		'bolha'           => true,  // Sistema de bolha (15 pessoas).
+		'chat'            => true,  // Mensagens diretas.
+		'docs'            => true,  // Documentos e assinaturas.
+		'comunas'         => true,  // Comunidades/grupos.
+		'compatibilidade' => false, // Match entre usuários (futuro).
+		'cena_rio'        => true,  // Submissões CENA::RIO.
+		'classifieds'     => true,  // Classificados.
+		'notifications'   => true, // Sistema de notificações.
+		'onboarding'      => true,  // Trilha de onboarding.
+		'achievements'    => false, // Conquistas privadas (futuro).
 	);
 
 	/**

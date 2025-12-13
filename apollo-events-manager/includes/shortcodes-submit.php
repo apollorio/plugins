@@ -117,7 +117,7 @@ function aem_submit_event_shortcode() {
 					array(
 						'post_type'    => 'event_listing',
 						'post_status'  => 'pending', 
-						// Requires moderation
+						// Requires mod
 																'post_title' => $title,
 						'post_content' => $content,
 						'post_author'  => get_current_user_id(),

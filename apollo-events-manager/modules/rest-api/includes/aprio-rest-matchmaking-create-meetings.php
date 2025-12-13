@@ -18,7 +18,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/' . $this->rest_base,
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_create_matchmaking_meeting' ),
+				'callback'            => array( $this, 'aprio_create_compatibilidade_meeting' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id'              => array(
@@ -62,7 +62,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/get-meetings',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_get_matchmaking_user_meetings' ),
+				'callback'            => array( $this, 'aprio_get_compatibilidade_user_meetings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 			)
 		);
@@ -72,7 +72,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/cancel-meeting',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_cancel_matchmaking_meetings' ),
+				'callback'            => array( $this, 'aprio_cancel_compatibilidade_meetings' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'meeting_id' => array(
@@ -94,7 +94,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/update-meeting-status',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_update_matchmaking_meeting_status' ),
+				'callback'            => array( $this, 'aprio_update_compatibilidade_meeting_status' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'meeting_id' => array(
@@ -121,7 +121,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/get-availability-slots',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'aprio_get_available_matchmaking_meeting_slots' ),
+				'callback'            => array( $this, 'aprio_get_available_compatibilidade_meeting_slots' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'user_id' => array(
@@ -137,7 +137,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			'/update-availability-slots',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aprio_update_matchmaking_availability_slots' ),
+				'callback'            => array( $this, 'aprio_update_compatibilidade_availability_slots' ),
 				'permission_callback' => array( $this, 'check_user_permission' ),
 				'args'                => array(
 					'availability_slots'    => array(
@@ -204,10 +204,10 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	 * @return bool|WP_Error True if allowed, WP_Error otherwise.
 	 */
 	public function check_user_permission( $request ) {
-		// Check if matchmaking is enabled.
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		// Check if compatibilidade is enabled.
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_Error(
-				'matchmaking_disabled',
+				'compatibilidade_disabled',
 				__( 'Matchmaking functionality is not enabled.', 'aprio-rest-api' ),
 				array( 'status' => 403 )
 			);
@@ -227,7 +227,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	}
 
 	/**
-	 * create a matchmaking meetings with the other participants.
+	 * create a compatibilidade meetings with the other participants.
 	 *
 	 * Accepts the following parameters: user_id, event_id, meeting_date, slot, meeting_participants, write_a_message.
 	 *
@@ -237,9 +237,9 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function aprio_create_matchmaking_meeting( WP_REST_Request $request ) {
+	public function aprio_create_compatibilidade_meeting( WP_REST_Request $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -283,7 +283,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			$participants = array_fill_keys( $participants, -1 );
 			// -1 = pending
 
-			$table    = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+			$table    = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 			$inserted = $wpdb->insert(
 				$table,
 				array(
@@ -495,9 +495,9 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	 * @return WP_REST_Response The response object.
 	 * @since 1.1.0
 	 */
-	public function aprio_get_matchmaking_user_meetings( WP_REST_Request $request ) {
+	public function aprio_get_compatibilidade_user_meetings( WP_REST_Request $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -528,7 +528,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 				);
 			}
 
-			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 
 			// Fetch ALL meetings for this event
 			$all_meetings = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table WHERE event_id = %d", $event_id ), ARRAY_A );
@@ -655,15 +655,15 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 		}//end if
 	}
 	/**
-	 * Cancel upcomming matchmaking meetings by host.
+	 * Cancel upcomming compatibilidade meetings by host.
 	 *
 	 * @since 1.1.0
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
 	 */
-	public function aprio_cancel_matchmaking_meetings( WP_REST_Request $request ) {
+	public function aprio_cancel_compatibilidade_meetings( WP_REST_Request $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -692,7 +692,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 				);
 			}
 
-			$table   = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+			$table   = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 			$meeting = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $meeting_id ), ARRAY_A );
 
 			if ( ! $meeting ) {
@@ -811,9 +811,9 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 		 * @return WP_REST_Response
 		 * @since 1.1.0
 		 */
-	public function aprio_update_matchmaking_meeting_status( WP_REST_Request $request ) {
+	public function aprio_update_compatibilidade_meeting_status( WP_REST_Request $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -842,7 +842,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 				);
 			}
 
-			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 
 			$meeting = $wpdb->get_row(
 				$wpdb->prepare(
@@ -977,8 +977,8 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function aprio_get_available_matchmaking_meeting_slots( WP_REST_Request $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function aprio_get_available_compatibilidade_meeting_slots( WP_REST_Request $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -1013,14 +1013,14 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 		}//end if
 	}
 	/**
-	 * Update user's matchmaking availability slots and availability flag for meetings.
+	 * Update user's compatibilidade availability slots and availability flag for meetings.
 	 *
 	 * @param WP_REST_Request $request
 	 * @return WP_REST_Response
 	 * @since 1.1.0
 	 */
-	public function aprio_update_matchmaking_availability_slots( WP_REST_Request $request ) {
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+	public function aprio_update_compatibilidade_availability_slots( WP_REST_Request $request ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -1083,7 +1083,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 	 */
 	public function aprio_get_common_availability_slots( $request ) {
 		global $wpdb;
-		if ( ! get_option( 'enable_matchmaking', false ) ) {
+		if ( ! get_option( 'enable_compatibilidade', false ) ) {
 			return new WP_REST_Response(
 				array(
 					'code'    => 403,
@@ -1150,7 +1150,7 @@ class APRIO_REST_Create_Meeting_Controller extends APRIO_REST_CRUD_Controller {
 			sort( $common_slots );
 
 			// Step 3: Find booked slots for given date
-			$table = $wpdb->prefix . 'aprio_matchmaking_users_meetings';
+			$table = $wpdb->prefix . 'aprio_compatibilidade_users_meetings';
 			$rows  = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT meeting_start_time, participant_ids, user_id

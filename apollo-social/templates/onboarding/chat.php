@@ -106,7 +106,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
-	background: var(--ap-bg-surface);
+	background: var((--bg-main)-surface);
 	font-family: var(--ap-font-primary);
 }
 
@@ -115,7 +115,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 	overflow: hidden;
 }
 
@@ -198,7 +198,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 }
 
 .ap-chat-message-bot .ap-chat-bubble {
-	background: var(--ap-bg-muted);
+	background: var((--bg-main)-muted);
 	color: var(--ap-text-primary);
 	border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
 	box-shadow: var(--ap-shadow-sm);
@@ -229,7 +229,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 }
 
 .ap-chat-typing-bubble {
-	background: var(--ap-bg-muted);
+	background: var((--bg-main)-muted);
 	border-radius: var(--ap-radius-xl) var(--ap-radius-xl) var(--ap-radius-xl) 4px;
 	padding: 12px 16px;
 	max-width: 60px;
@@ -251,7 +251,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 /* Chat Input */
 .ap-chat-input {
 	padding: 16px 20px;
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 	border-top: 1px solid var(--ap-border-light);
 }
 
@@ -311,7 +311,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 	padding: 8px 16px;
 	border: 1px solid var(--ap-border-default);
 	border-radius: var(--ap-radius-full);
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 	color: var(--ap-text-secondary);
 	cursor: pointer;
 	font-size: var(--ap-text-sm);
@@ -334,7 +334,7 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 /* Progress */
 .ap-chat-progress {
 	padding: 16px 20px;
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 	border-top: 1px solid var(--ap-border-light);
 }
 
@@ -384,21 +384,21 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 
 /* Dark mode */
 body.dark-mode .ap-chat-container {
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 }
 
 body.dark-mode .ap-chat-message-bot .ap-chat-bubble {
-	background: var(--ap-bg-muted);
+	background: var((--bg-main)-muted);
 	color: var(--ap-text-primary);
 }
 
 body.dark-mode .ap-chat-typing-bubble {
-	background: var(--ap-bg-muted);
+	background: var((--bg-main)-muted);
 }
 
 body.dark-mode .ap-chat-input,
 body.dark-mode .ap-chat-progress {
-	background: var(--ap-bg-card);
+	background: var((--bg-main)-card);
 	border-color: var(--ap-border-light);
 }
 </style>
