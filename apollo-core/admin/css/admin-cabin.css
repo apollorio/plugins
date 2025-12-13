@@ -7,431 +7,431 @@
 
 /* Wrap */
 .apollo-cabin-wrap {
-    max-width: 1400px;
+	max-width: 1400px;
 }
 
 /* Header */
 .apollo-cabin-header {
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #ddd;
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #ddd;
 }
 
 .apollo-cabin-header h1 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 28px;
-    font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 28px;
+	font-weight: 600;
 }
 
 .apollo-cabin-header h1 .dashicons {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
-    color: #2271b1;
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: #2271b1;
 }
 
 .apollo-cabin-header .description {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #666;
+	margin-top: 8px;
+	font-size: 14px;
+	color: #666;
 }
 
 /* Modules Grid */
 .apollo-cabin-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 20px;
+	margin-bottom: 24px;
 }
 
 .apollo-cabin-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    transition: all 0.2s ease;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 20px;
+	transition: all 0.2s ease;
 }
 
 .apollo-cabin-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .apollo-cabin-card.is-enabled {
-    border-color: #2271b1;
-    background: linear-gradient(135deg, #f0f7fc 0%, #fff 100%);
+	border-color: #2271b1;
+	background: linear-gradient(135deg, #f0f7fc 0%, #fff 100%);
 }
 
 .apollo-cabin-card.is-disabled {
-    opacity: 0.7;
-    background: #f9f9f9;
+	opacity: 0.7;
+	background: #f9f9f9;
 }
 
 .apollo-cabin-card .card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 12px;
 }
 
 .apollo-cabin-card .card-header .dashicons {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-    color: #2271b1;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: #2271b1;
 }
 
 .apollo-cabin-card .card-header h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
 }
 
 .apollo-cabin-card .card-desc {
-    margin: 0 0 16px;
-    font-size: 13px;
-    color: #666;
-    line-height: 1.5;
+	margin: 0 0 16px;
+	font-size: 13px;
+	color: #666;
+	line-height: 1.5;
 }
 
 /* Toggle Switch */
 .apollo-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
 }
 
 .apollo-toggle input {
-    display: none;
+	display: none;
 }
 
 .toggle-slider {
-    position: relative;
-    width: 48px;
-    height: 24px;
-    background: #ccc;
-    border-radius: 24px;
-    transition: all 0.2s ease;
+	position: relative;
+	width: 48px;
+	height: 24px;
+	background: #ccc;
+	border-radius: 24px;
+	transition: all 0.2s ease;
 }
 
 .toggle-slider::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    background: #fff;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 20px;
+	height: 20px;
+	background: #fff;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .apollo-toggle input:checked+.toggle-slider {
-    background: #2271b1;
+	background: #2271b1;
 }
 
 .apollo-toggle input:checked+.toggle-slider::after {
-    left: 26px;
+	left: 26px;
 }
 
 .toggle-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #555;
+	font-size: 13px;
+	font-weight: 500;
+	color: #555;
 }
 
 /* Submit Button */
 .submit .button-hero {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .submit .button-hero .dashicons {
-    font-size: 20px;
+	font-size: 20px;
 }
 
 /* Limits Grid */
 .apollo-cabin-limits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 24px;
-    margin-bottom: 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+	gap: 24px;
+	margin-bottom: 24px;
 }
 
 .limits-group {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
 }
 
 .limits-group h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    padding: 16px 20px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    font-size: 14px;
-    font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	padding: 16px 20px;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ddd;
+	font-size: 14px;
+	font-weight: 600;
 }
 
 .limits-group h3 .dashicons {
-    color: #2271b1;
+	color: #2271b1;
 }
 
 .limits-group table {
-    border: none;
-    box-shadow: none;
+	border: none;
+	box-shadow: none;
 }
 
 .limits-group table td {
-    padding: 12px 16px;
-    vertical-align: middle;
+	padding: 12px 16px;
+	vertical-align: middle;
 }
 
 .limits-group .limit-label {
-    width: 50%;
+	width: 50%;
 }
 
 .limits-group .limit-input {
-    width: 25%;
+	width: 25%;
 }
 
 .limits-group .limit-input input {
-    width: 80px;
+	width: 80px;
 }
 
 .limits-group .limit-default {
-    width: 25%;
-    color: #888;
+	width: 25%;
+	color: #888;
 }
 
 /* Moderators Page */
 .apollo-cabin-moderators {
-    display: grid;
-    gap: 32px;
+	display: grid;
+	gap: 32px;
 }
 
 .add-moderator-section,
 .levels-explanation,
 .current-moderators {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 24px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 24px;
 }
 
 .add-moderator-section h3,
 .levels-explanation h3,
 .current-moderators h3 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #eee;
+	margin-top: 0;
+	margin-bottom: 20px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #eee;
 }
 
 .add-moderator-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-end;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: flex-end;
 }
 
 .add-moderator-form .form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 }
 
 .add-moderator-form label {
-    font-weight: 500;
-    font-size: 13px;
+	font-weight: 500;
+	font-size: 13px;
 }
 
 /* Levels Grid */
 .levels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 16px;
 }
 
 .level-card {
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+	padding: 16px;
+	border-radius: 8px;
+	border: 1px solid #ddd;
 }
 
 .level-card h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
+	margin: 0 0 8px;
+	font-size: 14px;
 }
 
 .level-card p {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-    line-height: 1.4;
+	margin: 0;
+	font-size: 12px;
+	color: #666;
+	line-height: 1.4;
 }
 
 .level-card.level-0 {
-    border-color: #a8d5e8;
-    background: #f0f9ff;
+	border-color: #a8d5e8;
+	background: #f0f9ff;
 }
 
 .level-card.level-1 {
-    border-color: #ffd699;
-    background: #fff9f0;
+	border-color: #ffd699;
+	background: #fff9f0;
 }
 
 .level-card.level-3 {
-    border-color: #ffb3b3;
-    background: #fff0f0;
+	border-color: #ffb3b3;
+	background: #fff0f0;
 }
 
 /* Mod Level Badge */
 .mod-level-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
 }
 
 .mod-level-badge.level-0 {
-    background: #e0f2fe;
-    color: #0369a1;
+	background: #e0f2fe;
+	color: #0369a1;
 }
 
 .mod-level-badge.level-1 {
-    background: #fef3c7;
-    color: #b45309;
+	background: #fef3c7;
+	color: #b45309;
 }
 
 .mod-level-badge.level-3 {
-    background: #fee2e2;
-    color: #dc2626;
+	background: #fee2e2;
+	color: #dc2626;
 }
 
 /* User Status Badge */
 .user-status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 500;
 }
 
 .user-status-badge.status-active {
-    background: #d1fae5;
-    color: #065f46;
+	background: #d1fae5;
+	color: #065f46;
 }
 
 .user-status-badge.status-suspended {
-    background: #fef3c7;
-    color: #b45309;
+	background: #fef3c7;
+	color: #b45309;
 }
 
 .user-status-badge.status-banned {
-    background: #fee2e2;
-    color: #dc2626;
+	background: #fee2e2;
+	color: #dc2626;
 }
 
 /* Security Page */
 .apollo-cabin-security {
-    display: grid;
-    gap: 32px;
+	display: grid;
+	gap: 32px;
 }
 
 .block-ip-section,
 .current-blocklist,
 .audit-settings {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 24px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 24px;
 }
 
 .block-ip-section h3,
 .current-blocklist h3,
 .audit-settings h3 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #eee;
+	margin-top: 0;
+	margin-bottom: 20px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid #eee;
 }
 
 .block-ip-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-end;
-    margin-bottom: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: flex-end;
+	margin-bottom: 20px;
 }
 
 .block-ip-form .form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 }
 
 .block-ip-form label {
-    font-weight: 500;
-    font-size: 13px;
+	font-weight: 500;
+	font-size: 13px;
 }
 
 /* Logs Page */
 .apollo-cabin-logs {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 24px;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 24px;
 }
 
 .log-filters {
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #eee;
 }
 
 .log-filters form {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	flex-wrap: wrap;
 }
 
 .action-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
 }
 
 .action-badge.action-suspend_user,
 .action-badge.action-ban_user,
 .action-badge.action-block_ip {
-    background: #fee2e2;
-    color: #dc2626;
+	background: #fee2e2;
+	color: #dc2626;
 }
 
 .action-badge.action-unsuspend_user,
 .action-badge.action-unban_user,
 .action-badge.action-unblock_ip {
-    background: #d1fae5;
-    color: #065f46;
+	background: #d1fae5;
+	color: #065f46;
 }
 
 .action-badge.action-set_mod_level {
-    background: #e0f2fe;
-    color: #0369a1;
+	background: #e0f2fe;
+	color: #0369a1;
 }
 
 .action-badge.action-enable_module,
@@ -439,72 +439,72 @@
 .action-badge.action-update_modules,
 .action-badge.action-update_limits,
 .action-badge.action-set_limit {
-    background: #fef3c7;
-    color: #b45309;
+	background: #fef3c7;
+	color: #b45309;
 }
 
 .log-details {
-    margin-top: 8px;
+	margin-top: 8px;
 }
 
 .log-details pre {
-    background: #f5f5f5;
-    padding: 12px;
-    border-radius: 4px;
-    font-size: 11px;
-    max-height: 200px;
-    overflow: auto;
+	background: #f5f5f5;
+	padding: 12px;
+	border-radius: 4px;
+	font-size: 11px;
+	max-height: 200px;
+	overflow: auto;
 }
 
 .log-details.hidden {
-    display: none;
+	display: none;
 }
 
 .toggle-details {
-    font-size: 11px !important;
-    padding: 2px 8px !important;
+	font-size: 11px !important;
+	padding: 2px 8px !important;
 }
 
 /* No data states */
 .no-moderators,
 .no-blocked,
 .no-logs {
-    text-align: center;
-    padding: 40px;
-    color: #888;
-    background: #f9f9f9;
-    border-radius: 8px;
+	text-align: center;
+	padding: 40px;
+	color: #888;
+	background: #f9f9f9;
+	border-radius: 8px;
 }
 
 /* Table avatars */
 .wp-list-table td img.avatar {
-    vertical-align: middle;
-    margin-right: 8px;
-    border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 8px;
+	border-radius: 50%;
 }
 
 /* Responsive */
 @media (max-width: 782px) {
-    .apollo-cabin-grid {
-        grid-template-columns: 1fr;
-    }
+	.apollo-cabin-grid {
+		grid-template-columns: 1fr;
+	}
 
-    .apollo-cabin-limits-grid {
-        grid-template-columns: 1fr;
-    }
+	.apollo-cabin-limits-grid {
+		grid-template-columns: 1fr;
+	}
 
-    .levels-grid {
-        grid-template-columns: 1fr;
-    }
+	.levels-grid {
+		grid-template-columns: 1fr;
+	}
 
-    .add-moderator-form,
-    .block-ip-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
+	.add-moderator-form,
+	.block-ip-form {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-    .log-filters form {
-        flex-direction: column;
-        align-items: stretch;
-    }
+	.log-filters form {
+		flex-direction: column;
+		align-items: stretch;
+	}
 }

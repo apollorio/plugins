@@ -73,20 +73,20 @@ function apollo_enqueue_mod_assets( $hook ) {
 			'canManage' => current_user_can( 'manage_apollo_mod_settings' ),
 		)
 
-/**
- * Render mod page
- */
-function apollo_render_mod_page() {
-	// Get current tab.
-	$current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings';
+		/**
+		 * Render mod page
+		 */
+		function apollo_render_mod_page() {
+			// Get current tab.
+			$current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings';
 
-	// Check permissions.
-	$can_manage = current_user_can( 'manage_apollo_mod_settings' );
-	if ( ! $can_manage && 'settings' === $current_tab ) {
-		$current_tab = 'queue';
-	}
+			// Check permissions.
+			$can_manage = current_user_can( 'manage_apollo_mod_settings' );
+			if ( ! $can_manage && 'settings' === $current_tab ) {
+				$current_tab = 'queue';
+			}
 
-	?>
+			?>
 	<div class="wrap apollo-mod-wrap">
 		<h1><?php esc_html_e( 'Apollo Moderation', 'apollo-core' ); ?></h1>
 
@@ -120,22 +120,22 @@ function apollo_render_mod_page() {
 			?>
 		</div>
 	</div>
-	<?php
-}
+			<?php
+		}
 
-/**
- * Render Tab 1: Settings
- */
-function apollo_render_settings_tab() {
-	if ( ! current_user_can( 'manage_apollo_mod_settings' ) ) {
-		wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
-	}
+		/**
+		 * Render Tab 1: Settings
+		 */
+		function apollo_render_settings_tab() {
+			if ( ! current_user_can( 'manage_apollo_mod_settings' ) ) {
+				wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
+			}
 
-	$settings = apollo_get_mod_settings();
+			$settings = apollo_get_mod_settings();
 
-	?>
+			?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-		<?php wp_nonce_field( 'apollo_save_mod_settings', 'apollo_mod_nonce' ); ?>
+			<?php wp_nonce_field( 'apollo_save_mod_settings', 'apollo_mod_nonce' ); ?>
 		<input type="hidden" name="action" value="apollo_save_mod_settings">
 
 		<table class="form-table">
@@ -156,9 +156,9 @@ function apollo_render_settings_tab() {
 							$selected = in_array( $user->ID, $settings['mods'], true ) ? 'selected' : '';
 							?>
 							<option value="<?php echo esc_attr( $user->ID ); ?>" <?php echo esc_attr( $selected ); ?>>
-								<?php echo esc_html( $user->display_name ); ?> (<?php echo esc_html( $user->user_email ); ?>)
+									<?php echo esc_html( $user->display_name ); ?> (<?php echo esc_html( $user->user_email ); ?>)
 							</option>
-							<?php
+									<?php
 						}
 						?>
 					</select>
@@ -172,72 +172,73 @@ function apollo_render_settings_tab() {
 					<fieldset>
 						<?php
 
-					</label>
-				</td>
-			</tr>
-		</table>
+							< / label >
+						< / td >
+						< / tr >
+						< / table >
 
-		<?php submit_button( __( 'Save Settings', 'apollo-core' ) ); ?>
+						< ? php submit_button( __( 'Save Settings', 'apollo-core' ) );
+						?>
 	</form>
-	<?php
-}
+			<?php
+		}
 
-/**
- * Render Tab 2: Moderation Queue
- */
-function apollo_render_queue_tab(): void {
-	if ( ! current_user_can( 'view_mod_queue' ) ) {
-		wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
-	}
+		/**
+		 * Render Tab 2: Moderation Queue
+		 */
+		function apollo_render_queue_tab(): void {
+			if ( ! current_user_can( 'view_mod_queue' ) ) {
+				wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
+			}
 
-	// Use unified queue if available
-	$enabled_types = array();
-	if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
-		$enabled_types = Apollo_Moderation_Queue_Unified::get_mod_cpts();
-	} else {
-		// Fallback to legacy method
-		$settings = apollo_get_mod_settings();
-		foreach ( $settings['enabled_caps'] as $cap => $enabled ) {
-			if ( $enabled ) {
-				$post_type = apollo_capability_to_post_type( $cap );
-				if ( $post_type ) {
-					$enabled_types[] = $post_type;
+			// Use unified queue if available
+			$enabled_types = array();
+			if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
+				$enabled_types = Apollo_Moderation_Queue_Unified::get_mod_cpts();
+			} else {
+				// Fallback to legacy method
+				$settings = apollo_get_mod_settings();
+				foreach ( $settings['enabled_caps'] as $cap => $enabled ) {
+					if ( $enabled ) {
+						$post_type = apollo_capability_to_post_type( $cap );
+						if ( $post_type ) {
+							$enabled_types[] = $post_type;
+						}
+					}
 				}
 			}
-		}
-	}
 
-	if ( empty( $enabled_types ) ) {
-		$enabled_types = array( 'event_listing', 'post' );
-	}
+			if ( empty( $enabled_types ) ) {
+				$enabled_types = array( 'event_listing', 'post' );
+			}
 
-	// Query ALL em-fila/draft posts
-	$query = new WP_Query(
-		array(
-			'post_type'      => $enabled_types,
-			'post_status'    => array( 'draft', 'em-fila' ),
-			'posts_per_page' => 100,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-		)
-	);
+			// Query ALL em-fila/draft posts
+			$query = new WP_Query(
+				array(
+					'post_type'      => $enabled_types,
+					'post_status'    => array( 'draft', 'em-fila' ),
+					'posts_per_page' => 100,
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+				)
+			);
 
-	// Get counts by source
-	$cena_rio_count = 0;
-	$other_count    = 0;
-	foreach ( $query->posts as $post ) {
-		$source = get_post_meta( $post->ID, '_apollo_source', true );
-		if ( 'cena-rio' === $source ) {
-			++$cena_rio_count;
-		} else {
-			++$other_count;
-		}
-	}
+			// Get counts by source
+			$cena_rio_count = 0;
+			$other_count    = 0;
+			foreach ( $query->posts as $post ) {
+				$source = get_post_meta( $post->ID, '_apollo_source', true );
+				if ( 'cena-rio' === $source ) {
+					++$cena_rio_count;
+				} else {
+					++$other_count;
+				}
+			}
 
-	// Get filter from URL
-	$current_filter = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : 'all';
+			// Get filter from URL
+			$current_filter = isset( $_GET['source'] ) ? sanitize_text_field( wp_unslash( $_GET['source'] ) ) : 'all';
 
-	?>
+			?>
 	<div id="apollo-mod-queue">
 		<h2><?php esc_html_e( 'Moderation Queue', 'apollo-core' ); ?></h2>
 		<p class="description"><?php esc_html_e( 'Review and approve em-fila content from all sources.', 'apollo-core' ); ?></p>
@@ -275,7 +276,8 @@ function apollo_render_queue_tab(): void {
 			<tbody>
 				<?php
 				$has_items = false;
-				if ( $query->have_posts() ) :
+				if ( $query->have_posts() ) {
+					:
 					while ( $query->have_posts() ) :
 						$query->the_post();
 						$post_id = get_the_ID();
@@ -306,7 +308,7 @@ function apollo_render_queue_tab(): void {
 						?>
 						<tr data-post-id="<?php echo esc_attr( $post_id ); ?>" style="<?php echo esc_attr( $row_style ); ?>">
 							<td>
-								<?php if ( has_post_thumbnail() ) : ?>
+							<?php if ( has_post_thumbnail() ) : ?>
 									<?php the_post_thumbnail( array( 50, 50 ), array( 'style' => 'border-radius: 4px;' ) ); ?>
 								<?php else : ?>
 									<span class="dashicons dashicons-format-image" style="font-size: 30px; color: #ccc;"></span>
@@ -314,17 +316,17 @@ function apollo_render_queue_tab(): void {
 							</td>
 							<td>
 								<strong><a href="<?php echo esc_url( get_edit_post_link() ); ?>" target="_blank"><?php the_title(); ?></a></strong>
-								<?php if ( $is_cena ) : ?>
+							<?php if ( $is_cena ) : ?>
 									<br><small style="color: #f97316;">via Cena::Rio</small>
 								<?php endif; ?>
 							</td>
 							<td>
 								<span class="post-type-badge" style="display: inline-block; padding: 2px 8px; background: #e5e7eb; border-radius: 4px; font-size: 12px;">
-									<?php echo esc_html( $type_label ); ?>
+								<?php echo esc_html( $type_label ); ?>
 								</span>
 							</td>
 							<td>
-								<?php if ( $is_cena ) : ?>
+							<?php if ( $is_cena ) : ?>
 									<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f97316; color: #fff; border-radius: 4px; font-size: 11px; font-weight: 600;">
 										<span class="dashicons dashicons-calendar-alt" style="font-size: 14px; width: 14px; height: 14px;"></span>
 										CENA
@@ -336,23 +338,26 @@ function apollo_render_queue_tab(): void {
 							<td><?php the_author(); ?></td>
 							<td>
 								<span title="<?php echo esc_attr( get_the_date( 'Y-m-d H:i:s' ) ); ?>">
-									<?php echo esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ); ?> <?php esc_html_e( 'atrás', 'apollo-core' ); ?>
+								<?php echo esc_html( human_time_diff( get_the_time( 'U' ), current_time( 'timestamp' ) ) ); ?> <?php esc_html_e( 'atrás', 'apollo-core' ); ?>
 								</span>
 							</td>
 							<td>
 								<button class="button button-primary apollo-approve-btn" data-post-id="<?php echo esc_attr( $post_id ); ?>">
 									<span class="dashicons dashicons-yes" style="margin-top: 3px;"></span>
-									<?php esc_html_e( 'Aprovar', 'apollo-core' ); ?>
+								<?php esc_html_e( 'Aprovar', 'apollo-core' ); ?>
 								</button>
 								<button class="button apollo-reject-btn" data-post-id="<?php echo esc_attr( $post_id ); ?>" style="color: #dc2626;">
 									<span class="dashicons dashicons-no" style="margin-top: 3px;"></span>
 								</button>
 							</td>
 						</tr>
-					<?php endwhile; ?>
-					<?php wp_reset_postdata(); ?>
-				<?php endif; ?>
-				<?php if ( ! $has_items ) : ?>
+						<?php
+					endwhile;
+				}
+				?>
+							<?php wp_reset_postdata(); ?>
+						<?php endif; ?>
+						<?php if ( ! $has_items ) : ?>
 					<tr>
 						<td colspan="7" style="text-align: center; padding: 40px;">
 							<span class="dashicons dashicons-yes-alt" style="font-size: 48px; color: #10b981; display: block; margin-bottom: 12px;"></span>
@@ -372,26 +377,26 @@ function apollo_render_queue_tab(): void {
 			.apollo-reject-btn:hover { background: #fef2f2 !important; border-color: #dc2626 !important; }
 		</style>
 	</div>
-	<?php
-}
+			<?php
+			}
 
-/**
- * Render Tab 3: Moderate Users
- */
-function apollo_render_users_tab() {
-	if ( ! current_user_can( 'edit_apollo_users' ) ) {
-		wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
-	}
+			/**
+			 * Render Tab 3: Moderate Users
+			 */
+			function apollo_render_users_tab() {
+				if ( ! current_user_can( 'edit_apollo_users' ) ) {
+					wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
+				}
 
-	$users = get_users(
-		array(
-			'orderby' => 'registered',
-			'order'   => 'DESC',
-			'number'  => 50,
-		)
-	);
+				$users = get_users(
+					array(
+						'orderby' => 'registered',
+						'order'   => 'DESC',
+						'number'  => 50,
+					)
+				);
 
-	?>
+				?>
 	<div id="apollo-moderate-users">
 		<h2><?php esc_html_e( 'Moderate Users', 'apollo-core' ); ?></h2>
 		<p class="description"><?php esc_html_e( 'Manage user accounts, send notifications, suspend or block users.', 'apollo-core' ); ?></p>
@@ -443,61 +448,61 @@ function apollo_render_users_tab() {
 			</tbody>
 		</table>
 
-		<?php apollo_render_membership_types_manager(); ?>
+				<?php apollo_render_membership_types_manager(); ?>
 	</div>
-	<?php
-}
+				<?php
+			}
 
-/**
- * Save mod settings
- */
-function apollo_handle_save_settings() {
-	// Verify nonce.
-	check_admin_referer( 'apollo_save_mod_settings', 'apollo_mod_nonce' );
+			/**
+			 * Save mod settings
+			 */
+			function apollo_handle_save_settings() {
+				// Verify nonce.
+				check_admin_referer( 'apollo_save_mod_settings', 'apollo_mod_nonce' );
 
-	// Check permission.
-	if ( ! current_user_can( 'manage_apollo_mod_settings' ) ) {
-		wp_die( esc_html__( 'You do not have permission to perform this action.', 'apollo-core' ) );
-	}
+				// Check permission.
+				if ( ! current_user_can( 'manage_apollo_mod_settings' ) ) {
+					wp_die( esc_html__( 'You do not have permission to perform this action.', 'apollo-core' ) );
+				}
 
-	// Get form data.
-	$mods              = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
-	$enabled_caps      = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : array();
-	$audit_log_enabled = isset( $_POST['audit_log_enabled'] );
+				// Get form data.
+				$mods              = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
+				$enabled_caps      = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : array();
+				$audit_log_enabled = isset( $_POST['audit_log_enabled'] );
 
-	// Update settings.
-	$settings = array(
-		'mods'              => $mods,
-		'enabled_caps'      => $enabled_caps,
-		'audit_log_enabled' => $audit_log_enabled,
-		'version'           => '1.0.0',
-	);
+				// Update settings.
+				$settings = array(
+					'mods'              => $mods,
+					'enabled_caps'      => $enabled_caps,
+					'audit_log_enabled' => $audit_log_enabled,
+					'version'           => '1.0.0',
+				);
 
-	apollo_update_mod_settings( $settings );
+				apollo_update_mod_settings( $settings );
 
-	// Redirect back.
-	wp_safe_redirect( admin_url( 'admin.php?page=apollo-mod&tab=settings&updated=1' ) );
-	exit;
-}
-add_action( 'admin_post_apollo_save_mod_settings', 'apollo_handle_save_settings' );
+				// Redirect back.
+				wp_safe_redirect( admin_url( 'admin.php?page=apollo-mod&tab=settings&updated=1' ) );
+				exit;
+			}
+			add_action( 'admin_post_apollo_save_mod_settings', 'apollo_handle_save_settings' );
 
-/**
- * Map capability to post type
- *
- * @param string $capability Capability key.
- * @return string|false Post type or false.
- */
-function apollo_capability_to_post_type( $capability ) {
-	$map = array(
-		'publish_events'      => 'event_listing',
-		'publish_locals'      => 'event_local',
-		'publish_djs'         => 'event_dj',
-		'publish_nucleos'     => 'apollo_nucleo',
-		'publish_comunidades' => 'apollo_comunidade',
-		'edit_posts'          => 'apollo_social_post',
-		'edit_classifieds'    => 'apollo_classified',
-	);
+			/**
+			 * Map capability to post type
+			 *
+			 * @param string $capability Capability key.
+			 * @return string|false Post type or false.
+			 */
+			function apollo_capability_to_post_type( $capability ) {
+				$map = array(
+					'publish_events'      => 'event_listing',
+					'publish_locals'      => 'event_local',
+					'publish_djs'         => 'event_dj',
+					'publish_nucleos'     => 'apollo_nucleo',
+					'publish_comunidades' => 'apollo_comunidade',
+					'edit_posts'          => 'apollo_social_post',
+					'edit_classifieds'    => 'apollo_classified',
+				);
 
-	return isset( $map[ $capability ] ) ? $map[ $capability ] : false;
-}
+				return isset( $map[ $capability ] ) ? $map[ $capability ] : false;
+			}
 

@@ -66,7 +66,7 @@ class Apollo_Email_Integration {
 		}
 
 		// Check plugin availability (optional integrations).
-		$this->newsletter_active      = class_exists( 'Newsletter' );
+		$this->newsletter_active = class_exists( 'Newsletter' );
 		// Email Templates plugin is optional - don't require WooCommerce.
 		$this->email_templates_active = class_exists( 'Mailtpl_Woomail_Composer' );
 

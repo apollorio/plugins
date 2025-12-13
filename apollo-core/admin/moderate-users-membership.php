@@ -191,7 +191,7 @@ function apollo_render_membership_types_manager() {
 function apollo_render_user_membership_selector( $user ) {
 	$memberships = apollo_get_memberships();
 	$can_edit    = current_user_can( 'edit_apollo_users' );
-	
+
 	// Get current badges (new system: array)
 	$current_badges = get_user_meta( $user->ID, '_apollo_badges', true );
 	if ( empty( $current_badges ) || ! is_array( $current_badges ) ) {
@@ -200,7 +200,7 @@ function apollo_render_user_membership_selector( $user ) {
 		$current_badges    = ! empty( $legacy_membership ) && $legacy_membership !== 'nao-verificado' ? array( $legacy_membership ) : array();
 	}
 	$current_badges = array_map( 'sanitize_key', $current_badges );
-	
+
 	?>
 	<div class="apollo-user-badges-selector" data-user-id="<?php echo esc_attr( $user->ID ); ?>">
 		<div style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 300px;">

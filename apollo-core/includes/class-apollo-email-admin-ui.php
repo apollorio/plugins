@@ -64,8 +64,8 @@ class Apollo_Email_Admin_UI {
 			wp_die( esc_html__( 'Permission denied', 'apollo-core' ) );
 		}
 
-		$flows = self::get_available_flows();
-		$templates = self::get_templates();
+		$flows         = self::get_available_flows();
+		$templates     = self::get_templates();
 		$current_flows = get_option( 'apollo_email_flows', array() );
 
 		?>
@@ -124,10 +124,10 @@ class Apollo_Email_Admin_UI {
 
 			<?php foreach ( $flows as $flow_slug => $flow_data ) : ?>
 				<?php
-				$flow_config = $current_flows[ $flow_slug ] ?? array();
-				$enabled = ! empty( $flow_config['enabled'] );
-				$template_id = $flow_config['template_id'] ?? '';
-				$subject = $flow_config['subject'] ?? $flow_data['default_subject'];
+				$flow_config      = $current_flows[ $flow_slug ] ?? array();
+				$enabled          = ! empty( $flow_config['enabled'] );
+				$template_id      = $flow_config['template_id'] ?? '';
+				$subject          = $flow_config['subject'] ?? $flow_data['default_subject'];
 				$extra_recipients = $flow_config['extra_recipients'] ?? '';
 				?>
 				<div class="apollo-flow-config" style="border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 4px;">
@@ -403,9 +403,9 @@ class Apollo_Email_Admin_UI {
 		$flows = get_option( 'apollo_email_flows', array() );
 
 		$flows[ $flow_slug ] = array(
-			'enabled'         => ! empty( $_POST['enabled'] ),
-			'template_id'     => absint( $_POST['template_id'] ?? 0 ),
-			'subject'         => sanitize_text_field( $_POST['subject'] ?? '' ),
+			'enabled'          => ! empty( $_POST['enabled'] ),
+			'template_id'      => absint( $_POST['template_id'] ?? 0 ),
+			'subject'          => sanitize_text_field( $_POST['subject'] ?? '' ),
 			'extra_recipients' => sanitize_text_field( $_POST['extra_recipients'] ?? '' ),
 		);
 
@@ -426,7 +426,7 @@ class Apollo_Email_Admin_UI {
 			wp_send_json_error( array( 'message' => __( 'Permission denied', 'apollo-core' ) ) );
 		}
 
-		$flow = sanitize_key( $_POST['flow'] ?? '' );
+		$flow  = sanitize_key( $_POST['flow'] ?? '' );
 		$email = sanitize_email( $_POST['email'] ?? '' );
 
 		if ( empty( $flow ) || ! is_email( $email ) ) {
@@ -434,7 +434,7 @@ class Apollo_Email_Admin_UI {
 		}
 
 		$email_service = Apollo_Email_Service::instance();
-		$result = $email_service->send_test( $flow, $email );
+		$result        = $email_service->send_test( $flow, $email );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
@@ -460,13 +460,13 @@ class Apollo_Email_Admin_UI {
 			wp_send_json_error( array( 'message' => __( 'Invalid flow', 'apollo-core' ) ) );
 		}
 
-		$email_service = Apollo_Email_Service::instance();
+		$email_service    = Apollo_Email_Service::instance();
 		$sample_variables = $email_service->get_sample_variables( $flow );
-		
+
 		// Get flow config to determine template.
 		$flow_config = get_option( 'apollo_email_flows', array() );
 		$template_id = $flow_config[ $flow ]['template_id'] ?? '';
-		
+
 		if ( $template_id ) {
 			$template_html = $email_service->load_template( (string) $template_id, $sample_variables );
 		} else {

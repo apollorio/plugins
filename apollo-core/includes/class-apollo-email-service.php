@@ -180,8 +180,8 @@ class Apollo_Email_Service {
 	private function get_default_template( string $template_slug ): string {
 		$defaults = array(
 			'registration_confirm' => $this->get_default_registration_template(),
-			'producer_notify'       => $this->get_default_producer_template(),
-			'general'               => $this->get_default_general_template(),
+			'producer_notify'      => $this->get_default_producer_template(),
+			'general'              => $this->get_default_general_template(),
 		);
 
 		return $defaults[ $template_slug ] ?? '';
@@ -193,7 +193,7 @@ class Apollo_Email_Service {
 	 * @return string
 	 */
 	private function get_default_registration_template(): string {
-		return <<<HTML
+		return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -220,7 +220,7 @@ HTML;
 	 * @return string
 	 */
 	private function get_default_producer_template(): string {
-		return <<<HTML
+		return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -251,7 +251,7 @@ HTML;
 	 * @return string
 	 */
 	private function get_default_general_template(): string {
-		return <<<HTML
+		return <<<'HTML'
 <!DOCTYPE html>
 <html>
 <head>
@@ -334,10 +334,10 @@ HTML;
 		}
 
 		$log_data = array(
-			'flow'     => $message_data['flow'] ?? 'manual',
-			'to'       => $this->mask_email( $message_data['to'] ?? '' ),
-			'subject'  => $message_data['subject'] ?? '',
-			'success'  => $result,
+			'flow'      => $message_data['flow'] ?? 'manual',
+			'to'        => $this->mask_email( $message_data['to'] ?? '' ),
+			'subject'   => $message_data['subject'] ?? '',
+			'success'   => $result,
 			'timestamp' => current_time( 'mysql' ),
 		);
 
@@ -367,4 +367,3 @@ HTML;
 		return $masked_local . '@' . $domain;
 	}
 }
-
