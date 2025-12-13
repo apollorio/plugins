@@ -61,6 +61,27 @@
 				<element value="apollo-core"/>
 				<element value="apollo-events-manager"/>
 				<element value="apollo-social"/>
+				<element value="apollo-hardening"/>
+				<element value="apollo-secure-upload"/>
+				<element value="apollo-webp-compressor"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- ============================================ -->
+	<!-- CUSTOM CAPABILITIES                          -->
+	<!-- ============================================ -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="manage_apollo"/>
+				<element value="manage_apollo_security"/>
+				<element value="manage_apollo_uploads"/>
+				<element value="manage_apollo_compression"/>
+				<element value="manage_apollo_audit"/>
+				<element value="view_apollo_reports"/>
+				<element value="edit_apollo_settings"/>
+				<element value="apollo_upload_media"/>
 			</property>
 		</properties>
 	</rule>
