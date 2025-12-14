@@ -9,6 +9,23 @@
  *
  * @package Apollo_Events_Manager
  * @version 3.1.0 - Helper Integration + Tooltips
+ *
+ * STRUCTURE (matches design-library/original/events discover event-card.html): 
+ * <a class="event_listing"> (wrapper is anchor)
+ *   <div class="box-date-event"> (date badge)
+ *   <div class="picture"> (image container)
+ *     <img>
+ *     <div class="event-card-tags"> (genre tags)
+ *   </div>
+ *   <div class="event-line">
+ *     <div class="box-info-event">
+ *       <h2 class="event-li-title">
+ *       <p class="event-li-detail of-dj">
+ *       <p class="event-li-detail of-location">
+ *
+ * Expected variables:
+ * @var WP_Post $event - The event post object (optional)
+ * @var WP_Post $post  - The post object from loop context
  */
 
 declare(strict_types=1);
@@ -173,3 +190,4 @@ if (! is_wp_error($terms) && ! empty($terms)) {
                 </div>
         </div>
 </a>
+

@@ -268,7 +268,7 @@ function aem_submit_event_shortcode()
 		
 		<?php
         if (isset($error_html)) {
-            echo $error_html;
+            echo wp_kses_post($error_html); // SECURITY: Escape HTML output to prevent XSS
         }
     ?>
 		

@@ -481,11 +481,11 @@ class Apollo_Events_Bookmarks
 
         // SECURITY: Using direct table reference is safe here as table name is hardcoded in constructor
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        $total_bookmarks = $wpdb->get_var("SELECT COUNT(*) FROM {$this->table_name}");
+        $total_bookmarks = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i", $this->table_name)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        $total_users = $wpdb->get_var("SELECT COUNT(DISTINCT user_id) FROM {$this->table_name}");
+        $total_users = $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT user_id) FROM %i", $this->table_name)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        $total_events = $wpdb->get_var("SELECT COUNT(DISTINCT event_id) FROM {$this->table_name}");
+        $total_events = $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT event_id) FROM %i", $this->table_name)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         ?>
 		<div class="wrap">

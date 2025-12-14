@@ -560,7 +560,7 @@ function apollo_show_shortcode_documentation_on_activation()
             ?>
 		<div class="notice notice-info is-dismissible apollo-shortcode-docs-notice">
 			<div style="max-height: 600px; overflow-y: auto; padding: 10px;">
-				<?php echo $docs; ?>
+				<?php echo wp_kses_post($docs); // SECURITY: Escape HTML output to prevent XSS ?>
 			</div>
 			<p>
 				<a href="<?php echo esc_url(admin_url('admin.php?page=apollo-shortcodes')); ?>" class="button button-primary">
