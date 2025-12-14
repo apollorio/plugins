@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Core Plugin
  *
@@ -42,6 +43,7 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-global-assets.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/caching.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/settings-defaults.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/roles.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-rbac.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/db-schema.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-rate-limiting.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/rest-mod.php';

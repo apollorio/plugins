@@ -94,6 +94,10 @@ require_once __DIR__ . '/src/Helpers/BadgesHelper.php';
 require_once __DIR__ . '/includes/docs-helpers.php';
 require_once __DIR__ . '/includes/docs-signature-helpers.php';
 
+// Load Plano Editor components
+require_once __DIR__ . '/includes/class-plano-editor-assets.php';
+require_once __DIR__ . '/src/Api/Textures.php';
+
 // Autoload classes (PSR-4).
 spl_autoload_register(
 	function ( $class ) {
@@ -179,68 +183,58 @@ add_action(
 
 			// Load Cultura::Rio Admin (membership management - admin only).
 			$cultura_admin = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/CulturaRioAdmin.php';
-			if ( file_exists( $cultura_admin ) ) {
-				require_once $cultura_admin;
-			}
-		}//end if
-
-		// Load Apollo Email Hub Admin (unified email management).
+		if ( file_exists( $cultura_admin ) ) {
+			require_once $cultura_admin;
+		}
+	}//end if
+	// Load Apollo Email Hub Admin (unified email management).
 		$email_hub = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EmailHubAdmin.php';
-		if ( file_exists( $email_hub ) ) {
-			require_once $email_hub;
-		}
-
-		// Load Apollo Email Bridge (integrates with newsletter & email-templates plugins).
+	if ( file_exists( $email_hub ) ) {
+		require_once $email_hub;
+	}
+	// Load Apollo Email Bridge (integrates with newsletter & email-templates plugins).
 		$email_bridge = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/ApolloEmailBridge.php';
-		if ( file_exists( $email_bridge ) ) {
-			require_once $email_bridge;
-		}
-
-		// Load Apollo Builder (Habbo-style home page builder)
+	if ( file_exists( $email_bridge ) ) {
+		require_once $email_bridge;
+	}
+	// Load Apollo Builder (Habbo-style home page builder)
 		// Pattern: Based on WOW Page Builder + Live Composer (GPLv3)
 		// Provides: CPT apollo_home, drag-drop widgets, AJAX save, frontend view.
 		$builder_init = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Builder/init.php';
-		if ( file_exists( $builder_init ) ) {
-			require_once $builder_init;
-		}
-
-		// Load User Dashboard Ajustes Section.
+	if ( file_exists( $builder_init ) ) {
+		require_once $builder_init;
+	}
+	// Load User Dashboard Ajustes Section.
 		$ajustes_section = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Dashboard/UserAjustesSection.php';
-		if ( file_exists( $ajustes_section ) ) {
-			require_once $ajustes_section;
-		}
-
-		// Load AJAX Image Upload Handler for Quill Editor.
+	if ( file_exists( $ajustes_section ) ) {
+		require_once $ajustes_section;
+	}
+	// Load AJAX Image Upload Handler for Quill Editor.
 		$image_upload = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/ImageUploadHandler.php';
-		if ( file_exists( $image_upload ) ) {
-			require_once $image_upload;
-		}
-
-		// Load AJAX Document Save Handler for Quill Editor (Delta autosave).
+	if ( file_exists( $image_upload ) ) {
+		require_once $image_upload;
+	}
+	// Load AJAX Document Save Handler for Quill Editor (Delta autosave).
 		$doc_save = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/docaveHandler.php';
-		if ( file_exists( $doc_save ) ) {
-			require_once $doc_save;
-		}
-
-		// Load AJAX PDF Export Handler for document-to-PDF conversion.
+	if ( file_exists( $doc_save ) ) {
+		require_once $doc_save;
+	}
+	// Load AJAX PDF Export Handler for document-to-PDF conversion.
 		$pdf_export = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/PdfExportHandler.php';
-		if ( file_exists( $pdf_export ) ) {
-			require_once $pdf_export;
-		}
-
-		// Load Delta Helper Functions (apollo_delta_to_html, etc.).
+	if ( file_exists( $pdf_export ) ) {
+		require_once $pdf_export;
+	}
+	// Load Delta Helper Functions (apollo_delta_to_html, etc.).
 		$delta_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/delta-helpers.php';
-		if ( file_exists( $delta_helpers ) ) {
-			require_once $delta_helpers;
-		}
-
-		// Load Luckysheet Helper Functions (apollo_spreadsheet_to_luckysheet, etc.).
+	if ( file_exists( $delta_helpers ) ) {
+		require_once $delta_helpers;
+	}
+	// Load Luckysheet Helper Functions (apollo_spreadsheet_to_luckysheet, etc.).
 		$luckysheet_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/luckysheet-helpers.php';
-		if ( file_exists( $luckysheet_helpers ) ) {
-			require_once $luckysheet_helpers;
-		}
-
-		// Initialize Documents Module (Libraries, Signatures, Audit).
+	if ( file_exists( $luckysheet_helpers ) ) {
+		require_once $luckysheet_helpers;
+	}
+	// Initialize Documents Module (Libraries, Signatures, Audit).
 		if ( class_exists( '\Apollo\Modules\Documents\DocumentsModule' ) ) {
 			\Apollo\Modules\Documents\DocumentsModule::init();
 		}

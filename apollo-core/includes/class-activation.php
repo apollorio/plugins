@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Activation class
  */
 class Apollo_Core_Activation {
+
 	/**
 	 * Run activation
 	 */
@@ -32,6 +34,11 @@ class Apollo_Core_Activation {
 
 		// Create roles.
 		self::create_roles();
+
+		// Assign Apollo capabilities to roles.
+		if ( class_exists( 'Apollo_RBAC' ) ) {
+			Apollo_RBAC::assign_capabilities_to_roles();
+		}
 
 		// Create options.
 		self::create_options();
