@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * REST API Events controller
@@ -10,79 +11,84 @@
  * @since 1.0.1
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * REST API Ecosystem controller class.
  *
  * @extends APRIO_REST_CRUD_Controller
  */
-class APRIO_REST_Ecosystem_Controller extends APRIO_REST_CRUD_Controller {
-	/**
-	 * Endpoint namespace.
-	 *
-	 * @var string
-	 */
-	protected $namespace = 'aprio';
+class APRIO_REST_Ecosystem_Controller extends APRIO_REST_CRUD_Controller
+{
+    /**
+     * Endpoint namespace.
+     *
+     * @var string
+     */
+    protected $namespace = 'aprio';
 
-	/**
-	 * Route base.
-	 *
-	 * @var string
-	 */
-	protected $rest_base = 'ecosystem';
+    /**
+     * Route base.
+     *
+     * @var string
+     */
+    protected $rest_base = 'ecosystem';
 
-	/**
-	 * Post type.
-	 *
-	 * @var string
-	 */
-	protected $post_type = 'event_listing';
+    /**
+     * Post type.
+     *
+     * @var string
+     */
+    protected $post_type = 'event_listing';
 
-	/**
-	 * Controls visibility on frontend.
-	 *
-	 * @var string
-	 */
-	protected $public = false;
+    /**
+     * Controls visibility on frontend.
+     *
+     * @var string
+     */
+    protected $public = false;
 
-	/**
-	 * Initialize Ecosystem actions.
-	 */
-	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
-	}
-	/**
-	 * Register the routes for ecosystem.
-	 */
-	public function register_routes() {
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base,
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_echosystem_overview' ),
-					'permission_callback' => array( $this, 'get_items_permissions_check' ),
-				),
-			)
-		);
-	}
+    /**
+     * Initialize Ecosystem actions.
+     */
+    public function __construct()
+    {
+        add_action('rest_api_init', [ $this, 'register_routes' ], 10);
+    }
+    /**
+     * Register the routes for ecosystem.
+     */
+    public function register_routes()
+    {
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->rest_base,
+            [
+                [
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => [ $this, 'get_echosystem_overview' ],
+                    'permission_callback' => [ $this, 'get_items_permissions_check' ],
+                ],
+            ]
+        );
+    }
 
-	/**
-	 * This function is used to get all required plugin with activation status
-	 */
-	public function get_echosystem_overview() {
-		$auth_check = $this->aprio_check_authorized_user();
-		if ( $auth_check ) {
-			return self::prepare_error_for_response( 405 );
-		} else {
-			$response_data         = self::prepare_error_for_response( 200 );
-			$response_data['data'] = array(
-				'ecosystem_info' => get_aprio_rest_api_ecosystem_info(),
-			);
-			return wp_send_json( $response_data );
-		}
-	}
+    /**
+     * This function is used to get all required plugin with activation status
+     */
+    public function get_echosystem_overview()
+    {
+        $auth_check = $this->aprio_check_authorized_user();
+        if ($auth_check) {
+            return self::prepare_error_for_response(405);
+        } else {
+            $response_data         = self::prepare_error_for_response(200);
+            $response_data['data'] = [
+                'ecosystem_info' => get_aprio_rest_api_ecosystem_info(),
+            ];
+
+            return wp_send_json($response_data);
+        }
+    }
 }
 new APRIO_REST_Ecosystem_Controller();

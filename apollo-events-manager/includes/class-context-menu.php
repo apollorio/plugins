@@ -9,64 +9,66 @@
  * @version 0.1.0
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-class Apollo_Context_Menu {
+class Apollo_Context_Menu
+{
+    /**
+     * Initialize context menu
+     */
+    public static function init()
+    {
+        add_action('wp_footer', [ __CLASS__, 'render_context_menu' ]);
+        add_action('admin_footer', [ __CLASS__, 'render_context_menu' ]);
+    }
 
-	/**
-	 * Initialize context menu
-	 */
-	public static function init() {
-		add_action( 'wp_footer', array( __CLASS__, 'render_context_menu' ) );
-		add_action( 'admin_footer', array( __CLASS__, 'render_context_menu' ) );
-	}
+    /**
+     * Render context menu HTML
+     */
+    public static function render_context_menu()
+    {
+        // Only render on event pages
+        if (! is_singular('event_listing') && ! is_post_type_archive('event_listing') && ! is_page('eventos')) {
+            return;
+        }
 
-	/**
-	 * Render context menu HTML
-	 */
-	public static function render_context_menu() {
-		// Only render on event pages
-		if ( ! is_singular( 'event_listing' ) && ! is_post_type_archive( 'event_listing' ) && ! is_page( 'eventos' ) ) {
-			return;
-		}
-
-		$is_admin = current_user_can( 'edit_posts' );
-		?>
+        $is_admin = current_user_can('edit_posts');
+        ?>
 		<div id="apollo-context-menu" class="apollo-context-menu" data-motion-context-menu="true" style="display: none;">
 			<div class="context-menu-content">
-				<?php if ( $is_admin ) : ?>
+				<?php if ($is_admin) : ?>
 				<!-- Admin Menu -->
 				<button class="context-menu-item" data-action="copy-url">
 					<i class="ri-link"></i>
-					<span><?php echo esc_html__( 'Copiar URL', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Copiar URL', 'apollo-events-manager'); ?></span>
 				</button>
 				<button class="context-menu-item" data-action="copy-title">
 					<i class="ri-file-copy-line"></i>
-					<span><?php echo esc_html__( 'Copiar Título', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Copiar Título', 'apollo-events-manager'); ?></span>
 				</button>
 				<div class="context-menu-separator"></div>
 				<button class="context-menu-item" data-action="edit">
 					<i class="ri-edit-line"></i>
-					<span><?php echo esc_html__( 'Editar', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Editar', 'apollo-events-manager'); ?></span>
 				</button>
 				<button class="context-menu-item" data-action="duplicate">
 					<i class="ri-file-copy-2-line"></i>
-					<span><?php echo esc_html__( 'Duplicar', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Duplicar', 'apollo-events-manager'); ?></span>
 				</button>
 				<div class="context-menu-separator"></div>
 				<button class="context-menu-item danger" data-action="delete">
 					<i class="ri-delete-bin-line"></i>
-					<span><?php echo esc_html__( 'Excluir', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Excluir', 'apollo-events-manager'); ?></span>
 				</button>
 				<?php else : ?>
 				<!-- User/Guest Menu -->
 				<button class="context-menu-item" data-action="copy-url">
 					<i class="ri-link"></i>
-					<span><?php echo esc_html__( 'Copiar URL', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Copiar URL', 'apollo-events-manager'); ?></span>
 				</button>
 				<button class="context-menu-item" data-action="share">
 					<i class="ri-share-line"></i>
-					<span><?php echo esc_html__( 'Compartilhar', 'apollo-events-manager' ); ?></span>
+					<span><?php echo esc_html__('Compartilhar', 'apollo-events-manager'); ?></span>
 				</button>
 				<?php endif; ?>
 			</div>
@@ -141,9 +143,8 @@ class Apollo_Context_Menu {
 		}
 		</style>
 		<?php
-	}
+    }
 }
 
 // Initialize
 Apollo_Context_Menu::init();
-

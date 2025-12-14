@@ -8,33 +8,33 @@
 
 declare(strict_types=1);
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Motion.dev animation library.
-		wp_enqueue_script(
-			'motion-one',
-			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			[],
-			'1.0.0',
-			true
-		);
+        // Motion.dev animation library.
+        wp_enqueue_script(
+            'motion-one',
+            'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
+            [],
+            '1.0.0',
+            true
+        );
 
-		// Inline styles.
-		$cena_css = '
+        // Inline styles.
+        $cena_css = '
 			.aprioEXP-body { font-family: system-ui, -apple-system, sans-serif; }
 			.aprioEXP-card-shell {
 				border-radius: 0.75rem;
@@ -44,14 +44,14 @@ add_action(
 				backdrop-filter: blur(10px);
 			}
 		';
-		wp_add_inline_style( 'apollo-uni-css', $cena_css );
-	},
-	10
+        wp_add_inline_style('apollo-uni-css', $cena_css);
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 ?>
 <!DOCTYPE html>

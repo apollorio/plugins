@@ -1,16 +1,19 @@
 <?php
+
 namespace Apollo\Modules\Badges;
 
 /**
  * Badges Service Provider (stub)
  */
-class BadgesServiceProvider {
+class BadgesServiceProvider
+{
+    public function register()
+    {
+        // TODO: register badge services, toggle management
+    }
 
-	public function register() {
-		// TODO: register badge services, toggle management
-	}
-
-	public function boot() {
-		// TODO: setup badge triggers, BadgeOS integration
-	}
+    public function boot()
+    {
+        // TODO: setup badge triggers, BadgeOS integration
+    }
 }

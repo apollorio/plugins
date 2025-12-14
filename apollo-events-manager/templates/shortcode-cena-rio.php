@@ -7,66 +7,66 @@
  * @package Apollo_Events_Manager
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '../includes/helpers/event-data-helper.php';
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
 
 // Enqueue Apollo Global Assets (UNI.CSS + base.js)
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+if (function_exists('apollo_enqueue_global_assets')) {
+    apollo_enqueue_global_assets();
 } else {
-	// Fallback if Apollo Core not active
-	wp_enqueue_style( 'apollo-uni', 'https://assets.apollo.rio.br/uni.css', array(), null );
+    // Fallback if Apollo Core not active
+    wp_enqueue_style('apollo-uni', 'https://assets.apollo.rio.br/uni.css', [], null);
 }
 // Tailwind for utility classes
-wp_enqueue_script( 'tailwind', 'https://cdn.tailwindcss.com', array(), null, true );
+wp_enqueue_script('tailwind', 'https://cdn.tailwindcss.com', [], null, true);
 
 // Get all events for calendar
 $all_events = get_posts(
-	array(
-		'post_type'      => 'event_listing',
-		'posts_per_page' => -1,
-		'post_status'    => 'publish',
-		'meta_query'     => array(
-			array(
-				'key'     => '_event_start_date',
-				'compare' => 'EXISTS',
-			),
-		),
-	)
+    [
+        'post_type'      => 'event_listing',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'meta_query'     => [
+            [
+                'key'     => '_event_start_date',
+                'compare' => 'EXISTS',
+            ],
+        ],
+    ]
 );
 
 // Build events array by date
-$events_by_date = array();
-foreach ( $all_events as $event ) {
-	$event_date = get_post_meta( $event->ID, '_event_start_date', true );
-	if ( $event_date ) {
-		$date_key = date( 'Y-m-d', strtotime( $event_date ) );
-		if ( ! isset( $events_by_date[ $date_key ] ) ) {
-			$events_by_date[ $date_key ] = array();
-		}
+$events_by_date = [];
+foreach ($all_events as $event) {
+    $event_date = get_post_meta($event->ID, '_event_start_date', true);
+    if ($event_date) {
+        $date_key = date('Y-m-d', strtotime($event_date));
+        if (! isset($events_by_date[ $date_key ])) {
+            $events_by_date[ $date_key ] = [];
+        }
 
-		$local      = Apollo_Event_Data_Helper::get_local_data( $event->ID );
-		$local_name = $local ? $local['name'] : '';
+        $local      = Apollo_Event_Data_Helper::get_local_data($event->ID);
+        $local_name = $local ? $local['name'] : '';
 
-		$events_by_date[ $date_key ][] = array(
-			'id'        => $event->ID,
-			'title'     => $event->post_title,
-			'venue'     => $local_name ?: 'Local a definir',
-			'time'      => date_i18n( 'H:i', strtotime( $event_date ) ) . ' · ' . date_i18n( 'D', strtotime( $event_date ) ),
-			'tag'       => 'Evento',
-			'status'    => 'confirmed',
-			'ticket'    => get_post_meta( $event->ID, '_event_ticket_url', true ),
-			'permalink' => get_permalink( $event->ID ),
-		);
-	}
+        $events_by_date[ $date_key ][] = [
+            'id'        => $event->ID,
+            'title'     => $event->post_title,
+            'venue'     => $local_name ?: 'Local a definir',
+            'time'      => date_i18n('H:i', strtotime($event_date)) . ' · ' . date_i18n('D', strtotime($event_date)),
+            'tag'       => 'Evento',
+            'status'    => 'confirmed',
+            'ticket'    => get_post_meta($event->ID, '_event_ticket_url', true),
+            'permalink' => get_permalink($event->ID),
+        ];
+    }
 }//end foreach
 
 // Get current month
-$current_month = isset( $_GET['month'] ) ? sanitize_text_field( $_GET['month'] ) : date( 'Y-m' );
-$selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) : date( 'Y-m-d' );
+$current_month = isset($_GET['month']) ? sanitize_text_field($_GET['month']) : date('Y-m');
+$selected_date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : date('Y-m-d');
 ?>
 
 <!DOCTYPE html>
@@ -83,10 +83,10 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 	<header class="sticky top-0 z-50 h-14 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
 		<div class="h-full px-3 flex items-center justify-between">
 		<div class="flex items-center gap-2.5">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="md:hidden h-9 w-9 flex items-center justify-center rounded-full hover:bg-neutral-100">
+			<a href="<?php echo esc_url(home_url('/')); ?>" class="md:hidden h-9 w-9 flex items-center justify-center rounded-full hover:bg-neutral-100">
 			<i class="ri-arrow-left-line text-slate-700"></i>
 			</a>
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="h-9 w-9 rounded-full bg-neutral-900 flex items-center justify-center">
+			<a href="<?php echo esc_url(home_url('/')); ?>" class="h-9 w-9 rounded-full bg-neutral-900 flex items-center justify-center">
 			<i class="ri-slack-fill text-white text-[21px]"></i>
 			</a>
 			<div>
@@ -120,7 +120,7 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 				<button class="h-6 w-6 flex items-center justify-center rounded-full hover:bg-neutral-100" id="prevMonth">
 				<i class="ri-arrow-left-s-line text-slate-600"></i>
 				</button>
-				<span id="month-label" class="text-[9px] uppercase font-semibold text-slate-900 px-0"><?php echo date_i18n( 'M Y', strtotime( $current_month . '-01' ) ); ?></span>
+				<span id="month-label" class="text-[9px] uppercase font-semibold text-slate-900 px-0"><?php echo date_i18n('M Y', strtotime($current_month . '-01')); ?></span>
 				<button class="h-6 w-6 flex items-center justify-center rounded-full hover:bg-neutral-100" id="nextMonth">
 				<i class="ri-arrow-right-s-line text-slate-600"></i>
 				</button>
@@ -155,8 +155,8 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 				Oficial
 				</span>
 			</div>
-			<?php if ( is_user_logged_in() ) : ?>
-			<a href="<?php echo esc_url( home_url( '/submit-event/' ) ); ?>" class="px-3 py-1.5 bg-stone-900 text-white rounded-full text-[11px] font-medium hover:bg-stone-800">
+			<?php if (is_user_logged_in()) : ?>
+			<a href="<?php echo esc_url(home_url('/submit-event/')); ?>" class="px-3 py-1.5 bg-stone-900 text-white rounded-full text-[11px] font-medium hover:bg-stone-800">
 				<i class="ri-add-line mr-1"></i>Novo Evento
 			</a>
 			<?php endif; ?>
@@ -167,7 +167,7 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 		<section id="events-card" class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4">
 			<div class="flex items-start justify-between mb-4">
 			<div>
-				<h2 id="selected-day" class="text-[17px] font-bold text-slate-900"><?php echo date_i18n( 'l · j \d\e F \d\e Y', strtotime( $selected_date ) ); ?></h2>
+				<h2 id="selected-day" class="text-[17px] font-bold text-slate-900"><?php echo date_i18n('l · j \d\e F \d\e Y', strtotime($selected_date)); ?></h2>
 				<p class="text-[13px] text-slate-500 mt-0.5">Eventos previstos e confirmados</p>
 			</div>
 			<button class="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 text-[12px] text-slate-600 hover:bg-neutral-50">
@@ -177,25 +177,25 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 			</div>
 			<div id="events-list" class="space-y-3">
 			<?php
-			$day_events = isset( $events_by_date[ $selected_date ] ) ? $events_by_date[ $selected_date ] : array();
-			if ( empty( $day_events ) ) :
-				?>
+            $day_events = isset($events_by_date[ $selected_date ]) ? $events_by_date[ $selected_date ] : [];
+if (empty($day_events)) :
+    ?>
 			<div class="pb-6 pt-8 gap-[10px] rounded-xl bg-neutral-50 border border-dashed border-slate-200 text-center">
 				<i class="ri-calendar-line text-[42px] text-slate-300 mt-4 mb-4"></i>
 				<p class="text-[16px] text-slate-600 font-semibold">Vamo agitar?!</p>
 				<p class="text-[12px] pt-5 text-slate-600 font-medium">Nenhum registro até o momento para este dia..</p>
-				<?php if ( is_user_logged_in() ) : ?>
+				<?php if (is_user_logged_in()) : ?>
 				<p class="text-[11px] text-slate-500 mt-1">Use <b>"+ Novo Evento"</b> para marcar datas previstas</p>
 				<?php endif; ?>
 			</div>
 			<?php else : ?>
-				<?php foreach ( $day_events as $ev ) : ?>
-				<article class="p-3 rounded-xl border border-orange-400 bg-orange-50/50" data-id="<?php echo esc_attr( $ev['id'] ); ?>">
+				<?php foreach ($day_events as $ev) : ?>
+				<article class="p-3 rounded-xl border border-orange-400 bg-orange-50/50" data-id="<?php echo esc_attr($ev['id']); ?>">
 				<div class="flex items-start justify-between gap-2 mb-2">
 					<div class="flex-1 min-w-0">
-					<h3 class="text-[13px] font-semibold text-slate-900 truncate"><?php echo esc_html( $ev['title'] ); ?></h3>
-					<p class="text-[12px] text-slate-600 mt-0.5"><?php echo esc_html( $ev['venue'] ); ?> · <?php echo esc_html( $ev['time'] ); ?></p>
-					<p class="text-[11px] text-slate-500 mt-1"><?php echo esc_html( $ev['tag'] ); ?></p>
+					<h3 class="text-[13px] font-semibold text-slate-900 truncate"><?php echo esc_html($ev['title']); ?></h3>
+					<p class="text-[12px] text-slate-600 mt-0.5"><?php echo esc_html($ev['venue']); ?> · <?php echo esc_html($ev['time']); ?></p>
+					<p class="text-[11px] text-slate-500 mt-1"><?php echo esc_html($ev['tag']); ?></p>
 					</div>
 					<span class="px-2 py-0.5 rounded-full bg-neutral-900 text-white text-[10px] font-regular uppercase flex items-center gap-1">
 					<i class="ri-wireless-charging-fill align-sub text-[21px]"></i>Confirmado
@@ -205,12 +205,12 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 					<span class="text-[12px] text-slate-400 flex items-center gap-1">
 					<i class="ri-eye-off-line"></i>Apenas cena::rio
 					</span>
-					<?php if ( $ev['ticket'] ) : ?>
-					<a href="<?php echo esc_url( $ev['ticket'] ); ?>" target="_blank" class="px-3 py-1.5 bg-neutral-900 text-white rounded-full text-[13px] font-medium hover:bg-neutral-800 inline-flex items-center">
+					<?php if ($ev['ticket']) : ?>
+					<a href="<?php echo esc_url($ev['ticket']); ?>" target="_blank" class="px-3 py-1.5 bg-neutral-900 text-white rounded-full text-[13px] font-medium hover:bg-neutral-800 inline-flex items-center">
 					<i class="ri-ticket-2-line mr-1"></i>Ingressos
 					</a>
 					<?php else : ?>
-					<a href="<?php echo esc_url( $ev['permalink'] ); ?>" class="px-3 py-1.5 border border-slate-300 rounded-full text-[13px] font-medium hover:bg-neutral-50 inline-flex items-center">
+					<a href="<?php echo esc_url($ev['permalink']); ?>" class="px-3 py-1.5 border border-slate-300 rounded-full text-[13px] font-medium hover:bg-neutral-50 inline-flex items-center">
 					<i class="ri-arrow-right-line mr-1"></i>Ver evento
 					</a>
 					<?php endif; ?>
@@ -233,8 +233,8 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 		<i class="ri-bar-chart-line text-xl"></i>
 		<span class="text-[9px]">Stats</span>
 		</button>
-		<?php if ( is_user_logged_in() ) : ?>
-		<a href="<?php echo esc_url( home_url( '/submit-event/' ) ); ?>" id="btn-add-mobile" class="h-12 w-12 -mt-8 rounded-full bg-neutral-900 text-white flex items-center justify-center shadow-lg">
+		<?php if (is_user_logged_in()) : ?>
+		<a href="<?php echo esc_url(home_url('/submit-event/')); ?>" id="btn-add-mobile" class="h-12 w-12 -mt-8 rounded-full bg-neutral-900 text-white flex items-center justify-center shadow-lg">
 		<i class="ri-add-line text-2xl"></i>
 		</a>
 		<?php endif; ?>
@@ -250,9 +250,9 @@ $selected_date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) :
 	</div>
 
 	<script>
-	const events = <?php echo json_encode( $events_by_date ); ?>;
-	let selectedDate = <?php echo json_encode( $selected_date ); ?>;
-	let currentMonth = <?php echo json_encode( $current_month ); ?>;
+	const events = <?php echo json_encode($events_by_date); ?>;
+	let selectedDate = <?php echo json_encode($selected_date); ?>;
+	let currentMonth = <?php echo json_encode($current_month); ?>;
 	const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 	const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Badges and Gamification Configuration
  */

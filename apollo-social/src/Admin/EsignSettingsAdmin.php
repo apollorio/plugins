@@ -20,24 +20,24 @@ class EsignSettingsAdmin {
 	/**
 	 * Option names
 	 */
-	const OPTION_ENABLE       = 'apollo_esign_enable';
-	const OPTION_API_KEY      = 'qnhujcGg4JwMgpM6K99Ds2yRyK3B8aeMmpYK5rZSRKx';
-	const OPTION_API_BASE_URL = 'apollo_esign_api_base_url';
+	public const OPTION_ENABLE       = 'apollo_esign_enable';
+	public const OPTION_API_KEY      = 'qnhujcGg4JwMgpM6K99Ds2yRyK3B8aeMmpYK5rZSRKx';
+	public const OPTION_API_BASE_URL = 'apollo_esign_api_base_url';
 
 	/**
 	 * Settings group name
 	 */
-	const SETTINGS_GROUP = 'apollo_esign_settings';
+	public const SETTINGS_GROUP = 'apollo_esign_settings';
 
 	/**
 	 * Page slug
 	 */
-	const PAGE_SLUG = 'apollo-social-esign-settings';
+	public const PAGE_SLUG = 'apollo-social-esign-settings';
 
 	/**
 	 * Default API base URL
 	 */
-	const DEFAULT_API_BASE_URL = 'https://api.docuseal.com';
+	public const DEFAULT_API_BASE_URL = 'https://api.docuseal.com';
 
 	/**
 	 * Constructor

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FASE 2: Likes Endpoint
  *
@@ -42,6 +43,7 @@ class LikesEndpoint {
 						},
 						'validate_callback' => function ( $param ) {
 							$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+
 							return in_array( $param, $allowed_types, true );
 						},
 					),
@@ -76,6 +78,7 @@ class LikesEndpoint {
 														},
 														'validate_callback' => function ( $param ) {
 															$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+
 															return in_array( $param, $allowed_types, true );
 														},
 													),

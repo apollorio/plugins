@@ -8,7 +8,7 @@
  * @version 2.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * Render the events dashboard layout with ShadCN styling
@@ -16,20 +16,21 @@ defined( 'ABSPATH' ) || exit;
  * @param array $args Configuration arguments
  * @return void
  */
-function apollo_events_render_dashboard_layout( $args = array() ) {
-	$defaults = array(
-		'title'            => __( 'Dashboard de Eventos', 'apollo-events-manager' ),
-		'subtitle'         => __( 'Gerencie seus eventos e visualize estatísticas', 'apollo-events-manager' ),
-		'sidebar'          => true,
-		'content_callback' => null,
-	);
+function apollo_events_render_dashboard_layout($args = [])
+{
+    $defaults = [
+        'title'            => __('Dashboard de Eventos', 'apollo-events-manager'),
+        'subtitle'         => __('Gerencie seus eventos e visualize estatísticas', 'apollo-events-manager'),
+        'sidebar'          => true,
+        'content_callback' => null,
+    ];
 
-	$args = wp_parse_args( $args, $defaults );
-	?>
+    $args = wp_parse_args($args, $defaults);
+    ?>
 	<!DOCTYPE html>
 	<html <?php language_attributes(); ?>>
 	<head>
-		<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<meta charset="<?php bloginfo('charset'); ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<?php wp_head(); ?>
 		
@@ -721,19 +722,19 @@ function apollo_events_render_dashboard_layout( $args = array() ) {
 	</head>
 	<body class="apollo-events-dashboard-body">
 		<div class="apollo-events-dashboard">
-			<?php if ( $args['sidebar'] ) : ?>
+			<?php if ($args['sidebar']) : ?>
 				<?php apollo_events_render_sidebar(); ?>
 			<?php endif; ?>
 			
 			<main class="dashboard-main">
-				<?php apollo_events_render_header( $args ); ?>
+				<?php apollo_events_render_header($args); ?>
 				
 				<div class="dashboard-content">
 					<?php
-					if ( is_callable( $args['content_callback'] ) ) {
-						call_user_func( $args['content_callback'] );
-					}
-					?>
+                    if (is_callable($args['content_callback'])) {
+                        call_user_func($args['content_callback']);
+                    }
+    ?>
 				</div>
 			</main>
 		</div>
@@ -761,53 +762,54 @@ function apollo_events_render_dashboard_layout( $args = array() ) {
 /**
  * Render the dashboard sidebar
  */
-function apollo_events_render_sidebar() {
-	$current_user = wp_get_current_user();
-	$current_page = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : 'overview';
+function apollo_events_render_sidebar()
+{
+    $current_user = wp_get_current_user();
+    $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : 'overview';
 
-	$nav_items = array(
-		'main'       => array(
-			'title' => __( 'Principal', 'apollo-events-manager' ),
-			'items' => array(
-				array(
-					'id'    => 'overview',
-					'label' => __( 'Visão Geral', 'apollo-events-manager' ),
-					'url'   => add_query_arg( 'page', 'overview', get_permalink() ),
-					'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
-				),
-				array(
-					'id'    => 'events',
-					'label' => __( 'Meus Eventos', 'apollo-events-manager' ),
-					'url'   => add_query_arg( 'page', 'events', get_permalink() ),
-					'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-				),
-				array(
-					'id'    => 'statistics',
-					'label' => __( 'Estatísticas', 'apollo-events-manager' ),
-					'url'   => add_query_arg( 'page', 'statistics', get_permalink() ),
-					'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
-				),
-			),
-		),
-		'management' => array(
-			'title' => __( 'Gerenciamento', 'apollo-events-manager' ),
-			'items' => array(
-				array(
-					'id'    => 'favorites',
-					'label' => __( 'Favoritos', 'apollo-events-manager' ),
-					'url'   => add_query_arg( 'page', 'favorites', get_permalink() ),
-					'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-				),
-				array(
-					'id'    => 'settings',
-					'label' => __( 'Configurações', 'apollo-events-manager' ),
-					'url'   => add_query_arg( 'page', 'settings', get_permalink() ),
-					'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-				),
-			),
-		),
-	);
-	?>
+    $nav_items = [
+        'main' => [
+            'title' => __('Principal', 'apollo-events-manager'),
+            'items' => [
+                [
+                    'id'    => 'overview',
+                    'label' => __('Visão Geral', 'apollo-events-manager'),
+                    'url'   => add_query_arg('page', 'overview', get_permalink()),
+                    'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+                ],
+                [
+                    'id'    => 'events',
+                    'label' => __('Meus Eventos', 'apollo-events-manager'),
+                    'url'   => add_query_arg('page', 'events', get_permalink()),
+                    'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+                ],
+                [
+                    'id'    => 'statistics',
+                    'label' => __('Estatísticas', 'apollo-events-manager'),
+                    'url'   => add_query_arg('page', 'statistics', get_permalink()),
+                    'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+                ],
+            ],
+        ],
+        'management' => [
+            'title' => __('Gerenciamento', 'apollo-events-manager'),
+            'items' => [
+                [
+                    'id'    => 'favorites',
+                    'label' => __('Favoritos', 'apollo-events-manager'),
+                    'url'   => add_query_arg('page', 'favorites', get_permalink()),
+                    'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+                ],
+                [
+                    'id'    => 'settings',
+                    'label' => __('Configurações', 'apollo-events-manager'),
+                    'url'   => add_query_arg('page', 'settings', get_permalink()),
+                    'icon'  => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+                ],
+            ],
+        ],
+    ];
+    ?>
 	<aside class="dashboard-sidebar">
 		<div class="sidebar-header">
 			<div class="sidebar-logo">A</div>
@@ -815,14 +817,14 @@ function apollo_events_render_sidebar() {
 		</div>
 		
 		<nav class="sidebar-nav">
-			<?php foreach ( $nav_items as $group_key => $group ) : ?>
+			<?php foreach ($nav_items as $group_key => $group) : ?>
 				<div class="nav-group">
-					<div class="nav-group-title"><?php echo esc_html( $group['title'] ); ?></div>
-					<?php foreach ( $group['items'] as $item ) : ?>
-						<a href="<?php echo esc_url( $item['url'] ); ?>" 
+					<div class="nav-group-title"><?php echo esc_html($group['title']); ?></div>
+					<?php foreach ($group['items'] as $item) : ?>
+						<a href="<?php echo esc_url($item['url']); ?>" 
 							class="nav-item <?php echo $current_page === $item['id'] ? 'active' : ''; ?>">
 							<?php echo $item['icon']; ?>
-							<span><?php echo esc_html( $item['label'] ); ?></span>
+							<span><?php echo esc_html($item['label']); ?></span>
 						</a>
 					<?php endforeach; ?>
 				</div>
@@ -832,11 +834,11 @@ function apollo_events_render_sidebar() {
 		<div class="sidebar-footer">
 			<div class="user-menu">
 				<div class="user-avatar">
-					<?php echo get_avatar( $current_user->ID, 32 ); ?>
+					<?php echo get_avatar($current_user->ID, 32); ?>
 				</div>
 				<div class="user-info">
-					<div class="user-name"><?php echo esc_html( $current_user->display_name ); ?></div>
-					<div class="user-email"><?php echo esc_html( $current_user->user_email ); ?></div>
+					<div class="user-name"><?php echo esc_html($current_user->display_name); ?></div>
+					<div class="user-email"><?php echo esc_html($current_user->user_email); ?></div>
 				</div>
 			</div>
 		</div>
@@ -847,8 +849,9 @@ function apollo_events_render_sidebar() {
 /**
  * Render the dashboard header
  */
-function apollo_events_render_header( $args ) {
-	?>
+function apollo_events_render_header($args)
+{
+    ?>
 	<header class="dashboard-header">
 		<div class="header-left">
 			<button class="menu-toggle" aria-label="Toggle menu">
@@ -860,9 +863,9 @@ function apollo_events_render_header( $args ) {
 			</button>
 			
 			<nav class="breadcrumb">
-				<a href="<?php echo esc_url( home_url() ); ?>" class="breadcrumb-item">Home</a>
+				<a href="<?php echo esc_url(home_url()); ?>" class="breadcrumb-item">Home</a>
 				<span class="breadcrumb-separator">/</span>
-				<span class="breadcrumb-current"><?php echo esc_html( $args['title'] ); ?></span>
+				<span class="breadcrumb-current"><?php echo esc_html($args['title']); ?></span>
 			</nav>
 		</div>
 		
@@ -874,12 +877,12 @@ function apollo_events_render_header( $args ) {
 				</svg>
 			</button>
 			
-			<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=event_listing' ) ); ?>" class="btn btn-primary btn-sm">
+			<a href="<?php echo esc_url(admin_url('post-new.php?post_type=event_listing')); ?>" class="btn btn-primary btn-sm">
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<line x1="12" y1="5" x2="12" y2="19"/>
 					<line x1="5" y1="12" x2="19" y2="12"/>
 				</svg>
-				<?php echo esc_html__( 'Novo Evento', 'apollo-events-manager' ); ?>
+				<?php echo esc_html__('Novo Evento', 'apollo-events-manager'); ?>
 			</a>
 		</div>
 	</header>

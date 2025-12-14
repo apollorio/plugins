@@ -1,4 +1,5 @@
 <?php
+
 namespace Apollo\Application\Classifieds;
 
 /**

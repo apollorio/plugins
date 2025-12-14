@@ -12,14 +12,14 @@
  * @since 0.2.0
  */
 
-pwa_get_header( 'error' );
+pwa_get_header('error');
 
 ?>
 <main>
-	<h1><?php esc_html_e( 'Oops! Something went wrong.', 'pwa' ); ?></h1>
+	<h1><?php esc_html_e('Oops! Something went wrong.', 'pwa'); ?></h1>
 	<?php wp_service_worker_error_message_placeholder(); ?>
 	<?php wp_service_worker_error_details_template(); ?>
 </main>
 <?php
 
-pwa_get_footer( 'error' );
+pwa_get_footer('error');

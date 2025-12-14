@@ -17,21 +17,21 @@
  * ============================================
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Determine the requested URL from POST or GET.
 $requested_url = '';
-if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'POST' && ! empty( $_POST['target'] ) ) {
-	$requested_url = esc_url_raw( wp_unslash( $_POST['target'] ) );
-} elseif ( ! empty( $_GET['target'] ) ) {
-	$requested_url = esc_url_raw( wp_unslash( $_GET['target'] ) );
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST' && ! empty($_POST['target'])) {
+    $requested_url = esc_url_raw(wp_unslash($_POST['target']));
+} elseif (! empty($_GET['target'])) {
+    $requested_url = esc_url_raw(wp_unslash($_GET['target']));
 }
 
 // Fallback if no URL provided.
-if ( empty( $requested_url ) ) {
-	$requested_url = home_url();
+if (empty($requested_url)) {
+    $requested_url = home_url();
 }
 
 // ============================================
@@ -43,96 +43,96 @@ $og_image    = '';
 $og_title    = '';
 
 $response = wp_remote_get(
-	$requested_url,
-	array(
-		'timeout'    => 10,
-		'user-agent' => 'Apollo-PWA-Redirector/1.0 (+' . home_url() . ')',
-		'sslverify'  => false, // Allow self-signed certs in local dev.
-	)
+    $requested_url,
+    [
+        'timeout'    => 10,
+        'user-agent' => 'Apollo-PWA-Redirector/1.0 (+' . home_url() . ')',
+        'sslverify'  => false, // Allow self-signed certs in local dev.
+    ]
 );
 
-if ( ! is_wp_error( $response ) ) {
-	$html = wp_remote_retrieve_body( $response );
+if (! is_wp_error($response)) {
+    $html = wp_remote_retrieve_body($response);
 
-	// Extract <title>.
-	if ( preg_match( '/<title[^>]*>([^<]*)<\/title>/i', $html, $matches ) ) {
-		$title = trim( wp_strip_all_tags( $matches[1] ) );
-	}
+    // Extract <title>.
+    if (preg_match('/<title[^>]*>([^<]*)<\/title>/i', $html, $matches)) {
+        $title = trim(wp_strip_all_tags($matches[1]));
+    }
 
-	// Extract meta description.
-	if ( preg_match( '/<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)/i', $html, $matches ) ) {
-		$description = trim( wp_strip_all_tags( $matches[1] ) );
-	}
-	// Alternative order: content before name.
-	if ( empty( $description ) && preg_match( '/<meta\s+content=["\']([^"\']*)["\'\s]+name=["\']description["\']/i', $html, $matches ) ) {
-		$description = trim( wp_strip_all_tags( $matches[1] ) );
-	}
+    // Extract meta description.
+    if (preg_match('/<meta\s+name=["\']description["\']\s+content=["\']([^"\']*)/i', $html, $matches)) {
+        $description = trim(wp_strip_all_tags($matches[1]));
+    }
+    // Alternative order: content before name.
+    if (empty($description) && preg_match('/<meta\s+content=["\']([^"\']*)["\'\s]+name=["\']description["\']/i', $html, $matches)) {
+        $description = trim(wp_strip_all_tags($matches[1]));
+    }
 
-	// Extract og:image.
-	if ( preg_match( '/<meta\s+property=["\']og:image["\']\s+content=["\']([^"\']*)/i', $html, $matches ) ) {
-		$og_image = trim( esc_url_raw( $matches[1] ) );
-	}
-	// Alternative order.
-	if ( empty( $og_image ) && preg_match( '/<meta\s+content=["\']([^"\']*)["\'\s]+property=["\']og:image["\']/i', $html, $matches ) ) {
-		$og_image = trim( esc_url_raw( $matches[1] ) );
-	}
+    // Extract og:image.
+    if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\']([^"\']*)/i', $html, $matches)) {
+        $og_image = trim(esc_url_raw($matches[1]));
+    }
+    // Alternative order.
+    if (empty($og_image) && preg_match('/<meta\s+content=["\']([^"\']*)["\'\s]+property=["\']og:image["\']/i', $html, $matches)) {
+        $og_image = trim(esc_url_raw($matches[1]));
+    }
 
-	// Extract og:title as fallback.
-	if ( preg_match( '/<meta\s+property=["\']og:title["\']\s+content=["\']([^"\']*)/i', $html, $matches ) ) {
-		$og_title = trim( wp_strip_all_tags( $matches[1] ) );
-	}
+    // Extract og:title as fallback.
+    if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\']([^"\']*)/i', $html, $matches)) {
+        $og_title = trim(wp_strip_all_tags($matches[1]));
+    }
 
-	// Use og:title if no <title> found.
-	if ( empty( $title ) && ! empty( $og_title ) ) {
-		$title = $og_title;
-	}
+    // Use og:title if no <title> found.
+    if (empty($title) && ! empty($og_title)) {
+        $title = $og_title;
+    }
 
-	// Extract twitter:image as fallback.
-	if ( empty( $og_image ) && preg_match( '/<meta\s+(?:name|property)=["\']twitter:image["\']\s+content=["\']([^"\']*)/i', $html, $matches ) ) {
-		$og_image = trim( esc_url_raw( $matches[1] ) );
-	}
+    // Extract twitter:image as fallback.
+    if (empty($og_image) && preg_match('/<meta\s+(?:name|property)=["\']twitter:image["\']\s+content=["\']([^"\']*)/i', $html, $matches)) {
+        $og_image = trim(esc_url_raw($matches[1]));
+    }
 }
 
 // Fallback title.
-if ( empty( $title ) ) {
-	$title = get_bloginfo( 'name' );
+if (empty($title)) {
+    $title = get_bloginfo('name');
 }
 
 // ============================================
 // DEVICE/PWA DETECTION
 // ============================================
-$is_pwa    = function_exists( 'apollo_is_pwa' ) ? apollo_is_pwa() : false;
-$is_mobile = function_exists( 'apollo_is_mobile' ) ? apollo_is_mobile() : wp_is_mobile();
+$is_pwa    = function_exists('apollo_is_pwa') ? apollo_is_pwa() : false;
+$is_mobile = function_exists('apollo_is_mobile') ? apollo_is_mobile() : wp_is_mobile();
 
-$ua         = isset( $_SERVER['HTTP_USER_AGENT'] ) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : '';
-$is_android = $is_mobile && strpos( $ua, 'android' ) !== false;
-$is_ios     = $is_mobile && ( strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipad' ) !== false );
+$ua         = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']))) : '';
+$is_android = $is_mobile && strpos($ua, 'android') !== false;
+$is_ios     = $is_mobile && (strpos($ua, 'iphone') !== false || strpos($ua, 'ipad') !== false);
 
 // ============================================
 // DETERMINE IFRAME/REDIRECT SOURCE
 // ============================================
-if ( $is_pwa ) {
-	// Already in PWA standalone mode - load the requested content.
-	$frame_src = $requested_url;
-} elseif ( $is_android ) {
-	// Android browser - show Android PWA install page.
-	$frame_src = 'https://assets.apollo.rio/pages/android/index.html';
-} elseif ( $is_ios ) {
-	// iOS browser - show iOS PWA install page.
-	$frame_src = 'https://assets.apollo.rio/pages/ios/index.html';
+if ($is_pwa) {
+    // Already in PWA standalone mode - load the requested content.
+    $frame_src = $requested_url;
+} elseif ($is_android) {
+    // Android browser - show Android PWA install page.
+    $frame_src = 'https://assets.apollo.rio/pages/android/index.html';
+} elseif ($is_ios) {
+    // iOS browser - show iOS PWA install page.
+    $frame_src = 'https://assets.apollo.rio/pages/ios/index.html';
 } else {
-	// Desktop or unknown - show the requested content directly.
-	$frame_src = $requested_url;
+    // Desktop or unknown - show the requested content directly.
+    $frame_src = $requested_url;
 }
 
 // Allow filtering the frame source.
-$frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array(
-	'requested_url' => $requested_url,
-	'is_pwa'        => $is_pwa,
-	'is_mobile'     => $is_mobile,
-	'is_android'    => $is_android,
-	'is_ios'        => $is_ios,
-) );
+$frame_src = apply_filters('apollo_pwa_redirector_frame_src', $frame_src, [
+    'requested_url' => $requested_url,
+    'is_pwa'        => $is_pwa,
+    'is_mobile'     => $is_mobile,
+    'is_android'    => $is_android,
+    'is_ios'        => $is_ios,
+]);
 
 // ============================================
 // OUTPUT THE HTML PAGE
@@ -143,16 +143,16 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-	<title><?php echo esc_html( $title ); ?></title>
-	<?php if ( $description ) : ?>
-	<meta name="description" content="<?php echo esc_attr( $description ); ?>">
+	<title><?php echo esc_html($title); ?></title>
+	<?php if ($description) : ?>
+	<meta name="description" content="<?php echo esc_attr($description); ?>">
 	<?php endif; ?>
-	<?php if ( $og_image ) : ?>
-	<meta property="og:image" content="<?php echo esc_url( $og_image ); ?>">
-	<meta name="twitter:image" content="<?php echo esc_url( $og_image ); ?>">
+	<?php if ($og_image) : ?>
+	<meta property="og:image" content="<?php echo esc_url($og_image); ?>">
+	<meta name="twitter:image" content="<?php echo esc_url($og_image); ?>">
 	<?php endif; ?>
-	<meta property="og:title" content="<?php echo esc_attr( $title ); ?>">
-	<meta property="og:url" content="<?php echo esc_url( $requested_url ); ?>">
+	<meta property="og:title" content="<?php echo esc_attr($title); ?>">
+	<meta property="og:url" content="<?php echo esc_url($requested_url); ?>">
 	<meta property="og:type" content="website">
 
 	<!-- PWA Meta Tags -->
@@ -241,21 +241,21 @@ $frame_src = apply_filters( 'apollo_pwa_redirector_frame_src', $frame_src, array
 </head>
 <body>
 	<!-- Loading indicator -->
-	<div class="apollo-loading" id="apollo-loading" aria-label="<?php esc_attr_e( 'Carregando...', 'apollo-rio' ); ?>">
+	<div class="apollo-loading" id="apollo-loading" aria-label="<?php esc_attr_e('Carregando...', 'apollo-rio'); ?>">
 		<div class="apollo-spinner" role="status">
-			<span class="sr-only"><?php esc_html_e( 'Carregando...', 'apollo-rio' ); ?></span>
+			<span class="sr-only"><?php esc_html_e('Carregando...', 'apollo-rio'); ?></span>
 		</div>
 	</div>
 
 	<!-- Main iframe -->
 	<iframe
 		id="apollo-frame"
-		src="<?php echo esc_url( $frame_src ); ?>"
-		title="<?php echo esc_attr( $title ); ?>"
+		src="<?php echo esc_url($frame_src); ?>"
+		title="<?php echo esc_attr($title); ?>"
 		allow="fullscreen; autoplay; encrypted-media; picture-in-picture"
 		allowfullscreen
 		loading="eager"
-		aria-label="<?php echo esc_attr( $title ); ?>"
+		aria-label="<?php echo esc_attr($title); ?>"
 	></iframe>
 
 	<script>

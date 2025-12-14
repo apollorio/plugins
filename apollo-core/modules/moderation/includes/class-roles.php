@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Moderation Roles class
  */
 class Apollo_Moderation_Roles {
+
 	/**
 	 * Initialize
 	 */
@@ -181,7 +183,7 @@ class Apollo_Moderation_Roles {
 		global $wpdb;
 
 		// Get all CPTs that have pending/draft posts
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$cpts_with_pending = $wpdb->get_col(
 			"SELECT DISTINCT post_type FROM {$wpdb->posts}
 			 WHERE post_status IN ('pending', 'draft')

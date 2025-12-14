@@ -7,49 +7,50 @@
  * @package Apollo_Events_Manager
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Get DJ post ID from shortcode attributes or current post
 // $atts is passed from the shortcode handler
-$atts    = isset( $atts ) ? $atts : array();
-$dj_id   = isset( $atts['dj_id'] ) ? absint( $atts['dj_id'] ) : get_the_ID();
-$dj_post = get_post( $dj_id );
+$atts    = isset($atts) ? $atts : [];
+$dj_id   = isset($atts['dj_id']) ? absint($atts['dj_id']) : get_the_ID();
+$dj_post = get_post($dj_id);
 
-if ( ! $dj_post || $dj_post->post_type !== 'event_dj' ) {
-	echo '<p>DJ não encontrado.</p>';
-	return;
+if (! $dj_post || $dj_post->post_type !== 'event_dj') {
+    echo '<p>DJ não encontrado.</p>';
+
+    return;
 }
 
 // Get DJ meta data
-$dj_name = get_post_meta( $dj_id, '_dj_name', true );
-if ( empty( $dj_name ) ) {
-	$dj_name = $dj_post->post_title;
+$dj_name = get_post_meta($dj_id, '_dj_name', true);
+if (empty($dj_name)) {
+    $dj_name = $dj_post->post_title;
 }
 
-$dj_tagline       = get_post_meta( $dj_id, '_dj_tagline', true );
-$dj_roles         = get_post_meta( $dj_id, '_dj_roles', true );
-$bio_excerpt      = get_post_meta( $dj_id, '_bio_excerpt', true );
-$bio_full         = get_post_meta( $dj_id, '_bio_full', true );
-$avatar_url       = get_the_post_thumbnail_url( $dj_id, 'full' );
-$soundcloud_track = get_post_meta( $dj_id, '_soundcloud_track', true );
-$track_title      = get_post_meta( $dj_id, '_track_title', true );
+$dj_tagline       = get_post_meta($dj_id, '_dj_tagline', true);
+$dj_roles         = get_post_meta($dj_id, '_dj_roles', true);
+$bio_excerpt      = get_post_meta($dj_id, '_bio_excerpt', true);
+$bio_full         = get_post_meta($dj_id, '_bio_full', true);
+$avatar_url       = get_the_post_thumbnail_url($dj_id, 'full');
+$soundcloud_track = get_post_meta($dj_id, '_soundcloud_track', true);
+$track_title      = get_post_meta($dj_id, '_track_title', true);
 
 // Get projects (comma-separated or array)
-$projects_raw = get_post_meta( $dj_id, '_dj_projects', true );
-$projects     = is_array( $projects_raw ) ? $projects_raw : ( ! empty( $projects_raw ) ? explode( ',', $projects_raw ) : array() );
+$projects_raw = get_post_meta($dj_id, '_dj_projects', true);
+$projects     = is_array($projects_raw) ? $projects_raw : (! empty($projects_raw) ? explode(',', $projects_raw) : []);
 
 // Get links
-$music_links    = get_post_meta( $dj_id, '_dj_music_links', true );
-$social_links   = get_post_meta( $dj_id, '_dj_social_links', true );
-$asset_links    = get_post_meta( $dj_id, '_dj_asset_links', true );
-$mediakit_url   = get_post_meta( $dj_id, '_mediakit_url', true );
-$more_platforms = get_post_meta( $dj_id, '_more_platforms', true );
+$music_links    = get_post_meta($dj_id, '_dj_music_links', true);
+$social_links   = get_post_meta($dj_id, '_dj_social_links', true);
+$asset_links    = get_post_meta($dj_id, '_dj_asset_links', true);
+$mediakit_url   = get_post_meta($dj_id, '_mediakit_url', true);
+$more_platforms = get_post_meta($dj_id, '_more_platforms', true);
 
 // Default avatar if none set
-if ( empty( $avatar_url ) ) {
-	$avatar_url = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . urlencode( $dj_name );
+if (empty($avatar_url)) {
+    $avatar_url = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' . urlencode($dj_name);
 }
 
 // Default values
@@ -59,10 +60,10 @@ $track_title    = $track_title ?: 'Set de referência em destaque';
 $more_platforms = $more_platforms ?: 'Mixcloud · Beatport · Bandcamp · Resident Advisor · Site oficial';
 
 // Enqueue required scripts
-wp_enqueue_script( 'tailwind', 'https://cdn.tailwindcss.com', array(), null, true );
-wp_enqueue_script( 'motion-one', 'https://unpkg.com/@motionone/dom@10.16.4/dist/index.js', array(), null, true );
-wp_enqueue_script( 'soundcloud-api', 'https://w.soundcloud.com/player/api.js', array(), null, true );
-wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(), null, true );
+wp_enqueue_script('tailwind', 'https://cdn.tailwindcss.com', [], null, true);
+wp_enqueue_script('motion-one', 'https://unpkg.com/@motionone/dom@10.16.4/dist/index.js', [], null, true);
+wp_enqueue_script('soundcloud-api', 'https://w.soundcloud.com/player/api.js', [], null, true);
+wp_enqueue_script('apollo-base', 'https://assets.apollo.rio.br/base.js', [], null, true);
 ?>
 
 <section class="dj-shell">
@@ -73,10 +74,10 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 		<header class="dj-header">
 		<div class="dj-header-left">
 			<span>Apollo::rio · DJ Roster</span>
-			<strong id="dj-header-name"><?php echo esc_html( strtoupper( $dj_name ) ); ?></strong>
+			<strong id="dj-header-name"><?php echo esc_html(strtoupper($dj_name)); ?></strong>
 		</div>
-		<?php if ( $mediakit_url ) : ?>
-		<a href="<?php echo esc_url( $mediakit_url ); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener">
+		<?php if ($mediakit_url) : ?>
+		<a href="<?php echo esc_url($mediakit_url); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener">
 			<i class="ri-clipboard-line"></i>Media kit
 		</a>
 		<?php endif; ?>
@@ -85,30 +86,30 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 		<!-- HERO -->
 		<section class="dj-hero" id="djHero">
 		<div class="dj-hero-name">
-			<div class="dj-tagline" id="dj-tagline"><?php echo esc_html( $dj_tagline ); ?></div>
-			<div class="dj-name-main" id="dj-name"><?php echo esc_html( str_replace( ' ', '<br>', $dj_name ) ); ?></div>
-			<div class="dj-name-sub" id="dj-roles"><?php echo esc_html( $dj_roles ); ?></div>
-			<?php if ( ! empty( $projects ) ) : ?>
+			<div class="dj-tagline" id="dj-tagline"><?php echo esc_html($dj_tagline); ?></div>
+			<div class="dj-name-main" id="dj-name"><?php echo esc_html(str_replace(' ', '<br>', $dj_name)); ?></div>
+			<div class="dj-name-sub" id="dj-roles"><?php echo esc_html($dj_roles); ?></div>
+			<?php if (! empty($projects)) : ?>
 			<div class="dj-projects" id="dj-projects">
-				<?php foreach ( $projects as $i => $project ) : ?>
-				<span style="<?php echo $i === 0 ? 'font-weight: 800;' : ''; ?>"><?php echo esc_html( trim( $project ) ); ?></span>
+				<?php foreach ($projects as $i => $project) : ?>
+				<span style="<?php echo $i === 0 ? 'font-weight: 800;' : ''; ?>"><?php echo esc_html(trim($project)); ?></span>
 			<?php endforeach; ?>
 			</div>
 			<?php endif; ?>
 		</div>
 		
 		<figure class="dj-hero-photo" id="djPhoto">
-			<img id="dj-avatar" src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $dj_name ); ?>">
+			<img id="dj-avatar" src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($dj_name); ?>">
 		</figure>
 	   
 		</section>
 
 		<!-- PLAYER -->
-		<?php if ( $soundcloud_track ) : ?>
+		<?php if ($soundcloud_track) : ?>
 		<section class="dj-player-block" id="djPlayerBlock">
 		<div>
 			<div class="dj-player-title">Feature set para escuta</div>
-			<div class="dj-player-sub" id="track-title"><?php echo esc_html( $track_title ); ?></div>
+			<div class="dj-player-sub" id="track-title"><?php echo esc_html($track_title); ?></div>
 		</div>
 
 		<main class="vinyl-zone">
@@ -126,7 +127,7 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 
 				<div class="vinyl-label">
 				<div class="vinyl-label-text" id="vinylLabelText">
-					<?php echo esc_html( str_replace( ' ', '<br>', strtoupper( $dj_name ) ) ); ?>
+					<?php echo esc_html(str_replace(' ', '<br>', strtoupper($dj_name))); ?>
 				</div>
 				</div>
 
@@ -163,8 +164,8 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 		<section class="dj-info-grid">
 		<div class="dj-info-block">
 			<h2>Sobre</h2>
-			<div class="dj-bio-excerpt" id="dj-bio-excerpt"><?php echo esc_html( $bio_excerpt ?: $bio_full ); ?></div>
-			<?php if ( $bio_full && $bio_full !== $bio_excerpt ) : ?>
+			<div class="dj-bio-excerpt" id="dj-bio-excerpt"><?php echo esc_html($bio_excerpt ?: $bio_full); ?></div>
+			<?php if ($bio_full && $bio_full !== $bio_excerpt) : ?>
 			<button type="button" class="dj-bio-toggle" id="bioToggle">
 			<span>ler bio completa</span>
 			<i class="ri-arrow-right-up-line"></i>
@@ -174,48 +175,48 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 		<div class="dj-info-block">
 			<h2>Links principais</h2>
 
-			<?php if ( $music_links && is_array( $music_links ) ) : ?>
+			<?php if ($music_links && is_array($music_links)) : ?>
 			<div>
 			<div class="dj-links-label">Música</div>
 			<div class="dj-links-row" id="music-links">
-				<?php foreach ( $music_links as $link ) : ?>
-				<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill <?php echo ! empty( $link['active'] ) ? 'active' : ''; ?>" target="_blank" rel="noopener noreferrer">
-					<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+				<?php foreach ($music_links as $link) : ?>
+				<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill <?php echo ! empty($link['active']) ? 'active' : ''; ?>" target="_blank" rel="noopener noreferrer">
+					<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 				</a>
 				<?php endforeach; ?>
 			</div>
 			</div>
 			<?php endif; ?>
 
-			<?php if ( $social_links && is_array( $social_links ) ) : ?>
+			<?php if ($social_links && is_array($social_links)) : ?>
 			<div>
 			<div class="dj-links-label">Social</div>
 			<div class="dj-links-row" id="social-links">
-				<?php foreach ( $social_links as $link ) : ?>
-				<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer">
-					<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+				<?php foreach ($social_links as $link) : ?>
+				<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer">
+					<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 				</a>
 				<?php endforeach; ?>
 			</div>
 			</div>
 			<?php endif; ?>
 
-			<?php if ( $asset_links && is_array( $asset_links ) ) : ?>
+			<?php if ($asset_links && is_array($asset_links)) : ?>
 			<div>
 			<div class="dj-links-label">Assets</div>
 			<div class="dj-links-row" id="asset-links">
-				<?php foreach ( $asset_links as $link ) : ?>
-				<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer">
-					<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+				<?php foreach ($asset_links as $link) : ?>
+				<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer">
+					<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 				</a>
 				<?php endforeach; ?>
 			</div>
 			</div>
 			<?php endif; ?>
 
-			<?php if ( $more_platforms ) : ?>
+			<?php if ($more_platforms) : ?>
 			<p class="more-platforms" id="more-platforms">
-			<span>More platforms:</span> <?php echo esc_html( $more_platforms ); ?>
+			<span>More platforms:</span> <?php echo esc_html($more_platforms); ?>
 			</p>
 			<?php endif; ?>
 		</div>
@@ -231,17 +232,17 @@ wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(
 </section>
 
 <!-- BIO MODAL -->
-<?php if ( $bio_full && $bio_full !== $bio_excerpt ) : ?>
+<?php if ($bio_full && $bio_full !== $bio_excerpt) : ?>
 <div class="dj-bio-modal-backdrop" id="bioBackdrop" data-open="false">
 	<div class="dj-bio-modal">
 	<div class="dj-bio-modal-header">
-		<h3 id="dj-bio-modal-title">Bio completa · <?php echo esc_html( $dj_name ); ?></h3>
+		<h3 id="dj-bio-modal-title">Bio completa · <?php echo esc_html($dj_name); ?></h3>
 		<button type="button" class="dj-bio-modal-close" id="bioClose">
 		<i class="ri-close-line"></i>
 		</button>
 	</div>
 	<div class="dj-bio-modal-body" id="bio-full">
-		<?php echo wpautop( esc_html( $bio_full ) ); ?>
+		<?php echo wpautop(esc_html($bio_full)); ?>
 	</div>
 	</div>
 </div>
@@ -258,20 +259,20 @@ let widgetReady = false;
 // DATA CONFIGURATION (from WordPress)
 // ------------------------------------------------------------
 const DJ_DATA = {
-	name: <?php echo json_encode( $dj_name ); ?>,
-	tagline: <?php echo json_encode( $dj_tagline ); ?>,
-	roles: <?php echo json_encode( $dj_roles ); ?>,
-	avatar: <?php echo json_encode( $avatar_url ); ?>,
-	projects: <?php echo json_encode( $projects ); ?>,
-	bioExcerpt: <?php echo json_encode( $bio_excerpt ?: $bio_full ); ?>,
-	bioFull: <?php echo json_encode( $bio_full ); ?>,
-	soundcloudTrack: <?php echo json_encode( $soundcloud_track ); ?>,
-	trackTitle: <?php echo json_encode( $track_title ); ?>,
-	musicLinks: <?php echo json_encode( $music_links ?: array() ); ?>,
-	socialLinks: <?php echo json_encode( $social_links ?: array() ); ?>,
-	assetLinks: <?php echo json_encode( $asset_links ?: array() ); ?>,
-	mediakitUrl: <?php echo json_encode( $mediakit_url ); ?>,
-	morePlatforms: <?php echo json_encode( $more_platforms ); ?>
+	name: <?php echo json_encode($dj_name); ?>,
+	tagline: <?php echo json_encode($dj_tagline); ?>,
+	roles: <?php echo json_encode($dj_roles); ?>,
+	avatar: <?php echo json_encode($avatar_url); ?>,
+	projects: <?php echo json_encode($projects); ?>,
+	bioExcerpt: <?php echo json_encode($bio_excerpt ?: $bio_full); ?>,
+	bioFull: <?php echo json_encode($bio_full); ?>,
+	soundcloudTrack: <?php echo json_encode($soundcloud_track); ?>,
+	trackTitle: <?php echo json_encode($track_title); ?>,
+	musicLinks: <?php echo json_encode($music_links ?: []); ?>,
+	socialLinks: <?php echo json_encode($social_links ?: []); ?>,
+	assetLinks: <?php echo json_encode($asset_links ?: []); ?>,
+	mediakitUrl: <?php echo json_encode($mediakit_url); ?>,
+	morePlatforms: <?php echo json_encode($more_platforms); ?>
 };
 
 // ------------------------------------------------------------
@@ -299,7 +300,7 @@ function initDJRoster() {
 	const { animate } = window.Motion || {};
 
 	// SoundCloud setup
-	<?php if ( $soundcloud_track ) : ?>
+	<?php if ($soundcloud_track) : ?>
 	const scIframe = document.getElementById("scPlayer");
 	if (scIframe) {
 	const scUrl = encodeURIComponent(DJ_DATA.soundcloudTrack);

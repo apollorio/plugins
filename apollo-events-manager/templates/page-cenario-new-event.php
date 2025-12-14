@@ -8,14 +8,14 @@
  * para permitir submissão de eventos no frontend.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Verificar se usuário está logado
-if ( ! is_user_logged_in() ) {
-	wp_redirect( wp_login_url( get_permalink() ) );
-	exit;
+if (! is_user_logged_in()) {
+    wp_redirect(wp_login_url(get_permalink()));
+    exit;
 }
 
 // Processar submissão
@@ -23,20 +23,20 @@ $submitted       = false;
 $error_message   = '';
 $success_message = '';
 
-if ( isset( $_POST['apollo_submit_new_event'] ) && wp_verify_nonce( $_POST['apollo_new_event_nonce'], 'apollo_new_event_submit' ) ) {
-	$result = apollo_process_new_event_submission();
+if (isset($_POST['apollo_submit_new_event']) && wp_verify_nonce($_POST['apollo_new_event_nonce'], 'apollo_new_event_submit')) {
+    $result = apollo_process_new_event_submission();
 
-	if ( is_wp_error( $result ) ) {
-		$error_message = $result->get_error_message();
-	} else {
-		$submitted       = true;
-		$success_message = __( 'Evento salvo como rascunho! Você pode editá-lo no painel administrativo.', 'apollo-events-manager' );
-	}
+    if (is_wp_error($result)) {
+        $error_message = $result->get_error_message();
+    } else {
+        $submitted       = true;
+        $success_message = __('Evento salvo como rascunho! Você pode editá-lo no painel administrativo.', 'apollo-events-manager');
+    }
 }
 
 // Carregar ShadCN/Tailwind
-if ( function_exists( 'apollo_shadcn_init' ) ) {
-	apollo_shadcn_init();
+if (function_exists('apollo_shadcn_init')) {
+    apollo_shadcn_init();
 }
 
 get_header();
@@ -56,26 +56,26 @@ get_header();
 			</p>
 		</div>
 
-		<?php if ( $submitted && ! empty( $success_message ) ) : ?>
+		<?php if ($submitted && ! empty($success_message)) : ?>
 		<div class="mb-6 p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 flex items-start gap-3">
 			<i class="ri-checkbox-circle-line text-green-600 dark:text-green-400 text-xl"></i>
 			<div>
-				<p class="font-medium text-green-900 dark:text-green-100"><?php echo esc_html( $success_message ); ?></p>
+				<p class="font-medium text-green-900 dark:text-green-100"><?php echo esc_html($success_message); ?></p>
 			</div>
 		</div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $error_message ) ) : ?>
+		<?php if (! empty($error_message)) : ?>
 		<div class="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-3">
 			<i class="ri-error-warning-line text-red-600 dark:text-red-400 text-xl"></i>
 			<div>
-				<p class="font-medium text-red-900 dark:text-red-100"><?php echo esc_html( $error_message ); ?></p>
+				<p class="font-medium text-red-900 dark:text-red-100"><?php echo esc_html($error_message); ?></p>
 			</div>
 		</div>
 		<?php endif; ?>
 
 		<form method="post" id="apollo-new-event-form" class="space-y-6" data-apollo-form="true">
-			<?php wp_nonce_field( 'apollo_new_event_submit', 'apollo_new_event_nonce' ); ?>
+			<?php wp_nonce_field('apollo_new_event_submit', 'apollo_new_event_nonce'); ?>
 			
 			<!-- Card: Informações Básicas -->
 			<div class="bg-card border rounded-lg p-6 shadow-sm">
@@ -132,7 +132,7 @@ get_header();
 							id="event_start_date" 
 							name="event_start_date" 
 							required
-							min="<?php echo date( 'Y-m-d' ); ?>"
+							min="<?php echo date('Y-m-d'); ?>"
 							class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
 						>
 					</div>
@@ -157,7 +157,7 @@ get_header();
 							type="date" 
 							id="event_end_date" 
 							name="event_end_date"
-							min="<?php echo date( 'Y-m-d' ); ?>"
+							min="<?php echo date('Y-m-d'); ?>"
 							class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
 						>
 					</div>
@@ -196,25 +196,25 @@ get_header();
 							class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
 						>
 							<?php
-							$all_djs = get_posts(
-								array(
-									'post_type'      => 'event_dj',
-									'posts_per_page' => -1,
-									'orderby'        => 'title',
-									'order'          => 'ASC',
-									'post_status'    => 'publish',
-								)
-							);
+                            $all_djs = get_posts(
+                                [
+                                    'post_type'      => 'event_dj',
+                                    'posts_per_page' => -1,
+                                    'orderby'        => 'title',
+                                    'order'          => 'ASC',
+                                    'post_status'    => 'publish',
+                                ]
+                            );
 
-							foreach ( $all_djs as $dj ) {
-								$dj_name = apollo_get_post_meta( $dj->ID, '_dj_name', true ) ?: $dj->post_title;
-								printf(
-									'<option value="%d">%s</option>',
-									esc_attr( $dj->ID ),
-									esc_html( $dj_name )
-								);
-							}
-							?>
+foreach ($all_djs as $dj) {
+    $dj_name = apollo_get_post_meta($dj->ID, '_dj_name', true) ?: $dj->post_title;
+    printf(
+        '<option value="%d">%s</option>',
+        esc_attr($dj->ID),
+        esc_html($dj_name)
+    );
+}
+?>
 						</select>
 						<p class="mt-2 text-sm text-muted-foreground">
 							Segure Ctrl/Cmd para selecionar múltiplos DJs
@@ -267,25 +267,25 @@ get_header();
 						>
 							<option value="">Selecione um local</option>
 							<?php
-							$all_locals = get_posts(
-								array(
-									'post_type'      => 'event_local',
-									'posts_per_page' => -1,
-									'orderby'        => 'title',
-									'order'          => 'ASC',
-									'post_status'    => 'publish',
-								)
-							);
+$all_locals = get_posts(
+    [
+        'post_type'      => 'event_local',
+        'posts_per_page' => -1,
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+        'post_status'    => 'publish',
+    ]
+);
 
-							foreach ( $all_locals as $local ) {
-								$local_name = apollo_get_post_meta( $local->ID, '_local_name', true ) ?: $local->post_title;
-								printf(
-									'<option value="%d">%s</option>',
-									esc_attr( $local->ID ),
-									esc_html( $local_name )
-								);
-							}
-							?>
+foreach ($all_locals as $local) {
+    $local_name = apollo_get_post_meta($local->ID, '_local_name', true) ?: $local->post_title;
+    printf(
+        '<option value="%d">%s</option>',
+        esc_attr($local->ID),
+        esc_html($local_name)
+    );
+}
+?>
 						</select>
 					</div>
 
@@ -548,105 +548,105 @@ get_footer();
 /**
  * Process new event submission
  */
-function apollo_process_new_event_submission() {
-	// Security check
-	if ( ! isset( $_POST['apollo_new_event_nonce'] ) || ! wp_verify_nonce( $_POST['apollo_new_event_nonce'], 'apollo_new_event_submit' ) ) {
-		return new WP_Error( 'security', __( 'Falha na verificação de segurança.', 'apollo-events-manager' ) );
-	}
+function apollo_process_new_event_submission()
+{
+    // Security check
+    if (! isset($_POST['apollo_new_event_nonce']) || ! wp_verify_nonce($_POST['apollo_new_event_nonce'], 'apollo_new_event_submit')) {
+        return new WP_Error('security', __('Falha na verificação de segurança.', 'apollo-events-manager'));
+    }
 
-	// Required fields
-	if ( empty( $_POST['event_title'] ) || empty( $_POST['event_start_date'] ) ) {
-		return new WP_Error( 'required', __( 'Título e data de início são obrigatórios.', 'apollo-events-manager' ) );
-	}
+    // Required fields
+    if (empty($_POST['event_title']) || empty($_POST['event_start_date'])) {
+        return new WP_Error('required', __('Título e data de início são obrigatórios.', 'apollo-events-manager'));
+    }
 
-	$current_user_id = get_current_user_id();
-	if ( ! $current_user_id ) {
-		return new WP_Error( 'auth', __( 'Você precisa estar logado para criar eventos.', 'apollo-events-manager' ) );
-	}
+    $current_user_id = get_current_user_id();
+    if (! $current_user_id) {
+        return new WP_Error('auth', __('Você precisa estar logado para criar eventos.', 'apollo-events-manager'));
+    }
 
-	// Prepare post data - SAVE AS DRAFT
-	$post_data = array(
-		'post_title'            => sanitize_text_field( $_POST['event_title'] ),
-		'post_content'          => isset( $_POST['event_description'] ) ? wp_kses_post( $_POST['event_description'] ) : '',
-		'post_status'           => 'draft', 
-		// ✅ SAVE AS DRAFT
-					'post_type' => 'event_listing',
-		'post_author'           => $current_user_id,
-	);
+    // Prepare post data - SAVE AS DRAFT
+    $post_data = [
+        'post_title'   => sanitize_text_field($_POST['event_title']),
+        'post_content' => isset($_POST['event_description']) ? wp_kses_post($_POST['event_description']) : '',
+        'post_status'  => 'draft',
+        // ✅ SAVE AS DRAFT
+                    'post_type' => 'event_listing',
+        'post_author'           => $current_user_id,
+    ];
 
-	$event_id = wp_insert_post( $post_data, true );
+    $event_id = wp_insert_post($post_data, true);
 
-	if ( is_wp_error( $event_id ) ) {
-		return $event_id;
-	}
+    if (is_wp_error($event_id)) {
+        return $event_id;
+    }
 
-	// Save meta fields
-	if ( isset( $_POST['event_start_date'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_start_date', sanitize_text_field( $_POST['event_start_date'] ) );
-	}
-	if ( isset( $_POST['event_start_time'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_start_time', sanitize_text_field( $_POST['event_start_time'] ) );
-	}
-	if ( isset( $_POST['event_end_date'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_end_date', sanitize_text_field( $_POST['event_end_date'] ) );
-	}
-	if ( isset( $_POST['event_end_time'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_end_time', sanitize_text_field( $_POST['event_end_time'] ) );
-	}
+    // Save meta fields
+    if (isset($_POST['event_start_date'])) {
+        apollo_update_post_meta($event_id, '_event_start_date', sanitize_text_field($_POST['event_start_date']));
+    }
+    if (isset($_POST['event_start_time'])) {
+        apollo_update_post_meta($event_id, '_event_start_time', sanitize_text_field($_POST['event_start_time']));
+    }
+    if (isset($_POST['event_end_date'])) {
+        apollo_update_post_meta($event_id, '_event_end_date', sanitize_text_field($_POST['event_end_date']));
+    }
+    if (isset($_POST['event_end_time'])) {
+        apollo_update_post_meta($event_id, '_event_end_time', sanitize_text_field($_POST['event_end_time']));
+    }
 
-	// Save DJs
-	if ( isset( $_POST['event_djs'] ) && is_array( $_POST['event_djs'] ) ) {
-		$djs = array_map( 'absint', $_POST['event_djs'] );
-		$djs = array_filter( $djs );
-		if ( ! empty( $djs ) ) {
-			apollo_update_post_meta( $event_id, '_event_dj_ids', $djs );
-		}
-	}
+    // Save DJs
+    if (isset($_POST['event_djs']) && is_array($_POST['event_djs'])) {
+        $djs = array_map('absint', $_POST['event_djs']);
+        $djs = array_filter($djs);
+        if (! empty($djs)) {
+            apollo_update_post_meta($event_id, '_event_dj_ids', $djs);
+        }
+    }
 
-	// Save Local
-	if ( isset( $_POST['event_local'] ) && ! empty( $_POST['event_local'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_local_ids', absint( $_POST['event_local'] ) );
-	}
+    // Save Local
+    if (isset($_POST['event_local']) && ! empty($_POST['event_local'])) {
+        apollo_update_post_meta($event_id, '_event_local_ids', absint($_POST['event_local']));
+    }
 
-	// Save Timetable
-	if ( isset( $_POST['apollo_event_timetable'] ) && ! empty( $_POST['apollo_event_timetable'] ) ) {
-		$timetable = json_decode( stripslashes( $_POST['apollo_event_timetable'] ), true );
-		if ( is_array( $timetable ) && function_exists( 'apollo_sanitize_timetable' ) ) {
-			$clean_timetable = apollo_sanitize_timetable( $timetable );
-			if ( ! empty( $clean_timetable ) ) {
-				apollo_update_post_meta( $event_id, '_event_timetable', $clean_timetable );
-			}
-		}
-	}
+    // Save Timetable
+    if (isset($_POST['apollo_event_timetable']) && ! empty($_POST['apollo_event_timetable'])) {
+        $timetable = json_decode(stripslashes($_POST['apollo_event_timetable']), true);
+        if (is_array($timetable) && function_exists('apollo_sanitize_timetable')) {
+            $clean_timetable = apollo_sanitize_timetable($timetable);
+            if (! empty($clean_timetable)) {
+                apollo_update_post_meta($event_id, '_event_timetable', $clean_timetable);
+            }
+        }
+    }
 
-	// Save media
-	if ( isset( $_POST['event_banner'] ) && ! empty( $_POST['event_banner'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_banner', esc_url_raw( $_POST['event_banner'] ) );
-	}
-	if ( isset( $_POST['event_video_url'] ) && ! empty( $_POST['event_video_url'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_video_url', esc_url_raw( $_POST['event_video_url'] ) );
-	}
+    // Save media
+    if (isset($_POST['event_banner']) && ! empty($_POST['event_banner'])) {
+        apollo_update_post_meta($event_id, '_event_banner', esc_url_raw($_POST['event_banner']));
+    }
+    if (isset($_POST['event_video_url']) && ! empty($_POST['event_video_url'])) {
+        apollo_update_post_meta($event_id, '_event_video_url', esc_url_raw($_POST['event_video_url']));
+    }
 
-	// Save location
-	if ( isset( $_POST['event_location'] ) && ! empty( $_POST['event_location'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_location', sanitize_text_field( $_POST['event_location'] ) );
-	}
-	if ( isset( $_POST['event_country'] ) && ! empty( $_POST['event_country'] ) ) {
-		apollo_update_post_meta( $event_id, '_event_country', sanitize_text_field( $_POST['event_country'] ) );
-	}
+    // Save location
+    if (isset($_POST['event_location']) && ! empty($_POST['event_location'])) {
+        apollo_update_post_meta($event_id, '_event_location', sanitize_text_field($_POST['event_location']));
+    }
+    if (isset($_POST['event_country']) && ! empty($_POST['event_country'])) {
+        apollo_update_post_meta($event_id, '_event_country', sanitize_text_field($_POST['event_country']));
+    }
 
-	// Save tickets
-	if ( isset( $_POST['tickets_ext'] ) && ! empty( $_POST['tickets_ext'] ) ) {
-		apollo_update_post_meta( $event_id, '_tickets_ext', esc_url_raw( $_POST['tickets_ext'] ) );
-	}
-	if ( isset( $_POST['cupom_ario'] ) && $_POST['cupom_ario'] == '1' ) {
-		apollo_update_post_meta( $event_id, '_cupom_ario', '1' );
-	}
+    // Save tickets
+    if (isset($_POST['tickets_ext']) && ! empty($_POST['tickets_ext'])) {
+        apollo_update_post_meta($event_id, '_tickets_ext', esc_url_raw($_POST['tickets_ext']));
+    }
+    if (isset($_POST['cupom_ario']) && $_POST['cupom_ario'] == '1') {
+        apollo_update_post_meta($event_id, '_cupom_ario', '1');
+    }
 
-	// Mark as frontend submission
-	apollo_update_post_meta( $event_id, '_apollo_frontend_submission', '1' );
-	apollo_update_post_meta( $event_id, '_apollo_submission_date', current_time( 'mysql' ) );
+    // Mark as frontend submission
+    apollo_update_post_meta($event_id, '_apollo_frontend_submission', '1');
+    apollo_update_post_meta($event_id, '_apollo_submission_date', current_time('mysql'));
 
-	return $event_id;
+    return $event_id;
 }
-

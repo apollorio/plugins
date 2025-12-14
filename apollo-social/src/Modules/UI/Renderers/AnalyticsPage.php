@@ -7,27 +7,30 @@ namespace Apollo\Modules\UI\Renderers;
  *
  * Renders analytics dashboard in Canvas mode (script-only, no API).
  */
-class AnalyticsPage {
+class AnalyticsPage
+{
+    /**
+     * Render analytics panel
+     */
+    public function render(): void
+    {
+        $analytics_config = config('analytics');
 
-	/**
-	 * Render analytics panel
-	 */
-	public function render(): void {
-		$analytics_config = config( 'analytics' );
+        if (! ($analytics_config['enabled'] ?? false)) {
+            $this->renderDisabled();
 
-		if ( ! ( $analytics_config['enabled'] ?? false ) ) {
-			$this->renderDisabled();
-			return;
-		}
+            return;
+        }
 
-		$this->renderDashboard( $analytics_config );
-	}
+        $this->renderDashboard($analytics_config);
+    }
 
-	/**
-	 * Render analytics dashboard
-	 */
-	private function renderDashboard( array $config ): void {
-		?>
+    /**
+     * Render analytics dashboard
+     */
+    private function renderDashboard(array $config): void
+    {
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -312,7 +315,7 @@ class AnalyticsPage {
 				</div>
 
 				<!-- Test Section -->
-				<?php if ( ( $config['plausible']['custom_events'] ?? false ) ) : ?>
+				<?php if (($config['plausible']['custom_events'] ?? false)) : ?>
 				<div class="test-section">
 					<h3>🧪 Testar Eventos Analytics</h3>
 					<p style="margin-bottom: 15px; color: #0369a1;">Clique nos botões para testar o tracking de eventos:</p>
@@ -340,8 +343,8 @@ class AnalyticsPage {
 				<div class="info-section">
 					<h3>💡 Informações do Sistema</h3>
 					<p>
-						<strong>Driver:</strong> <?php echo esc_html( $config['driver'] ); ?> | 
-						<strong>Domínio:</strong> <?php echo esc_html( $config['plausible']['domain'] ?? 'Não configurado' ); ?> | 
+						<strong>Driver:</strong> <?php echo esc_html($config['driver']); ?> | 
+						<strong>Domínio:</strong> <?php echo esc_html($config['plausible']['domain'] ?? 'Não configurado'); ?> | 
 						<strong>Script:</strong> Apenas injeção (sem API)
 					</p>
 					<p style="margin-top: 10px;">
@@ -501,13 +504,14 @@ class AnalyticsPage {
 		</body>
 		</html>
 		<?php
-	}
+    }
 
-	/**
-	 * Render disabled state
-	 */
-	private function renderDisabled(): void {
-		?>
+    /**
+     * Render disabled state
+     */
+    private function renderDisabled(): void
+    {
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -522,5 +526,5 @@ class AnalyticsPage {
 		</body>
 		</html>
 		<?php
-	}
+    }
 }

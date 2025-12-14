@@ -63,9 +63,11 @@ function apollo_delta_to_html( $delta, array $options = array() ) {
 						$text .= $op['insert'];
 					}
 				}
+
 				return '<div class="apollo-document-content"><p>' . nl2br( esc_html( $text ) ) . '</p></div>';
 			}
 		}
+
 		return '';
 	}
 
@@ -104,9 +106,11 @@ function apollo_delta_to_text( $delta ) {
 						$text .= $op['insert'];
 					}
 				}
+
 				return trim( $text );
 			}
 		}
+
 		return '';
 	}
 
@@ -125,6 +129,7 @@ function apollo_delta_to_text( $delta ) {
  */
 function apollo_delta_word_count( $delta ) {
 	$text = apollo_delta_to_text( $delta );
+
 	return str_word_count( $text );
 }
 
@@ -211,6 +216,7 @@ function apollo_get_document_content( $document_id, $as_html = true ) {
 	if ( empty( $delta ) ) {
 		// Fallback: return post_content (HTML)
 		$post = get_post( $document_id );
+
 		return $post ? $post->post_content : null;
 	}
 

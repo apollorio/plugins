@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Routes configuration for Apollo Social Core
  *
@@ -461,6 +462,26 @@ return array(
 				),
 			),
 		),
+	),
+
+	// Plano Editor Routes (Canvas Mode)
+	'/studio/'            => array(
+		'pattern'    => '^studio/?$',
+		'query_vars' => array( 'apollo_route' => 'plano_editor' ),
+		'template'   => 'plano/editor.php',
+		'handler'    => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+		'canvas'     => true,
+		'raw_html'   => false,
+		'description' => 'Plano Creative Studio Editor',
+	),
+	'/plano/'             => array(
+		'pattern'    => '^plano/?$',
+		'query_vars' => array( 'apollo_route' => 'plano_editor' ),
+		'template'   => 'plano/editor.php',
+		'handler'    => 'Apollo\\Infrastructure\\Rendering\\RawTemplateRenderer',
+		'canvas'     => true,
+		'raw_html'   => false,
+		'description' => 'Plano Creative Studio Editor (alias)',
 	),
 
 	// FASE 1: Documentos Routes (Canvas Mode)

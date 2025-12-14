@@ -9,18 +9,18 @@
  * @package ApolloSocial
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder.
-$feed_posts = $view['data']['posts'] ?? [];
+$feed_posts = $view['data']['posts']        ?? [];
 $user_data  = $view['data']['current_user'] ?? [];
 
-$ajax_url      = admin_url( 'admin-ajax.php' );
-$rest_url      = rest_url( 'apollo/v1' );
-$nonce         = wp_create_nonce( 'wp_rest' );
-$comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
+$ajax_url      = admin_url('admin-ajax.php');
+$rest_url      = rest_url('apollo/v1');
+$nonce         = wp_create_nonce('wp_rest');
+$comment_nonce = wp_create_nonce('apollo_comment_nonce');
 ?>
 
 <div class="apollo-feed-root aprioEXP-body h-full" id="apollo-feed-root" style="background: var(--bg-surface);">
@@ -35,7 +35,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 			</div>
 			<div>
 			<h1 class="text-[16px] font-extrabold mt-2 text-slate-900">Apollo::rio</h1>
-			<p class="text-[14px] text-slate-500">@<?php echo esc_html( $user_data['name'] ?? 'user' ); ?></p>
+			<p class="text-[14px] text-slate-500">@<?php echo esc_html($user_data['name'] ?? 'user'); ?></p>
 			</div>
 		</div>
 		</div>
@@ -68,8 +68,8 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				</svg>
 			</button>
 			<!-- User Avatar -->
-			<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all" data-ap-tooltip="<?php echo esc_attr( $user_data['name'] ?? 'Perfil' ); ?>" aria-label="Menu do usuário">
-				<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full rounded-full object-cover" />
+			<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all" data-ap-tooltip="<?php echo esc_attr($user_data['name'] ?? 'Perfil'); ?>" aria-label="Menu do usuário">
+				<img src="<?php echo esc_url($user_data['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($user_data['name'] ?? ''); ?>" class="h-full w-full rounded-full object-cover" />
 			</button>
 		</div>
 		<!-- Mobile Header Actions -->
@@ -81,7 +81,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 				<i class="ri-notification-3-line text-xl"></i>
 			</button>
 			<button class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-				<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+				<img src="<?php echo esc_url($user_data['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($user_data['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 			</button>
 		</div>
 	</div>
@@ -98,7 +98,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<section class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4 mb-6">
 		<div class="flex gap-3">
 			<div class="h-10 w-10 rounded-full overflow-hidden shrink-0">
-			<img src="<?php echo esc_url( $user_data['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user_data['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+			<img src="<?php echo esc_url($user_data['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($user_data['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 			</div>
 			<div class="flex-1">
 			<input
@@ -147,29 +147,29 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 
 		<!-- TAB: TUDO -->
 		<div data-tab-panel="feed-all" role="tabpanel" class="space-y-6">
-			<?php if ( empty( $feed_posts ) ) : ?>
+			<?php if (empty($feed_posts)) : ?>
 			<article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-5">
 				<p class="text-[15px] text-slate-800 text-center">Nenhum post ainda. Seja o primeiro a compartilhar!</p>
 			</article>
 			<?php else : ?>
-				<?php foreach ( $feed_posts as $post_item ) : ?>
+				<?php foreach ($feed_posts as $post_item) : ?>
 					<?php
-					$post_type_item = $post_item['type'] ?? 'user_post';
-					$post_data      = $post_item;
+                    $post_type_item = $post_item['type'] ?? 'user_post';
+				    $post_data                  = $post_item;
 
-					if ( 'event' === $post_type_item ) {
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
-					} elseif ( 'ad' === $post_type_item ) {
-						// TODO: Criar partial para anúncios.
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					} elseif ( 'news' === $post_type_item ) {
-						// TODO: Criar partial para notícias.
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					} else {
-						// Post de usuário (padrão).
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					}
-					?>
+				    if ('event' === $post_type_item) {
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
+				    } elseif ('ad' === $post_type_item) {
+				        // TODO: Criar partial para anúncios.
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    } elseif ('news' === $post_type_item) {
+				        // TODO: Criar partial para notícias.
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    } else {
+				        // Post de usuário (padrão).
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    }
+				    ?>
 			<?php endforeach; ?>
 			<?php endif; ?>
 
@@ -212,59 +212,59 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<div class="aprioEXP-card-shell bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4">
 		<div class="flex items-center justify-between mb-3">
 			<h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500">Próximos 7 dias</h2>
-			<a href="<?php echo esc_url( home_url( '/eventos/' ) ); ?>" class="text-[11px] text-neutral-600 hover:underline">Ver agenda</a>
+			<a href="<?php echo esc_url(home_url('/eventos/')); ?>" class="text-[11px] text-neutral-600 hover:underline">Ver agenda</a>
 		</div>
 		<div class="space-y-2" id="sidebar-upcoming-events">
 			<?php
-			// SIDEBAR: Fetch próximos eventos.
-			$upcoming_args   = [
-				'post_type'      => 'event_listing',
-				'post_status'    => 'publish',
-				'posts_per_page' => 4,
-				'orderby'        => 'meta_value',
-				'order'          => 'ASC',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for date ordering.
-				'meta_key'       => '_event_start_date',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for date filtering.
-				'meta_query'     => [
-					[
-						'key'     => '_event_start_date',
-						'value'   => wp_date( 'Y-m-d' ),
-						'compare' => '>=',
-						'type'    => 'DATE',
-					],
-				],
-			];
-			$upcoming_events = get_posts( $upcoming_args );
+            // SIDEBAR: Fetch próximos eventos.
+            $upcoming_args = [
+                'post_type'      => 'event_listing',
+                'post_status'    => 'publish',
+                'posts_per_page' => 4,
+                'orderby'        => 'meta_value',
+                'order'          => 'ASC',
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for date ordering.
+                'meta_key' => '_event_start_date',
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for date filtering.
+                'meta_query' => [
+				    [
+				        'key'     => '_event_start_date',
+				        'value'   => wp_date('Y-m-d'),
+				        'compare' => '>=',
+				        'type'    => 'DATE',
+				    ],
+                ],
+            ];
+$upcoming_events = get_posts($upcoming_args);
 
-			if ( ! empty( $upcoming_events ) ) :
-				foreach ( $upcoming_events as $event ) :
-					$event_date = get_post_meta( $event->ID, '_event_start_date', true );
-					$date_obj   = $event_date ? DateTime::createFromFormat( 'Y-m-d', $event_date ) : null;
-					$day        = $date_obj ? $date_obj->format( 'd' ) : '--';
-					$day_name   = $date_obj ? strtoupper( substr( [ 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' ][ $date_obj->format( 'w' ) ], 0, 3 ) ) : '???';
+if (! empty($upcoming_events)) :
+    foreach ($upcoming_events as $event) :
+        $event_date = get_post_meta($event->ID, '_event_start_date', true);
+        $date_obj   = $event_date ? DateTime::createFromFormat('Y-m-d', $event_date) : null;
+        $day        = $date_obj ? $date_obj->format('d') : '--';
+        $day_name   = $date_obj ? strtoupper(substr([ 'DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB' ][ $date_obj->format('w') ], 0, 3)) : '???';
 
-					// Contar favoritos como "amigos vão".
-					$favorites_count = max( 0, (int) get_post_meta( $event->ID, '_favorites_count', true ) );
-					?>
-			<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg transition-colors group">
+        // Contar favoritos como "amigos vão".
+        $favorites_count = max(0, (int) get_post_meta($event->ID, '_favorites_count', true));
+        ?>
+			<a href="<?php echo esc_url(get_permalink($event->ID)); ?>" class="flex gap-3 items-center p-2 hover:bg-slate-50 rounded-lg transition-colors group">
 			<div class="h-10 w-10 rounded-lg border border-slate-200 flex flex-col items-center justify-center bg-white text-slate-900 group-hover:border-slate-400 transition-colors">
-				<span class="text-[9px] uppercase font-bold"><?php echo esc_html( $day_name ); ?></span>
-				<span class="text-[13px] font-bold"><?php echo esc_html( $day ); ?></span>
+				<span class="text-[9px] uppercase font-bold"><?php echo esc_html($day_name); ?></span>
+				<span class="text-[13px] font-bold"><?php echo esc_html($day); ?></span>
 			</div>
 			<div class="min-w-0 flex-1">
-				<div class="text-[12px] font-bold truncate"><?php echo esc_html( $event->post_title ); ?></div>
-					<?php if ( $favorites_count > 0 ) : ?>
-				<div class="text-[10px] text-slate-500"><?php echo esc_html( $favorites_count ); ?> pessoas vão</div>
+				<div class="text-[12px] font-bold truncate"><?php echo esc_html($event->post_title); ?></div>
+					<?php if ($favorites_count > 0) : ?>
+				<div class="text-[10px] text-slate-500"><?php echo esc_html($favorites_count); ?> pessoas vão</div>
 				<?php else : ?>
 				<div class="text-[10px] text-slate-500" data-ap-tooltip="Seja o primeiro a demonstrar interesse!">Seja o primeiro!</div>
 				<?php endif; ?>
 			</div>
 			</a>
 					<?php
-				endforeach;
-			else :
-				?>
+    endforeach;
+else :
+    ?>
 			<div class="text-center py-4 text-slate-400" data-ap-tooltip="Eventos nos próximos 7 dias aparecerão aqui">
 			<i class="ri-calendar-event-line text-2xl opacity-50"></i>
 			<p class="text-[11px] mt-1">Nenhum evento nos próximos dias</p>
@@ -278,59 +278,59 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<h2 class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">Comunidades em alta</h2>
 		<div class="space-y-3" id="sidebar-communities">
 			<?php
-			// SIDEBAR: Fetch grupos/comunidades.
-			$groups_args = [
-				'post_type'      => 'apollo_group',
-				'post_status'    => 'publish',
-				'posts_per_page' => 4,
-				'orderby'        => 'meta_value_num',
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for member count ordering.
-				'meta_key'       => '_group_members_count',
-				'order'          => 'DESC',
-			];
-			$groups      = get_posts( $groups_args );
+            // SIDEBAR: Fetch grupos/comunidades.
+            $groups_args = [
+    'post_type'      => 'apollo_group',
+    'post_status'    => 'publish',
+    'posts_per_page' => 4,
+    'orderby'        => 'meta_value_num',
+    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for member count ordering.
+    'meta_key' => '_group_members_count',
+    'order'    => 'DESC',
+            ];
+$groups = get_posts($groups_args);
 
-			if ( ! empty( $groups ) ) :
-				$colors = [
-					[
-						'bg'   => 'bg-purple-100',
-						'text' => 'text-purple-600',
-					],
-					[
-						'bg'   => 'bg-pink-100',
-						'text' => 'text-pink-600',
-					],
-					[
-						'bg'   => 'bg-blue-100',
-						'text' => 'text-blue-600',
-					],
-					[
-						'bg'   => 'bg-emerald-100',
-						'text' => 'text-emerald-600',
-					],
-				];
-				$i      = 0;
-				foreach ( $groups as $group ) :
-					$color         = $colors[ $i % count( $colors ) ];
-					$members       = (int) get_post_meta( $group->ID, '_group_members_count', true );
-					$activity_meta = get_post_meta( $group->ID, '_group_activity_label', true );
-					$activity      = ! empty( $activity_meta ) ? $activity_meta : 'Ativo';
-					?>
+if (! empty($groups)) :
+    $colors = [
+        [
+            'bg'   => 'bg-purple-100',
+            'text' => 'text-purple-600',
+        ],
+        [
+            'bg'   => 'bg-pink-100',
+            'text' => 'text-pink-600',
+        ],
+        [
+            'bg'   => 'bg-blue-100',
+            'text' => 'text-blue-600',
+        ],
+        [
+            'bg'   => 'bg-emerald-100',
+            'text' => 'text-emerald-600',
+        ],
+    ];
+    $i = 0;
+    foreach ($groups as $group) :
+        $color         = $colors[ $i % count($colors) ];
+        $members       = (int) get_post_meta($group->ID, '_group_members_count', true);
+        $activity_meta = get_post_meta($group->ID, '_group_activity_label', true);
+        $activity      = ! empty($activity_meta) ? $activity_meta : 'Ativo';
+        ?>
 			<div class="flex items-center gap-3">
-			<div class="h-8 w-8 rounded <?php echo esc_attr( $color['bg'] . ' ' . $color['text'] ); ?> flex items-center justify-center">
+			<div class="h-8 w-8 rounded <?php echo esc_attr($color['bg'] . ' ' . $color['text']); ?> flex items-center justify-center">
 				<i class="ri-group-line"></i>
 			</div>
 			<div class="flex-1 min-w-0">
-				<div class="text-[12px] font-bold truncate"><?php echo esc_html( $group->post_title ); ?></div>
-				<div class="text-[10px] text-slate-500"><?php echo esc_html( $activity ); ?></div>
+				<div class="text-[12px] font-bold truncate"><?php echo esc_html($group->post_title); ?></div>
+				<div class="text-[10px] text-slate-500"><?php echo esc_html($activity); ?></div>
 			</div>
-			<a href="<?php echo esc_url( get_permalink( $group->ID ) ); ?>" class="text-[11px] font-semibold text-neutral-600 hover:text-neutral-900">Entrar</a>
+			<a href="<?php echo esc_url(get_permalink($group->ID)); ?>" class="text-[11px] font-semibold text-neutral-600 hover:text-neutral-900">Entrar</a>
 			</div>
 					<?php
-					++$i;
-				endforeach;
-			else :
-				?>
+        ++$i;
+    endforeach;
+else :
+    ?>
 			<div class="text-center py-4 text-slate-400" data-ap-tooltip="Comunidades ativas aparecerão aqui">
 			<i class="ri-team-line text-2xl opacity-50"></i>
 			<p class="text-[11px] mt-1">Nenhuma comunidade ativa</p>
@@ -341,13 +341,13 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 
 		<!-- Footer Links -->
 		<div class="flex flex-wrap gap-2 text-[10px] text-slate-400 px-2">
-		<a href="<?php echo esc_url( home_url( '/privacidade/' ) ); ?>" class="hover:underline">Privacidade</a>
+		<a href="<?php echo esc_url(home_url('/privacidade/')); ?>" class="hover:underline">Privacidade</a>
 		<span>·</span>
-		<a href="<?php echo esc_url( home_url( '/termos/' ) ); ?>" class="hover:underline">Termos</a>
+		<a href="<?php echo esc_url(home_url('/termos/')); ?>" class="hover:underline">Termos</a>
 		<span>·</span>
-		<a href="<?php echo esc_url( home_url( '/business/' ) ); ?>" class="hover:underline">Apollo Business</a>
+		<a href="<?php echo esc_url(home_url('/business/')); ?>" class="hover:underline">Apollo Business</a>
 		<span>·</span>
-		<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> Apollo Rio</span>
+		<span>© <?php echo esc_html(wp_date('Y')); ?> Apollo Rio</span>
 		</div>
 	</aside>
 	</main>
@@ -487,11 +487,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 window.apolloFeedData = {
-	ajaxUrl: <?php echo wp_json_encode( $ajax_url ); ?>,
-	restUrl: <?php echo wp_json_encode( $rest_url ); ?>,
-	nonce: <?php echo wp_json_encode( $nonce ); ?>,
-	commentNonce: <?php echo wp_json_encode( $comment_nonce ); ?>,
-	currentUserId: <?php echo absint( $user_data['id'] ?? 0 ); ?>,
-	posts: <?php echo wp_json_encode( $feed_posts ); ?>
+	ajaxUrl: <?php echo wp_json_encode($ajax_url); ?>,
+	restUrl: <?php echo wp_json_encode($rest_url); ?>,
+	nonce: <?php echo wp_json_encode($nonce); ?>,
+	commentNonce: <?php echo wp_json_encode($comment_nonce); ?>,
+	currentUserId: <?php echo absint($user_data['id'] ?? 0); ?>,
+	posts: <?php echo wp_json_encode($feed_posts); ?>
 };
 </script>

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -41,6 +42,7 @@ function apollo_get_default_mod_settings(): array {
  */
 function apollo_get_mod_settings(): array {
 	$settings = get_option( 'apollo_mod_settings', array() );
+
 	return wp_parse_args( $settings, apollo_get_default_mod_settings() );
 }
 
@@ -74,5 +76,6 @@ function apollo_update_mod_settings( $settings ) {
  */
 function apollo_is_cap_enabled( $capability ) {
 	$settings = apollo_get_mod_settings();
+
 	return ! empty( $settings['enabled_caps'][ $capability ] );
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Canvas Loader class
  */
 class Apollo_Core_Canvas_Loader {
+
 	/**
 	 * Initialize
 	 */
@@ -86,7 +88,7 @@ class Apollo_Core_Canvas_Loader {
 		}
 
 		// Extract data to variables.
-		// phpcs:ignore WordPress.PHP.DontExtract.extract_extract
+        // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 		extract( $data );
 
 		// Include template.

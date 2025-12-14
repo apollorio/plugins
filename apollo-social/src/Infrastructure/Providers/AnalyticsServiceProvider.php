@@ -9,116 +9,123 @@ use Apollo\Infrastructure\Rendering\AssetsManager;
  * Analytics Service Provider
  * Registers analytics functionality, admin pages and tracking
  */
-class AnalyticsServiceProvider {
+class AnalyticsServiceProvider
+{
+    private $analytics_admin;
+    private $assets_manager;
 
-	private $analytics_admin;
-	private $assets_manager;
+    public function register()
+    {
+        // Load configuration helper if not loaded
+        if (! function_exists('config')) {
+            require_once APOLLO_SOCIAL_PLUGIN_DIR . 'src/helpers.php';
+        }
 
-	public function register() {
-		// Load configuration helper if not loaded
-		if ( ! function_exists( 'config' ) ) {
-			require_once APOLLO_SOCIAL_PLUGIN_DIR . 'src/helpers.php';
-		}
+        // Initialize services
+        $this->analytics_admin = new AnalyticsAdmin();
+        $this->assets_manager  = new AssetsManager();
+    }
 
-		// Initialize services
-		$this->analytics_admin = new AnalyticsAdmin();
-		$this->assets_manager  = new AssetsManager();
-	}
+    public function boot()
+    {
+        // Check if analytics is enabled
+        $analytics_config = config('analytics');
 
-	public function boot() {
-		// Check if analytics is enabled
-		$analytics_config = config( 'analytics' );
+        if (! ($analytics_config['enabled'] ?? false)) {
+            return;
+        }
 
-		if ( ! ( $analytics_config['enabled'] ?? false ) ) {
-			return;
-		}
+        // Initialize analytics hooks
+        $this->init_analytics_hooks();
 
-		// Initialize analytics hooks
-		$this->init_analytics_hooks();
+        // Initialize Canvas injection
+        $this->init_canvas_injection();
+    }
 
-		// Initialize Canvas injection
-		$this->init_canvas_injection();
-	}
+    /**
+     * Initialize analytics-related hooks
+     */
+    private function init_analytics_hooks()
+    {
+        // Add analytics to Canvas Mode assets
+        add_action('apollo_canvas_assets', [ $this, 'enqueue_analytics_assets' ], 20);
 
-	/**
-	 * Initialize analytics-related hooks
-	 */
-	private function init_analytics_hooks() {
-		// Add analytics to Canvas Mode assets
-		add_action( 'apollo_canvas_assets', [ $this, 'enqueue_analytics_assets' ], 20 );
+        // Add analytics tracking to specific actions
+        add_action('apollo_group_viewed', [ $this, 'track_group_view' ], 10, 2);
+        add_action('apollo_group_joined', [ $this, 'track_group_join' ], 10, 2);
+        add_action('apollo_invite_sent', [ $this, 'track_invite_sent' ], 10, 3);
+        add_action('apollo_invite_approved', [ $this, 'track_invite_approved' ], 10, 3);
+        add_action('apollo_ad_viewed', [ $this, 'track_ad_view' ], 10, 4);
+        add_action('apollo_ad_created', [ $this, 'track_ad_create' ], 10, 3);
+        add_action('apollo_event_viewed', [ $this, 'track_event_view' ], 10, 4);
 
-		// Add analytics tracking to specific actions
-		add_action( 'apollo_group_viewed', [ $this, 'track_group_view' ], 10, 2 );
-		add_action( 'apollo_group_joined', [ $this, 'track_group_join' ], 10, 2 );
-		add_action( 'apollo_invite_sent', [ $this, 'track_invite_sent' ], 10, 3 );
-		add_action( 'apollo_invite_approved', [ $this, 'track_invite_approved' ], 10, 3 );
-		add_action( 'apollo_ad_viewed', [ $this, 'track_ad_view' ], 10, 4 );
-		add_action( 'apollo_ad_created', [ $this, 'track_ad_create' ], 10, 3 );
-		add_action( 'apollo_event_viewed', [ $this, 'track_event_view' ], 10, 4 );
+        // Add AJAX handlers for analytics testing
+        add_action('wp_ajax_apollo_test_analytics_connection', [ $this, 'ajax_test_analytics_connection' ]);
+    }
 
-		// Add AJAX handlers for analytics testing
-		add_action( 'wp_ajax_apollo_test_analytics_connection', [ $this, 'ajax_test_analytics_connection' ] );
-	}
+    /**
+     * Initialize Canvas Mode injection
+     */
+    private function init_canvas_injection()
+    {
+        // Hook into Canvas Mode rendering
+        add_action('apollo_canvas_head', [ $this, 'inject_analytics_head' ]);
+        add_action('apollo_canvas_footer', [ $this, 'inject_analytics_footer' ]);
+    }
 
-	/**
-	 * Initialize Canvas Mode injection
-	 */
-	private function init_canvas_injection() {
-		// Hook into Canvas Mode rendering
-		add_action( 'apollo_canvas_head', [ $this, 'inject_analytics_head' ] );
-		add_action( 'apollo_canvas_footer', [ $this, 'inject_analytics_footer' ] );
-	}
+    /**
+     * Enqueue analytics assets for Canvas Mode
+     */
+    public function enqueue_analytics_assets()
+    {
+        // This is called from AssetsManager during Canvas Mode
+        // Analytics script injection is handled in inject_analytics_head
+    }
 
-	/**
-	 * Enqueue analytics assets for Canvas Mode
-	 */
-	public function enqueue_analytics_assets() {
-		// This is called from AssetsManager during Canvas Mode
-		// Analytics script injection is handled in inject_analytics_head
-	}
+    /**
+     * Inject analytics in Canvas head
+     */
+    public function inject_analytics_head()
+    {
+        $analytics_config = config('analytics');
 
-	/**
-	 * Inject analytics in Canvas head
-	 */
-	public function inject_analytics_head() {
-		$analytics_config = config( 'analytics' );
+        if ($analytics_config['driver'] !== 'plausible') {
+            return;
+        }
 
-		if ( $analytics_config['driver'] !== 'plausible' ) {
-			return;
-		}
+        $plausible_config = $analytics_config['plausible']  ?? [];
+        $domain           = $plausible_config['domain']     ?? '';
+        $script_url       = $plausible_config['script_url'] ?? 'https://plausible.io/js/plausible.js';
 
-		$plausible_config = $analytics_config['plausible'] ?? [];
-		$domain           = $plausible_config['domain'] ?? '';
-		$script_url       = $plausible_config['script_url'] ?? 'https://plausible.io/js/plausible.js';
+        if (empty($domain)) {
+            return;
+        }
 
-		if ( empty( $domain ) ) {
-			return;
-		}
+        // DNS prefetch and preconnect for performance
+        $performance_config = $analytics_config['performance'] ?? [];
 
-		// DNS prefetch and preconnect for performance
-		$performance_config = $analytics_config['performance'] ?? [];
+        if ($performance_config['dns_prefetch'] ?? false) {
+            echo '<link rel="dns-prefetch" href="' . esc_url(parse_url($script_url, PHP_URL_HOST)) . '">' . "\n";
+        }
 
-		if ( $performance_config['dns_prefetch'] ?? false ) {
-			echo '<link rel="dns-prefetch" href="' . esc_url( parse_url( $script_url, PHP_URL_HOST ) ) . '">' . "\n";
-		}
+        if ($performance_config['preconnect'] ?? false) {
+            echo '<link rel="preconnect" href="' . esc_url(parse_url($script_url, PHP_URL_SCHEME) . '://' . parse_url($script_url, PHP_URL_HOST)) . '">' . "\n";
+        }
 
-		if ( $performance_config['preconnect'] ?? false ) {
-			echo '<link rel="preconnect" href="' . esc_url( parse_url( $script_url, PHP_URL_SCHEME ) . '://' . parse_url( $script_url, PHP_URL_HOST ) ) . '">' . "\n";
-		}
+        // Plausible script
+        $defer = ($performance_config['defer_script'] ?? true) ? 'defer ' : '';
+        echo '<script ' . $defer . 'data-domain="' . esc_attr($domain) . '" src="' . esc_url($script_url) . '"></script>' . "\n";
+    }
 
-		// Plausible script
-		$defer = ( $performance_config['defer_script'] ?? true ) ? 'defer ' : '';
-		echo '<script ' . $defer . 'data-domain="' . esc_attr( $domain ) . '" src="' . esc_url( $script_url ) . '"></script>' . "\n";
-	}
+    /**
+     * Inject analytics helper functions in footer
+     */
+    public function inject_analytics_footer()
+    {
+        $analytics_config = config('analytics');
+        $events_config    = $analytics_config['events'] ?? [];
 
-	/**
-	 * Inject analytics helper functions in footer
-	 */
-	public function inject_analytics_footer() {
-		$analytics_config = config( 'analytics' );
-		$events_config    = $analytics_config['events'] ?? [];
-
-		echo '<script>
+        echo '<script>
         window.apolloAnalytics = {
             track: function(eventName, props) {
                 if (typeof plausible !== "undefined") {
@@ -248,84 +255,92 @@ class AnalyticsServiceProvider {
             }
         });
         </script>' . "\n";
-	}
+    }
 
-	/**
-	 * Server-side tracking methods
-	 */
-	public function track_group_view( $group_type, $group_slug ) {
-		// Could log to database or send to analytics API
-		error_log( "Apollo Analytics: group_view - {$group_type}/{$group_slug}" );
-	}
+    /**
+     * Server-side tracking methods
+     */
+    public function track_group_view($group_type, $group_slug)
+    {
+        // Could log to database or send to analytics API
+        error_log("Apollo Analytics: group_view - {$group_type}/{$group_slug}");
+    }
 
-	public function track_group_join( $group_type, $group_slug ) {
-		error_log( "Apollo Analytics: group_join - {$group_type}/{$group_slug}" );
-	}
+    public function track_group_join($group_type, $group_slug)
+    {
+        error_log("Apollo Analytics: group_join - {$group_type}/{$group_slug}");
+    }
 
-	public function track_invite_sent( $group_type, $invite_type, $user_id ) {
-		error_log( "Apollo Analytics: invite_sent - {$group_type}/{$invite_type} by user {$user_id}" );
-	}
+    public function track_invite_sent($group_type, $invite_type, $user_id)
+    {
+        error_log("Apollo Analytics: invite_sent - {$group_type}/{$invite_type} by user {$user_id}");
+    }
 
-	public function track_invite_approved( $group_type, $invite_type, $user_id ) {
-		error_log( "Apollo Analytics: invite_approved - {$group_type}/{$invite_type} for user {$user_id}" );
-	}
+    public function track_invite_approved($group_type, $invite_type, $user_id)
+    {
+        error_log("Apollo Analytics: invite_approved - {$group_type}/{$invite_type} for user {$user_id}");
+    }
 
-	public function track_ad_view( $ad_id, $category, $group_type, $user_id ) {
-		error_log( "Apollo Analytics: ad_view - {$ad_id}/{$category}/{$group_type} by user {$user_id}" );
-	}
+    public function track_ad_view($ad_id, $category, $group_type, $user_id)
+    {
+        error_log("Apollo Analytics: ad_view - {$ad_id}/{$category}/{$group_type} by user {$user_id}");
+    }
 
-	public function track_ad_create( $category, $group_type, $user_id ) {
-		error_log( "Apollo Analytics: ad_create - {$category}/{$group_type} by user {$user_id}" );
-	}
+    public function track_ad_create($category, $group_type, $user_id)
+    {
+        error_log("Apollo Analytics: ad_create - {$category}/{$group_type} by user {$user_id}");
+    }
 
-	public function track_event_view( $event_id, $season_slug, $group_type, $user_id ) {
-		error_log( "Apollo Analytics: event_view - {$event_id}/{$season_slug}/{$group_type} by user {$user_id}" );
-	}
+    public function track_event_view($event_id, $season_slug, $group_type, $user_id)
+    {
+        error_log("Apollo Analytics: event_view - {$event_id}/{$season_slug}/{$group_type} by user {$user_id}");
+    }
 
-	/**
-	 * AJAX handler for testing analytics connection
-	 */
-	public function ajax_test_analytics_connection() {
-		check_ajax_referer( 'apollo_analytics_admin' );
+    /**
+     * AJAX handler for testing analytics connection
+     */
+    public function ajax_test_analytics_connection()
+    {
+        check_ajax_referer('apollo_analytics_admin');
 
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( 'Insufficient permissions' );
-		}
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error('Insufficient permissions');
+        }
 
-		$domain   = sanitize_text_field( $_POST['domain'] ?? '' );
-		$api_key  = sanitize_text_field( $_POST['api_key'] ?? '' );
-		$api_base = esc_url_raw( $_POST['api_base'] ?? 'https://plausible.io' );
+        $domain   = sanitize_text_field($_POST['domain'] ?? '');
+        $api_key  = sanitize_text_field($_POST['api_key'] ?? '');
+        $api_base = esc_url_raw($_POST['api_base'] ?? 'https://plausible.io');
 
-		if ( empty( $domain ) ) {
-			wp_send_json_error( 'Domínio é obrigatório' );
-		}
+        if (empty($domain)) {
+            wp_send_json_error('Domínio é obrigatório');
+        }
 
-		// Test API connection if API key is provided
-		if ( ! empty( $api_key ) ) {
-			$test_url = $api_base . '/api/v1/stats/aggregate?site_id=' . urlencode( $domain ) . '&period=day&metrics=visitors';
+        // Test API connection if API key is provided
+        if (! empty($api_key)) {
+            $test_url = $api_base . '/api/v1/stats/aggregate?site_id=' . urlencode($domain) . '&period=day&metrics=visitors';
 
-			$response = wp_remote_get(
-				$test_url,
-				[
-					'headers' => [
-						'Authorization' => 'Bearer ' . $api_key,
-					],
-					'timeout' => 10,
-				]
-			);
+            $response = wp_remote_get(
+                $test_url,
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $api_key,
+                    ],
+                    'timeout' => 10,
+                ]
+            );
 
-			if ( is_wp_error( $response ) ) {
-				wp_send_json_error( 'Erro na conexão: ' . $response->get_error_message() );
-			}
+            if (is_wp_error($response)) {
+                wp_send_json_error('Erro na conexão: ' . $response->get_error_message());
+            }
 
-			$status_code = wp_remote_retrieve_response_code( $response );
-			if ( $status_code >= 400 ) {
-				$body = wp_remote_retrieve_body( $response );
-				$data = json_decode( $body, true );
-				wp_send_json_error( 'Erro da API: ' . ( $data['error'] ?? 'Status ' . $status_code ) );
-			}
-		}//end if
+            $status_code = wp_remote_retrieve_response_code($response);
+            if ($status_code >= 400) {
+                $body = wp_remote_retrieve_body($response);
+                $data = json_decode($body, true);
+                wp_send_json_error('Erro da API: ' . ($data['error'] ?? 'Status ' . $status_code));
+            }
+        }//end if
 
-		wp_send_json_success( 'Configuração válida! ✅' );
-	}
+        wp_send_json_success('Configuração válida! ✅');
+    }
 }

@@ -92,7 +92,7 @@ function apollo_display_membership_badge( $user_id, $args = array() ) {
  * @param array $args    Display arguments.
  */
 function apollo_the_membership_badge( $user_id, $args = array() ) {
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo apollo_display_membership_badge( $user_id, $args );
 }
 
@@ -152,7 +152,7 @@ function apollo_display_membership_on_profile( $user ) {
 				</p>
 				<div style="margin-top: 10px;">
 					<?php
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo apollo_display_membership_badge( $user->ID );
 					?>
 				</div>
@@ -193,6 +193,7 @@ add_action( 'edit_user_profile_update', 'apollo_save_membership_on_profile_updat
  */
 function apollo_add_membership_column( $columns ) {
 	$columns['apollo_membership'] = __( 'Membership', 'apollo-core' );
+
 	return $columns;
 }
 add_filter( 'manage_users_columns', 'apollo_add_membership_column' );
@@ -209,6 +210,7 @@ function apollo_display_membership_column( $output, $column_name, $user_id ) {
 	if ( 'apollo_membership' === $column_name ) {
 		$output = apollo_display_membership_badge( $user_id, array( 'show_instagram' => false ) );
 	}
+
 	return $output;
 }
 add_filter( 'manage_users_custom_column', 'apollo_display_membership_column', 10, 3 );
@@ -221,6 +223,7 @@ add_filter( 'manage_users_custom_column', 'apollo_display_membership_column', 10
  */
 function apollo_make_membership_column_sortable( $columns ) {
 	$columns['apollo_membership'] = 'apollo_membership';
+
 	return $columns;
 }
 add_filter( 'manage_users_sortable_columns', 'apollo_make_membership_column_sortable' );
@@ -314,10 +317,8 @@ function apollo_get_membership_badge_css() {
  * Enqueue membership badge styles
  */
 function apollo_enqueue_membership_styles() {
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo apollo_get_membership_badge_css();
 }
 add_action( 'wp_head', 'apollo_enqueue_membership_styles', 100 );
 add_action( 'admin_head', 'apollo_enqueue_membership_styles', 100 );
-
-

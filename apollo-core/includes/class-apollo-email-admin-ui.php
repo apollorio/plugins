@@ -483,4 +483,3 @@ class Apollo_Email_Admin_UI {
 
 // Initialize.
 Apollo_Email_Admin_UI::init();
-

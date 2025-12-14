@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -64,20 +65,20 @@ class Apollo_Cena_Rio_Roles {
 			__( 'Cena::Rio Membro', 'apollo-core' ),
 			array(
 				// Basic WP capabilities
-				'read'                            => true,
+				'read'                                                   => true,
 
 				// Event listing capabilities (DRAFT ONLY)
-				'edit_event_listing'              => true,
+				'edit_event_listing'                                     => true,
 				// Can edit own events
-												'edit_event_listings' => true,
+												'edit_event_listings'    => true,
 				// Can edit own events (plural)
-												'delete_event_listing' => true,
+												'delete_event_listing'   => true,
 				// Can delete own drafts
 
 												// CANNOT publish or edit others
 												'publish_event_listings' => false,
-				'edit_others_event_listings'      => false,
-				'delete_published_event_listings' => false,
+				'edit_others_event_listings'                             => false,
+				'delete_published_event_listings'                        => false,
 			)
 		);
 
@@ -204,7 +205,34 @@ class Apollo_Cena_Rio_Roles {
 
 		return user_can( $user_id, 'apollo_cena_moderate_events' );
 	}
+
+	/**
+	 * Setup Apollo capabilities
+	 */
+	public static function setup_apollo_capabilities(): void {
+		$capabilities = array(
+			'manage_apollo',
+			'manage_apollo_security',
+			'manage_apollo_uploads',
+			'manage_apollo_events',
+			'manage_apollo_social',
+		);
+
+		$admin_role = get_role( 'administrator' );
+		if ( $admin_role ) {
+			foreach ( $capabilities as $cap ) {
+				$admin_role->add_cap( $cap );
+			}
+		}
+
+		$editor_role = get_role( 'editor' );
+		if ( $editor_role ) {
+			$editor_role->add_cap( 'manage_apollo_events' );
+			$editor_role->add_cap( 'manage_apollo_social' );
+		}
+	}
 }
 
 // Initialize
 Apollo_Cena_Rio_Roles::init();
+Apollo_Cena_Rio_Roles::setup_apollo_capabilities();

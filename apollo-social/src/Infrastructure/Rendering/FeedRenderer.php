@@ -1,4 +1,5 @@
 <?php
+
 namespace Apollo\Infrastructure\Rendering;
 
 use WP_Query;
@@ -7,429 +8,448 @@ use WP_Query;
  * Feed Renderer
  * FASE 2: Feed Social Unificado com múltiplas fontes
  */
-class FeedRenderer {
+class FeedRenderer
+{
+    private $current_user_id;
 
-	private $current_user_id;
+    /**
+     * IDs dos usuários na bolha do usuário atual.
+     *
+     * @var array
+     */
+    private $bolha_user_ids = [];
 
-	/**
-	 * IDs dos usuários na bolha do usuário atual.
-	 *
-	 * @var array
-	 */
-	private $bolha_user_ids = [];
+    public function __construct()
+    {
+        $this->current_user_id = get_current_user_id();
+        $this->loadCurrentUserBolha();
+    }
 
-	public function __construct() {
-		$this->current_user_id = get_current_user_id();
-		$this->loadCurrentUserBolha();
-	}
+    /**
+     * Carrega os IDs dos usuários na bolha do usuário atual.
+     * Usado para destacar conteúdo de quem está na bolha.
+     */
+    private function loadCurrentUserBolha()
+    {
+        if (! $this->current_user_id) {
+            $this->bolha_user_ids = [];
 
-	/**
-	 * Carrega os IDs dos usuários na bolha do usuário atual.
-	 * Usado para destacar conteúdo de quem está na bolha.
-	 */
-	private function loadCurrentUserBolha() {
-		if ( ! $this->current_user_id ) {
-			$this->bolha_user_ids = [];
-			return;
-		}
+            return;
+        }
 
-		$bolha = get_user_meta( $this->current_user_id, 'apollo_bolha', true );
-		$this->bolha_user_ids = is_array( $bolha ) ? array_map( 'intval', $bolha ) : [];
-	}
+        $bolha                = get_user_meta($this->current_user_id, 'apollo_bolha', true);
+        $this->bolha_user_ids = is_array($bolha) ? array_map('intval', $bolha) : [];
+    }
 
-	/**
-	 * Verifica se um usuário está na bolha do usuário atual.
-	 *
-	 * @param int $user_id ID do usuário a verificar.
-	 * @return bool True se está na bolha.
-	 */
-	private function isInBolha( $user_id ) {
-		return in_array( (int) $user_id, $this->bolha_user_ids, true );
-	}
+    /**
+     * Verifica se um usuário está na bolha do usuário atual.
+     *
+     * @param int $user_id ID do usuário a verificar.
+     * @return bool True se está na bolha.
+     */
+    private function isInBolha($user_id)
+    {
+        return in_array((int) $user_id, $this->bolha_user_ids, true);
+    }
 
-	public function render() {
-		// Get current user
-		$current_user = wp_get_current_user();
+    public function render()
+    {
+        // Get current user
+        $current_user = wp_get_current_user();
 
-		// FASE 2: Obter feed unificado de múltiplas fontes
-		$feed_posts = $this->getUnifiedFeedPosts();
+        // FASE 2: Obter feed unificado de múltiplas fontes
+        $feed_posts = $this->getUnifiedFeedPosts();
 
-		return [
-			'title'                       => 'Feed',
-			'content'                     => '',
-			// Will be rendered by template
-							'breadcrumbs' => [ 'Apollo Social', 'Feed' ],
-			'data'                        => [
-				'posts'        => $feed_posts,
-				'current_user' => [
-					'id'     => $current_user->ID,
-					'name'   => $current_user->display_name,
-					'avatar' => get_avatar_url( $current_user->ID ),
-				],
-			],
-		];
-	}
+        return [
+            'title'   => 'Feed',
+            'content' => '',
+            // Will be rendered by template
+                            'breadcrumbs' => [ 'Apollo Social', 'Feed' ],
+            'data'                        => [
+                'posts'        => $feed_posts,
+                'current_user' => [
+                    'id'     => $current_user->ID,
+                    'name'   => $current_user->display_name,
+                    'avatar' => get_avatar_url($current_user->ID),
+                ],
+            ],
+        ];
+    }
 
-	/**
-	 * FASE 2: Obter posts de múltiplas fontes e mesclar por data
-	 * Adiciona flag is_bolha para destacar conteúdo de usuários na bolha.
-	 */
-	public function getUnifiedFeedPosts( $page = 1, $per_page = 20 ) {
-		$all_items = [];
+    /**
+     * FASE 2: Obter posts de múltiplas fontes e mesclar por data
+     * Adiciona flag is_bolha para destacar conteúdo de usuários na bolha.
+     */
+    public function getUnifiedFeedPosts($page = 1, $per_page = 20)
+    {
+        $all_items = [];
 
-		// 1. Posts de usuários (apollo_social_post)
-		$user_posts = $this->getUserPosts( $per_page );
-		foreach ( $user_posts as $post ) {
-			$author_id = (int) $post->post_author;
-			$is_bolha  = $this->isInBolha( $author_id );
+        // 1. Posts de usuários (apollo_social_post)
+        $user_posts = $this->getUserPosts($per_page);
+        foreach ($user_posts as $post) {
+            $author_id = (int) $post->post_author;
+            $is_bolha  = $this->isInBolha($author_id);
 
-			$all_items[] = [
-				'type'            => 'user_post',
-				'id'              => $post->ID,
-				'date'            => $post->post_date,
-				'data'            => $this->formatUserPost( $post ),
-				'is_bolha'        => $is_bolha,
-				'bolha_highlight' => $is_bolha ? 'featured' : '',
-			];
-		}
+            $all_items[] = [
+                'type'            => 'user_post',
+                'id'              => $post->ID,
+                'date'            => $post->post_date,
+                'data'            => $this->formatUserPost($post),
+                'is_bolha'        => $is_bolha,
+                'bolha_highlight' => $is_bolha ? 'featured' : '',
+            ];
+        }
 
-		// 2. Eventos do Apollo Events Manager
-		$events = $this->getEvents( $per_page / 2 );
-		foreach ( $events as $event ) {
-			$author_id = (int) $event->post_author;
-			$is_bolha  = $this->isInBolha( $author_id );
+        // 2. Eventos do Apollo Events Manager
+        $events = $this->getEvents($per_page / 2);
+        foreach ($events as $event) {
+            $author_id = (int) $event->post_author;
+            $is_bolha  = $this->isInBolha($author_id);
 
-			$all_items[] = [
-				'type'            => 'event',
-				'id'              => $event->ID,
-				'date'            => get_post_meta( $event->ID, '_event_start_date', true ) ?: $event->post_date,
-				'data'            => $this->formatEvent( $event ),
-				'is_bolha'        => $is_bolha,
-				'bolha_highlight' => $is_bolha ? 'featured' : '',
-			];
-		}
+            $all_items[] = [
+                'type'            => 'event',
+                'id'              => $event->ID,
+                'date'            => get_post_meta($event->ID, '_event_start_date', true) ?: $event->post_date,
+                'data'            => $this->formatEvent($event),
+                'is_bolha'        => $is_bolha,
+                'bolha_highlight' => $is_bolha ? 'featured' : '',
+            ];
+        }
 
-		// 3. Anúncios/Classificados (se existir CPT ou tabela)
-		$ads = $this->getAds( $per_page / 4 );
-		foreach ( $ads as $ad ) {
-			$author_id = (int) ( $ad->post_author ?? $ad->user_id ?? 0 );
-			$is_bolha  = $this->isInBolha( $author_id );
+        // 3. Anúncios/Classificados (se existir CPT ou tabela)
+        $ads = $this->getAds($per_page / 4);
+        foreach ($ads as $ad) {
+            $author_id = (int) ($ad->post_author ?? $ad->user_id ?? 0);
+            $is_bolha  = $this->isInBolha($author_id);
 
-			$all_items[] = [
-				'type'            => 'ad',
-				'id'              => $ad->ID ?? $ad->id,
-				'date'            => $ad->post_date ?? $ad->created_at ?? gmdate( 'Y-m-d H:i:s' ),
-				'data'            => $this->formatAd( $ad ),
-				'is_bolha'        => $is_bolha,
-				'bolha_highlight' => $is_bolha ? 'featured' : '',
-			];
-		}
+            $all_items[] = [
+                'type'            => 'ad',
+                'id'              => $ad->ID        ?? $ad->id,
+                'date'            => $ad->post_date ?? $ad->created_at ?? gmdate('Y-m-d H:i:s'),
+                'data'            => $this->formatAd($ad),
+                'is_bolha'        => $is_bolha,
+                'bolha_highlight' => $is_bolha ? 'featured' : '',
+            ];
+        }
 
-		// 4. Notícias (posts WordPress com categoria específica)
-		$news = $this->getNews( $per_page / 4 );
-		foreach ( $news as $news_item ) {
-			$author_id = (int) $news_item->post_author;
-			$is_bolha  = $this->isInBolha( $author_id );
+        // 4. Notícias (posts WordPress com categoria específica)
+        $news = $this->getNews($per_page / 4);
+        foreach ($news as $news_item) {
+            $author_id = (int) $news_item->post_author;
+            $is_bolha  = $this->isInBolha($author_id);
 
-			$all_items[] = [
-				'type'            => 'news',
-				'id'              => $news_item->ID,
-				'date'            => $news_item->post_date,
-				'data'            => $this->formatNews( $news_item ),
-				'is_bolha'        => $is_bolha,
-				'bolha_highlight' => $is_bolha ? 'featured' : '',
-			];
-		}
+            $all_items[] = [
+                'type'            => 'news',
+                'id'              => $news_item->ID,
+                'date'            => $news_item->post_date,
+                'data'            => $this->formatNews($news_item),
+                'is_bolha'        => $is_bolha,
+                'bolha_highlight' => $is_bolha ? 'featured' : '',
+            ];
+        }
 
-		// Ordenar por data (mais recente primeiro)
-		usort(
-			$all_items,
-			function ( $a, $b ) {
-				return strtotime( $b['date'] ) - strtotime( $a['date'] );
-			}
-		);
+        // Ordenar por data (mais recente primeiro)
+        usort(
+            $all_items,
+            function ($a, $b) {
+                return strtotime($b['date']) - strtotime($a['date']);
+            }
+        );
 
-		// Paginação: retornar apenas os itens da página solicitada
-		$offset = ( $page - 1 ) * $per_page;
-		return array_slice( $all_items, $offset, $per_page );
-	}
+        // Paginação: retornar apenas os itens da página solicitada
+        $offset = ($page - 1) * $per_page;
 
-	/**
-	 * Obter posts de usuários
-	 */
-	private function getUserPosts( $limit = 10 ) {
-		$query = new WP_Query(
-			[
-				'post_type'      => 'apollo_social_post',
-				'posts_per_page' => $limit,
-				'post_status'    => 'publish',
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-			]
-		);
+        return array_slice($all_items, $offset, $per_page);
+    }
 
-		return $query->posts;
-	}
+    /**
+     * Obter posts de usuários
+     */
+    private function getUserPosts($limit = 10)
+    {
+        $query = new WP_Query(
+            [
+                'post_type'      => 'apollo_social_post',
+                'posts_per_page' => $limit,
+                'post_status'    => 'publish',
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ]
+        );
 
-	/**
-	 * Formatar post de usuário
-	 * P0-5: Inclui detecção de Spotify/SoundCloud
-	 */
-	private function formatUserPost( $post ) {
-		$author_id     = $post->post_author;
-		$like_count    = $this->getLikeCount( 'apollo_social_post', $post->ID );
-		$comment_count = get_comments_number( $post->ID );
-		$user_liked    = $this->current_user_id ? $this->userLiked( 'apollo_social_post', $post->ID ) : false;
+        return $query->posts;
+    }
 
-		$content = $post->post_content;
+    /**
+     * Formatar post de usuário
+     * P0-5: Inclui detecção de Spotify/SoundCloud
+     */
+    private function formatUserPost($post)
+    {
+        $author_id     = $post->post_author;
+        $like_count    = $this->getLikeCount('apollo_social_post', $post->ID);
+        $comment_count = get_comments_number($post->ID);
+        $user_liked    = $this->current_user_id ? $this->userLiked('apollo_social_post', $post->ID) : false;
 
-		// P0-5: Detectar URLs de Spotify/SoundCloud
-		$media_embeds = [];
-		if ( class_exists( '\Apollo\Helpers\MediaEmbedHelper' ) ) {
-			$detected_media = \Apollo\Helpers\MediaEmbedHelper::detectMediaUrls( $content );
-			if ( ! empty( $detected_media['spotify'] ) || ! empty( $detected_media['soundcloud'] ) ) {
-				$media_embeds = $detected_media;
-			}
-		}
+        $content = $post->post_content;
 
-		return [
-			'id'            => $post->ID,
-			'title'         => get_the_title( $post->ID ),
-			'content'       => apply_filters( 'apollo_feed_the_content', $content ),
-			'excerpt'       => get_the_excerpt( $post->ID ),
-			'author'        => [
-				'id'     => $author_id,
-				'name'   => get_the_author_meta( 'display_name', $author_id ),
-				'avatar' => get_avatar_url( $author_id ),
-			],
-			'date'          => get_the_date( 'c', $post->ID ),
-			'permalink'     => get_permalink( $post->ID ),
-			'thumbnail'     => get_the_post_thumbnail_url( $post->ID, 'medium' ),
-			'like_count'    => $like_count,
-			'comment_count' => $comment_count,
-			'user_liked'    => $user_liked,
-			'media_embeds'  => $media_embeds,
-		// P0-5: Spotify/SoundCloud embeds
-		];
-	}
+        // P0-5: Detectar URLs de Spotify/SoundCloud
+        $media_embeds = [];
+        if (class_exists('\Apollo\Helpers\MediaEmbedHelper')) {
+            $detected_media = \Apollo\Helpers\MediaEmbedHelper::detectMediaUrls($content);
+            if (! empty($detected_media['spotify']) || ! empty($detected_media['soundcloud'])) {
+                $media_embeds = $detected_media;
+            }
+        }
 
-	/**
-	 * Obter eventos
-	 */
-	private function getEvents( $limit = 5 ) {
-		if ( ! post_type_exists( 'event_listing' ) ) {
-			return [];
-		}
+        return [
+            'id'      => $post->ID,
+            'title'   => get_the_title($post->ID),
+            'content' => apply_filters('apollo_feed_the_content', $content),
+            'excerpt' => get_the_excerpt($post->ID),
+            'author'  => [
+                'id'     => $author_id,
+                'name'   => get_the_author_meta('display_name', $author_id),
+                'avatar' => get_avatar_url($author_id),
+            ],
+            'date'          => get_the_date('c', $post->ID),
+            'permalink'     => get_permalink($post->ID),
+            'thumbnail'     => get_the_post_thumbnail_url($post->ID, 'medium'),
+            'like_count'    => $like_count,
+            'comment_count' => $comment_count,
+            'user_liked'    => $user_liked,
+            'media_embeds'  => $media_embeds,
+        // P0-5: Spotify/SoundCloud embeds
+        ];
+    }
 
-		$query = new WP_Query(
-			[
-				'post_type'      => 'event_listing',
-				'posts_per_page' => $limit,
-				'post_status'    => 'publish',
-				'meta_key'       => '_event_start_date',
-				'orderby'        => 'meta_value',
-				'order'          => 'ASC',
-				'meta_query'     => [
-					[
-						'key'     => '_event_start_date',
-						'value'   => date( 'Y-m-d' ),
-						'compare' => '>=',
-					],
-				],
-			]
-		);
+    /**
+     * Obter eventos
+     */
+    private function getEvents($limit = 5)
+    {
+        if (! post_type_exists('event_listing')) {
+            return [];
+        }
 
-		return $query->posts;
-	}
+        $query = new WP_Query(
+            [
+                'post_type'      => 'event_listing',
+                'posts_per_page' => $limit,
+                'post_status'    => 'publish',
+                'meta_key'       => '_event_start_date',
+                'orderby'        => 'meta_value',
+                'order'          => 'ASC',
+                'meta_query'     => [
+                    [
+                        'key'     => '_event_start_date',
+                        'value'   => date('Y-m-d'),
+                        'compare' => '>=',
+                    ],
+                ],
+            ]
+        );
 
-	/**
-	 * Formatar evento
-	 */
-	private function formatEvent( $event ) {
-		$author_id      = $event->post_author;
-		$like_count     = $this->getLikeCount( 'event_listing', $event->ID );
-		$user_liked     = $this->current_user_id ? $this->userLiked( 'event_listing', $event->ID ) : false;
-		$user_favorited = $this->current_user_id ? $this->userFavoritedEvent( $event->ID ) : false;
+        return $query->posts;
+    }
 
-		// Usar helper do Apollo Events Manager se disponível
-		$start_date = get_post_meta( $event->ID, '_event_start_date', true );
-		$start_time = get_post_meta( $event->ID, '_event_start_time', true );
-		$local_id   = get_post_meta( $event->ID, '_event_local_id', true );
-		$local_name = $local_id ? get_the_title( $local_id ) : '';
+    /**
+     * Formatar evento
+     */
+    private function formatEvent($event)
+    {
+        $author_id      = $event->post_author;
+        $like_count     = $this->getLikeCount('event_listing', $event->ID);
+        $user_liked     = $this->current_user_id ? $this->userLiked('event_listing', $event->ID) : false;
+        $user_favorited = $this->current_user_id ? $this->userFavoritedEvent($event->ID) : false;
 
-		return [
-			'id'             => $event->ID,
-			'title'          => get_the_title( $event->ID ),
-			'excerpt'        => get_the_excerpt( $event->ID ),
-			'author'         => [
-				'id'     => $author_id,
-				'name'   => get_the_author_meta( 'display_name', $author_id ),
-				'avatar' => get_avatar_url( $author_id ),
-			],
-			'date'           => $start_date ?: get_the_date( 'c', $event->ID ),
-			'start_date'     => $start_date,
-			'start_time'     => $start_time,
-			'local'          => $local_name,
-			'permalink'      => get_permalink( $event->ID ),
-			'thumbnail'      => get_the_post_thumbnail_url( $event->ID, 'medium' ),
-			'like_count'     => $like_count,
-			'user_liked'     => $user_liked,
-			'user_favorited' => $user_favorited,
-		];
-	}
+        // Usar helper do Apollo Events Manager se disponível
+        $start_date = get_post_meta($event->ID, '_event_start_date', true);
+        $start_time = get_post_meta($event->ID, '_event_start_time', true);
+        $local_id   = get_post_meta($event->ID, '_event_local_id', true);
+        $local_name = $local_id ? get_the_title($local_id) : '';
 
-	/**
-	 * Obter anúncios
-	 */
-	private function getAds( $limit = 5 ) {
-		// Tentar CPT primeiro
-		if ( post_type_exists( 'apollo_ad' ) ) {
-			$query = new WP_Query(
-				[
-					'post_type'      => 'apollo_ad',
-					'posts_per_page' => $limit,
-					'post_status'    => 'publish',
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-				]
-			);
-			return $query->posts;
-		}
+        return [
+            'id'      => $event->ID,
+            'title'   => get_the_title($event->ID),
+            'excerpt' => get_the_excerpt($event->ID),
+            'author'  => [
+                'id'     => $author_id,
+                'name'   => get_the_author_meta('display_name', $author_id),
+                'avatar' => get_avatar_url($author_id),
+            ],
+            'date'           => $start_date ?: get_the_date('c', $event->ID),
+            'start_date'     => $start_date,
+            'start_time'     => $start_time,
+            'local'          => $local_name,
+            'permalink'      => get_permalink($event->ID),
+            'thumbnail'      => get_the_post_thumbnail_url($event->ID, 'medium'),
+            'like_count'     => $like_count,
+            'user_liked'     => $user_liked,
+            'user_favorited' => $user_favorited,
+        ];
+    }
 
-		// Tentar tabela custom
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'apollo_ads';
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) === $table_name ) {
-			return $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT * FROM $table_name WHERE status = 'published' ORDER BY created_at DESC LIMIT %d",
-					$limit
-				)
-			);
-		}
+    /**
+     * Obter anúncios
+     */
+    private function getAds($limit = 5)
+    {
+        // Tentar CPT primeiro
+        if (post_type_exists('apollo_ad')) {
+            $query = new WP_Query(
+                [
+                    'post_type'      => 'apollo_ad',
+                    'posts_per_page' => $limit,
+                    'post_status'    => 'publish',
+                    'orderby'        => 'date',
+                    'order'          => 'DESC',
+                ]
+            );
 
-		return [];
-	}
+            return $query->posts;
+        }
 
-	/**
-	 * Formatar anúncio
-	 */
-	private function formatAd( $ad ) {
-		if ( is_object( $ad ) && isset( $ad->post_type ) ) {
-			// É um post WordPress
-			return [
-				'id'        => $ad->ID,
-				'title'     => get_the_title( $ad->ID ),
-				'excerpt'   => get_the_excerpt( $ad->ID ),
-				'permalink' => get_permalink( $ad->ID ),
-				'thumbnail' => get_the_post_thumbnail_url( $ad->ID, 'medium' ),
-			];
-		}
+        // Tentar tabela custom
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'apollo_ads';
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name) {
+            return $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM $table_name WHERE status = 'published' ORDER BY created_at DESC LIMIT %d",
+                    $limit
+                )
+            );
+        }
 
-		// É da tabela custom
-		return [
-			'id'                        => $ad->id,
-			'title'                     => $ad->title ?? '',
-			'excerpt'                   => $ad->description ?? '',
-			'permalink'                 => '#',
-			// Implementar rota se necessário
-							'thumbnail' => $ad->image_url ?? '',
-		];
-	}
+        return [];
+    }
 
-	/**
-	 * Obter notícias
-	 */
-	private function getNews( $limit = 5 ) {
-		$query = new WP_Query(
-			[
-				'post_type'                               => 'post',
-				'posts_per_page'                          => $limit,
-				'post_status'                             => 'publish',
-				'category_name'                           => 'noticias',
-				// Ajustar conforme necessário
-												'orderby' => 'date',
-				'order'                                   => 'DESC',
-			]
-		);
+    /**
+     * Formatar anúncio
+     */
+    private function formatAd($ad)
+    {
+        if (is_object($ad) && isset($ad->post_type)) {
+            // É um post WordPress
+            return [
+                'id'        => $ad->ID,
+                'title'     => get_the_title($ad->ID),
+                'excerpt'   => get_the_excerpt($ad->ID),
+                'permalink' => get_permalink($ad->ID),
+                'thumbnail' => get_the_post_thumbnail_url($ad->ID, 'medium'),
+            ];
+        }
 
-		return $query->posts;
-	}
+        // É da tabela custom
+        return [
+            'id'        => $ad->id,
+            'title'     => $ad->title       ?? '',
+            'excerpt'   => $ad->description ?? '',
+            'permalink' => '#',
+            // Implementar rota se necessário
+                            'thumbnail' => $ad->image_url ?? '',
+        ];
+    }
 
-	/**
-	 * Formatar notícia
-	 */
-	private function formatNews( $news ) {
-		return [
-			'id'        => $news->ID,
-			'title'     => get_the_title( $news->ID ),
-			'excerpt'   => get_the_excerpt( $news->ID ),
-			'permalink' => get_permalink( $news->ID ),
-			'thumbnail' => get_the_post_thumbnail_url( $news->ID, 'medium' ),
-		];
-	}
+    /**
+     * Obter notícias
+     */
+    private function getNews($limit = 5)
+    {
+        $query = new WP_Query(
+            [
+                'post_type'      => 'post',
+                'posts_per_page' => $limit,
+                'post_status'    => 'publish',
+                'category_name'  => 'noticias',
+                // Ajustar conforme necessário
+                                                'orderby' => 'date',
+                'order'                                   => 'DESC',
+            ]
+        );
 
-	/**
-	 * Obter contagem de likes
-	 */
-	private function getLikeCount( $content_type, $content_id ) {
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'apollo_likes';
+        return $query->posts;
+    }
 
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $table_name WHERE content_type = %s AND content_id = %d",
-				$content_type,
-				$content_id
-			)
-		);
-	}
+    /**
+     * Formatar notícia
+     */
+    private function formatNews($news)
+    {
+        return [
+            'id'        => $news->ID,
+            'title'     => get_the_title($news->ID),
+            'excerpt'   => get_the_excerpt($news->ID),
+            'permalink' => get_permalink($news->ID),
+            'thumbnail' => get_the_post_thumbnail_url($news->ID, 'medium'),
+        ];
+    }
 
-	/**
-	 * Verificar se usuário curtiu
-	 */
-	private function userLiked( $content_type, $content_id ) {
-		if ( ! $this->current_user_id ) {
-			return false;
-		}
+    /**
+     * Obter contagem de likes
+     */
+    private function getLikeCount($content_type, $content_id)
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'apollo_likes';
 
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'apollo_likes';
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table_name WHERE content_type = %s AND content_id = %d",
+                $content_type,
+                $content_id
+            )
+        );
+    }
 
-		$count = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $table_name WHERE content_type = %s AND content_id = %d AND user_id = %d",
-				$content_type,
-				$content_id,
-				$this->current_user_id
-			)
-		);
+    /**
+     * Verificar se usuário curtiu
+     */
+    private function userLiked($content_type, $content_id)
+    {
+        if (! $this->current_user_id) {
+            return false;
+        }
 
-		return (int) $count > 0;
-	}
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'apollo_likes';
 
-	/**
-	 * Verificar se usuário favoritou evento
-	 */
-	/**
-	 * P0-6: Check if user favorited event (unified favorites system)
-	 */
-	private function userFavoritedEvent( $event_id ) {
-		if ( ! $this->current_user_id ) {
-			return false;
-		}
+        $count = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table_name WHERE content_type = %s AND content_id = %d AND user_id = %d",
+                $content_type,
+                $content_id,
+                $this->current_user_id
+            )
+        );
 
-		// Use unified favorites system
-		$user_favorites = get_user_meta( $this->current_user_id, 'apollo_favorites', true );
-		if ( ! is_array( $user_favorites ) ) {
-			return false;
-		}
+        return (int) $count > 0;
+    }
 
-		// Check event_listing favorites
-		if ( isset( $user_favorites['event_listing'] ) && is_array( $user_favorites['event_listing'] ) ) {
-			return in_array( $event_id, $user_favorites['event_listing'], true );
-		}
+    /**
+     * Verificar se usuário favoritou evento
+     */
+    /**
+     * P0-6: Check if user favorited event (unified favorites system)
+     */
+    private function userFavoritedEvent($event_id)
+    {
+        if (! $this->current_user_id) {
+            return false;
+        }
 
-		return false;
-	}
+        // Use unified favorites system
+        $user_favorites = get_user_meta($this->current_user_id, 'apollo_favorites', true);
+        if (! is_array($user_favorites)) {
+            return false;
+        }
+
+        // Check event_listing favorites
+        if (isset($user_favorites['event_listing']) && is_array($user_favorites['event_listing'])) {
+            return in_array($event_id, $user_favorites['event_listing'], true);
+        }
+
+        return false;
+    }
 }

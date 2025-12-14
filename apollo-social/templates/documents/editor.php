@@ -16,113 +16,113 @@
  * @see     apollo-core/templates/design-library/docs-editor.html
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 use Apollo\Modules\Documents\DocumentsHelpers;
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Material Symbols.
-		wp_enqueue_style(
-			'material-symbols',
-			'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0',
-			[],
-			'1.0.0'
-		);
+        // Material Symbols.
+        wp_enqueue_style(
+            'material-symbols',
+            'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0',
+            [],
+            '1.0.0'
+        );
 
-		// Google Fonts.
-		wp_enqueue_style(
-			'google-fonts-editor',
-			'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
-			[],
-			'1.0.0'
-		);
+        // Google Fonts.
+        wp_enqueue_style(
+            'google-fonts-editor',
+            'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
+            [],
+            '1.0.0'
+        );
 
-		// Base JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
+        // Base JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
 
-		// Sign Document Module.
-		wp_enqueue_script(
-			'apollo-sign-document',
-			plugins_url( 'assets/js/sign-document.js', dirname( __DIR__ ) ),
-			[],
-			'1.0.0',
-			true
-		);
-	},
-	10
+        // Sign Document Module.
+        wp_enqueue_script(
+            'apollo-sign-document',
+            plugins_url('assets/js/sign-document.js', dirname(__DIR__)),
+            [],
+            '1.0.0',
+            true
+        );
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
 // Get document data
 $type_label  = $type === 'documento' ? 'Documento' : 'Planilha';
 $is_new      = $mode === 'new';
-$document_id = $is_new ? 0 : ( $document['id'] ?? 0 );
-$file_id     = $is_new ? '' : ( $document['file_id'] ?? '' );
-$doc_title   = $is_new ? 'Novo ' . $type_label : ( $document['title'] ?? '' );
-$doc_content = $is_new ? '<h1>Novo ' . $type_label . '</h1><p>Comece a escrever seu documento aqui...</p>' : ( $document['content'] ?? '' );
+$document_id = $is_new ? 0 : ($document['id'] ?? 0);
+$file_id     = $is_new ? '' : ($document['file_id'] ?? '');
+$doc_title   = $is_new ? 'Novo ' . $type_label : ($document['title'] ?? '');
+$doc_content = $is_new ? '<h1>Novo ' . $type_label . '</h1><p>Comece a escrever seu documento aqui...</p>' : ($document['content'] ?? '');
 $doc_status  = $document['status'] ?? 'draft';
-$doc_version = (int) ( $document['version'] ?? 1 );
+$doc_version = (int) ($document['version'] ?? 1);
 
 // Get status and type info with tooltips
-$status_info = DocumentsHelpers::get_status_info( $doc_status );
-$type_info   = DocumentsHelpers::get_type_info( $type );
+$status_info = DocumentsHelpers::get_status_info($doc_status);
+$type_info   = DocumentsHelpers::get_type_info($type);
 
 // Field tooltips
 $tooltips = [
-	'title'        => DocumentsHelpers::get_field_tooltip( 'title' ),
-	'status'       => $status_info['tooltip'],
-	'type'         => $type_info['tooltip'],
-	'version'      => DocumentsHelpers::get_version_tooltip( $doc_version ),
-	'save_status'  => DocumentsHelpers::get_field_tooltip( 'save_status' ),
-	'export_pdf'   => DocumentsHelpers::get_field_tooltip( 'export_pdf' ),
-	'prepare_sign' => DocumentsHelpers::get_field_tooltip( 'prepare_sign' ),
-	'font_family'  => DocumentsHelpers::get_field_tooltip( 'font_family' ),
-	'font_size'    => DocumentsHelpers::get_field_tooltip( 'font_size' ),
-	'font_weight'  => DocumentsHelpers::get_field_tooltip( 'font_weight' ),
-	'text_color'   => DocumentsHelpers::get_field_tooltip( 'text_color' ),
-	'text_align'   => DocumentsHelpers::get_field_tooltip( 'text_align' ),
+    'title'        => DocumentsHelpers::get_field_tooltip('title'),
+    'status'       => $status_info['tooltip'],
+    'type'         => $type_info['tooltip'],
+    'version'      => DocumentsHelpers::get_version_tooltip($doc_version),
+    'save_status'  => DocumentsHelpers::get_field_tooltip('save_status'),
+    'export_pdf'   => DocumentsHelpers::get_field_tooltip('export_pdf'),
+    'prepare_sign' => DocumentsHelpers::get_field_tooltip('prepare_sign'),
+    'font_family'  => DocumentsHelpers::get_field_tooltip('font_family'),
+    'font_size'    => DocumentsHelpers::get_field_tooltip('font_size'),
+    'font_weight'  => DocumentsHelpers::get_field_tooltip('font_weight'),
+    'text_color'   => DocumentsHelpers::get_field_tooltip('text_color'),
+    'text_align'   => DocumentsHelpers::get_field_tooltip('text_align'),
 ];
 
 // Can edit/sign based on status
-$can_edit = DocumentsHelpers::can_edit( $doc_status );
-$can_sign = DocumentsHelpers::can_sign( $doc_status ) || $doc_status === 'draft';
+$can_edit = DocumentsHelpers::can_edit($doc_status);
+$can_sign = DocumentsHelpers::can_sign($doc_status) || $doc_status === 'draft';
 
 // Generate nonce for secure AJAX operations
-$ajax_nonce = wp_create_nonce( 'apollo_document_editor' );
-$ajax_url   = admin_url( 'admin-ajax.php' );
+$ajax_nonce = wp_create_nonce('apollo_document_editor');
+$ajax_url   = admin_url('admin-ajax.php');
 
 // Don't use standard WP header - this is a full-page app
 ?>
@@ -131,7 +131,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Apollo :: Editor - <?php echo esc_html( $doc_title ); ?></title>
+	<title>Apollo :: Editor - <?php echo esc_html($doc_title); ?></title>
 	<?php wp_head(); ?>
 
 	<style>
@@ -533,34 +533,34 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 			<span class="file-name <?php echo $can_edit ? '' : 'readonly'; ?>"
 					contenteditable="<?php echo $can_edit ? 'true' : 'false'; ?>"
 					id="document-title"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['title'] ); ?>"><?php echo esc_html( $doc_title ); ?></span>
+					data-ap-tooltip="<?php echo esc_attr($tooltips['title']); ?>"><?php echo esc_html($doc_title); ?></span>
 		</div>
 
 		<div class="navbar-actions">
 			<!-- Status Badge with Tooltip -->
-			<span class="ap-badge <?php echo esc_attr( $status_info['class'] ); ?>"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['status'] ); ?>">
-				<span class="material-symbols-rounded" style="font-size: 14px;"><?php echo esc_html( $status_info['icon'] ); ?></span>
-				<?php echo esc_html( $status_info['label'] ); ?>
+			<span class="ap-badge <?php echo esc_attr($status_info['class']); ?>"
+					data-ap-tooltip="<?php echo esc_attr($tooltips['status']); ?>">
+				<span class="material-symbols-rounded" style="font-size: 14px;"><?php echo esc_html($status_info['icon']); ?></span>
+				<?php echo esc_html($status_info['label']); ?>
 			</span>
 
 			<!-- Type Badge -->
 			<span class="ap-badge ap-badge--muted"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['type'] ); ?>">
-				<i class="<?php echo esc_attr( $type_info['icon'] ); ?>"></i>
-				<?php echo esc_html( $type_info['label'] ); ?>
+					data-ap-tooltip="<?php echo esc_attr($tooltips['type']); ?>">
+				<i class="<?php echo esc_attr($type_info['icon']); ?>"></i>
+				<?php echo esc_html($type_info['label']); ?>
 			</span>
 
 			<!-- Version Badge -->
 			<span class="ap-badge ap-badge--outline"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['version'] ); ?>">
-				v<?php echo esc_html( $doc_version ); ?>
+					data-ap-tooltip="<?php echo esc_attr($tooltips['version']); ?>">
+				v<?php echo esc_html($doc_version); ?>
 			</span>
 
 			<span class="save-status saved" id="save-status"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['save_status'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['save_status']); ?>">
 				<span class="material-symbols-rounded" style="font-size: 16px;">cloud_done</span>
-				<span id="save-text"><?php echo esc_html( $is_new ? 'Novo' : 'Salvo' ); ?></span>
+				<span id="save-text"><?php echo esc_html($is_new ? 'Novo' : 'Salvo'); ?></span>
 			</span>
 
 			<button class="btn-navbar" onclick="window.location.href='/sign'"
@@ -569,7 +569,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 				<span>Voltar</span>
 			</button>
 
-			<?php if ( $can_edit ) : ?>
+			<?php if ($can_edit) : ?>
 			<button class="btn-navbar" id="btn-save"
 					data-ap-tooltip="Salvar documento (Ctrl+S)">
 				<span class="material-symbols-rounded">save</span>
@@ -578,14 +578,14 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 			<?php endif; ?>
 
 			<button class="btn-navbar primary" id="btn-export-pdf"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['export_pdf'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['export_pdf']); ?>">
 				<span class="material-symbols-rounded">picture_as_pdf</span>
 				<span>Exportar PDF</span>
 			</button>
 
-			<?php if ( ! $is_new && $can_sign ) : ?>
+			<?php if (! $is_new && $can_sign) : ?>
 			<button class="btn-navbar success" id="btn-prepare-sign"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['prepare_sign'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['prepare_sign']); ?>">
 				<i class="ri-quill-pen-line"></i>
 				<span>Assinar</span>
 			</button>
@@ -594,12 +594,12 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 	</div>
 
 	<!-- @section:toolbar -->
-	<?php if ( $type === 'documento' && $can_edit ) : ?>
+	<?php if ($type === 'documento' && $can_edit) : ?>
 	<div class="editor-toolbar">
 		<!-- Font Family -->
 		<div class="tool-group">
 			<select id="fontSelector" class="form-select-sm"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_family'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['font_family']); ?>">
 				<option value="Poppins">Poppins</option>
 				<option value="Roboto">Roboto</option>
 				<option value="Open Sans">Open Sans</option>
@@ -626,7 +626,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 		<!-- Weight & Size -->
 		<div class="tool-group">
 			<select id="fontWeight" class="form-select-sm"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_weight'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['font_weight']); ?>">
 				<option value="300">Light (300)</option>
 				<option value="400" selected>Regular (400)</option>
 				<option value="500">Medium (500)</option>
@@ -635,7 +635,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 				<option value="800">Extra Bold (800)</option>
 			</select>
 			<select id="fontSize" class="form-select-sm"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['font_size'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['font_size']); ?>">
 				<option value="10px">10</option>
 				<option value="12px">12</option>
 				<option value="14px" selected>14</option>
@@ -662,7 +662,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 				<span class="material-symbols-rounded">format_underlined</span>
 			</button>
 			<input type="color" id="textColor" value="#000000"
-					data-ap-tooltip="<?php echo esc_attr( $tooltips['text_color'] ); ?>">
+					data-ap-tooltip="<?php echo esc_attr($tooltips['text_color']); ?>">
 		</div>
 
 		<!-- Alignment -->
@@ -697,7 +697,7 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 			</button>
 		</div>
 	</div>
-	<?php elseif ( $type === 'planilha' && $can_edit ) : ?>
+	<?php elseif ($type === 'planilha' && $can_edit) : ?>
 	<!-- Spreadsheet Toolbar -->
 	<div class="editor-toolbar">
 		<div class="tool-group">
@@ -727,9 +727,9 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 
 	<!-- @section:workspace -->
 	<div id="main" class="workspace">
-		<?php if ( $type === 'documento' ) : ?>
+		<?php if ($type === 'documento') : ?>
 		<div class="document-page" contenteditable="true" spellcheck="true" id="editor-content">
-			<?php echo wp_kses_post( $doc_content ); ?>
+			<?php echo wp_kses_post($doc_content); ?>
 		</div>
 		<?php else : ?>
 		<div class="document-page">
@@ -738,21 +738,21 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 					<thead>
 						<tr>
 							<th style="width: 40px;">#</th>
-							<?php for ( $col = 0; $col < 10; $col++ ) : ?>
-								<th><?php echo esc_html( chr( 65 + $col ) ); ?></th>
+							<?php for ($col = 0; $col < 10; $col++) : ?>
+								<th><?php echo esc_html(chr(65 + $col)); ?></th>
 							<?php endfor; ?>
 						</tr>
 					</thead>
 					<tbody id="spreadsheet-body">
-						<?php for ( $row = 1; $row <= 20; $row++ ) : ?>
+						<?php for ($row = 1; $row <= 20; $row++) : ?>
 							<tr>
-								<th><?php echo esc_html( $row ); ?></th>
-								<?php for ( $col = 0; $col < 10; $col++ ) : ?>
+								<th><?php echo esc_html($row); ?></th>
+								<?php for ($col = 0; $col < 10; $col++) : ?>
 									<td>
 										<input type="text"
 											class="spreadsheet-cell"
-											data-row="<?php echo esc_attr( $row ); ?>"
-											data-col="<?php echo esc_attr( $col ); ?>">
+											data-row="<?php echo esc_attr($row); ?>"
+											data-col="<?php echo esc_attr($col); ?>">
 									</td>
 								<?php endfor; ?>
 							</tr>
@@ -765,19 +765,19 @@ $ajax_url   = admin_url( 'admin-ajax.php' );
 	</div>
 
 	<!-- Hidden form data -->
-	<input type="hidden" id="document-id" value="<?php echo esc_attr( $document_id ); ?>">
-	<input type="hidden" id="document-file-id" value="<?php echo esc_attr( $file_id ); ?>">
-	<input type="hidden" id="document-type" value="<?php echo esc_attr( $type ); ?>">
-	<input type="hidden" id="ajax-nonce" value="<?php echo esc_attr( $ajax_nonce ); ?>">
-	<input type="hidden" id="ajax-url" value="<?php echo esc_url( $ajax_url ); ?>">
+	<input type="hidden" id="document-id" value="<?php echo esc_attr($document_id); ?>">
+	<input type="hidden" id="document-file-id" value="<?php echo esc_attr($file_id); ?>">
+	<input type="hidden" id="document-type" value="<?php echo esc_attr($type); ?>">
+	<input type="hidden" id="ajax-nonce" value="<?php echo esc_attr($ajax_nonce); ?>">
+	<input type="hidden" id="ajax-url" value="<?php echo esc_url($ajax_url); ?>">
 
 	<?php
-	// Include signature modal if document can be signed
-	if ( ! $is_new && $can_sign ) :
-		$document_title = $doc_title;
-		include __DIR__ . '/partials/signature-modal.php';
-	endif;
-	?>
+    // Include signature modal if document can be signed
+    if (! $is_new && $can_sign) :
+        $document_title = $doc_title;
+        include __DIR__ . '/partials/signature-modal.php';
+    endif;
+?>
 
 	<script>
 	(function() {

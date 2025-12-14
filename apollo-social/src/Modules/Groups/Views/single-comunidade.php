@@ -6,7 +6,7 @@
  */
 
 // Get comunidade slug from URL
-$slug = get_query_var( 'apollo_slug', '' );
+$slug = get_query_var('apollo_slug', '');
 
 // TODO: implement single comunidade template
 // 1. Load comunidade data by slug
@@ -17,12 +17,12 @@ $slug = get_query_var( 'apollo_slug', '' );
 
 ?>
 
-<div class="apollo-group-single apollo-comunidade-single" data-group-type="comunidade" data-group-slug="<?php echo esc_attr( $slug ); ?>">
+<div class="apollo-group-single apollo-comunidade-single" data-group-type="comunidade" data-group-slug="<?php echo esc_attr($slug); ?>">
 	
 	<div class="group-header">
-		<h1 class="group-title">Comunidade: <?php echo esc_html( $slug ); ?></h1>
+		<h1 class="group-title">Comunidade: <?php echo esc_html($slug); ?></h1>
 		<div class="group-actions">
-			<button class="btn apollo-join-group-btn" data-group-type="comunidade" data-group-slug="<?php echo esc_attr( $slug ); ?>">
+			<button class="btn apollo-join-group-btn" data-group-type="comunidade" data-group-slug="<?php echo esc_attr($slug); ?>">
 				Entrar na Comunidade
 			</button>
 		</div>
@@ -46,7 +46,7 @@ $slug = get_query_var( 'apollo_slug', '' );
 document.addEventListener('DOMContentLoaded', function() {
 	// Track group view
 	if (typeof apolloAnalytics !== 'undefined') {
-		apolloAnalytics.trackGroupView('comunidade', '<?php echo esc_js( $slug ); ?>');
+		apolloAnalytics.trackGroupView('comunidade', '<?php echo esc_js($slug); ?>');
 	}
 	
 	// Track group join clicks

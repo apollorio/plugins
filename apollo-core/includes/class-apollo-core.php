@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Apollo Core main class
  */
 final class Apollo_Core {
+
 	/**
 	 * Single instance
 	 *
@@ -57,6 +58,7 @@ final class Apollo_Core {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -166,4 +168,3 @@ final class Apollo_Core {
 		flush_rewrite_rules();
 	}
 }
-

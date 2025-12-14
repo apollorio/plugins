@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * General template tags that can go anywhere in a template.
@@ -25,28 +26,29 @@
  *
  * @param string $name The name of the specialised header.
  */
-function pwa_get_header( $name = null ) {
-	/**
-	 * Fires before the header template file is loaded.
-	 *
-	 * @since 2.1.0
-	 * @since 2.8.0 $name parameter added.
-	 *
-	 * @param string|null $name Name of the specific header file to use. null for the default header.
-	 */
-	do_action( 'get_header', $name );
+function pwa_get_header($name = null)
+{
+    /**
+     * Fires before the header template file is loaded.
+     *
+     * @since 2.1.0
+     * @since 2.8.0 $name parameter added.
+     *
+     * @param string|null $name Name of the specific header file to use. null for the default header.
+     */
+    do_action('get_header', $name);
 
-	$templates = array();
-	$name      = (string) $name;
-	if ( '' !== $name ) {
-		$templates[] = "header-{$name}.php";
-	}
+    $templates = [];
+    $name      = (string) $name;
+    if ('' !== $name) {
+        $templates[] = "header-{$name}.php";
+    }
 
-	$templates[] = 'header.php';
+    $templates[] = 'header.php';
 
-	// Begin core patch.
-	pwa_locate_template( $templates, true );
-	// End core patch.
+    // Begin core patch.
+    pwa_locate_template($templates, true);
+    // End core patch.
 }
 
 /**
@@ -64,28 +66,29 @@ function pwa_get_header( $name = null ) {
  *
  * @param string $name The name of the specialised footer.
  */
-function pwa_get_footer( $name = null ) {
-	/**
-	 * Fires before the footer template file is loaded.
-	 *
-	 * @since 2.1.0
-	 * @since 2.8.0 $name parameter added.
-	 *
-	 * @param string|null $name Name of the specific footer file to use. null for the default footer.
-	 */
-	do_action( 'get_footer', $name );
+function pwa_get_footer($name = null)
+{
+    /**
+     * Fires before the footer template file is loaded.
+     *
+     * @since 2.1.0
+     * @since 2.8.0 $name parameter added.
+     *
+     * @param string|null $name Name of the specific footer file to use. null for the default footer.
+     */
+    do_action('get_footer', $name);
 
-	$templates = array();
-	$name      = (string) $name;
-	if ( '' !== $name ) {
-		$templates[] = "footer-{$name}.php";
-	}
+    $templates = [];
+    $name      = (string) $name;
+    if ('' !== $name) {
+        $templates[] = "footer-{$name}.php";
+    }
 
-	$templates[] = 'footer.php';
+    $templates[] = 'footer.php';
 
-	// Begin core patch.
-	pwa_locate_template( $templates, true );
-	// End core patch.
+    // Begin core patch.
+    pwa_locate_template($templates, true);
+    // End core patch.
 }
 
 /**
@@ -96,11 +99,13 @@ function pwa_get_footer( $name = null ) {
  * @param array<string, true|string> $robots Robots.
  * @return array<string, true|string> Robots.
  */
-function wp_filter_robots_for_error_template( $robots ) {
-	if ( is_offline() || is_500() ) {
-		$robots['noindex'] = true;
-	}
-	return $robots;
+function wp_filter_robots_for_error_template($robots)
+{
+    if (is_offline() || is_500()) {
+        $robots['noindex'] = true;
+    }
+
+    return $robots;
 }
 
 /**
@@ -111,10 +116,11 @@ function wp_filter_robots_for_error_template( $robots ) {
  * @see wp_no_robots()
  * @since 0.2
  */
-function wp_add_error_template_no_robots() {
-	if ( is_offline() || is_500() ) {
-		wp_no_robots(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_no_robotsFound
-	}
+function wp_add_error_template_no_robots()
+{
+    if (is_offline() || is_500()) {
+        wp_no_robots(); // phpcs:ignore WordPress.WP.DeprecatedFunctions.wp_no_robotsFound
+    }
 }
 
 /**
@@ -127,10 +133,11 @@ function wp_add_error_template_no_robots() {
  *
  * @param WP_Query $query Query.
  */
-function wp_unauthenticate_error_template_requests( WP_Query $query ) {
-	if ( $query->is_main_query() && ( is_offline() || is_500() ) ) {
-		wp_set_current_user( 0 );
-	}
+function wp_unauthenticate_error_template_requests(WP_Query $query)
+{
+    if ($query->is_main_query() && (is_offline() || is_500())) {
+        wp_set_current_user(0);
+    }
 }
 
 /**
@@ -151,15 +158,17 @@ function wp_unauthenticate_error_template_requests( WP_Query $query ) {
  * }
  * @return array<string, string> $title Filtered title.
  */
-function pwa_filter_document_title_parts( $parts ) {
-	if ( ! empty( $parts['title'] ) ) {
-		return $parts;
-	}
-	if ( is_offline() ) {
-		$parts['title'] = __( 'Offline', 'pwa' );
-	} elseif ( is_500() ) {
-		$parts['title'] = __( 'Internal Server Error', 'pwa' );
-	}
-	return $parts;
+function pwa_filter_document_title_parts($parts)
+{
+    if (! empty($parts['title'])) {
+        return $parts;
+    }
+    if (is_offline()) {
+        $parts['title'] = __('Offline', 'pwa');
+    } elseif (is_500()) {
+        $parts['title'] = __('Internal Server Error', 'pwa');
+    }
+
+    return $parts;
 }
-add_filter( 'document_title_parts', 'pwa_filter_document_title_parts' );
+add_filter('document_title_parts', 'pwa_filter_document_title_parts');

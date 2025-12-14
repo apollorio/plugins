@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Design Library
  *
@@ -54,6 +55,7 @@ class Apollo_Design_Library {
 		if ( empty( self::$library_path ) ) {
 			self::init();
 		}
+
 		return self::$library_path;
 	}
 
@@ -84,6 +86,7 @@ class Apollo_Design_Library {
 		}
 
 		self::$index_cache = $data;
+
 		return $data;
 	}
 
@@ -94,6 +97,7 @@ class Apollo_Design_Library {
 	 */
 	public static function list_templates(): array {
 		$index = self::get_index();
+
 		return $index['templates'] ?? array();
 	}
 
@@ -104,6 +108,7 @@ class Apollo_Design_Library {
 	 */
 	public static function list_components(): array {
 		$index = self::get_index();
+
 		return $index['components'] ?? array();
 	}
 
@@ -114,6 +119,7 @@ class Apollo_Design_Library {
 	 */
 	public static function get_design_tokens(): array {
 		$index = self::get_index();
+
 		return $index['design_tokens'] ?? array();
 	}
 
@@ -124,6 +130,7 @@ class Apollo_Design_Library {
 	 */
 	public static function get_external_assets(): array {
 		$index = self::get_index();
+
 		return $index['external_assets'] ?? array();
 	}
 
@@ -158,6 +165,7 @@ class Apollo_Design_Library {
 	 */
 	public static function get_template_meta( string $template_name ) {
 		$templates = self::list_templates();
+
 		return $templates[ $template_name ] ?? false;
 	}
 
@@ -279,6 +287,7 @@ class Apollo_Design_Library {
 	 */
 	public static function template_exists( string $template_name ): bool {
 		$templates = self::list_templates();
+
 		return isset( $templates[ $template_name ] );
 	}
 
@@ -289,6 +298,7 @@ class Apollo_Design_Library {
 	 */
 	public static function get_notes(): array {
 		$index = self::get_index();
+
 		return $index['notes'] ?? array();
 	}
 }

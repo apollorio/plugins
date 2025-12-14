@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API SMOKE TEST – PASSED
  * Route: /apollo/v1/doc
@@ -417,7 +418,7 @@ class DocumentsEndpoint {
 	 * @return WP_REST_Response
 	 */
 	public function signDocument( WP_REST_Request $request ): WP_REST_Response {
-		$id = (int) $request->get_param( 'id' );
+		$id   = (int) $request->get_param( 'id' );
 		$post = get_post( $id );
 
 		if ( ! $post || $post->post_type !== 'apollo_document' ) {
@@ -452,7 +453,7 @@ class DocumentsEndpoint {
 		}
 
 		// Get signer data
-		$signer_id = get_current_user_id();
+		$signer_id   = get_current_user_id();
 		$signer_data = array(
 			'signer_id' => $signer_id > 0 ? $signer_id : null,
 			'name'      => $request->get_param( 'name' ),
@@ -498,7 +499,7 @@ class DocumentsEndpoint {
 				'total_signatures' => isset( $result['total_signatures'] ) ? absint( $result['total_signatures'] ) : 0,
 				'signature'        => $signature_response,
 				'data'             => array(
-					'doc_id' => $id,
+					'doc_id'    => $id,
 					'doc_title' => sanitize_text_field( $post->post_title ),
 				),
 			),
@@ -513,7 +514,7 @@ class DocumentsEndpoint {
 	 * @return WP_REST_Response
 	 */
 	public function verifyDocument( WP_REST_Request $request ): WP_REST_Response {
-		$id = (int) $request->get_param( 'id' );
+		$id   = (int) $request->get_param( 'id' );
 		$post = get_post( $id );
 
 		if ( ! $post || $post->post_type !== 'apollo_document' ) {
@@ -539,16 +540,16 @@ class DocumentsEndpoint {
 		// Ensure all data is properly sanitized
 		if ( isset( $result['signatures'] ) && is_array( $result['signatures'] ) ) {
 			foreach ( $result['signatures'] as $key => $sig ) {
-				$result['signatures'][ $key ]['signer_name'] = isset( $sig['signer_name'] ) ? sanitize_text_field( $sig['signer_name'] ) : '';
-				$result['signatures'][ $key ]['signer_email'] = isset( $sig['signer_email'] ) ? sanitize_email( $sig['signer_email'] ) : '';
-				$result['signatures'][ $key ]['role'] = isset( $sig['role'] ) ? sanitize_text_field( $sig['role'] ) : '';
-				$result['signatures'][ $key ]['signed_at'] = isset( $sig['signed_at'] ) ? sanitize_text_field( $sig['signed_at'] ) : '';
+				$result['signatures'][ $key ]['signer_name']      = isset( $sig['signer_name'] ) ? sanitize_text_field( $sig['signer_name'] ) : '';
+				$result['signatures'][ $key ]['signer_email']     = isset( $sig['signer_email'] ) ? sanitize_email( $sig['signer_email'] ) : '';
+				$result['signatures'][ $key ]['role']             = isset( $sig['role'] ) ? sanitize_text_field( $sig['role'] ) : '';
+				$result['signatures'][ $key ]['signed_at']        = isset( $sig['signed_at'] ) ? sanitize_text_field( $sig['signed_at'] ) : '';
 				$result['signatures'][ $key ]['signature_method'] = isset( $sig['signature_method'] ) ? sanitize_key( $sig['signature_method'] ) : '';
 			}
 		}
 
-		$result['message'] = isset( $result['message'] ) ? sanitize_text_field( $result['message'] ) : '';
-		$result['current_hash'] = isset( $result['current_hash'] ) ? sanitize_text_field( $result['current_hash'] ) : '';
+		$result['message']          = isset( $result['message'] ) ? sanitize_text_field( $result['message'] ) : '';
+		$result['current_hash']     = isset( $result['current_hash'] ) ? sanitize_text_field( $result['current_hash'] ) : '';
 		$result['total_signatures'] = isset( $result['total_signatures'] ) ? absint( $result['total_signatures'] ) : 0;
 
 		return new WP_REST_Response( $result, $result['valid'] ? 200 : 400 );

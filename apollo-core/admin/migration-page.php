@@ -125,6 +125,7 @@ function apollo_core_render_migration_page(): void {
 	foreach ( $old_options as $option ) {
 		if ( get_option( $option ) !== false ) {
 			$has_old_options = true;
+
 			break;
 		}
 	}
@@ -272,4 +273,3 @@ function apollo_core_render_migration_page(): void {
 	</div>
 	<?php
 }
-

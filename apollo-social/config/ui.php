@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UI Feature Flags Configuration
  */

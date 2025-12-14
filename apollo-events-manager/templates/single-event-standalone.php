@@ -18,99 +18,100 @@
  * @package Apollo_Events_Manager
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			array(),
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
-			'4.7.0'
-		);
-	},
-	10
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
 // Detect if loaded inside modal
-$is_modal = defined( 'APOLLO_MODAL_CONTEXT' ) && constant( 'APOLLO_MODAL_CONTEXT' );
+$is_modal = defined('APOLLO_MODAL_CONTEXT') && constant('APOLLO_MODAL_CONTEXT');
 
 // Get event ID
-$event_id = isset( $event_id ) ? $event_id : get_the_ID();
+$event_id = isset($event_id) ? $event_id : get_the_ID();
 
 // Get data helper
-if ( ! class_exists( 'Apollo_Event_Data_Helper' ) ) {
-	require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
+if (! class_exists('Apollo_Event_Data_Helper')) {
+    require_once APOLLO_APRIO_PATH . 'includes/helpers/event-data-helper.php';
 }
-$event_data = Apollo_Event_Data_Helper::get_event_data( $event_id );
+$event_data = Apollo_Event_Data_Helper::get_event_data($event_id);
 
 // Bail if no data
-if ( ! $event_data ) {
-	if ( ! $is_modal ) {
-		wp_die( __( 'Evento não encontrado', 'apollo-events-manager' ) );
-	}
-	return;
+if (! $event_data) {
+    if (! $is_modal) {
+        wp_die(__('Evento não encontrado', 'apollo-events-manager'));
+    }
+
+    return;
 }
 
 // Prepare video embed
 $video_embed = '';
-if ( ! empty( $event_data['video_url'] ) ) {
-	$video_url = $event_data['video_url'];
-	if ( strpos( $video_url, 'youtube.com' ) !== false || strpos( $video_url, 'youtu.be' ) !== false ) {
-		preg_match( '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $video_url, $m );
-		$yt_id = isset( $m[1] ) ? $m[1] : '';
-		if ( $yt_id ) {
-			$video_embed = 'https://www.youtube.com/embed/' . $yt_id . '?autoplay=1&mute=1&loop=1&playlist=' . $yt_id . '&controls=0&showinfo=0&modestbranding=1';
-		}
-	}
+if (! empty($event_data['video_url'])) {
+    $video_url = $event_data['video_url'];
+    if (strpos($video_url, 'youtube.com') !== false || strpos($video_url, 'youtu.be') !== false) {
+        preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $video_url, $m);
+        $yt_id = isset($m[1]) ? $m[1] : '';
+        if ($yt_id) {
+            $video_embed = 'https://www.youtube.com/embed/' . $yt_id . '?autoplay=1&mute=1&loop=1&playlist=' . $yt_id . '&controls=0&showinfo=0&modestbranding=1';
+        }
+    }
 }
 
 // Get favorites data
-$favorites_data = function_exists( 'apollo_get_event_favorites_snapshot' )
-	? apollo_get_event_favorites_snapshot( $event_id )
-	: array(
-		'count'   => 0,
-		'avatars' => array(),
-	);
+$favorites_data = function_exists('apollo_get_event_favorites_snapshot')
+    ? apollo_get_event_favorites_snapshot($event_id)
+    : [
+        'count'   => 0,
+        'avatars' => [],
+    ];
 
 // Get event comments for Registros section
 $comments = get_comments(
-	array(
-		'post_id' => $event_id,
-		'status'  => 'approve',
-		'number'  => 20,
-		'orderby' => 'comment_date_gmt',
-		'order'   => 'DESC',
-	)
+    [
+        'post_id' => $event_id,
+        'status'  => 'approve',
+        'number'  => 20,
+        'orderby' => 'comment_date_gmt',
+        'order'   => 'DESC',
+    ]
 );
 
-if ( ! $is_modal ) :
-	?>
+if (! $is_modal) :
+    ?>
 	<!DOCTYPE html>
 	<html <?php language_attributes(); ?>>
 
 	<head>
-		<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<meta charset="<?php bloginfo('charset'); ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
-		<title><?php echo esc_html( $event_data['title'] ); ?> - Apollo::rio</title>
+		<title><?php echo esc_html($event_data['title']); ?> - Apollo::rio</title>
 		<link rel="icon" href="https://assets.apollo.rio.br/img/neon-green.webp" type="image/webp">
-		<?php if ( $event_data['coords']['valid'] ) : ?>
+		<?php if ($event_data['coords']['valid']) : ?>
 			<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 		<?php endif; ?>
@@ -123,18 +124,18 @@ if ( ! $is_modal ) :
 	<div class="mobile-container">
 		<!-- Hero Media -->
 		<div class="hero-media">
-			<?php if ( $video_embed ) : ?>
+			<?php if ($video_embed) : ?>
 				<div class="video-cover">
 					<iframe
-						src="<?php echo esc_url( $video_embed ); ?>"
+						src="<?php echo esc_url($video_embed); ?>"
 						allow="autoplay; fullscreen"
 						allowfullscreen
 						frameborder="0"
 						loading="lazy"></iframe>
 				</div>
-			<?php elseif ( $event_data['banner'] ) : ?>
-				<img src="<?php echo esc_url( $event_data['banner'] ); ?>"
-					alt="<?php echo esc_attr( $event_data['title'] ); ?>"
+			<?php elseif ($event_data['banner']) : ?>
+				<img src="<?php echo esc_url($event_data['banner']); ?>"
+					alt="<?php echo esc_attr($event_data['title']); ?>"
 					class="hero-image" loading="eager">
 			<?php else : ?>
 				<div class="hero-placeholder" data-tooltip="Banner do evento - imagem principal">
@@ -147,60 +148,60 @@ if ( ! $is_modal ) :
 			<div class="hero-content">
 				<!-- Tags Section -->
 				<section id="listing_types_tags_category">
-					<?php if ( $event_data['special_badge'] ) : ?>
+					<?php if ($event_data['special_badge']) : ?>
 						<?php
-						$badge      = $event_data['special_badge'];
-						$badge_icon = 'ri-fire-fill';
-						if ( $badge === 'Apollo recomenda' ) {
-							$badge_icon = 'ri-award-fill';
-						} elseif ( $badge === 'Destaque' ) {
-							$badge_icon = 'ri-verified-badge-fill';
-						}
-						?>
-						<span class="event-tag-pill"><i class="<?php echo esc_attr( $badge_icon ); ?>"></i> <?php echo esc_html( $badge ); ?></span>
+                        $badge = $event_data['special_badge'];
+					    $badge_icon           = 'ri-fire-fill';
+					    if ($badge === 'Apollo recomenda') {
+					        $badge_icon = 'ri-award-fill';
+					    } elseif ($badge === 'Destaque') {
+					        $badge_icon = 'ri-verified-badge-fill';
+					    }
+?>
+						<span class="event-tag-pill"><i class="<?php echo esc_attr($badge_icon); ?>"></i> <?php echo esc_html($badge); ?></span>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $event_data['categories'] ) ) : ?>
-						<?php foreach ( $event_data['categories'] as $cat ) : ?>
-							<span class="event-tag-pill"><i class="ri-brain-ai-3-fill"></i> <?php echo esc_html( $cat ); ?></span>
+					<?php if (! empty($event_data['categories'])) : ?>
+						<?php foreach ($event_data['categories'] as $cat) : ?>
+							<span class="event-tag-pill"><i class="ri-brain-ai-3-fill"></i> <?php echo esc_html($cat); ?></span>
 						<?php endforeach; ?>
 					<?php else : ?>
 						<span class="event-tag-pill" data-tooltip="Categoria do evento"><i class="ri-brain-ai-3-fill"></i> Categoria</span>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $event_data['tags'] ) ) : ?>
-						<?php foreach ( array_slice( $event_data['tags'], 0, 4 ) as $tag ) : ?>
-							<span class="event-tag-pill"><i class="ri-price-tag-3-line"></i> <?php echo esc_html( $tag ); ?></span>
+					<?php if (! empty($event_data['tags'])) : ?>
+						<?php foreach (array_slice($event_data['tags'], 0, 4) as $tag) : ?>
+							<span class="event-tag-pill"><i class="ri-price-tag-3-line"></i> <?php echo esc_html($tag); ?></span>
 						<?php endforeach; ?>
 					<?php endif; ?>
 
-					<?php if ( $event_data['type'] ) : ?>
-						<span class="event-tag-pill"><i class="ri-landscape-ai-fill"></i> <?php echo esc_html( $event_data['type'] ); ?></span>
+					<?php if ($event_data['type']) : ?>
+						<span class="event-tag-pill"><i class="ri-landscape-ai-fill"></i> <?php echo esc_html($event_data['type']); ?></span>
 					<?php endif; ?>
 				</section>
 
-				<h1 class="hero-title"><?php echo esc_html( $event_data['title'] ); ?></h1>
+				<h1 class="hero-title"><?php echo esc_html($event_data['title']); ?></h1>
 
 				<div class="hero-meta">
 					<div class="hero-meta-item">
 						<i class="ri-calendar-line"></i>
-						<span><?php echo esc_html( $event_data['formatted_date'] ); ?></span>
+						<span><?php echo esc_html($event_data['formatted_date']); ?></span>
 					</div>
 					<div class="hero-meta-item">
 						<i class="ri-time-line"></i>
 						<span id="Hora">
-							<?php echo esc_html( $event_data['formatted_time'] ); ?>
-							<?php if ( $event_data['end_time'] ) : ?>
-								— <?php echo esc_html( $event_data['end_time'] ); ?>
+							<?php echo esc_html($event_data['formatted_time']); ?>
+							<?php if ($event_data['end_time']) : ?>
+								— <?php echo esc_html($event_data['end_time']); ?>
 							<?php endif; ?>
 						</span>
 						<font style="opacity:.7;font-weight:300;font-size:.81rem;vertical-align:bottom;">(GMT-03h00)</font>
 					</div>
 					<div class="hero-meta-item">
 						<i class="ri-map-pin-line"></i>
-						<span><?php echo esc_html( $event_data['venue_name'] ?: 'Local a confirmar' ); ?></span>
-						<?php if ( $event_data['venue_region'] ) : ?>
-							<span style="opacity:0.5">(<?php echo esc_html( $event_data['venue_region'] ); ?>)</span>
+						<span><?php echo esc_html($event_data['venue_name'] ?: 'Local a confirmar'); ?></span>
+						<?php if ($event_data['venue_region']) : ?>
+							<span style="opacity:0.5">(<?php echo esc_html($event_data['venue_region']); ?>)</span>
 						<?php endif; ?>
 					</div>
 				</div>
@@ -231,7 +232,7 @@ if ( ! $is_modal ) :
 				</a>
 				<a href="#" class="quick-action apollo-favorite-trigger"
 					id="favoriteTrigger"
-					data-event-id="<?php echo esc_attr( $event_id ); ?>">
+					data-event-id="<?php echo esc_attr($event_id); ?>">
 					<div class="quick-action-icon">
 						<i class="ri-rocket-line"></i>
 					</div>
@@ -243,37 +244,37 @@ if ( ! $is_modal ) :
 			<div class="rsvp-row">
 				<div class="avatars-explosion">
 					<?php
-					$avatars     = $favorites_data['avatars'];
-					$total_count = $favorites_data['count'];
-					$displayed   = 0;
+                    $avatars = $favorites_data['avatars'];
+$total_count                 = $favorites_data['count'];
+$displayed                   = 0;
 
-					if ( ! empty( $avatars ) ) :
-						foreach ( array_slice( $avatars, 0, 10 ) as $avatar ) :
-							++$displayed;
-							?>
-							<div class="avatar" style="background-image: url('<?php echo esc_url( $avatar ); ?>')"></div>
+if (! empty($avatars)) :
+    foreach (array_slice($avatars, 0, 10) as $avatar) :
+        ++$displayed;
+        ?>
+							<div class="avatar" style="background-image: url('<?php echo esc_url($avatar); ?>')"></div>
 							<?php
-						endforeach;
-					else :
-						// Placeholder avatars with tooltips
-						for ( $i = 1; $i <= 5; $i++ ) :
-							?>
+    endforeach;
+else :
+    // Placeholder avatars with tooltips
+    for ($i = 1; $i <= 5; $i++) :
+        ?>
 							<div class="avatar"
 								style="background-image: url('https://ui-avatars.com/api/?name=?&background=333&color=fff')"
 								data-tooltip="Seja o primeiro a demonstrar interesse!"></div>
 							<?php
-						endfor;
-					endif;
+    endfor;
+endif;
 
-					$remaining = $total_count - $displayed;
-					if ( $remaining > 0 ) :
-						?>
-						<div class="avatar-count">+<?php echo esc_html( $remaining ); ?></div>
+$remaining = $total_count - $displayed;
+if ($remaining > 0) :
+    ?>
+						<div class="avatar-count">+<?php echo esc_html($remaining); ?></div>
 					<?php endif; ?>
 
 					<p class="interested-text" style="margin: 0 8px 0 20px;">
 						<i class="ri-bar-chart-2-fill"></i>
-						<span id="result"><?php echo esc_html( $total_count ); ?></span>
+						<span id="result"><?php echo esc_html($total_count); ?></span>
 					</p>
 				</div>
 			</div>
@@ -284,8 +285,8 @@ if ( ! $is_modal ) :
 					<i class="ri-brain-ai-3-fill"></i> Info
 				</h2>
 				<div class="info-card">
-					<?php if ( $event_data['description'] ) : ?>
-						<p class="info-text"><?php echo wp_kses_post( $event_data['description'] ); ?></p>
+					<?php if ($event_data['description']) : ?>
+						<p class="info-text"><?php echo wp_kses_post($event_data['description']); ?></p>
 					<?php else : ?>
 						<p class="info-text" data-tooltip="Descrição do evento - detalhes sobre a experiência">
 							Informações do evento em breve.
@@ -297,50 +298,50 @@ if ( ! $is_modal ) :
 				<div class="music-tags-marquee">
 					<div class="music-tags-track">
 						<?php
-						$sounds = $event_data['sounds'];
-						if ( ! empty( $sounds ) ) :
-							// Replicate sounds to ensure infinite loop (minimum 8 spans)
-							$sound_list   = is_array( $sounds ) ? $sounds : explode( ',', $sounds );
-							$sound_list   = array_map( 'trim', $sound_list );
-							$total_needed = 8;
-							$repeated     = array();
-							while ( count( $repeated ) < $total_needed ) {
-								foreach ( $sound_list as $sound ) {
-									$repeated[] = $sound;
-									if ( count( $repeated ) >= $total_needed ) {
-										break;
-									}
-								}
-							}
-							foreach ( $repeated as $sound ) :
-								?>
-								<span class="music-tag"><?php echo esc_html( $sound ); ?></span>
+    $sounds = $event_data['sounds'];
+if (! empty($sounds)) :
+    // Replicate sounds to ensure infinite loop (minimum 8 spans)
+    $sound_list   = is_array($sounds) ? $sounds : explode(',', $sounds);
+    $sound_list   = array_map('trim', $sound_list);
+    $total_needed = 8;
+    $repeated     = [];
+    while (count($repeated) < $total_needed) {
+        foreach ($sound_list as $sound) {
+            $repeated[] = $sound;
+            if (count($repeated) >= $total_needed) {
+                break;
+            }
+        }
+    }
+    foreach ($repeated as $sound) :
+        ?>
+								<span class="music-tag"><?php echo esc_html($sound); ?></span>
 								<?php
-							endforeach;
-						else :
-							// Placeholder tags
-							for ( $i = 0; $i < 8; $i++ ) :
-								?>
+    endforeach;
+else :
+    // Placeholder tags
+    for ($i = 0; $i < 8; $i++) :
+        ?>
 								<span class="music-tag" data-tooltip="Gênero musical do evento">Sound</span>
 								<?php
-							endfor;
-						endif;
-						?>
+    endfor;
+endif;
+?>
 					</div>
 				</div>
 			</section>
 
 			<!-- Promo Gallery (max 5 Images) -->
 			<?php
-			$gallery = $event_data['gallery'];
-			if ( ! empty( $gallery ) ) :
-				?>
+            $gallery = $event_data['gallery'];
+if (! empty($gallery)) :
+    ?>
 				<div class="promo-gallery-slider">
 					<div class="promo-track" id="promoTrack">
-						<?php foreach ( array_slice( $gallery, 0, 5 ) as $index => $img ) : ?>
+						<?php foreach (array_slice($gallery, 0, 5) as $index => $img) : ?>
 							<div class="promo-slide" style="border-radius:12px">
-								<img src="<?php echo esc_url( $img ); ?>"
-									alt="<?php echo esc_attr( $event_data['title'] . ' - Imagem ' . ( $index + 1 ) ); ?>"
+								<img src="<?php echo esc_url($img); ?>"
+									alt="<?php echo esc_attr($event_data['title'] . ' - Imagem ' . ($index + 1)); ?>"
 									loading="lazy">
 							</div>
 						<?php endforeach; ?>
@@ -369,58 +370,58 @@ if ( ! $is_modal ) :
 				</h2>
 				<div class="lineup-list">
 					<?php
-					$lineup = $event_data['lineup'];
-					if ( ! empty( $lineup ) ) :
-						foreach ( $lineup as $dj ) :
-							$dj_name  = is_array( $dj ) ? ( $dj['name'] ?? '' ) : ( is_object( $dj ) ? $dj->name : '' );
-							$dj_photo = is_array( $dj ) ? ( $dj['photo'] ?? '' ) : ( is_object( $dj ) ? $dj->photo : '' );
-							$dj_start = is_array( $dj ) ? ( $dj['start_time'] ?? '' ) : ( is_object( $dj ) ? $dj->start_time : '' );
-							$dj_end   = is_array( $dj ) ? ( $dj['end_time'] ?? '' ) : ( is_object( $dj ) ? $dj->end_time : '' );
-							$dj_slug  = is_array( $dj ) ? ( $dj['slug'] ?? '' ) : ( is_object( $dj ) ? $dj->slug : '' );
+        $lineup = $event_data['lineup'];
+if (! empty($lineup)) :
+    foreach ($lineup as $dj) :
+        $dj_name  = is_array($dj) ? ($dj['name'] ?? '') : (is_object($dj) ? $dj->name : '');
+        $dj_photo = is_array($dj) ? ($dj['photo'] ?? '') : (is_object($dj) ? $dj->photo : '');
+        $dj_start = is_array($dj) ? ($dj['start_time'] ?? '') : (is_object($dj) ? $dj->start_time : '');
+        $dj_end   = is_array($dj) ? ($dj['end_time'] ?? '') : (is_object($dj) ? $dj->end_time : '');
+        $dj_slug  = is_array($dj) ? ($dj['slug'] ?? '') : (is_object($dj) ? $dj->slug : '');
 
-							if ( empty( $dj_name ) ) {
-								continue;
-							}
-							?>
+        if (empty($dj_name)) {
+            continue;
+        }
+        ?>
 							<div class="lineup-card">
-								<?php if ( $dj_photo ) : ?>
-									<img src="<?php echo esc_url( $dj_photo ); ?>"
-										alt="<?php echo esc_attr( $dj_name ); ?>"
+								<?php if ($dj_photo) : ?>
+									<img src="<?php echo esc_url($dj_photo); ?>"
+										alt="<?php echo esc_attr($dj_name); ?>"
 										class="lineup-avatar-img"
 										loading="lazy">
 								<?php else : ?>
 									<div class="lineup-avatar" data-tooltip="Foto do DJ">
-										<?php echo esc_html( mb_substr( $dj_name, 0, 2 ) ); ?>
+										<?php echo esc_html(mb_substr($dj_name, 0, 2)); ?>
 									</div>
 								<?php endif; ?>
 								<div class="lineup-info">
 									<h3 class="lineup-name">
-										<?php if ( $dj_slug ) : ?>
-											<a href="<?php echo esc_url( home_url( '/dj/' . $dj_slug . '/' ) ); ?>"
+										<?php if ($dj_slug) : ?>
+											<a href="<?php echo esc_url(home_url('/dj/' . $dj_slug . '/')); ?>"
 												target="_blank"
-												class="dj-link"><?php echo esc_html( $dj_name ); ?></a>
+												class="dj-link"><?php echo esc_html($dj_name); ?></a>
 										<?php else : ?>
-											<span class="dj-link"><?php echo esc_html( $dj_name ); ?></span>
+											<span class="dj-link"><?php echo esc_html($dj_name); ?></span>
 										<?php endif; ?>
 									</h3>
-									<?php if ( $dj_start ) : ?>
+									<?php if ($dj_start) : ?>
 										<div class="lineup-time">
 											<i class="ri-time-line"></i>
 											<span>
-												<?php echo esc_html( $dj_start ); ?>
+												<?php echo esc_html($dj_start); ?>
 												<?php
-												if ( $dj_end ) :
-													?>
-													- <?php echo esc_html( $dj_end ); ?><?php endif; ?>
+                            if ($dj_end) :
+                                ?>
+													- <?php echo esc_html($dj_end); ?><?php endif; ?>
 											</span>
 										</div>
 									<?php endif; ?>
 								</div>
 							</div>
 							<?php
-						endforeach;
-					else :
-						?>
+    endforeach;
+else :
+    ?>
 						<div class="lineup-card" data-tooltip="Line-up do evento - artistas que irão se apresentar">
 							<div class="lineup-avatar">??</div>
 							<div class="lineup-info">
@@ -439,26 +440,26 @@ if ( ! $is_modal ) :
 			<section class="section" id="route_ROUTE">
 				<h2 class="section-title">
 					<i class="ri-map-pin-2-line"></i>
-					<?php echo esc_html( $event_data['venue_name'] ?: 'Local' ); ?>
+					<?php echo esc_html($event_data['venue_name'] ?: 'Local'); ?>
 				</h2>
 
-				<?php if ( $event_data['venue_address'] ) : ?>
-					<p class="local-endereco"><?php echo esc_html( $event_data['venue_address'] ); ?></p>
+				<?php if ($event_data['venue_address']) : ?>
+					<p class="local-endereco"><?php echo esc_html($event_data['venue_address']); ?></p>
 				<?php else : ?>
 					<p class="local-endereco" data-tooltip="Endereço completo do local do evento">Endereço a confirmar</p>
 				<?php endif; ?>
 
 				<!-- Venue Images Slider (max 5) -->
 				<?php
-				$venue_images = $event_data['venue_images'];
-				if ( ! empty( $venue_images ) ) :
-					?>
+                $venue_images = $event_data['venue_images'];
+if (! empty($venue_images)) :
+    ?>
 					<div class="local-images-slider" style="min-height:450px;">
 						<div class="local-images-track" id="localTrack" style="min-height:500px;">
-							<?php foreach ( array_slice( $venue_images, 0, 5 ) as $img ) : ?>
+							<?php foreach (array_slice($venue_images, 0, 5) as $img) : ?>
 								<div class="local-image" style="min-height:450px;">
-									<img src="<?php echo esc_url( $img ); ?>"
-										alt="<?php echo esc_attr( $event_data['venue_name'] ); ?>"
+									<img src="<?php echo esc_url($img); ?>"
+										alt="<?php echo esc_attr($event_data['venue_name']); ?>"
 										loading="lazy">
 								</div>
 							<?php endforeach; ?>
@@ -476,26 +477,26 @@ if ( ! $is_modal ) :
 				<?php endif; ?>
 
 				<!-- Map -->
-				<?php if ( $event_data['coords']['valid'] ) : ?>
+				<?php if ($event_data['coords']['valid']) : ?>
 					<?php
-					$osm_zoom_option   = (int) get_option( 'event_manager_osm_default_zoom', 14 );
-					$osm_zoom          = ( $osm_zoom_option < 8 || $osm_zoom_option > 24 ) ? 14 : $osm_zoom_option;
-					$osm_tile_style    = get_option( 'event_manager_osm_tile_style', 'default' );
-					$osm_allowed_style = array( 'default', 'light', 'dark' );
-					if ( ! in_array( $osm_tile_style, $osm_allowed_style, true ) ) {
-						$osm_tile_style = 'default';
-					}
-					$map_visual_zoom = (bool) get_option( 'apollo_events_map_visual_zoom', false );
-					?>
-					<?php if ( $map_visual_zoom ) : ?>
+    $osm_zoom_option       = (int) get_option('event_manager_osm_default_zoom', 14);
+				    $osm_zoom          = ($osm_zoom_option < 8 || $osm_zoom_option > 24) ? 14 : $osm_zoom_option;
+				    $osm_tile_style    = get_option('event_manager_osm_tile_style', 'default');
+				    $osm_allowed_style = [ 'default', 'light', 'dark' ];
+				    if (! in_array($osm_tile_style, $osm_allowed_style, true)) {
+				        $osm_tile_style = 'default';
+				    }
+				    $map_visual_zoom = (bool) get_option('apollo_events_map_visual_zoom', false);
+				    ?>
+					<?php if ($map_visual_zoom) : ?>
 					<div class="ap-map-zoom-wrapper">
 					<?php endif; ?>
 					<div class="map-view"
 						id="eventMap"
 						style="margin:0 auto;z-index:0;width:100%;height:285px;border-radius:12px;overflow:hidden;"
-						data-lat="<?php echo esc_attr( $event_data['coords']['lat'] ); ?>"
-						data-lng="<?php echo esc_attr( $event_data['coords']['lng'] ); ?>"
-						data-marker="<?php echo esc_attr( $event_data['venue_name'] ); ?>"></div>
+						data-lat="<?php echo esc_attr($event_data['coords']['lat']); ?>"
+						data-lng="<?php echo esc_attr($event_data['coords']['lng']); ?>"
+						data-marker="<?php echo esc_attr($event_data['venue_name']); ?>"></div>
 					<script>
 						(function() {
 							function initMap() {
@@ -507,7 +508,7 @@ if ( ! $is_modal ) :
 								if (!lat || !lng) return;
 
 								var defaultZoom = <?php echo (int) $osm_zoom; ?>;
-								var tileStyle   = '<?php echo esc_js( $osm_tile_style ); ?>';
+								var tileStyle   = '<?php echo esc_js($osm_tile_style); ?>';
 
 								function getTileConfig(style) {
 									switch (style) {
@@ -573,7 +574,7 @@ if ( ! $is_modal ) :
 							}
 						})();
 					</script>
-					<?php if ( $map_visual_zoom ) : ?>
+					<?php if ($map_visual_zoom) : ?>
 					</div>
 					<?php endif; ?>
 				<?php else : ?>
@@ -582,19 +583,19 @@ if ( ! $is_modal ) :
 						data-tooltip="Mapa do local - coordenadas GPS do evento">
 						<p style="color:#666;text-align:center;">
 							<i class="ri-map-pin-line" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
-							<?php esc_html_e( 'Mapa disponível em breve', 'apollo-events-manager' ); ?>
+							<?php esc_html_e('Mapa disponível em breve', 'apollo-events-manager'); ?>
 						</p>
 					</div>
 				<?php endif; ?>
 
 				<!-- Route Input -->
-				<?php if ( $event_data['coords']['valid'] ) : ?>
+				<?php if ($event_data['coords']['valid']) : ?>
 					<div class="route-controls" style="transform:translateY(-80px);padding:0 0.5rem;">
 						<div class="route-input">
 							<i class="ri-map-pin-line"></i>
 							<input type="text"
 								id="origin-input"
-								placeholder="<?php esc_attr_e( 'Seu endereço de partida', 'apollo-events-manager' ); ?>">
+								placeholder="<?php esc_attr_e('Seu endereço de partida', 'apollo-events-manager'); ?>">
 						</div>
 						<button id="route-btn" class="route-button" type="button">
 							<i class="ri-send-plane-line"></i>
@@ -605,7 +606,7 @@ if ( ! $is_modal ) :
 							var origin = document.getElementById('origin-input').value;
 							if (origin) {
 								var url = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(origin) +
-									'&destination=<?php echo esc_attr( $event_data['coords']['lat'] ); ?>,<?php echo esc_attr( $event_data['coords']['lng'] ); ?>';
+									'&destination=<?php echo esc_attr($event_data['coords']['lat']); ?>,<?php echo esc_attr($event_data['coords']['lng']); ?>';
 								window.open(url, '_blank');
 							}
 						});
@@ -616,42 +617,42 @@ if ( ! $is_modal ) :
 			<!-- Tickets Section -->
 			<section class="section" id="route_TICKETS">
 				<h2 class="section-title">
-					<i class="ri-ticket-2-line"></i> <?php esc_html_e( 'Acessos', 'apollo-events-manager' ); ?>
+					<i class="ri-ticket-2-line"></i> <?php esc_html_e('Acessos', 'apollo-events-manager'); ?>
 				</h2>
 
 				<div class="tickets-grid">
-					<?php if ( $event_data['tickets_url'] ) : ?>
-						<a href="<?php echo esc_url( $event_data['tickets_url'] ); ?>?ref=apollo.rio.br"
+					<?php if ($event_data['tickets_url']) : ?>
+						<a href="<?php echo esc_url($event_data['tickets_url']); ?>?ref=apollo.rio.br"
 							class="ticket-card apollo-click-out-track"
-							data-event-id="<?php echo esc_attr( $event_id ); ?>"
+							data-event-id="<?php echo esc_attr($event_id); ?>"
 							target="_blank"
 							rel="noopener noreferrer">
 							<div class="ticket-icon"><i class="ri-ticket-line"></i></div>
 							<div class="ticket-info">
-								<h3 class="ticket-name"><?php esc_html_e( 'Ingressos', 'apollo-events-manager' ); ?></h3>
-								<span class="ticket-cta"><?php esc_html_e( 'Seguir para Bilheteria Digital', 'apollo-events-manager' ); ?> →</span>
+								<h3 class="ticket-name"><?php esc_html_e('Ingressos', 'apollo-events-manager'); ?></h3>
+								<span class="ticket-cta"><?php esc_html_e('Seguir para Bilheteria Digital', 'apollo-events-manager'); ?> →</span>
 							</div>
 						</a>
 					<?php else : ?>
 						<div class="ticket-card disabled" data-tooltip="Link para compra de ingressos">
 							<div class="ticket-icon"><i class="ri-ticket-line"></i></div>
 							<div class="ticket-info">
-								<h3 class="ticket-name"><?php esc_html_e( 'Ingressos', 'apollo-events-manager' ); ?></h3>
-								<span class="ticket-cta"><?php esc_html_e( 'Em breve', 'apollo-events-manager' ); ?></span>
+								<h3 class="ticket-name"><?php esc_html_e('Ingressos', 'apollo-events-manager'); ?></h3>
+								<span class="ticket-cta"><?php esc_html_e('Em breve', 'apollo-events-manager'); ?></span>
 							</div>
 						</div>
 					<?php endif; ?>
 
 					<!-- Apollo Coupon -->
-					<div class="apollo-coupon-detail" data-coupon-code="<?php echo esc_attr( $event_data['coupon'] ?: 'APOLLO' ); ?>">
+					<div class="apollo-coupon-detail" data-coupon-code="<?php echo esc_attr($event_data['coupon'] ?: 'APOLLO'); ?>">
 						<i class="ri-coupon-3-line"></i>
 						<span>
 						<?php
-						printf(
-							esc_html__( 'Verifique se o cupom %s está ativo com desconto', 'apollo-events-manager' ),
-							'<strong>' . esc_html( $event_data['coupon'] ?: 'APOLLO' ) . '</strong>'
-						);
-						?>
+				        printf(
+				            esc_html__('Verifique se o cupom %s está ativo com desconto', 'apollo-events-manager'),
+				            '<strong>' . esc_html($event_data['coupon'] ?: 'APOLLO') . '</strong>'
+				        );
+?>
 								</span>
 						<button class="copy-code-mini" type="button" onclick="copyPromoCode(this)">
 							<i class="ri-file-copy-fill"></i>
@@ -659,22 +660,22 @@ if ( ! $is_modal ) :
 					</div>
 
 					<!-- Alternative Accesses -->
-					<?php if ( $event_data['alternative_access_url'] ) : ?>
-						<a href="<?php echo esc_url( $event_data['alternative_access_url'] ); ?>"
+					<?php if ($event_data['alternative_access_url']) : ?>
+						<a href="<?php echo esc_url($event_data['alternative_access_url']); ?>"
 							class="ticket-card"
 							target="_blank">
 							<div class="ticket-icon"><i class="ri-list-check"></i></div>
 							<div class="ticket-info">
-								<h3 class="ticket-name"><?php esc_html_e( 'Acessos Diversos', 'apollo-events-manager' ); ?></h3>
-								<span class="ticket-cta"><?php esc_html_e( 'Seguir para Acessos Diversos', 'apollo-events-manager' ); ?> →</span>
+								<h3 class="ticket-name"><?php esc_html_e('Acessos Diversos', 'apollo-events-manager'); ?></h3>
+								<span class="ticket-cta"><?php esc_html_e('Seguir para Acessos Diversos', 'apollo-events-manager'); ?> →</span>
 							</div>
 						</a>
 					<?php else : ?>
 						<div class="ticket-card disabled" data-tooltip="Formas alternativas de acesso ao evento">
 							<div class="ticket-icon"><i class="ri-list-check"></i></div>
 							<div class="ticket-info">
-								<h3 class="ticket-name"><?php esc_html_e( 'Acessos Diversos', 'apollo-events-manager' ); ?></h3>
-								<span class="ticket-cta"><?php esc_html_e( 'Não disponível', 'apollo-events-manager' ); ?></span>
+								<h3 class="ticket-name"><?php esc_html_e('Acessos Diversos', 'apollo-events-manager'); ?></h3>
+								<span class="ticket-cta"><?php esc_html_e('Não disponível', 'apollo-events-manager'); ?></span>
 							</div>
 						</div>
 					<?php endif; ?>
@@ -684,26 +685,26 @@ if ( ! $is_modal ) :
 			<!-- REGISTROS Section (Comments) -->
 			<section class="section" id="route_REGISTROS">
 				<h2 class="section-title">
-					<i class="ri-chat-history-line"></i> <?php esc_html_e( 'Registros', 'apollo-events-manager' ); ?>
+					<i class="ri-chat-history-line"></i> <?php esc_html_e('Registros', 'apollo-events-manager'); ?>
 				</h2>
 
 				<div class="registros-container">
-					<?php if ( ! empty( $comments ) ) : ?>
+					<?php if (! empty($comments)) : ?>
 						<div class="registros-list">
 							<?php
-							foreach ( $comments as $comment ) :
-								$author_avatar = get_avatar_url( $comment->comment_author_email, array( 'size' => 48 ) );
-								$author_name   = $comment->comment_author;
-								$comment_date  = mysql2date( 'd M Y', $comment->comment_date );
-								?>
+    foreach ($comments as $comment) :
+        $author_avatar = get_avatar_url($comment->comment_author_email, [ 'size' => 48 ]);
+        $author_name   = $comment->comment_author;
+        $comment_date  = mysql2date('d M Y', $comment->comment_date);
+        ?>
 								<div class="registro-card">
-									<div class="registro-avatar" style="background-image: url('<?php echo esc_url( $author_avatar ); ?>')"></div>
+									<div class="registro-avatar" style="background-image: url('<?php echo esc_url($author_avatar); ?>')"></div>
 									<div class="registro-content">
 										<div class="registro-header">
-											<span class="registro-author"><?php echo esc_html( $author_name ); ?></span>
-											<span class="registro-date"><?php echo esc_html( $comment_date ); ?></span>
+											<span class="registro-author"><?php echo esc_html($author_name); ?></span>
+											<span class="registro-date"><?php echo esc_html($comment_date); ?></span>
 										</div>
-										<p class="registro-text"><?php echo wp_kses_post( $comment->comment_content ); ?></p>
+										<p class="registro-text"><?php echo wp_kses_post($comment->comment_content); ?></p>
 									</div>
 								</div>
 							<?php endforeach; ?>
@@ -711,20 +712,20 @@ if ( ! $is_modal ) :
 					<?php else : ?>
 						<div class="registros-empty" data-tooltip="Comentários e registros sobre o evento">
 							<i class="ri-chat-smile-3-line" style="font-size:2.5rem;opacity:0.3;"></i>
-							<p><?php esc_html_e( 'Nenhum registro ainda. Seja o primeiro a comentar!', 'apollo-events-manager' ); ?></p>
+							<p><?php esc_html_e('Nenhum registro ainda. Seja o primeiro a comentar!', 'apollo-events-manager'); ?></p>
 						</div>
 					<?php endif; ?>
 
 					<!-- Comment Form -->
-					<?php if ( is_user_logged_in() ) : ?>
+					<?php if (is_user_logged_in()) : ?>
 						<div class="registro-form">
 							<form id="registroForm" method="post">
-								<?php wp_nonce_field( 'apollo_event_comment', 'apollo_comment_nonce' ); ?>
-								<input type="hidden" name="event_id" value="<?php echo esc_attr( $event_id ); ?>">
+								<?php wp_nonce_field('apollo_event_comment', 'apollo_comment_nonce'); ?>
+								<input type="hidden" name="event_id" value="<?php echo esc_attr($event_id); ?>">
 								<div class="registro-input-wrap">
 									<textarea name="registro_content"
 										id="registroContent"
-										placeholder="<?php esc_attr_e( 'Deixe seu registro sobre este evento...', 'apollo-events-manager' ); ?>"
+										placeholder="<?php esc_attr_e('Deixe seu registro sobre este evento...', 'apollo-events-manager'); ?>"
 										rows="2"
 										maxlength="500"></textarea>
 									<button type="submit" class="registro-submit">
@@ -735,9 +736,9 @@ if ( ! $is_modal ) :
 						</div>
 					<?php else : ?>
 						<div class="registro-login-prompt">
-							<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="registro-login-btn">
+							<a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="registro-login-btn">
 								<i class="ri-user-line"></i>
-								<?php esc_html_e( 'Faça login para deixar um registro', 'apollo-events-manager' ); ?>
+								<?php esc_html_e('Faça login para deixar um registro', 'apollo-events-manager'); ?>
 							</a>
 						</div>
 					<?php endif; ?>
@@ -887,26 +888,26 @@ if ( ! $is_modal ) :
 
 			<!-- Final Image -->
 			<?php
-			if ( $event_data['final_image'] ) :
-				$final_url = is_numeric( $event_data['final_image'] ) ? wp_get_attachment_url( $event_data['final_image'] ) : $event_data['final_image'];
-				if ( $final_url ) :
-					?>
+            if ($event_data['final_image']) :
+                $final_url = is_numeric($event_data['final_image']) ? wp_get_attachment_url($event_data['final_image']) : $event_data['final_image'];
+                if ($final_url) :
+                    ?>
 					<section class="section">
 						<div class="secondary-image" style="margin-bottom:3rem;">
-							<img src="<?php echo esc_url( $final_url ); ?>"
-								alt="<?php echo esc_attr( $event_data['title'] ); ?>"
+							<img src="<?php echo esc_url($final_url); ?>"
+								alt="<?php echo esc_attr($event_data['title']); ?>"
 								loading="lazy">
 						</div>
 					</section>
 					<?php
-			endif;
-			endif;
-			?>
+                endif;
+            endif;
+?>
 
 			<!-- Protection Notice -->
 			<section class="section">
 				<div class="respaldo_eve">
-					<?php esc_html_e( '*A organização e execução deste evento cabem integralmente aos seus idealizadores.', 'apollo-events-manager' ); ?>
+					<?php esc_html_e('*A organização e execução deste evento cabem integralmente aos seus idealizadores.', 'apollo-events-manager'); ?>
 				</div>
 			</section>
 		</div>
@@ -915,7 +916,7 @@ if ( ! $is_modal ) :
 		<div class="bottom-bar">
 			<a href="#route_TICKETS" class="bottom-btn primary" id="bottomTicketBtn">
 				<i class="ri-ticket-fill"></i>
-				<span><?php esc_html_e( 'Tickets', 'apollo-events-manager' ); ?></span>
+				<span><?php esc_html_e('Tickets', 'apollo-events-manager'); ?></span>
 			</a>
 			<button class="bottom-btn secondary" type="button" id="bottomShareBtn">
 				<i class="ri-share-forward-line"></i>
@@ -941,9 +942,9 @@ if ( ! $is_modal ) :
 		// Share functionality
 		document.getElementById('bottomShareBtn')?.addEventListener('click', function() {
 			var shareData = {
-				title: '<?php echo esc_js( $event_data['title'] ); ?>',
-				text: '<?php echo esc_js( $event_data['title'] . ' - ' . $event_data['formatted_date'] ); ?>',
-				url: '<?php echo esc_url( get_permalink( $event_id ) ); ?>'
+				title: '<?php echo esc_js($event_data['title']); ?>',
+				text: '<?php echo esc_js($event_data['title'] . ' - ' . $event_data['formatted_date']); ?>',
+				url: '<?php echo esc_url(get_permalink($event_id)); ?>'
 			};
 
 			if (navigator.share) {
@@ -964,7 +965,7 @@ if ( ! $is_modal ) :
 			var formData = new FormData(form);
 			formData.append('action', 'apollo_submit_event_comment');
 
-			fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
+			fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
 					method: 'POST',
 					body: formData
 				})
@@ -984,7 +985,7 @@ if ( ! $is_modal ) :
 		});
 	</script>
 
-	<?php if ( ! $is_modal ) : ?>
+	<?php if (! $is_modal) : ?>
 		<script src="https://assets.apollo.rio.br/event-page.js"></script>
 		<?php wp_footer(); ?>
 	</body>

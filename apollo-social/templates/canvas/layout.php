@@ -5,43 +5,43 @@
  * Only Apollo plugins CSS/JS loaded
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-$pwa              = $view['pwa'] ?? [];
-$is_pwa           = $pwa['is_pwa'] ?? false;
-$show_header      = $pwa['show_header'] ?? false;
+$pwa              = $view['pwa']          ?? [];
+$is_pwa           = $pwa['is_pwa']        ?? false;
+$show_header      = $pwa['show_header']   ?? false;
 $is_clean_mode    = $pwa['is_clean_mode'] ?? false;
-$pwa_instructions = $pwa['instructions'] ?? null;
+$pwa_instructions = $pwa['instructions']  ?? null;
 
 // Show PWA installation instructions if needed
-if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
-	?>
+if (! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active']) :
+    ?>
 <div id="apollo-pwa-instructions" class="apollo-pwa-instructions" style="display: none;">
 	<div class="apollo-pwa-instructions-content">
 		<h3>Instalar Apollo como App</h3>
-		<?php if ( $pwa_instructions['ios'] ) : ?>
+		<?php if ($pwa_instructions['ios']) : ?>
 		<div class="apollo-pwa-instruction-block">
-			<h4><i class="<?php echo esc_attr( $pwa_instructions['ios']['icon'] ); ?>"></i> <?php echo esc_html( $pwa_instructions['ios']['title'] ); ?></h4>
+			<h4><i class="<?php echo esc_attr($pwa_instructions['ios']['icon']); ?>"></i> <?php echo esc_html($pwa_instructions['ios']['title']); ?></h4>
 			<ol>
-				<?php foreach ( $pwa_instructions['ios']['steps'] as $step ) : ?>
-				<li><?php echo esc_html( $step ); ?></li>
+				<?php foreach ($pwa_instructions['ios']['steps'] as $step) : ?>
+				<li><?php echo esc_html($step); ?></li>
 				<?php endforeach; ?>
 			</ol>
 		</div>
 		<?php endif; ?>
-		<?php if ( $pwa_instructions['android'] ) : ?>
+		<?php if ($pwa_instructions['android']) : ?>
 		<div class="apollo-pwa-instruction-block">
-			<h4><i class="<?php echo esc_attr( $pwa_instructions['android']['icon'] ); ?>"></i> <?php echo esc_html( $pwa_instructions['android']['title'] ); ?></h4>
-			<?php if ( ! empty( $pwa_instructions['android']['download_url'] ) ) : ?>
-			<a href="<?php echo esc_url( $pwa_instructions['android']['download_url'] ); ?>" class="apollo-button apollo-button-primary">
+			<h4><i class="<?php echo esc_attr($pwa_instructions['android']['icon']); ?>"></i> <?php echo esc_html($pwa_instructions['android']['title']); ?></h4>
+			<?php if (! empty($pwa_instructions['android']['download_url'])) : ?>
+			<a href="<?php echo esc_url($pwa_instructions['android']['download_url']); ?>" class="apollo-button apollo-button-primary">
 				Baixar App Android
 			</a>
 			<?php endif; ?>
 			<ol>
-				<?php foreach ( $pwa_instructions['android']['steps'] as $step ) : ?>
-				<li><?php echo esc_html( $step ); ?></li>
+				<?php foreach ($pwa_instructions['android']['steps'] as $step) : ?>
+				<li><?php echo esc_html($step); ?></li>
 				<?php endforeach; ?>
 			</ol>
 		</div>
@@ -56,19 +56,19 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo esc_html( $view['title'] ?? 'Apollo Social' ); ?></title>
+	<title><?php echo esc_html($view['title'] ?? 'Apollo Social'); ?></title>
 
 	<!-- Preconnect to CDNs -->
 	<link rel="preconnect" href="https://cdn.jsdelivr.net">
 	<link rel="preconnect" href="https://assets.apollo.rio.br">
 
 	<?php
-	// P0-4: WordPress head - OutputGuards already removed theme hooks
-	// Only essential WordPress and Apollo assets will be output
-	wp_head();
-	?>
+    // P0-4: WordPress head - OutputGuards already removed theme hooks
+    // Only essential WordPress and Apollo assets will be output
+    wp_head();
+?>
 
 	<!-- Apollo Canvas Mode Styles -->
 	<style>
@@ -156,9 +156,9 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 		}
 	</style>
 </head>
-<body <?php body_class( 'apollo-canvas-mode' ); ?>>
+<body <?php body_class('apollo-canvas-mode'); ?>>
 
-<?php if ( $show_header && ! $is_clean_mode ) : ?>
+<?php if ($show_header && ! $is_clean_mode) : ?>
 <header class="apollo-header apollo-official-header">
 	<div class="apollo-header-content">
 		<div class="apollo-logo">
@@ -176,24 +176,24 @@ if ( ! $is_pwa && $pwa_instructions && $pwa['is_apollo_rio_active'] ) :
 
 <main class="apollo-canvas-main" id="apollo-canvas-main">
 	<?php
-	// Check if specific template is set
-	if ( ! empty( $view['template'] ) && $view['template'] !== 'users/dashboard.php' ) {
-		$template_path = APOLLO_SOCIAL_PLUGIN_DIR . 'templates/' . $view['template'];
-		if ( file_exists( $template_path ) ) {
-			include $template_path;
-		} else {
-			echo $view['content'];
-		}
-	} else {
-		// Use route template or content
-		$route_template = $view['route_template'] ?? null;
-		if ( $route_template && file_exists( $route_template ) ) {
-			include $route_template;
-		} else {
-			echo $view['content'];
-		}
-	}
-	?>
+// Check if specific template is set
+if (! empty($view['template']) && $view['template'] !== 'users/dashboard.php') {
+    $template_path = APOLLO_SOCIAL_PLUGIN_DIR . 'templates/' . $view['template'];
+    if (file_exists($template_path)) {
+        include $template_path;
+    } else {
+        echo $view['content'];
+    }
+} else {
+    // Use route template or content
+    $route_template = $view['route_template'] ?? null;
+    if ($route_template && file_exists($route_template)) {
+        include $route_template;
+    } else {
+        echo $view['content'];
+    }
+}
+?>
 </main>
 
 <?php wp_footer(); ?>

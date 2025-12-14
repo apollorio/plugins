@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo SEOPress Integration
  *
@@ -29,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Apollo_SEOPress_Integration {
 
 	/** @var string Option name for initialization flag. */
-	const INIT_FLAG = 'apollo_seopress_initialized';
+	public const INIT_FLAG = 'apollo_seopress_initialized';
 
 	/** @var bool Flag indicating if SEOPress is available. */
 	private static bool $seopress_available = false;
@@ -50,6 +51,7 @@ class Apollo_SEOPress_Integration {
 		// Only proceed if SEOPress is active.
 		if ( ! self::$seopress_available ) {
 			add_action( 'admin_notices', array( __CLASS__, 'maybe_show_plugin_notice' ) );
+
 			return;
 		}
 

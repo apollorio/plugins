@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -272,6 +273,7 @@ add_action( 'user_register', 'apollo_assign_membership_on_registration', 10, 1 )
  */
 function apollo_get_membership_data( $slug ) {
 	$memberships = apollo_get_memberships();
+
 	return isset( $memberships[ $slug ] ) ? $memberships[ $slug ] : false;
 }
 
@@ -283,6 +285,7 @@ function apollo_get_membership_data( $slug ) {
  */
 function apollo_membership_exists( $slug ) {
 	$memberships = apollo_get_memberships();
+
 	return isset( $memberships[ $slug ] );
 }
 

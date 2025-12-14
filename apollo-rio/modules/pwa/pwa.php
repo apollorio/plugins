@@ -20,35 +20,37 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
-define( 'PWA_VERSION', '0.8.3-alpha' );
-define( 'PWA_PLUGIN_FILE', __FILE__ );
-define( 'PWA_PLUGIN_DIR', __DIR__ );
-define( 'PWA_WORKBOX_VERSION', json_decode( file_get_contents( PWA_PLUGIN_DIR . '/package.json' ), true )['devDependencies']['workbox-cli'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,PHPCompatibility.Syntax.NewFunctionArrayDereferencing.Found -- Replaced with version literal build.
-define( 'PWA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define('PWA_VERSION', '0.8.3-alpha');
+define('PWA_PLUGIN_FILE', __FILE__);
+define('PWA_PLUGIN_DIR', __DIR__);
+define('PWA_WORKBOX_VERSION', json_decode(file_get_contents(PWA_PLUGIN_DIR . '/package.json'), true)['devDependencies']['workbox-cli']); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents,PHPCompatibility.Syntax.NewFunctionArrayDereferencing.Found -- Replaced with version literal build.
+define('PWA_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * Print admin notice regarding having an old version of PHP.
  *
  * @since 0.2
  */
-function _pwa_print_php_version_admin_notice() {
-	?>
+function _pwa_print_php_version_admin_notice()
+{
+    ?>
 	<div class="notice notice-error">
 		<p>
 			<?php
-			printf(
-				/* translators: %s: required PHP version */
-				esc_html__( 'The pwa plugin requires PHP %s. Please contact your host to update your PHP version.', 'pwa' ),
-				'5.6+'
-			);
-			?>
+            printf(
+                /* translators: %s: required PHP version */
+                esc_html__('The pwa plugin requires PHP %s. Please contact your host to update your PHP version.', 'pwa'),
+                '5.6+'
+            );
+    ?>
 		</p>
 	</div>
 	<?php
 }
-if ( version_compare( phpversion(), '5.6', '<' ) ) {
-	add_action( 'admin_notices', '_pwa_print_php_version_admin_notice' );
-	return;
+if (version_compare(phpversion(), '5.6', '<')) {
+    add_action('admin_notices', '_pwa_print_php_version_admin_notice');
+
+    return;
 }
 
 /**
@@ -56,27 +58,28 @@ if ( version_compare( phpversion(), '5.6', '<' ) ) {
  *
  * @since 0.2
  */
-function _pwa_incorrect_plugin_slug_admin_notice() {
-	$actual_slug = basename( PWA_PLUGIN_DIR );
-	?>
+function _pwa_incorrect_plugin_slug_admin_notice()
+{
+    $actual_slug = basename(PWA_PLUGIN_DIR);
+    ?>
 	<div class="notice notice-warning">
 		<p>
 			<?php
-			echo wp_kses_post(
-				sprintf(
-					/* translators: %1$s is the current directory name, and %2$s is the required directory name */
-					__( 'You appear to have installed the PWA plugin incorrectly. It is currently installed in the <code>%1$s</code> directory, but it needs to be placed in a directory named <code>%2$s</code>. Please rename the directory. This is important for WordPress plugin auto-updates.', 'pwa' ),
-					$actual_slug,
-					'pwa'
-				)
-			);
-			?>
+            echo wp_kses_post(
+                sprintf(
+                    /* translators: %1$s is the current directory name, and %2$s is the required directory name */
+                    __('You appear to have installed the PWA plugin incorrectly. It is currently installed in the <code>%1$s</code> directory, but it needs to be placed in a directory named <code>%2$s</code>. Please rename the directory. This is important for WordPress plugin auto-updates.', 'pwa'),
+                    $actual_slug,
+                    'pwa'
+                )
+            );
+    ?>
 		</p>
 	</div>
 	<?php
 }
-if ( 'pwa' !== basename( PWA_PLUGIN_DIR ) ) {
-	add_action( 'admin_notices', '_pwa_incorrect_plugin_slug_admin_notice' );
+if ('pwa' !== basename(PWA_PLUGIN_DIR)) {
+    add_action('admin_notices', '_pwa_incorrect_plugin_slug_admin_notice');
 }
 
 /**
@@ -84,24 +87,26 @@ if ( 'pwa' !== basename( PWA_PLUGIN_DIR ) ) {
  *
  * @since 0.2
  */
-function _pwa_print_build_needed_notice() {
-	?>
+function _pwa_print_build_needed_notice()
+{
+    ?>
 	<div class="notice notice-error">
 		<p>
 			<?php
-			printf(
-				/* translators: %s: composer install && npm install && npm run build */
-				__( 'You appear to be running the PWA plugin from source. Please do %s to finish installation.', 'pwa' ), // phpcs:ignore WordPress.Security.EscapeOutput
-				'<code>composer install &amp;&amp; npm install &amp;&amp; npm run build</code>'
-			);
-			?>
+            printf(
+                /* translators: %s: composer install && npm install && npm run build */
+                __('You appear to be running the PWA plugin from source. Please do %s to finish installation.', 'pwa'), // phpcs:ignore WordPress.Security.EscapeOutput
+                '<code>composer install &amp;&amp; npm install &amp;&amp; npm run build</code>'
+            );
+    ?>
 		</p>
 	</div>
 	<?php
 }
-if ( ! file_exists( PWA_PLUGIN_DIR . '/wp-includes/js/workbox-v' . PWA_WORKBOX_VERSION ) || ! file_exists( PWA_PLUGIN_DIR . '/wp-includes/js/workbox-v' . PWA_WORKBOX_VERSION . '/workbox-sw.js' ) ) {
-	add_action( 'admin_notices', '_pwa_print_build_needed_notice' );
-	return;
+if (! file_exists(PWA_PLUGIN_DIR . '/wp-includes/js/workbox-v' . PWA_WORKBOX_VERSION) || ! file_exists(PWA_PLUGIN_DIR . '/wp-includes/js/workbox-v' . PWA_WORKBOX_VERSION . '/workbox-sw.js')) {
+    add_action('admin_notices', '_pwa_print_build_needed_notice');
+
+    return;
 }
 
 /**
@@ -112,14 +117,16 @@ if ( ! file_exists( PWA_PLUGIN_DIR . '/wp-includes/js/workbox-v' . PWA_WORKBOX_V
  * @param array $tests Tests.
  * @return array Tests.
  */
-function _pwa_add_disabled_navigation_preload_site_status_test( $tests ) {
-	$tests['direct']['navigation_preload_enabled'] = array(
-		'label' => __( 'Navigation Preload Enabled', 'pwa' ),
-		'test'  => '_pwa_check_disabled_navigation_preload',
-	);
-	return $tests;
+function _pwa_add_disabled_navigation_preload_site_status_test($tests)
+{
+    $tests['direct']['navigation_preload_enabled'] = [
+        'label' => __('Navigation Preload Enabled', 'pwa'),
+        'test'  => '_pwa_check_disabled_navigation_preload',
+    ];
+
+    return $tests;
 }
-add_filter( 'site_status_tests', '_pwa_add_disabled_navigation_preload_site_status_test' );
+add_filter('site_status_tests', '_pwa_add_disabled_navigation_preload_site_status_test');
 
 /**
  * Flag navigation preload incorrectly being disabled.
@@ -131,64 +138,65 @@ add_filter( 'site_status_tests', '_pwa_add_disabled_navigation_preload_site_stat
  *
  * @return array|null Test results.
  */
-function _pwa_check_disabled_navigation_preload() {
+function _pwa_check_disabled_navigation_preload()
+{
 
-	/** This filter is documented in wp-includes/components/class-wp-service-worker-navigation-routing-component.php */
-	$navigation_route_precache_entry = apply_filters(
-		'wp_service_worker_navigation_route',
-		array(
-			'url'      => null,
-			'revision' => '',
-		)
-	);
+    /** This filter is documented in wp-includes/components/class-wp-service-worker-navigation-routing-component.php */
+    $navigation_route_precache_entry = apply_filters(
+        'wp_service_worker_navigation_route',
+        [
+            'url'      => null,
+            'revision' => '',
+        ]
+    );
 
-	// Skip adding the navigation-preload test when using app shell since navigation preload is forcibly-disabled.
-	if ( ! empty( $navigation_route_precache_entry['url'] ) ) {
-		return null;
-	}
+    // Skip adding the navigation-preload test when using app shell since navigation preload is forcibly-disabled.
+    if (! empty($navigation_route_precache_entry['url'])) {
+        return null;
+    }
 
-	/** This filter is documented in wp-includes/components/class-wp-service-worker-navigation-routing-component.php */
-	$navigation_preload_enabled = apply_filters( 'wp_service_worker_navigation_preload', true, WP_Service_Workers::SCOPE_FRONT );
+    /** This filter is documented in wp-includes/components/class-wp-service-worker-navigation-routing-component.php */
+    $navigation_preload_enabled = apply_filters('wp_service_worker_navigation_preload', true, WP_Service_Workers::SCOPE_FRONT);
 
-	if ( $navigation_preload_enabled ) {
-		$result = array(
-			'label'       => __( 'Navigation preload is enabled in service worker', 'pwa' ),
-			'status'      => 'good',
-			'badge'       => array(
-				'label' => __( 'Performance', 'pwa' ),
-				'color' => 'blue',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				esc_html__( 'Navigation preload speeds up performance for return visitors when the service worker has been suspended.', 'pwa' )
-			),
-		);
-	} else {
-		$result = array(
-			'label'       => __( 'Navigation preload is being disabled in service worker', 'pwa' ),
-			'status'      => 'recommended',
-			'badge'       => array(
-				'label' => __( 'Performance', 'pwa' ),
-				'color' => 'orange',
-			),
-			'description' => sprintf(
-				'<p>%s</p>',
-				sprintf(
-					/* translators: %s: the wp_service_worker_navigation_preload filter call */
-					esc_html__( 'A theme or a plugin appears to have disabled navigation preload in order to enable a navigation caching strategy. This was a workaround that is now no longer needed, and it is actually being ignored. Remove the following code from your theme/plugin to improve performance: %s.', 'pwa' ),
-					'<code>add_filter( \'wp_service_worker_navigation_preload\', \'__return_false\' </code>'
-				)
-			),
-			'actions'     => sprintf(
-				'<a href="https://developers.google.com/web/tools/workbox/modules/workbox-navigation-preload#who_should_enable_navigation_preloads">%s</a>',
-				esc_html__( 'Learn about enabling navigation preload.', 'pwa' )
-			),
-		);
-	}//end if
+    if ($navigation_preload_enabled) {
+        $result = [
+            'label'  => __('Navigation preload is enabled in service worker', 'pwa'),
+            'status' => 'good',
+            'badge'  => [
+                'label' => __('Performance', 'pwa'),
+                'color' => 'blue',
+            ],
+            'description' => sprintf(
+                '<p>%s</p>',
+                esc_html__('Navigation preload speeds up performance for return visitors when the service worker has been suspended.', 'pwa')
+            ),
+        ];
+    } else {
+        $result = [
+            'label'  => __('Navigation preload is being disabled in service worker', 'pwa'),
+            'status' => 'recommended',
+            'badge'  => [
+                'label' => __('Performance', 'pwa'),
+                'color' => 'orange',
+            ],
+            'description' => sprintf(
+                '<p>%s</p>',
+                sprintf(
+                    /* translators: %s: the wp_service_worker_navigation_preload filter call */
+                    esc_html__('A theme or a plugin appears to have disabled navigation preload in order to enable a navigation caching strategy. This was a workaround that is now no longer needed, and it is actually being ignored. Remove the following code from your theme/plugin to improve performance: %s.', 'pwa'),
+                    '<code>add_filter( \'wp_service_worker_navigation_preload\', \'__return_false\' </code>'
+                )
+            ),
+            'actions' => sprintf(
+                '<a href="https://developers.google.com/web/tools/workbox/modules/workbox-navigation-preload#who_should_enable_navigation_preloads">%s</a>',
+                esc_html__('Learn about enabling navigation preload.', 'pwa')
+            ),
+        ];
+    }//end if
 
-	$result['test'] = 'navigation_preload_enabled';
+    $result['test'] = 'navigation_preload_enabled';
 
-	return $result;
+    return $result;
 }
 
 /** WP_Web_App_Manifest Class */
@@ -254,25 +262,27 @@ require_once PWA_PLUGIN_DIR . '/wp-admin/admin.php';
 /**
  * Plugin activation hook.
  */
-function _pwa_activate_plugin() {
-	pwa_add_rewrite_rules();
-	flush_rewrite_rules( false ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules -- Not theme code.
+function _pwa_activate_plugin()
+{
+    pwa_add_rewrite_rules();
+    flush_rewrite_rules(false); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules -- Not theme code.
 }
 
-register_activation_hook( PWA_PLUGIN_FILE, '_pwa_activate_plugin' );
+register_activation_hook(PWA_PLUGIN_FILE, '_pwa_activate_plugin');
 
 /**
  * Plugin deactivation hook.
  *
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  */
-function _pwa_deactivate_plugin() {
-	global $wp_rewrite;
-	unset( $wp_rewrite->extra_rules_top['^wp\.serviceworker$'] );
-	flush_rewrite_rules( false ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules -- Not theme code.
+function _pwa_deactivate_plugin()
+{
+    global $wp_rewrite;
+    unset($wp_rewrite->extra_rules_top['^wp\.serviceworker$']);
+    flush_rewrite_rules(false); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules -- Not theme code.
 }
 
-register_deactivation_hook( PWA_PLUGIN_FILE, '_pwa_deactivate_plugin' );
+register_deactivation_hook(PWA_PLUGIN_FILE, '_pwa_deactivate_plugin');
 
 $wp_web_app_manifest = new WP_Web_App_Manifest();
 $wp_web_app_manifest->init();

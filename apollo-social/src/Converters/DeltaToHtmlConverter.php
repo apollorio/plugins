@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Social – Delta to HTML Converter
  *
@@ -62,24 +63,16 @@
 namespace Apollo\Converters;
 
 // Prevent direct access
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Import the Quill Delta Parser library
 // This is installed via Composer: composer require nadar/quill-delta-parser
 use nadar\quill\Lexer;
 use nadar\quill\listener\Text;
-use nadar\quill\listener\Heading;
-use nadar\quill\listener\Bold;
-use nadar\quill\listener\Italic;
-use nadar\quill\listener\Underline;
-use nadar\quill\listener\Strike;
 use nadar\quill\listener\Link;
 use nadar\quill\listener\Image;
-use nadar\quill\listener\Lists;
-use nadar\quill\listener\Color;
-use nadar\quill\listener\Font;
 
 /**
  * Class DeltaToHtmlConverter
@@ -96,450 +89,468 @@ use nadar\quill\listener\Font;
  *
  * @since 1.1.0
  */
-class DeltaToHtmlConverter {
+class DeltaToHtmlConverter
+{
+    /**
+     * Allowed HTML tags for wp_kses sanitization.
+     *
+     * This whitelist defines what HTML elements and attributes are allowed
+     * in the final output. It's more permissive than the default wp_kses_post()
+     * because we trust the Delta parser to generate safe markup.
+     *
+     * @var array
+     */
+    private $allowed_html = [
+        // Block elements
+        'p' => [
+            'class' => [],
+            'style' => [],
+        ],
+        'h1'         => [ 'class' => [] ],
+        'h2'         => [ 'class' => [] ],
+        'h3'         => [ 'class' => [] ],
+        'h4'         => [ 'class' => [] ],
+        'h5'         => [ 'class' => [] ],
+        'h6'         => [ 'class' => [] ],
+        'blockquote' => [ 'class' => [] ],
+        'pre'        => [ 'class' => [] ],
+        'code'       => [ 'class' => [] ],
 
-	/**
-	 * Allowed HTML tags for wp_kses sanitization.
-	 *
-	 * This whitelist defines what HTML elements and attributes are allowed
-	 * in the final output. It's more permissive than the default wp_kses_post()
-	 * because we trust the Delta parser to generate safe markup.
-	 *
-	 * @var array
-	 */
-	private $allowed_html = [
-		// Block elements
-		'p'          => [
-			'class' => [],
-			'style' => [],
-		],
-		'h1'         => [ 'class' => [] ],
-		'h2'         => [ 'class' => [] ],
-		'h3'         => [ 'class' => [] ],
-		'h4'         => [ 'class' => [] ],
-		'h5'         => [ 'class' => [] ],
-		'h6'         => [ 'class' => [] ],
-		'blockquote' => [ 'class' => [] ],
-		'pre'        => [ 'class' => [] ],
-		'code'       => [ 'class' => [] ],
+        // List elements
+        'ul' => [ 'class' => [] ],
+        'ol' => [ 'class' => [] ],
+        'li' => [ 'class' => [] ],
 
-		// List elements
-		'ul'         => [ 'class' => [] ],
-		'ol'         => [ 'class' => [] ],
-		'li'         => [ 'class' => [] ],
+        // Inline formatting
+        'strong' => [],
+        'b'      => [],
+        'em'     => [],
+        'i'      => [],
+        'u'      => [],
+        's'      => [],
+        'strike' => [],
+        'sub'    => [],
+        'sup'    => [],
+        'span'   => [
+            'class' => [],
+            'style' => [],
+        ],
 
-		// Inline formatting
-		'strong'     => [],
-		'b'          => [],
-		'em'         => [],
-		'i'          => [],
-		'u'          => [],
-		's'          => [],
-		'strike'     => [],
-		'sub'        => [],
-		'sup'        => [],
-		'span'       => [
-			'class' => [],
-			'style' => [],
-		],
+        // Links
+        'a' => [
+            'href'   => [],
+            'target' => [],
+            'rel'    => [],
+            'title'  => [],
+        ],
 
-		// Links
-		'a'          => [
-			'href'   => [],
-			'target' => [],
-			'rel'    => [],
-			'title'  => [],
-		],
+        // Media
+        'img' => [
+            'src'    => [],
+            'alt'    => [],
+            'width'  => [],
+            'height' => [],
+            'class'  => [],
+        ],
 
-		// Media
-		'img'        => [
-			'src'    => [],
-			'alt'    => [],
-			'width'  => [],
-			'height' => [],
-			'class'  => [],
-		],
+        // Tables (for future support)
+        'table' => [ 'class' => [] ],
+        'thead' => [],
+        'tbody' => [],
+        'tr'    => [],
+        'th'    => [
+            'colspan' => [],
+            'rowspan' => [],
+        ],
+        'td' => [
+            'colspan' => [],
+            'rowspan' => [],
+        ],
 
-		// Tables (for future support)
-		'table'      => [ 'class' => [] ],
-		'thead'      => [],
-		'tbody'      => [],
-		'tr'         => [],
-		'th'         => [
-			'colspan' => [],
-			'rowspan' => [],
-		],
-		'td'         => [
-			'colspan' => [],
-			'rowspan' => [],
-		],
+        // Misc
+        'br'  => [],
+        'hr'  => [],
+        'div' => [
+            'class' => [],
+            'style' => [],
+        ],
+    ];
 
-		// Misc
-		'br'         => [],
-		'hr'         => [],
-		'div'        => [
-			'class' => [],
-			'style' => [],
-		],
-	];
+    /**
+     * Custom embed handlers for Delta types not supported by default.
+     *
+     * The Quill Delta format supports custom "embeds" - non-text content
+     * like mentions, custom widgets, or file attachments. This array maps
+     * embed types to handler callbacks.
+     *
+     * Example:
+     *   'mention' => function($value) { return '<span class="mention">@' . esc_html($value['name']) . '</span>'; }
+     *
+     * @var array
+     */
+    private $embed_handlers = [];
 
-	/**
-	 * Custom embed handlers for Delta types not supported by default.
-	 *
-	 * The Quill Delta format supports custom "embeds" - non-text content
-	 * like mentions, custom widgets, or file attachments. This array maps
-	 * embed types to handler callbacks.
-	 *
-	 * Example:
-	 *   'mention' => function($value) { return '<span class="mention">@' . esc_html($value['name']) . '</span>'; }
-	 *
-	 * @var array
-	 */
-	private $embed_handlers = [];
+    /**
+     * Configuration options for the converter.
+     *
+     * @var array
+     */
+    private $options = [
+        // Wrap output in a container div with this class
+        'container_class' => 'apollo-document-content',
 
-	/**
-	 * Configuration options for the converter.
-	 *
-	 * @var array
-	 */
-	private $options = [
-		// Wrap output in a container div with this class
-		'container_class'       => 'apollo-document-content',
+        // Add data attribute with conversion timestamp
+        'add_timestamp' => true,
 
-		// Add data attribute with conversion timestamp
-		'add_timestamp'         => true,
+        // Apply WordPress content filters (the_content)
+        'apply_content_filters' => false,
 
-		// Apply WordPress content filters (the_content)
-		'apply_content_filters' => false,
+        // Pretty-print HTML output (for debugging)
+        'format_output' => false,
 
-		// Pretty-print HTML output (for debugging)
-		'format_output'         => false,
+        // Throw exception on invalid Delta (vs. return empty string)
+        'strict_mode' => false,
+    ];
 
-		// Throw exception on invalid Delta (vs. return empty string)
-		'strict_mode'           => false,
-	];
+    /**
+     * Constructor.
+     *
+     * @param array $options Configuration options to override defaults.
+     */
+    public function __construct(array $options = [])
+    {
+        $this->options = array_merge($this->options, $options);
 
-	/**
-	 * Constructor.
-	 *
-	 * @param array $options Configuration options to override defaults.
-	 */
-	public function __construct( array $options = [] ) {
-		$this->options = array_merge( $this->options, $options );
+        // Register default embed handlers
+        $this->register_default_embed_handlers();
+    }
 
-		// Register default embed handlers
-		$this->register_default_embed_handlers();
-	}
+    /**
+     * Convert Delta JSON to HTML.
+     *
+     * This is the main conversion method. It:
+     *   1. Validates and parses the Delta JSON
+     *   2. Initializes the Lexer with default listeners
+     *   3. Processes the Delta through the parser
+     *   4. Sanitizes the output HTML
+     *   5. Optionally wraps in a container
+     *
+     * @param string|array $delta Delta as JSON string or decoded array.
+     * @return string Sanitized HTML output.
+     * @throws \InvalidArgumentException If Delta is invalid and strict_mode is true.
+     */
+    public function convert($delta)
+    {
+        // Step 1: Parse Delta JSON if string
+        // The Delta can come from post meta (string) or already decoded (array)
+        if (is_string($delta)) {
+            $delta = $this->parse_json($delta);
+        }
 
-	/**
-	 * Convert Delta JSON to HTML.
-	 *
-	 * This is the main conversion method. It:
-	 *   1. Validates and parses the Delta JSON
-	 *   2. Initializes the Lexer with default listeners
-	 *   3. Processes the Delta through the parser
-	 *   4. Sanitizes the output HTML
-	 *   5. Optionally wraps in a container
-	 *
-	 * @param string|array $delta Delta as JSON string or decoded array.
-	 * @return string Sanitized HTML output.
-	 * @throws \InvalidArgumentException If Delta is invalid and strict_mode is true.
-	 */
-	public function convert( $delta ) {
-		// Step 1: Parse Delta JSON if string
-		// The Delta can come from post meta (string) or already decoded (array)
-		if ( is_string( $delta ) ) {
-			$delta = $this->parse_json( $delta );
-		}
+        // Handle empty or invalid Delta
+        if (! $delta || ! isset($delta['ops']) || empty($delta['ops'])) {
+            if ($this->options['strict_mode']) {
+                throw new \InvalidArgumentException('Invalid Delta: missing or empty ops array');
+            }
 
-		// Handle empty or invalid Delta
-		if ( ! $delta || ! isset( $delta['ops'] ) || empty( $delta['ops'] ) ) {
-			if ( $this->options['strict_mode'] ) {
-				throw new \InvalidArgumentException( 'Invalid Delta: missing or empty ops array' );
-			}
-			return '';
-		}
+            return '';
+        }
 
-		// Step 2: Initialize the Lexer
-		// The Lexer is the core of nadar/quill-delta-parser. It processes Delta ops
-		// through a series of "listeners" that handle different content types.
-		try {
-			$lexer = new Lexer( json_encode( $delta ) );
+        // Step 2: Initialize the Lexer
+        // The Lexer is the core of nadar/quill-delta-parser. It processes Delta ops
+        // through a series of "listeners" that handle different content types.
+        try {
+            $lexer = new Lexer(json_encode($delta));
 
-			// Step 3: Render Delta to HTML
-			// The render() method processes all ops and returns the final HTML
-			$html = $lexer->render();
+            // Step 3: Render Delta to HTML
+            // The render() method processes all ops and returns the final HTML
+            $html = $lexer->render();
 
-		} catch ( \Exception $e ) {
-			// Log the error for debugging
-			error_log( '[Apollo DeltaConverter] Conversion failed: ' . $e->getMessage() );
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            error_log('[Apollo DeltaConverter] Conversion failed: ' . $e->getMessage());
 
-			if ( $this->options['strict_mode'] ) {
-				throw $e;
-			}
-			return '';
-		}
+            if ($this->options['strict_mode']) {
+                throw $e;
+            }
 
-		// Step 4: Process custom embeds
-		// The parser may leave placeholders for custom embeds that we need to handle
-		$html = $this->process_custom_embeds( $html, $delta );
+            return '';
+        }
 
-		// Step 5: Sanitize the HTML
-		// Even though the parser generates safe HTML, we apply wp_kses as defense-in-depth.
-		// This ensures no malicious content can slip through even if the parser has bugs.
-		$html = wp_kses( $html, $this->allowed_html );
+        // Step 4: Process custom embeds
+        // The parser may leave placeholders for custom embeds that we need to handle
+        $html = $this->process_custom_embeds($html, $delta);
 
-		// Step 6: Apply WordPress content filters if enabled
-		// This runs the_content filters (shortcodes, embeds, etc.) on the output.
-		// Usually disabled for documents to prevent unexpected transformations.
-		if ( $this->options['apply_content_filters'] ) {
-			$html = apply_filters( 'the_content', $html );
-		}
+        // Step 5: Sanitize the HTML
+        // Even though the parser generates safe HTML, we apply wp_kses as defense-in-depth.
+        // This ensures no malicious content can slip through even if the parser has bugs.
+        $html = wp_kses($html, $this->allowed_html);
 
-		// Step 7: Wrap in container if configured
-		if ( ! empty( $this->options['container_class'] ) ) {
-			$timestamp_attr = $this->options['add_timestamp']
-				? ' data-converted="' . esc_attr( current_time( 'c' ) ) . '"'
-				: '';
+        // Step 6: Apply WordPress content filters if enabled
+        // This runs the_content filters (shortcodes, embeds, etc.) on the output.
+        // Usually disabled for documents to prevent unexpected transformations.
+        if ($this->options['apply_content_filters']) {
+            $html = apply_filters('the_content', $html);
+        }
 
-			$html = sprintf(
-				'<div class="%s"%s>%s</div>',
-				esc_attr( $this->options['container_class'] ),
-				$timestamp_attr,
-				$html
-			);
-		}
+        // Step 7: Wrap in container if configured
+        if (! empty($this->options['container_class'])) {
+            $timestamp_attr = $this->options['add_timestamp']
+                ? ' data-converted="' . esc_attr(current_time('c')) . '"'
+                : '';
 
-		// Step 8: Format output if debugging
-		if ( $this->options['format_output'] ) {
-			$html = $this->format_html( $html );
-		}
+            $html = sprintf(
+                '<div class="%s"%s>%s</div>',
+                esc_attr($this->options['container_class']),
+                $timestamp_attr,
+                $html
+            );
+        }
 
-		return $html;
-	}
+        // Step 8: Format output if debugging
+        if ($this->options['format_output']) {
+            $html = $this->format_html($html);
+        }
 
-	/**
-	 * Parse JSON string to array.
-	 *
-	 * @param string $json The JSON string to parse.
-	 * @return array|null Decoded array or null on failure.
-	 */
-	private function parse_json( $json ) {
-		if ( empty( $json ) ) {
-			return null;
-		}
+        return $html;
+    }
 
-		$decoded = json_decode( $json, true );
+    /**
+     * Parse JSON string to array.
+     *
+     * @param string $json The JSON string to parse.
+     * @return array|null Decoded array or null on failure.
+     */
+    private function parse_json($json)
+    {
+        if (empty($json)) {
+            return null;
+        }
 
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			error_log( '[Apollo DeltaConverter] JSON parse error: ' . json_last_error_msg() );
-			return null;
-		}
+        $decoded = json_decode($json, true);
 
-		return $decoded;
-	}
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('[Apollo DeltaConverter] JSON parse error: ' . json_last_error_msg());
 
-	/**
-	 * Register default embed handlers.
-	 *
-	 * Embeds are non-text content in Delta (images, videos, mentions, etc.).
-	 * The parser handles standard embeds, but custom ones need handlers.
-	 */
-	private function register_default_embed_handlers() {
-		// Mention handler: @username references
-		// Delta: {"insert":{"mention":{"id":"123","name":"John"}}}
-		$this->embed_handlers['mention'] = function ( $value ) {
-			$name = isset( $value['name'] ) ? $value['name'] : 'Unknown';
-			$id   = isset( $value['id'] ) ? $value['id'] : '';
+            return null;
+        }
 
-			return sprintf(
-				'<span class="apollo-mention" data-user-id="%s">@%s</span>',
-				esc_attr( $id ),
-				esc_html( $name )
-			);
-		};
+        return $decoded;
+    }
 
-		// Document link handler: [[doc:123]] style links
-		$this->embed_handlers['document-link'] = function ( $value ) {
-			$title = isset( $value['title'] ) ? $value['title'] : 'Document';
-			$id    = isset( $value['id'] ) ? $value['id'] : '';
-			$url   = home_url( '/doc/' . $id );
+    /**
+     * Register default embed handlers.
+     *
+     * Embeds are non-text content in Delta (images, videos, mentions, etc.).
+     * The parser handles standard embeds, but custom ones need handlers.
+     */
+    private function register_default_embed_handlers()
+    {
+        // Mention handler: @username references
+        // Delta: {"insert":{"mention":{"id":"123","name":"John"}}}
+        $this->embed_handlers['mention'] = function ($value) {
+            $name = isset($value['name']) ? $value['name'] : 'Unknown';
+            $id   = isset($value['id']) ? $value['id'] : '';
 
-			return sprintf(
-				'<a href="%s" class="apollo-document-link">📄 %s</a>',
-				esc_url( $url ),
-				esc_html( $title )
-			);
-		};
+            return sprintf(
+                '<span class="apollo-mention" data-user-id="%s">@%s</span>',
+                esc_attr($id),
+                esc_html($name)
+            );
+        };
 
-		// Signature placeholder handler: [SIGNATURE:signer-id]
-		// This is replaced with an actual signature image or field in PDF
-		$this->embed_handlers['signature'] = function ( $value ) {
-			$signer_id = isset( $value['signer_id'] ) ? $value['signer_id'] : '';
-			$label     = isset( $value['label'] ) ? $value['label'] : 'Assinatura';
+        // Document link handler: [[doc:123]] style links
+        $this->embed_handlers['document-link'] = function ($value) {
+            $title = isset($value['title']) ? $value['title'] : 'Document';
+            $id    = isset($value['id']) ? $value['id'] : '';
+            $url   = home_url('/doc/' . $id);
 
-			return sprintf(
-				'<div class="apollo-signature-placeholder" data-signer-id="%s">
+            return sprintf(
+                '<a href="%s" class="apollo-document-link">📄 %s</a>',
+                esc_url($url),
+                esc_html($title)
+            );
+        };
+
+        // Signature placeholder handler: [SIGNATURE:signer-id]
+        // This is replaced with an actual signature image or field in PDF
+        $this->embed_handlers['signature'] = function ($value) {
+            $signer_id = isset($value['signer_id']) ? $value['signer_id'] : '';
+            $label     = isset($value['label']) ? $value['label'] : 'Assinatura';
+
+            return sprintf(
+                '<div class="apollo-signature-placeholder" data-signer-id="%s">
                     <div class="signature-box">
                         <span class="signature-label">%s</span>
                         <div class="signature-line"></div>
                     </div>
                 </div>',
-				esc_attr( $signer_id ),
-				esc_html( $label )
-			);
-		};
+                esc_attr($signer_id),
+                esc_html($label)
+            );
+        };
 
-		// Allow plugins/themes to register custom embed handlers
-		// Usage: add_filter('apollo_delta_embed_handlers', function($handlers) {
-		// $handlers['my-embed'] = function($value) { return '...'; };
-		// return $handlers;
-		// });
-		$this->embed_handlers = apply_filters( 'apollo_delta_embed_handlers', $this->embed_handlers );
-	}
+        // Allow plugins/themes to register custom embed handlers
+        // Usage: add_filter('apollo_delta_embed_handlers', function($handlers) {
+        // $handlers['my-embed'] = function($value) { return '...'; };
+        // return $handlers;
+        // });
+        $this->embed_handlers = apply_filters('apollo_delta_embed_handlers', $this->embed_handlers);
+    }
 
-	/**
-	 * Add a custom embed handler.
-	 *
-	 * @param string   $type    The embed type (e.g., 'mention', 'file').
-	 * @param callable $handler Callback that receives embed value and returns HTML.
-	 * @return self For method chaining.
-	 */
-	public function add_embed_handler( $type, callable $handler ) {
-		$this->embed_handlers[ $type ] = $handler;
-		return $this;
-	}
+    /**
+     * Add a custom embed handler.
+     *
+     * @param string   $type    The embed type (e.g., 'mention', 'file').
+     * @param callable $handler Callback that receives embed value and returns HTML.
+     * @return self For method chaining.
+     */
+    public function add_embed_handler($type, callable $handler)
+    {
+        $this->embed_handlers[ $type ] = $handler;
 
-	/**
-	 * Process custom embeds in the Delta.
-	 *
-	 * Scans the Delta for embed ops and replaces them with rendered HTML.
-	 * The standard parser handles images and basic embeds, but custom ones
-	 * (mentions, signatures, etc.) need special handling.
-	 *
-	 * @param string $html  The HTML output from the parser.
-	 * @param array  $delta The original Delta array.
-	 * @return string HTML with custom embeds rendered.
-	 */
-	private function process_custom_embeds( $html, $delta ) {
-		if ( empty( $delta['ops'] ) ) {
-			return $html;
-		}
+        return $this;
+    }
 
-		foreach ( $delta['ops'] as $op ) {
-			// Skip text inserts - only process embeds
-			if ( ! isset( $op['insert'] ) || ! is_array( $op['insert'] ) ) {
-				continue;
-			}
+    /**
+     * Process custom embeds in the Delta.
+     *
+     * Scans the Delta for embed ops and replaces them with rendered HTML.
+     * The standard parser handles images and basic embeds, but custom ones
+     * (mentions, signatures, etc.) need special handling.
+     *
+     * @param string $html  The HTML output from the parser.
+     * @param array  $delta The original Delta array.
+     * @return string HTML with custom embeds rendered.
+     */
+    private function process_custom_embeds($html, $delta)
+    {
+        if (empty($delta['ops'])) {
+            return $html;
+        }
 
-			// Get the embed type (the first/only key in the insert object)
-			$embed_type  = key( $op['insert'] );
-			$embed_value = $op['insert'][ $embed_type ];
+        foreach ($delta['ops'] as $op) {
+            // Skip text inserts - only process embeds
+            if (! isset($op['insert']) || ! is_array($op['insert'])) {
+                continue;
+            }
 
-			// Check if we have a handler for this embed type
-			if ( isset( $this->embed_handlers[ $embed_type ] ) ) {
-				$rendered = call_user_func( $this->embed_handlers[ $embed_type ], $embed_value );
+            // Get the embed type (the first/only key in the insert object)
+            $embed_type  = key($op['insert']);
+            $embed_value = $op['insert'][ $embed_type ];
 
-				// The parser may have left a placeholder - replace it
-				// Note: This is a simplified approach; complex documents may need
-				// position-based replacement for accuracy
-				// TODO: Implement position-based embed replacement for complex documents
-			}
-		}
+            // Check if we have a handler for this embed type
+            if (isset($this->embed_handlers[ $embed_type ])) {
+                $rendered = call_user_func($this->embed_handlers[ $embed_type ], $embed_value);
 
-		return $html;
-	}
+                // The parser may have left a placeholder - replace it
+                // Note: This is a simplified approach; complex documents may need
+                // position-based replacement for accuracy
+                // TODO: Implement position-based embed replacement for complex documents
+            }
+        }
 
-	/**
-	 * Format HTML for readability (debugging).
-	 *
-	 * @param string $html The HTML to format.
-	 * @return string Formatted HTML.
-	 */
-	private function format_html( $html ) {
-		$dom                     = new \DOMDocument();
-		$dom->preserveWhiteSpace = false;
-		$dom->formatOutput       = true;
+        return $html;
+    }
 
-		// Suppress warnings for HTML5 tags
-		libxml_use_internal_errors( true );
-		$dom->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
-		libxml_clear_errors();
+    /**
+     * Format HTML for readability (debugging).
+     *
+     * @param string $html The HTML to format.
+     * @return string Formatted HTML.
+     */
+    private function format_html($html)
+    {
+        $dom                     = new \DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput       = true;
 
-		return $dom->saveHTML();
-	}
+        // Suppress warnings for HTML5 tags
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_clear_errors();
 
-	/**
-	 * Extract plain text from Delta.
-	 *
-	 * Useful for search indexing, excerpts, and text-only contexts.
-	 *
-	 * @param string|array $delta Delta as JSON string or decoded array.
-	 * @return string Plain text content.
-	 */
-	public function to_plain_text( $delta ) {
-		if ( is_string( $delta ) ) {
-			$delta = $this->parse_json( $delta );
-		}
+        return $dom->saveHTML();
+    }
 
-		if ( ! $delta || ! isset( $delta['ops'] ) ) {
-			return '';
-		}
+    /**
+     * Extract plain text from Delta.
+     *
+     * Useful for search indexing, excerpts, and text-only contexts.
+     *
+     * @param string|array $delta Delta as JSON string or decoded array.
+     * @return string Plain text content.
+     */
+    public function to_plain_text($delta)
+    {
+        if (is_string($delta)) {
+            $delta = $this->parse_json($delta);
+        }
 
-		$text = '';
+        if (! $delta || ! isset($delta['ops'])) {
+            return '';
+        }
 
-		foreach ( $delta['ops'] as $op ) {
-			if ( ! isset( $op['insert'] ) ) {
-				continue;
-			}
+        $text = '';
 
-			// Text insert
-			if ( is_string( $op['insert'] ) ) {
-				$text .= $op['insert'];
-			}
-			// Embed insert (image, mention, etc.) - add placeholder
-			elseif ( is_array( $op['insert'] ) ) {
-				$embed_type = key( $op['insert'] );
-				$text      .= "[$embed_type]";
-			}
-		}
+        foreach ($delta['ops'] as $op) {
+            if (! isset($op['insert'])) {
+                continue;
+            }
 
-		return trim( $text );
-	}
+            // Text insert
+            if (is_string($op['insert'])) {
+                $text .= $op['insert'];
+            }
+            // Embed insert (image, mention, etc.) - add placeholder
+            elseif (is_array($op['insert'])) {
+                $embed_type = key($op['insert']);
+                $text .= "[$embed_type]";
+            }
+        }
 
-	/**
-	 * Get word count from Delta.
-	 *
-	 * @param string|array $delta Delta as JSON string or decoded array.
-	 * @return int Word count.
-	 */
-	public function get_word_count( $delta ) {
-		$text = $this->to_plain_text( $delta );
-		return str_word_count( $text );
-	}
+        return trim($text);
+    }
 
-	/**
-	 * Static helper: Convert Delta to HTML.
-	 *
-	 * Convenience method for one-off conversions without instantiating the class.
-	 *
-	 * @param string|array $delta   Delta as JSON string or decoded array.
-	 * @param array        $options Configuration options.
-	 * @return string Sanitized HTML output.
-	 */
-	public static function toHtml( $delta, array $options = [] ) {
-		$converter = new self( $options );
-		return $converter->convert( $delta );
-	}
+    /**
+     * Get word count from Delta.
+     *
+     * @param string|array $delta Delta as JSON string or decoded array.
+     * @return int Word count.
+     */
+    public function get_word_count($delta)
+    {
+        $text = $this->to_plain_text($delta);
 
-	/**
-	 * Static helper: Convert Delta to plain text.
-	 *
-	 * @param string|array $delta Delta as JSON string or decoded array.
-	 * @return string Plain text content.
-	 */
-	public static function toText( $delta ) {
-		$converter = new self();
-		return $converter->to_plain_text( $delta );
-	}
+        return str_word_count($text);
+    }
+
+    /**
+     * Static helper: Convert Delta to HTML.
+     *
+     * Convenience method for one-off conversions without instantiating the class.
+     *
+     * @param string|array $delta   Delta as JSON string or decoded array.
+     * @param array        $options Configuration options.
+     * @return string Sanitized HTML output.
+     */
+    public static function toHtml($delta, array $options = [])
+    {
+        $converter = new self($options);
+
+        return $converter->convert($delta);
+    }
+
+    /**
+     * Static helper: Convert Delta to plain text.
+     *
+     * @param string|array $delta Delta as JSON string or decoded array.
+     * @return string Plain text content.
+     */
+    public static function toText($delta)
+    {
+        $converter = new self();
+
+        return $converter->to_plain_text($delta);
+    }
 }

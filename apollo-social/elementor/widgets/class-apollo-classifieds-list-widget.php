@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Classifieds List Widget for Elementor (stub)
  */

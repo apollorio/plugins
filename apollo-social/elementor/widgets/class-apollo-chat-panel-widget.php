@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Chat Panel Widget for Elementor (stub)
  */

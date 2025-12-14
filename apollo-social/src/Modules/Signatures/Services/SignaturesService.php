@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Signatures Service.
  *
@@ -18,7 +19,6 @@
 
 namespace Apollo\Modules\Signatures\Services;
 
-use Apollo\Modules\Signatures\Models\DocumentTemplate;
 use Apollo\Modules\Signatures\Models\DigitalSignature;
 use Apollo\Modules\Signatures\Repositories\TemplatesRepository;
 use Apollo\Modules\Signatures\Adapters\GovbrApi;
@@ -31,48 +31,49 @@ use Apollo\Modules\Signatures\Adapters\GovbrApi;
  *
  * @since 1.0.0
  */
-class SignaturesService {
+class SignaturesService
+{
+    // Signature tracks according to Lei 14.063/2020
+    public const TRACK_B = 'track_b';
+    // Trilho B: Assinatura qualificada (GOV.BR/ICP-Brasil)
 
+    /** @var TemplatesRepository */
+    private $templates_repository;
 
-	// Signature tracks according to Lei 14.063/2020
-	const TRACK_B = 'track_b';
-	// Trilho B: Assinatura qualificada (GOV.BR/ICP-Brasil)
+    /** @var RenderService */
+    private $render_service;
 
-	/** @var TemplatesRepository */
-	private $templates_repository;
+    /** @var GovbrApi */
+    private $govbr_api;
 
-	/** @var RenderService */
-	private $render_service;
+    /** @var string */
+    private $signatures_table;
 
-	/** @var GovbrApi */
-	private $govbr_api;
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        global $wpdb;
 
-	/** @var string */
-	private $signatures_table;
+        $this->templates_repository = new TemplatesRepository();
+        $this->render_service       = new RenderService();
+        $this->govbr_api            = new GovbrApi();
+        $this->signatures_table     = $wpdb->prefix . 'apollo_digital_signatures';
+    }
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		global $wpdb;
+    /**
+     * Create signatures table
+     *
+     * @return bool
+     */
+    public function createSignaturesTable(): bool
+    {
+        global $wpdb;
 
-		$this->templates_repository = new TemplatesRepository();
-		$this->render_service       = new RenderService();
-		$this->govbr_api            = new GovbrApi();
-		$this->signatures_table     = $wpdb->prefix . 'apollo_digital_signatures';
-	}
+        $charset_collate = $wpdb->get_charset_collate();
 
-	/**
-	 * Create signatures table
-	 *
-	 * @return bool
-	 */
-	public function createSignaturesTable(): bool {
-		global $wpdb;
-
-		$charset_collate = $wpdb->get_charset_collate();
-
-		$sql = "CREATE TABLE {$this->signatures_table} (
+        $sql = "CREATE TABLE {$this->signatures_table} (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             template_id bigint(20) NOT NULL,
             document_hash varchar(64) NOT NULL,
@@ -99,419 +100,432 @@ class SignaturesService {
             UNIQUE KEY idx_document_hash (document_hash)
         ) $charset_collate;";
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql );
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql);
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Create signature request
-	 *
-	 * @param int    $template_id
-	 * @param array  $template_data
-	 * @param array  $signer_info
-	 * @param string $track
-	 * @param array  $options
-	 * @return DigitalSignature|false
-	 */
-	public function createSignatureRequest(
-		int $template_id,
-		array $template_data,
-		array $signer_info,
-		string $track = self::TRACK_B,
-		array $options = []
-	): DigitalSignature|false {
+    /**
+     * Create signature request
+     *
+     * @param int    $template_id
+     * @param array  $template_data
+     * @param array  $signer_info
+     * @param string $track
+     * @param array  $options
+     * @return DigitalSignature|false
+     */
+    public function createSignatureRequest(
+        int $template_id,
+        array $template_data,
+        array $signer_info,
+        string $track = self::TRACK_B,
+        array $options = []
+    ): DigitalSignature|false {
 
-		try {
-			// Get template
-			$template = $this->templates_repository->findById( $template_id );
-			if ( ! $template ) {
-				throw new \Exception( 'Template não encontrado' );
-			}
+        try {
+            // Get template
+            $template = $this->templates_repository->findById($template_id);
+            if (! $template) {
+                throw new \Exception('Template não encontrado');
+            }
 
-			// Validate template data
-			$validation_errors = $template->validateData( $template_data );
-			if ( ! empty( $validation_errors ) ) {
-				throw new \Exception( 'Dados inválidos: ' . implode( ', ', $validation_errors ) );
-			}
+            // Validate template data
+            $validation_errors = $template->validateData($template_data);
+            if (! empty($validation_errors)) {
+                throw new \Exception('Dados inválidos: ' . implode(', ', $validation_errors));
+            }
 
-			// Generate PDF document
-			$pdf_options = array_merge(
-				$options,
-				[
-					'title'    => $template->name,
-					'filename' => sprintf( 'documento_%s_%s.pdf', $template_id, uniqid() ),
-				]
-			);
+            // Generate PDF document
+            $pdf_options = array_merge(
+                $options,
+                [
+                    'title'    => $template->name,
+                    'filename' => sprintf('documento_%s_%s.pdf', $template_id, uniqid()),
+                ]
+            );
 
-			$pdf_path = $this->render_service->renderToPdf( $template, $template_data, $pdf_options );
-			if ( ! $pdf_path ) {
-				throw new \Exception( 'Erro ao gerar PDF' );
-			}
+            $pdf_path = $this->render_service->renderToPdf($template, $template_data, $pdf_options);
+            if (! $pdf_path) {
+                throw new \Exception('Erro ao gerar PDF');
+            }
 
-			// Calculate document hash
-			$document_hash = $this->render_service->getDocumentHash( $pdf_path );
+            // Calculate document hash
+            $document_hash = $this->render_service->getDocumentHash($pdf_path);
 
-			// Determine provider and signature level based on track
-			[$provider, $signature_level] = $this->getProviderAndLevel( $track, $options );
+            // Determine provider and signature level based on track
+            [$provider, $signature_level] = $this->getProviderAndLevel($track, $options);
 
-			// Create signature record
-			$signature_data = [
-				'template_id'     => $template_id,
-				'document_hash'   => $document_hash,
-				'signer_name'     => $signer_info['name'],
-				'signer_email'    => $signer_info['email'],
-				'signer_document' => $signer_info['document'] ?? '',
-				'signature_level' => $signature_level,
-				'provider'        => $provider,
-				'metadata'        => json_encode(
-					[
-						'template_data' => $template_data,
-						'pdf_path'      => $pdf_path,
-						'options'       => $options,
-					]
-				),
-			];
+            // Create signature record
+            $signature_data = [
+                'template_id'     => $template_id,
+                'document_hash'   => $document_hash,
+                'signer_name'     => $signer_info['name'],
+                'signer_email'    => $signer_info['email'],
+                'signer_document' => $signer_info['document'] ?? '',
+                'signature_level' => $signature_level,
+                'provider'        => $provider,
+                'metadata'        => json_encode(
+                    [
+                        'template_data' => $template_data,
+                        'pdf_path'      => $pdf_path,
+                        'options'       => $options,
+                    ]
+                ),
+            ];
 
-			$signature = $this->createSignatureRecord( $signature_data );
-			if ( ! $signature ) {
-				throw new \Exception( 'Erro ao criar registro de assinatura' );
-			}
+            $signature = $this->createSignatureRecord($signature_data);
+            if (! $signature) {
+                throw new \Exception('Erro ao criar registro de assinatura');
+            }
 
-			// Create envelope with provider
-			$envelope_result = $this->createEnvelope( $signature, $pdf_path, $options );
-			if ( ! $envelope_result ) {
-				throw new \Exception( 'Erro ao criar envelope de assinatura' );
-			}
+            // Create envelope with provider
+            $envelope_result = $this->createEnvelope($signature, $pdf_path, $options);
+            if (! $envelope_result) {
+                throw new \Exception('Erro ao criar envelope de assinatura');
+            }
 
-			// Update signature with envelope info
-			$this->updateSignature(
-				$signature->id,
-				[
-					'provider_envelope_id' => $envelope_result['envelope_id'],
-					'signing_url'          => $envelope_result['signing_url'],
-				]
-			);
+            // Update signature with envelope info
+            $this->updateSignature(
+                $signature->id,
+                [
+                    'provider_envelope_id' => $envelope_result['envelope_id'],
+                    'signing_url'          => $envelope_result['signing_url'],
+                ]
+            );
 
-			// Reload signature with updated data
-			return $this->findSignatureById( $signature->id );
-		} catch ( \Exception $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Apollo Signatures Error: ' . $e->getMessage() );
-			}
-			return false;
-		}//end try
-	}
+            // Reload signature with updated data
+            return $this->findSignatureById($signature->id);
+        } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Apollo Signatures Error: ' . $e->getMessage());
+            }
 
-	/**
-	 * Get provider and signature level based on track
-	 *
-	 * @param string $track
-	 * @param array  $options
-	 * @return array [provider, signature_level]
-	 */
-	private function getProviderAndLevel( string $track, array $options = [] ): array {
-		switch ( $track ) {
-			case self::TRACK_B:
-				// Trilho B: Assinatura qualificada
-				$provider = $options['provider'] ?? 'govbr';
+            return false;
+        }//end try
+    }
 
-				if ( $provider === 'govbr' ) {
-					return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
-				} else {
-					return [ 'icp_provider', DigitalSignature::LEVEL_QUALIFIED ];
-				}
+    /**
+     * Get provider and signature level based on track
+     *
+     * @param string $track
+     * @param array  $options
+     * @return array [provider, signature_level]
+     */
+    private function getProviderAndLevel(string $track, array $options = []): array
+    {
+        switch ($track) {
+            case self::TRACK_B:
+                // Trilho B: Assinatura qualificada
+                $provider = $options['provider'] ?? 'govbr';
 
-			default:
-				return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
-		}
-	}
+                if ($provider === 'govbr') {
+                    return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
+                } else {
+                    return [ 'icp_provider', DigitalSignature::LEVEL_QUALIFIED ];
+                }
 
-	/**
-	 * Create envelope with appropriate provider
-	 *
-	 * @param DigitalSignature $signature
-	 * @param string           $pdf_path
-	 * @param array            $options
-	 * @return array|false
-	 */
-	private function createEnvelope( DigitalSignature $signature, string $pdf_path, array $options = [] ): array|false {
-		switch ( $signature->provider ) {
-			case 'govbr':
-				return $this->govbr_api->createEnvelope( $signature, $pdf_path, $options );
+                // no break
+            default:
+                return [ 'govbr', DigitalSignature::LEVEL_QUALIFIED ];
+        }
+    }
 
-			case 'icp_provider':
-				// Other ICP-Brasil providers use GOV.BR infrastructure
-				return $this->govbr_api->createEnvelope( $signature, $pdf_path, $options );
+    /**
+     * Create envelope with appropriate provider
+     *
+     * @param DigitalSignature $signature
+     * @param string           $pdf_path
+     * @param array            $options
+     * @return array|false
+     */
+    private function createEnvelope(DigitalSignature $signature, string $pdf_path, array $options = []): array|false
+    {
+        switch ($signature->provider) {
+            case 'govbr':
+                return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
 
-			default:
-				return $this->govbr_api->createEnvelope( $signature, $pdf_path, $options );
-		}
-	}
+            case 'icp_provider':
+                // Other ICP-Brasil providers use GOV.BR infrastructure
+                return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
 
-	/**
-	 * Create signature record in database
-	 *
-	 * @param array $data
-	 * @return DigitalSignature|false
-	 */
-	private function createSignatureRecord( array $data ): DigitalSignature|false {
-		global $wpdb;
+            default:
+                return $this->govbr_api->createEnvelope($signature, $pdf_path, $options);
+        }
+    }
 
-		$data['created_by'] = get_current_user_id();
+    /**
+     * Create signature record in database
+     *
+     * @param array $data
+     * @return DigitalSignature|false
+     */
+    private function createSignatureRecord(array $data): DigitalSignature|false
+    {
+        global $wpdb;
 
-		$result = $wpdb->insert( $this->signatures_table, $data );
+        $data['created_by'] = get_current_user_id();
 
-		if ( $result === false ) {
-			return false;
-		}
+        $result = $wpdb->insert($this->signatures_table, $data);
 
-		return $this->findSignatureById( $wpdb->insert_id );
-	}
+        if ($result === false) {
+            return false;
+        }
 
-	/**
-	 * Find signature by ID
-	 *
-	 * @param int $id
-	 * @return DigitalSignature|null
-	 */
-	public function findSignatureById( int $id ): ?DigitalSignature {
-		global $wpdb;
+        return $this->findSignatureById($wpdb->insert_id);
+    }
 
-		$result = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$this->signatures_table} WHERE id = %d", $id ),
-			ARRAY_A
-		);
+    /**
+     * Find signature by ID
+     *
+     * @param int $id
+     * @return DigitalSignature|null
+     */
+    public function findSignatureById(int $id): ?DigitalSignature
+    {
+        global $wpdb;
 
-		return $result ? new DigitalSignature( $result ) : null;
-	}
+        $result = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$this->signatures_table} WHERE id = %d", $id),
+            ARRAY_A
+        );
 
-	/**
-	 * Update signature
-	 *
-	 * @param int   $id
-	 * @param array $data
-	 * @return bool
-	 */
-	public function updateSignature( int $id, array $data ): bool {
-		global $wpdb;
+        return $result ? new DigitalSignature($result) : null;
+    }
 
-		$result = $wpdb->update(
-			$this->signatures_table,
-			$data,
-			[ 'id' => $id ]
-		);
+    /**
+     * Update signature
+     *
+     * @param int   $id
+     * @param array $data
+     * @return bool
+     */
+    public function updateSignature(int $id, array $data): bool
+    {
+        global $wpdb;
 
-		return $result !== false;
-	}
+        $result = $wpdb->update(
+            $this->signatures_table,
+            $data,
+            [ 'id' => $id ]
+        );
 
-	/**
-	 * Process webhook from signature provider
-	 *
-	 * @param string $provider
-	 * @param array  $payload
-	 * @return bool
-	 */
-	public function processWebhook( string $provider, array $payload ): bool {
-		try {
-			switch ( $provider ) {
-				case 'govbr':
-					return $this->govbr_api->processWebhook( $payload );
+        return $result !== false;
+    }
 
-				default:
-					return $this->govbr_api->processWebhook( $payload );
-			}
-		} catch ( \Exception $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( 'Apollo Signatures Webhook Error: ' . $e->getMessage() );
-			}
-			return false;
-		}
-	}
+    /**
+     * Process webhook from signature provider
+     *
+     * @param string $provider
+     * @param array  $payload
+     * @return bool
+     */
+    public function processWebhook(string $provider, array $payload): bool
+    {
+        try {
+            switch ($provider) {
+                case 'govbr':
+                    return $this->govbr_api->processWebhook($payload);
 
-	/**
-	 * Update signature status from webhook
-	 *
-	 * @param string $envelope_id
-	 * @param string $status
-	 * @param array  $metadata
-	 * @return bool
-	 */
-	public function updateSignatureStatus( string $envelope_id, string $status, array $metadata = [] ): bool {
-		global $wpdb;
+                default:
+                    return $this->govbr_api->processWebhook($payload);
+            }
+        } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Apollo Signatures Webhook Error: ' . $e->getMessage());
+            }
 
-		$signature = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->signatures_table} WHERE provider_envelope_id = %s",
-				$envelope_id
-			),
-			ARRAY_A
-		);
+            return false;
+        }
+    }
 
-		if ( ! $signature ) {
-			return false;
-		}
+    /**
+     * Update signature status from webhook
+     *
+     * @param string $envelope_id
+     * @param string $status
+     * @param array  $metadata
+     * @return bool
+     */
+    public function updateSignatureStatus(string $envelope_id, string $status, array $metadata = []): bool
+    {
+        global $wpdb;
 
-		$signature_obj = new DigitalSignature( $signature );
-		$signature_obj->updateStatus( $status, $metadata );
+        $signature = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->signatures_table} WHERE provider_envelope_id = %s",
+                $envelope_id
+            ),
+            ARRAY_A
+        );
 
-		$update_data = [
-			'status'     => $signature_obj->status,
-			'metadata'   => json_encode( $signature_obj->metadata ),
-			'updated_at' => $signature_obj->updated_at,
-		];
+        if (! $signature) {
+            return false;
+        }
 
-		if ( $signature_obj->signed_at ) {
-			$update_data['signed_at'] = $signature_obj->signed_at;
-		}
+        $signature_obj = new DigitalSignature($signature);
+        $signature_obj->updateStatus($status, $metadata);
 
-		$result = $wpdb->update(
-			$this->signatures_table,
-			$update_data,
-			[ 'id' => $signature_obj->id ]
-		);
+        $update_data = [
+            'status'     => $signature_obj->status,
+            'metadata'   => json_encode($signature_obj->metadata),
+            'updated_at' => $signature_obj->updated_at,
+        ];
 
-		// Award badge if signed
-		if ( $signature_obj->isSigned() ) {
-			$this->awardSignatureBadge( $signature_obj );
-		}
+        if ($signature_obj->signed_at) {
+            $update_data['signed_at'] = $signature_obj->signed_at;
+        }
 
-		return $result !== false;
-	}
+        $result = $wpdb->update(
+            $this->signatures_table,
+            $update_data,
+            [ 'id' => $signature_obj->id ]
+        );
 
-	/**
-	 * Award signature badge to user
-	 *
-	 * @param DigitalSignature $signature
-	 */
-	private function awardSignatureBadge( DigitalSignature $signature ): void {
-		// Get user by email
-		$user = get_user_by( 'email', $signature->signer_email );
-		if ( ! $user ) {
-			return;
-		}
+        // Award badge if signed
+        if ($signature_obj->isSigned()) {
+            $this->awardSignatureBadge($signature_obj);
+        }
 
-		// Check if badges are enabled
-		$badges_enabled = get_option( 'apollo_signatures_badges_enabled', false );
-		if ( ! $badges_enabled ) {
-			return;
-		}
+        return $result !== false;
+    }
 
-		// Award badge through Apollo Badges system
-		if ( function_exists( 'apollo_award_badge' ) ) {
-			call_user_func(
-				'apollo_award_badge',
-				$user->ID,
-				'contract_signed',
-				[
-					'signature_id'    => $signature->id,
-					'signature_level' => $signature->signature_level,
-					'provider'        => $signature->provider,
-					'signed_at'       => $signature->signed_at,
-				]
-			);
-		}
-	}
+    /**
+     * Award signature badge to user
+     *
+     * @param DigitalSignature $signature
+     */
+    private function awardSignatureBadge(DigitalSignature $signature): void
+    {
+        // Get user by email
+        $user = get_user_by('email', $signature->signer_email);
+        if (! $user) {
+            return;
+        }
 
-	/**
-	 * Get signatures by user
-	 *
-	 * @param int   $user_id
-	 * @param array $filters
-	 * @return array
-	 */
-	public function getSignaturesByUser( int $user_id, array $filters = [] ): array {
-		global $wpdb;
+        // Check if badges are enabled
+        $badges_enabled = get_option('apollo_signatures_badges_enabled', false);
+        if (! $badges_enabled) {
+            return;
+        }
 
-		$user = get_userdata( $user_id );
-		if ( ! $user ) {
-			return [];
-		}
+        // Award badge through Apollo Badges system
+        if (function_exists('apollo_award_badge')) {
+            call_user_func(
+                'apollo_award_badge',
+                $user->ID,
+                'contract_signed',
+                [
+                    'signature_id'    => $signature->id,
+                    'signature_level' => $signature->signature_level,
+                    'provider'        => $signature->provider,
+                    'signed_at'       => $signature->signed_at,
+                ]
+            );
+        }
+    }
 
-		$where_clauses = [ 'signer_email = %s' ];
-		$values        = [ $user->user_email ];
+    /**
+     * Get signatures by user
+     *
+     * @param int   $user_id
+     * @param array $filters
+     * @return array
+     */
+    public function getSignaturesByUser(int $user_id, array $filters = []): array
+    {
+        global $wpdb;
 
-		if ( ! empty( $filters['status'] ) ) {
-			$where_clauses[] = 'status = %s';
-			$values[]        = $filters['status'];
-		}
+        $user = get_userdata($user_id);
+        if (! $user) {
+            return [];
+        }
 
-		if ( ! empty( $filters['signature_level'] ) ) {
-			$where_clauses[] = 'signature_level = %s';
-			$values[]        = $filters['signature_level'];
-		}
+        $where_clauses = [ 'signer_email = %s' ];
+        $values        = [ $user->user_email ];
 
-		$where_sql = implode( ' AND ', $where_clauses );
-		$order_by  = $filters['order_by'] ?? 'created_at DESC';
-		$limit     = $filters['limit'] ?? 50;
+        if (! empty($filters['status'])) {
+            $where_clauses[] = 'status = %s';
+            $values[]        = $filters['status'];
+        }
 
-		$sql = "SELECT * FROM {$this->signatures_table}
+        if (! empty($filters['signature_level'])) {
+            $where_clauses[] = 'signature_level = %s';
+            $values[]        = $filters['signature_level'];
+        }
+
+        $where_sql = implode(' AND ', $where_clauses);
+        $order_by  = $filters['order_by'] ?? 'created_at DESC';
+        $limit     = $filters['limit']    ?? 50;
+
+        $sql = "SELECT * FROM {$this->signatures_table}
                 WHERE {$where_sql}
                 ORDER BY {$order_by}
                 LIMIT %d";
 
-		$values[] = $limit;
+        $values[] = $limit;
 
-		$results = $wpdb->get_results(
-			$wpdb->prepare( $sql, ...$values ),
-			ARRAY_A
-		);
+        $results = $wpdb->get_results(
+            $wpdb->prepare($sql, ...$values),
+            ARRAY_A
+        );
 
-		return array_map(
-			function ( $row ) {
-				return new DigitalSignature( $row );
-			},
-			$results ?: []
-		);
-	}
+        return array_map(
+            function ($row) {
+                return new DigitalSignature($row);
+            },
+            $results ?: []
+        );
+    }
 
-	/**
-	 * Get signature statistics
-	 *
-	 * @param array $filters
-	 * @return array
-	 */
-	public function getSignatureStats( array $filters = [] ): array {
-		global $wpdb;
+    /**
+     * Get signature statistics
+     *
+     * @param array $filters
+     * @return array
+     */
+    public function getSignatureStats(array $filters = []): array
+    {
+        global $wpdb;
 
-		$where_clauses = [ '1=1' ];
-		$values        = [];
+        $where_clauses = [ '1=1' ];
+        $values        = [];
 
-		if ( ! empty( $filters['date_from'] ) ) {
-			$where_clauses[] = 'created_at >= %s';
-			$values[]        = $filters['date_from'];
-		}
+        if (! empty($filters['date_from'])) {
+            $where_clauses[] = 'created_at >= %s';
+            $values[]        = $filters['date_from'];
+        }
 
-		if ( ! empty( $filters['date_to'] ) ) {
-			$where_clauses[] = 'created_at <= %s';
-			$values[]        = $filters['date_to'];
-		}
+        if (! empty($filters['date_to'])) {
+            $where_clauses[] = 'created_at <= %s';
+            $values[]        = $filters['date_to'];
+        }
 
-		$where_sql = implode( ' AND ', $where_clauses );
+        $where_sql = implode(' AND ', $where_clauses);
 
-		// Total signatures
-		$total_sql = "SELECT COUNT(*) as total FROM {$this->signatures_table} WHERE {$where_sql}";
-		$total     = $wpdb->get_var( empty( $values ) ? $total_sql : $wpdb->prepare( $total_sql, ...$values ) );
+        // Total signatures
+        $total_sql = "SELECT COUNT(*) as total FROM {$this->signatures_table} WHERE {$where_sql}";
+        $total     = $wpdb->get_var(empty($values) ? $total_sql : $wpdb->prepare($total_sql, ...$values));
 
-		// By status
-		$status_sql = "SELECT status, COUNT(*) as count FROM {$this->signatures_table} WHERE {$where_sql} GROUP BY status";
-		$by_status  = $wpdb->get_results(
-			empty( $values ) ? $status_sql : $wpdb->prepare( $status_sql, ...$values ),
-			ARRAY_A
-		);
+        // By status
+        $status_sql = "SELECT status, COUNT(*) as count FROM {$this->signatures_table} WHERE {$where_sql} GROUP BY status";
+        $by_status  = $wpdb->get_results(
+            empty($values) ? $status_sql : $wpdb->prepare($status_sql, ...$values),
+            ARRAY_A
+        );
 
-		// By level
-		$level_sql = "SELECT signature_level, COUNT(*) as count FROM {$this->signatures_table} WHERE {$where_sql} GROUP BY signature_level";
-		$by_level  = $wpdb->get_results(
-			empty( $values ) ? $level_sql : $wpdb->prepare( $level_sql, ...$values ),
-			ARRAY_A
-		);
+        // By level
+        $level_sql = "SELECT signature_level, COUNT(*) as count FROM {$this->signatures_table} WHERE {$where_sql} GROUP BY signature_level";
+        $by_level  = $wpdb->get_results(
+            empty($values) ? $level_sql : $wpdb->prepare($level_sql, ...$values),
+            ARRAY_A
+        );
 
-		return [
-			'total'     => (int) $total,
-			'by_status' => $by_status ?: [],
-			'by_level'  => $by_level ?: [],
-		];
-	}
+        return [
+            'total'     => (int) $total,
+            'by_status' => $by_status ?: [],
+            'by_level'  => $by_level ?: [],
+        ];
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Global Assets Manager
  *
@@ -55,12 +56,12 @@ class Apollo_Global_Assets {
 	/**
 	 * CDN base URL for production assets
 	 */
-	const CDN_BASE_URL = 'https://assets.apollo.rio.br/';
+	public const CDN_BASE_URL = 'https://assets.apollo.rio.br/';
 
 	/**
 	 * Local fallback path relative to apollo-core plugin
 	 */
-	const LOCAL_BASE_PATH = 'templates/design-library/global assets-apollo-rio-br/';
+	public const LOCAL_BASE_PATH = 'templates/design-library/global assets-apollo-rio-br/';
 
 	/**
 	 * Whether to use CDN (true) or local assets (false)
@@ -376,6 +377,7 @@ class Apollo_Global_Assets {
 				return $path;
 			}
 		}
+
 		return false;
 	}
 
@@ -408,6 +410,7 @@ class Apollo_Global_Assets {
 		if ( $user_id ) {
 			return (bool) get_user_meta( $user_id, 'apollo_dark_mode', true );
 		}
+
 		return false;
 	}
 
@@ -444,6 +447,7 @@ class Apollo_Global_Assets {
 				foreach ( $allowed_patterns as $pattern ) {
 					if ( strpos( $src, $pattern ) !== false ) {
 						$keep = true;
+
 						break;
 					}
 				}

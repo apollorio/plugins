@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Social – AJAX Image Upload Handler for Quill Editor
  *
@@ -64,14 +65,14 @@ class ImageUploadHandler {
 	 *
 	 * @var string
 	 */
-	const ACTION = 'apollo_upload_editor_image';
+	public const ACTION = 'apollo_upload_editor_image';
 
 	/**
 	 * Nonce action name for verification.
 	 *
 	 * @var string
 	 */
-	const NONCE_ACTION = 'apollo_editor_image_upload';
+	public const NONCE_ACTION = 'apollo_editor_image_upload';
 
 	/**
 	 * Maximum file size in bytes.
@@ -141,6 +142,7 @@ class ImageUploadHandler {
 				),
 				403
 			);
+
 			return;
 		}
 
@@ -155,6 +157,7 @@ class ImageUploadHandler {
 				),
 				403
 			);
+
 			return;
 		}
 
@@ -167,6 +170,7 @@ class ImageUploadHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -183,6 +187,7 @@ class ImageUploadHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -200,6 +205,7 @@ class ImageUploadHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -224,6 +230,7 @@ class ImageUploadHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -239,6 +246,7 @@ class ImageUploadHandler {
 					),
 					403
 				);
+
 				return;
 			}
 		}
@@ -271,6 +279,7 @@ class ImageUploadHandler {
 				),
 				500
 			);
+
 			return;
 		}
 
@@ -297,6 +306,7 @@ class ImageUploadHandler {
 				),
 				500
 			);
+
 			return;
 		}
 
@@ -353,6 +363,7 @@ class ImageUploadHandler {
 				'height' => $size[1],
 			);
 		}
+
 		return null;
 	}
 }

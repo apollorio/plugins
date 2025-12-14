@@ -10,19 +10,19 @@
  * @see     uni.css for .ap-* classes
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 // Prevent direct access.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Expected variables from parent template.
-$document_id    = $document_id ?? 0;
+$document_id    = $document_id    ?? 0;
 $document_title = $document_title ?? '';
-$rest_nonce     = wp_create_nonce( 'wp_rest' );
-$rest_url       = rest_url( 'apollo-social/v1/doc/' . $document_id . '/sign' );
-$backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
+$rest_nonce     = wp_create_nonce('wp_rest');
+$rest_url       = rest_url('apollo-social/v1/doc/' . $document_id . '/sign');
+$backends_url   = rest_url('apollo-social/v1/signatures/backends');
 ?>
 <!-- Signature Modal Overlay -->
 <div id="apollo-signature-modal"
@@ -42,17 +42,17 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 				<i class="ri-quill-pen-line ap-modal__icon"></i>
 				<div>
 					<h2 id="signature-modal-title" class="ap-modal__title">
-						<?php esc_html_e( 'Assinar Documento', 'apollo-social' ); ?>
+						<?php esc_html_e('Assinar Documento', 'apollo-social'); ?>
 					</h2>
 					<p id="signature-modal-desc" class="ap-modal__subtitle">
-						<?php esc_html_e( 'Assinatura digital com validade jurídica', 'apollo-social' ); ?>
+						<?php esc_html_e('Assinatura digital com validade jurídica', 'apollo-social'); ?>
 					</p>
 				</div>
 			</div>
 			<button type="button"
 					class="ap-modal__close"
 					data-ap-close-modal="signature"
-					aria-label="<?php esc_attr_e( 'Fechar modal', 'apollo-social' ); ?>">
+					aria-label="<?php esc_attr_e('Fechar modal', 'apollo-social'); ?>">
 				<i class="ri-close-line"></i>
 			</button>
 		</div>
@@ -67,15 +67,15 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 					</div>
 					<div class="ap-flex-1">
 						<p class="ap-text-sm ap-text-muted ap-mb-0">
-							<?php esc_html_e( 'Documento a assinar', 'apollo-social' ); ?>
+							<?php esc_html_e('Documento a assinar', 'apollo-social'); ?>
 						</p>
 						<h4 class="ap-text-base ap-font-semibold ap-mb-0" id="sign-doc-title">
-							<?php echo esc_html( $document_title ); ?>
+							<?php echo esc_html($document_title); ?>
 						</h4>
 					</div>
 					<span class="ap-badge ap-badge--warning ap-badge--sm" id="sign-status-badge">
 						<span class="ap-badge__dot"></span>
-						<?php esc_html_e( 'Pendente', 'apollo-social' ); ?>
+						<?php esc_html_e('Pendente', 'apollo-social'); ?>
 					</span>
 				</div>
 			</div>
@@ -84,9 +84,9 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 			<div class="ap-alert ap-alert--info ap-mb-4">
 				<i class="ri-information-line ap-alert__icon"></i>
 				<div class="ap-alert__content">
-					<strong><?php esc_html_e( 'Sobre assinatura digital ICP-Brasil', 'apollo-social' ); ?></strong>
+					<strong><?php esc_html_e('Sobre assinatura digital ICP-Brasil', 'apollo-social'); ?></strong>
 					<p class="ap-text-sm ap-mb-0">
-						<?php esc_html_e( 'A assinatura digital ICP-Brasil tem validade jurídica equivalente à assinatura manuscrita, conforme MP 2.200-2/2001 e Lei 14.063/2020.', 'apollo-social' ); ?>
+						<?php esc_html_e('A assinatura digital ICP-Brasil tem validade jurídica equivalente à assinatura manuscrita, conforme MP 2.200-2/2001 e Lei 14.063/2020.', 'apollo-social'); ?>
 					</p>
 				</div>
 			</div>
@@ -104,7 +104,7 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 						<i class="ri-check-line"></i>
 					</span>
 					<span class="ap-checkbox-card__label">
-						<?php esc_html_e( 'Li e concordo com o conteúdo integral do documento.', 'apollo-social' ); ?>
+						<?php esc_html_e('Li e concordo com o conteúdo integral do documento.', 'apollo-social'); ?>
 					</span>
 				</label>
 
@@ -119,7 +119,7 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 						<i class="ri-check-line"></i>
 					</span>
 					<span class="ap-checkbox-card__label">
-						<?php esc_html_e( 'Autorizo o uso da minha assinatura digital neste documento.', 'apollo-social' ); ?>
+						<?php esc_html_e('Autorizo o uso da minha assinatura digital neste documento.', 'apollo-social'); ?>
 					</span>
 				</label>
 			</div>
@@ -132,14 +132,14 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 				style="display: none;">
 				<i class="ri-error-warning-line ap-alert__icon" aria-hidden="true"></i>
 				<span id="sign-error-message">
-					<?php esc_html_e( 'Marque as opções acima para continuar.', 'apollo-social' ); ?>
+					<?php esc_html_e('Marque as opções acima para continuar.', 'apollo-social'); ?>
 				</span>
 			</div>
 
 			<!-- Signature Providers -->
 			<div class="ap-stack ap-stack--md" id="sign-providers-section">
 				<h5 class="ap-text-sm ap-font-semibold ap-text-muted ap-uppercase ap-tracking-wide">
-					<?php esc_html_e( 'Escolha o método de assinatura', 'apollo-social' ); ?>
+					<?php esc_html_e('Escolha o método de assinatura', 'apollo-social'); ?>
 				</h5>
 
 				<!-- gov.br Button -->
@@ -147,10 +147,10 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 						class="ap-btn ap-btn--lg ap-btn--block ap-btn--primary"
 						id="btn-sign-govbr"
 						data-ap-sign-provider="govbr"
-						data-ap-tooltip="<?php esc_attr_e( 'Assinar usando sua conta gov.br com certificado em nuvem', 'apollo-social' ); ?>"
+						data-ap-tooltip="<?php esc_attr_e('Assinar usando sua conta gov.br com certificado em nuvem', 'apollo-social'); ?>"
 						disabled>
 					<i class="ri-shield-check-line"></i>
-					<span><?php esc_html_e( 'Assinar com gov.br', 'apollo-social' ); ?></span>
+					<span><?php esc_html_e('Assinar com gov.br', 'apollo-social'); ?></span>
 				</button>
 
 				<!-- ICP-Brasil Button -->
@@ -158,22 +158,22 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 						class="ap-btn ap-btn--lg ap-btn--block ap-btn--outline"
 						id="btn-sign-icp"
 						data-ap-sign-provider="icp"
-						data-ap-tooltip="<?php esc_attr_e( 'Assinar usando certificado digital A1 ou A3 (token/smartcard)', 'apollo-social' ); ?>"
+						data-ap-tooltip="<?php esc_attr_e('Assinar usando certificado digital A1 ou A3 (token/smartcard)', 'apollo-social'); ?>"
 						disabled>
 					<i class="ri-key-2-line"></i>
-					<span><?php esc_html_e( 'Certificado ICP-Brasil', 'apollo-social' ); ?></span>
+					<span><?php esc_html_e('Certificado ICP-Brasil', 'apollo-social'); ?></span>
 				</button>
 
 				<!-- Local Stub (dev only) -->
-				<?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
+				<?php if (defined('WP_DEBUG') && WP_DEBUG) : ?>
 				<button type="button"
 						class="ap-btn ap-btn--lg ap-btn--block ap-btn--ghost"
 						id="btn-sign-stub"
 						data-ap-sign-provider="local-stub"
-						data-ap-tooltip="<?php esc_attr_e( 'Backend de teste local (apenas desenvolvimento)', 'apollo-social' ); ?>"
+						data-ap-tooltip="<?php esc_attr_e('Backend de teste local (apenas desenvolvimento)', 'apollo-social'); ?>"
 						disabled>
 					<i class="ri-bug-line"></i>
-					<span><?php esc_html_e( 'Stub Local (Dev)', 'apollo-social' ); ?></span>
+					<span><?php esc_html_e('Stub Local (Dev)', 'apollo-social'); ?></span>
 				</button>
 				<?php endif; ?>
 			</div>
@@ -191,10 +191,10 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 						</div>
 						<div>
 							<h4 class="ap-text-base ap-font-bold ap-text-success ap-mb-0">
-								<?php esc_html_e( 'Documento Assinado!', 'apollo-social' ); ?>
+								<?php esc_html_e('Documento Assinado!', 'apollo-social'); ?>
 							</h4>
 							<p class="ap-text-sm ap-text-muted ap-mb-0">
-								<?php esc_html_e( 'Sua assinatura foi registrada com sucesso.', 'apollo-social' ); ?>
+								<?php esc_html_e('Sua assinatura foi registrada com sucesso.', 'apollo-social'); ?>
 							</p>
 						</div>
 					</div>
@@ -203,15 +203,15 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 
 					<dl class="ap-dl ap-dl--sm">
 						<div class="ap-dl__row">
-							<dt><?php esc_html_e( 'Data/Hora:', 'apollo-social' ); ?></dt>
+							<dt><?php esc_html_e('Data/Hora:', 'apollo-social'); ?></dt>
 							<dd id="sign-result-timestamp">--</dd>
 						</div>
 						<div class="ap-dl__row">
-							<dt><?php esc_html_e( 'Código:', 'apollo-social' ); ?></dt>
+							<dt><?php esc_html_e('Código:', 'apollo-social'); ?></dt>
 							<dd id="sign-result-code">--</dd>
 						</div>
 						<div class="ap-dl__row">
-							<dt><?php esc_html_e( 'Hash:', 'apollo-social' ); ?></dt>
+							<dt><?php esc_html_e('Hash:', 'apollo-social'); ?></dt>
 							<dd id="sign-result-hash" class="ap-text-mono ap-text-truncate">--</dd>
 						</div>
 					</dl>
@@ -223,7 +223,7 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 		<div class="ap-modal__footer">
 			<p class="ap-text-xs ap-text-muted ap-text-center ap-mb-0">
 				<i class="ri-lock-line"></i>
-				<?php esc_html_e( 'Ambiente seguro Apollo::rio · Seus dados estão protegidos', 'apollo-social' ); ?>
+				<?php esc_html_e('Ambiente seguro Apollo::rio · Seus dados estão protegidos', 'apollo-social'); ?>
 			</p>
 		</div>
 	</div>
@@ -233,19 +233,19 @@ $backends_url   = rest_url( 'apollo-social/v1/signatures/backends' );
 <script type="application/json" id="apollo-signature-config">
 <?php
 echo wp_json_encode(
-	[
-		'documentId'  => $document_id,
-		'restUrl'     => $rest_url,
-		'backendsUrl' => $backends_url,
-		'nonce'       => $rest_nonce,
-		'i18n'        => [
-			'signing'         => __( 'Assinando...', 'apollo-social' ),
-			'signed'          => __( 'Assinado', 'apollo-social' ),
-			'error'           => __( 'Erro ao assinar', 'apollo-social' ),
-			'checkTerms'      => __( 'Marque as opções acima para continuar.', 'apollo-social' ),
-			'connectionError' => __( 'Erro de conexão. Tente novamente.', 'apollo-social' ),
-		],
-	]
+    [
+        'documentId'  => $document_id,
+        'restUrl'     => $rest_url,
+        'backendsUrl' => $backends_url,
+        'nonce'       => $rest_nonce,
+        'i18n'        => [
+            'signing'         => __('Assinando...', 'apollo-social'),
+            'signed'          => __('Assinado', 'apollo-social'),
+            'error'           => __('Erro ao assinar', 'apollo-social'),
+            'checkTerms'      => __('Marque as opções acima para continuar.', 'apollo-social'),
+            'connectionError' => __('Erro de conexão. Tente novamente.', 'apollo-social'),
+        ],
+    ]
 );
 ?>
 </script>

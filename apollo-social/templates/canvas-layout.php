@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo esc_html( $title ); ?></title>
+	<title><?php echo esc_html($title); ?></title>
 	<?php wp_head(); ?>
 </head>
 <body class="apollo-canvas apollo-social-canvas">
@@ -25,14 +25,14 @@
 		</header>
 
 		<main id="apollo-main" class="apollo-content">
-			<?php if ( isset( $breadcrumbs ) && ! empty( $breadcrumbs ) ) : ?>
+			<?php if (isset($breadcrumbs) && ! empty($breadcrumbs)) : ?>
 			<nav class="apollo-breadcrumbs">
-				<?php foreach ( $breadcrumbs as $index => $crumb ) : ?>
+				<?php foreach ($breadcrumbs as $index => $crumb) : ?>
 					<?php
-					if ( $index > 0 ) :
-						?>
+                    if ($index > 0) :
+                        ?>
 						&gt; <?php endif; ?>
-					<span><?php echo esc_html( $crumb ); ?></span>
+					<span><?php echo esc_html($crumb); ?></span>
 				<?php endforeach; ?>
 			</nav>
 			<?php endif; ?>
@@ -43,7 +43,7 @@
 		</main>
 
 		<footer class="apollo-footer">
-			<p>&copy; <?php echo date( 'Y' ); ?> Apollo Social. Todos os direitos reservados.</p>
+			<p>&copy; <?php echo date('Y'); ?> Apollo Social. Todos os direitos reservados.</p>
 		</footer>
 	</div>
 	<?php wp_footer(); ?>

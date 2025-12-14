@@ -23,28 +23,31 @@ namespace Apollo\Modules\Signatures\Local;
  *
  * Handles local signature capture without external APIs.
  */
-class SignatureCapture {
+class SignatureCapture
+{
+    /**
+     * Render signature capture page
+     */
+    public function renderCapturePage(string $token): void
+    {
+        // Validate token
+        $signature_request = $this->validateToken($token);
 
-	/**
-	 * Render signature capture page
-	 */
-	public function renderCapturePage( string $token ): void {
-		// Validate token
-		$signature_request = $this->validateToken( $token );
+        if (! $signature_request) {
+            $this->renderError('Token inválido ou expirado');
 
-		if ( ! $signature_request ) {
-			$this->renderError( 'Token inválido ou expirado' );
-			return;
-		}
+            return;
+        }
 
-		$this->renderCaptureInterface( $signature_request );
-	}
+        $this->renderCaptureInterface($signature_request);
+    }
 
-	/**
-	 * Render signature capture interface
-	 */
-	private function renderCaptureInterface( array $request ): void {
-		?>
+    /**
+     * Render signature capture interface
+     */
+    private function renderCaptureInterface(array $request): void
+    {
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -348,9 +351,9 @@ class SignatureCapture {
 					<!-- Document Info -->
 					<div class="document-info">
 						<h3>📄 Documento para Assinatura</h3>
-						<p><strong>Título:</strong> <?php echo htmlspecialchars( $request['document_title'] ?? 'Documento Apollo' ); ?></p>
-						<p><strong>Criado por:</strong> <?php echo htmlspecialchars( $request['creator_name'] ?? 'Apollo Social' ); ?></p>
-						<p><strong>Válido até:</strong> <?php echo date( 'd/m/Y H:i', strtotime( $request['expires_at'] ) ); ?></p>
+						<p><strong>Título:</strong> <?php echo htmlspecialchars($request['document_title'] ?? 'Documento Apollo'); ?></p>
+						<p><strong>Criado por:</strong> <?php echo htmlspecialchars($request['creator_name'] ?? 'Apollo Social'); ?></p>
+						<p><strong>Válido até:</strong> <?php echo date('d/m/Y H:i', strtotime($request['expires_at'])); ?></p>
 					</div>
 
 					<!-- Signer Information -->
@@ -654,7 +657,7 @@ class SignatureCapture {
 					document.getElementById('loadingContainer').style.display = 'block';
 
 					const signatureData = {
-						token: '<?php echo htmlspecialchars( $request['token'] ); ?>',
+						token: '<?php echo htmlspecialchars($request['token']); ?>',
 						signer_name: document.getElementById('signerName').value.trim(),
 						signer_email: document.getElementById('signerEmail').value.trim(),
 						signer_whatsapp: document.getElementById('signerWhatsapp').value.trim(),
@@ -681,7 +684,7 @@ class SignatureCapture {
 							body: new URLSearchParams({
 								action: 'apollo_process_local_signature',
 								signature_data: JSON.stringify(signatureData),
-								nonce: '<?php echo \wp_create_nonce( 'apollo_local_signature' ); ?>'
+								nonce: '<?php echo \wp_create_nonce('apollo_local_signature'); ?>'
 							})
 						});
 
@@ -703,32 +706,34 @@ class SignatureCapture {
 		</body>
 		</html>
 		<?php
-	}
+    }
 
-	/**
-	 * Validate signature token
-	 */
-	private function validateToken( string $token ): ?array {
-		global $wpdb;
+    /**
+     * Validate signature token
+     */
+    private function validateToken(string $token): ?array
+    {
+        global $wpdb;
 
-		$table_name = $wpdb->prefix . 'apollo_signature_requests';
+        $table_name = $wpdb->prefix . 'apollo_signature_requests';
 
-		$request = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$table_name} WHERE token = %s AND expires_at > NOW() AND status = 'pending'",
-				$token
-			),
-			ARRAY_A
-		);
+        $request = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$table_name} WHERE token = %s AND expires_at > NOW() AND status = 'pending'",
+                $token
+            ),
+            ARRAY_A
+        );
 
-		return $request ?: null;
-	}
+        return $request ?: null;
+    }
 
-	/**
-	 * Render error page
-	 */
-	private function renderError( string $message ): void {
-		?>
+    /**
+     * Render error page
+     */
+    private function renderError(string $message): void
+    {
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -738,10 +743,10 @@ class SignatureCapture {
 		</head>
 		<body style="font-family: system-ui; text-align: center; padding: 50px; color: #dc2626;">
 			<h1>❌ Erro</h1>
-			<p><?php echo htmlspecialchars( $message ); ?></p>
+			<p><?php echo htmlspecialchars($message); ?></p>
 			<p><a href="/" style="color: #4f46e5;">← Voltar ao início</a></p>
 		</body>
 		</html>
 		<?php
-	}
+    }
 }

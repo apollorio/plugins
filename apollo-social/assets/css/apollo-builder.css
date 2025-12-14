@@ -9,1024 +9,1024 @@
  */
 
 /* ==========================================================================
-   Variables
-   ========================================================================== */
+	Variables
+	========================================================================== */
 :root {
-    --apollo-bg-dark: #1a1a2e;
-    --apollo-bg-darker: #16213e;
-    --apollo-bg-surface: #0f3460;
-    --apollo-text: #e4e4e4;
-    --apollo-text-muted: #a0a0a0;
-    --apollo-accent-orange: #ff6f00;
-    --apollo-accent-blue: #00d4ff;
-    --apollo-accent-green: #00e676;
-    --apollo-border: rgba(255, 255, 255, 0.1);
-    --apollo-shadow: rgba(0, 0, 0, 0.3);
-    --builder-topbar-height: 50px;
-    --builder-sidebar-width: 260px;
-    --builder-grid-size: 24px;
+	--apollo-bg-dark: #1a1a2e;
+	--apollo-bg-darker: #16213e;
+	--apollo-bg-surface: #0f3460;
+	--apollo-text: #e4e4e4;
+	--apollo-text-muted: #a0a0a0;
+	--apollo-accent-orange: #ff6f00;
+	--apollo-accent-blue: #00d4ff;
+	--apollo-accent-green: #00e676;
+	--apollo-border: rgba(255, 255, 255, 0.1);
+	--apollo-shadow: rgba(0, 0, 0, 0.3);
+	--builder-topbar-height: 50px;
+	--builder-sidebar-width: 260px;
+	--builder-grid-size: 24px;
 }
 
 /* ==========================================================================
-   Base Reset
-   ========================================================================== */
+	Base Reset
+	========================================================================== */
 .apollo-builder-page {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    background: var(--apollo-bg-dark);
-    color: var(--apollo-text);
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.5;
+	background: var(--apollo-bg-dark);
+	color: var(--apollo-text);
 }
 
 .apollo-builder-page * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 /* ==========================================================================
-   Root Container
-   ========================================================================== */
+	Root Container
+	========================================================================== */
 #apollo-builder-root {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100vw;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	width: 100vw;
 }
 
 /* ==========================================================================
-   Top Bar
-   ========================================================================== */
+	Top Bar
+	========================================================================== */
 .apollo-builder-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: var(--builder-topbar-height);
-    padding: 0 15px;
-    background: var(--apollo-bg-darker);
-    border-bottom: 1px solid var(--apollo-border);
-    flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: var(--builder-topbar-height);
+	padding: 0 15px;
+	background: var(--apollo-bg-darker);
+	border-bottom: 1px solid var(--apollo-border);
+	flex-shrink: 0;
 }
 
 .topbar-left,
 .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .builder-logo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--apollo-accent-orange);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 16px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--apollo-accent-orange);
+	text-decoration: none;
+	font-weight: 700;
+	font-size: 16px;
 }
 
 .builder-logo .dashicons {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
 }
 
 .builder-title {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
-    padding-left: 10px;
-    border-left: 1px solid var(--apollo-border);
+	color: var(--apollo-text-muted);
+	font-size: 13px;
+	padding-left: 10px;
+	border-left: 1px solid var(--apollo-border);
 }
 
 .topbar-center {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .editing-label {
-    color: var(--apollo-text-muted);
-    font-size: 12px;
+	color: var(--apollo-text-muted);
+	font-size: 12px;
 }
 
 .home-title {
-    color: var(--apollo-text);
-    font-weight: 500;
+	color: var(--apollo-text);
+	font-weight: 500;
 }
 
 .topbar-divider {
-    width: 1px;
-    height: 24px;
-    background: var(--apollo-border);
+	width: 1px;
+	height: 24px;
+	background: var(--apollo-border);
 }
 
 /* Buttons */
 .topbar-right button,
 .topbar-right .btn-preview {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    text-decoration: none;
-    transition: all 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	text-decoration: none;
+	transition: all 0.2s ease;
 }
 
 .topbar-right button {
-    background: transparent;
-    color: var(--apollo-text);
+	background: transparent;
+	color: var(--apollo-text);
 }
 
 .topbar-right button:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.1);
 }
 
 .topbar-right button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+	opacity: 0.4;
+	cursor: not-allowed;
 }
 
 .btn-preview {
-    background: var(--apollo-bg-surface);
-    color: var(--apollo-text);
+	background: var(--apollo-bg-surface);
+	color: var(--apollo-text);
 }
 
 .btn-preview:hover {
-    background: var(--apollo-accent-blue);
-    color: #fff;
+	background: var(--apollo-accent-blue);
+	color: #fff;
 }
 
 .btn-primary,
 #save-layout {
-    background: var(--apollo-accent-orange) !important;
-    color: #fff !important;
+	background: var(--apollo-accent-orange) !important;
+	color: #fff !important;
 }
 
 .btn-primary:hover,
 #save-layout:hover {
-    background: #ff8f00 !important;
+	background: #ff8f00 !important;
 }
 
 /* ==========================================================================
-   Main Layout
-   ========================================================================== */
+	Main Layout
+	========================================================================== */
 .apollo-builder-main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
+	display: flex;
+	flex: 1;
+	overflow: hidden;
 }
 
 /* ==========================================================================
-   Sidebars
-   ========================================================================== */
+	Sidebars
+	========================================================================== */
 .apollo-builder-sidebar {
-    width: var(--builder-sidebar-width);
-    background: var(--apollo-bg-darker);
-    border-right: 1px solid var(--apollo-border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
+	width: var(--builder-sidebar-width);
+	background: var(--apollo-bg-darker);
+	border-right: 1px solid var(--apollo-border);
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
 }
 
 .sidebar-right {
-    border-right: none;
-    border-left: 1px solid var(--apollo-border);
+	border-right: none;
+	border-left: 1px solid var(--apollo-border);
 }
 
 .sidebar-header {
-    padding: 15px;
-    border-bottom: 1px solid var(--apollo-border);
+	padding: 15px;
+	border-bottom: 1px solid var(--apollo-border);
 }
 
 .sidebar-header h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--apollo-text-muted);
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--apollo-text-muted);
 }
 
 .sidebar-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
+	flex: 1;
+	overflow-y: auto;
+	padding: 15px;
 }
 
 /* ==========================================================================
-   Widget Palette
-   ========================================================================== */
+	Widget Palette
+	========================================================================== */
 .widgets-palette {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .widget-palette-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: var(--apollo-bg-surface);
-    border: 1px solid transparent;
-    border-radius: 6px;
-    cursor: grab;
-    transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px;
+	background: var(--apollo-bg-surface);
+	border: 1px solid transparent;
+	border-radius: 6px;
+	cursor: grab;
+	transition: all 0.2s ease;
 }
 
 .widget-palette-item:hover {
-    background: rgba(0, 212, 255, 0.1);
-    border-color: var(--apollo-accent-blue);
+	background: rgba(0, 212, 255, 0.1);
+	border-color: var(--apollo-accent-blue);
 }
 
 .widget-palette-item.dragging {
-    opacity: 0.5;
-    cursor: grabbing;
+	opacity: 0.5;
+	cursor: grabbing;
 }
 
 .widget-palette-item .widget-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: var(--apollo-accent-orange);
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: var(--apollo-accent-orange);
 }
 
 .widget-palette-item .widget-label {
-    font-size: 13px;
-    color: var(--apollo-text);
+	font-size: 13px;
+	color: var(--apollo-text);
 }
 
 /* ==========================================================================
-   Settings Sections
-   ========================================================================== */
+	Settings Sections
+	========================================================================== */
 .settings-section {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .settings-section h4 {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0 0 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--apollo-text);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 12px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--apollo-text);
 }
 
 .settings-section h4 .dashicons {
-    font-size: 16px;
-    color: var(--apollo-accent-blue);
+	font-size: 16px;
+	color: var(--apollo-accent-blue);
 }
 
 /* Texture Grid */
 .texture-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
 }
 
 .texture-item {
-    aspect-ratio: 1;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--apollo-bg-surface);
+	aspect-ratio: 1;
+	border-radius: 6px;
+	overflow: hidden;
+	cursor: pointer;
+	border: 2px solid transparent;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--apollo-bg-surface);
 }
 
 .texture-item:hover {
-    border-color: var(--apollo-accent-blue);
+	border-color: var(--apollo-accent-blue);
 }
 
 .texture-item.selected {
-    border-color: var(--apollo-accent-orange);
-    box-shadow: 0 0 0 2px rgba(255, 111, 0, 0.3);
+	border-color: var(--apollo-accent-orange);
+	box-shadow: 0 0 0 2px rgba(255, 111, 0, 0.3);
 }
 
 .texture-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .texture-item .dashicons {
-    font-size: 24px;
-    color: var(--apollo-text-muted);
+	font-size: 24px;
+	color: var(--apollo-text-muted);
 }
 
 /* Trax Input */
 .trax-input {
-    width: 100%;
-    padding: 8px 12px;
-    background: var(--apollo-bg-surface);
-    border: 1px solid var(--apollo-border);
-    border-radius: 4px;
-    color: var(--apollo-text);
-    font-size: 13px;
-    margin-bottom: 8px;
+	width: 100%;
+	padding: 8px 12px;
+	background: var(--apollo-bg-surface);
+	border: 1px solid var(--apollo-border);
+	border-radius: 4px;
+	color: var(--apollo-text);
+	font-size: 13px;
+	margin-bottom: 8px;
 }
 
 .trax-input:focus {
-    outline: none;
-    border-color: var(--apollo-accent-blue);
+	outline: none;
+	border-color: var(--apollo-accent-blue);
 }
 
 .btn-secondary {
-    padding: 6px 12px;
-    background: var(--apollo-bg-surface);
-    border: 1px solid var(--apollo-border);
-    border-radius: 4px;
-    color: var(--apollo-text);
-    cursor: pointer;
-    font-size: 12px;
+	padding: 6px 12px;
+	background: var(--apollo-bg-surface);
+	border: 1px solid var(--apollo-border);
+	border-radius: 4px;
+	color: var(--apollo-text);
+	cursor: pointer;
+	font-size: 12px;
 }
 
 .btn-secondary:hover {
-    background: var(--apollo-accent-blue);
-    border-color: var(--apollo-accent-blue);
+	background: var(--apollo-accent-blue);
+	border-color: var(--apollo-accent-blue);
 }
 
 /* ==========================================================================
-   Canvas Area
-   ========================================================================== */
+	Canvas Area
+	========================================================================== */
 .apollo-builder-canvas-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--apollo-bg-dark);
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: var(--builder-grid-size) var(--builder-grid-size);
-    padding: 20px;
-    overflow: auto;
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--apollo-bg-dark);
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+	background-size: var(--builder-grid-size) var(--builder-grid-size);
+	padding: 20px;
+	overflow: auto;
 }
 
 .canvas-container {
-    position: relative;
+	position: relative;
 }
 
 #canvas-board {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    background: var(--apollo-bg-surface);
-    border: 2px solid var(--apollo-border);
-    border-radius: 8px;
-    box-shadow: 0 10px 40px var(--apollo-shadow);
-    overflow: hidden;
-    background-size: cover;
-    background-position: center;
+	position: relative;
+	width: 800px;
+	height: 600px;
+	background: var(--apollo-bg-surface);
+	border: 2px solid var(--apollo-border);
+	border-radius: 8px;
+	box-shadow: 0 10px 40px var(--apollo-shadow);
+	overflow: hidden;
+	background-size: cover;
+	background-position: center;
 }
 
 #canvas-board.drag-over {
-    border-color: var(--apollo-accent-blue);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+	border-color: var(--apollo-accent-blue);
+	box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
 .canvas-empty {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--apollo-text-muted);
-    font-size: 16px;
-    text-align: center;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--apollo-text-muted);
+	font-size: 16px;
+	text-align: center;
 }
 
 /* ==========================================================================
-   Canvas Widgets
-   ========================================================================== */
+	Canvas Widgets
+	========================================================================== */
 .canvas-widget {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid var(--apollo-border);
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: move;
-    transition: border-color 0.2s, box-shadow 0.2s;
+	position: absolute;
+	background: rgba(0, 0, 0, 0.7);
+	border: 2px solid var(--apollo-border);
+	border-radius: 6px;
+	overflow: hidden;
+	cursor: move;
+	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .canvas-widget:hover {
-    border-color: var(--apollo-accent-blue);
+	border-color: var(--apollo-accent-blue);
 }
 
 .canvas-widget.selected {
-    border-color: var(--apollo-accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.3);
+	border-color: var(--apollo-accent-orange);
+	box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.3);
 }
 
 .canvas-widget.dragging {
-    opacity: 0.8;
-    cursor: grabbing;
-    z-index: 9999 !important;
+	opacity: 0.8;
+	cursor: grabbing;
+	z-index: 9999 !important;
 }
 
 .canvas-widget.resizing {
-    cursor: se-resize;
+	cursor: se-resize;
 }
 
 .widget-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.5);
-    border-bottom: 1px solid var(--apollo-border);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 10px;
+	background: rgba(0, 0, 0, 0.5);
+	border-bottom: 1px solid var(--apollo-border);
 }
 
 .widget-header .widget-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--apollo-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--apollo-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .widget-delete {
-    background: none;
-    border: none;
-    padding: 2px;
-    cursor: pointer;
-    color: var(--apollo-text-muted);
-    opacity: 0.6;
-    transition: opacity 0.2s, color 0.2s;
+	background: none;
+	border: none;
+	padding: 2px;
+	cursor: pointer;
+	color: var(--apollo-text-muted);
+	opacity: 0.6;
+	transition: opacity 0.2s, color 0.2s;
 }
 
 .widget-delete:hover {
-    opacity: 1;
-    color: #ff4444;
+	opacity: 1;
+	color: #ff4444;
 }
 
 .widget-delete:disabled {
-    display: none;
+	display: none;
 }
 
 .widget-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    height: calc(100% - 35px);
-    text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 15px;
+	height: calc(100% - 35px);
+	text-align: center;
 }
 
 .widget-content .widget-icon {
-    font-size: 32px;
-    color: var(--apollo-accent-orange);
-    margin-bottom: 8px;
+	font-size: 32px;
+	color: var(--apollo-accent-orange);
+	margin-bottom: 8px;
 }
 
 .widget-content .widget-preview {
-    font-size: 12px;
-    color: var(--apollo-text-muted);
+	font-size: 12px;
+	color: var(--apollo-text-muted);
 }
 
 .widget-resize-handle {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 16px;
-    height: 16px;
-    cursor: se-resize;
-    background: linear-gradient(135deg, transparent 50%, var(--apollo-accent-blue) 50%);
-    opacity: 0.5;
-    transition: opacity 0.2s;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 16px;
+	height: 16px;
+	cursor: se-resize;
+	background: linear-gradient(135deg, transparent 50%, var(--apollo-accent-blue) 50%);
+	opacity: 0.5;
+	transition: opacity 0.2s;
 }
 
 .canvas-widget:hover .widget-resize-handle,
 .canvas-widget.selected .widget-resize-handle {
-    opacity: 1;
+	opacity: 1;
 }
 
 /* ==========================================================================
-   Frontend Home View Styles
-   ========================================================================== */
+	Frontend Home View Styles
+	========================================================================== */
 .apollo-home-board {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    min-height: 600px;
-    margin: 0 auto;
-    background: var(--apollo-bg-surface);
-    border-radius: 8px;
-    overflow: hidden;
-    background-size: cover;
-    background-position: center;
+	position: relative;
+	width: 100%;
+	max-width: 800px;
+	min-height: 600px;
+	margin: 0 auto;
+	background: var(--apollo-bg-surface);
+	border-radius: 8px;
+	overflow: hidden;
+	background-size: cover;
+	background-position: center;
 }
 
 .apollo-home-widget {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 6px;
-    overflow: hidden;
-    padding: 10px;
+	position: absolute;
+	background: rgba(0, 0, 0, 0.6);
+	border-radius: 6px;
+	overflow: hidden;
+	padding: 10px;
 }
 
 .apollo-home-empty {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: var(--apollo-text-muted);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	text-align: center;
+	color: var(--apollo-text-muted);
 }
 
 .apollo-edit-btn,
 .apollo-builder-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--apollo-accent-orange);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-top: 15px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	background: var(--apollo-accent-orange);
+	color: #fff;
+	text-decoration: none;
+	border-radius: 4px;
+	font-size: 13px;
+	margin-top: 15px;
 }
 
 .apollo-builder-link {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	opacity: 0.7;
+	transition: opacity 0.2s;
 }
 
 .apollo-builder-link:hover {
-    opacity: 1;
+	opacity: 1;
 }
 
 /* ==========================================================================
-   Responsive
-   ========================================================================== */
+	Responsive
+	========================================================================== */
 @media (max-width: 1024px) {
-    :root {
-        --builder-sidebar-width: 220px;
-    }
+	:root {
+		--builder-sidebar-width: 220px;
+	}
 
-    #canvas-board {
-        width: 600px;
-        height: 450px;
-    }
+	#canvas-board {
+		width: 600px;
+		height: 450px;
+	}
 }
 
 @media (max-width: 768px) {
-    .apollo-builder-main {
-        flex-direction: column;
-    }
+	.apollo-builder-main {
+		flex-direction: column;
+	}
 
-    .apollo-builder-sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 200px;
-        border-right: none;
-        border-bottom: 1px solid var(--apollo-border);
-    }
+	.apollo-builder-sidebar {
+		width: 100%;
+		height: auto;
+		max-height: 200px;
+		border-right: none;
+		border-bottom: 1px solid var(--apollo-border);
+	}
 
-    .sidebar-right {
-        border-left: none;
-        border-top: 1px solid var(--apollo-border);
-    }
+	.sidebar-right {
+		border-left: none;
+		border-top: 1px solid var(--apollo-border);
+	}
 
-    .widgets-palette {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
+	.widgets-palette {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
 
-    .widget-palette-item {
-        flex: 0 0 calc(50% - 4px);
-    }
+	.widget-palette-item {
+		flex: 0 0 calc(50% - 4px);
+	}
 
-    #canvas-board {
-        width: 100%;
-        height: 400px;
-    }
+	#canvas-board {
+		width: 100%;
+		height: 400px;
+	}
 
-    .btn-text {
-        display: none;
-    }
+	.btn-text {
+		display: none;
+	}
 }
 
 /* ==========================================================================
-   Canvas Layers (Backgrounds, Widgets, Stickers)
-   ========================================================================== */
+	Canvas Layers (Backgrounds, Widgets, Stickers)
+	========================================================================== */
 .canvas-background-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
 }
 
 .canvas-widgets-layer {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    height: 100%;
+	position: relative;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
 }
 
 .canvas-stickers-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    pointer-events: none;
+	position: absolute;
+	inset: 0;
+	z-index: 20;
+	pointer-events: none;
 }
 
 .canvas-stickers-layer .canvas-sticker {
-    pointer-events: auto;
+	pointer-events: auto;
 }
 
 /* ==========================================================================
-   Section Description
-   ========================================================================== */
+	Section Description
+	========================================================================== */
 .section-description {
-    font-size: 12px;
-    color: var(--apollo-text-muted);
-    margin: 0 0 12px;
+	font-size: 12px;
+	color: var(--apollo-text-muted);
+	margin: 0 0 12px;
 }
 
 .btn-block {
-    display: flex;
-    width: 100%;
-    justify-content: center;
+	display: flex;
+	width: 100%;
+	justify-content: center;
 }
 
 /* ==========================================================================
-   Background Modal
-   ========================================================================== */
+	Background Modal
+	========================================================================== */
 .apollo-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	position: fixed;
+	inset: 0;
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .apollo-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(4px);
 }
 
 .apollo-modal__container {
-    position: relative;
-    width: 90%;
-    max-width: 700px;
-    max-height: 85vh;
-    background: var(--apollo-bg-darker);
-    border: 1px solid var(--apollo-border);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: modalSlideIn 0.3s ease;
+	position: relative;
+	width: 90%;
+	max-width: 700px;
+	max-height: 85vh;
+	background: var(--apollo-bg-darker);
+	border: 1px solid var(--apollo-border);
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	animation: modalSlideIn 0.3s ease;
 }
 
 @keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .apollo-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--apollo-border);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid var(--apollo-border);
 }
 
 .apollo-modal__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--apollo-text);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--apollo-text);
 }
 
 .apollo-modal__title .dashicons {
-    color: var(--apollo-accent-orange);
+	color: var(--apollo-accent-orange);
 }
 
 .apollo-modal__close {
-    background: none;
-    border: none;
-    padding: 4px;
-    cursor: pointer;
-    color: var(--apollo-text-muted);
-    transition: color 0.2s;
+	background: none;
+	border: none;
+	padding: 4px;
+	cursor: pointer;
+	color: var(--apollo-text-muted);
+	transition: color 0.2s;
 }
 
 .apollo-modal__close:hover {
-    color: var(--apollo-text);
+	color: var(--apollo-text);
 }
 
 .apollo-modal__body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
+	flex: 1;
+	overflow-y: auto;
+	padding: 20px;
 }
 
 .apollo-modal__footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 16px 20px;
-    border-top: 1px solid var(--apollo-border);
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	padding: 16px 20px;
+	border-top: 1px solid var(--apollo-border);
 }
 
 /* ==========================================================================
-   Category Tabs
-   ========================================================================== */
+	Category Tabs
+	========================================================================== */
 .background-category-tabs,
 .stickers-category-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 16px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 16px;
 }
 
 .category-tab {
-    padding: 6px 12px;
-    background: var(--apollo-bg-surface);
-    border: 1px solid var(--apollo-border);
-    border-radius: 20px;
-    color: var(--apollo-text-muted);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+	padding: 6px 12px;
+	background: var(--apollo-bg-surface);
+	border: 1px solid var(--apollo-border);
+	border-radius: 20px;
+	color: var(--apollo-text-muted);
+	font-size: 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .category-tab:hover {
-    border-color: var(--apollo-accent-blue);
-    color: var(--apollo-text);
+	border-color: var(--apollo-accent-blue);
+	color: var(--apollo-text);
 }
 
 .category-tab--active {
-    background: var(--apollo-accent-orange);
-    border-color: var(--apollo-accent-orange);
-    color: #fff;
+	background: var(--apollo-accent-orange);
+	border-color: var(--apollo-accent-orange);
+	color: #fff;
 }
 
 /* ==========================================================================
-   Backgrounds Grid
-   ========================================================================== */
+	Backgrounds Grid
+	========================================================================== */
 .backgrounds-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 12px;
 }
 
 .background-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--apollo-bg-surface);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.2s ease;
+	display: flex;
+	flex-direction: column;
+	background: var(--apollo-bg-surface);
+	border: 2px solid transparent;
+	border-radius: 8px;
+	overflow: hidden;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .background-card:hover {
-    border-color: var(--apollo-accent-blue);
-    transform: translateY(-2px);
+	border-color: var(--apollo-accent-blue);
+	transform: translateY(-2px);
 }
 
 .background-card--selected {
-    border-color: var(--apollo-accent-orange);
-    box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.3);
+	border-color: var(--apollo-accent-orange);
+	box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.3);
 }
 
 .background-preview {
-    aspect-ratio: 16 / 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+	aspect-ratio: 16 / 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
 }
 
 .background-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .background-label {
-    padding: 8px 10px;
-    font-size: 12px;
-    color: var(--apollo-text);
-    text-align: center;
-    border-top: 1px solid var(--apollo-border);
+	padding: 8px 10px;
+	font-size: 12px;
+	color: var(--apollo-text);
+	text-align: center;
+	border-top: 1px solid var(--apollo-border);
 }
 
 .background-badge,
 .sticker-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    padding: 2px 6px;
-    background: var(--apollo-accent-orange);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    border-radius: 4px;
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	padding: 2px 6px;
+	background: var(--apollo-accent-orange);
+	color: #fff;
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	border-radius: 4px;
 }
 
 .background-card {
-    position: relative;
+	position: relative;
 }
 
 /* ==========================================================================
-   Stickers Panel
-   ========================================================================== */
+	Stickers Panel
+	========================================================================== */
 .stickers-palette {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 8px;
-    max-height: 300px;
-    overflow-y: auto;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+	gap: 8px;
+	max-height: 300px;
+	overflow-y: auto;
 }
 
 .sticker-palette-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1;
-    background: var(--apollo-bg-surface);
-    border: 2px solid transparent;
-    border-radius: 6px;
-    cursor: grab;
-    transition: all 0.2s ease;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 1;
+	background: var(--apollo-bg-surface);
+	border: 2px solid transparent;
+	border-radius: 6px;
+	cursor: grab;
+	transition: all 0.2s ease;
 }
 
 .sticker-palette-item:hover {
-    border-color: var(--apollo-accent-blue);
-    transform: scale(1.05);
+	border-color: var(--apollo-accent-blue);
+	transform: scale(1.05);
 }
 
 .sticker-palette-item.dragging {
-    opacity: 0.5;
-    cursor: grabbing;
+	opacity: 0.5;
+	cursor: grabbing;
 }
 
 .sticker-preview-img {
-    max-width: 80%;
-    max-height: 80%;
-    object-fit: contain;
+	max-width: 80%;
+	max-height: 80%;
+	object-fit: contain;
 }
 
 .sticker-badge--limited {
-    top: 2px;
-    right: 2px;
-    padding: 1px 4px;
-    font-size: 8px;
+	top: 2px;
+	right: 2px;
+	padding: 1px 4px;
+	font-size: 8px;
 }
 
 /* ==========================================================================
-   Canvas Stickers
-   ========================================================================== */
+	Canvas Stickers
+	========================================================================== */
 .canvas-sticker {
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: move;
-    user-select: none;
-    transition: filter 0.2s, box-shadow 0.2s;
+	position: absolute;
+	top: 0;
+	left: 0;
+	cursor: move;
+	user-select: none;
+	transition: filter 0.2s, box-shadow 0.2s;
 }
 
 .canvas-sticker:hover {
-    filter: brightness(1.1);
+	filter: brightness(1.1);
 }
 
 .canvas-sticker.dragging {
-    cursor: grabbing;
-    filter: brightness(1.2);
-    z-index: 999 !important;
+	cursor: grabbing;
+	filter: brightness(1.2);
+	z-index: 999 !important;
 }
 
 .canvas-sticker img {
-    display: block;
-    pointer-events: none;
+	display: block;
+	pointer-events: none;
 }
 
 .sticker-delete {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 20px;
-    height: 20px;
-    padding: 0;
-    background: #ff4444;
-    border: 2px solid var(--apollo-bg-darker);
-    border-radius: 50%;
-    color: #fff;
-    font-size: 12px;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
+	position: absolute;
+	top: -8px;
+	right: -8px;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	background: #ff4444;
+	border: 2px solid var(--apollo-bg-darker);
+	border-radius: 50%;
+	color: #fff;
+	font-size: 12px;
+	cursor: pointer;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s;
 }
 
 .canvas-sticker:hover .sticker-delete {
-    display: flex;
+	display: flex;
 }
 
 .sticker-delete:hover {
-    transform: scale(1.1);
+	transform: scale(1.1);
 }
 
 .sticker-delete .dashicons {
-    font-size: 12px;
-    width: 12px;
-    height: 12px;
+	font-size: 12px;
+	width: 12px;
+	height: 12px;
 }
 
 /* ==========================================================================
-   Current Background Preview
-   ========================================================================== */
+	Current Background Preview
+	========================================================================== */
 .current-background-preview {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    padding: 8px;
-    background: var(--apollo-bg-surface);
-    border-radius: 6px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 12px;
+	padding: 8px;
+	background: var(--apollo-bg-surface);
+	border-radius: 6px;
 }
 
 .current-bg-thumb {
-    width: 48px;
-    height: 30px;
-    border-radius: 4px;
-    overflow: hidden;
-    flex-shrink: 0;
+	width: 48px;
+	height: 30px;
+	border-radius: 4px;
+	overflow: hidden;
+	flex-shrink: 0;
 }
 
 .current-bg-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .current-bg-label {
-    font-size: 12px;
-    color: var(--apollo-text);
+	font-size: 12px;
+	color: var(--apollo-text);
 }
 
 /* ==========================================================================
-   Sticker Drag Over State
-   ========================================================================== */
+	Sticker Drag Over State
+	========================================================================== */
 #canvas-board.sticker-drag-over {
-    border-color: var(--apollo-accent-green);
-    box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
+	border-color: var(--apollo-accent-green);
+	box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
 }
 
 /* ==========================================================================
-   Loading States
-   ========================================================================== */
+	Loading States
+	========================================================================== */
 .loading {
-    color: var(--apollo-text-muted);
-    font-size: 12px;
-    text-align: center;
-    padding: 20px;
+	color: var(--apollo-text-muted);
+	font-size: 12px;
+	text-align: center;
+	padding: 20px;
 }
 
 .no-results {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
-    text-align: center;
-    padding: 30px 20px;
+	color: var(--apollo-text-muted);
+	font-size: 13px;
+	text-align: center;
+	padding: 30px 20px;
 }
 
 /* ==========================================================================
-   Modal Open State
-   ========================================================================== */
+	Modal Open State
+	========================================================================== */
 body.modal-open {
-    overflow: hidden;
+	overflow: hidden;
 }

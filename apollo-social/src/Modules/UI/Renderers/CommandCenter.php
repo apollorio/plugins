@@ -7,18 +7,20 @@ namespace Apollo\Modules\UI\Renderers;
  *
  * Quick action dashboard for Apollo Social management
  */
-class CommandCenter {
+class CommandCenter
+{
+    public function render(): string
+    {
+        $user        = wp_get_current_user();
+        $permissions = $this->getUserPermissions();
 
-	public function render(): string {
-		$user        = wp_get_current_user();
-		$permissions = $this->getUserPermissions();
+        return $this->renderCommandCenter($permissions);
+    }
 
-		return $this->renderCommandCenter( $permissions );
-	}
-
-	private function renderCommandCenter( array $permissions ): string {
-		ob_start();
-		?>
+    private function renderCommandCenter(array $permissions): string
+    {
+        ob_start();
+        ?>
 		<div class="apollo-command-center">
 			<style>
 				.apollo-command-center {
@@ -240,21 +242,21 @@ class CommandCenter {
 						Gerenciar Conteúdo
 					</h3>
 					<div class="command-actions">
-						<?php if ( $permissions['can_create_groups'] ) : ?>
+						<?php if ($permissions['can_create_groups']) : ?>
 						<a href="/apollo/groups/criar/" class="command-btn primary">
 							<span>Criar Grupo</span>
 							<span class="btn-icon">➕</span>
 						</a>
 						<?php endif; ?>
 						
-						<?php if ( $permissions['can_create_events'] ) : ?>
+						<?php if ($permissions['can_create_events']) : ?>
 						<a href="/apollo/events/criar/" class="command-btn success">
 							<span>Criar Evento</span>
 							<span class="btn-icon">📅</span>
 						</a>
 						<?php endif; ?>
 						
-						<?php if ( $permissions['can_create_ads'] ) : ?>
+						<?php if ($permissions['can_create_ads']) : ?>
 						<a href="/apollo/ads/criar/" class="command-btn warning">
 							<span>Criar Anúncio</span>
 							<span class="btn-icon">📢</span>
@@ -269,7 +271,7 @@ class CommandCenter {
 				</div>
 
 				<!-- Moderation -->
-				<?php if ( $permissions['can_moderate'] ) : ?>
+				<?php if ($permissions['can_moderate']) : ?>
 				<div class="command-card">
 					<h3 class="card-title">
 						<span class="card-icon">⚖️</span>
@@ -294,12 +296,12 @@ class CommandCenter {
 				<?php endif; ?>
 
 				<!-- Analytics -->
-				<?php if ( $permissions['can_view_analytics'] ) : ?>
+				<?php if ($permissions['can_view_analytics']) : ?>
 				<div class="command-card">
 					<h3 class="card-title">
 						<span class="card-icon">📊</span>
 						Analytics
-						<?php if ( $permissions['can_manage_analytics'] ) : ?>
+						<?php if ($permissions['can_manage_analytics']) : ?>
 						<span class="permission-badge">Gerente</span>
 						<?php endif; ?>
 					</h3>
@@ -312,7 +314,7 @@ class CommandCenter {
 							<span>Tempo Real</span>
 							<span class="status-indicator status-online"></span>
 						</a>
-						<?php if ( $permissions['can_export_analytics'] ) : ?>
+						<?php if ($permissions['can_export_analytics']) : ?>
 						<a href="#" onclick="exportAnalytics()" class="command-btn">
 							<span>Exportar Dados</span>
 							<span class="btn-icon">💾</span>
@@ -341,7 +343,7 @@ class CommandCenter {
 							<span>Meus Eventos</span>
 							<span class="btn-icon">🎫</span>
 						</a>
-						<?php if ( $permissions['user_level'] >= 4 ) : ?>
+						<?php if ($permissions['user_level'] >= 4) : ?>
 						<a href="/apollo/users/manage" class="command-btn warning">
 							<span>Gerenciar Usuários</span>
 							<span class="btn-icon">⚙️</span>
@@ -351,7 +353,7 @@ class CommandCenter {
 				</div>
 
 				<!-- System Tools -->
-				<?php if ( $permissions['user_level'] >= 4 ) : ?>
+				<?php if ($permissions['user_level'] >= 4) : ?>
 				<div class="command-card">
 					<h3 class="card-title">
 						<span class="card-icon">🔧</span>
@@ -483,59 +485,63 @@ class CommandCenter {
 			}
 		</script>
 		<?php
-		return ob_get_clean();
-	}
+        return ob_get_clean();
+    }
 
-	private function getUserPermissions(): array {
-		$user = wp_get_current_user();
+    private function getUserPermissions(): array
+    {
+        $user = wp_get_current_user();
 
-		return [
-			'can_create_groups'    => current_user_can( 'create_apollo_groups' ),
-			'can_create_events'    => current_user_can( 'create_eva_events' ),
-			'can_create_ads'       => current_user_can( 'create_apollo_ads' ),
-			'can_moderate'         => current_user_can( 'apollo_moderate' ),
-			'can_view_analytics'   => current_user_can( 'apollo_view_analytics' ),
-			'can_manage_analytics' => current_user_can( 'apollo_manage_analytics' ),
-			'can_export_analytics' => current_user_can( 'apollo_export_analytics' ),
-			'user_level'           => $this->getUserLevel( $user ),
-			'role_name'            => $this->getRoleName( $user ),
-		];
-	}
+        return [
+            'can_create_groups'    => current_user_can('create_apollo_groups'),
+            'can_create_events'    => current_user_can('create_eva_events'),
+            'can_create_ads'       => current_user_can('create_apollo_ads'),
+            'can_moderate'         => current_user_can('apollo_moderate'),
+            'can_view_analytics'   => current_user_can('apollo_view_analytics'),
+            'can_manage_analytics' => current_user_can('apollo_manage_analytics'),
+            'can_export_analytics' => current_user_can('apollo_export_analytics'),
+            'user_level'           => $this->getUserLevel($user),
+            'role_name'            => $this->getRoleName($user),
+        ];
+    }
 
-	private function getUserLevel( $user ): int {
-		if ( in_array( 'administrator', $user->roles ) ) {
-			return 5;
-		}
-		if ( in_array( 'editor', $user->roles ) ) {
-			return 4;
-		}
-		if ( in_array( 'author', $user->roles ) ) {
-			return 3;
-		}
-		if ( in_array( 'contributor', $user->roles ) ) {
-			return 2;
-		}
-		if ( in_array( 'subscriber', $user->roles ) ) {
-			return 1;
-		}
-		return 0;
-	}
+    private function getUserLevel($user): int
+    {
+        if (in_array('administrator', $user->roles)) {
+            return 5;
+        }
+        if (in_array('editor', $user->roles)) {
+            return 4;
+        }
+        if (in_array('author', $user->roles)) {
+            return 3;
+        }
+        if (in_array('contributor', $user->roles)) {
+            return 2;
+        }
+        if (in_array('subscriber', $user->roles)) {
+            return 1;
+        }
 
-	private function getRoleName( $user ): string {
-		$roles = [
-			'administrator' => 'Administrador',
-			'editor'        => 'Editor',
-			'author'        => 'Autor',
-			'contributor'   => 'Colaborador',
-			'subscriber'    => 'Assinante',
-		];
+        return 0;
+    }
 
-		foreach ( $user->roles as $role ) {
-			if ( isset( $roles[ $role ] ) ) {
-				return $roles[ $role ];
-			}
-		}
+    private function getRoleName($user): string
+    {
+        $roles = [
+            'administrator' => 'Administrador',
+            'editor'        => 'Editor',
+            'author'        => 'Autor',
+            'contributor'   => 'Colaborador',
+            'subscriber'    => 'Assinante',
+        ];
 
-		return 'Usuário';
-	}
+        foreach ($user->roles as $role) {
+            if (isset($roles[ $role ])) {
+                return $roles[ $role ];
+            }
+        }
+
+        return 'Usuário';
+    }
 }

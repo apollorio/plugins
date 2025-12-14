@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -38,6 +39,7 @@ class Apollo_Cena_Rio_Canvas {
 	 */
 	public static function add_query_vars( array $vars ): array {
 		$vars[] = 'apollo_cena';
+
 		return $vars;
 	}
 

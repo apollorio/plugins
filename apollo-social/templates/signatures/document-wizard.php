@@ -8,38 +8,38 @@
  * @version 2.1.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue global assets
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+if (function_exists('apollo_enqueue_global_assets')) {
+    apollo_enqueue_global_assets();
 }
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
+wp_enqueue_style('remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0');
 
 // Get document templates
 $templates = [
-	'contract'      => [
-		'title'       => __( 'Contrato de Prestação de Serviços', 'apollo-social' ),
-		'description' => __( 'Modelo completo para prestação de serviços com cláusulas padrão', 'apollo-social' ),
-		'icon'        => 'ri-file-text-line',
-	],
-	'nda'           => [
-		'title'       => __( 'Acordo de Confidencialidade (NDA)', 'apollo-social' ),
-		'description' => __( 'Termo de confidencialidade para proteção de informações', 'apollo-social' ),
-		'icon'        => 'ri-shield-keyhole-line',
-	],
-	'authorization' => [
-		'title'       => __( 'Autorização de Uso de Imagem', 'apollo-social' ),
-		'description' => __( 'Autorização para uso de imagem e voz em materiais', 'apollo-social' ),
-		'icon'        => 'ri-camera-line',
-	],
-	'partnership'   => [
-		'title'       => __( 'Termo de Parceria', 'apollo-social' ),
-		'description' => __( 'Acordo de parceria entre organizações ou empresas', 'apollo-social' ),
-		'icon'        => 'ri-handshake-line',
-	],
+    'contract' => [
+        'title'       => __('Contrato de Prestação de Serviços', 'apollo-social'),
+        'description' => __('Modelo completo para prestação de serviços com cláusulas padrão', 'apollo-social'),
+        'icon'        => 'ri-file-text-line',
+    ],
+    'nda' => [
+        'title'       => __('Acordo de Confidencialidade (NDA)', 'apollo-social'),
+        'description' => __('Termo de confidencialidade para proteção de informações', 'apollo-social'),
+        'icon'        => 'ri-shield-keyhole-line',
+    ],
+    'authorization' => [
+        'title'       => __('Autorização de Uso de Imagem', 'apollo-social'),
+        'description' => __('Autorização para uso de imagem e voz em materiais', 'apollo-social'),
+        'icon'        => 'ri-camera-line',
+    ],
+    'partnership' => [
+        'title'       => __('Termo de Parceria', 'apollo-social'),
+        'description' => __('Acordo de parceria entre organizações ou empresas', 'apollo-social'),
+        'icon'        => 'ri-handshake-line',
+    ],
 ];
 
 get_header();
@@ -54,10 +54,10 @@ get_header();
 			<div class="ap-card-header ap-bg-dark ap-text-white ap-text-center ap-py-8">
 				<h1 class="ap-heading-xl ap-flex ap-items-center ap-justify-center ap-gap-2">
 					<i class="ri-edit-2-line"></i>
-					<?php esc_html_e( 'Criar Documento para Assinatura', 'apollo-social' ); ?>
+					<?php esc_html_e('Criar Documento para Assinatura', 'apollo-social'); ?>
 				</h1>
 				<p class="ap-text-white-80 ap-mt-2">
-					<?php esc_html_e( 'Trilhos A e B conforme Lei 14.063/2020', 'apollo-social' ); ?>
+					<?php esc_html_e('Trilhos A e B conforme Lei 14.063/2020', 'apollo-social'); ?>
 				</p>
 			</div>
 			
@@ -69,10 +69,10 @@ get_header();
 			<div class="ap-card-body ap-p-8">
 				<!-- Step Indicator -->
 				<div class="ap-flex ap-justify-center ap-gap-2 ap-mb-8">
-					<?php for ( $i = 1; $i <= 5; $i++ ) : ?>
+					<?php for ($i = 1; $i <= 5; $i++) : ?>
 					<span class="ap-step-dot <?php echo $i === 1 ? 'ap-step-dot-active' : ''; ?>" 
-							data-step="<?php echo esc_attr( $i ); ?>"
-							data-ap-tooltip="<?php echo esc_attr( sprintf( __( 'Etapa %d', 'apollo-social' ), $i ) ); ?>"></span>
+							data-step="<?php echo esc_attr($i); ?>"
+							data-ap-tooltip="<?php echo esc_attr(sprintf(__('Etapa %d', 'apollo-social'), $i)); ?>"></span>
 					<?php endfor; ?>
 				</div>
 
@@ -80,25 +80,25 @@ get_header();
 				<div class="ap-wizard-step ap-wizard-step-active" id="step1">
 					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
 						<i class="ri-file-list-3-line ap-text-primary"></i>
-						<?php esc_html_e( 'Escolher Modelo', 'apollo-social' ); ?>
+						<?php esc_html_e('Escolher Modelo', 'apollo-social'); ?>
 					</h2>
 					<p class="ap-text-muted ap-mb-6">
-						<?php esc_html_e( 'Selecione um modelo de documento para personalizar', 'apollo-social' ); ?>
+						<?php esc_html_e('Selecione um modelo de documento para personalizar', 'apollo-social'); ?>
 					</p>
 
 					<div class="ap-grid ap-grid-2 ap-gap-4">
-						<?php foreach ( $templates as $key => $template ) : ?>
+						<?php foreach ($templates as $key => $template) : ?>
 						<button type="button" 
 								class="ap-card ap-card-hover ap-card-selectable ap-text-left ap-p-5"
-								data-template="<?php echo esc_attr( $key ); ?>"
-								data-ap-tooltip="<?php echo esc_attr( $template['description'] ); ?>">
+								data-template="<?php echo esc_attr($key); ?>"
+								data-ap-tooltip="<?php echo esc_attr($template['description']); ?>">
 							<div class="ap-flex ap-items-start ap-gap-3">
 								<div class="ap-avatar ap-avatar-md ap-bg-primary-100">
-									<i class="<?php echo esc_attr( $template['icon'] ); ?> ap-text-primary"></i>
+									<i class="<?php echo esc_attr($template['icon']); ?> ap-text-primary"></i>
 								</div>
 								<div>
-									<h3 class="ap-font-semibold ap-mb-1"><?php echo esc_html( $template['title'] ); ?></h3>
-									<p class="ap-text-sm ap-text-muted"><?php echo esc_html( $template['description'] ); ?></p>
+									<h3 class="ap-font-semibold ap-mb-1"><?php echo esc_html($template['title']); ?></h3>
+									<p class="ap-text-sm ap-text-muted"><?php echo esc_html($template['description']); ?></p>
 								</div>
 							</div>
 						</button>
@@ -107,8 +107,8 @@ get_header();
 
 					<div class="ap-flex ap-justify-end ap-mt-8 ap-pt-6 ap-border-t">
 						<button class="ap-btn ap-btn-primary" id="nextStep1" disabled
-								data-ap-tooltip="<?php esc_attr_e( 'Selecione um modelo primeiro', 'apollo-social' ); ?>">
-							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+								data-ap-tooltip="<?php esc_attr_e('Selecione um modelo primeiro', 'apollo-social'); ?>">
+							<?php esc_html_e('Próximo', 'apollo-social'); ?>
 							<i class="ri-arrow-right-line"></i>
 						</button>
 					</div>
@@ -118,58 +118,58 @@ get_header();
 				<div class="ap-wizard-step" id="step2">
 					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
 						<i class="ri-edit-line ap-text-primary"></i>
-						<?php esc_html_e( 'Preencher Dados', 'apollo-social' ); ?>
+						<?php esc_html_e('Preencher Dados', 'apollo-social'); ?>
 					</h2>
 					<p class="ap-text-muted ap-mb-6">
-						<?php esc_html_e( 'Complete as informações do documento', 'apollo-social' ); ?>
+						<?php esc_html_e('Complete as informações do documento', 'apollo-social'); ?>
 					</p>
 
 					<form id="templateForm" class="ap-space-y-4">
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Título do Documento', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('Título do Documento', 'apollo-social'); ?></label>
 							<input type="text" class="ap-form-input" name="title" 
-									placeholder="<?php esc_attr_e( 'Ex: Contrato de Prestação de Serviços - Projeto XYZ', 'apollo-social' ); ?>"
-									data-ap-tooltip="<?php esc_attr_e( 'Nome identificador do documento', 'apollo-social' ); ?>">
+									placeholder="<?php esc_attr_e('Ex: Contrato de Prestação de Serviços - Projeto XYZ', 'apollo-social'); ?>"
+									data-ap-tooltip="<?php esc_attr_e('Nome identificador do documento', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Nome do Contratante', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('Nome do Contratante', 'apollo-social'); ?></label>
 							<input type="text" class="ap-form-input" name="contractor_name" 
-									placeholder="<?php esc_attr_e( 'Nome da empresa ou pessoa contratante', 'apollo-social' ); ?>">
+									placeholder="<?php esc_attr_e('Nome da empresa ou pessoa contratante', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Nome do Contratado', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('Nome do Contratado', 'apollo-social'); ?></label>
 							<input type="text" class="ap-form-input" name="contracted_name" 
-									placeholder="<?php esc_attr_e( 'Nome da empresa ou pessoa contratada', 'apollo-social' ); ?>">
+									placeholder="<?php esc_attr_e('Nome da empresa ou pessoa contratada', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-grid ap-grid-2 ap-gap-4">
 							<div class="ap-form-group">
-								<label class="ap-form-label"><?php esc_html_e( 'Valor do Contrato', 'apollo-social' ); ?></label>
+								<label class="ap-form-label"><?php esc_html_e('Valor do Contrato', 'apollo-social'); ?></label>
 								<input type="text" class="ap-form-input" name="contract_value" placeholder="R$ 0,00">
 							</div>
 
 							<div class="ap-form-group">
-								<label class="ap-form-label"><?php esc_html_e( 'Data de Início', 'apollo-social' ); ?></label>
+								<label class="ap-form-label"><?php esc_html_e('Data de Início', 'apollo-social'); ?></label>
 								<input type="date" class="ap-form-input" name="start_date">
 							</div>
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Observações Adicionais', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('Observações Adicionais', 'apollo-social'); ?></label>
 							<textarea class="ap-form-textarea" name="notes" rows="3"
-										placeholder="<?php esc_attr_e( 'Informações específicas para este documento...', 'apollo-social' ); ?>"></textarea>
+										placeholder="<?php esc_attr_e('Informações específicas para este documento...', 'apollo-social'); ?>"></textarea>
 						</div>
 					</form>
 
 					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
 						<button class="ap-btn ap-btn-secondary" id="prevStep2">
 							<i class="ri-arrow-left-line"></i>
-							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+							<?php esc_html_e('Voltar', 'apollo-social'); ?>
 						</button>
 						<button class="ap-btn ap-btn-primary" id="nextStep2">
-							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+							<?php esc_html_e('Próximo', 'apollo-social'); ?>
 							<i class="ri-arrow-right-line"></i>
 						</button>
 					</div>
@@ -179,36 +179,36 @@ get_header();
 				<div class="ap-wizard-step" id="step3">
 					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
 						<i class="ri-user-line ap-text-primary"></i>
-						<?php esc_html_e( 'Dados do Signatário', 'apollo-social' ); ?>
+						<?php esc_html_e('Dados do Signatário', 'apollo-social'); ?>
 					</h2>
 					<p class="ap-text-muted ap-mb-6">
-						<?php esc_html_e( 'Informe os dados da pessoa que irá assinar', 'apollo-social' ); ?>
+						<?php esc_html_e('Informe os dados da pessoa que irá assinar', 'apollo-social'); ?>
 					</p>
 
 					<form id="signerForm" class="ap-space-y-4">
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Nome Completo', 'apollo-social' ); ?> *</label>
+							<label class="ap-form-label"><?php esc_html_e('Nome Completo', 'apollo-social'); ?> *</label>
 							<input type="text" class="ap-form-input" name="signer_name" 
-									placeholder="<?php esc_attr_e( 'Nome completo do signatário', 'apollo-social' ); ?>" required
-									data-ap-tooltip="<?php esc_attr_e( 'Nome como aparecerá no documento', 'apollo-social' ); ?>">
+									placeholder="<?php esc_attr_e('Nome completo do signatário', 'apollo-social'); ?>" required
+									data-ap-tooltip="<?php esc_attr_e('Nome como aparecerá no documento', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'E-mail', 'apollo-social' ); ?> *</label>
+							<label class="ap-form-label"><?php esc_html_e('E-mail', 'apollo-social'); ?> *</label>
 							<input type="email" class="ap-form-input" name="signer_email" 
 									placeholder="email@exemplo.com" required
-									data-ap-tooltip="<?php esc_attr_e( 'E-mail para envio do link de assinatura', 'apollo-social' ); ?>">
+									data-ap-tooltip="<?php esc_attr_e('E-mail para envio do link de assinatura', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'CPF ou CNPJ', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('CPF ou CNPJ', 'apollo-social'); ?></label>
 							<input type="text" class="ap-form-input" name="signer_document" 
-									placeholder="<?php esc_attr_e( '000.000.000-00 ou 00.000.000/0001-00', 'apollo-social' ); ?>"
-									data-ap-tooltip="<?php esc_attr_e( 'Documento para validação', 'apollo-social' ); ?>">
+									placeholder="<?php esc_attr_e('000.000.000-00 ou 00.000.000/0001-00', 'apollo-social'); ?>"
+									data-ap-tooltip="<?php esc_attr_e('Documento para validação', 'apollo-social'); ?>">
 						</div>
 
 						<div class="ap-form-group">
-							<label class="ap-form-label"><?php esc_html_e( 'Telefone (opcional)', 'apollo-social' ); ?></label>
+							<label class="ap-form-label"><?php esc_html_e('Telefone (opcional)', 'apollo-social'); ?></label>
 							<input type="tel" class="ap-form-input" name="signer_phone" placeholder="(11) 99999-9999">
 						</div>
 					</form>
@@ -216,10 +216,10 @@ get_header();
 					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
 						<button class="ap-btn ap-btn-secondary" id="prevStep3">
 							<i class="ri-arrow-left-line"></i>
-							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+							<?php esc_html_e('Voltar', 'apollo-social'); ?>
 						</button>
 						<button class="ap-btn ap-btn-primary" id="nextStep3">
-							<?php esc_html_e( 'Próximo', 'apollo-social' ); ?>
+							<?php esc_html_e('Próximo', 'apollo-social'); ?>
 							<i class="ri-arrow-right-line"></i>
 						</button>
 					</div>
@@ -229,46 +229,46 @@ get_header();
 				<div class="ap-wizard-step" id="step4">
 					<h2 class="ap-heading-lg ap-flex ap-items-center ap-gap-2 ap-mb-2">
 						<i class="ri-scales-3-line ap-text-primary"></i>
-						<?php esc_html_e( 'Escolher Trilho de Assinatura', 'apollo-social' ); ?>
+						<?php esc_html_e('Escolher Trilho de Assinatura', 'apollo-social'); ?>
 					</h2>
 					<p class="ap-text-muted ap-mb-6">
-						<?php esc_html_e( 'Selecione o nível de segurança jurídica necessário', 'apollo-social' ); ?>
+						<?php esc_html_e('Selecione o nível de segurança jurídica necessário', 'apollo-social'); ?>
 					</p>
 
 					<div class="ap-card ap-card-hover ap-card-selectable ap-p-6 ap-text-center" data-track="track_b">
 						<div class="ap-avatar ap-avatar-xl ap-mx-auto ap-mb-4 ap-bg-primary-100">
 							<i class="ri-shield-check-line ap-text-3xl ap-text-primary"></i>
 						</div>
-						<h3 class="ap-heading-md ap-mb-1"><?php esc_html_e( 'Assinatura Qualificada', 'apollo-social' ); ?></h3>
-						<p class="ap-text-primary ap-font-semibold ap-mb-3"><?php esc_html_e( 'ICP-Brasil (GOV.BR)', 'apollo-social' ); ?></p>
+						<h3 class="ap-heading-md ap-mb-1"><?php esc_html_e('Assinatura Qualificada', 'apollo-social'); ?></h3>
+						<p class="ap-text-primary ap-font-semibold ap-mb-3"><?php esc_html_e('ICP-Brasil (GOV.BR)', 'apollo-social'); ?></p>
 						<p class="ap-text-sm ap-text-muted ap-mb-4">
-							<?php esc_html_e( 'Para documentos oficiais, cartórios e órgãos públicos. Requer certificado digital ICP-Brasil ou login GOV.BR.', 'apollo-social' ); ?>
+							<?php esc_html_e('Para documentos oficiais, cartórios e órgãos públicos. Requer certificado digital ICP-Brasil ou login GOV.BR.', 'apollo-social'); ?>
 						</p>
 						<div class="ap-alert ap-alert-info ap-text-xs ap-text-left">
-							<strong><?php esc_html_e( 'Base Legal:', 'apollo-social' ); ?></strong> Lei 14.063/2020 + MP 2.200-2/2001<br>
-							<strong><?php esc_html_e( 'Validade:', 'apollo-social' ); ?></strong> <?php esc_html_e( 'Equivale à assinatura manuscrita', 'apollo-social' ); ?>
+							<strong><?php esc_html_e('Base Legal:', 'apollo-social'); ?></strong> Lei 14.063/2020 + MP 2.200-2/2001<br>
+							<strong><?php esc_html_e('Validade:', 'apollo-social'); ?></strong> <?php esc_html_e('Equivale à assinatura manuscrita', 'apollo-social'); ?>
 						</div>
 					</div>
 
 					<div class="ap-alert ap-alert-primary ap-mt-6">
 						<h4 class="ap-flex ap-items-center ap-gap-2 ap-font-semibold ap-mb-2">
 							<i class="ri-information-line"></i>
-							<?php esc_html_e( 'Informações de Compliance', 'apollo-social' ); ?>
+							<?php esc_html_e('Informações de Compliance', 'apollo-social'); ?>
 						</h4>
 						<p class="ap-text-sm">
-							<strong><?php esc_html_e( 'Assinatura Qualificada:', 'apollo-social' ); ?></strong> 
-							<?php esc_html_e( 'Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita com presunção absoluta de validade.', 'apollo-social' ); ?>
+							<strong><?php esc_html_e('Assinatura Qualificada:', 'apollo-social'); ?></strong> 
+							<?php esc_html_e('Obrigatório para cartórios, órgãos públicos e contratos de alto valor. Equivale juridicamente à assinatura manuscrita com presunção absoluta de validade.', 'apollo-social'); ?>
 						</p>
 					</div>
 
 					<div class="ap-flex ap-justify-between ap-mt-8 ap-pt-6 ap-border-t">
 						<button class="ap-btn ap-btn-secondary" id="prevStep4">
 							<i class="ri-arrow-left-line"></i>
-							<?php esc_html_e( 'Voltar', 'apollo-social' ); ?>
+							<?php esc_html_e('Voltar', 'apollo-social'); ?>
 						</button>
 						<button class="ap-btn ap-btn-primary" id="nextStep4" disabled
-								data-ap-tooltip="<?php esc_attr_e( 'Selecione o trilho de assinatura', 'apollo-social' ); ?>">
-							<?php esc_html_e( 'Criar Documento', 'apollo-social' ); ?>
+								data-ap-tooltip="<?php esc_attr_e('Selecione o trilho de assinatura', 'apollo-social'); ?>">
+							<?php esc_html_e('Criar Documento', 'apollo-social'); ?>
 							<i class="ri-check-line"></i>
 						</button>
 					</div>
@@ -281,42 +281,42 @@ get_header();
 							<i class="ri-checkbox-circle-line ap-text-4xl ap-text-success"></i>
 						</div>
 						<h2 class="ap-heading-lg ap-text-success ap-mb-2">
-							<?php esc_html_e( 'Documento Criado com Sucesso!', 'apollo-social' ); ?>
+							<?php esc_html_e('Documento Criado com Sucesso!', 'apollo-social'); ?>
 						</h2>
 						<p class="ap-text-muted ap-mb-6">
-							<?php esc_html_e( 'O documento foi gerado e está pronto para assinatura.', 'apollo-social' ); ?>
+							<?php esc_html_e('O documento foi gerado e está pronto para assinatura.', 'apollo-social'); ?>
 						</p>
 
 						<div class="ap-input-group ap-max-w-lg ap-mx-auto ap-mb-6">
 							<input type="text" id="signingUrl" class="ap-form-input ap-font-mono ap-text-sm" readonly>
 							<button class="ap-btn ap-btn-primary" onclick="copySigningUrl()"
-									data-ap-tooltip="<?php esc_attr_e( 'Copiar link', 'apollo-social' ); ?>">
+									data-ap-tooltip="<?php esc_attr_e('Copiar link', 'apollo-social'); ?>">
 								<i class="ri-file-copy-line"></i>
-								<?php esc_html_e( 'Copiar', 'apollo-social' ); ?>
+								<?php esc_html_e('Copiar', 'apollo-social'); ?>
 							</button>
 						</div>
 
 						<div class="ap-alert ap-alert-info ap-text-left">
 							<h4 class="ap-flex ap-items-center ap-gap-2 ap-font-semibold ap-mb-2">
 								<i class="ri-lock-line"></i>
-								<?php esc_html_e( 'Próximos Passos', 'apollo-social' ); ?>
+								<?php esc_html_e('Próximos Passos', 'apollo-social'); ?>
 							</h4>
 							<ol class="ap-list-decimal ap-list-inside ap-text-sm ap-space-y-1">
-								<li><?php esc_html_e( 'Compartilhe o link de assinatura com o signatário', 'apollo-social' ); ?></li>
-								<li><?php esc_html_e( 'O signatário receberá um e-mail com instruções', 'apollo-social' ); ?></li>
-								<li><?php esc_html_e( 'Você será notificado quando a assinatura for concluída', 'apollo-social' ); ?></li>
-								<li><?php esc_html_e( 'O documento assinado ficará disponível para download', 'apollo-social' ); ?></li>
+								<li><?php esc_html_e('Compartilhe o link de assinatura com o signatário', 'apollo-social'); ?></li>
+								<li><?php esc_html_e('O signatário receberá um e-mail com instruções', 'apollo-social'); ?></li>
+								<li><?php esc_html_e('Você será notificado quando a assinatura for concluída', 'apollo-social'); ?></li>
+								<li><?php esc_html_e('O documento assinado ficará disponível para download', 'apollo-social'); ?></li>
 							</ol>
 						</div>
 
 						<div class="ap-flex ap-justify-center ap-gap-4 ap-mt-8">
-							<a href="<?php echo esc_url( home_url( '/docs/' ) ); ?>" class="ap-btn ap-btn-secondary">
+							<a href="<?php echo esc_url(home_url('/docs/')); ?>" class="ap-btn ap-btn-secondary">
 								<i class="ri-folder-line"></i>
-								<?php esc_html_e( 'Ver Documentos', 'apollo-social' ); ?>
+								<?php esc_html_e('Ver Documentos', 'apollo-social'); ?>
 							</a>
 							<button class="ap-btn ap-btn-primary" onclick="location.reload()">
 								<i class="ri-add-line"></i>
-								<?php esc_html_e( 'Criar Novo', 'apollo-social' ); ?>
+								<?php esc_html_e('Criar Novo', 'apollo-social'); ?>
 							</button>
 						</div>
 					</div>
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	function createDocument() {
 		const btn = document.getElementById('nextStep4');
 		btn.disabled = true;
-		btn.innerHTML = '<i class="ri-loader-4-line ap-animate-spin"></i> <?php echo esc_js( __( 'Criando...', 'apollo-social' ) ); ?>';
+		btn.innerHTML = '<i class="ri-loader-4-line ap-animate-spin"></i> <?php echo esc_js(__('Criando...', 'apollo-social')); ?>';
 
 		const documentData = {
 			template: selectedTemplate,
@@ -436,7 +436,7 @@ function copySigningUrl() {
 	
 	const btn = event.target.closest('button');
 	const originalText = btn.innerHTML;
-	btn.innerHTML = '<i class="ri-check-line"></i> <?php echo esc_js( __( 'Copiado!', 'apollo-social' ) ); ?>';
+	btn.innerHTML = '<i class="ri-check-line"></i> <?php echo esc_js(__('Copiado!', 'apollo-social')); ?>';
 	setTimeout(() => {
 		btn.innerHTML = originalText;
 	}, 2000);

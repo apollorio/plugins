@@ -23,59 +23,59 @@
  */
 
 // Prevent direct access
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Get URLs from config
-$bug_report_url = isset( $auth_config['bug_report_url'] ) ? $auth_config['bug_report_url'] : 'https://apollo.rio.br/bug/';
+$bug_report_url = isset($auth_config['bug_report_url']) ? $auth_config['bug_report_url'] : 'https://apollo.rio.br/bug/';
 ?>
 
 <!-- Status Messages -->
-<div class="flavor-text" data-tooltip="<?php esc_attr_e( 'Mensagens de status do sistema', 'apollo-social' ); ?>">
-	<span data-tooltip="<?php esc_attr_e( 'Versão atual', 'apollo-social' ); ?>">
-		> <?php esc_html_e( 'Versão BETA LAB, caso de bug, relate', 'apollo-social' ); ?> 
-		<a href="<?php echo esc_url( $bug_report_url ); ?>" target="_blank" rel="noopener noreferrer" style="color: var(--color-accent);" data-tooltip="<?php esc_attr_e( 'Reportar bug', 'apollo-social' ); ?>">
-			<?php esc_html_e( 'aqui', 'apollo-social' ); ?>
+<div class="flavor-text" data-tooltip="<?php esc_attr_e('Mensagens de status do sistema', 'apollo-social'); ?>">
+	<span data-tooltip="<?php esc_attr_e('Versão atual', 'apollo-social'); ?>">
+		> <?php esc_html_e('Versão BETA LAB, caso de bug, relate', 'apollo-social'); ?> 
+		<a href="<?php echo esc_url($bug_report_url); ?>" target="_blank" rel="noopener noreferrer" style="color: var(--color-accent);" data-tooltip="<?php esc_attr_e('Reportar bug', 'apollo-social'); ?>">
+			<?php esc_html_e('aqui', 'apollo-social'); ?>
 		</a>.
 	</span>
 </div>
-<div class="flavor-text" style="margin-bottom: 16px;" data-tooltip="<?php esc_attr_e( 'Slogan', 'apollo-social' ); ?>">
-	<span>> '<?php esc_html_e( 'Sua Plataforma Digital da cultura carioca.', 'apollo-social' ); ?>'</span>
+<div class="flavor-text" style="margin-bottom: 16px;" data-tooltip="<?php esc_attr_e('Slogan', 'apollo-social'); ?>">
+	<span>> '<?php esc_html_e('Sua Plataforma Digital da cultura carioca.', 'apollo-social'); ?>'</span>
 </div>
 
 <!-- Login Form -->
-<form id="login-form" method="post" data-tooltip="<?php esc_attr_e( 'Formulário de login', 'apollo-social' ); ?>">
+<form id="login-form" method="post" data-tooltip="<?php esc_attr_e('Formulário de login', 'apollo-social'); ?>">
 	
-	<?php wp_nonce_field( 'apollo_login_nonce', 'apollo_login_nonce' ); ?>
+	<?php wp_nonce_field('apollo_login_nonce', 'apollo_login_nonce'); ?>
 	
 	<!-- Username/Email/CPF/Passport Field with Auto-Detection -->
-	<div class="form-group" data-tooltip="<?php esc_attr_e( 'Campo de identificação', 'apollo-social' ); ?>">
-		<label for="log"><?php esc_html_e( 'Identificação', 'apollo-social' ); ?></label>
+	<div class="form-group" data-tooltip="<?php esc_attr_e('Campo de identificação', 'apollo-social'); ?>">
+		<label for="log"><?php esc_html_e('Identificação', 'apollo-social'); ?></label>
 		<div class="input-wrapper">
-			<span class="input-prefix" id="login-doc-prefix" data-tooltip="<?php esc_attr_e( 'Tipo de identificação detectada', 'apollo-social' ); ?>">></span>
+			<span class="input-prefix" id="login-doc-prefix" data-tooltip="<?php esc_attr_e('Tipo de identificação detectada', 'apollo-social'); ?>">></span>
 			<input 
 				type="text" 
 				id="log" 
 				name="log" 
-				placeholder="<?php esc_attr_e( 'e-mail, CPF ou passaporte', 'apollo-social' ); ?>"
+				placeholder="<?php esc_attr_e('e-mail, CPF ou passaporte', 'apollo-social'); ?>"
 				autocomplete="username"
 				required
 				maxlength="50"
-				data-tooltip="<?php esc_attr_e( 'Digite seu e-mail, CPF (000.000.000-00) ou passaporte', 'apollo-social' ); ?>"
+				data-tooltip="<?php esc_attr_e('Digite seu e-mail, CPF (000.000.000-00) ou passaporte', 'apollo-social'); ?>"
 			>
 		</div>
 		<p class="small-note" id="login-doc-hint" style="color: rgba(148,163,184,0.7); transition: color 0.3s;">
-			<?php esc_html_e( 'Aceita: e-mail, CPF ou passaporte', 'apollo-social' ); ?>
+			<?php esc_html_e('Aceita: e-mail, CPF ou passaporte', 'apollo-social'); ?>
 		</p>
 	</div>
 	<input type="hidden" name="login_doc_type" id="login_doc_type" value="email">
 
 	<!-- Password Field -->
-	<div class="form-group" data-tooltip="<?php esc_attr_e( 'Campo de senha', 'apollo-social' ); ?>">
-		<label for="pwd"><?php esc_html_e( 'Chave de Acesso', 'apollo-social' ); ?></label>
+	<div class="form-group" data-tooltip="<?php esc_attr_e('Campo de senha', 'apollo-social'); ?>">
+		<label for="pwd"><?php esc_html_e('Chave de Acesso', 'apollo-social'); ?></label>
 		<div class="input-wrapper">
-			<span class="input-prefix" data-tooltip="<?php esc_attr_e( 'Prefixo do campo', 'apollo-social' ); ?>">></span>
+			<span class="input-prefix" data-tooltip="<?php esc_attr_e('Prefixo do campo', 'apollo-social'); ?>">></span>
 			<input 
 				type="password" 
 				id="pwd" 
@@ -83,39 +83,39 @@ $bug_report_url = isset( $auth_config['bug_report_url'] ) ? $auth_config['bug_re
 				placeholder="••••••••"
 				autocomplete="current-password"
 				required
-				data-tooltip="<?php esc_attr_e( 'Digite sua senha', 'apollo-social' ); ?>"
+				data-tooltip="<?php esc_attr_e('Digite sua senha', 'apollo-social'); ?>"
 			>
 		</div>
 	</div>
 
 	<!-- Remember Session Toggle -->
-	<div class="form-group" style="display: flex; justify-content: space-between; align-items: center;" data-tooltip="<?php esc_attr_e( 'Opções adicionais', 'apollo-social' ); ?>">
-		<div class="custom-toggle" data-tooltip="<?php esc_attr_e( 'Manter sessão ativa', 'apollo-social' ); ?>">
+	<div class="form-group" style="display: flex; justify-content: space-between; align-items: center;" data-tooltip="<?php esc_attr_e('Opções adicionais', 'apollo-social'); ?>">
+		<div class="custom-toggle" data-tooltip="<?php esc_attr_e('Manter sessão ativa', 'apollo-social'); ?>">
 			<div class="toggle-track">
 				<div class="toggle-thumb"></div>
 			</div>
-			<span><?php esc_html_e( 'Manter sessão', 'apollo-social' ); ?></span>
+			<span><?php esc_html_e('Manter sessão', 'apollo-social'); ?></span>
 			<input type="hidden" name="rememberme" value="0">
 		</div>
-		<button type="button" class="btn-text" id="forgot-password" data-tooltip="<?php esc_attr_e( 'Recuperar acesso', 'apollo-social' ); ?>">
-			<?php esc_html_e( 'Esqueci a chave', 'apollo-social' ); ?>
+		<button type="button" class="btn-text" id="forgot-password" data-tooltip="<?php esc_attr_e('Recuperar acesso', 'apollo-social'); ?>">
+			<?php esc_html_e('Esqueci a chave', 'apollo-social'); ?>
 		</button>
 	</div>
 
 	<!-- Submit Button -->
-	<button type="submit" class="btn-primary" data-tooltip="<?php esc_attr_e( 'Acessar o sistema', 'apollo-social' ); ?>">
-		<span><?php esc_html_e( 'ACESSAR TERMINAL', 'apollo-social' ); ?></span>
+	<button type="submit" class="btn-primary" data-tooltip="<?php esc_attr_e('Acessar o sistema', 'apollo-social'); ?>">
+		<span><?php esc_html_e('ACESSAR TERMINAL', 'apollo-social'); ?></span>
 		<i class="ri-arrow-right-line"></i>
 	</button>
 
 </form>
 
 <!-- Register Link -->
-<div style="text-align: center; margin-top: 20px;" data-tooltip="<?php esc_attr_e( 'Link para registro', 'apollo-social' ); ?>">
+<div style="text-align: center; margin-top: 20px;" data-tooltip="<?php esc_attr_e('Link para registro', 'apollo-social'); ?>">
 	<p style="font-size: 12px; color: rgba(148,163,184,0.9);">
-		<?php esc_html_e( 'Não possui acesso?', 'apollo-social' ); ?>
-		<button type="button" class="btn-text" id="switch-to-register" data-tooltip="<?php esc_attr_e( 'Criar nova conta', 'apollo-social' ); ?>">
-			<?php esc_html_e( 'Solicitar registro', 'apollo-social' ); ?>
+		<?php esc_html_e('Não possui acesso?', 'apollo-social'); ?>
+		<button type="button" class="btn-text" id="switch-to-register" data-tooltip="<?php esc_attr_e('Criar nova conta', 'apollo-social'); ?>">
+			<?php esc_html_e('Solicitar registro', 'apollo-social'); ?>
 		</button>
 	</p>
 </div>
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Reset if empty
 		if (value.length === 0) {
 			loginPrefix.textContent = '>';
-			loginHint.textContent = '<?php echo esc_js( __( 'Aceita: e-mail, CPF ou passaporte', 'apollo-social' ) ); ?>';
+			loginHint.textContent = '<?php echo esc_js(__('Aceita: e-mail, CPF ou passaporte', 'apollo-social')); ?>';
 			loginHint.style.color = 'rgba(148,163,184,0.7)';
 			loginDocType.value = 'email';
 			return;
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Check for email (@)
 		if (value.includes('@')) {
 			loginPrefix.textContent = '@';
-			loginHint.textContent = '<?php echo esc_js( __( 'E-mail detectado', 'apollo-social' ) ); ?>';
+			loginHint.textContent = '<?php echo esc_js(__('E-mail detectado', 'apollo-social')); ?>';
 			loginHint.style.color = 'var(--color-accent)';
 			loginDocType.value = 'email';
 			return;
@@ -177,14 +177,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				const cleanCpf = digits.replace(/\D/g, '');
 				if (cleanCpf.length === 11) {
 					if (validateCPFLogin(cleanCpf)) {
-						loginHint.innerHTML = '<i class="ri-checkbox-circle-fill" style="color: var(--color-success);"></i> <?php echo esc_js( __( 'CPF válido', 'apollo-social' ) ); ?>';
+						loginHint.innerHTML = '<i class="ri-checkbox-circle-fill" style="color: var(--color-success);"></i> <?php echo esc_js(__('CPF válido', 'apollo-social')); ?>';
 						loginHint.style.color = 'var(--color-success)';
 					} else {
-						loginHint.innerHTML = '<i class="ri-error-warning-fill" style="color: var(--color-danger);"></i> <?php echo esc_js( __( 'CPF inválido', 'apollo-social' ) ); ?>';
+						loginHint.innerHTML = '<i class="ri-error-warning-fill" style="color: var(--color-danger);"></i> <?php echo esc_js(__('CPF inválido', 'apollo-social')); ?>';
 						loginHint.style.color = 'var(--color-danger)';
 					}
 				} else {
-					loginHint.textContent = '<?php echo esc_js( __( 'CPF detectado', 'apollo-social' ) ); ?>';
+					loginHint.textContent = '<?php echo esc_js(__('CPF detectado', 'apollo-social')); ?>';
 				}
 			}
 			return;
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (/^[a-zA-Z]/.test(firstChar)) {
 			loginDocType.value = 'passport';
 			loginPrefix.textContent = '✈';
-			loginHint.textContent = '<?php echo esc_js( __( 'Passaporte detectado', 'apollo-social' ) ); ?>';
+			loginHint.textContent = '<?php echo esc_js(__('Passaporte detectado', 'apollo-social')); ?>';
 			loginHint.style.color = 'var(--color-accent)';
 			e.target.value = value.toUpperCase();
 			return;

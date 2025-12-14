@@ -15,12 +15,14 @@
  * @global WP_Service_Workers $wp_service_workers
  * @return WP_Service_Workers WP_Service_Workers instance.
  */
-function wp_service_workers() {
-	global $wp_service_workers;
-	if ( ! ( $wp_service_workers instanceof WP_Service_Workers ) ) {
-		$wp_service_workers = new WP_Service_Workers();
-	}
-	return $wp_service_workers;
+function wp_service_workers()
+{
+    global $wp_service_workers;
+    if (! ($wp_service_workers instanceof WP_Service_Workers)) {
+        $wp_service_workers = new WP_Service_Workers();
+    }
+
+    return $wp_service_workers;
 }
 
 /**
@@ -37,8 +39,9 @@ function wp_service_workers() {
  *     @type string[]        $deps An array of registered item handles this item depends on. Default empty array.
  * }
  */
-function wp_register_service_worker_script( $handle, $args = array() ) {
-	wp_service_workers()->get_registry()->register( $handle, $args );
+function wp_register_service_worker_script($handle, $args = [])
+{
+    wp_service_workers()->get_registry()->register($handle, $args);
 }
 
 /**
@@ -53,8 +56,9 @@ function wp_register_service_worker_script( $handle, $args = array() ) {
  *     @type string $revision Revision.
  * }
  */
-function wp_register_service_worker_precaching_route( $url, $args = array() ) {
-	wp_service_workers()->get_registry()->precaching_routes()->register( $url, $args );
+function wp_register_service_worker_precaching_route($url, $args = [])
+{
+    wp_service_workers()->get_registry()->precaching_routes()->register($url, $args);
 }
 
 /**
@@ -82,8 +86,9 @@ function wp_register_service_worker_precaching_route( $url, $args = array() ) {
  * }
  * @return bool Whether the registration was successful.
  */
-function wp_register_service_worker_caching_route( $route, $strategy, $args = array() ) {
-	return wp_service_workers()->get_registry()->caching_routes()->register( $route, $strategy, $args );
+function wp_register_service_worker_caching_route($route, $strategy, $args = [])
+{
+    return wp_service_workers()->get_registry()->caching_routes()->register($route, $strategy, $args);
 }
 
 /**
@@ -95,29 +100,30 @@ function wp_register_service_worker_caching_route( $route, $strategy, $args = ar
  * @return string Service Worker URL.
  * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  */
-function wp_get_service_worker_url( $scope = WP_Service_Workers::SCOPE_FRONT ) {
-	global $wp_rewrite;
+function wp_get_service_worker_url($scope = WP_Service_Workers::SCOPE_FRONT)
+{
+    global $wp_rewrite;
 
-	if ( WP_Service_Workers::SCOPE_FRONT !== $scope && WP_Service_Workers::SCOPE_ADMIN !== $scope ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Scope must be either WP_Service_Workers::SCOPE_FRONT or WP_Service_Workers::SCOPE_ADMIN.', 'pwa' ), '?' );
-		$scope = WP_Service_Workers::SCOPE_FRONT;
-	}
+    if (WP_Service_Workers::SCOPE_FRONT !== $scope && WP_Service_Workers::SCOPE_ADMIN !== $scope) {
+        _doing_it_wrong(__FUNCTION__, esc_html__('Scope must be either WP_Service_Workers::SCOPE_FRONT or WP_Service_Workers::SCOPE_ADMIN.', 'pwa'), '?');
+        $scope = WP_Service_Workers::SCOPE_FRONT;
+    }
 
-	if ( WP_Service_Workers::SCOPE_FRONT === $scope ) {
-		if ( $wp_rewrite->using_permalinks() ) {
-			return home_url( '/wp.serviceworker' );
-		}
+    if (WP_Service_Workers::SCOPE_FRONT === $scope) {
+        if ($wp_rewrite->using_permalinks()) {
+            return home_url('/wp.serviceworker');
+        }
 
-		return add_query_arg(
-			array( WP_Service_Workers::QUERY_VAR => $scope ),
-			home_url( '/', 'relative' )
-		);
-	}
+        return add_query_arg(
+            [ WP_Service_Workers::QUERY_VAR => $scope ],
+            home_url('/', 'relative')
+        );
+    }
 
-	return add_query_arg(
-		array( 'action' => WP_Service_Workers::QUERY_VAR ),
-		admin_url( 'admin-ajax.php' )
-	);
+    return add_query_arg(
+        [ 'action' => WP_Service_Workers::QUERY_VAR ],
+        admin_url('admin-ajax.php')
+    );
 }
 
 /**
@@ -125,72 +131,73 @@ function wp_get_service_worker_url( $scope = WP_Service_Workers::SCOPE_FRONT ) {
  *
  * @since 0.1
  */
-function wp_print_service_workers() {
-	/*
-	 * Skip installing service worker from context of post embed iframe, as the post embed iframe does not need the
-	 * service worker. Also, installation via post embed iframe could be seen to be somewhat sneaky. Lastly, if the
-	 * post embed is on the same site and contained iframe is sandbox without allow-same-origin, then the service
-	 * worker will fail to install with an exception:
-	 * > Uncaught DOMException: Failed to read the 'serviceWorker' property from 'Navigator': Service worker is
-	 * > disabled because the context is sandboxed and lacks the 'allow-same-origin' flag.
-	 */
-	if ( is_embed() ) {
-		return;
-	}
+function wp_print_service_workers()
+{
+    /*
+     * Skip installing service worker from context of post embed iframe, as the post embed iframe does not need the
+     * service worker. Also, installation via post embed iframe could be seen to be somewhat sneaky. Lastly, if the
+     * post embed is on the same site and contained iframe is sandbox without allow-same-origin, then the service
+     * worker will fail to install with an exception:
+     * > Uncaught DOMException: Failed to read the 'serviceWorker' property from 'Navigator': Service worker is
+     * > disabled because the context is sandboxed and lacks the 'allow-same-origin' flag.
+     */
+    if (is_embed()) {
+        return;
+    }
 
-	global $pagenow;
+    global $pagenow;
 
-	$home_port  = wp_parse_url( home_url(), PHP_URL_PORT );
-	$admin_port = wp_parse_url( admin_url(), PHP_URL_PORT );
+    $home_port  = wp_parse_url(home_url(), PHP_URL_PORT);
+    $admin_port = wp_parse_url(admin_url(), PHP_URL_PORT);
 
-	$home_host  = wp_parse_url( home_url(), PHP_URL_HOST );
-	$admin_host = wp_parse_url( admin_url(), PHP_URL_HOST );
+    $home_host  = wp_parse_url(home_url(), PHP_URL_HOST);
+    $admin_host = wp_parse_url(admin_url(), PHP_URL_HOST);
 
-	$home_url  = ( $home_port ) ? "$home_host:$home_port" : $home_host;
-	$admin_url = ( $admin_port ) ? "$admin_host:$admin_port" : $admin_host;
+    $home_url  = ($home_port) ? "$home_host:$home_port" : $home_host;
+    $admin_url = ($admin_port) ? "$admin_host:$admin_port" : $admin_host;
 
-	$on_front_domain = isset( $_SERVER['HTTP_HOST'] ) && $home_url === $_SERVER['HTTP_HOST'];
-	$on_admin_domain = isset( $_SERVER['HTTP_HOST'] ) && $admin_url === $_SERVER['HTTP_HOST'];
+    $on_front_domain = isset($_SERVER['HTTP_HOST']) && $home_url  === $_SERVER['HTTP_HOST'];
+    $on_admin_domain = isset($_SERVER['HTTP_HOST']) && $admin_url === $_SERVER['HTTP_HOST'];
 
-	$sw_src = null;
-	$scope  = null;
+    $sw_src = null;
+    $scope  = null;
 
-	// Include admin service worker if it seems it will be used (and it can be installed).
-	if ( $on_admin_domain && ( is_admin() || in_array( $pagenow, array( 'wp-login.php', 'wp-signup.php', 'wp-activate.php' ), true ) ) ) {
-		$sw_src = wp_get_service_worker_url( WP_Service_Workers::SCOPE_ADMIN );
-		$scope  = wp_parse_url( admin_url( '/' ), PHP_URL_PATH );
-	} elseif ( $on_front_domain ) {
-		$sw_src = wp_get_service_worker_url( WP_Service_Workers::SCOPE_FRONT );
-		$scope  = home_url( '/', 'relative' ); 
-		// The home_url() here will account for subdirectory installs.
-	}
+    // Include admin service worker if it seems it will be used (and it can be installed).
+    if ($on_admin_domain && (is_admin() || in_array($pagenow, [ 'wp-login.php', 'wp-signup.php', 'wp-activate.php' ], true))) {
+        $sw_src = wp_get_service_worker_url(WP_Service_Workers::SCOPE_ADMIN);
+        $scope  = wp_parse_url(admin_url('/'), PHP_URL_PATH);
+    } elseif ($on_front_domain) {
+        $sw_src = wp_get_service_worker_url(WP_Service_Workers::SCOPE_FRONT);
+        $scope  = home_url('/', 'relative');
+        // The home_url() here will account for subdirectory installs.
+    }
 
-	if ( ! $sw_src || ! $scope ) {
-		return;
-	}
+    if (! $sw_src || ! $scope) {
+        return;
+    }
 
-	// Core merge: replace plugins_url() with includes_url().
-	$workbox_window_src = plugins_url(
-		sprintf(
-			'wp-includes/js/workbox-v%s/workbox-window.%s.js',
-			PWA_WORKBOX_VERSION,
-			SCRIPT_DEBUG ? 'dev' : 'prod'
-		),
-		PWA_PLUGIN_FILE
-	);
-	$register_options   = array(
-		'scope' => $scope,
-	);
+    // Core merge: replace plugins_url() with includes_url().
+    $workbox_window_src = plugins_url(
+        sprintf(
+            'wp-includes/js/workbox-v%s/workbox-window.%s.js',
+            PWA_WORKBOX_VERSION,
+            SCRIPT_DEBUG ? 'dev' : 'prod'
+        ),
+        PWA_PLUGIN_FILE
+    );
+    $register_options = [
+        'scope' => $scope,
+    ];
 
-	?>
+    ?>
 	<script type="module">
-		import { Workbox } from <?php echo wp_json_encode( $workbox_window_src ); ?>;
+		import { Workbox } from <?php echo wp_json_encode($workbox_window_src); ?>;
 
 		if ( 'serviceWorker' in navigator ) {
 			window.wp = window.wp || {};
 			window.wp.serviceWorkerWindow = new Workbox(
-				<?php echo wp_json_encode( $sw_src ); ?>,
-				<?php echo wp_json_encode( $register_options ); ?>
+				<?php echo wp_json_encode($sw_src); ?>,
+				<?php echo wp_json_encode($register_options); ?>
 			);
 			window.wp.serviceWorkerWindow.register();
 		}
@@ -208,21 +215,22 @@ function wp_print_service_workers() {
  * @param WP_Query $query Query.
  * @global WP $wp
  */
-function wp_service_worker_loaded( WP_Query $query ) {
-	global $wp;
-	if ( ! $query->is_main_query() ) {
-		return;
-	}
+function wp_service_worker_loaded(WP_Query $query)
+{
+    global $wp;
+    if (! $query->is_main_query()) {
+        return;
+    }
 
-	// Do not require rewrite rules to have been flushed.
-	if ( 'wp.serviceworker' === $wp->request ) {
-		$query->set( WP_Service_Workers::QUERY_VAR, 1 );
-	}
+    // Do not require rewrite rules to have been flushed.
+    if ('wp.serviceworker' === $wp->request) {
+        $query->set(WP_Service_Workers::QUERY_VAR, 1);
+    }
 
-	if ( $query->get( WP_Service_Workers::QUERY_VAR ) ) {
-		wp_service_workers()->serve_request();
-		die();
-	}
+    if ($query->get(WP_Service_Workers::QUERY_VAR)) {
+        wp_service_workers()->serve_request();
+        die();
+    }
 }
 
 /**
@@ -233,9 +241,10 @@ function wp_service_worker_loaded( WP_Query $query ) {
  * @since 0.2
  * @see wp_service_worker_loaded()
  */
-function wp_ajax_wp_service_worker() {
-	wp_service_workers()->serve_request();
-	die();
+function wp_ajax_wp_service_worker()
+{
+    wp_service_workers()->serve_request();
+    die();
 }
 
 /**
@@ -245,18 +254,19 @@ function wp_ajax_wp_service_worker() {
  *
  * @return bool If to skip waiting.
  */
-function wp_service_worker_skip_waiting() {
+function wp_service_worker_skip_waiting()
+{
 
-	/**
-	 * Filters whether the service worker should update automatically when a new version is available.
-	 *
-	 * For optioning out from skipping waiting and displaying a notification to update instead, you could do:
-	 *
-	 *     add_filter( 'wp_service_worker_skip_waiting', '__return_false' );
-	 *
-	 * @since 0.2
-	 *
-	 * @param bool $skip_waiting Whether to skip waiting for the Service Worker and update when an update is available.
-	 */
-	return (bool) apply_filters( 'wp_service_worker_skip_waiting', true );
+    /**
+     * Filters whether the service worker should update automatically when a new version is available.
+     *
+     * For optioning out from skipping waiting and displaying a notification to update instead, you could do:
+     *
+     *     add_filter( 'wp_service_worker_skip_waiting', '__return_false' );
+     *
+     * @since 0.2
+     *
+     * @param bool $skip_waiting Whether to skip waiting for the Service Worker and update when an update is available.
+     */
+    return (bool) apply_filters('wp_service_worker_skip_waiting', true);
 }

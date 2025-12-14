@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -16,6 +17,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
  * Apollo Membership CLI Commands
  */
 class Apollo_Membership_CLI_Command {
+
 	/**
 	 * List all membership types
 	 *
@@ -30,6 +32,7 @@ class Apollo_Membership_CLI_Command {
 
 		if ( empty( $memberships ) ) {
 			WP_CLI::warning( 'No memberships found.' );
+
 			return;
 		}
 

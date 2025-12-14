@@ -1125,26 +1125,26 @@ class EmailHubAdmin {
 							Nenhum log encontrado com os filtros atuais.
 						</td></tr>
 						<?php
-					else :
-						foreach ( $logs as $log ) :
-							$type_icons      = array(
-								'sent'             => '✅',
-								'failed'           => '❌',
-								'blocked'          => '🚫',
-								'suspicious'       => '⚠️',
-								'rate_limited'     => '⏱️',
-								'template_updated' => '📝',
-								'test_sent'        => '🧪',
-							);
-							$severity_colors = array(
-								'info'     => '#0073aa',
-								'warning'  => '#f0ad4e',
-								'error'    => '#dc3232',
-								'critical' => '#8b0000',
-							);
-							$type            = $log['type'] ?? 'sent';
-							$severity        = $log['severity'] ?? 'info';
-							?>
+						else :
+							foreach ( $logs as $log ) :
+								$type_icons      = array(
+									'sent'             => '✅',
+									'failed'           => '❌',
+									'blocked'          => '🚫',
+									'suspicious'       => '⚠️',
+									'rate_limited'     => '⏱️',
+									'template_updated' => '📝',
+									'test_sent'        => '🧪',
+								);
+								$severity_colors = array(
+									'info'     => '#0073aa',
+									'warning'  => '#f0ad4e',
+									'error'    => '#dc3232',
+									'critical' => '#8b0000',
+								);
+								$type            = $log['type'] ?? 'sent';
+								$severity        = $log['severity'] ?? 'info';
+								?>
 						<tr>
 							<td>
 								<span title="<?php echo esc_attr( $log['created_at'] ?? '' ); ?>">
@@ -1188,10 +1188,10 @@ class EmailHubAdmin {
 								<?php endif; ?>
 							</td>
 						</tr>
-							<?php
-					endforeach;
-endif;
-					?>
+								<?php
+							endforeach;
+		endif;
+						?>
 				</tbody>
 			</table>
 
@@ -1330,6 +1330,7 @@ endif;
 		foreach ( $data as $key => $value ) {
 			$text = str_replace( $key, $value, $text );
 		}
+
 		return $text;
 	}
 
@@ -1338,6 +1339,7 @@ endif;
 	 */
 	private static function getTestData(): array {
 		$user = wp_get_current_user();
+
 		return array(
 			'[user-name]'                => $user->user_login,
 			'[display-name]'             => $user->display_name,
@@ -1451,6 +1453,7 @@ endif;
 		foreach ( self::$placeholders as $cat ) {
 			$count += count( $cat['items'] );
 		}
+
 		return $count;
 	}
 
@@ -1463,6 +1466,7 @@ endif;
 				return $cat['items'][ $placeholder ];
 			}
 		}
+
 		return array();
 	}
 
@@ -1473,6 +1477,7 @@ endif;
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
+
 		return is_plugin_active( $plugin_slug . '/' . $plugin_slug . '.php' );
 	}
 
@@ -1979,4 +1984,3 @@ endif;
 
 // Initialize
 add_action( 'plugins_loaded', array( EmailHubAdmin::class, 'init' ), 20 );
-

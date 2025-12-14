@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,12 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * REST Bootstrap class
  */
 class Apollo_Core_Rest_Bootstrap {
+
 	/**
 	 * API namespace
 	 *
 	 * @var string
 	 */
-	const NAMESPACE = 'apollo/v1';
+	public const NAMESPACE = 'apollo/v1';
 
 	/**
 	 * Initialize

@@ -12,133 +12,133 @@
  * @version 2.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-require_once plugin_dir_path( __FILE__ ) . '../includes/helpers/event-data-helper.php';
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
 
 get_header();
 
 $local_id = get_the_ID();
-if ( get_post_type( $local_id ) !== 'event_local' ) {
-	wp_die( __( 'Este template é apenas para Locais.', 'apollo-events-manager' ) );
+if (get_post_type($local_id) !== 'event_local') {
+    wp_die(__('Este template é apenas para Locais.', 'apollo-events-manager'));
 }
 
 // ============================================
 // GET LOCAL DATA
 // ============================================
-$local_name = apollo_get_post_meta( $local_id, '_local_name', true ) ?: get_the_title();
+$local_name = apollo_get_post_meta($local_id, '_local_name', true) ?: get_the_title();
 
 // Add data attribute for cursor trail effect
 $local_name_attrs  = ' data-cursor-trail="true"';
-$local_description = apollo_get_post_meta( $local_id, '_local_description', true ) ?: get_the_content();
-$local_address     = apollo_get_post_meta( $local_id, '_local_address', true );
-$local_city        = apollo_get_post_meta( $local_id, '_local_city', true );
-$local_state       = apollo_get_post_meta( $local_id, '_local_state', true );
-$local_region      = apollo_get_post_meta( $local_id, '_local_region', true );
-$local_capacity    = apollo_get_post_meta( $local_id, '_local_capacity', true );
+$local_description = apollo_get_post_meta($local_id, '_local_description', true) ?: get_the_content();
+$local_address     = apollo_get_post_meta($local_id, '_local_address', true);
+$local_city        = apollo_get_post_meta($local_id, '_local_city', true);
+$local_state       = apollo_get_post_meta($local_id, '_local_state', true);
+$local_region      = apollo_get_post_meta($local_id, '_local_region', true);
+$local_capacity    = apollo_get_post_meta($local_id, '_local_capacity', true);
 
 // Get coordinates - try multiple meta keys
-$local_lat = apollo_get_post_meta( $local_id, '_local_latitude', true );
-if ( empty( $local_lat ) ) {
-	$local_lat = apollo_get_post_meta( $local_id, '_local_lat', true );
+$local_lat = apollo_get_post_meta($local_id, '_local_latitude', true);
+if (empty($local_lat)) {
+    $local_lat = apollo_get_post_meta($local_id, '_local_lat', true);
 }
 
-$local_lng = apollo_get_post_meta( $local_id, '_local_longitude', true );
-if ( empty( $local_lng ) ) {
-	$local_lng = apollo_get_post_meta( $local_id, '_local_lng', true );
+$local_lng = apollo_get_post_meta($local_id, '_local_longitude', true);
+if (empty($local_lng)) {
+    $local_lng = apollo_get_post_meta($local_id, '_local_lng', true);
 }
 
 // Get local images (up to 5)
-$local_images = array();
-for ( $i = 1; $i <= 5; $i++ ) {
-	$img = apollo_get_post_meta( $local_id, '_local_image_' . $i, true );
-	if ( ! empty( $img ) ) {
-		// Handle both URL and attachment ID
-		if ( is_numeric( $img ) ) {
-			$img_url = wp_get_attachment_url( $img );
-			if ( $img_url ) {
-				$local_images[] = $img_url;
-			}
-		} else {
-			$local_images[] = $img;
-		}
-	}
+$local_images = [];
+for ($i = 1; $i <= 5; $i++) {
+    $img = apollo_get_post_meta($local_id, '_local_image_' . $i, true);
+    if (! empty($img)) {
+        // Handle both URL and attachment ID
+        if (is_numeric($img)) {
+            $img_url = wp_get_attachment_url($img);
+            if ($img_url) {
+                $local_images[] = $img_url;
+            }
+        } else {
+            $local_images[] = $img;
+        }
+    }
 }
 
 // Get featured image if no custom images
-if ( empty( $local_images ) && has_post_thumbnail( $local_id ) ) {
-	$local_images[] = get_the_post_thumbnail_url( $local_id, 'large' );
+if (empty($local_images) && has_post_thumbnail($local_id)) {
+    $local_images[] = get_the_post_thumbnail_url($local_id, 'large');
 }
 
 // ============================================
 // GET FUTURE EVENTS FOR THIS LOCAL
 // ============================================
-$today         = date( 'Y-m-d' );
+$today         = date('Y-m-d');
 $future_events = get_posts(
-	array(
-		'post_type'      => 'event_listing',
-		'post_status'    => 'publish',
-		'posts_per_page' => -1,
-		'meta_query'     => array(
-			array(
-				'key'     => '_event_local_ids',
-				'value'   => strval( $local_id ),
-				'compare' => '=',
-			),
-			array(
-				'key'     => '_event_start_date',
-				'value'   => $today,
-				'compare' => '>=',
-			),
-		),
-		'meta_key'       => '_event_start_date',
-		'orderby'        => 'meta_value',
-		'order'          => 'ASC',
-	)
+    [
+        'post_type'      => 'event_listing',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'meta_query'     => [
+            [
+                'key'     => '_event_local_ids',
+                'value'   => strval($local_id),
+                'compare' => '=',
+            ],
+            [
+                'key'     => '_event_start_date',
+                'value'   => $today,
+                'compare' => '>=',
+            ],
+        ],
+        'meta_key' => '_event_start_date',
+        'orderby'  => 'meta_value',
+        'order'    => 'ASC',
+    ]
 );
 
 // Fallback: try serialized array search
-if ( empty( $future_events ) ) {
-	$future_events = get_posts(
-		array(
-			'post_type'      => 'event_listing',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'meta_query'     => array(
-				array(
-					'key'     => '_event_local_ids',
-					'value'   => serialize( strval( $local_id ) ),
-					'compare' => 'LIKE',
-				),
-				array(
-					'key'     => '_event_start_date',
-					'value'   => $today,
-					'compare' => '>=',
-				),
-			),
-			'meta_key'       => '_event_start_date',
-			'orderby'        => 'meta_value',
-			'order'          => 'ASC',
-		)
-	);
+if (empty($future_events)) {
+    $future_events = get_posts(
+        [
+            'post_type'      => 'event_listing',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'meta_query'     => [
+                [
+                    'key'     => '_event_local_ids',
+                    'value'   => serialize(strval($local_id)),
+                    'compare' => 'LIKE',
+                ],
+                [
+                    'key'     => '_event_start_date',
+                    'value'   => $today,
+                    'compare' => '>=',
+                ],
+            ],
+            'meta_key' => '_event_start_date',
+            'orderby'  => 'meta_value',
+            'order'    => 'ASC',
+        ]
+    );
 }//end if
 
 // Enqueue Leaflet.js for map
-wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true );
-wp_enqueue_style( 'leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', array(), '1.9.4' );
+wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', true);
+wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
 
 // Enqueue Tailwind CSS if available
-if ( function_exists( 'apollo_shadcn_enqueue' ) ) {
-	apollo_shadcn_enqueue();
+if (function_exists('apollo_shadcn_enqueue')) {
+    apollo_shadcn_enqueue();
 }
 
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo esc_html( $local_name ); ?> | Apollo Events</title>
+	<title><?php echo esc_html($local_name); ?> | Apollo Events</title>
 	<?php wp_head(); ?>
 	
 	<style>
@@ -303,58 +303,58 @@ if ( function_exists( 'apollo_shadcn_enqueue' ) ) {
 	}
 	</style>
 </head>
-<body <?php body_class( 'apollo-local-single' ); ?>>
+<body <?php body_class('apollo-local-single'); ?>>
 
 <main class="apollo-local-single">
 	
 	<!-- Local Header -->
 	<header class="local-header">
-		<h1<?php echo esc_attr( $local_name_attrs ); ?>><?php echo esc_html( $local_name ); ?></h1>
+		<h1<?php echo esc_attr($local_name_attrs); ?>><?php echo esc_html($local_name); ?></h1>
 		
 		<div class="local-meta">
-			<?php if ( $local_address ) : ?>
+			<?php if ($local_address) : ?>
 				<div class="local-meta-item" data-reveal="true" data-reveal-delay="100">
 					<i class="ri-map-pin-line"></i>
-					<span><?php echo esc_html( $local_address ); ?></span>
+					<span><?php echo esc_html($local_address); ?></span>
 				</div>
 			<?php endif; ?>
 			
-			<?php if ( $local_city || $local_state ) : ?>
+			<?php if ($local_city || $local_state) : ?>
 				<div class="local-meta-item">
 					<i class="ri-building-line"></i>
 					<span>
 						<?php
-						echo esc_html( trim( ( $local_city ?: '' ) . ( $local_city && $local_state ? ', ' : '' ) . ( $local_state ?: '' ) ) );
-						?>
+                        echo esc_html(trim(($local_city ?: '') . ($local_city && $local_state ? ', ' : '') . ($local_state ?: '')));
+			    ?>
 					</span>
 				</div>
 			<?php endif; ?>
 			
-			<?php if ( $local_capacity ) : ?>
+			<?php if ($local_capacity) : ?>
 				<div class="local-meta-item">
 					<i class="ri-group-line"></i>
-					<span><?php echo esc_html( number_format_i18n( $local_capacity ) ); ?> pessoas</span>
+					<span><?php echo esc_html(number_format_i18n($local_capacity)); ?> pessoas</span>
 				</div>
 			<?php endif; ?>
 		</div>
 		
-		<?php if ( $local_description ) : ?>
+		<?php if ($local_description) : ?>
 			<div class="local-description">
-				<?php echo wp_kses_post( wpautop( $local_description ) ); ?>
+				<?php echo wp_kses_post(wpautop($local_description)); ?>
 			</div>
 		<?php endif; ?>
 	</header>
 	
 	<!-- Map Section -->
 	<?php
-	if ( ! empty( $local_lat ) && ! empty( $local_lng ) && is_numeric( $local_lat ) && is_numeric( $local_lng ) ) :
-		$lat_float = (float) $local_lat;
-		$lng_float = (float) $local_lng;
+    if (! empty($local_lat) && ! empty($local_lng) && is_numeric($local_lat) && is_numeric($local_lng)) :
+        $lat_float = (float) $local_lat;
+        $lng_float = (float) $local_lng;
 
-		if ( $lat_float >= -90 && $lat_float <= 90 && $lng_float >= -180 && $lng_float <= 180 ) :
-			?>
+        if ($lat_float >= -90 && $lat_float <= 90 && $lng_float >= -180 && $lng_float <= 180) :
+            ?>
 		<div class="local-map-container">
-			<div id="localMap" data-lat="<?php echo esc_attr( $lat_float ); ?>" data-lng="<?php echo esc_attr( $lng_float ); ?>"></div>
+			<div id="localMap" data-lat="<?php echo esc_attr($lat_float); ?>" data-lng="<?php echo esc_attr($lng_float); ?>"></div>
 		</div>
 		
 		<script>
@@ -391,7 +391,7 @@ if ( function_exists( 'apollo_shadcn_enqueue' ) ) {
 				
 				L.marker([lat, lng])
 					.addTo(map)
-					.bindPopup('<?php echo esc_js( $local_name ); ?>')
+					.bindPopup('<?php echo esc_js($local_name); ?>')
 					.openPopup();
 				
 				console.log('✅ Map rendered successfully');
@@ -405,24 +405,24 @@ if ( function_exists( 'apollo_shadcn_enqueue' ) ) {
 			<p style="color: var(--wp--preset--color--contrast-2, #666);">Coordenadas inválidas</p>
 		</div>
 		<?php
-		endif;
-	else :
-		?>
+	endif;
+else :
+    ?>
 		<div class="local-map-container" style="display: flex; align-items: center; justify-content: center;">
 			<p style="color: var(--wp--preset--color--contrast-2, #666);">Mapa disponível em breve</p>
 		</div>
 	<?php endif; ?>
 	
 	<!-- Image Gallery -->
-	<?php if ( ! empty( $local_images ) ) : ?>
+	<?php if (! empty($local_images)) : ?>
 		<section class="local-gallery">
 			<h2 class="local-gallery-title">
 				<i class="ri-image-line"></i> Galeria
 			</h2>
 			<div class="local-gallery-grid">
-				<?php foreach ( $local_images as $img_url ) : ?>
-					<div class="local-gallery-item" onclick="window.open('<?php echo esc_url( $img_url ); ?>', '_blank')">
-						<img src="<?php echo esc_url( $img_url ); ?>" alt="<?php echo esc_attr( $local_name ); ?>" loading="lazy">
+				<?php foreach ($local_images as $img_url) : ?>
+					<div class="local-gallery-item" onclick="window.open('<?php echo esc_url($img_url); ?>', '_blank')">
+						<img src="<?php echo esc_url($img_url); ?>" alt="<?php echo esc_attr($local_name); ?>" loading="lazy">
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -435,37 +435,37 @@ if ( function_exists( 'apollo_shadcn_enqueue' ) ) {
 			<i class="ri-calendar-event-line"></i> Próximos Eventos
 		</h2>
 		
-		<?php if ( ! empty( $future_events ) ) : ?>
+		<?php if (! empty($future_events)) : ?>
 			<div class="local-events-list">
 				<?php
-				foreach ( $future_events as $event ) :
-					$event_id         = $event->ID;
-					$event_title      = apollo_get_post_meta( $event_id, '_event_title', true ) ?: $event->post_title;
-					$event_start_date = apollo_get_post_meta( $event_id, '_event_start_date', true );
-					$event_start_time = apollo_get_post_meta( $event_id, '_event_start_time', true );
-					$event_banner     = Apollo_Event_Data_Helper::get_banner_url( $event_id );
-					$event_permalink  = get_permalink( $event_id );
-					?>
+            foreach ($future_events as $event) :
+                $event_id         = $event->ID;
+                $event_title      = apollo_get_post_meta($event_id, '_event_title', true) ?: $event->post_title;
+                $event_start_date = apollo_get_post_meta($event_id, '_event_start_date', true);
+                $event_start_time = apollo_get_post_meta($event_id, '_event_start_time', true);
+                $event_banner     = Apollo_Event_Data_Helper::get_banner_url($event_id);
+                $event_permalink  = get_permalink($event_id);
+                ?>
 					<div class="local-event-card">
-						<a href="<?php echo esc_url( $event_permalink ); ?>">
-							<?php if ( $event_banner ) : ?>
+						<a href="<?php echo esc_url($event_permalink); ?>">
+							<?php if ($event_banner) : ?>
 								<div style="margin-bottom: 1rem;">
-									<img src="<?php echo esc_url( $event_banner ); ?>" alt="<?php echo esc_attr( $event_title ); ?>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+									<img src="<?php echo esc_url($event_banner); ?>" alt="<?php echo esc_attr($event_title); ?>" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
 								</div>
 							<?php endif; ?>
 							
-							<h3 class="local-event-title"><?php echo esc_html( $event_title ); ?></h3>
+							<h3 class="local-event-title"><?php echo esc_html($event_title); ?></h3>
 							
 							<div class="local-event-date">
-								<?php if ( $event_start_date ) : ?>
+								<?php if ($event_start_date) : ?>
 									<i class="ri-calendar-line"></i>
-									<?php echo esc_html( date_i18n( 'd/m/Y', strtotime( $event_start_date ) ) ); ?>
+									<?php echo esc_html(date_i18n('d/m/Y', strtotime($event_start_date))); ?>
 								<?php endif; ?>
 								
-								<?php if ( $event_start_time ) : ?>
+								<?php if ($event_start_time) : ?>
 									<span style="margin-left: 0.5rem;">
 										<i class="ri-time-line"></i>
-										<?php echo esc_html( $event_start_time ); ?>
+										<?php echo esc_html($event_start_time); ?>
 									</span>
 								<?php endif; ?>
 							</div>

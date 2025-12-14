@@ -18,87 +18,87 @@
  * @package Apollo_Events_Manager
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // Get additional data if not set
-if ( ! isset( $local_id ) ) {
-	$local_id = get_the_ID();
+if (! isset($local_id)) {
+    $local_id = get_the_ID();
 }
-if ( ! isset( $local_name ) ) {
-	$local_name = get_the_title( $local_id );
+if (! isset($local_name)) {
+    $local_name = get_the_title($local_id);
 }
-if ( ! isset( $local_photo ) ) {
-	$local_photo = get_the_post_thumbnail_url( $local_id, 'large' );
+if (! isset($local_photo)) {
+    $local_photo = get_the_post_thumbnail_url($local_id, 'large');
 }
-if ( ! isset( $local_link ) ) {
-	$local_link = get_permalink( $local_id );
+if (! isset($local_link)) {
+    $local_link = get_permalink($local_id);
 }
-if ( ! isset( $local_region ) ) {
-	$local_region = apollo_get_post_meta( $local_id, '_local_region', true );
+if (! isset($local_region)) {
+    $local_region = apollo_get_post_meta($local_id, '_local_region', true);
 }
-if ( ! isset( $local_address ) ) {
-	$local_address = apollo_get_post_meta( $local_id, '_local_address', true );
+if (! isset($local_address)) {
+    $local_address = apollo_get_post_meta($local_id, '_local_address', true);
 }
-if ( ! isset( $local_capacity ) ) {
-	$local_capacity = apollo_get_post_meta( $local_id, '_local_capacity', true );
+if (! isset($local_capacity)) {
+    $local_capacity = apollo_get_post_meta($local_id, '_local_capacity', true);
 }
 
 // Default placeholder image
-if ( ! $local_photo ) {
-	$local_photo = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800';
+if (! $local_photo) {
+    $local_photo = 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800';
 }
 
 ?>
 
-<div class="apollo-local-card shadcn-card" data-local-id="<?php echo absint( $local_id ); ?>">
-	<a href="<?php echo esc_url( $local_link ); ?>" class="card-link">
+<div class="apollo-local-card shadcn-card" data-local-id="<?php echo absint($local_id); ?>">
+	<a href="<?php echo esc_url($local_link); ?>" class="card-link">
 		<div class="card-image">
-			<img src="<?php echo esc_url( $local_photo ); ?>" 
-				alt="<?php echo esc_attr( $local_name ); ?>"
+			<img src="<?php echo esc_url($local_photo); ?>" 
+				alt="<?php echo esc_attr($local_name); ?>"
 				loading="lazy">
 			<div class="image-overlay"></div>
 		</div>
 		
 		<div class="card-content">
 			<div class="local-header">
-				<h3 class="local-name"><?php echo esc_html( $local_name ); ?></h3>
+				<h3 class="local-name"><?php echo esc_html($local_name); ?></h3>
 				
-				<?php if ( $local_region ) : ?>
+				<?php if ($local_region) : ?>
 					<p class="local-region">
 						<i class="ri-map-pin-line"></i>
-						<?php echo esc_html( $local_region ); ?>
+						<?php echo esc_html($local_region); ?>
 					</p>
 				<?php endif; ?>
 				
-				<?php if ( $local_capacity ) : ?>
+				<?php if ($local_capacity) : ?>
 					<p class="local-capacity">
 						<i class="ri-group-line"></i>
 						<?php
-						printf(
-							esc_html__( 'Capacidade: %s pessoas', 'apollo-events-manager' ),
-							esc_html( number_format_i18n( $local_capacity ) )
-						);
-						?>
+                        printf(
+                            esc_html__('Capacidade: %s pessoas', 'apollo-events-manager'),
+                            esc_html(number_format_i18n($local_capacity))
+                        );
+				    ?>
 					</p>
 				<?php endif; ?>
 			</div>
 			
-			<?php if ( ! empty( $next_events ) ) : ?>
+			<?php if (! empty($next_events)) : ?>
 				<div class="local-next-events">
 					<h4 class="events-title">
 						<i class="ri-calendar-event-line"></i>
-						<?php esc_html_e( 'Próximos Eventos', 'apollo-events-manager' ); ?>
+						<?php esc_html_e('Próximos Eventos', 'apollo-events-manager'); ?>
 					</h4>
 					<ul class="events-list">
-					<?php foreach ( $next_events as $event ) : ?>
+					<?php foreach ($next_events as $event) : ?>
 						<li class="event-item">
-							<a href="<?php echo esc_url( $event['link'] ); ?>" 
+							<a href="<?php echo esc_url($event['link']); ?>" 
 								class="event-link"
 								onclick="event.stopPropagation();">
-								<span class="event-title"><?php echo esc_html( $event['title'] ); ?></span>
+								<span class="event-title"><?php echo esc_html($event['title']); ?></span>
 								<span class="event-date">
 									<i class="ri-time-line"></i>
-									<?php echo esc_html( date_i18n( 'd/m', strtotime( $event['date'] ) ) ); ?>
+									<?php echo esc_html(date_i18n('d/m', strtotime($event['date']))); ?>
 								</span>
 							</a>
 						</li>
@@ -109,16 +109,16 @@ if ( ! $local_photo ) {
 				<div class="no-events">
 					<i class="ri-calendar-line"></i>
 					<?php
-					// Show the generic “no events” placeholder when this venue has no upcoming events.
-					echo esc_html( apollo_get_placeholder( 'APOLLO_PLACEHOLDER_NO_EVENTS' ) );
-					?>
+                    // Show the generic “no events” placeholder when this venue has no upcoming events.
+                    echo esc_html(apollo_get_placeholder('APOLLO_PLACEHOLDER_NO_EVENTS'));
+			    ?>
 				</div>
 			<?php endif; ?>
 		</div>
 		
 		<div class="card-footer">
 			<span class="view-venue">
-				<?php esc_html_e( 'Ver Local', 'apollo-events-manager' ); ?>
+				<?php esc_html_e('Ver Local', 'apollo-events-manager'); ?>
 				<i class="ri-arrow-right-line"></i>
 			</span>
 		</div>

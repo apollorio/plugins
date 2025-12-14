@@ -3,48 +3,48 @@
  * Template: Editor drag-and-drop da página do usuário
  * Usa Tailwind + shadcn + Muuri
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-$user_id = get_query_var( 'apollo_user_id' );
-if ( ! $user_id ) {
-	wp_die( 'Usuário não encontrado' );
+$user_id = get_query_var('apollo_user_id');
+if (! $user_id) {
+    wp_die('Usuário não encontrado');
 }
 
-$user = get_userdata( $user_id );
-if ( ! $user ) {
-	wp_die( 'Usuário não encontrado' );
+$user = get_userdata($user_id);
+if (! $user) {
+    wp_die('Usuário não encontrado');
 }
 
-$post_id = get_user_meta( $user_id, 'apollo_user_page_id', true );
-if ( ! $post_id ) {
-	wp_die( 'Página do usuário não encontrada' );
+$post_id = get_user_meta($user_id, 'apollo_user_page_id', true);
+if (! $post_id) {
+    wp_die('Página do usuário não encontrada');
 }
 
 // Check permissions
-if ( get_current_user_id() != $user_id && ! current_user_can( 'edit_post', $post_id ) ) {
-	wp_die( 'Acesso negado.' );
+if (get_current_user_id() != $user_id && ! current_user_can('edit_post', $post_id)) {
+    wp_die('Acesso negado.');
 }
 
-$layout = get_post_meta( $post_id, 'apollo_userpage_layout_v1', true );
-if ( ! is_array( $layout ) ) {
-	$layout = [ 'grid' => [] ];
+$layout = get_post_meta($post_id, 'apollo_userpage_layout_v1', true);
+if (! is_array($layout)) {
+    $layout = [ 'grid' => [] ];
 }
 
 // Enqueue assets
-wp_enqueue_style( 'apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0' );
-wp_enqueue_style( 'remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0' );
-wp_enqueue_script( 'sortablejs', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', [], '1.15.0', true );
+wp_enqueue_style('apollo-uni-css', 'https://assets.apollo.rio.br/uni.css', [], '2.0.0');
+wp_enqueue_style('remixicon', 'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css', [], '4.7.0');
+wp_enqueue_script('sortablejs', 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js', [], '1.15.0', true);
 // Load Motion.dev if available
-if ( function_exists( 'apollo_shadcn_init' ) ) {
-	apollo_shadcn_init();
+if (function_exists('apollo_shadcn_init')) {
+    apollo_shadcn_init();
 }
 
 get_header();
 ?>
 
-<div class="container max-w-4xl mx-auto px-4 py-8" data-user-id="<?php echo esc_attr( $user_id ); ?>">
+<div class="container max-w-4xl mx-auto px-4 py-8" data-user-id="<?php echo esc_attr($user_id); ?>">
   
 	<!-- Header do Editor -->
 	<header class="editor-header flex items-center justify-between mb-8">
@@ -53,7 +53,7 @@ get_header();
 		<p class="text-muted-foreground">Arraste e reorganize os blocos</p>
 	</div>
 	<div class="flex gap-2">
-		<a href="<?php echo esc_url( remove_query_arg( 'action' ) ); ?>" 
+		<a href="<?php echo esc_url(remove_query_arg('action')); ?>" 
 		class="btn btn-outline inline-flex items-center gap-2">
 		<i class="ri-eye-line"></i>
 		Visualizar
@@ -73,13 +73,13 @@ get_header();
 	</h3>
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
 		<?php
-		$widgets = Apollo_User_Page_Widgets::get_widgets();
-		foreach ( $widgets as $widget_id => $widget ) :
-			?>
+        $widgets = Apollo_User_Page_Widgets::get_widgets();
+foreach ($widgets as $widget_id => $widget) :
+    ?>
 		<button class="add-widget-btn btn btn-outline text-sm py-2" 
-				data-widget="<?php echo esc_attr( $widget_id ); ?>">
-			<i class="ri-<?php echo esc_attr( $widget['icon'] ?? 'puzzle' ); ?>-line"></i>
-			<?php echo esc_html( $widget['title'] ); ?>
+				data-widget="<?php echo esc_attr($widget_id); ?>">
+			<i class="ri-<?php echo esc_attr($widget['icon'] ?? 'puzzle'); ?>-line"></i>
+			<?php echo esc_html($widget['title']); ?>
 		</button>
 		<?php endforeach; ?>
 	</div>
@@ -87,22 +87,22 @@ get_header();
 
 	<!-- Editor Drag-and-Drop -->
 	<div id="userpage-editor" class="editor-grid grid gap-4 md:grid-cols-2 min-h-[300px] border-2 border-dashed rounded-lg p-4 bg-muted/20">
-	<?php if ( ! empty( $layout['grid'] ) ) : ?>
+	<?php if (! empty($layout['grid'])) : ?>
 		<?php
-		foreach ( $layout['grid'] as $index => $widget_data ) :
-			$widget_id = $widget_data['widget'] ?? '';
-			$widget    = $widgets[ $widget_id ] ?? null;
-			if ( ! $widget ) {
-				continue;
-			}
-			?>
+        foreach ($layout['grid'] as $index => $widget_data) :
+            $widget_id = $widget_data['widget'] ?? '';
+            $widget    = $widgets[ $widget_id ] ?? null;
+            if (! $widget) {
+                continue;
+            }
+            ?>
 		<div class="widget-item card p-4 bg-card border rounded-lg cursor-move" 
-			data-widget-id="<?php echo esc_attr( $widget_id ); ?>"
-			data-index="<?php echo esc_attr( $index ); ?>">
+			data-widget-id="<?php echo esc_attr($widget_id); ?>"
+			data-index="<?php echo esc_attr($index); ?>">
 			<div class="widget-header flex items-center justify-between mb-2">
 			<span class="font-semibold text-sm flex items-center gap-2">
-				<i class="ri-<?php echo esc_attr( $widget['icon'] ?? 'puzzle' ); ?>-line"></i>
-				<?php echo esc_html( $widget['title'] ); ?>
+				<i class="ri-<?php echo esc_attr($widget['icon'] ?? 'puzzle'); ?>-line"></i>
+				<?php echo esc_html($widget['title']); ?>
 			</span>
 			<button class="remove-widget-btn text-destructive hover:bg-destructive/10 rounded p-1">
 				<i class="ri-delete-bin-line"></i>
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		body: new URLSearchParams({
 		action: 'apollo_userpage_save',
-		nonce: '<?php echo wp_create_nonce( 'apollo_userpage_save' ); ?>',
+		nonce: '<?php echo wp_create_nonce('apollo_userpage_save'); ?>',
 		user_id: userId,
 		layout: JSON.stringify(layout)
 		})

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Apollo\API;
@@ -281,6 +282,7 @@ class Response {
 		);
 
 		$response->header( 'Retry-After', (string) $retry_after );
+
 		return $response;
 	}
 

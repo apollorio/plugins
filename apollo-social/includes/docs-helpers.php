@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Documents - Helper Functions
  *
@@ -59,4 +60,3 @@ function aprio_docs_get_pdf_url( int $doc_id ): ?string {
 
 	return \Apollo\Modules\Documents\DocumentsPdfService::get_pdf_url( $doc_id );
 }
-

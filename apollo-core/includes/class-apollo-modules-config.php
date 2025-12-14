@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Modules & Limits Configuration
  *
@@ -118,6 +119,7 @@ class Apollo_Modules_Config {
 		$modules = array_merge( self::$default_modules, is_array( $saved ) ? $saved : array() );
 
 		self::$modules_cache = $modules;
+
 		return $modules;
 	}
 
@@ -129,6 +131,7 @@ class Apollo_Modules_Config {
 	 */
 	public static function is_module_enabled( string $module ): bool {
 		$modules = self::get_modules();
+
 		return ! empty( $modules[ $module ] );
 	}
 
@@ -206,9 +209,11 @@ class Apollo_Modules_Config {
 	public static function toggle_module( string $module, int $actor_id ): bool {
 		if ( self::is_module_enabled( $module ) ) {
 			self::disable_module( $module, $actor_id );
+
 			return false;
 		} else {
 			self::enable_module( $module, $actor_id );
+
 			return true;
 		}
 	}
@@ -284,6 +289,7 @@ class Apollo_Modules_Config {
 		$limits = array_merge( self::$default_limits, is_array( $saved ) ? $saved : array() );
 
 		self::$limits_cache = $limits;
+
 		return $limits;
 	}
 
@@ -296,6 +302,7 @@ class Apollo_Modules_Config {
 	 */
 	public static function get_limit( string $key, int $default = 0 ): int {
 		$limits = self::get_limits();
+
 		return isset( $limits[ $key ] ) ? (int) $limits[ $key ] : $default;
 	}
 
@@ -416,6 +423,7 @@ class Apollo_Modules_Config {
 		}
 
 		$limit = self::get_limit( $limit_key );
+
 		return $current >= $limit;
 	}
 
@@ -492,6 +500,7 @@ class Apollo_Modules_Config {
 			case 'bubble':
 				// Bubble members.
 				$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
+
 				return is_array( $bolha ) ? count( $bolha ) : 0;
 
 			case 'comunas':
@@ -559,7 +568,7 @@ class Apollo_Modules_Config {
 			);
 		}
 
-		list( $count_key, $limit_key ) = $mapping[ $resource ];
+		list($count_key, $limit_key) = $mapping[ $resource ];
 
 		$current = self::get_user_resource_count( $user_id, $count_key );
 		$check   = self::check_limit( $user_id, $limit_key, $current );

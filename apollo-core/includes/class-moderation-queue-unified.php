@@ -177,6 +177,7 @@ class Apollo_Moderation_Queue_Unified {
 						$count
 					)
 				);
+
 				break;
 			}
 		}
@@ -310,8 +311,8 @@ class Apollo_Moderation_Queue_Unified {
 
 		// Group by source for easy filtering
 		$by_source = array(
-			'cena-rio'  => array_filter( $items, fn( $i ) => $i['is_cena_rio'] ),
-			'wordpress' => array_filter( $items, fn( $i ) => ! $i['is_cena_rio'] ),
+			'cena-rio'  => array_filter( $items, fn ( $i ) => $i['is_cena_rio'] ),
+			'wordpress' => array_filter( $items, fn ( $i ) => ! $i['is_cena_rio'] ),
 		);
 
 		return new WP_REST_Response(
@@ -401,6 +402,7 @@ class Apollo_Moderation_Queue_Unified {
 			}
 			++$counts[ $type ];
 		}
+
 		return $counts;
 	}
 
@@ -484,6 +486,7 @@ class Apollo_Moderation_Queue_Unified {
 		if ( 'cena-rio' === $source ) {
 			// CENA-RIO events only appear when confirmed by industry
 			$cena_status = get_post_meta( $post_id, '_apollo_cena_status', true );
+
 			return 'confirmed' === $cena_status;
 		}
 

@@ -180,7 +180,7 @@ function apollo_rest_approve_content( $request ) {
 			return new WP_Error(
 				'capability_disabled',
 				sprintf(
-				/* translators: %s: post type */
+					/* translators: %s: post type */
 					__( 'Publishing %s is not currently enabled.', 'apollo-core' ),
 					$post->post_type
 				),
@@ -228,7 +228,7 @@ function apollo_rest_approve_content( $request ) {
 		);
 	} catch ( Exception $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
 					'[Apollo Core] Content approval error - Post: %d, Message: %s',

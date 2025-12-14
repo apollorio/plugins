@@ -11,45 +11,45 @@
  * @since 2.0.0
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 use Apollo\Modules\Documents\DocumentsManager;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Base JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
+        // Base JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
 
-		// Inline sign-document-specific styles.
-		$sign_doc_css = '
+        // Inline sign-document-specific styles.
+        $sign_doc_css = '
 			:root {
 				--font-primary: "Urbanist", system-ui, sans-serif;
 				--bg-main: #ffffff;
@@ -76,22 +76,22 @@ add_action(
 				body, html { max-width: 550px; margin: 0 auto; }
 			}
 		';
-		wp_add_inline_style( 'apollo-uni-css', $sign_doc_css );
-	},
-	10
+        wp_add_inline_style('apollo-uni-css', $sign_doc_css);
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
 // Verificar token na URL.
-$token_raw = get_query_var( 'signature_token' );
-$token     = ! empty( $token_raw ) ? $token_raw : ( isset( $args['token'] ) ? $args['token'] : '' );
+$token_raw = get_query_var('signature_token');
+$token     = ! empty($token_raw) ? $token_raw : (isset($args['token']) ? $args['token'] : '');
 
-if ( empty( $token ) ) {
-	wp_die( 'Token inválido', 'Erro', [ 'response' => 400 ] );
+if (empty($token)) {
+    wp_die('Token inválido', 'Erro', [ 'response' => 400 ]);
 }
 
 $doc_manager = new DocumentsManager();
@@ -102,70 +102,70 @@ $documents_table  = $wpdb->prefix . 'apollo_documents';
 
 // Buscar signature request.
 $signature = $wpdb->get_row(
-	$wpdb->prepare(
-		"SELECT s.*, d.*
+    $wpdb->prepare(
+        "SELECT s.*, d.*
      FROM {$signatures_table} s
      INNER JOIN {$documents_table} d ON s.document_id = d.id
      WHERE s.verification_token = %s",
-		$token
-	),
-	ARRAY_A
+        $token
+    ),
+    ARRAY_A
 );
 
-if ( ! $signature ) {
-	wp_die( 'Link de assinatura inválido ou expirado', 'Erro', [ 'response' => 404 ] );
+if (! $signature) {
+    wp_die('Link de assinatura inválido ou expirado', 'Erro', [ 'response' => 404 ]);
 }
 
 // Verificar se já foi assinado.
-$already_signed = ( $signature['status'] === 'signed' );
+$already_signed = ($signature['status'] === 'signed');
 
 // Get all signers for this document.
 $all_signers = $wpdb->get_results(
-	$wpdb->prepare(
-		"SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY id ASC",
-		$signature['document_id']
-	),
-	ARRAY_A
+    $wpdb->prepare(
+        "SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY id ASC",
+        $signature['document_id']
+    ),
+    ARRAY_A
 );
 
 // Compute stats.
-$total_signers     = count( $all_signers );
+$total_signers     = count($all_signers);
 $completed_signers = 0;
-foreach ( $all_signers as $s ) {
-	if ( $s['status'] === 'signed' ) {
-		++$completed_signers;
-	}
+foreach ($all_signers as $s) {
+    if ($s['status'] === 'signed') {
+        ++$completed_signers;
+    }
 }
 
 // Current user info - avoid overriding WP globals.
 $user_obj        = wp_get_current_user();
-$user_avatar     = get_avatar_url( $user_obj->ID, [ 'size' => 80 ] );
+$user_avatar     = get_avatar_url($user_obj->ID, [ 'size' => 80 ]);
 $user_name_raw   = $user_obj->display_name;
-$user_name       = ! empty( $user_name_raw ) ? $user_name_raw : 'Visitante';
+$user_name       = ! empty($user_name_raw) ? $user_name_raw : 'Visitante';
 $user_handle_raw = $user_obj->user_login;
-$user_handle     = ! empty( $user_handle_raw ) ? $user_handle_raw : 'guest';
+$user_handle     = ! empty($user_handle_raw) ? $user_handle_raw : 'guest';
 
 // Document info - avoid null coalesce for arrays.
-$doc_title_raw = isset( $signature['title'] ) ? $signature['title'] : '';
-$doc_title     = ! empty( $doc_title_raw ) ? $doc_title_raw : 'Documento';
-$doc_type_raw  = isset( $signature['type'] ) ? $signature['type'] : '';
-$doc_type      = ! empty( $doc_type_raw ) ? $doc_type_raw : 'documento';
+$doc_title_raw = isset($signature['title']) ? $signature['title'] : '';
+$doc_title     = ! empty($doc_title_raw) ? $doc_title_raw : 'Documento';
+$doc_type_raw  = isset($signature['type']) ? $signature['type'] : '';
+$doc_type      = ! empty($doc_type_raw) ? $doc_type_raw : 'documento';
 $doc_category  = $doc_type === 'planilha' ? 'Planilha' : 'Documento';
-$doc_id_value  = isset( $signature['document_id'] ) ? (int) $signature['document_id'] : 0;
-$doc_code      = 'APR-DOC-' . gmdate( 'Y' ) . '-' . str_pad( (string) $doc_id_value, 5, '0', STR_PAD_LEFT );
-$doc_date      = isset( $signature['created_at'] ) ? date_i18n( 'd M Y · H:i', strtotime( $signature['created_at'] ) ) : gmdate( 'd M Y' );
+$doc_id_value  = isset($signature['document_id']) ? (int) $signature['document_id'] : 0;
+$doc_code      = 'APR-DOC-' . gmdate('Y') . '-' . str_pad((string) $doc_id_value, 5, '0', STR_PAD_LEFT);
+$doc_date      = isset($signature['created_at']) ? date_i18n('d M Y · H:i', strtotime($signature['created_at'])) : gmdate('d M Y');
 $doc_pages     = 1;
 // Could be computed from content.
-$doc_content_raw = isset( $signature['content'] ) ? $signature['content'] : '';
+$doc_content_raw = isset($signature['content']) ? $signature['content'] : '';
 $doc_content     = $doc_content_raw;
 $doc_status      = $already_signed ? 'signed' : 'pending';
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full w-full bg-slate-50">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-	<title><?php echo esc_html( sprintf( __( 'Assinar: %s', 'apollo-social' ), $doc_title ) ); ?> - Apollo::Rio</title>
+	<title><?php echo esc_html(sprintf(__('Assinar: %s', 'apollo-social'), $doc_title)); ?> - Apollo::Rio</title>
 	<?php wp_head(); ?>
 </head>	<style>
 		:root {
@@ -468,23 +468,23 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 
 		<nav class="aprio-sidebar-nav" style="flex: 1; padding: 1rem; overflow-y: auto;">
 			<div style="padding: 0 0.25rem; margin-bottom: 0.5rem; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Navegação</div>
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><i class="ri-home-5-line" style="font-size: 1.125rem;"></i><span>Feed</span></a>
-			<a href="<?php echo esc_url( home_url( '/eventos/' ) ); ?>"><i class="ri-calendar-event-line" style="font-size: 1.125rem;"></i><span>Agenda</span></a>
-			<a href="<?php echo esc_url( home_url( '/comunidades/' ) ); ?>"><i class="ri-group-line" style="font-size: 1.125rem;"></i><span>Comunidades</span></a>
-			<a href="<?php echo esc_url( home_url( '/nucleos/' ) ); ?>"><i class="ri-layout-5-line" style="font-size: 1.125rem;"></i><span>Núcleos</span></a>
-			<a href="<?php echo esc_url( home_url( '/classificados/' ) ); ?>"><i class="ri-ticket-line" style="font-size: 1.125rem;"></i><span>Classificados</span></a>
-			<a href="<?php echo esc_url( home_url( '/docs/' ) ); ?>" aria-current="page"><i class="ri-file-list-3-line" style="font-size: 1.125rem;"></i><span>Docs & Contratos</span></a>
-			<a href="<?php echo esc_url( home_url( '/perfil/' ) ); ?>"><i class="ri-user-3-line" style="font-size: 1.125rem;"></i><span>Perfil</span></a>
+			<a href="<?php echo esc_url(home_url('/')); ?>"><i class="ri-home-5-line" style="font-size: 1.125rem;"></i><span>Feed</span></a>
+			<a href="<?php echo esc_url(home_url('/eventos/')); ?>"><i class="ri-calendar-event-line" style="font-size: 1.125rem;"></i><span>Agenda</span></a>
+			<a href="<?php echo esc_url(home_url('/comunidades/')); ?>"><i class="ri-group-line" style="font-size: 1.125rem;"></i><span>Comunidades</span></a>
+			<a href="<?php echo esc_url(home_url('/nucleos/')); ?>"><i class="ri-layout-5-line" style="font-size: 1.125rem;"></i><span>Núcleos</span></a>
+			<a href="<?php echo esc_url(home_url('/classificados/')); ?>"><i class="ri-ticket-line" style="font-size: 1.125rem;"></i><span>Classificados</span></a>
+			<a href="<?php echo esc_url(home_url('/docs/')); ?>" aria-current="page"><i class="ri-file-list-3-line" style="font-size: 1.125rem;"></i><span>Docs & Contratos</span></a>
+			<a href="<?php echo esc_url(home_url('/perfil/')); ?>"><i class="ri-user-3-line" style="font-size: 1.125rem;"></i><span>Perfil</span></a>
 		</nav>
 
 		<div style="border-top: 1px solid #f1f5f9; padding: 0.75rem 1rem;">
 			<div style="display: flex; align-items: center; gap: 0.75rem;">
 				<div style="height: 2rem; width: 2rem; border-radius: 9999px; overflow: hidden; background: #f1f5f9;">
-					<img src="<?php echo esc_url( $user_avatar ); ?>" alt="<?php echo esc_attr( $user_name ); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+					<img src="<?php echo esc_url($user_avatar); ?>" alt="<?php echo esc_attr($user_name); ?>" style="width: 100%; height: 100%; object-fit: cover;">
 				</div>
 				<div style="display: flex; flex-direction: column; line-height: 1.2;">
-					<span style="font-size: 12px; font-weight: 600; color: #0f172a;"><?php echo esc_html( $user_name ); ?></span>
-					<span style="font-size: 10px; color: #64748b;">@<?php echo esc_html( $user_handle ); ?></span>
+					<span style="font-size: 12px; font-weight: 600; color: #0f172a;"><?php echo esc_html($user_name); ?></span>
+					<span style="font-size: 10px; color: #64748b;">@<?php echo esc_html($user_handle); ?></span>
 				</div>
 			</div>
 		</div>
@@ -501,21 +501,21 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 						<i class="ri-arrow-left-line" style="font-size: 1.125rem;"></i>
 					</button>
 					<div class="hidden md:flex" style="flex-direction: column; line-height: 1.2; margin-left: 0.5rem;">
-						<h1 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0;"><?php esc_html_e( 'Assinatura de Documento', 'apollo-social' ); ?></h1>
-						<p style="font-size: 12px; color: #64748b; margin: 0;"><?php esc_html_e( 'Fluxo seguro, auditável e disponível para toda a rede Apollo', 'apollo-social' ); ?></p>
+						<h1 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin: 0;"><?php esc_html_e('Assinatura de Documento', 'apollo-social'); ?></h1>
+						<p style="font-size: 12px; color: #64748b; margin: 0;"><?php esc_html_e('Fluxo seguro, auditável e disponível para toda a rede Apollo', 'apollo-social'); ?></p>
 					</div>
 				</div>
 
 				<div style="display: flex; align-items: center; gap: 0.75rem;">
-					<?php if ( $doc_status === 'pending' ) : ?>
-					<span class="status-badge-pending hidden md:flex" data-ap-tooltip="<?php esc_attr_e( 'Aguardando assinaturas pendentes', 'apollo-social' ); ?>">
+					<?php if ($doc_status === 'pending') : ?>
+					<span class="status-badge-pending hidden md:flex" data-ap-tooltip="<?php esc_attr_e('Aguardando assinaturas pendentes', 'apollo-social'); ?>">
 						<span style="display: inline-block; height: 0.5rem; width: 0.5rem; border-radius: 9999px; background: #fbbf24; animation: pulse 2s infinite;"></span>
-						<?php esc_html_e( 'Pendente', 'apollo-social' ); ?>
+						<?php esc_html_e('Pendente', 'apollo-social'); ?>
 					</span>
 					<?php else : ?>
-					<span class="status-badge-signed hidden md:flex" data-ap-tooltip="<?php esc_attr_e( 'Documento assinado com sucesso', 'apollo-social' ); ?>">
+					<span class="status-badge-signed hidden md:flex" data-ap-tooltip="<?php esc_attr_e('Documento assinado com sucesso', 'apollo-social'); ?>">
 						<span style="display: inline-block; height: 0.5rem; width: 0.5rem; border-radius: 9999px; background: #22c55e;"></span>
-						<?php esc_html_e( 'Assinado', 'apollo-social' ); ?>
+						<?php esc_html_e('Assinado', 'apollo-social'); ?>
 					</span>
 					<?php endif; ?>
 				</div>
@@ -539,16 +539,16 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 									<div>
 										<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
 											<span style="display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 0.375rem; background: #f1f5f9; padding: 0.125rem 0.5rem; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">
-												<?php echo esc_html( $doc_category ); ?>
+												<?php echo esc_html($doc_category); ?>
 											</span>
-											<span style="font-size: 10px; color: #94a3b8; font-family: monospace;"><?php echo esc_html( $doc_code ); ?></span>
+											<span style="font-size: 10px; color: #94a3b8; font-family: monospace;"><?php echo esc_html($doc_code); ?></span>
 										</div>
-										<h2 style="font-size: 1.125rem; font-weight: 700; color: #0f172a; line-height: 1.4; margin: 0;"><?php echo esc_html( $doc_title ); ?></h2>
+										<h2 style="font-size: 1.125rem; font-weight: 700; color: #0f172a; line-height: 1.4; margin: 0;"><?php echo esc_html($doc_title); ?></h2>
 									</div>
 								</div>
 								<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; font-size: 0.75rem; color: #64748b;">
-									<span style="display: flex; align-items: center; gap: 0.375rem;"><i class="ri-time-line"></i> <?php echo esc_html( $doc_date ); ?></span>
-									<span style="display: flex; align-items: center; gap: 0.375rem;"><i class="ri-file-list-2-line"></i> <?php echo esc_html( $doc_pages ); ?> <?php echo esc_html( _n( 'página', 'páginas', $doc_pages, 'apollo-social' ) ); ?></span>
+									<span style="display: flex; align-items: center; gap: 0.375rem;"><i class="ri-time-line"></i> <?php echo esc_html($doc_date); ?></span>
+									<span style="display: flex; align-items: center; gap: 0.375rem;"><i class="ri-file-list-2-line"></i> <?php echo esc_html($doc_pages); ?> <?php echo esc_html(_n('página', 'páginas', $doc_pages, 'apollo-social')); ?></span>
 								</div>
 							</div>
 
@@ -560,11 +560,11 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 										<span style="height: 0.625rem; width: 0.625rem; border-radius: 9999px; background: rgba(251,191,36,0.8);"></span>
 										<span style="height: 0.625rem; width: 0.625rem; border-radius: 9999px; background: rgba(74,222,128,0.8);"></span>
 									</div>
-									<span style="font-size: 10px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;"><?php esc_html_e( 'Preview Visual', 'apollo-social' ); ?></span>
+									<span style="font-size: 10px; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;"><?php esc_html_e('Preview Visual', 'apollo-social'); ?></span>
 								</div>
 								<div class="doc-preview-content custom-scrollbar">
 									<div class="doc-preview-paper">
-										<?php echo wp_kses_post( $doc_content ); ?>
+										<?php echo wp_kses_post($doc_content); ?>
 									</div>
 								</div>
 							</div>
@@ -575,47 +575,47 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 					<div style="width: 100%; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;" class="lg:w-[380px]">
 
 						<!-- Signers Panel -->
-						<section style="background: #fff; border-radius: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.25rem;" data-ap-tooltip="<?php esc_attr_e( 'Lista de assinantes do documento', 'apollo-social' ); ?>">
+						<section style="background: #fff; border-radius: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.25rem;" data-ap-tooltip="<?php esc_attr_e('Lista de assinantes do documento', 'apollo-social'); ?>">
 							<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-								<h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;"><?php esc_html_e( 'Fluxo de Assinaturas', 'apollo-social' ); ?></h3>
-								<span style="font-size: 0.75rem; font-weight: 500; color: #64748b; background: #f1f5f9; padding: 0.125rem 0.5rem; border-radius: 0.375rem;" data-ap-tooltip="<?php echo esc_attr( sprintf( __( '%1$d de %2$d assinaturas concluídas', 'apollo-social' ), $completed_signers, $total_signers ) ); ?>">
-									<?php echo esc_html( $completed_signers ); ?>/<?php echo esc_html( $total_signers ); ?>
+								<h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0;"><?php esc_html_e('Fluxo de Assinaturas', 'apollo-social'); ?></h3>
+								<span style="font-size: 0.75rem; font-weight: 500; color: #64748b; background: #f1f5f9; padding: 0.125rem 0.5rem; border-radius: 0.375rem;" data-ap-tooltip="<?php echo esc_attr(sprintf(__('%1$d de %2$d assinaturas concluídas', 'apollo-social'), $completed_signers, $total_signers)); ?>">
+									<?php echo esc_html($completed_signers); ?>/<?php echo esc_html($total_signers); ?>
 								</span>
 							</div>
 
 							<div class="space-y-3">
 								<?php
-								foreach ( $all_signers as $signer ) :
-									$is_current  = ( $signer['verification_token'] === $token );
-									$is_signed   = ( $signer['status'] === 'signed' );
-									$initials    = '';
-									$signer_name = $signer['signer_name'] ?? __( 'Assinante', 'apollo-social' );
-									$parts       = explode( ' ', $signer_name );
-									foreach ( $parts as $p ) {
-										if ( strlen( $p ) > 0 ) {
-											$initials .= mb_strtoupper( mb_substr( $p, 0, 1 ) );
-										}
-									}
-									$initials       = substr( $initials, 0, 2 );
-									$signer_tooltip = $is_signed
-										? sprintf( __( '%s já assinou o documento', 'apollo-social' ), $signer_name )
-										: sprintf( __( '%s ainda não assinou', 'apollo-social' ), $signer_name );
-									?>
-								<div class="signer-card <?php echo $is_current ? 'is-you' : ''; ?> <?php echo $is_signed ? 'is-signed' : ''; ?>" data-ap-tooltip="<?php echo esc_attr( $signer_tooltip ); ?>">
+                                foreach ($all_signers as $signer) :
+                                    $is_current  = ($signer['verification_token'] === $token);
+                                    $is_signed   = ($signer['status'] === 'signed');
+                                    $initials    = '';
+                                    $signer_name = $signer['signer_name'] ?? __('Assinante', 'apollo-social');
+                                    $parts       = explode(' ', $signer_name);
+                                    foreach ($parts as $p) {
+                                        if (strlen($p) > 0) {
+                                            $initials .= mb_strtoupper(mb_substr($p, 0, 1));
+                                        }
+                                    }
+                                    $initials       = substr($initials, 0, 2);
+                                    $signer_tooltip = $is_signed
+                                        ? sprintf(__('%s já assinou o documento', 'apollo-social'), $signer_name)
+                                        : sprintf(__('%s ainda não assinou', 'apollo-social'), $signer_name);
+                                    ?>
+								<div class="signer-card <?php echo $is_current ? 'is-you' : ''; ?> <?php echo $is_signed ? 'is-signed' : ''; ?>" data-ap-tooltip="<?php echo esc_attr($signer_tooltip); ?>">
 									<div style="display: flex; align-items: center; gap: 0.75rem;">
 										<div style="height: 2rem; width: 2rem; border-radius: 9999px; <?php echo $is_current ? 'background: linear-gradient(135deg, #fb923c, #f43f5e); color: #fff;' : 'background: #f1f5f9; color: #64748b;'; ?> display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-											<?php echo esc_html( $initials ); ?>
+											<?php echo esc_html($initials); ?>
 										</div>
 										<div>
-											<p style="font-size: 0.75rem; font-weight: 700; color: #0f172a; margin: 0;"><?php echo esc_html( $signer_name ); ?></p>
-											<p style="font-size: 10px; color: #64748b; margin: 0;"><?php echo esc_html( $signer['signer_cpf'] ?? '' ); ?></p>
+											<p style="font-size: 0.75rem; font-weight: 700; color: #0f172a; margin: 0;"><?php echo esc_html($signer_name); ?></p>
+											<p style="font-size: 10px; color: #64748b; margin: 0;"><?php echo esc_html($signer['signer_cpf'] ?? ''); ?></p>
 										</div>
 									</div>
-									<span style="display: flex; align-items: center; gap: 0.25rem; font-size: 10px; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); <?php echo $is_signed ? 'color: #16a34a; background: #f0fdf4;' : 'color: #d97706; background: #fff;'; ?>" data-ap-tooltip="<?php echo $is_signed ? esc_attr__( 'Assinatura concluída', 'apollo-social' ) : esc_attr__( 'Aguardando assinatura', 'apollo-social' ); ?>">
-										<?php if ( $is_signed ) : ?>
-										<i class="ri-check-line"></i> <?php esc_html_e( 'Assinado', 'apollo-social' ); ?>
+									<span style="display: flex; align-items: center; gap: 0.25rem; font-size: 10px; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); <?php echo $is_signed ? 'color: #16a34a; background: #f0fdf4;' : 'color: #d97706; background: #fff;'; ?>" data-ap-tooltip="<?php echo $is_signed ? esc_attr__('Assinatura concluída', 'apollo-social') : esc_attr__('Aguardando assinatura', 'apollo-social'); ?>">
+										<?php if ($is_signed) : ?>
+										<i class="ri-check-line"></i> <?php esc_html_e('Assinado', 'apollo-social'); ?>
 										<?php else : ?>
-										<span style="height: 0.375rem; width: 0.375rem; border-radius: 9999px; background: #f59e0b; animation: pulse 2s infinite;"></span> <?php esc_html_e( 'Pendente', 'apollo-social' ); ?>
+										<span style="height: 0.375rem; width: 0.375rem; border-radius: 9999px; background: #f59e0b; animation: pulse 2s infinite;"></span> <?php esc_html_e('Pendente', 'apollo-social'); ?>
 										<?php endif; ?>
 									</span>
 								</div>
@@ -625,7 +625,7 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 
 						<!-- Action Panel -->
 						<section style="background: #fff; border-radius: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
-							<h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 1rem 0;"><?php esc_html_e( 'Realizar Assinatura', 'apollo-social' ); ?></h3>
+							<h3 style="font-size: 0.875rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 1rem 0;"><?php esc_html_e('Realizar Assinatura', 'apollo-social'); ?></h3>
 
 							<!-- Step Indicator -->
 							<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
@@ -634,15 +634,15 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 								<div class="step-indicator step-inactive" data-step="3"></div>
 							</div>
 
-							<?php if ( $already_signed ) : ?>
+							<?php if ($already_signed) : ?>
 							<!-- Already signed state -->
 							<div class="sign-result-box">
 								<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #166534; font-weight: 700; font-size: 0.875rem;">
 									<i class="ri-checkbox-circle-fill" style="font-size: 1.125rem;"></i>
-									<?php esc_html_e( 'Documento Já Assinado', 'apollo-social' ); ?>
+									<?php esc_html_e('Documento Já Assinado', 'apollo-social'); ?>
 								</div>
 								<div style="font-size: 10px; color: #15803d; font-family: monospace;">
-									<p><?php esc_html_e( 'Este documento já foi assinado por você.', 'apollo-social' ); ?></p>
+									<p><?php esc_html_e('Este documento já foi assinado por você.', 'apollo-social'); ?></p>
 								</div>
 							</div>
 							<?php else : ?>
@@ -651,25 +651,25 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 								<div class="space-y-3">
 									<label class="check-label">
 										<input id="chk-terms" type="checkbox">
-										<span style="font-size: 0.75rem; color: #475569;"><?php esc_html_e( 'Li e concordo com o conteúdo do documento.', 'apollo-social' ); ?></span>
+										<span style="font-size: 0.75rem; color: #475569;"><?php esc_html_e('Li e concordo com o conteúdo do documento.', 'apollo-social'); ?></span>
 									</label>
 									<label class="check-label">
 										<input id="chk-rep" type="checkbox">
-										<span style="font-size: 0.75rem; color: #475569;"><?php esc_html_e( 'Autorizo o uso da minha assinatura digital.', 'apollo-social' ); ?></span>
+										<span style="font-size: 0.75rem; color: #475569;"><?php esc_html_e('Autorizo o uso da minha assinatura digital.', 'apollo-social'); ?></span>
 									</label>
 									<p id="sign-error" class="hidden" style="font-size: 11px; color: #ef4444; font-weight: 500; padding: 0 0.25rem; display: flex; align-items: center; gap: 0.25rem;">
-										<i class="ri-error-warning-line"></i> <?php esc_html_e( 'Marque as opções acima para continuar.', 'apollo-social' ); ?>
+										<i class="ri-error-warning-line"></i> <?php esc_html_e('Marque as opções acima para continuar.', 'apollo-social'); ?>
 									</p>
 								</div>
 
 								<div class="space-y-3" style="padding-top: 0.5rem;">
 									<button id="btn-sign-govbr" class="btn-sign-primary" disabled>
 										<i class="ri-shield-check-line" style="font-size: 1.125rem;"></i>
-										<?php esc_html_e( 'Assinar com gov.br', 'apollo-social' ); ?>
+										<?php esc_html_e('Assinar com gov.br', 'apollo-social'); ?>
 									</button>
 									<button id="btn-sign-icp" class="btn-sign-secondary" disabled>
 										<i class="ri-key-2-line" style="font-size: 1.125rem;"></i>
-										<?php esc_html_e( 'Certificado ICP-Brasil', 'apollo-social' ); ?>
+										<?php esc_html_e('Certificado ICP-Brasil', 'apollo-social'); ?>
 									</button>
 								</div>
 							</div>
@@ -677,18 +677,18 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 							<div id="sign-result" class="sign-result-box hidden">
 								<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; color: #166534; font-weight: 700; font-size: 0.875rem;">
 									<i class="ri-checkbox-circle-fill" style="font-size: 1.125rem;"></i>
-									<?php esc_html_e( 'Assinado com Sucesso', 'apollo-social' ); ?>
+									<?php esc_html_e('Assinado com Sucesso', 'apollo-social'); ?>
 								</div>
 								<div style="font-size: 10px; color: #15803d; font-family: monospace;">
-									<p id="signed-at"><?php esc_html_e( 'Data:', 'apollo-social' ); ?> --</p>
-									<p id="signed-code"><?php esc_html_e( 'Cod:', 'apollo-social' ); ?> --</p>
-									<p id="signed-hash" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php esc_html_e( 'Hash:', 'apollo-social' ); ?> --</p>
+									<p id="signed-at"><?php esc_html_e('Data:', 'apollo-social'); ?> --</p>
+									<p id="signed-code"><?php esc_html_e('Cod:', 'apollo-social'); ?> --</p>
+									<p id="signed-hash" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?php esc_html_e('Hash:', 'apollo-social'); ?> --</p>
 								</div>
 							</div>
 							<?php endif; ?>
 
 							<div style="margin-top: 1rem; font-size: 10px; color: #94a3b8; text-align: center;">
-								<?php esc_html_e( 'Ambiente seguro Apollo::rio · disponível para toda a comunidade', 'apollo-social' ); ?>
+								<?php esc_html_e('Ambiente seguro Apollo::rio · disponível para toda a comunidade', 'apollo-social'); ?>
 							</div>
 						</section>
 					</div>
@@ -699,15 +699,15 @@ $doc_status      = $already_signed ? 'signed' : 'pending';
 		<!-- BOTTOM NAV (Mobile) -->
 		<div class="md:hidden" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-top: 1px solid rgba(226,232,240,0.5);">
 			<div style="max-width: 32rem; margin: 0 auto; width: 100%; padding: 0.5rem 1rem; display: flex; align-items: flex-end; justify-content: space-between; height: 60px;" class="pb-safe">
-				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-calendar-line"></i><span><?php esc_html_e( 'Agenda', 'apollo-social' ); ?></span></div>
-				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-compass-3-line"></i><span><?php esc_html_e( 'Explorar', 'apollo-social' ); ?></span></div>
+				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-calendar-line"></i><span><?php esc_html_e('Agenda', 'apollo-social'); ?></span></div>
+				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-compass-3-line"></i><span><?php esc_html_e('Explorar', 'apollo-social'); ?></span></div>
 				<div style="position: relative; top: -1.25rem;">
 					<button style="height: 3.5rem; width: 3.5rem; border-radius: 9999px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px rgba(0,0,0,0.1); opacity: 0.5; cursor: default; border: none;">
 						<i class="ri-add-line" style="font-size: 1.875rem;"></i>
 					</button>
 				</div>
-				<div class="nav-btn active" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-file-text-line"></i><span><?php esc_html_e( 'Docs', 'apollo-social' ); ?></span></div>
-				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-user-3-line"></i><span><?php esc_html_e( 'Perfil', 'apollo-social' ); ?></span></div>
+				<div class="nav-btn active" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-file-text-line"></i><span><?php esc_html_e('Docs', 'apollo-social'); ?></span></div>
+				<div class="nav-btn" style="width: 3.5rem; padding-bottom: 0.25rem;"><i class="ri-user-3-line"></i><span><?php esc_html_e('Perfil', 'apollo-social'); ?></span></div>
 			</div>
 		</div>
 	</div>
@@ -757,11 +757,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		// AJAX call to sign document
 		const formData = new FormData();
 		formData.append('action', 'apollo_sign_document');
-		formData.append('nonce', '<?php echo esc_js( wp_create_nonce( 'apollo_sign_document' ) ); ?>');
-		formData.append('token', '<?php echo esc_js( $token ); ?>');
+		formData.append('nonce', '<?php echo esc_js(wp_create_nonce('apollo_sign_document')); ?>');
+		formData.append('token', '<?php echo esc_js($token); ?>');
 		formData.append('provider', provider);
 
-		fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
+		fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
 			method: 'POST',
 			body: formData
 		})
@@ -769,12 +769,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		.then(data => {
 			if (data.success) {
 				const now = new Date();
-				if (signedAt) signedAt.textContent = '<?php echo esc_js( __( 'Data:', 'apollo-social' ) ); ?> ' + now.toLocaleString('pt-BR');
-				if (signedCode) signedCode.textContent = '<?php echo esc_js( __( 'Cod:', 'apollo-social' ) ); ?> ' + provider.toUpperCase() + '-' + (data.data?.code || Math.floor(Math.random() * 999999).toString().padStart(6, '0'));
-				if (signedHash) signedHash.textContent = '<?php echo esc_js( __( 'Hash:', 'apollo-social' ) ); ?> ' + (data.data?.hash || generateFakeHash());
+				if (signedAt) signedAt.textContent = '<?php echo esc_js(__('Data:', 'apollo-social')); ?> ' + now.toLocaleString('pt-BR');
+				if (signedCode) signedCode.textContent = '<?php echo esc_js(__('Cod:', 'apollo-social')); ?> ' + provider.toUpperCase() + '-' + (data.data?.code || Math.floor(Math.random() * 999999).toString().padStart(6, '0'));
+				if (signedHash) signedHash.textContent = '<?php echo esc_js(__('Hash:', 'apollo-social')); ?> ' + (data.data?.hash || generateFakeHash());
 				if (signResult) signResult.classList.remove('hidden');
 			} else {
-				alert(data.data?.message || '<?php echo esc_js( __( 'Erro ao assinar documento.', 'apollo-social' ) ); ?>');
+				alert(data.data?.message || '<?php echo esc_js(__('Erro ao assinar documento.', 'apollo-social')); ?>');
 				if (btnGov) btnGov.disabled = false;
 				if (btnIcp) btnIcp.disabled = false;
 			}
@@ -783,9 +783,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			console.error(err);
 			// Fallback: show success anyway for demo
 			const now = new Date();
-			if (signedAt) signedAt.textContent = '<?php echo esc_js( __( 'Data:', 'apollo-social' ) ); ?> ' + now.toLocaleString('pt-BR');
-			if (signedCode) signedCode.textContent = '<?php echo esc_js( __( 'Cod:', 'apollo-social' ) ); ?> ' + provider.toUpperCase() + '-' + Math.floor(Math.random() * 999999).toString().padStart(6, '0');
-			if (signedHash) signedHash.textContent = '<?php echo esc_js( __( 'Hash:', 'apollo-social' ) ); ?> ' + generateFakeHash();
+			if (signedAt) signedAt.textContent = '<?php echo esc_js(__('Data:', 'apollo-social')); ?> ' + now.toLocaleString('pt-BR');
+			if (signedCode) signedCode.textContent = '<?php echo esc_js(__('Cod:', 'apollo-social')); ?> ' + provider.toUpperCase() + '-' + Math.floor(Math.random() * 999999).toString().padStart(6, '0');
+			if (signedHash) signedHash.textContent = '<?php echo esc_js(__('Hash:', 'apollo-social')); ?> ' + generateFakeHash();
 			if (signResult) signResult.classList.remove('hidden');
 		});
 	}

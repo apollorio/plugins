@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Badges Panel Widget for Elementor (stub)
  */

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo PDF Generator.
  *
@@ -31,162 +32,172 @@ namespace Apollo\Modules\Documents;
  * $path = $pdf->generateFromHtml($html, 'my-document');
  * ```
  */
-class PdfGenerator {
+class PdfGenerator
+{
+    /** @var string Output directory for PDFs */
+    private string $output_dir;
 
-	/** @var string Output directory for PDFs */
-	private string $output_dir;
+    /** @var string Temp directory for processing */
+    private string $temp_dir;
 
-	/** @var string Temp directory for processing */
-	private string $temp_dir;
+    /** @var array Default PDF options */
+    private array $default_options = [
+        'format'      => 'A4',
+        'orientation' => 'P',
+        // Portrait
+                    'margin_left' => 15,
+        'margin_right'            => 15,
+        'margin_top'              => 20,
+        'margin_bottom'           => 20,
+        'font_family'             => 'DejaVu Sans',
+        'font_size'               => 12,
+        'title'                   => 'Documento Apollo',
+        'author'                  => 'Apollo Social',
+        'creator'                 => 'Apollo PDF Generator',
+    ];
 
-	/** @var array Default PDF options */
-	private array $default_options = [
-		'format'                  => 'A4',
-		'orientation'             => 'P',
-		// Portrait
-					'margin_left' => 15,
-		'margin_right'            => 15,
-		'margin_top'              => 20,
-		'margin_bottom'           => 20,
-		'font_family'             => 'DejaVu Sans',
-		'font_size'               => 12,
-		'title'                   => 'Documento Apollo',
-		'author'                  => 'Apollo Social',
-		'creator'                 => 'Apollo PDF Generator',
-	];
+    /** @var string|null Last error message */
+    private ?string $last_error = null;
 
-	/** @var string|null Last error message */
-	private ?string $last_error = null;
+    /** @var string|null Library used for generation */
+    private ?string $library_used = null;
 
-	/** @var string|null Library used for generation */
-	private ?string $library_used = null;
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $upload_dir       = wp_upload_dir();
+        $this->output_dir = $upload_dir['basedir'] . '/apollo-documents/pdf/';
+        $this->temp_dir   = $upload_dir['basedir'] . '/apollo-documents/temp/';
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		$upload_dir       = wp_upload_dir();
-		$this->output_dir = $upload_dir['basedir'] . '/apollo-documents/pdf/';
-		$this->temp_dir   = $upload_dir['basedir'] . '/apollo-documents/temp/';
+        $this->ensureDirectories();
+    }
 
-		$this->ensureDirectories();
-	}
+    /**
+     * Generate PDF from HTML content
+     *
+     * @param string $html HTML content to convert
+     * @param string $filename Output filename (without .pdf extension)
+     * @param array  $options PDF generation options
+     * @return string|false Path to generated PDF or false on failure
+     */
+    public function generateFromHtml(string $html, string $filename = '', array $options = []): string|false
+    {
+        $this->last_error   = null;
+        $this->library_used = null;
 
-	/**
-	 * Generate PDF from HTML content
-	 *
-	 * @param string $html HTML content to convert
-	 * @param string $filename Output filename (without .pdf extension)
-	 * @param array  $options PDF generation options
-	 * @return string|false Path to generated PDF or false on failure
-	 */
-	public function generateFromHtml( string $html, string $filename = '', array $options = [] ): string|false {
-		$this->last_error   = null;
-		$this->library_used = null;
+        // Merge options with defaults
+        $options = array_merge($this->default_options, $options);
 
-		// Merge options with defaults
-		$options = array_merge( $this->default_options, $options );
+        // Generate filename if not provided
+        if (empty($filename)) {
+            $filename = 'document_' . uniqid();
+        }
 
-		// Generate filename if not provided
-		if ( empty( $filename ) ) {
-			$filename = 'document_' . uniqid();
-		}
+        // Sanitize filename
+        $filename    = sanitize_file_name($filename);
+        $output_path = $this->output_dir . $filename . '.pdf';
 
-		// Sanitize filename
-		$filename    = sanitize_file_name( $filename );
-		$output_path = $this->output_dir . $filename . '.pdf';
+        // Wrap HTML in full document if needed
+        $html = $this->prepareHtml($html, $options);
 
-		// Wrap HTML in full document if needed
-		$html = $this->prepareHtml( $html, $options );
+        // Try each library in order of preference
+        if ($this->tryMpdf($html, $output_path, $options)) {
+            $this->library_used = 'mPDF';
 
-		// Try each library in order of preference
-		if ( $this->tryMpdf( $html, $output_path, $options ) ) {
-			$this->library_used = 'mPDF';
-			return $output_path;
-		}
+            return $output_path;
+        }
 
-		if ( $this->tryTcpdf( $html, $output_path, $options ) ) {
-			$this->library_used = 'TCPDF';
-			return $output_path;
-		}
+        if ($this->tryTcpdf($html, $output_path, $options)) {
+            $this->library_used = 'TCPDF';
 
-		if ( $this->tryDompdf( $html, $output_path, $options ) ) {
-			$this->library_used = 'Dompdf';
-			return $output_path;
-		}
+            return $output_path;
+        }
 
-		// Fallback: save as HTML for manual conversion
-		$html_fallback = $this->output_dir . $filename . '.html';
-		if ( file_put_contents( $html_fallback, $html ) !== false ) {
-			$this->last_error = 'Nenhuma biblioteca PDF disponível. HTML salvo como fallback em: ' . $html_fallback;
-			return false;
-		}
+        if ($this->tryDompdf($html, $output_path, $options)) {
+            $this->library_used = 'Dompdf';
 
-		$this->last_error = 'Não foi possível gerar o PDF. Instale mPDF, TCPDF, ou Dompdf.';
-		return false;
-	}
+            return $output_path;
+        }
 
-	/**
-	 * Generate PDF from document ID
-	 *
-	 * @param int $document_id Document ID from wp_apollo_documents
-	 * @return string|false Path to generated PDF or false on failure
-	 */
-	public function generateFromDocument( int $document_id ): string|false {
-		global $wpdb;
+        // Fallback: save as HTML for manual conversion
+        $html_fallback = $this->output_dir . $filename . '.html';
+        if (file_put_contents($html_fallback, $html) !== false) {
+            $this->last_error = 'Nenhuma biblioteca PDF disponível. HTML salvo como fallback em: ' . $html_fallback;
 
-		$documents_table = $wpdb->prefix . 'apollo_documents';
+            return false;
+        }
 
-		$document = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$documents_table} WHERE id = %d", $document_id ),
-			ARRAY_A
-		);
+        $this->last_error = 'Não foi possível gerar o PDF. Instale mPDF, TCPDF, ou Dompdf.';
 
-		if ( ! $document ) {
-			$this->last_error = 'Documento não encontrado.';
-			return false;
-		}
+        return false;
+    }
 
-		$options = [
-			'title' => $document['title'] ?? 'Documento',
-		];
+    /**
+     * Generate PDF from document ID
+     *
+     * @param int $document_id Document ID from wp_apollo_documents
+     * @return string|false Path to generated PDF or false on failure
+     */
+    public function generateFromDocument(int $document_id): string|false
+    {
+        global $wpdb;
 
-		$filename = $document['file_id'] ?? 'doc_' . $document_id;
+        $documents_table = $wpdb->prefix . 'apollo_documents';
 
-		$pdf_path = $this->generateFromHtml( $document['content'] ?? '', $filename, $options );
+        $document = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$documents_table} WHERE id = %d", $document_id),
+            ARRAY_A
+        );
 
-		// Update document with PDF path
-		if ( $pdf_path ) {
-			$relative_path = str_replace( ABSPATH, '/', $pdf_path );
-			$wpdb->update(
-				$documents_table,
-				[ 'pdf_path' => $relative_path ],
-				[ 'id' => $document_id ]
-			);
-		}
+        if (! $document) {
+            $this->last_error = 'Documento não encontrado.';
 
-		return $pdf_path;
-	}
+            return false;
+        }
 
-	/**
-	 * Prepare HTML for PDF conversion
-	 *
-	 * @param string $html Raw HTML content
-	 * @param array  $options PDF options
-	 * @return string Complete HTML document
-	 */
-	private function prepareHtml( string $html, array $options ): string {
-		// Check if already complete HTML document
-		if ( stripos( $html, '<!DOCTYPE' ) !== false || stripos( $html, '<html' ) !== false ) {
-			return $html;
-		}
+        $options = [
+            'title' => $document['title'] ?? 'Documento',
+        ];
 
-		// Build complete HTML document
-		$title       = esc_html( $options['title'] ?? 'Documento' );
-		$font_family = esc_html( $options['font_family'] ?? 'DejaVu Sans' );
-		$font_size   = intval( $options['font_size'] ?? 12 );
+        $filename = $document['file_id'] ?? 'doc_' . $document_id;
 
-		return <<<HTML
+        $pdf_path = $this->generateFromHtml($document['content'] ?? '', $filename, $options);
+
+        // Update document with PDF path
+        if ($pdf_path) {
+            $relative_path = str_replace(ABSPATH, '/', $pdf_path);
+            $wpdb->update(
+                $documents_table,
+                [ 'pdf_path' => $relative_path ],
+                [ 'id'       => $document_id ]
+            );
+        }
+
+        return $pdf_path;
+    }
+
+    /**
+     * Prepare HTML for PDF conversion
+     *
+     * @param string $html Raw HTML content
+     * @param array  $options PDF options
+     * @return string Complete HTML document
+     */
+    private function prepareHtml(string $html, array $options): string
+    {
+        // Check if already complete HTML document
+        if (stripos($html, '<!DOCTYPE') !== false || stripos($html, '<html') !== false) {
+            return $html;
+        }
+
+        // Build complete HTML document
+        $title       = esc_html($options['title'] ?? 'Documento');
+        $font_family = esc_html($options['font_family'] ?? 'DejaVu Sans');
+        $font_size   = intval($options['font_size'] ?? 12);
+
+        return <<<HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -307,281 +318,295 @@ class PdfGenerator {
 </body>
 </html>
 HTML;
-	}
+    }
 
-	/**
-	 * Try generating PDF with mPDF
-	 *
-	 * @param string $html HTML content
-	 * @param string $output_path Output file path
-	 * @param array  $options PDF options
-	 * @return bool Success
-	 */
-	private function tryMpdf( string $html, string $output_path, array $options ): bool {
-		// Check if mPDF is available
-		if ( ! class_exists( 'Mpdf\\Mpdf' ) ) {
-			// Try autoloading from common locations
-			// Use global constant with backslash prefix to access from namespace
-			if ( defined( '\APOLLO_SOCIAL_PLUGIN_FILE' ) ) {
-				$plugin_file = \APOLLO_SOCIAL_PLUGIN_FILE;
-			} else {
-				// Fallback: calculate path to main plugin file
-				$plugin_file = dirname( dirname( dirname( __DIR__ ) ) ) . '/apollo-social.php';
-			}
-			$autoload_paths = [
-				ABSPATH . 'vendor/autoload.php',
-				WP_CONTENT_DIR . '/vendor/autoload.php',
-				dirname( $plugin_file ) . '/vendor/autoload.php',
-			];
+    /**
+     * Try generating PDF with mPDF
+     *
+     * @param string $html HTML content
+     * @param string $output_path Output file path
+     * @param array  $options PDF options
+     * @return bool Success
+     */
+    private function tryMpdf(string $html, string $output_path, array $options): bool
+    {
+        // Check if mPDF is available
+        if (! class_exists('Mpdf\\Mpdf')) {
+            // Try autoloading from common locations
+            // Use global constant with backslash prefix to access from namespace
+            if (defined('\APOLLO_SOCIAL_PLUGIN_FILE')) {
+                $plugin_file = \APOLLO_SOCIAL_PLUGIN_FILE;
+            } else {
+                // Fallback: calculate path to main plugin file
+                $plugin_file = dirname(dirname(dirname(__DIR__))) . '/apollo-social.php';
+            }
+            $autoload_paths = [
+                ABSPATH . 'vendor/autoload.php',
+                WP_CONTENT_DIR . '/vendor/autoload.php',
+                dirname($plugin_file) . '/vendor/autoload.php',
+            ];
 
-			foreach ( $autoload_paths as $path ) {
-				if ( file_exists( $path ) ) {
-					require_once $path;
-					break;
-				}
-			}
+            foreach ($autoload_paths as $path) {
+                if (file_exists($path)) {
+                    require_once $path;
 
-			if ( ! class_exists( 'Mpdf\\Mpdf' ) ) {
-				return false;
-			}
-		}//end if
+                    break;
+                }
+            }
 
-		try {
-			$mpdf = new \Mpdf\Mpdf(
-				[
-					'tempDir'       => $this->temp_dir,
-					'mode'          => 'utf-8',
-					'format'        => $options['format'] ?? 'A4',
-					'orientation'   => $options['orientation'] ?? 'P',
-					'margin_left'   => $options['margin_left'] ?? 15,
-					'margin_right'  => $options['margin_right'] ?? 15,
-					'margin_top'    => $options['margin_top'] ?? 20,
-					'margin_bottom' => $options['margin_bottom'] ?? 20,
-					'default_font'  => 'dejavusans',
-				]
-			);
+            if (! class_exists('Mpdf\\Mpdf')) {
+                return false;
+            }
+        }//end if
 
-			// Set document info
-			$mpdf->SetTitle( $options['title'] ?? 'Documento' );
-			$mpdf->SetAuthor( $options['author'] ?? 'Apollo Social' );
-			$mpdf->SetCreator( $options['creator'] ?? 'Apollo PDF Generator' );
+        try {
+            $mpdf = new \Mpdf\Mpdf(
+                [
+                    'tempDir'       => $this->temp_dir,
+                    'mode'          => 'utf-8',
+                    'format'        => $options['format']        ?? 'A4',
+                    'orientation'   => $options['orientation']   ?? 'P',
+                    'margin_left'   => $options['margin_left']   ?? 15,
+                    'margin_right'  => $options['margin_right']  ?? 15,
+                    'margin_top'    => $options['margin_top']    ?? 20,
+                    'margin_bottom' => $options['margin_bottom'] ?? 20,
+                    'default_font'  => 'dejavusans',
+                ]
+            );
 
-			// Write HTML
-			$mpdf->WriteHTML( $html );
+            // Set document info
+            $mpdf->SetTitle($options['title'] ?? 'Documento');
+            $mpdf->SetAuthor($options['author'] ?? 'Apollo Social');
+            $mpdf->SetCreator($options['creator'] ?? 'Apollo PDF Generator');
 
-			// Output to file
-			$mpdf->Output( $output_path, 'F' );
+            // Write HTML
+            $mpdf->WriteHTML($html);
 
-			return file_exists( $output_path );
+            // Output to file
+            $mpdf->Output($output_path, 'F');
 
-		} catch ( \Exception $e ) {
-			$this->last_error = 'mPDF Error: ' . $e->getMessage();
-			error_log( '[Apollo PDF] mPDF Error: ' . $e->getMessage() );
-			return false;
-		}//end try
-	}
+            return file_exists($output_path);
 
-	/**
-	 * Try generating PDF with TCPDF
-	 *
-	 * @param string $html HTML content
-	 * @param string $output_path Output file path
-	 * @param array  $options PDF options
-	 * @return bool Success
-	 */
-	private function tryTcpdf( string $html, string $output_path, array $options ): bool {
-		if ( ! class_exists( 'TCPDF' ) ) {
-			return false;
-		}
+        } catch (\Exception $e) {
+            $this->last_error = 'mPDF Error: ' . $e->getMessage();
+            error_log('[Apollo PDF] mPDF Error: ' . $e->getMessage());
 
-		try {
-			$orientation = ( $options['orientation'] ?? 'P' ) === 'P' ? 'P' : 'L';
+            return false;
+        }//end try
+    }
 
-			$pdf = new \TCPDF( $orientation, 'mm', $options['format'] ?? 'A4', true, 'UTF-8', false );
+    /**
+     * Try generating PDF with TCPDF
+     *
+     * @param string $html HTML content
+     * @param string $output_path Output file path
+     * @param array  $options PDF options
+     * @return bool Success
+     */
+    private function tryTcpdf(string $html, string $output_path, array $options): bool
+    {
+        if (! class_exists('TCPDF')) {
+            return false;
+        }
 
-			// Set document info
-			$pdf->SetCreator( $options['creator'] ?? 'Apollo PDF Generator' );
-			$pdf->SetAuthor( $options['author'] ?? 'Apollo Social' );
-			$pdf->SetTitle( $options['title'] ?? 'Documento' );
+        try {
+            $orientation = ($options['orientation'] ?? 'P') === 'P' ? 'P' : 'L';
 
-			// Set margins
-			$pdf->SetMargins(
-				$options['margin_left'] ?? 15,
-				$options['margin_top'] ?? 20,
-				$options['margin_right'] ?? 15
-			);
-			$pdf->SetAutoPageBreak( true, $options['margin_bottom'] ?? 20 );
+            $pdf = new \TCPDF($orientation, 'mm', $options['format'] ?? 'A4', true, 'UTF-8', false);
 
-			// Set font
-			$pdf->SetFont( 'dejavusans', '', $options['font_size'] ?? 12 );
+            // Set document info
+            $pdf->SetCreator($options['creator'] ?? 'Apollo PDF Generator');
+            $pdf->SetAuthor($options['author'] ?? 'Apollo Social');
+            $pdf->SetTitle($options['title'] ?? 'Documento');
 
-			// Add page
-			$pdf->AddPage();
+            // Set margins
+            $pdf->SetMargins(
+                $options['margin_left']  ?? 15,
+                $options['margin_top']   ?? 20,
+                $options['margin_right'] ?? 15
+            );
+            $pdf->SetAutoPageBreak(true, $options['margin_bottom'] ?? 20);
 
-			// Write HTML
-			$pdf->writeHTML( $html, true, false, true, false, '' );
+            // Set font
+            $pdf->SetFont('dejavusans', '', $options['font_size'] ?? 12);
 
-			// Output file
-			$pdf->Output( $output_path, 'F' );
+            // Add page
+            $pdf->AddPage();
 
-			return file_exists( $output_path );
+            // Write HTML
+            $pdf->writeHTML($html, true, false, true, false, '');
 
-		} catch ( \Exception $e ) {
-			$this->last_error = 'TCPDF Error: ' . $e->getMessage();
-			error_log( '[Apollo PDF] TCPDF Error: ' . $e->getMessage() );
-			return false;
-		}//end try
-	}
+            // Output file
+            $pdf->Output($output_path, 'F');
 
-	/**
-	 * Try generating PDF with Dompdf
-	 *
-	 * @param string $html HTML content
-	 * @param string $output_path Output file path
-	 * @param array  $options PDF options
-	 * @return bool Success
-	 */
-	private function tryDompdf( string $html, string $output_path, array $options ): bool {
-		if ( ! class_exists( 'Dompdf\\Dompdf' ) ) {
-			return false;
-		}
+            return file_exists($output_path);
 
-		try {
-			$dompdf = new \Dompdf\Dompdf(
-				[
-					'tempDir'                 => $this->temp_dir,
-					'chroot'                  => ABSPATH,
-					'isRemoteEnabled'         => true,
-					'isHtml5ParserEnabled'    => true,
-					'isFontSubsettingEnabled' => true,
-				]
-			);
+        } catch (\Exception $e) {
+            $this->last_error = 'TCPDF Error: ' . $e->getMessage();
+            error_log('[Apollo PDF] TCPDF Error: ' . $e->getMessage());
 
-			// Load HTML
-			$dompdf->loadHtml( $html );
+            return false;
+        }//end try
+    }
 
-			// Set paper size
-			$format      = $options['format'] ?? 'A4';
-			$orientation = ( $options['orientation'] ?? 'P' ) === 'P' ? 'portrait' : 'landscape';
-			$dompdf->setPaper( $format, $orientation );
+    /**
+     * Try generating PDF with Dompdf
+     *
+     * @param string $html HTML content
+     * @param string $output_path Output file path
+     * @param array  $options PDF options
+     * @return bool Success
+     */
+    private function tryDompdf(string $html, string $output_path, array $options): bool
+    {
+        if (! class_exists('Dompdf\\Dompdf')) {
+            return false;
+        }
 
-			// Render
-			$dompdf->render();
+        try {
+            $dompdf = new \Dompdf\Dompdf(
+                [
+                    'tempDir'                 => $this->temp_dir,
+                    'chroot'                  => ABSPATH,
+                    'isRemoteEnabled'         => true,
+                    'isHtml5ParserEnabled'    => true,
+                    'isFontSubsettingEnabled' => true,
+                ]
+            );
 
-			// Save to file
-			$output = $dompdf->output();
-			$result = file_put_contents( $output_path, $output );
+            // Load HTML
+            $dompdf->loadHtml($html);
 
-			return $result !== false && file_exists( $output_path );
+            // Set paper size
+            $format      = $options['format'] ?? 'A4';
+            $orientation = ($options['orientation'] ?? 'P') === 'P' ? 'portrait' : 'landscape';
+            $dompdf->setPaper($format, $orientation);
 
-		} catch ( \Exception $e ) {
-			$this->last_error = 'Dompdf Error: ' . $e->getMessage();
-			error_log( '[Apollo PDF] Dompdf Error: ' . $e->getMessage() );
-			return false;
-		}//end try
-	}
+            // Render
+            $dompdf->render();
 
-	/**
-	 * Ensure output directories exist
-	 */
-	private function ensureDirectories(): void {
-		if ( ! file_exists( $this->output_dir ) ) {
-			wp_mkdir_p( $this->output_dir );
-		}
+            // Save to file
+            $output = $dompdf->output();
+            $result = file_put_contents($output_path, $output);
 
-		if ( ! file_exists( $this->temp_dir ) ) {
-			wp_mkdir_p( $this->temp_dir );
-		}
+            return $result !== false && file_exists($output_path);
 
-		// Add index.php for security
-		$index_content = "<?php\n// Silence is golden.";
+        } catch (\Exception $e) {
+            $this->last_error = 'Dompdf Error: ' . $e->getMessage();
+            error_log('[Apollo PDF] Dompdf Error: ' . $e->getMessage());
 
-		$output_index = $this->output_dir . 'index.php';
-		if ( ! file_exists( $output_index ) ) {
-			file_put_contents( $output_index, $index_content );
-		}
+            return false;
+        }//end try
+    }
 
-		$temp_index = $this->temp_dir . 'index.php';
-		if ( ! file_exists( $temp_index ) ) {
-			file_put_contents( $temp_index, $index_content );
-		}
-	}
+    /**
+     * Ensure output directories exist
+     */
+    private function ensureDirectories(): void
+    {
+        if (! file_exists($this->output_dir)) {
+            wp_mkdir_p($this->output_dir);
+        }
 
-	/**
-	 * Get last error message
-	 *
-	 * @return string|null
-	 */
-	public function getLastError(): ?string {
-		return $this->last_error;
-	}
+        if (! file_exists($this->temp_dir)) {
+            wp_mkdir_p($this->temp_dir);
+        }
 
-	/**
-	 * Get library used for last generation
-	 *
-	 * @return string|null
-	 */
-	public function getLibraryUsed(): ?string {
-		return $this->library_used;
-	}
+        // Add index.php for security
+        $index_content = "<?php\n// Silence is golden.";
 
-	/**
-	 * Check which PDF libraries are available
-	 *
-	 * @return array Available libraries
-	 */
-	public function getAvailableLibraries(): array {
-		$available = [];
+        $output_index = $this->output_dir . 'index.php';
+        if (! file_exists($output_index)) {
+            file_put_contents($output_index, $index_content);
+        }
 
-		if ( class_exists( 'Mpdf\\Mpdf' ) ) {
-			$available[] = 'mPDF';
-		}
+        $temp_index = $this->temp_dir . 'index.php';
+        if (! file_exists($temp_index)) {
+            file_put_contents($temp_index, $index_content);
+        }
+    }
 
-		if ( class_exists( 'TCPDF' ) ) {
-			$available[] = 'TCPDF';
-		}
+    /**
+     * Get last error message
+     *
+     * @return string|null
+     */
+    public function getLastError(): ?string
+    {
+        return $this->last_error;
+    }
 
-		if ( class_exists( 'Dompdf\\Dompdf' ) ) {
-			$available[] = 'Dompdf';
-		}
+    /**
+     * Get library used for last generation
+     *
+     * @return string|null
+     */
+    public function getLibraryUsed(): ?string
+    {
+        return $this->library_used;
+    }
 
-		return $available;
-	}
+    /**
+     * Check which PDF libraries are available
+     *
+     * @return array Available libraries
+     */
+    public function getAvailableLibraries(): array
+    {
+        $available = [];
 
-	/**
-	 * Get URL for a generated PDF
-	 *
-	 * @param string $path Absolute path to PDF
-	 * @return string URL to PDF
-	 */
-	public function getUrl( string $path ): string {
-		$upload_dir = wp_upload_dir();
-		return str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $path );
-	}
+        if (class_exists('Mpdf\\Mpdf')) {
+            $available[] = 'mPDF';
+        }
 
-	/**
-	 * Clean up old temp files
-	 *
-	 * @param int $max_age_hours Max age in hours
-	 * @return int Number of files deleted
-	 */
-	public function cleanupTempFiles( int $max_age_hours = 24 ): int {
-		$deleted = 0;
-		$max_age = $max_age_hours * 3600;
-		$now     = time();
+        if (class_exists('TCPDF')) {
+            $available[] = 'TCPDF';
+        }
 
-		$files = glob( $this->temp_dir . '*' );
+        if (class_exists('Dompdf\\Dompdf')) {
+            $available[] = 'Dompdf';
+        }
 
-		foreach ( $files as $file ) {
-			if ( is_file( $file ) && basename( $file ) !== 'index.php' ) {
-				if ( ( $now - filemtime( $file ) ) > $max_age ) {
-					if ( unlink( $file ) ) {
-						++$deleted;
-					}
-				}
-			}
-		}
+        return $available;
+    }
 
-		return $deleted;
-	}
+    /**
+     * Get URL for a generated PDF
+     *
+     * @param string $path Absolute path to PDF
+     * @return string URL to PDF
+     */
+    public function getUrl(string $path): string
+    {
+        $upload_dir = wp_upload_dir();
+
+        return str_replace($upload_dir['basedir'], $upload_dir['baseurl'], $path);
+    }
+
+    /**
+     * Clean up old temp files
+     *
+     * @param int $max_age_hours Max age in hours
+     * @return int Number of files deleted
+     */
+    public function cleanupTempFiles(int $max_age_hours = 24): int
+    {
+        $deleted = 0;
+        $max_age = $max_age_hours * 3600;
+        $now     = time();
+
+        $files = glob($this->temp_dir . '*');
+
+        foreach ($files as $file) {
+            if (is_file($file) && basename($file) !== 'index.php') {
+                if (($now - filemtime($file)) > $max_age) {
+                    if (unlink($file)) {
+                        ++$deleted;
+                    }
+                }
+            }
+        }
+
+        return $deleted;
+    }
 }

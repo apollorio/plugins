@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Canvas configuration
  *

@@ -8,549 +8,549 @@
  */
 
 :root {
-    --apollo-bg-dark: #1a1a2e;
-    --apollo-bg-surface: #0f3460;
-    --apollo-text: #e4e4e4;
-    --apollo-text-muted: #a0a0a0;
-    --apollo-accent-orange: #ff6f00;
-    --apollo-accent-blue: #00d4ff;
+	--apollo-bg-dark: #1a1a2e;
+	--apollo-bg-surface: #0f3460;
+	--apollo-text: #e4e4e4;
+	--apollo-text-muted: #a0a0a0;
+	--apollo-accent-orange: #ff6f00;
+	--apollo-accent-blue: #00d4ff;
 }
 
 /* ==========================================================================
-   Home Board Container
-   ========================================================================== */
+	Home Board Container
+	========================================================================== */
 .apollo-home-board {
-    position: relative;
-    width: 100%;
-    max-width: 800px;
-    min-height: 600px;
-    margin: 20px auto;
-    background: var(--apollo-bg-surface);
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    background-size: cover;
-    background-position: center;
+	position: relative;
+	width: 100%;
+	max-width: 800px;
+	min-height: 600px;
+	margin: 20px auto;
+	background: var(--apollo-bg-surface);
+	border-radius: 12px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+	background-size: cover;
+	background-position: center;
 }
 
 .apollo-home-empty {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: var(--apollo-text-muted);
-    padding: 40px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	text-align: center;
+	color: var(--apollo-text-muted);
+	padding: 40px;
 }
 
 .apollo-home-empty .apollo-edit-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding: 12px 24px;
-    background: var(--apollo-accent-orange);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: background 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 20px;
+	padding: 12px 24px;
+	background: var(--apollo-accent-orange);
+	color: #fff;
+	text-decoration: none;
+	border-radius: 6px;
+	font-weight: 500;
+	transition: background 0.2s;
 }
 
 .apollo-home-empty .apollo-edit-btn:hover {
-    background: #ff8f00;
+	background: #ff8f00;
 }
 
 /* ==========================================================================
-   Widgets
-   ========================================================================== */
+	Widgets
+	========================================================================== */
 .apollo-home-widget {
-    position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+	position: absolute;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(5px);
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Profile Card Widget */
 .apollo-widget-profile-card {
-    padding: 20px;
-    text-align: center;
+	padding: 20px;
+	text-align: center;
 }
 
 .apollo-widget-profile-card .profile-avatar-wrapper {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 .apollo-widget-profile-card .profile-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--apollo-accent-orange);
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	border: 3px solid var(--apollo-accent-orange);
 }
 
 .apollo-widget-profile-card .profile-name {
-    margin: 0 0 5px;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--apollo-text);
+	margin: 0 0 5px;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--apollo-text);
 }
 
 .apollo-widget-profile-card .profile-pronouns {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
+	color: var(--apollo-text-muted);
+	font-size: 13px;
 }
 
 .apollo-widget-profile-card .profile-label {
-    margin: 10px 0;
-    padding: 5px 12px;
-    background: var(--apollo-accent-orange);
-    color: #fff;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    display: inline-block;
+	margin: 10px 0;
+	padding: 5px 12px;
+	background: var(--apollo-accent-orange);
+	color: #fff;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 500;
+	display: inline-block;
 }
 
 .apollo-widget-profile-card .profile-location,
 .apollo-widget-profile-card .profile-date {
-    margin: 5px 0;
-    color: var(--apollo-text-muted);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+	margin: 5px 0;
+	color: var(--apollo-text-muted);
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
 }
 
 .apollo-widget-profile-card .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
 }
 
 /* Badges Widget */
 .apollo-widget-badges {
-    padding: 15px;
+	padding: 15px;
 }
 
 .apollo-widget-badges .badges-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: center;
 }
 
 .apollo-widget-badges.badges-layout-row .badges-list {
-    flex-direction: row;
+	flex-direction: row;
 }
 
 .apollo-widget-badges.badges-layout-stack .badges-list {
-    flex-direction: row;
+	flex-direction: row;
 }
 
 .apollo-widget-badges.badges-layout-grid .badges-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
 }
 
 .apollo-widget-badges .badge-item {
-    cursor: pointer;
-    transition: transform 0.2s;
+	cursor: pointer;
+	transition: transform 0.2s;
 }
 
 .apollo-widget-badges .badge-item:hover {
-    transform: scale(1.1);
+	transform: scale(1.1);
 }
 
 .apollo-widget-badges .badge-image {
-    display: block;
+	display: block;
 }
 
 .apollo-widget-badges .badges-empty {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
-    text-align: center;
+	color: var(--apollo-text-muted);
+	font-size: 13px;
+	text-align: center;
 }
 
 /* Groups Widget */
 .apollo-widget-groups {
-    padding: 15px;
+	padding: 15px;
 }
 
 .apollo-widget-groups .widget-title {
-    margin: 0 0 12px;
-    font-size: 14px;
-    color: var(--apollo-text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+	margin: 0 0 12px;
+	font-size: 14px;
+	color: var(--apollo-text);
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .apollo-widget-groups .widget-title .dashicons {
-    color: var(--apollo-accent-blue);
+	color: var(--apollo-accent-blue);
 }
 
 .apollo-widget-groups .groups-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
 }
 
 .apollo-widget-groups.groups-layout-list .groups-list {
-    flex-direction: column;
+	flex-direction: column;
 }
 
 .apollo-widget-groups .group-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    text-decoration: none;
-    color: var(--apollo-text);
-    transition: background 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+	text-decoration: none;
+	color: var(--apollo-text);
+	transition: background 0.2s;
 }
 
 .apollo-widget-groups .group-item:hover {
-    background: rgba(0, 212, 255, 0.2);
+	background: rgba(0, 212, 255, 0.2);
 }
 
 .apollo-widget-groups .group-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    object-fit: cover;
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	object-fit: cover;
 }
 
 .apollo-widget-groups .group-name {
-    font-size: 13px;
+	font-size: 13px;
 }
 
 .apollo-widget-groups .groups-empty {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
+	color: var(--apollo-text-muted);
+	font-size: 13px;
 }
 
 /* Guestbook Widget */
 .apollo-widget-guestbook {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+	padding: 15px;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 .apollo-widget-guestbook .widget-title {
-    margin: 0 0 12px;
-    font-size: 14px;
-    color: var(--apollo-text);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+	margin: 0 0 12px;
+	font-size: 14px;
+	color: var(--apollo-text);
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .apollo-widget-guestbook .comment-count {
-    color: var(--apollo-text-muted);
-    font-size: 12px;
+	color: var(--apollo-text-muted);
+	font-size: 12px;
 }
 
 .apollo-widget-guestbook .depoimentos-list {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 12px;
+	flex: 1;
+	overflow-y: auto;
+	margin-bottom: 12px;
 }
 
 .apollo-widget-guestbook .depoimento-item {
-    display: flex;
-    gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	display: flex;
+	gap: 10px;
+	padding: 10px 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .apollo-widget-guestbook .depoimento-item:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .apollo-widget-guestbook .depoimento-avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
 }
 
 .apollo-widget-guestbook .depoimento-content {
-    flex: 1;
+	flex: 1;
 }
 
 .apollo-widget-guestbook .depoimento-author {
-    font-weight: 600;
-    color: var(--apollo-accent-orange);
-    font-size: 13px;
+	font-weight: 600;
+	color: var(--apollo-accent-orange);
+	font-size: 13px;
 }
 
 .apollo-widget-guestbook .depoimento-date {
-    color: var(--apollo-text-muted);
-    font-size: 11px;
-    margin-left: 8px;
+	color: var(--apollo-text-muted);
+	font-size: 11px;
+	margin-left: 8px;
 }
 
 .apollo-widget-guestbook .depoimento-text {
-    margin: 5px 0 0;
-    color: var(--apollo-text);
-    font-size: 13px;
-    line-height: 1.4;
+	margin: 5px 0 0;
+	color: var(--apollo-text);
+	font-size: 13px;
+	line-height: 1.4;
 }
 
 .apollo-widget-guestbook .depoimentos-empty {
-    color: var(--apollo-text-muted);
-    font-size: 13px;
-    text-align: center;
-    padding: 20px;
+	color: var(--apollo-text-muted);
+	font-size: 13px;
+	text-align: center;
+	padding: 20px;
 }
 
 /* Guestbook Form */
 .apollo-widget-guestbook .depoimento-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .apollo-widget-guestbook .depoimento-author-input,
 .apollo-widget-guestbook .depoimento-content-input {
-    width: 100%;
-    padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: var(--apollo-text);
-    font-size: 13px;
-    resize: none;
+	width: 100%;
+	padding: 8px 12px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 6px;
+	color: var(--apollo-text);
+	font-size: 13px;
+	resize: none;
 }
 
 .apollo-widget-guestbook .depoimento-author-input:focus,
 .apollo-widget-guestbook .depoimento-content-input:focus {
-    outline: none;
-    border-color: var(--apollo-accent-blue);
+	outline: none;
+	border-color: var(--apollo-accent-blue);
 }
 
 .apollo-widget-guestbook .depoimento-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--apollo-accent-orange);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: background 0.2s;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 16px;
+	background: var(--apollo-accent-orange);
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 500;
+	transition: background 0.2s;
 }
 
 .apollo-widget-guestbook .depoimento-submit:hover {
-    background: #ff8f00;
+	background: #ff8f00;
 }
 
 /* Trax Player Widget */
 .apollo-widget-trax-player {
-    padding: 10px;
-    height: 100%;
+	padding: 10px;
+	height: 100%;
 }
 
 .apollo-widget-trax-player iframe {
-    border-radius: 6px;
+	border-radius: 6px;
 }
 
 .apollo-widget-trax-player .apollo-widget-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 100%;
-    color: var(--apollo-text-muted);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	color: var(--apollo-text-muted);
 }
 
 .apollo-widget-trax-player .trax-unsupported {
-    color: var(--apollo-text-muted);
-    text-align: center;
-    padding: 20px;
+	color: var(--apollo-text-muted);
+	text-align: center;
+	padding: 20px;
 }
 
 /* Sticker Widget */
 .apollo-widget-sticker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px;
-    background: transparent;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5px;
+	background: transparent;
 }
 
 .apollo-widget-sticker .sticker-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 /* Note Widget */
 .apollo-widget-note {
-    padding: 15px;
-    padding-top: 25px;
-    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-    position: relative;
+	padding: 15px;
+	padding-top: 25px;
+	font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+	box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+	position: relative;
 }
 
 .apollo-widget-note .note-pin {
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 12px;
-    height: 12px;
-    background: #cc0000;
-    border-radius: 50%;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 12px;
+	height: 12px;
+	background: #cc0000;
+	border-radius: 50%;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .apollo-widget-note .note-content {
-    font-size: inherit;
-    line-height: 1.5;
-    word-wrap: break-word;
+	font-size: inherit;
+	line-height: 1.5;
+	word-wrap: break-word;
 }
 
 /* Error State */
 .apollo-widget-error {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ff4444;
-    font-size: 13px;
-    padding: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #ff4444;
+	font-size: 13px;
+	padding: 20px;
 }
 
 /* Edit Button */
 .apollo-builder-link {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    background: rgba(255, 111, 0, 0.9);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    font-size: 13px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+	position: absolute;
+	bottom: 15px;
+	right: 15px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	background: rgba(255, 111, 0, 0.9);
+	color: #fff;
+	text-decoration: none;
+	border-radius: 6px;
+	font-size: 13px;
+	opacity: 0.7;
+	transition: opacity 0.2s;
 }
 
 .apollo-builder-link:hover {
-    opacity: 1;
+	opacity: 1;
 }
 
 /* ==========================================================================
-   Stickers Layer (Public View)
-   ========================================================================== */
+	Stickers Layer (Public View)
+	========================================================================== */
 .apollo-stickers-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5;
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 5;
 }
 
 .apollo-sticker {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    user-select: none;
-    transition: filter 0.2s;
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+	user-select: none;
+	transition: filter 0.2s;
 }
 
 .apollo-sticker img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* Sticker animations on page load */
 @keyframes stickerPop {
-    0% {
-        opacity: 0;
-        transform: scale(0.5) translateY(20px);
-    }
+	0% {
+		opacity: 0;
+		transform: scale(0.5) translateY(20px);
+	}
 
-    60% {
-        transform: scale(1.1) translateY(-5px);
-    }
+	60% {
+		transform: scale(1.1) translateY(-5px);
+	}
 
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+	100% {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
 }
 
 .apollo-sticker {
-    animation: stickerPop 0.4s ease-out backwards;
+	animation: stickerPop 0.4s ease-out backwards;
 }
 
 .apollo-sticker:nth-child(1) {
-    animation-delay: 0.1s;
+	animation-delay: 0.1s;
 }
 
 .apollo-sticker:nth-child(2) {
-    animation-delay: 0.15s;
+	animation-delay: 0.15s;
 }
 
 .apollo-sticker:nth-child(3) {
-    animation-delay: 0.2s;
+	animation-delay: 0.2s;
 }
 
 .apollo-sticker:nth-child(4) {
-    animation-delay: 0.25s;
+	animation-delay: 0.25s;
 }
 
 .apollo-sticker:nth-child(5) {
-    animation-delay: 0.3s;
+	animation-delay: 0.3s;
 }
 
 .apollo-sticker:nth-child(6) {
-    animation-delay: 0.35s;
+	animation-delay: 0.35s;
 }
 
 .apollo-sticker:nth-child(7) {
-    animation-delay: 0.4s;
+	animation-delay: 0.4s;
 }
 
 .apollo-sticker:nth-child(8) {
-    animation-delay: 0.45s;
+	animation-delay: 0.45s;
 }
 
 .apollo-sticker:nth-child(9) {
-    animation-delay: 0.5s;
+	animation-delay: 0.5s;
 }
 
 .apollo-sticker:nth-child(10) {
-    animation-delay: 0.55s;
+	animation-delay: 0.55s;
 }
 
 /* ==========================================================================
-   Responsive
-   ========================================================================== */
+	Responsive
+	========================================================================== */
 @media (max-width: 768px) {
-    .apollo-home-board {
-        min-height: 400px;
-        border-radius: 0;
-    }
+	.apollo-home-board {
+		min-height: 400px;
+		border-radius: 0;
+	}
 
-    .apollo-sticker img {
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-    }
+	.apollo-sticker img {
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+	}
 }

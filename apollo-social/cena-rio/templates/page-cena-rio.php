@@ -163,12 +163,15 @@ get_header();
 			switch ( $current_tab ) {
 				case 'documents':
 					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/documents-list.php';
+
 					break;
 				case 'plans':
 					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/plans-list.php';
+
 					break;
 				default:
 					include APOLLO_SOCIAL_PLUGIN_DIR . 'cena-rio/templates/dashboard-content.php';
+
 					break;
 			}
 			?>

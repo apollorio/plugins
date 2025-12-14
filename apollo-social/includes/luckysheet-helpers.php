@@ -50,6 +50,7 @@ function apollo_spreadsheet_to_luckysheet( array $rows, array $options = array()
 	}
 
 	$converter = new ( APOLLO_LUCKYSHEET_CONVERTER_CLASS )( $options );
+
 	return $converter->fromArray( $rows, $options );
 }
 
@@ -70,6 +71,7 @@ function apollo_luckysheet_to_array( $json ) {
 
 	$class     = APOLLO_LUCKYSHEET_CONVERTER_CLASS;
 	$converter = new $class();
+
 	return $converter->toArray( $json );
 }
 
@@ -162,6 +164,7 @@ function apollo_spreadsheet_to_csv( $source ) {
 
 	$class     = APOLLO_LUCKYSHEET_CONVERTER_CLASS;
 	$converter = new $class();
+
 	return $converter->toCsv( $json );
 }
 
@@ -307,12 +310,14 @@ function apollo_ajax_save_spreadsheet() {
 	// Verify nonce
 	if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_spreadsheet_save' ) ) {
 		wp_send_json_error( array( 'message' => 'Nonce inválido.' ), 403 );
+
 		return;
 	}
 
 	// Check capability
 	if ( ! current_user_can( 'edit_posts' ) ) {
 		wp_send_json_error( array( 'message' => 'Sem permissão.' ), 403 );
+
 		return;
 	}
 
@@ -322,6 +327,7 @@ function apollo_ajax_save_spreadsheet() {
 
 	if ( $post_id < 1 ) {
 		wp_send_json_error( array( 'message' => 'ID inválido.' ), 400 );
+
 		return;
 	}
 
@@ -329,6 +335,7 @@ function apollo_ajax_save_spreadsheet() {
 	$decoded = json_decode( $data, true );
 	if ( json_last_error() !== JSON_ERROR_NONE ) {
 		wp_send_json_error( array( 'message' => 'JSON inválido.' ), 400 );
+
 		return;
 	}
 

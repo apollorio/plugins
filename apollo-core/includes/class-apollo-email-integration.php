@@ -48,6 +48,7 @@ class Apollo_Email_Integration {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -151,6 +152,7 @@ class Apollo_Email_Integration {
 	 */
 	private function get_emails_sent_today(): int {
 		$count = get_transient( 'apollo_emails_sent_' . gmdate( 'Y-m-d' ) );
+
 		return (int) ( $count ?: 0 );
 	}
 

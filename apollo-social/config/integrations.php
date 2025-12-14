@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Integration Configuration for External Plugins
  */

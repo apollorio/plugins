@@ -1,4 +1,5 @@
 <?php
+
 namespace Apollo\Application\Classifieds;
 
 use Apollo\Domain\Entities\GroupEntity;
@@ -72,6 +73,7 @@ class BindSeason {
 	 */
 	public function getAvailableSeasons(): array {
 		$seasons_config = include APOLLO_SOCIAL_PLUGIN_DIR . 'config/seasons.php';
+
 		return array_keys( $seasons_config );
 	}
 
@@ -83,6 +85,7 @@ class BindSeason {
 	 */
 	public function isValidSeasonSlug( string $season_slug ): bool {
 		$available_seasons = $this->getAvailableSeasons();
+
 		return in_array( $season_slug, $available_seasons );
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Model
  *
@@ -24,162 +25,168 @@ namespace Apollo\Modules\Signatures\Models;
  *
  * @since 1.0.0
  */
-class DocumentTemplate {
+class DocumentTemplate
+{
+    /** @var int */
+    public $id;
 
-	/** @var int */
-	public $id;
+    /** @var string */
+    public $name;
 
-	/** @var string */
-	public $name;
+    /** @var string */
+    public $description;
 
-	/** @var string */
-	public $description;
+    /** @var string HTML/Markdown content with placeholders */
+    public $content;
 
-	/** @var string HTML/Markdown content with placeholders */
-	public $content;
+    /** @var array Available placeholders */
+    public $placeholders;
 
-	/** @var array Available placeholders */
-	public $placeholders;
+    /** @var string Template category */
+    public $category;
 
-	/** @var string Template category */
-	public $category;
+    /** @var bool */
+    public $is_active;
 
-	/** @var bool */
-	public $is_active;
+    /** @var string */
+    public $created_at;
 
-	/** @var string */
-	public $created_at;
+    /** @var string */
+    public $updated_at;
 
-	/** @var string */
-	public $updated_at;
+    /** @var int User who created */
+    public $created_by;
 
-	/** @var int User who created */
-	public $created_by;
+    /**
+     * Constructor
+     */
+    public function __construct(array $data = [])
+    {
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
 
-	/**
-	 * Constructor
-	 */
-	public function __construct( array $data = [] ) {
-		foreach ( $data as $key => $value ) {
-			if ( property_exists( $this, $key ) ) {
-				$this->$key = $value;
-			}
-		}
+        // Ensure placeholders is array
+        if (is_string($this->placeholders)) {
+            $this->placeholders = json_decode($this->placeholders, true) ?: [];
+        }
+    }
 
-		// Ensure placeholders is array
-		if ( is_string( $this->placeholders ) ) {
-			$this->placeholders = json_decode( $this->placeholders, true ) ?: [];
-		}
-	}
+    /**
+     * Get placeholders from content
+     *
+     * @return array
+     */
+    public function extractPlaceholders(): array
+    {
+        if (empty($this->content)) {
+            return [];
+        }
 
-	/**
-	 * Get placeholders from content
-	 *
-	 * @return array
-	 */
-	public function extractPlaceholders(): array {
-		if ( empty( $this->content ) ) {
-			return [];
-		}
+        // Extract {{placeholder}} patterns
+        preg_match_all('/\{\{([^}]+)\}\}/', $this->content, $matches);
 
-		// Extract {{placeholder}} patterns
-		preg_match_all( '/\{\{([^}]+)\}\}/', $this->content, $matches );
+        $placeholders = [];
+        foreach ($matches[1] as $placeholder) {
+            $key                  = trim($placeholder);
+            $placeholders[ $key ] = [
+                'key'      => $key,
+                'label'    => ucfirst(str_replace('_', ' ', $key)),
+                'type'     => $this->guessPlaceholderType($key),
+                'required' => true,
+            ];
+        }
 
-		$placeholders = [];
-		foreach ( $matches[1] as $placeholder ) {
-			$key                  = trim( $placeholder );
-			$placeholders[ $key ] = [
-				'key'      => $key,
-				'label'    => ucfirst( str_replace( '_', ' ', $key ) ),
-				'type'     => $this->guessPlaceholderType( $key ),
-				'required' => true,
-			];
-		}
+        return $placeholders;
+    }
 
-		return $placeholders;
-	}
+    /**
+     * Guess placeholder type based on key name
+     *
+     * @param string $key
+     * @return string
+     */
+    private function guessPlaceholderType(string $key): string
+    {
+        $key = strtolower($key);
 
-	/**
-	 * Guess placeholder type based on key name
-	 *
-	 * @param string $key
-	 * @return string
-	 */
-	private function guessPlaceholderType( string $key ): string {
-		$key = strtolower( $key );
+        if (strpos($key, 'email') !== false) {
+            return 'email';
+        }
+        if (strpos($key, 'phone') !== false || strpos($key, 'telefone') !== false) {
+            return 'tel';
+        }
+        if (strpos($key, 'date') !== false || strpos($key, 'data') !== false) {
+            return 'date';
+        }
+        if (strpos($key, 'cpf') !== false || strpos($key, 'cnpj') !== false) {
+            return 'text';
+        }
+        if (strpos($key, 'value') !== false || strpos($key, 'valor') !== false || strpos($key, 'price') !== false) {
+            return 'number';
+        }
 
-		if ( strpos( $key, 'email' ) !== false ) {
-			return 'email';
-		}
-		if ( strpos( $key, 'phone' ) !== false || strpos( $key, 'telefone' ) !== false ) {
-			return 'tel';
-		}
-		if ( strpos( $key, 'date' ) !== false || strpos( $key, 'data' ) !== false ) {
-			return 'date';
-		}
-		if ( strpos( $key, 'cpf' ) !== false || strpos( $key, 'cnpj' ) !== false ) {
-			return 'text';
-		}
-		if ( strpos( $key, 'value' ) !== false || strpos( $key, 'valor' ) !== false || strpos( $key, 'price' ) !== false ) {
-			return 'number';
-		}
+        return 'text';
+    }
 
-		return 'text';
-	}
+    /**
+     * Render template with data
+     *
+     * @param array $data
+     * @return string
+     */
+    public function render(array $data): string
+    {
+        $content = $this->content;
 
-	/**
-	 * Render template with data
-	 *
-	 * @param array $data
-	 * @return string
-	 */
-	public function render( array $data ): string {
-		$content = $this->content;
+        foreach ($data as $key => $value) {
+            $placeholder = '{{' . $key . '}}';
+            $content     = str_replace($placeholder, (string) $value, $content);
+        }
 
-		foreach ( $data as $key => $value ) {
-			$placeholder = '{{' . $key . '}}';
-			$content     = str_replace( $placeholder, (string) $value, $content );
-		}
+        return $content;
+    }
 
-		return $content;
-	}
+    /**
+     * Validate required placeholders are provided
+     *
+     * @param array $data
+     * @return array Validation errors
+     */
+    public function validateData(array $data): array
+    {
+        $errors       = [];
+        $placeholders = $this->extractPlaceholders();
 
-	/**
-	 * Validate required placeholders are provided
-	 *
-	 * @param array $data
-	 * @return array Validation errors
-	 */
-	public function validateData( array $data ): array {
-		$errors       = [];
-		$placeholders = $this->extractPlaceholders();
+        foreach ($placeholders as $key => $config) {
+            if ($config['required'] && (! isset($data[ $key ]) || empty($data[ $key ]))) {
+                $errors[ $key ] = "O campo {$config['label']} é obrigatório";
+            }
+        }
 
-		foreach ( $placeholders as $key => $config ) {
-			if ( $config['required'] && ( ! isset( $data[ $key ] ) || empty( $data[ $key ] ) ) ) {
-				$errors[ $key ] = "O campo {$config['label']} é obrigatório";
-			}
-		}
+        return $errors;
+    }
 
-		return $errors;
-	}
-
-	/**
-	 * Convert to array
-	 *
-	 * @return array
-	 */
-	public function toArray(): array {
-		return [
-			'id'           => $this->id,
-			'name'         => $this->name,
-			'description'  => $this->description,
-			'content'      => $this->content,
-			'placeholders' => $this->placeholders,
-			'category'     => $this->category,
-			'is_active'    => $this->is_active,
-			'created_at'   => $this->created_at,
-			'updated_at'   => $this->updated_at,
-			'created_by'   => $this->created_by,
-		];
-	}
+    /**
+     * Convert to array
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'id'           => $this->id,
+            'name'         => $this->name,
+            'description'  => $this->description,
+            'content'      => $this->content,
+            'placeholders' => $this->placeholders,
+            'category'     => $this->category,
+            'is_active'    => $this->is_active,
+            'created_at'   => $this->created_at,
+            'updated_at'   => $this->updated_at,
+            'created_by'   => $this->created_by,
+        ];
+    }
 }

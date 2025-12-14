@@ -94,6 +94,9 @@ require_once __DIR__ . '/src/Helpers/BadgesHelper.php';
 require_once __DIR__ . '/includes/docs-helpers.php';
 require_once __DIR__ . '/includes/docs-signature-helpers.php';
 
+// Load Apollo Base Assets (base.js from CDN with local fallback - ALL PAGES).
+require_once __DIR__ . '/includes/class-apollo-base-assets.php';
+
 // Load Plano Editor components
 require_once __DIR__ . '/includes/class-plano-editor-assets.php';
 require_once __DIR__ . '/src/Api/Textures.php';

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -234,6 +235,7 @@ function apollo_process_quiz_submission( $quiz_answers, $form_type, $user_id = 0
 					'attempt_count' => $attempt_count,
 				);
 				$all_passed              = false;
+
 				continue;
 			}
 		}
@@ -299,6 +301,7 @@ function apollo_check_quiz_rate_limit( $ip, $user_id = 0, $max_attempts = 10 ) {
 
 	if ( false === $attempts ) {
 		set_transient( $transient_key, 1, HOUR_IN_SECONDS );
+
 		return true;
 	}
 
@@ -307,5 +310,6 @@ function apollo_check_quiz_rate_limit( $ip, $user_id = 0, $max_attempts = 10 ) {
 	}
 
 	set_transient( $transient_key, $attempts + 1, HOUR_IN_SECONDS );
+
 	return true;
 }

@@ -9,28 +9,28 @@
 
 ?>
 
-<div class="apollo-mod-actions" data-group-id="<?php echo esc_attr( $group_id ); ?>">
+<div class="apollo-mod-actions" data-group-id="<?php echo esc_attr($group_id); ?>">
 	<div class="apollo-mod-header">
 		<h4>Ações de Moderação</h4>
-		<span class="apollo-group-status" data-ap-tooltip="<?php esc_attr_e( 'Status atual de moderação', 'apollo-social' ); ?>">Status: <?php echo esc_html( $status ); ?></span>
+		<span class="apollo-group-status" data-ap-tooltip="<?php esc_attr_e('Status atual de moderação', 'apollo-social'); ?>">Status: <?php echo esc_html($status); ?></span>
 	</div>
 
 	<div class="apollo-mod-buttons">
 		<button type="button" class="apollo-btn apollo-btn-success apollo-approve-btn"
-				data-group-id="<?php echo esc_attr( $group_id ); ?>"
-				data-ap-tooltip="<?php esc_attr_e( 'Aprovar e publicar este grupo', 'apollo-social' ); ?>">
+				data-group-id="<?php echo esc_attr($group_id); ?>"
+				data-ap-tooltip="<?php esc_attr_e('Aprovar e publicar este grupo', 'apollo-social'); ?>">
 			✓ Aprovar
 		</button>
 
 		<button type="button" class="apollo-btn apollo-btn-danger apollo-reject-btn"
-				data-group-id="<?php echo esc_attr( $group_id ); ?>"
-				data-ap-tooltip="<?php esc_attr_e( 'Rejeitar este grupo', 'apollo-social' ); ?>">
+				data-group-id="<?php echo esc_attr($group_id); ?>"
+				data-ap-tooltip="<?php esc_attr_e('Rejeitar este grupo', 'apollo-social'); ?>">
 			✗ Rejeitar
 		</button>
 	</div>
 
 	<!-- Rejection reason modal (hidden by default) -->
-	<div class="apollo-rejection-modal" id="apollo-rejection-modal-<?php echo esc_attr( $group_id ); ?>" style="display: none;">
+	<div class="apollo-rejection-modal" id="apollo-rejection-modal-<?php echo esc_attr($group_id); ?>" style="display: none;">
 		<div class="apollo-modal-content">
 			<div class="apollo-modal-header">
 				<h5>Rejeitar Grupo</h5>
@@ -39,7 +39,7 @@
 
 			<div class="apollo-modal-body">
 				<p>Motivo da rejeição:</p>
-				<textarea id="apollo-rejection-reason-<?php echo esc_attr( $group_id ); ?>"
+				<textarea id="apollo-rejection-reason-<?php echo esc_attr($group_id); ?>"
 							class="apollo-rejection-textarea"
 							placeholder="Explique o motivo da rejeição..."
 							rows="4"></textarea>
@@ -60,7 +60,7 @@
 					Cancelar
 				</button>
 				<button type="button" class="apollo-btn apollo-btn-danger apollo-confirm-reject"
-						data-group-id="<?php echo esc_attr( $group_id ); ?>">
+						data-group-id="<?php echo esc_attr($group_id); ?>">
 					Confirmar Rejeição
 				</button>
 			</div>

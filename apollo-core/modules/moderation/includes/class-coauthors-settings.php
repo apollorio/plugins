@@ -28,7 +28,7 @@ class Apollo_Coauthors_Settings {
 	/**
 	 * Option key for co-authors settings
 	 */
-	const OPTION_KEY = 'apollo_coauthors_settings';
+	public const OPTION_KEY = 'apollo_coauthors_settings';
 
 	/**
 	 * Supported CPTs for co-authors
@@ -145,6 +145,7 @@ class Apollo_Coauthors_Settings {
 	 */
 	public static function get_cpt_settings( string $cpt ): array {
 		$settings = self::get_settings();
+
 		return isset( $settings[ $cpt ] ) ? $settings[ $cpt ] : self::get_default_settings( $cpt );
 	}
 
@@ -156,6 +157,7 @@ class Apollo_Coauthors_Settings {
 	 */
 	public static function is_enabled( string $cpt ): bool {
 		$settings = self::get_cpt_settings( $cpt );
+
 		return ! empty( $settings['enabled'] );
 	}
 
@@ -691,6 +693,7 @@ class Apollo_Coauthors_Settings {
 	 */
 	public static function get_max_coauthors( string $cpt ): int {
 		$settings = self::get_cpt_settings( $cpt );
+
 		return isset( $settings['max_coauthors'] ) ? (int) $settings['max_coauthors'] : 5;
 	}
 
@@ -702,6 +705,7 @@ class Apollo_Coauthors_Settings {
 	 */
 	public static function get_max_pinned_files( string $cpt ): int {
 		$settings = self::get_cpt_settings( $cpt );
+
 		return isset( $settings['max_pinned_files'] ) ? (int) $settings['max_pinned_files'] : 10;
 	}
 }

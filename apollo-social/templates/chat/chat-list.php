@@ -6,14 +6,14 @@
  * Renders chat interface with thread switching and message bubbles
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 $conversations = $view['data']['conversations'] ?? [];
-$current_user  = $view['data']['current_user'] ?? [];
-$ajax_url      = admin_url( 'admin-ajax.php' );
-$nonce         = wp_create_nonce( 'apollo_chat' );
+$current_user  = $view['data']['current_user']  ?? [];
+$ajax_url      = admin_url('admin-ajax.php');
+$nonce         = wp_create_nonce('apollo_chat');
 ?>
 
 <section class="aprioEXP-body">
@@ -35,7 +35,7 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 						Mensagens · Apollo Social
 					</span>
 					<span class="text-sm font-semibold">
-						@<?php echo esc_html( $current_user['name'] ?? 'user' ); ?> · Conversas instantâneas
+						@<?php echo esc_html($current_user['name'] ?? 'user'); ?> · Conversas instantâneas
 					</span>
 				</div>
 			</div>
@@ -65,7 +65,7 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 
 				<button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
 					<div class="h-7 w-7 overflow-hidden rounded-full bg-slate-200">
-						<img src="<?php echo esc_url( $current_user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $current_user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+						<img src="<?php echo esc_url($current_user['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($current_user['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 					</div>
 				</button>
 			</div>
@@ -115,33 +115,33 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 
 					<!-- Lista conversas (clean, cards brancos, active soft) -->
 					<div class="flex-1 overflow-y-auto space-y-1 text-[12px]">
-						<?php if ( empty( $conversations ) ) : ?>
+						<?php if (empty($conversations)) : ?>
 							<p class="text-center text-slate-400 py-8">Nenhuma conversa ainda</p>
 						<?php else : ?>
-							<?php foreach ( $conversations as $index => $conv ) : ?>
+							<?php foreach ($conversations as $index => $conv) : ?>
 								<button
 									type="button"
 									class="w-full text-left rounded-xl px-2.5 py-2 flex items-start gap-2 border <?php echo $index === 0 ? 'border-slate-200 bg-slate-50' : 'border-transparent hover:border-slate-200 hover:bg-slate-50'; ?>"
 									data-thread-trigger
-									data-thread-id="<?php echo esc_attr( $conv['id'] ?? 'conv-' . $index ); ?>"
+									data-thread-id="<?php echo esc_attr($conv['id'] ?? 'conv-' . $index); ?>"
 									aria-selected="<?php echo $index === 0 ? 'true' : 'false'; ?>"
 								>
 									<div class="shrink-0">
-										<div class="h-8 w-8 rounded-full <?php echo esc_attr( $conv['bg_color'] ?? 'bg-slate-900' ); ?> flex items-center justify-center text-[12px] font-semibold text-white">
-											<?php echo esc_html( $conv['initials'] ?? '??' ); ?>
+										<div class="h-8 w-8 rounded-full <?php echo esc_attr($conv['bg_color'] ?? 'bg-slate-900'); ?> flex items-center justify-center text-[12px] font-semibold text-white">
+											<?php echo esc_html($conv['initials'] ?? '??'); ?>
 										</div>
 									</div>
 									<div class="min-w-0 flex-1">
 										<div class="flex items-center justify-between gap-2">
-											<p class="truncate font-semibold text-[12px]"><?php echo esc_html( $conv['title'] ?? 'Conversa' ); ?></p>
-											<span class="text-[10px] text-slate-400"><?php echo esc_html( $conv['time'] ?? 'agora' ); ?></span>
+											<p class="truncate font-semibold text-[12px]"><?php echo esc_html($conv['title'] ?? 'Conversa'); ?></p>
+											<span class="text-[10px] text-slate-400"><?php echo esc_html($conv['time'] ?? 'agora'); ?></span>
 										</div>
 										<p class="truncate text-[11px] text-slate-600">
-											<?php echo esc_html( $conv['last_message'] ?? 'Nenhuma mensagem' ); ?>
+											<?php echo esc_html($conv['last_message'] ?? 'Nenhuma mensagem'); ?>
 										</p>
-										<?php if ( ! empty( $conv['meta'] ) ) : ?>
+										<?php if (! empty($conv['meta'])) : ?>
 											<div class="mt-1 flex items-center gap-1 text-[10px] text-slate-400">
-												<span><?php echo esc_html( $conv['meta'] ); ?></span>
+												<span><?php echo esc_html($conv['meta']); ?></span>
 											</div>
 										<?php endif; ?>
 									</div>
@@ -157,14 +157,14 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 					<header class="px-3 md:px-4 py-2.5 border-b border-slate-200 flex items-center justify-between gap-2 bg-white" id="im-thread-header-main">
 						<div class="flex items-center gap-2 min-w-0">
 							<div class="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-semibold text-white bg-slate-900" id="im-thread-avatar">
-								<?php echo ! empty( $conversations ) ? esc_html( $conversations[0]['initials'] ?? '??' ) : '??'; ?>
+								<?php echo ! empty($conversations) ? esc_html($conversations[0]['initials'] ?? '??') : '??'; ?>
 							</div>
 							<div class="min-w-0">
 								<div class="flex items-center gap-1">
 									<p class="text-[13px] font-semibold truncate" id="im-thread-title">
-										<?php echo ! empty( $conversations ) ? esc_html( $conversations[0]['title'] ?? 'Selecione uma conversa' ) : 'Selecione uma conversa'; ?>
+										<?php echo ! empty($conversations) ? esc_html($conversations[0]['title'] ?? 'Selecione uma conversa') : 'Selecione uma conversa'; ?>
 									</p>
-									<?php if ( ! empty( $conversations ) && isset( $conversations[0]['is_private'] ) ) : ?>
+									<?php if (! empty($conversations) && isset($conversations[0]['is_private'])) : ?>
 										<span class="aprioEXP-metric-chip hidden md:inline-flex">
 											<i class="ri-lock-2-line text-[11px]"></i>
 											<span>Núcleo privado</span>
@@ -172,7 +172,7 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 									<?php endif; ?>
 								</div>
 								<p class="text-[11px] text-slate-500 truncate" id="im-thread-subtitle">
-									<?php echo ! empty( $conversations ) ? esc_html( $conversations[0]['subtitle'] ?? '' ) : 'Selecione uma conversa para começar'; ?>
+									<?php echo ! empty($conversations) ? esc_html($conversations[0]['subtitle'] ?? '') : 'Selecione uma conversa para começar'; ?>
 								</p>
 							</div>
 						</div>
@@ -241,10 +241,10 @@ $nonce         = wp_create_nonce( 'apollo_chat' );
 
 <script>
 window.apolloChatData = {
-	ajaxUrl: <?php echo json_encode( $ajax_url ); ?>,
-	nonce: <?php echo json_encode( $nonce ); ?>,
-	currentUserId: <?php echo absint( $current_user['id'] ?? 0 ); ?>,
-	conversations: <?php echo json_encode( $conversations ); ?>
+	ajaxUrl: <?php echo json_encode($ajax_url); ?>,
+	nonce: <?php echo json_encode($nonce); ?>,
+	currentUserId: <?php echo absint($current_user['id'] ?? 0); ?>,
+	conversations: <?php echo json_encode($conversations); ?>
 };
 </script>
 

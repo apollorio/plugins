@@ -30,6 +30,7 @@ class CommentsEndpoint {
 
 		if ( ! is_user_logged_in() ) {
 			wp_send_json_error( array( 'message' => __( 'Você precisa estar logado para comentar.', 'apollo-social' ) ) );
+
 			return;
 		}
 
@@ -38,6 +39,7 @@ class CommentsEndpoint {
 
 		if ( ! $post_id || ! $comment_content ) {
 			wp_send_json_error( array( 'message' => __( 'Dados inválidos.', 'apollo-social' ) ) );
+
 			return;
 		}
 
@@ -58,6 +60,7 @@ class CommentsEndpoint {
 
 		if ( is_wp_error( $comment_id ) ) {
 			wp_send_json_error( array( 'message' => $comment_id->get_error_message() ) );
+
 			return;
 		}
 
@@ -101,4 +104,3 @@ class CommentsEndpoint {
 		<?php
 	}
 }
-

@@ -212,7 +212,7 @@ function apollo_rest_quiz_attempt( $request ) {
 	} catch ( Exception $e ) {
 		// Log the error with context.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
 					'[Apollo Core] Quiz attempt error - Question: %s, Form: %s, Message: %s, File: %s:%d',

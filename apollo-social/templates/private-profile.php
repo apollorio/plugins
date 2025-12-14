@@ -12,58 +12,58 @@
  * @version 1.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // Require login.
-if ( ! is_user_logged_in() ) {
-	wp_safe_redirect( wp_login_url( home_url( '/meu-perfil/' ) ) );
-	exit;
+if (! is_user_logged_in()) {
+    wp_safe_redirect(wp_login_url(home_url('/meu-perfil/')));
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Base JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
+        // Base JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
 
-		// Motion One.
-		wp_enqueue_script(
-			'motion-one',
-			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			[],
-			'10.0.0',
-			true
-		);
-	},
-	10
+        // Motion One.
+        wp_enqueue_script(
+            'motion-one',
+            'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
+            [],
+            '10.0.0',
+            true
+        );
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
 // User data - avoid overriding WP globals.
@@ -79,62 +79,62 @@ $user_email    = $user_obj->user_email;
 $user_username = $user_obj->user_login;
 
 // Profile meta.
-$user_bio          = get_user_meta( $user_id, 'description', true );
-$user_avatar       = get_avatar_url( $user_id, [ 'size' => 160 ] );
-$user_location     = get_user_meta( $user_id, '_apollo_location', true );
-$user_role_display = get_user_meta( $user_id, '_apollo_role_display', true );
-$industry_access   = get_user_meta( $user_id, '_apollo_industry_access', true );
+$user_bio          = get_user_meta($user_id, 'description', true);
+$user_avatar       = get_avatar_url($user_id, [ 'size' => 160 ]);
+$user_location     = get_user_meta($user_id, '_apollo_location', true);
+$user_role_display = get_user_meta($user_id, '_apollo_role_display', true);
+$industry_access   = get_user_meta($user_id, '_apollo_industry_access', true);
 
 // Stats.
 $stats = [
-	'producer'  => (int) get_user_meta( $user_id, '_apollo_producer_count', true ),
-	'favorited' => (int) get_user_meta( $user_id, '_apollo_favorited_count', true ),
-	'posts'     => (int) count_user_posts( $user_id ),
-	'comments'  => (int) get_user_meta( $user_id, '_apollo_comment_count', true ),
-	'liked'     => (int) get_user_meta( $user_id, '_apollo_liked_count', true ),
+    'producer'  => (int) get_user_meta($user_id, '_apollo_producer_count', true),
+    'favorited' => (int) get_user_meta($user_id, '_apollo_favorited_count', true),
+    'posts'     => (int) count_user_posts($user_id),
+    'comments'  => (int) get_user_meta($user_id, '_apollo_comment_count', true),
+    'liked'     => (int) get_user_meta($user_id, '_apollo_liked_count', true),
 ];
 
 // Memberships (roles/badges).
-$memberships = get_user_meta( $user_id, '_apollo_memberships', true );
-if ( ! is_array( $memberships ) ) {
-	$memberships = [ 'Member' ];
+$memberships = get_user_meta($user_id, '_apollo_memberships', true);
+if (! is_array($memberships)) {
+    $memberships = [ 'Member' ];
 }
 
 // User's nucleos (private groups).
-$user_nucleos = get_user_meta( $user_id, '_apollo_nucleos', true );
-if ( ! is_array( $user_nucleos ) ) {
-	$user_nucleos = [];
+$user_nucleos = get_user_meta($user_id, '_apollo_nucleos', true);
+if (! is_array($user_nucleos)) {
+    $user_nucleos = [];
 }
 
 // User's communities.
-$user_communities = get_user_meta( $user_id, '_apollo_communities', true );
-if ( ! is_array( $user_communities ) ) {
-	$user_communities = [];
+$user_communities = get_user_meta($user_id, '_apollo_communities', true);
+if (! is_array($user_communities)) {
+    $user_communities = [];
 }
 
 // Favorited events.
-$favorited_events = get_user_meta( $user_id, '_apollo_favorited_events', true );
-if ( ! is_array( $favorited_events ) ) {
-	$favorited_events = [];
+$favorited_events = get_user_meta($user_id, '_apollo_favorited_events', true);
+if (! is_array($favorited_events)) {
+    $favorited_events = [];
 }
 
 // Pending documents.
-$pending_docs = get_user_meta( $user_id, '_apollo_pending_docs', true );
-if ( ! is_array( $pending_docs ) ) {
-	$pending_docs = [];
+$pending_docs = get_user_meta($user_id, '_apollo_pending_docs', true);
+if (! is_array($pending_docs)) {
+    $pending_docs = [];
 }
 
 // Public page URL.
-$public_page_url = home_url( '/id/' . $user_username );
+$public_page_url = home_url('/id/' . $user_username);
 
 // Count nucleos and communities.
-$nucleo_count    = count( $user_nucleos );
-$community_count = count( $user_communities );
+$nucleo_count    = count($user_nucleos);
+$community_count = count($user_communities);
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full bg-white">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Meu Perfil | Apollo</title>
 	<?php wp_head(); ?>
@@ -149,22 +149,22 @@ $community_count = count( $user_communities );
 		<!-- ========================== -->
 		<header class="h-14 flex items-center justify-between border-b bg-white/80 backdrop-blur px-3 md:px-6">
 			<div class="flex items-center gap-3">
-				<a href="<?php echo esc_url( home_url() ); ?>" class="inline-flex h-8 w-8 items-center justify-center menutags bg-slate-900 text-white" data-tooltip="Voltar ao início">
+				<a href="<?php echo esc_url(home_url()); ?>" class="inline-flex h-8 w-8 items-center justify-center menutags bg-slate-900 text-white" data-tooltip="Voltar ao início">
 					<i class="ri-slack-line text-[18px]"></i>
 				</a>
 				<div class="flex flex-col">
 					<span class="text-[10px] uppercase tracking-[0.12em] text-slate-400">Rede Social Cultural Carioca</span>
-					<span class="text-sm font-semibold">@<?php echo esc_html( $user_username ); ?> · Apollo::rio</span>
+					<span class="text-sm font-semibold">@<?php echo esc_html($user_username); ?> · Apollo::rio</span>
 				</div>
 			</div>
 			<div class="flex items-center gap-2 text-[11px]">
-				<a href="<?php echo esc_url( $public_page_url ); ?>"
+				<a href="<?php echo esc_url($public_page_url); ?>"
 					class="hidden md:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
 					target="_blank" data-tooltip="Ver sua página pública">
 					<i class="ri-eye-line text-xs"></i>
 					<span>Ver como visitante</span>
 				</a>
-				<a href="<?php echo esc_url( $public_page_url ); ?>"
+				<a href="<?php echo esc_url($public_page_url); ?>"
 					class="inline-flex items-center gap-1 rounded-md bg-slate-900 px-3 py-1.5 font-medium text-white"
 					target="_blank">
 					<i class="ri-external-link-line text-xs"></i>
@@ -172,8 +172,8 @@ $community_count = count( $user_communities );
 				</a>
 				<button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
 					<div class="h-7 w-7 overflow-hidden rounded-full bg-slate-200">
-						<img src="<?php echo esc_url( $user_avatar ); ?>"
-							alt="<?php echo esc_attr( $display_name ); ?>"
+						<img src="<?php echo esc_url($user_avatar); ?>"
+							alt="<?php echo esc_attr($display_name); ?>"
 							class="h-full w-full object-cover">
 					</div>
 				</button>
@@ -200,12 +200,12 @@ $community_count = count( $user_communities );
 								<!-- Avatar -->
 								<div class="relative shrink-0">
 									<div class="h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-full bg-gradient-to-tr from-orange-500 via-rose-500 to-amber-400 aspect-square">
-										<img src="<?php echo esc_url( $user_avatar ); ?>"
+										<img src="<?php echo esc_url($user_avatar); ?>"
 											alt="Avatar"
 											class="h-full w-full object-cover mix-blend-luminosity">
 									</div>
 									<!-- Badge -->
-									<?php if ( $industry_access ) : ?>
+									<?php if ($industry_access) : ?>
 									<span class="absolute bottom-0 right-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] text-white ring-2 ring-white z-10" data-tooltip="Industry Access">
 										<i class="ri-flashlight-fill"></i>
 									</span>
@@ -215,11 +215,11 @@ $community_count = count( $user_communities );
 								<!-- User Info -->
 								<div class="min-w-0 flex-1">
 									<div class="flex flex-wrap items-center gap-2">
-										<h1 class="truncate text-base md:text-lg font-semibold"><?php echo esc_html( $display_name ); ?></h1>
-										<?php if ( $user_role_display ) : ?>
+										<h1 class="truncate text-base md:text-lg font-semibold"><?php echo esc_html($display_name); ?></h1>
+										<?php if ($user_role_display) : ?>
 										<span class="aprioEXP-metric-chip">
 											<i class="ri-music-2-line text-xs"></i>
-											<span><?php echo esc_html( $user_role_display ); ?></span>
+											<span><?php echo esc_html($user_role_display); ?></span>
 										</span>
 										<?php else : ?>
 										<span class="aprioEXP-metric-chip dj-placeholder" data-tooltip="Adicione seu role no perfil">
@@ -229,16 +229,16 @@ $community_count = count( $user_communities );
 										<?php endif; ?>
 									</div>
 
-									<p class="mt-1 text-[11px] md:text-[12px] text-slate-600 line-clamp-2" data-tooltip="<?php echo empty( $user_bio ) ? 'Adicione uma bio no seu perfil' : ''; ?>">
-										<?php echo esc_html( $user_bio ?: 'Nenhuma descrição adicionada.' ); ?>
+									<p class="mt-1 text-[11px] md:text-[12px] text-slate-600 line-clamp-2" data-tooltip="<?php echo empty($user_bio) ? 'Adicione uma bio no seu perfil' : ''; ?>">
+										<?php echo esc_html($user_bio ?: 'Nenhuma descrição adicionada.'); ?>
 									</p>
 
 									<div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-[11px] text-slate-500">
-										<span class="aprioEXP-metric-chip" data-tooltip="<?php echo empty( $user_location ) ? 'Adicione sua localização' : ''; ?>">
+										<span class="aprioEXP-metric-chip" data-tooltip="<?php echo empty($user_location) ? 'Adicione sua localização' : ''; ?>">
 											<i class="ri-map-pin-line text-xs"></i>
-											<?php echo esc_html( $user_location ?: 'Localização não definida' ); ?>
+											<?php echo esc_html($user_location ?: 'Localização não definida'); ?>
 										</span>
-										<?php if ( $industry_access ) : ?>
+										<?php if ($industry_access) : ?>
 										<span class="aprioEXP-metric-chip">
 											<i class="ri-vip-crown-2-line text-xs"></i>
 											Industry access
@@ -246,7 +246,7 @@ $community_count = count( $user_communities );
 										<?php endif; ?>
 										<span class="aprioEXP-metric-chip">
 											<i class="ri-group-line text-xs"></i>
-											<?php echo esc_html( $nucleo_count ); ?> núcleos · <?php echo esc_html( $community_count ); ?> comunidades
+											<?php echo esc_html($nucleo_count); ?> núcleos · <?php echo esc_html($community_count); ?> comunidades
 										</span>
 									</div>
 								</div>
@@ -257,32 +257,32 @@ $community_count = count( $user_communities );
 								<div class="aprioEXP-cards-container grid grid-cols-3 md:grid-cols-6 gap-2">
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Producer</span>
-										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html( $stats['producer'] ); ?></span>
+										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html($stats['producer']); ?></span>
 									</div>
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Favoritado</span>
-										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html( $stats['favorited'] ); ?></span>
+										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html($stats['favorited']); ?></span>
 									</div>
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Posts</span>
-										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html( $stats['posts'] ); ?></span>
+										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html($stats['posts']); ?></span>
 									</div>
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Comments</span>
-										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html( $stats['comments'] ); ?></span>
+										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html($stats['comments']); ?></span>
 									</div>
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Liked</span>
-										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html( $stats['liked'] ); ?></span>
+										<span class="aprioEXP-card-numbers-numbers text-lg font-bold"><?php echo esc_html($stats['liked']); ?></span>
 									</div>
 									<div class="aprioEXP-stat-card text-center p-2 bg-slate-50 rounded">
 										<span class="aprioEXP-card-numbers-title text-[10px] text-slate-500">Memberships</span>
 										<span class="aprioEXP-card-numbers-listing text-[10px]">
-											<?php echo esc_html( implode( ' · ', array_slice( $memberships, 0, 2 ) ) ); ?>
+											<?php echo esc_html(implode(' · ', array_slice($memberships, 0, 2))); ?>
 										</span>
 									</div>
 								</div>
-								<a href="<?php echo esc_url( admin_url( 'profile.php' ) ); ?>" class="aprioEXP-edit-btn inline-flex items-center gap-1 mt-3 px-3 py-1.5 text-[11px] font-medium rounded-md border border-slate-200 hover:bg-slate-50">
+								<a href="<?php echo esc_url(admin_url('profile.php')); ?>" class="aprioEXP-edit-btn inline-flex items-center gap-1 mt-3 px-3 py-1.5 text-[11px] font-medium rounded-md border border-slate-200 hover:bg-slate-50">
 									<i class="ri-pencil-line text-xs"></i>
 									<span>Editar perfil interno</span>
 								</a>
@@ -363,23 +363,23 @@ $community_count = count( $user_communities );
 									</button>
 								</div>
 
-								<?php if ( ! empty( $favorited_events ) ) : ?>
+								<?php if (! empty($favorited_events)) : ?>
 								<div class="grid gap-3 md:grid-cols-2 text-[12px]">
-									<?php foreach ( $favorited_events as $event_data ) : ?>
+									<?php foreach ($favorited_events as $event_data) : ?>
 									<article class="aprioEXP-card-shell p-3 flex flex-col justify-between bg-white border border-slate-200 rounded-lg">
 										<div class="flex items-start justify-between gap-2">
 											<div>
-												<h3 class="text-sm font-semibold"><?php echo esc_html( $event_data['title'] ?? 'Evento' ); ?></h3>
-												<p class="text-[11px] text-slate-600"><?php echo esc_html( $event_data['location'] ?? '' ); ?> · <?php echo esc_html( $event_data['time'] ?? '' ); ?></p>
+												<h3 class="text-sm font-semibold"><?php echo esc_html($event_data['title'] ?? 'Evento'); ?></h3>
+												<p class="text-[11px] text-slate-600"><?php echo esc_html($event_data['location'] ?? ''); ?> · <?php echo esc_html($event_data['time'] ?? ''); ?></p>
 											</div>
 											<div class="flex flex-col items-end text-[11px]">
 												<span class="rounded-md bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">
-													<?php echo esc_html( $event_data['status'] ?? 'Ir' ); ?>
+													<?php echo esc_html($event_data['status'] ?? 'Ir'); ?>
 												</span>
 											</div>
 										</div>
 										<div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
-											<a href="<?php echo esc_url( $event_data['url'] ?? '#' ); ?>" class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100">
+											<a href="<?php echo esc_url($event_data['url'] ?? '#'); ?>" class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100">
 												<i class="ri-external-link-line text-xs"></i>
 												<span>Ver evento</span>
 											</a>
@@ -418,19 +418,19 @@ $community_count = count( $user_communities );
 									</div>
 								</div>
 
-								<?php if ( ! empty( $user_nucleos ) ) : ?>
+								<?php if (! empty($user_nucleos)) : ?>
 								<div class="grid gap-3 md:grid-cols-2 text-[12px]">
-									<?php foreach ( $user_nucleos as $nucleo ) : ?>
+									<?php foreach ($user_nucleos as $nucleo) : ?>
 									<article class="aprioEXP-card-shell p-3 flex flex-col justify-between bg-white border border-slate-200 rounded-lg">
 										<div class="flex items-start justify-between gap-2">
 											<div>
 												<div class="flex items-center gap-2 mb-1">
-													<h3 class="text-sm font-semibold"><?php echo esc_html( $nucleo['name'] ?? 'Núcleo' ); ?></h3>
+													<h3 class="text-sm font-semibold"><?php echo esc_html($nucleo['name'] ?? 'Núcleo'); ?></h3>
 													<span class="aprioEXP-badge-private inline-flex items-center gap-1 px-2 py-0.5 text-[10px] bg-slate-100 rounded">
 														<i class="ri-lock-2-line text-[11px]"></i> Privado
 													</span>
 												</div>
-												<p class="text-slate-600 text-[11px] line-clamp-2"><?php echo esc_html( $nucleo['description'] ?? '' ); ?></p>
+												<p class="text-slate-600 text-[11px] line-clamp-2"><?php echo esc_html($nucleo['description'] ?? ''); ?></p>
 											</div>
 										</div>
 									</article>
@@ -458,18 +458,18 @@ $community_count = count( $user_communities );
 									</button>
 								</div>
 
-								<?php if ( ! empty( $user_communities ) ) : ?>
+								<?php if (! empty($user_communities)) : ?>
 								<div class="grid gap-3 md:grid-cols-3 text-[12px]">
-									<?php foreach ( $user_communities as $community ) : ?>
+									<?php foreach ($user_communities as $community) : ?>
 									<article class="aprioEXP-card-shell p-3 flex flex-col justify-between bg-white border border-slate-200 rounded-lg">
 										<div>
 											<div class="flex items-center gap-2 mb-1">
-												<h3 class="text-sm font-semibold"><?php echo esc_html( $community['name'] ?? 'Comunidade' ); ?></h3>
+												<h3 class="text-sm font-semibold"><?php echo esc_html($community['name'] ?? 'Comunidade'); ?></h3>
 												<span class="aprioEXP-badge-public inline-flex items-center gap-1 px-2 py-0.5 text-[10px] bg-emerald-50 text-emerald-700 rounded">
 													<i class="ri-sun-line text-[11px]"></i> Aberta
 												</span>
 											</div>
-											<p class="text-slate-600 text-[11px] line-clamp-2"><?php echo esc_html( $community['description'] ?? '' ); ?></p>
+											<p class="text-slate-600 text-[11px] line-clamp-2"><?php echo esc_html($community['description'] ?? ''); ?></p>
 										</div>
 									</article>
 									<?php endforeach; ?>
@@ -498,18 +498,18 @@ $community_count = count( $user_communities );
 									</div>
 								</div>
 
-								<?php if ( ! empty( $pending_docs ) ) : ?>
+								<?php if (! empty($pending_docs)) : ?>
 								<div class="grid gap-3 md:grid-cols-3 text-[12px]">
-									<?php foreach ( $pending_docs as $doc ) : ?>
+									<?php foreach ($pending_docs as $doc) : ?>
 									<article class="aprioEXP-card-shell p-3 bg-white border border-slate-200 rounded-lg">
 										<div class="flex items-start justify-between gap-2 mb-1">
-											<span class="font-semibold"><?php echo esc_html( $doc['title'] ?? 'Documento' ); ?></span>
+											<span class="font-semibold"><?php echo esc_html($doc['title'] ?? 'Documento'); ?></span>
 											<span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-900">
 												<span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-												<?php echo esc_html( $doc['status'] ?? 'Pendente' ); ?>
+												<?php echo esc_html($doc['status'] ?? 'Pendente'); ?>
 											</span>
 										</div>
-										<p class="text-slate-600 text-[11px] mb-2 line-clamp-2"><?php echo esc_html( $doc['description'] ?? '' ); ?></p>
+										<p class="text-slate-600 text-[11px] mb-2 line-clamp-2"><?php echo esc_html($doc['description'] ?? ''); ?></p>
 									</article>
 									<?php endforeach; ?>
 								</div>
@@ -545,7 +545,7 @@ $community_count = count( $user_communities );
 								<i class="ri-file-text-line text-slate-400 mt-0.5"></i>
 								<div>
 									<span class="block font-medium text-slate-900">Docs pendentes</span>
-									<span><?php echo count( $pending_docs ); ?> documento(s)</span>
+									<span><?php echo count($pending_docs); ?> documento(s)</span>
 								</div>
 							</li>
 							<li class="flex gap-2">
@@ -556,7 +556,7 @@ $community_count = count( $user_communities );
 								</div>
 							</li>
 						</ul>
-						<a href="<?php echo esc_url( admin_url() ); ?>" class="mt-4 w-full flex items-center justify-center gap-2 rounded-md bg-slate-900 py-2 text-[11px] font-medium text-white transition-colors">
+						<a href="<?php echo esc_url(admin_url()); ?>" class="mt-4 w-full flex items-center justify-center gap-2 rounded-md bg-slate-900 py-2 text-[11px] font-medium text-white transition-colors">
 							<span>Abrir Gestor Apollo</span>
 							<i class="ri-arrow-right-line"></i>
 						</a>
@@ -568,10 +568,10 @@ $community_count = count( $user_communities );
 						<div class="space-y-3 text-[12px]">
 							<div>
 								<p class="font-medium text-slate-900 mb-1">Núcleos ativos</p>
-								<div class="flex flex-wrap gap-1" data-tooltip="<?php echo empty( $user_nucleos ) ? 'Nenhum núcleo ativo' : ''; ?>">
-									<?php if ( ! empty( $user_nucleos ) ) : ?>
-										<?php foreach ( array_slice( $user_nucleos, 0, 3 ) as $nucleo ) : ?>
-										<span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"><?php echo esc_html( $nucleo['name'] ?? 'Núcleo' ); ?></span>
+								<div class="flex flex-wrap gap-1" data-tooltip="<?php echo empty($user_nucleos) ? 'Nenhum núcleo ativo' : ''; ?>">
+									<?php if (! empty($user_nucleos)) : ?>
+										<?php foreach (array_slice($user_nucleos, 0, 3) as $nucleo) : ?>
+										<span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-600"><?php echo esc_html($nucleo['name'] ?? 'Núcleo'); ?></span>
 										<?php endforeach; ?>
 									<?php else : ?>
 										<span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-400">Nenhum</span>
@@ -580,10 +580,10 @@ $community_count = count( $user_communities );
 							</div>
 							<div>
 								<p class="font-medium text-slate-900 mb-1">Comunidades em destaque</p>
-								<div class="flex flex-wrap gap-1" data-tooltip="<?php echo empty( $user_communities ) ? 'Nenhuma comunidade' : ''; ?>">
-									<?php if ( ! empty( $user_communities ) ) : ?>
-										<?php foreach ( array_slice( $user_communities, 0, 3 ) as $community ) : ?>
-										<span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700 border border-emerald-100"><?php echo esc_html( $community['name'] ?? 'Comunidade' ); ?></span>
+								<div class="flex flex-wrap gap-1" data-tooltip="<?php echo empty($user_communities) ? 'Nenhuma comunidade' : ''; ?>">
+									<?php if (! empty($user_communities)) : ?>
+										<?php foreach (array_slice($user_communities, 0, 3) as $community) : ?>
+										<span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700 border border-emerald-100"><?php echo esc_html($community['name'] ?? 'Comunidade'); ?></span>
 										<?php endforeach; ?>
 									<?php else : ?>
 										<span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-slate-400">Nenhuma</span>

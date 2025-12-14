@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -103,6 +104,7 @@ function apollo_assign_moderator_role( $user_id ) {
 	}
 
 	$user->add_role( 'apollo' );
+
 	return true;
 }
 
@@ -119,5 +121,6 @@ function apollo_remove_moderator_role( $user_id ) {
 	}
 
 	$user->remove_role( 'apollo' );
+
 	return true;
 }

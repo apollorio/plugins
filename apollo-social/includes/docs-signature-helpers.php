@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Documents Signature - Helper Functions
  *
@@ -70,4 +71,3 @@ function aprio_docs_verify_document( int $doc_id ): array {
 
 	return \Apollo\Modules\Documents\DocumentsSignatureService::verify_document( $doc_id );
 }
-

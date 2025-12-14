@@ -49,6 +49,7 @@ class CulturaRioAdmin {
 	public static function addUserColumns( array $columns ): array {
 		$columns['apollo_cultura_identity']  = __( 'Cultura::Rio', 'apollo-social' );
 		$columns['apollo_membership_status'] = __( 'Membership', 'apollo-social' );
+
 		return $columns;
 	}
 
@@ -75,6 +76,7 @@ class CulturaRioAdmin {
 						$labels[] = '<span style="color: ' . $color . ';">' . esc_html( $identity['code'] ) . '</span>';
 					}
 				}
+
 				return implode( ', ', $labels );
 
 			case 'apollo_membership_status':
@@ -324,7 +326,7 @@ class CulturaRioAdmin {
 								<td>
 									<?php
 									$labels = CulturaRioIdentity::getIdentityLabels( $identities );
-									echo esc_html( implode( ', ', array_map( fn( $l ) => substr( $l, 0, 20 ) . '...', $labels ) ) );
+									echo esc_html( implode( ', ', array_map( fn ( $l ) => substr( $l, 0, 20 ) . '...', $labels ) ) );
 									?>
 								</td>
 								<td>
@@ -471,4 +473,3 @@ class CulturaRioAdmin {
 if ( is_admin() ) {
 	CulturaRioAdmin::init();
 }
-

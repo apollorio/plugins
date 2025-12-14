@@ -9,20 +9,20 @@
  * @version 2.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+if (function_exists('apollo_enqueue_global_assets')) {
+    apollo_enqueue_global_assets();
 }
 
-$config       = $config ?? [];
-$progress     = $progress ?? [];
+$config       = $config       ?? [];
+$progress     = $progress     ?? [];
 $current_step = $current_step ?? 'welcome';
-$user_id      = $user_id ?? get_current_user_id();
-$nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
+$user_id      = $user_id      ?? get_current_user_id();
+$nonce        = $nonce        ?? wp_create_nonce('apollo_onboarding');
 ?>
 
 <div class="ap-onboarding ap-onboarding-chat">
@@ -53,9 +53,9 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 			<!-- Welcome message -->
 			<div class="ap-chat-message ap-chat-message-bot" data-step="welcome">
 				<div class="ap-chat-bubble">
-					<p><?php echo esc_html( $config['messages']['welcome'] ?? 'Olá! Vou te ajudar a configurar seu perfil no Apollo 🚀' ); ?></p>
+					<p><?php echo esc_html($config['messages']['welcome'] ?? 'Olá! Vou te ajudar a configurar seu perfil no Apollo 🚀'); ?></p>
 				</div>
-				<span class="ap-chat-timestamp"><?php echo esc_html( date_i18n( 'H:i' ) ); ?></span>
+				<span class="ap-chat-timestamp"><?php echo esc_html(date_i18n('H:i')); ?></span>
 			</div>
 			<!-- Dynamic messages will be added here by JavaScript -->
 		</div>
@@ -87,11 +87,11 @@ $nonce        = $nonce ?? wp_create_nonce( 'apollo_onboarding' );
 <!-- Hidden data for JavaScript -->
 <script type="application/json" id="onboardingData">
 {
-	"config": <?php echo wp_json_encode( $config ); ?>,
-	"progress": <?php echo wp_json_encode( $progress ); ?>,
-	"currentStep": "<?php echo esc_js( $current_step ); ?>",
-	"userId": <?php echo intval( $user_id ); ?>,
-	"nonce": "<?php echo esc_js( $nonce ); ?>"
+	"config": <?php echo wp_json_encode($config); ?>,
+	"progress": <?php echo wp_json_encode($progress); ?>,
+	"currentStep": "<?php echo esc_js($current_step); ?>",
+	"userId": <?php echo intval($user_id); ?>,
+	"nonce": "<?php echo esc_js($nonce); ?>"
 }
 </script>
 

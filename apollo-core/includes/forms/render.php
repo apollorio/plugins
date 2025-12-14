@@ -171,6 +171,7 @@ function apollo_render_field( $field, $values = array() ) {
 				</div>
 					<?php
 				}//end if
+
 				break;
 
 			case 'radio':
@@ -336,6 +337,7 @@ function apollo_save_user_instagram_on_profile_update( $user_id ) {
 	// If empty, delete meta.
 	if ( empty( $instagram_id ) ) {
 		delete_user_meta( $user_id, '_apollo_instagram_id' );
+
 		return;
 	}
 
@@ -423,4 +425,3 @@ function apollo_display_user_instagram( $user_id ) {
 		esc_html( $instagram_id )
 	);
 }
-

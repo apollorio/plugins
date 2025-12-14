@@ -90,3 +90,6 @@ array(
 2. Adicionar tooltips em badges helper quando renderizado
 3. Verificar páginas de moderação adicionais
 
+
+
+

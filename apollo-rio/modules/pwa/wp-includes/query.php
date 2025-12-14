@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * WordPress Query API
@@ -15,13 +16,16 @@
  *
  * @return bool
  */
-function is_offline() {
-	global $wp_query;
-	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'pwa' ), '3.1.0' );
-		return false;
-	}
-	return isset( $wp_query->query_vars['wp_error_template'] ) && 'offline' === $wp_query->query_vars['wp_error_template'];
+function is_offline()
+{
+    global $wp_query;
+    if (! isset($wp_query)) {
+        _doing_it_wrong(__FUNCTION__, esc_html__('Conditional query tags do not work before the query is run. Before then, they always return false.', 'pwa'), '3.1.0');
+
+        return false;
+    }
+
+    return isset($wp_query->query_vars['wp_error_template']) && 'offline' === $wp_query->query_vars['wp_error_template'];
 }
 
 /**
@@ -29,11 +33,14 @@ function is_offline() {
  *
  * @return bool
  */
-function is_500() {
-	global $wp_query;
-	if ( ! isset( $wp_query ) ) {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Conditional query tags do not work before the query is run. Before then, they always return false.', 'pwa' ), '3.1.0' );
-		return false;
-	}
-	return isset( $wp_query->query_vars['wp_error_template'] ) && '500' === $wp_query->query_vars['wp_error_template'];
+function is_500()
+{
+    global $wp_query;
+    if (! isset($wp_query)) {
+        _doing_it_wrong(__FUNCTION__, esc_html__('Conditional query tags do not work before the query is run. Before then, they always return false.', 'pwa'), '3.1.0');
+
+        return false;
+    }
+
+    return isset($wp_query->query_vars['wp_error_template']) && '500' === $wp_query->query_vars['wp_error_template'];
 }

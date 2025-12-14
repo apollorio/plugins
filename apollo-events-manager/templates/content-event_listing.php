@@ -1,8 +1,9 @@
-<?php 
+<?php
+
 // phpcs:ignoreFile
 /**
  * Template for event listing content - AJAX filtering
- * 
+ *
  * ✅ CONSOLIDATED: This template now simply includes event-card.php
  * to avoid code duplication. All logic is centralized in event-card.php
  */
@@ -11,7 +12,7 @@
 
 // ✅ SIMPLY INCLUDE event-card.php - NO CODE DUPLICATION
 // event-card.php handles all the logic and HTML rendering
-$event_card_path = defined('APOLLO_APRIO_PATH') 
+$event_card_path = defined('APOLLO_APRIO_PATH')
     ? APOLLO_APRIO_PATH . 'templates/event-card.php'
     : plugin_dir_path(__FILE__) . 'event-card.php';
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Migration class
  */
 class Apollo_Core_Migration {
+
 	/**
 	 * Option mappings
 	 *
@@ -143,7 +145,7 @@ class Apollo_Core_Migration {
 
 		foreach ( self::$meta_mappings as $old_key => $new_key ) {
 			// Get all posts with old meta key.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s",
@@ -174,7 +176,7 @@ class Apollo_Core_Migration {
 	public static function rollback() {
 		// Find most recent backup.
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$backup_option = $wpdb->get_var(
 			"SELECT option_name FROM {$wpdb->options} 
 			WHERE option_name LIKE 'apollo_core_migration_backup_%' 

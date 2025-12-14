@@ -31,12 +31,12 @@ function apollo_register_forms_rest_routes() {
 			// Public, validated within.
 										'args' => array(
 											'form_type' => array(
-												'required' => true,
+												'required'          => true,
 												'sanitize_callback' => 'sanitize_text_field',
 											),
 											'data'      => array(
-												'required' => true,
-												'type'     => 'object',
+												'required'          => true,
+												'type'              => 'object',
 												'sanitize_callback' => 'apollo_sanitize_form_data',
 											),
 										),
@@ -54,7 +54,7 @@ function apollo_register_forms_rest_routes() {
 			// Public.
 										'args' => array(
 											'form_type' => array(
-												'required' => true,
+												'required'          => true,
 												'sanitize_callback' => 'sanitize_text_field',
 											),
 										),
@@ -87,6 +87,7 @@ function apollo_sanitize_form_data( $data ) {
 		if ( filter_var( $data, FILTER_VALIDATE_EMAIL ) ) {
 			return sanitize_email( $data );
 		}
+
 		return sanitize_text_field( $data );
 	}
 
@@ -188,16 +189,19 @@ function apollo_rest_submit_form( $request ) {
 		switch ( $form_type ) {
 			case 'new_user':
 				$result = apollo_process_new_user_form( $data );
+
 				break;
 
 			case 'cpt_event':
 			case 'cpt_local':
 			case 'cpt_dj':
 				$result = apollo_process_cpt_form( $form_type, $data );
+
 				break;
 
 			default:
 				$result = new WP_Error( 'unsupported_form', __( 'Form type not supported yet.', 'apollo-core' ) );
+
 				break;
 		}
 
@@ -223,7 +227,7 @@ function apollo_rest_submit_form( $request ) {
 	} catch ( Exception $e ) {
 		// Log the error with context.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
 					'[Apollo Core] Form submission error - Type: %s, Message: %s, File: %s:%d',

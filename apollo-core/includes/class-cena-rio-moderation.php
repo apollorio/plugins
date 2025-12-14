@@ -367,6 +367,7 @@ class Apollo_Cena_Rio_Moderation {
 		</style>
 		<?php
 		$output = ob_get_clean();
+
 		return $output !== false ? $output : '';
 	}
 
@@ -658,4 +659,3 @@ class Apollo_Cena_Rio_Moderation {
 
 // Initialize
 Apollo_Cena_Rio_Moderation::init();
-

@@ -28,3 +28,6 @@ Todos os endpoints REST foram traduzidos para português brasileiro conforme pad
 
 Todos os endpoints agora seguem o padrão pt-BR do Apollo!
 
+
+
+

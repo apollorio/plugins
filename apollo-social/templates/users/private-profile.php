@@ -8,45 +8,45 @@
  * @version 2.0.0
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // Ensure user is logged in.
-if ( ! is_user_logged_in() ) {
-	auth_redirect();
-	exit;
+if (! is_user_logged_in()) {
+    auth_redirect();
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Base JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
+        // Base JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
 
-		// Inline profile-specific styles.
-		$profile_css = '
+        // Inline profile-specific styles.
+        $profile_css = '
 			.ap-page-profile .ap-main { padding: 24px 0; }
 			.ap-profile-header { display: flex; flex-direction: column; gap: 1.5rem; }
 			@media (min-width: 768px) { .ap-profile-header { flex-direction: row; align-items: flex-start; } }
@@ -64,10 +64,10 @@ add_action(
 			.ap-chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var((--bg-main)-muted); border-radius: var(--ap-radius-full); color: var(--ap-text-muted); }
 			.ap-chip-sm { font-size: 0.625rem; padding: 0.125rem 0.375rem; }
             ';
-			wp_add_inline_style( 'apollo-uni-css', $profile_css );
+        wp_add_inline_style('apollo-uni-css', $profile_css);
 
-		// Inline profile-specific scripts.
-		$profile_js = "
+        // Inline profile-specific scripts.
+        $profile_js = "
 			document.addEventListener('DOMContentLoaded', function() {
 				const tabs = document.querySelectorAll('[role=\"tab\"]');
 				const panels = document.querySelectorAll('[role=\"tabpanel\"]');
@@ -84,49 +84,49 @@ add_action(
 				});
 			});
 		";
-		wp_add_inline_script( 'apollo-base-js', $profile_js );
-	},
-	10
+        wp_add_inline_script('apollo-base-js', $profile_js);
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
 // User data - avoid overriding WP globals.
 $user_obj      = wp_get_current_user();
 $user_id       = $user_obj->ID;
-$avatar_url    = get_avatar_url( $user_id, [ 'size' => 200 ] );
+$avatar_url    = get_avatar_url($user_id, [ 'size' => 200 ]);
 $display_name  = $user_obj->display_name;
 $user_username = $user_obj->user_login;
-$user_initials = strtoupper( substr( $display_name, 0, 2 ) );
+$user_initials = strtoupper(substr($display_name, 0, 2));
 
 // User meta - avoid short ternaries.
-$user_bio_raw = get_user_meta( $user_id, 'description', true );
-$user_bio     = ! empty( $user_bio_raw ) ? $user_bio_raw : __( 'Conectando eventos, comunidades e dados da cena eletrônica do Rio.', 'apollo-social' );
+$user_bio_raw = get_user_meta($user_id, 'description', true);
+$user_bio     = ! empty($user_bio_raw) ? $user_bio_raw : __('Conectando eventos, comunidades e dados da cena eletrônica do Rio.', 'apollo-social');
 
-$user_location_raw = get_user_meta( $user_id, 'user_location', true );
-$user_location     = ! empty( $user_location_raw ) ? $user_location_raw : 'Rio de Janeiro';
+$user_location_raw = get_user_meta($user_id, 'user_location', true);
+$user_location     = ! empty($user_location_raw) ? $user_location_raw : 'Rio de Janeiro';
 
-$membership_level_raw = get_user_meta( $user_id, 'membership_level', true );
-$membership_level     = ! empty( $membership_level_raw ) ? $membership_level_raw : 'clubber';
+$membership_level_raw = get_user_meta($user_id, 'membership_level', true);
+$membership_level     = ! empty($membership_level_raw) ? $membership_level_raw : 'clubber';
 
 // Stats (placeholder - replace with actual queries).
 $stats = [
-	'producer'  => 3,
-	'favorited' => 11,
-	'posts'     => 5,
-	'comments'  => 37,
-	'liked'     => 26,
+    'producer'  => 3,
+    'favorited' => 11,
+    'posts'     => 5,
+    'comments'  => 37,
+    'liked'     => 26,
 ];
 
 // Membership labels.
 $membership_labels = [
-	'clubber'  => __( 'Clubber', 'apollo-social' ),
-	'dj'       => __( 'DJ', 'apollo-social' ),
-	'producer' => __( 'Producer', 'apollo-social' ),
-	'promoter' => __( 'Promoter', 'apollo-social' ),
+    'clubber'  => __('Clubber', 'apollo-social'),
+    'dj'       => __('DJ', 'apollo-social'),
+    'producer' => __('Producer', 'apollo-social'),
+    'promoter' => __('Promoter', 'apollo-social'),
 ];
 
 // Get WordPress head.
@@ -135,45 +135,45 @@ wp_head();
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<title><?php echo esc_html__( 'Apollo :: Perfil Social', 'apollo-social' ); ?></title>
+	<meta charset="<?php bloginfo('charset'); ?>">
+	<title><?php echo esc_html__('Apollo :: Perfil Social', 'apollo-social'); ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>
-<body <?php body_class( 'ap-body' ); ?>>
+<body <?php body_class('ap-body'); ?>>
 <div class="ap-page ap-page-profile">
 
 	<!-- Top Header -->
 	<header class="ap-header ap-header-sticky">
 		<div class="ap-container ap-flex ap-flex-between ap-flex-center-v">
 			<div class="ap-flex ap-gap-3 ap-flex-center-v">
-				<a href="<?php echo esc_url( home_url() ); ?>"
+				<a href="<?php echo esc_url(home_url()); ?>"
 					class="ap-btn ap-btn-icon"
 					style="background: var(--ap-orange-500); color: white;"
-					data-ap-tooltip="<?php esc_attr_e( 'Voltar ao início', 'apollo-social' ); ?>">
+					data-ap-tooltip="<?php esc_attr_e('Voltar ao início', 'apollo-social'); ?>">
 					<i class="ri-slack-line"></i>
 				</a>
 				<div>
-					<span class="ap-text-xs ap-text-muted ap-text-uppercase"><?php esc_html_e( 'Rede Social Cultural Carioca', 'apollo-social' ); ?></span>
-					<span class="ap-text-sm ap-text-bold">@<?php echo esc_html( $user_username ); ?> · Apollo::rio</span>
+					<span class="ap-text-xs ap-text-muted ap-text-uppercase"><?php esc_html_e('Rede Social Cultural Carioca', 'apollo-social'); ?></span>
+					<span class="ap-text-sm ap-text-bold">@<?php echo esc_html($user_username); ?> · Apollo::rio</span>
 				</div>
 			</div>
 
 			<div class="ap-flex ap-gap-2 ap-flex-center-v">
-				<a href="<?php echo esc_url( home_url( '/id/' . $user_username ) ); ?>"
+				<a href="<?php echo esc_url(home_url('/id/' . $user_username)); ?>"
 					class="ap-btn ap-btn-outline ap-btn-sm ap-hide-mobile"
-					data-ap-tooltip="<?php esc_attr_e( 'Ver como outros usuários veem seu perfil', 'apollo-social' ); ?>">
+					data-ap-tooltip="<?php esc_attr_e('Ver como outros usuários veem seu perfil', 'apollo-social'); ?>">
 					<i class="ri-eye-line"></i>
-					<span><?php esc_html_e( 'Ver como visitante', 'apollo-social' ); ?></span>
+					<span><?php esc_html_e('Ver como visitante', 'apollo-social'); ?></span>
 				</a>
-				<a href="<?php echo esc_url( home_url( '/id/' . $user_username ) ); ?>"
+				<a href="<?php echo esc_url(home_url('/id/' . $user_username)); ?>"
 					class="ap-btn ap-btn-primary ap-btn-sm"
-					data-ap-tooltip="<?php esc_attr_e( 'Abrir sua página pública', 'apollo-social' ); ?>">
+					data-ap-tooltip="<?php esc_attr_e('Abrir sua página pública', 'apollo-social'); ?>">
 					<i class="ri-external-link-line"></i>
-					<span><?php esc_html_e( 'Página pública', 'apollo-social' ); ?></span>
+					<span><?php esc_html_e('Página pública', 'apollo-social'); ?></span>
 				</a>
-				<div class="ap-avatar ap-avatar-sm" data-ap-tooltip="<?php echo esc_attr( $display_name ); ?>">
-					<img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $display_name ); ?>">
+				<div class="ap-avatar ap-avatar-sm" data-ap-tooltip="<?php echo esc_attr($display_name); ?>">
+					<img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($display_name); ?>">
 				</div>
 			</div>
 		</div>
@@ -194,24 +194,24 @@ wp_head();
 								<!-- User Info -->
 								<div class="ap-profile-user">
 									<div class="ap-avatar ap-avatar-xl ap-avatar-gradient">
-										<img src="<?php echo esc_url( $avatar_url ); ?>" alt="Avatar">
+										<img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar">
 										<span class="ap-avatar-badge ap-badge-success" data-ap-tooltip="Perfil verificado">
 											<i class="ri-flashlight-fill"></i>
 										</span>
 									</div>
 									<div class="ap-profile-info">
 										<div class="ap-flex ap-gap-2 ap-flex-center-v ap-flex-wrap">
-											<h1 class="ap-heading-4"><?php echo esc_html( $display_name ); ?></h1>
+											<h1 class="ap-heading-4"><?php echo esc_html($display_name); ?></h1>
 											<span class="ap-badge ap-badge-muted">
 												<i class="ri-music-2-line"></i>
-												<?php echo esc_html( $membership_labels[ $membership_level ] ?? 'Clubber' ); ?>
+												<?php echo esc_html($membership_labels[ $membership_level ] ?? 'Clubber'); ?>
 											</span>
 										</div>
-										<p class="ap-text-sm ap-text-muted ap-mt-1"><?php echo esc_html( $user_bio ); ?></p>
+										<p class="ap-text-sm ap-text-muted ap-mt-1"><?php echo esc_html($user_bio); ?></p>
 										<div class="ap-flex ap-gap-2 ap-flex-wrap ap-mt-2">
 											<span class="ap-chip">
 												<i class="ri-map-pin-line"></i>
-												<?php echo esc_html( $user_location ); ?>
+												<?php echo esc_html($user_location); ?>
 											</span>
 											<span class="ap-chip">
 												<i class="ri-vip-crown-2-line"></i>
@@ -228,14 +228,14 @@ wp_head();
 								<!-- Stats -->
 								<div class="ap-profile-stats">
 									<div class="ap-stats-grid">
-										<?php foreach ( $stats as $key => $value ) : ?>
-										<div class="ap-stat-mini" data-ap-tooltip="Total de <?php echo esc_attr( $key ); ?>">
-											<span class="ap-stat-label"><?php echo esc_html( ucfirst( $key ) ); ?></span>
-											<span class="ap-stat-value"><?php echo esc_html( $value ); ?></span>
+										<?php foreach ($stats as $key => $value) : ?>
+										<div class="ap-stat-mini" data-ap-tooltip="Total de <?php echo esc_attr($key); ?>">
+											<span class="ap-stat-label"><?php echo esc_html(ucfirst($key)); ?></span>
+											<span class="ap-stat-value"><?php echo esc_html($value); ?></span>
 										</div>
 										<?php endforeach; ?>
 									</div>
-									<a href="<?php echo esc_url( home_url( '/painel/editar' ) ); ?>"
+									<a href="<?php echo esc_url(home_url('/painel/editar')); ?>"
 										class="ap-btn ap-btn-outline ap-btn-sm ap-btn-block ap-mt-3"
 										data-ap-tooltip="Editar informações do perfil">
 										<i class="ri-pencil-line"></i>
@@ -302,7 +302,7 @@ wp_head();
 														<p class="ap-text-sm ap-text-muted ap-mt-1">Noite longa de techno, house e caos carioca.</p>
 													</div>
 													<div class="ap-text-right">
-														<span class="ap-badge ap-badge-primary" data-ap-tooltip="<?php esc_attr_e( 'Você confirmou presença', 'apollo-social' ); ?>">Ir</span>
+														<span class="ap-badge ap-badge-primary" data-ap-tooltip="<?php esc_attr_e('Você confirmou presença', 'apollo-social'); ?>">Ir</span>
 														<p class="ap-text-xs ap-text-muted ap-mt-1">+143 pessoas</p>
 													</div>
 												</div>
@@ -333,7 +333,7 @@ wp_head();
 														<p class="ap-text-sm ap-text-muted ap-mt-1">Pós-festa com grooves leves, disco e house.</p>
 													</div>
 													<div class="ap-text-right">
-														<span class="ap-badge ap-badge-warning" data-ap-tooltip="<?php esc_attr_e( 'Presença não confirmada', 'apollo-social' ); ?>">Talvez</span>
+														<span class="ap-badge ap-badge-warning" data-ap-tooltip="<?php esc_attr_e('Presença não confirmada', 'apollo-social'); ?>">Talvez</span>
 														<p class="ap-text-xs ap-text-muted ap-mt-1">+57 pessoas</p>
 													</div>
 												</div>
@@ -388,7 +388,7 @@ wp_head();
 													<div>
 														<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
 															<h3 class="ap-card-title">Núcleo Cena::rio</h3>
-															<span class="ap-badge ap-badge-dark" data-ap-tooltip="<?php esc_attr_e( 'Grupo privado - apenas membros', 'apollo-social' ); ?>">
+															<span class="ap-badge ap-badge-dark" data-ap-tooltip="<?php esc_attr_e('Grupo privado - apenas membros', 'apollo-social'); ?>">
 																<i class="ri-lock-2-line"></i> Privado
 															</span>
 														</div>
@@ -419,7 +419,7 @@ wp_head();
 													<div>
 														<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
 															<h3 class="ap-card-title">Produção & Tech</h3>
-															<span class="ap-badge ap-badge-dark" data-ap-tooltip="<?php esc_attr_e( 'Grupo privado - apenas membros', 'apollo-social' ); ?>">
+															<span class="ap-badge ap-badge-dark" data-ap-tooltip="<?php esc_attr_e('Grupo privado - apenas membros', 'apollo-social'); ?>">
 																<i class="ri-lock-2-line"></i> Privado
 															</span>
 														</div>
@@ -464,7 +464,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
 													<h3 class="ap-card-title">Tropicalis :: RJ</h3>
-													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e( 'Comunidade aberta para todos', 'apollo-social' ); ?>">
+													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e('Comunidade aberta para todos', 'apollo-social'); ?>">
 														<i class="ri-sun-line"></i> Aberta
 													</span>
 												</div>
@@ -482,7 +482,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
 													<h3 class="ap-card-title">After Lovers</h3>
-													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e( 'Comunidade aberta para todos', 'apollo-social' ); ?>">
+													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e('Comunidade aberta para todos', 'apollo-social'); ?>">
 														<i class="ri-sparkling-2-line"></i> Aberta
 													</span>
 												</div>
@@ -500,7 +500,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-gap-2 ap-flex-center-v ap-mb-1">
 													<h3 class="ap-card-title">Produtores BR</h3>
-													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e( 'Comunidade aberta para todos', 'apollo-social' ); ?>">
+													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e('Comunidade aberta para todos', 'apollo-social'); ?>">
 														<i class="ri-global-line"></i> Aberta
 													</span>
 												</div>
@@ -540,7 +540,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
 													<h3 class="ap-card-title ap-text-sm">Contrato DJ · Dismantle</h3>
-													<span class="ap-badge ap-badge-warning" data-ap-tooltip="<?php esc_attr_e( 'Aguardando sua assinatura', 'apollo-social' ); ?>">Pendente</span>
+													<span class="ap-badge ap-badge-warning" data-ap-tooltip="<?php esc_attr_e('Aguardando sua assinatura', 'apollo-social'); ?>">Pendente</span>
 												</div>
 												<p class="ap-text-xs ap-text-muted">Prestação de serviços para set principal.</p>
 												<div class="ap-card-footer ap-mt-3">
@@ -556,7 +556,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
 													<h3 class="ap-card-title ap-text-sm">Acordo Núcleo Cena::rio</h3>
-													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e( 'Documento assinado', 'apollo-social' ); ?>">Assinado</span>
+													<span class="ap-badge ap-badge-success" data-ap-tooltip="<?php esc_attr_e('Documento assinado', 'apollo-social'); ?>">Assinado</span>
 												</div>
 												<p class="ap-text-xs ap-text-muted">Termos internos de coordenação.</p>
 												<div class="ap-card-footer ap-mt-3">
@@ -572,7 +572,7 @@ wp_head();
 											<div class="ap-card-body">
 												<div class="ap-flex ap-flex-between ap-gap-2 ap-mb-2">
 													<h3 class="ap-card-title ap-text-sm">Ficha técnica · Staff</h3>
-													<span class="ap-badge ap-badge-secondary" data-ap-tooltip="<?php esc_attr_e( 'Documento em rascunho', 'apollo-social' ); ?>">Rascunho</span>
+													<span class="ap-badge ap-badge-secondary" data-ap-tooltip="<?php esc_attr_e('Documento em rascunho', 'apollo-social'); ?>">Rascunho</span>
 												</div>
 												<p class="ap-text-xs ap-text-muted">Formulário de funções e horários.</p>
 												<div class="ap-card-footer ap-mt-3">
@@ -619,7 +619,7 @@ wp_head();
 									</div>
 								</li>
 							</ul>
-							<a href="<?php echo esc_url( home_url( '/gestor' ) ); ?>"
+							<a href="<?php echo esc_url(home_url('/gestor')); ?>"
 								class="ap-btn ap-btn-primary ap-btn-block ap-mt-3"
 								data-ap-tooltip="Abrir o Gestor Apollo">
 								Abrir Gestor Apollo

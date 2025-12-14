@@ -7,77 +7,78 @@ namespace Apollo\Modules\UI\Renderers;
  *
  * Renders conversational onboarding experience.
  */
-class OnboardingChat {
+class OnboardingChat
+{
+    private array $steps = [
+        1 => [
+            'question'    => 'Hey, qual seu nome?',
+            'type'        => 'text',
+            'placeholder' => 'Digite seu nome',
+            'required'    => true,
+            'field'       => 'name',
+        ],
+        2 => [
+            'question' => 'Você é da indústria de Música/Eventos/Cultura Eletrônica no Rio?',
+            'type'     => 'buttons',
+            'options'  => [ 'Yes', 'No', 'Future yes!' ],
+            'field'    => 'industry_member',
+        ],
+        3 => [
+            'question' => 'Em que frentes você atua? (múltipla escolha)',
+            'type'     => 'multi_select',
+            'options'  => [
+                'DJ',
+                'PRODUCER',
+                'CULTURAL PRODUCER',
+                'MUSIC PRODUCER',
+                'PHOTOGRAPHER',
+                'VISUALS & DIGITAL ART',
+                'BAR TEAM',
+                'FINANCE TEAM',
+                'GOVERNMENT',
+                'BUSINESS PERSON',
+                'HOSTESS',
+                'PROMOTER',
+                'INFLUENCER',
+            ],
+            'field'     => 'industry_roles',
+            'condition' => 'industry_member:Yes,Future yes!',
+        ],
+        4 => [
+            'question' => 'É membro de algum Núcleo / Club / DJ Bar?',
+            'type'     => 'multi_select',
+            'options'  => [],
+            // Will be loaded dynamically
+                                'field' => 'member_of',
+            'condition'                 => 'industry_member:Yes,Future yes!',
+        ],
+        5 => [
+            'question'    => 'Qual seu WhatsApp?',
+            'type'        => 'phone',
+            'placeholder' => '(11) 99999-9999',
+            'required'    => true,
+            'field'       => 'whatsapp',
+        ],
+        6 => [
+            'question'    => 'Qual seu Instagram?',
+            'type'        => 'instagram',
+            'placeholder' => '@seuusuario',
+            'required'    => true,
+            'field'       => 'instagram',
+        ],
+        7 => [
+            'question' => 'Perfeito! Vamos verificar seu Instagram.',
+            'type'     => 'verification',
+            'field'    => 'verification',
+        ],
+    ];
 
-	private array $steps = [
-		1 => [
-			'question'    => 'Hey, qual seu nome?',
-			'type'        => 'text',
-			'placeholder' => 'Digite seu nome',
-			'required'    => true,
-			'field'       => 'name',
-		],
-		2 => [
-			'question' => 'Você é da indústria de Música/Eventos/Cultura Eletrônica no Rio?',
-			'type'     => 'buttons',
-			'options'  => [ 'Yes', 'No', 'Future yes!' ],
-			'field'    => 'industry_member',
-		],
-		3 => [
-			'question'  => 'Em que frentes você atua? (múltipla escolha)',
-			'type'      => 'multi_select',
-			'options'   => [
-				'DJ',
-				'PRODUCER',
-				'CULTURAL PRODUCER',
-				'MUSIC PRODUCER',
-				'PHOTOGRAPHER',
-				'VISUALS & DIGITAL ART',
-				'BAR TEAM',
-				'FINANCE TEAM',
-				'GOVERNMENT',
-				'BUSINESS PERSON',
-				'HOSTESS',
-				'PROMOTER',
-				'INFLUENCER',
-			],
-			'field'     => 'industry_roles',
-			'condition' => 'industry_member:Yes,Future yes!',
-		],
-		4 => [
-			'question'                  => 'É membro de algum Núcleo / Club / DJ Bar?',
-			'type'                      => 'multi_select',
-			'options'                   => [],
-			// Will be loaded dynamically
-								'field' => 'member_of',
-			'condition'                 => 'industry_member:Yes,Future yes!',
-		],
-		5 => [
-			'question'    => 'Qual seu WhatsApp?',
-			'type'        => 'phone',
-			'placeholder' => '(11) 99999-9999',
-			'required'    => true,
-			'field'       => 'whatsapp',
-		],
-		6 => [
-			'question'    => 'Qual seu Instagram?',
-			'type'        => 'instagram',
-			'placeholder' => '@seuusuario',
-			'required'    => true,
-			'field'       => 'instagram',
-		],
-		7 => [
-			'question' => 'Perfeito! Vamos verificar seu Instagram.',
-			'type'     => 'verification',
-			'field'    => 'verification',
-		],
-	];
-
-	/**
-	 * Render onboarding chat
-	 */
-	public function render(): void {
-		?>
+    /**
+     * Render onboarding chat
+     */
+    public function render(): void
+    {
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -549,7 +550,7 @@ class OnboardingChat {
 					}
 
 					getStepConfig(stepNumber) {
-						const steps = <?php echo json_encode( $this->steps ); ?>;
+						const steps = <?php echo json_encode($this->steps); ?>;
 						return steps[stepNumber] || null;
 					}
 
@@ -560,7 +561,7 @@ class OnboardingChat {
 					}
 
 					updateProgress() {
-						const totalSteps = Object.keys(this.getStepConfig(1) ? <?php echo json_encode( $this->steps ); ?> : {}).length;
+						const totalSteps = Object.keys(this.getStepConfig(1) ? <?php echo json_encode($this->steps); ?> : {}).length;
 						const progress = (this.currentStep / totalSteps) * 100;
 						
 						document.getElementById('progressFill').style.width = progress + '%';
@@ -800,7 +801,7 @@ class OnboardingChat {
 									action: 'apollo_submit_onboarding',
 									user_data: JSON.stringify(this.userData),
 									verification_token: this.verificationToken,
-									nonce: '<?php echo \wp_create_nonce( 'apollo_onboarding' ); ?>'
+									nonce: '<?php echo \wp_create_nonce('apollo_onboarding'); ?>'
 								})
 							});
 
@@ -868,5 +869,5 @@ class OnboardingChat {
 		</body>
 		</html>
 		<?php
-	}
+    }
 }

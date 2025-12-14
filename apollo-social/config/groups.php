@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Configuração de Políticas dos Grupos
  */

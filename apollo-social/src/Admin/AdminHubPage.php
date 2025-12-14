@@ -43,6 +43,7 @@ class AdminHubPage {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -204,21 +205,27 @@ class AdminHubPage {
 				switch ( $current_tab ) {
 					case 'shortcodes':
 						$this->renderShortcodesContent();
+
 						break;
 					case 'placeholders':
 						$this->renderPlaceholdersContent();
+
 						break;
 					case 'forms':
 						$this->renderFormsContent();
+
 						break;
 					case 'cpt':
 						$this->renderCptContent();
+
 						break;
 					case 'security':
 						$this->renderSecurityContent();
+
 						break;
 					case 'settings':
 						$this->renderSettingsContent();
+
 						break;
 					default:
 						$this->renderIntroContent();
@@ -553,9 +560,7 @@ class AdminHubPage {
 			</form>
 				<?php
 				// Handle clear action
-				if ( isset( $_POST['action'] ) && $_POST['action'] === 'clear_threats' &&
-				isset( $_POST['apollo_clear_threats_nonce'] ) &&
-				wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_clear_threats_nonce'] ) ), 'apollo_clear_threats' ) ) {
+				if ( isset( $_POST['action'] ) && $_POST['action'] === 'clear_threats' && isset( $_POST['apollo_clear_threats_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_clear_threats_nonce'] ) ), 'apollo_clear_threats' ) ) {
 					delete_option( 'apollo_security_threats' );
 					echo '<script>location.reload();</script>';
 				}
@@ -570,8 +575,7 @@ class AdminHubPage {
 	 */
 	private function renderSettingsContent(): void {
 		// Handle form submission
-		if ( isset( $_POST['apollo_social_settings_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_social_settings_nonce'] ) ), 'apollo_social_save_settings' ) ) {
+		if ( isset( $_POST['apollo_social_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_social_settings_nonce'] ) ), 'apollo_social_save_settings' ) ) {
 
 			update_option( 'apollo_social_documents_enabled', isset( $_POST['documents_enabled'] ) ? 1 : 0 );
 			update_option( 'apollo_social_groups_enabled', isset( $_POST['groups_enabled'] ) ? 1 : 0 );
@@ -1139,4 +1143,3 @@ add_action(
 		}
 	}
 );
-

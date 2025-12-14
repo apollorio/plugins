@@ -15,68 +15,68 @@
  * - $tags (array of term objects)
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // FASE 3: Garantir que variáveis estão definidas
 // Bug fix: Priorizar $post->ID se disponível (quando vem de get_posts), senão usar get_the_ID()
-if ( ! isset( $id ) ) {
-	if ( isset( $post ) && is_object( $post ) && isset( $post->ID ) ) {
-		$id = $post->ID;
-	} else {
-		$id = get_the_ID();
-	}
+if (! isset($id)) {
+    if (isset($post) && is_object($post) && isset($post->ID)) {
+        $id = $post->ID;
+    } else {
+        $id = get_the_ID();
+    }
 }
-if ( ! isset( $post ) ) {
-	$post = get_post( $id );
+if (! isset($post)) {
+    $post = get_post($id);
 }
-if ( ! isset( $date_info ) ) {
-	require_once plugin_dir_path( __FILE__ ) . '../includes/helpers/event-data-helper.php';
-	$date_info = Apollo_Event_Data_Helper::parse_event_date(
-		apollo_get_post_meta( $id, '_event_start_date', true )
-	);
+if (! isset($date_info)) {
+    require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
+    $date_info = Apollo_Event_Data_Helper::parse_event_date(
+        apollo_get_post_meta($id, '_event_start_date', true)
+    );
 }
-if ( ! isset( $local ) ) {
-	$local = Apollo_Event_Data_Helper::get_local_data( $id );
+if (! isset($local)) {
+    $local = Apollo_Event_Data_Helper::get_local_data($id);
 }
-if ( ! isset( $djs ) ) {
-	$djs = Apollo_Event_Data_Helper::get_dj_lineup( $id );
+if (! isset($djs)) {
+    $djs = Apollo_Event_Data_Helper::get_dj_lineup($id);
 }
-if ( ! isset( $banner ) ) {
-	$banner = Apollo_Event_Data_Helper::get_banner_url( $id );
+if (! isset($banner)) {
+    $banner = Apollo_Event_Data_Helper::get_banner_url($id);
 }
-if ( ! isset( $tags ) ) {
-	$tags = wp_get_post_terms( $id, 'event_sounds' );
-	$tags = is_wp_error( $tags ) ? array() : $tags;
+if (! isset($tags)) {
+    $tags = wp_get_post_terms($id, 'event_sounds');
+    $tags = is_wp_error($tags) ? [] : $tags;
 }
-if ( ! isset( $cat_slug ) ) {
-	$cats     = wp_get_post_terms( $id, 'event_listing_category' );
-	$cat_slug = ! is_wp_error( $cats ) && $cats ? $cats[0]->slug : 'general';
+if (! isset($cat_slug)) {
+    $cats     = wp_get_post_terms($id, 'event_listing_category');
+    $cat_slug = ! is_wp_error($cats) && $cats ? $cats[0]->slug : 'general';
 }
 
 // FASE 3: Verificar se é evento recomendado
-$is_featured = apollo_get_post_meta( $id, '_event_featured', true ) === '1';
+$is_featured = apollo_get_post_meta($id, '_event_featured', true) === '1';
 ?>
 
 <article class="apollo-event-card" 
-		data-event-id="<?php echo esc_attr( $id ); ?>"
-		data-category="<?php echo esc_attr( $cat_slug ); ?>"
-		data-local-slug="<?php echo esc_attr( $local ? $local['slug'] : '' ); ?>"
-		data-month-str="<?php echo esc_attr( $date_info['month_pt'] ?? '' ); ?>"
-		data-event-start-date="<?php echo esc_attr( $date_info['iso_date'] ?? '' ); ?>"
+		data-event-id="<?php echo esc_attr($id); ?>"
+		data-category="<?php echo esc_attr($cat_slug); ?>"
+		data-local-slug="<?php echo esc_attr($local ? $local['slug'] : ''); ?>"
+		data-month-str="<?php echo esc_attr($date_info['month_pt'] ?? ''); ?>"
+		data-event-start-date="<?php echo esc_attr($date_info['iso_date'] ?? ''); ?>"
 		<?php
-		if ( $is_featured ) :
-			?>
+        if ($is_featured) :
+            ?>
 			data-featured="true"<?php endif; ?>>
 	
-	<a href="<?php echo esc_url( get_permalink( $id ) ); ?>" class="apollo-event-card__link" aria-label="<?php echo esc_attr( $post->post_title ); ?>">
+	<a href="<?php echo esc_url(get_permalink($id)); ?>" class="apollo-event-card__link" aria-label="<?php echo esc_attr($post->post_title); ?>">
 		
 		<!-- FASE 3: Card Image with Date Badge -->
 		<div class="apollo-event-card__media">
-			<?php if ( $banner ) : ?>
-				<img src="<?php echo esc_url( $banner ); ?>" 
-					alt="<?php echo esc_attr( $post->post_title ); ?>" 
+			<?php if ($banner) : ?>
+				<img src="<?php echo esc_url($banner); ?>" 
+					alt="<?php echo esc_attr($post->post_title); ?>" 
 					class="apollo-event-card__image"
 					loading="lazy" 
 					decoding="async">
@@ -87,15 +87,15 @@ $is_featured = apollo_get_post_meta( $id, '_event_featured', true ) === '1';
 			<?php endif; ?>
 			
 			<!-- Date Badge -->
-			<?php if ( ! empty( $date_info['day'] ) ) : ?>
+			<?php if (! empty($date_info['day'])) : ?>
 				<div class="apollo-event-card__date-badge">
-					<span class="apollo-event-card__date-day"><?php echo esc_html( $date_info['day'] ); ?></span>
-					<span class="apollo-event-card__date-month"><?php echo esc_html( $date_info['month_pt'] ?? '' ); ?></span>
+					<span class="apollo-event-card__date-day"><?php echo esc_html($date_info['day']); ?></span>
+					<span class="apollo-event-card__date-month"><?php echo esc_html($date_info['month_pt'] ?? ''); ?></span>
 				</div>
 			<?php endif; ?>
 			
 			<!-- Featured Badge -->
-			<?php if ( $is_featured ) : ?>
+			<?php if ($is_featured) : ?>
 				<div class="apollo-event-card__featured-badge">
 					<i class="ri-star-fill"></i>
 					<span>Recomendado</span>
@@ -104,25 +104,25 @@ $is_featured = apollo_get_post_meta( $id, '_event_featured', true ) === '1';
 			
 			<!-- P0-6: Favorite Button -->
 			<?php
-			$current_user_id = get_current_user_id();
-			$user_favorites  = $current_user_id ? get_user_meta( $current_user_id, 'apollo_favorites', true ) : array();
-			$is_favorited    = is_array( $user_favorites ) && isset( $user_favorites['event_listing'] ) && in_array( $id, $user_favorites['event_listing'], true );
-			$favorites_count = max( 0, (int) apollo_get_post_meta( $id, '_favorites_count', true ) );
-			?>
+            $current_user_id = get_current_user_id();
+$user_favorites              = $current_user_id ? get_user_meta($current_user_id, 'apollo_favorites', true) : [];
+$is_favorited                = is_array($user_favorites) && isset($user_favorites['event_listing']) && in_array($id, $user_favorites['event_listing'], true);
+$favorites_count             = max(0, (int) apollo_get_post_meta($id, '_favorites_count', true));
+?>
 			<button class="apollo-event-card__favorite" 
 					data-apollo-favorite 
-					data-event-id="<?php echo esc_attr( $id ); ?>"
+					data-event-id="<?php echo esc_attr($id); ?>"
 					data-favorited="<?php echo $is_favorited ? 'true' : 'false'; ?>"
-					aria-label="<?php echo esc_attr( $is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos' ); ?>"
-					title="<?php echo esc_attr( $is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos' ); ?>">
+					aria-label="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>"
+					title="<?php echo esc_attr($is_favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'); ?>">
 				<i class="<?php echo $is_favorited ? 'ri-heart-fill' : 'ri-heart-line'; ?>"></i>
 			</button>
 			
 			<!-- Sound Tags -->
-			<?php if ( ! empty( $tags ) ) : ?>
+			<?php if (! empty($tags)) : ?>
 				<div class="apollo-event-card__tags">
-					<?php foreach ( array_slice( $tags, 0, 3 ) as $tag ) : ?>
-						<span class="apollo-event-card__tag"><?php echo esc_html( $tag->name ); ?></span>
+					<?php foreach (array_slice($tags, 0, 3) as $tag) : ?>
+						<span class="apollo-event-card__tag"><?php echo esc_html($tag->name); ?></span>
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
@@ -130,23 +130,23 @@ $is_featured = apollo_get_post_meta( $id, '_event_featured', true ) === '1';
 		
 		<!-- FASE 3: Card Content -->
 		<div class="apollo-event-card__content">
-			<h3 class="apollo-event-card__title"><?php echo esc_html( $post->post_title ); ?></h3>
+			<h3 class="apollo-event-card__title"><?php echo esc_html($post->post_title); ?></h3>
 			
 			<!-- DJ Lineup -->
-			<?php if ( ! empty( $djs ) ) : ?>
+			<?php if (! empty($djs)) : ?>
 				<div class="apollo-event-card__detail apollo-event-card__detail--dj">
 					<i class="ri-sound-module-fill" aria-hidden="true"></i>
-					<span><?php echo wp_kses_post( Apollo_Event_Data_Helper::format_dj_display( $djs ) ); ?></span>
+					<span><?php echo wp_kses_post(Apollo_Event_Data_Helper::format_dj_display($djs)); ?></span>
 				</div>
 			<?php endif; ?>
 			
 			<!-- Local -->
-			<?php if ( $local && ! empty( $local['name'] ) ) : ?>
+			<?php if ($local && ! empty($local['name'])) : ?>
 				<div class="apollo-event-card__detail apollo-event-card__detail--location">
 					<i class="ri-map-pin-2-line" aria-hidden="true"></i>
-					<span class="apollo-event-card__location-name"><?php echo esc_html( $local['name'] ); ?></span>
-					<?php if ( ! empty( $local['region'] ) ) : ?>
-						<span class="apollo-event-card__location-area"><?php echo esc_html( $local['region'] ); ?></span>
+					<span class="apollo-event-card__location-name"><?php echo esc_html($local['name']); ?></span>
+					<?php if (! empty($local['region'])) : ?>
+						<span class="apollo-event-card__location-area"><?php echo esc_html($local['region']); ?></span>
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>

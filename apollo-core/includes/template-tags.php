@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Template helpers for Apollo Core.
  *
@@ -43,6 +44,7 @@ if ( ! function_exists( 'apollo_core_component' ) ) {
 
 		if ( ! file_exists( $file_path ) ) {
 			do_action( 'apollo_core_component_missing', $safe_slug, $file_path );
+
 			return '';
 		}
 

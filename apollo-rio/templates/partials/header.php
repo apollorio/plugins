@@ -9,51 +9,51 @@
  * ============================================
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			array(),
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Tailwind (CDN for dev - should be removed in production).
-		wp_enqueue_script(
-			'tailwindcss',
-			'https://cdn.tailwindcss.com',
-			array(),
-			'3.4.0',
-			false
-		);
-	},
-	10
+        // Tailwind (CDN for dev - should be removed in production).
+        wp_enqueue_script(
+            'tailwindcss',
+            'https://cdn.tailwindcss.com',
+            [],
+            '3.4.0',
+            false
+        );
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="apollo-html">
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -66,7 +66,7 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 	<?php wp_head(); ?>
 </head>
 
-<body <?php body_class( 'apollo-body min-h-screen bg-slate-50' ); ?>>
+<body <?php body_class('apollo-body min-h-screen bg-slate-50'); ?>>
 <?php wp_body_open(); ?>
 
 <div id="apollo-wrapper" class="apollo-site-wrapper min-h-screen">
@@ -76,7 +76,7 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 		<div class="flex items-center gap-3">
 
 			<!-- Logo -->
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="flex items-center gap-3" data-tooltip="Ir para início">
+			<a href="<?php echo esc_url(home_url('/')); ?>" class="flex items-center gap-3" data-tooltip="Ir para início">
 				<div class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-md shadow-orange-500/60">
 					<i class="ri-slack-fill text-white text-[22px]"></i>
 				</div>
@@ -89,19 +89,19 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			<!-- Main Navigation (Desktop) -->
 			<nav id="apollo-navigation" class="hidden md:flex items-center gap-4 ml-8">
 				<?php
-				if ( has_nav_menu( 'apollo_primary' ) ) {
-					wp_nav_menu(
-						array(
-							'theme_location' => 'apollo_primary',
-							'menu_id'        => 'apollo-primary-menu',
-							'menu_class'     => 'flex items-center gap-4 text-[13px]',
-							'container'      => false,
-							'link_before'    => '<span class="text-slate-600 hover:text-slate-900 transition-colors">',
-							'link_after'     => '</span>',
-						)
-					);
-				}
-				?>
+                if (has_nav_menu('apollo_primary')) {
+                    wp_nav_menu(
+                        [
+                            'theme_location' => 'apollo_primary',
+                            'menu_id'        => 'apollo-primary-menu',
+                            'menu_class'     => 'flex items-center gap-4 text-[13px]',
+                            'container'      => false,
+                            'link_before'    => '<span class="text-slate-600 hover:text-slate-900 transition-colors">',
+                            'link_after'     => '</span>',
+                        ]
+                    );
+                }
+?>
 			</nav>
 		</div>
 
@@ -138,14 +138,14 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			</button>
 
 			<!-- User Actions -->
-			<?php if ( is_user_logged_in() ) : ?>
-				<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all" data-tooltip="<?php echo esc_attr( wp_get_current_user()->display_name ); ?>" aria-label="Menu do usuário">
-					<?php echo get_avatar( get_current_user_id(), 32, '', '', array( 'class' => 'h-full w-full rounded-full object-cover' ) ); ?>
+			<?php if (is_user_logged_in()) : ?>
+				<button type="button" class="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full hover:ring-2 hover:ring-slate-200 overflow-hidden transition-all" data-tooltip="<?php echo esc_attr(wp_get_current_user()->display_name); ?>" aria-label="Menu do usuário">
+					<?php echo get_avatar(get_current_user_id(), 32, '', '', [ 'class' => 'h-full w-full rounded-full object-cover' ]); ?>
 				</button>
 			<?php else : ?>
-				<a href="<?php echo esc_url( wp_login_url() ); ?>" class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white text-[12px] font-semibold rounded-full hover:bg-slate-800 transition-colors" data-tooltip="Fazer login">
+				<a href="<?php echo esc_url(wp_login_url()); ?>" class="inline-flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white text-[12px] font-semibold rounded-full hover:bg-slate-800 transition-colors" data-tooltip="Fazer login">
 					<i class="ri-login-box-line text-xs"></i>
-					<?php esc_html_e( 'Login', 'apollo-rio' ); ?>
+					<?php esc_html_e('Login', 'apollo-rio'); ?>
 				</a>
 			<?php endif; ?>
 		</div>
@@ -158,12 +158,12 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			<button class="text-slate-500 relative" data-action="mobile-notifications" data-tooltip="Notificações" aria-label="Notificações">
 				<i class="ri-notification-3-line text-xl"></i>
 			</button>
-			<?php if ( is_user_logged_in() ) : ?>
+			<?php if (is_user_logged_in()) : ?>
 				<button class="h-8 w-8 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-					<?php echo get_avatar( get_current_user_id(), 32, '', '', array( 'class' => 'h-full w-full object-cover' ) ); ?>
+					<?php echo get_avatar(get_current_user_id(), 32, '', '', [ 'class' => 'h-full w-full object-cover' ]); ?>
 				</button>
 			<?php else : ?>
-				<a href="<?php echo esc_url( wp_login_url() ); ?>" class="text-slate-500" data-tooltip="Login">
+				<a href="<?php echo esc_url(wp_login_url()); ?>" class="text-slate-500" data-tooltip="Login">
 					<i class="ri-user-line text-xl"></i>
 				</a>
 			<?php endif; ?>

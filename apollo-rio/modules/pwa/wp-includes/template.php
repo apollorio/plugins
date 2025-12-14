@@ -29,39 +29,45 @@
  * @param bool            $load_once      Whether to require_once or require. Default true. Has no effect if $load is false.
  * @return string The template filename if one is located.
  */
-function pwa_locate_template( $template_names, $load = false, $load_once = true ) {
-	$located = '';
-	foreach ( (array) $template_names as $template_name ) {
-		if ( ! $template_name ) {
-			continue;
-		}
-		$theme_slug = get_template();
-		if ( file_exists( STYLESHEETPATH . '/' . $template_name ) ) {
-			$located = STYLESHEETPATH . '/' . $template_name;
-			break;
-		} elseif ( file_exists( TEMPLATEPATH . '/' . $template_name ) ) {
-			$located = TEMPLATEPATH . '/' . $template_name;
-			break;
-		} elseif ( preg_match( '/^twenty\w+$/', $theme_slug ) && file_exists( PWA_PLUGIN_DIR . '/bundled-theme-support/' . $theme_slug . '/offline.php' ) ) {
-			$located = PWA_PLUGIN_DIR . '/bundled-theme-support/' . $theme_slug . '/offline.php';
-			break;
-			// Begin core patch.
-		} elseif ( file_exists( PWA_PLUGIN_DIR . '/' . WPINC . '/theme-compat/' . $template_name ) ) {
-			$located = PWA_PLUGIN_DIR . '/' . WPINC . '/theme-compat/' . $template_name;
-			break;
-			// Begin core patch.
-		} elseif ( file_exists( ABSPATH . WPINC . '/theme-compat/' . $template_name ) ) {
-			$located = ABSPATH . WPINC . '/theme-compat/' . $template_name;
-			break;
-		}
-		// End core patch.
-	}//end foreach
+function pwa_locate_template($template_names, $load = false, $load_once = true)
+{
+    $located = '';
+    foreach ((array) $template_names as $template_name) {
+        if (! $template_name) {
+            continue;
+        }
+        $theme_slug = get_template();
+        if (file_exists(STYLESHEETPATH . '/' . $template_name)) {
+            $located = STYLESHEETPATH . '/' . $template_name;
 
-	if ( $load && $located ) {
-		load_template( $located, $load_once );
-	}
+            break;
+        } elseif (file_exists(TEMPLATEPATH . '/' . $template_name)) {
+            $located = TEMPLATEPATH . '/' . $template_name;
 
-	return $located;
+            break;
+        } elseif (preg_match('/^twenty\w+$/', $theme_slug) && file_exists(PWA_PLUGIN_DIR . '/bundled-theme-support/' . $theme_slug . '/offline.php')) {
+            $located = PWA_PLUGIN_DIR . '/bundled-theme-support/' . $theme_slug . '/offline.php';
+
+            break;
+            // Begin core patch.
+        } elseif (file_exists(PWA_PLUGIN_DIR . '/' . WPINC . '/theme-compat/' . $template_name)) {
+            $located = PWA_PLUGIN_DIR . '/' . WPINC . '/theme-compat/' . $template_name;
+
+            break;
+            // Begin core patch.
+        } elseif (file_exists(ABSPATH . WPINC . '/theme-compat/' . $template_name)) {
+            $located = ABSPATH . WPINC . '/theme-compat/' . $template_name;
+
+            break;
+        }
+        // End core patch.
+    }//end foreach
+
+    if ($load && $located) {
+        load_template($located, $load_once);
+    }
+
+    return $located;
 }
 
 /**
@@ -79,20 +85,21 @@ function pwa_locate_template( $template_names, $load = false, $load_once = true 
  * @param string[] $templates An optional list of template candidates.
  * @return string Full path to template file.
  */
-function pwa_get_query_template( $type, $templates = array() ) {
-	$type = preg_replace( '|[^a-z0-9-]+|', '', $type );
+function pwa_get_query_template($type, $templates = [])
+{
+    $type = preg_replace('|[^a-z0-9-]+|', '', $type);
 
-	if ( empty( $templates ) ) {
-		$templates = array( "{$type}.php" );
-	}
+    if (empty($templates)) {
+        $templates = [ "{$type}.php" ];
+    }
 
-	/** This filter is documented in wp-includes/template.php */
-	$templates = apply_filters( "{$type}_template_hierarchy", $templates );
+    /** This filter is documented in wp-includes/template.php */
+    $templates = apply_filters("{$type}_template_hierarchy", $templates);
 
-	$template = pwa_locate_template( $templates );
+    $template = pwa_locate_template($templates);
 
-	/** This filter is documented in wp-includes/template.php */
-	return apply_filters( "{$type}_template", $template, $type, $templates );
+    /** This filter is documented in wp-includes/template.php */
+    return apply_filters("{$type}_template", $template, $type, $templates);
 }
 
 /**
@@ -106,13 +113,14 @@ function pwa_get_query_template( $type, $templates = array() ) {
  *
  * @return string Full path to archive template file.
  */
-function get_offline_template() {
-	$templates = array(
-		'offline.php',
-		'error.php',
-	);
+function get_offline_template()
+{
+    $templates = [
+        'offline.php',
+        'error.php',
+    ];
 
-	return pwa_get_query_template( 'offline', $templates );
+    return pwa_get_query_template('offline', $templates);
 }
 
 /**
@@ -126,13 +134,14 @@ function get_offline_template() {
  *
  * @return string Full path to archive template file.
  */
-function get_500_template() {
-	$templates = array(
-		'500.php',
-		'error.php',
-	);
+function get_500_template()
+{
+    $templates = [
+        '500.php',
+        'error.php',
+    ];
 
-	return pwa_get_query_template( 'offline', $templates );
+    return pwa_get_query_template('offline', $templates);
 }
 
 /**
@@ -140,16 +149,17 @@ function get_500_template() {
  *
  * @return array<string, string> Array of error messages: default, comment.
  */
-function wp_service_worker_get_error_messages() {
-	return apply_filters(
-		'wp_service_worker_error_messages',
-		array(
-			'clientOffline'     => __( 'It seems you are offline. Please check your internet connection and try again.', 'pwa' ),
-			'serverOffline'     => __( 'The server appears to be down, or your connection isn\'t working as expected. Please try again later.', 'pwa' ),
-			'error'             => __( 'Something prevented the page from being rendered. Please try again.', 'pwa' ),
-			'submissionFailure' => __( 'Your submission failed. Please go back and try again.', 'pwa' ),
-		)
-	);
+function wp_service_worker_get_error_messages()
+{
+    return apply_filters(
+        'wp_service_worker_error_messages',
+        [
+            'clientOffline'     => __('It seems you are offline. Please check your internet connection and try again.', 'pwa'),
+            'serverOffline'     => __('The server appears to be down, or your connection isn\'t working as expected. Please try again later.', 'pwa'),
+            'error'             => __('Something prevented the page from being rendered. Please try again.', 'pwa'),
+            'submissionFailure' => __('Your submission failed. Please go back and try again.', 'pwa'),
+        ]
+    );
 }
 
 /**
@@ -157,20 +167,22 @@ function wp_service_worker_get_error_messages() {
  *
  * @param string $output Error details template output.
  */
-function wp_service_worker_error_details_template( $output = '' ) {
-	if ( empty( $output ) ) {
-		$output = '<details id="error-details"><summary>' . esc_html__( 'More Details', 'pwa' ) . '</summary>{{{error_details_iframe}}}</details>'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Variable includes iframe tag.
-	}
-	echo '{{{WP_SERVICE_WORKER_ERROR_TEMPLATE_BEGIN}}}'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints template begin tag.
-	echo wp_kses_post( $output );
-	echo '{{{WP_SERVICE_WORKER_ERROR_TEMPLATE_END}}}'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints template end tag.
+function wp_service_worker_error_details_template($output = '')
+{
+    if (empty($output)) {
+        $output = '<details id="error-details"><summary>' . esc_html__('More Details', 'pwa') . '</summary>{{{error_details_iframe}}}</details>'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Variable includes iframe tag.
+    }
+    echo '{{{WP_SERVICE_WORKER_ERROR_TEMPLATE_BEGIN}}}'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints template begin tag.
+    echo wp_kses_post($output);
+    echo '{{{WP_SERVICE_WORKER_ERROR_TEMPLATE_END}}}'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints template end tag.
 }
 
 /**
  * Display service worker error message template tag.
  */
-function wp_service_worker_error_message_placeholder() {
-	echo '<p>{{{WP_SERVICE_WORKER_ERROR_MESSAGE}}}</p>'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints error message placeholder.
+function wp_service_worker_error_message_placeholder()
+{
+    echo '<p>{{{WP_SERVICE_WORKER_ERROR_MESSAGE}}}</p>'; // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation -- Prints error message placeholder.
 }
 
 /**
@@ -178,13 +190,14 @@ function wp_service_worker_error_message_placeholder() {
  *
  * @since 0.7
  */
-function wp_service_worker_offline_page_reload() {
-	if ( ! is_offline() && ! is_500() ) {
-		return;
-	}
+function wp_service_worker_offline_page_reload()
+{
+    if (! is_offline() && ! is_500()) {
+        return;
+    }
 
-	?>
-	<script id="wp-navigation-request-properties" type="application/json">{{{WP_NAVIGATION_REQUEST_PROPERTIES}}}</script><?php // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
+    ?>
+	<script id="wp-navigation-request-properties" type="application/json">{{{WP_NAVIGATION_REQUEST_PROPERTIES}}}</script><?php // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation?>
 	<script id="wp-offline-page-reload" type="module">
 		const shouldRetry = () => {
 			if (
@@ -246,5 +259,5 @@ function wp_service_worker_offline_page_reload() {
 	<?php
 }
 
-add_action( 'wp_footer', 'wp_service_worker_offline_page_reload' );
-add_action( 'error_footer', 'wp_service_worker_offline_page_reload' );
+add_action('wp_footer', 'wp_service_worker_offline_page_reload');
+add_action('error_footer', 'wp_service_worker_offline_page_reload');

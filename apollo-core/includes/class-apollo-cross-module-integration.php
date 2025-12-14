@@ -67,6 +67,7 @@ class Apollo_Cross_Module_Integration {
 		if ( ! function_exists( 'apollo_is_module_enabled' ) ) {
 			return $can;
 		}
+
 		return $can && apollo_is_module_enabled( 'events' );
 	}
 
@@ -77,6 +78,7 @@ class Apollo_Cross_Module_Integration {
 		if ( ! function_exists( 'apollo_is_module_enabled' ) ) {
 			return $can;
 		}
+
 		return $can && apollo_is_module_enabled( 'social' );
 	}
 
@@ -87,6 +89,7 @@ class Apollo_Cross_Module_Integration {
 		if ( ! function_exists( 'apollo_is_module_enabled' ) ) {
 			return $can;
 		}
+
 		return $can && apollo_is_module_enabled( 'bolha' );
 	}
 
@@ -97,6 +100,7 @@ class Apollo_Cross_Module_Integration {
 		if ( ! function_exists( 'apollo_is_module_enabled' ) ) {
 			return $can;
 		}
+
 		return $can && apollo_is_module_enabled( 'comunas' );
 	}
 
@@ -393,6 +397,7 @@ class Apollo_Cross_Module_Integration {
 
 		if ( empty( $events ) ) {
 			echo '<p class="no-events">' . esc_html__( 'Nenhum evento agendado.', 'apollo-core' ) . '</p>';
+
 			return;
 		}
 

@@ -8,22 +8,22 @@
  * @version 2.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-$user           = $view['data']['user'] ?? [];
-$calendar       = $view['data']['calendar'] ?? [];
+$user           = $view['data']['user']           ?? [];
+$calendar       = $view['data']['calendar']       ?? [];
 $pending_events = $view['data']['pending_events'] ?? [];
-$event_plans    = $view['data']['event_plans'] ?? [];
+$event_plans    = $view['data']['event_plans']    ?? [];
 
-$current_month  = $calendar['current_month'] ?? date( 'Y-m' );
-$events_by_date = $calendar['events'] ?? [];
+$current_month  = $calendar['current_month'] ?? date('Y-m');
+$events_by_date = $calendar['events']        ?? [];
 
-$ajax_url          = admin_url( 'admin-ajax.php' );
-$rest_url          = rest_url( 'apollo/v1' );
-$nonce             = wp_create_nonce( 'wp_rest' );
-$is_mod            = $user['is_mod'] ?? false;
+$ajax_url          = admin_url('admin-ajax.php');
+$rest_url          = rest_url('apollo/v1');
+$nonce             = wp_create_nonce('wp_rest');
+$is_mod            = $user['is_mod']            ?? false;
 $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 ?>
 
@@ -45,7 +45,7 @@ $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 				<a href="/feed/" class="text-sm font-medium text-slate-600 hover:text-slate-900">Feed</a>
 				<a href="/painel/" class="text-sm font-medium text-slate-600 hover:text-slate-900">Painel</a>
 				<button class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-					<img src="<?php echo esc_url( $user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+					<img src="<?php echo esc_url($user['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($user['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 				</button>
 			</div>
 		</div>
@@ -78,7 +78,7 @@ $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 									<i class="ri-arrow-left-s-line text-slate-600"></i>
 								</button>
 								<span id="month-label" class="text-sm font-semibold text-slate-900 px-3">
-									<?php echo date_i18n( 'F Y', strtotime( $current_month . '-01' ) ); ?>
+									<?php echo date_i18n('F Y', strtotime($current_month . '-01')); ?>
 								</span>
 								<button id="next-month" class="h-8 w-8 flex items-center justify-center rounded-full hover:bg-slate-100">
 									<i class="ri-arrow-right-s-line text-slate-600"></i>
@@ -131,11 +131,11 @@ $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 				<div class="space-y-6">
 					
 					<!-- Add Event Form (cena-rio role only) -->
-					<?php if ( $has_cena_rio_role ) : ?>
+					<?php if ($has_cena_rio_role) : ?>
 					<section class="aprioEXP-card-shell p-6">
 						<h3 class="text-lg font-semibold text-slate-900 mb-4">Adicionar Evento Previsto</h3>
 						<form id="cena-add-event-form" class="space-y-4">
-							<?php wp_nonce_field( 'wp_rest' ); ?>
+							<?php wp_nonce_field('wp_rest'); ?>
 							<div>
 								<label class="block text-sm font-medium text-slate-700 mb-1">Título do Evento</label>
 								<input type="text" name="title" required 
@@ -165,32 +165,32 @@ $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 					<?php endif; ?>
 
 					<!-- Pending Events (MOD/ADMIN only) -->
-					<?php if ( $is_mod && ! empty( $pending_events ) ) : ?>
+					<?php if ($is_mod && ! empty($pending_events)) : ?>
 					<section class="aprioEXP-card-shell p-6">
 						<h3 class="text-lg font-semibold text-slate-900 mb-4">Eventos Pendentes</h3>
 						<div class="space-y-3">
-							<?php foreach ( $pending_events as $event ) : ?>
+							<?php foreach ($pending_events as $event) : ?>
 								<div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
 									<div class="flex items-start justify-between mb-2">
 										<div>
-											<h4 class="font-semibold text-sm text-slate-900"><?php echo esc_html( $event['title'] ); ?></h4>
-											<p class="text-xs text-slate-600"><?php echo esc_html( $event['date'] ); ?></p>
-											<p class="text-xs text-slate-500">Por: <?php echo esc_html( $event['author']['name'] ); ?></p>
+											<h4 class="font-semibold text-sm text-slate-900"><?php echo esc_html($event['title']); ?></h4>
+											<p class="text-xs text-slate-600"><?php echo esc_html($event['date']); ?></p>
+											<p class="text-xs text-slate-500">Por: <?php echo esc_html($event['author']['name']); ?></p>
 										</div>
 										<span class="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-900">
-											<?php echo esc_html( ucfirst( $event['status'] ) ); ?>
+											<?php echo esc_html(ucfirst($event['status'])); ?>
 										</span>
 									</div>
-									<?php if ( $event['ticket_url'] ) : ?>
+									<?php if ($event['ticket_url']) : ?>
 										<p class="text-xs text-slate-600 mb-2">
 											<i class="ri-ticket-line"></i> 
-											<a href="<?php echo esc_url( $event['ticket_url'] ); ?>" target="_blank" class="text-orange-600 hover:underline">
+											<a href="<?php echo esc_url($event['ticket_url']); ?>" target="_blank" class="text-orange-600 hover:underline">
 												Ver ingressos
 											</a>
 										</p>
 									<?php endif; ?>
 									<button class="approve-event-btn w-full px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-colors"
-											data-event-id="<?php echo esc_attr( $event['id'] ); ?>">
+											data-event-id="<?php echo esc_attr($event['id']); ?>">
 										Aprovar e Publicar
 									</button>
 								</div>
@@ -209,12 +209,12 @@ $has_cena_rio_role = $user['has_cena_rio_role'] ?? false;
 
 <script>
 window.apolloCenaData = {
-	ajaxUrl: <?php echo json_encode( $ajax_url ); ?>,
-	restUrl: <?php echo json_encode( $rest_url ); ?>,
-	nonce: <?php echo json_encode( $nonce ); ?>,
-	currentMonth: <?php echo json_encode( $current_month ); ?>,
-	events: <?php echo json_encode( $events_by_date ); ?>,
-	userId: <?php echo absint( $user['id'] ?? 0 ); ?>,
+	ajaxUrl: <?php echo json_encode($ajax_url); ?>,
+	restUrl: <?php echo json_encode($rest_url); ?>,
+	nonce: <?php echo json_encode($nonce); ?>,
+	currentMonth: <?php echo json_encode($current_month); ?>,
+	events: <?php echo json_encode($events_by_date); ?>,
+	userId: <?php echo absint($user['id'] ?? 0); ?>,
 	hasCenaRioRole: <?php echo $has_cena_rio_role ? 'true' : 'false'; ?>,
 	isMod: <?php echo $is_mod ? 'true' : 'false'; ?>
 };

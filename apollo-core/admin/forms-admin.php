@@ -312,4 +312,3 @@ function apollo_ajax_save_form_schema() {
 	}
 }
 add_action( 'wp_ajax_apollo_save_form_schema', 'apollo_ajax_save_form_schema' );
-

@@ -6,7 +6,7 @@
  */
 
 // Get current season filter
-$season_filter   = $_GET['season'] ?? '';
+$season_filter   = $_GET['season']   ?? '';
 $category_filter = $_GET['category'] ?? '';
 
 ?>
@@ -20,15 +20,15 @@ $category_filter = $_GET['category'] ?? '';
 		<div class="events-filters">
 			<select id="season-filter" class="apollo-filter" data-filter-type="season">
 				<option value="">Todas as Seasons</option>
-				<option value="2025-1" <?php selected( $season_filter, '2025-1' ); ?>>Season 2025-1</option>
-				<option value="2025-2" <?php selected( $season_filter, '2025-2' ); ?>>Season 2025-2</option>
+				<option value="2025-1" <?php selected($season_filter, '2025-1'); ?>>Season 2025-1</option>
+				<option value="2025-2" <?php selected($season_filter, '2025-2'); ?>>Season 2025-2</option>
 			</select>
 			
 			<select id="category-filter" class="apollo-filter" data-filter-type="category">
 				<option value="">Todas as Categorias</option>
-				<option value="workshop" <?php selected( $category_filter, 'workshop' ); ?>>Workshops</option>
-				<option value="meetup" <?php selected( $category_filter, 'meetup' ); ?>>Meetups</option>
-				<option value="conference" <?php selected( $category_filter, 'conference' ); ?>>Conferências</option>
+				<option value="workshop" <?php selected($category_filter, 'workshop'); ?>>Workshops</option>
+				<option value="meetup" <?php selected($category_filter, 'meetup'); ?>>Meetups</option>
+				<option value="conference" <?php selected($category_filter, 'conference'); ?>>Conferências</option>
 			</select>
 			
 			<button class="btn apollo-apply-filters-btn">Aplicar Filtros</button>

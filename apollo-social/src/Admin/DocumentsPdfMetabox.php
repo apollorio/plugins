@@ -54,18 +54,18 @@ class DocumentsPdfMetabox {
 			require_once dirname( __DIR__, 2 ) . '/Modules/Documents/DocumentsPdfService.php';
 		}
 
-		$has_pdf = \Apollo\Modules\Documents\DocumentsPdfService::has_pdf( $doc_id );
-		$pdf_url = \Apollo\Modules\Documents\DocumentsPdfService::get_pdf_url( $doc_id );
+		$has_pdf        = \Apollo\Modules\Documents\DocumentsPdfService::has_pdf( $doc_id );
+		$pdf_url        = \Apollo\Modules\Documents\DocumentsPdfService::get_pdf_url( $doc_id );
 		$generated_time = \Apollo\Modules\Documents\DocumentsPdfService::get_pdf_generated_time( $doc_id );
 
 		// Check if PDF library is available
 		$pdf_generator_path = dirname( __DIR__, 2 ) . '/Modules/Documents/PdfGenerator.php';
-		$has_library = false;
+		$has_library        = false;
 		if ( file_exists( $pdf_generator_path ) ) {
 			require_once $pdf_generator_path;
 			if ( class_exists( 'Apollo\\Modules\\Documents\\PdfGenerator' ) ) {
-				$pdf_gen = new \Apollo\Modules\Documents\PdfGenerator();
-				$libraries = $pdf_gen->getAvailableLibraries();
+				$pdf_gen     = new \Apollo\Modules\Documents\PdfGenerator();
+				$libraries   = $pdf_gen->getAvailableLibraries();
 				$has_library = ! empty( $libraries );
 			}
 		}
@@ -182,4 +182,3 @@ class DocumentsPdfMetabox {
 
 // Initialize
 DocumentsPdfMetabox::init();
-

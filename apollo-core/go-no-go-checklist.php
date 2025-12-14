@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo GO/NO-GO Checklist
  *
@@ -190,6 +191,7 @@ class Apollo_GONO_Checklist {
 				if ( strpos( $pattern, $route ) !== false ) {
 					$found = true;
 					$this->pass( "Rota sensível registrada: $route" );
+
 					break;
 				}
 			}
@@ -320,6 +322,7 @@ class Apollo_GONO_Checklist {
 			foreach ( $menu as $item ) {
 				if ( isset( $item[2] ) && $item[2] === 'apollo-cabin' ) {
 					$cabin_found = true;
+
 					break;
 				}
 			}
@@ -341,6 +344,7 @@ class Apollo_GONO_Checklist {
 		$admin = get_role( 'administrator' );
 		if ( ! $admin ) {
 			$this->fail( 'Role administrator não encontrada' );
+
 			return;
 		}
 

@@ -17,8 +17,8 @@
  * @since      1.3.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Load components
@@ -42,76 +42,77 @@ require_once $components_dir . 'data-table.php';
  *     @type array  $sidebar_nav  Custom sidebar navigation.
  * }
  */
-function apollo_render_dashboard_page( array $args = [] ) {
-	$defaults = [
-		'title'       => 'Dashboard',
-		'breadcrumbs' => [
-			[
-				'label' => 'Início',
-				'url'   => home_url( '/' ),
-			],
-			[
-				'label' => 'Dashboard',
-				'url'   => '',
-			],
-		],
-		'cards'       => [],
-		'table'       => [],
-		'content'     => '',
-		'sidebar_nav' => [],
-	];
-	$args     = wp_parse_args( $args, $defaults );
+function apollo_render_dashboard_page(array $args = [])
+{
+    $defaults = [
+        'title'       => 'Dashboard',
+        'breadcrumbs' => [
+            [
+                'label' => 'Início',
+                'url'   => home_url('/'),
+            ],
+            [
+                'label' => 'Dashboard',
+                'url'   => '',
+            ],
+        ],
+        'cards'       => [],
+        'table'       => [],
+        'content'     => '',
+        'sidebar_nav' => [],
+    ];
+    $args = wp_parse_args($args, $defaults);
 
-	// Start output
-	apollo_dashboard_head();
-	?>
+    // Start output
+    apollo_dashboard_head();
+    ?>
 	
 	<?php apollo_sidebar_provider_start(); ?>
 		
 		<?php
-		apollo_render_app_sidebar(
-			[
-				'variant'   => 'inset',
-				'nav_items' => ! empty( $args['sidebar_nav'] ) ? $args['sidebar_nav'] : apollo_get_default_nav_items(),
-			]
-		);
-		?>
+        apollo_render_app_sidebar(
+            [
+                'variant'   => 'inset',
+                'nav_items' => ! empty($args['sidebar_nav']) ? $args['sidebar_nav'] : apollo_get_default_nav_items(),
+            ]
+        );
+    ?>
 		
 		<?php apollo_sidebar_inset_start(); ?>
 			
 			<?php
-			apollo_render_site_header(
-				[
-					'breadcrumbs' => $args['breadcrumbs'],
-					'title'       => $args['title'],
-				]
-			);
-			?>
+        apollo_render_site_header(
+            [
+                'breadcrumbs' => $args['breadcrumbs'],
+                'title'       => $args['title'],
+            ]
+        );
+    ?>
 			
 			<div class="flex flex-1 flex-col">
 				<div class="@container/main flex flex-1 flex-col gap-2">
 					<div class="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
 						
-						<?php if ( ! empty( $args['content'] ) ) : ?>
+						<?php if (! empty($args['content'])) : ?>
 							<!-- Custom Content -->
 							<div class="px-4 lg:px-6">
-                                <?php echo $args['content']; // phpcs:ignore -- Custom content ?>
+                                <?php echo $args['content']; // phpcs:ignore -- Custom content?>
 							</div>
 						<?php else : ?>
 							
 							<!-- Stats Cards -->
-							<?php apollo_render_section_cards( $args['cards'] ); ?>
+							<?php apollo_render_section_cards($args['cards']); ?>
 							
 							<!-- Chart Area (Optional) -->
-							<?php if ( ! empty( $args['chart'] ) ) : ?>
+							<?php if (! empty($args['chart'])) : ?>
 								<div class="px-4 lg:px-6">
-									<?php apollo_render_chart_area( $args['chart'] ); ?>
+									<?php apollo_render_chart_area($args['chart']); ?>
 								</div>
 							<?php endif; ?>
 							
 							<!-- Data Table -->
-							<?php if ( ! empty( $args['table'] ) ) : ?>
-								<?php apollo_render_data_table( $args['table'] ); ?>
+							<?php if (! empty($args['table'])) : ?>
+								<?php apollo_render_data_table($args['table']); ?>
 							<?php endif; ?>
 							
 						<?php endif; ?>
@@ -125,20 +126,21 @@ function apollo_render_dashboard_page( array $args = [] ) {
 	<?php apollo_sidebar_provider_end(); ?>
 	
 	<?php
-	apollo_dashboard_footer();
+    apollo_dashboard_footer();
 }
 
 /**
  * Output dashboard head/styles.
  */
-function apollo_dashboard_head() {
-	?>
+function apollo_dashboard_head()
+{
+    ?>
 	<!DOCTYPE html>
 	<html <?php language_attributes(); ?> class="h-full">
 	<head>
-		<meta charset="<?php bloginfo( 'charset' ); ?>">
+		<meta charset="<?php bloginfo('charset'); ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title><?php wp_title( '|', true, 'right' ); ?><?php bloginfo( 'name' ); ?></title>
+		<title><?php wp_title('|', true, 'right'); ?><?php bloginfo('name'); ?></title>
 		<?php wp_head(); ?>
 		
 		<!-- ShadCN CSS Variables (New York) -->
@@ -431,8 +433,9 @@ function apollo_dashboard_head() {
 /**
  * Output dashboard footer/scripts.
  */
-function apollo_dashboard_footer() {
-	?>
+function apollo_dashboard_footer()
+{
+    ?>
 	<?php wp_footer(); ?>
 	
 	<!-- Dashboard JavaScript -->
@@ -606,14 +609,15 @@ function apollo_dashboard_footer() {
  *
  * @param array $chart Chart configuration.
  */
-function apollo_render_chart_area( array $chart ) {
-	$title = $chart['title'] ?? 'Atividade';
-	$data  = $chart['data'] ?? [];
-	?>
+function apollo_render_chart_area(array $chart)
+{
+    $title = $chart['title'] ?? 'Atividade';
+    $data  = $chart['data']  ?? [];
+    ?>
 	<div class="rounded-xl border bg-card p-4 lg:p-6">
 		<div class="flex items-center justify-between mb-4">
 			<div>
-				<h3 class="text-lg font-semibold"><?php echo esc_html( $title ); ?></h3>
+				<h3 class="text-lg font-semibold"><?php echo esc_html($title); ?></h3>
 				<p class="text-sm text-muted-foreground">Últimos 30 dias</p>
 			</div>
 			<div class="flex items-center gap-2">

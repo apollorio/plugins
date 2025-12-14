@@ -582,6 +582,7 @@ class Apollo_Cena_Rio_Submissions {
 		</style>
 		<?php
 		$output = ob_get_clean();
+
 		return $output !== false ? $output : '';
 	}
 
@@ -658,10 +659,10 @@ class Apollo_Cena_Rio_Submissions {
 		// Only visible in CENA-RIO internal calendar
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'event_listing',
-				'post_title'   => $event_data['title'],
-				'post_content' => $event_data['description'],
-				'post_status'  => 'private',
+				'post_type'                                   => 'event_listing',
+				'post_title'                                  => $event_data['title'],
+				'post_content'                                => $event_data['description'],
+				'post_status'                                 => 'private',
 				// Internal only - NOT in MOD queue
 												'post_author' => get_current_user_id(),
 			),
@@ -726,4 +727,3 @@ class Apollo_Cena_Rio_Submissions {
 
 // Initialize
 Apollo_Cena_Rio_Submissions::init();
-

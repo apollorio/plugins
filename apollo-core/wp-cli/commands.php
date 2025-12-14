@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -16,6 +17,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
  * Apollo Core WP-CLI commands
  */
 class Apollo_Core_CLI_Commands {
+
 	/**
 	 * Test database connectivity and Apollo tables
 	 *
@@ -34,7 +36,7 @@ class Apollo_Core_CLI_Commands {
 		// Test 1: Database connectivity.
 		WP_CLI::log( '1. Testing database connectivity...' );
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$test_query = $wpdb->get_var( 'SELECT 1' );
 		if ( '1' === $test_query ) {
 			WP_CLI::success( 'Database connection OK' );
@@ -47,14 +49,14 @@ class Apollo_Core_CLI_Commands {
 		WP_CLI::log( '' );
 		WP_CLI::log( '2. Checking apollo_mod_log table...' );
 		$table_name = $wpdb->prefix . 'apollo_mod_log';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" );
 
 		if ( $table_exists ) {
 			WP_CLI::success( "Table $table_name exists" );
 
 			// Check row count.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$row_count = $wpdb->get_var( "SELECT COUNT(*) FROM $table_name" );
 			WP_CLI::log( "  Rows: $row_count" );
 		} else {
@@ -155,6 +157,7 @@ class Apollo_Core_CLI_Commands {
 
 		if ( empty( $logs ) ) {
 			WP_CLI::warning( 'No log entries found.' );
+
 			return;
 		}
 

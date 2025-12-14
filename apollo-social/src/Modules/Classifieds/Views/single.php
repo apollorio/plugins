@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Single classified view (stub) - /anuncio/{slug}
  */

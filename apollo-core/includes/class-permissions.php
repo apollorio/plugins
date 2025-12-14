@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Permissions class
  */
 class Apollo_Core_Permissions {
+
 	/**
 	 * Check if user can approve events
 	 *

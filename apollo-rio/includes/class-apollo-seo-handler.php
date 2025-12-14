@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SEO Handler for Apollo content types
  *
@@ -52,6 +53,7 @@ class Apollo_SEO_Handler {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -86,6 +88,7 @@ class Apollo_SEO_Handler {
 		if ( 'user' === $apollo_route ) {
 			$this->current_type = 'user';
 			$this->seo_data     = $this->get_user_seo_data( $apollo_param );
+
 			return;
 		}
 
@@ -93,12 +96,14 @@ class Apollo_SEO_Handler {
 			// Map 'season' to the appropriate admin setting key.
 			$this->current_type = ( 'season' === $apollo_type ) ? 'comunidade' : $apollo_type;
 			$this->seo_data     = $this->get_group_seo_data( $apollo_param, $apollo_type );
+
 			return;
 		}
 
 		if ( 'ad_single' === $apollo_route ) {
 			$this->current_type = 'classifieds';
 			$this->seo_data     = $this->get_classified_seo_data( $apollo_param );
+
 			return;
 		}
 
@@ -106,18 +111,21 @@ class Apollo_SEO_Handler {
 		if ( is_singular( 'event_listing' ) ) {
 			$this->current_type = 'event';
 			$this->seo_data     = $this->get_event_seo_data( get_queried_object_id() );
+
 			return;
 		}
 
 		if ( is_singular( 'event_dj' ) ) {
 			$this->current_type = 'dj';
 			$this->seo_data     = $this->get_dj_seo_data( get_queried_object_id() );
+
 			return;
 		}
 
 		if ( is_singular( 'event_local' ) ) {
 			$this->current_type = 'local';
 			$this->seo_data     = $this->get_local_seo_data( get_queried_object_id() );
+
 			return;
 		}
 	}
@@ -197,6 +205,7 @@ class Apollo_SEO_Handler {
 		}
 
 		$title_parts['title'] = $this->seo_data['title'];
+
 		return $title_parts;
 	}
 
@@ -300,13 +309,13 @@ class Apollo_SEO_Handler {
 		$table_name = $wpdb->prefix . 'apollo_groups';
 
 		// Check if table exists.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
 		if ( ! $table_exists ) {
 			return null;
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$group = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM {$table_name} WHERE slug = %s AND type = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -322,7 +331,7 @@ class Apollo_SEO_Handler {
 
 		// Get group avatar from meta.
 		$meta_table = $wpdb->prefix . 'apollo_group_meta';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$avatar = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT meta_value FROM {$meta_table} WHERE group_id = %d AND meta_key = 'avatar' LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Documents - Print View Renderer
  *
@@ -18,77 +19,79 @@ namespace Apollo\Modules\Documents;
  *
  * Generates print-ready HTML from document data.
  */
-class DocumentsPrintView {
+class DocumentsPrintView
+{
+    /**
+     * Render print view for a document
+     *
+     * @param int $doc_id Document post ID.
+     * @return string Full HTML string for print/PDF.
+     */
+    public static function render(int $doc_id): string
+    {
+        $post = get_post($doc_id);
 
-	/**
-	 * Render print view for a document
-	 *
-	 * @param int $doc_id Document post ID.
-	 * @return string Full HTML string for print/PDF.
-	 */
-	public static function render( int $doc_id ): string {
-		$post = get_post( $doc_id );
+        if (! $post || $post->post_type !== 'apollo_document') {
+            return '';
+        }
 
-		if ( ! $post || $post->post_type !== 'apollo_document' ) {
-			return '';
-		}
+        // Get document content (prefer meta, fallback to post_content)
+        $body_html = get_post_meta($doc_id, '_apollo_doc_body_html', true);
+        if (empty($body_html)) {
+            $body_html = $post->post_content;
+        }
 
-		// Get document content (prefer meta, fallback to post_content)
-		$body_html = get_post_meta( $doc_id, '_apollo_doc_body_html', true );
-		if ( empty( $body_html ) ) {
-			$body_html = $post->post_content;
-		}
+        // Sanitize HTML
+        $body_html = wp_kses_post($body_html);
 
-		// Sanitize HTML
-		$body_html = wp_kses_post( $body_html );
+        // Get document title
+        $title = get_post_meta($doc_id, '_apollo_doc_title', true);
+        if (empty($title)) {
+            $title = $post->post_title;
+        }
+        $title = esc_html($title);
 
-		// Get document title
-		$title = get_post_meta( $doc_id, '_apollo_doc_title', true );
-		if ( empty( $title ) ) {
-			$title = $post->post_title;
-		}
-		$title = esc_html( $title );
+        // Get author
+        $author      = get_userdata($post->post_author);
+        $author_name = $author ? $author->display_name : __('Usuário', 'apollo-social');
 
-		// Get author
-		$author = get_userdata( $post->post_author );
-		$author_name = $author ? $author->display_name : __( 'Usuário', 'apollo-social' );
+        // Get document date
+        $date = get_post_meta($doc_id, '_apollo_doc_pdf_generated', true);
+        if (empty($date)) {
+            $date = $post->post_modified;
+        }
+        $formatted_date = date_i18n('d/m/Y H:i', strtotime($date));
 
-		// Get document date
-		$date = get_post_meta( $doc_id, '_apollo_doc_pdf_generated', true );
-		if ( empty( $date ) ) {
-			$date = $post->post_modified;
-		}
-		$formatted_date = date_i18n( 'd/m/Y H:i', strtotime( $date ) );
+        // Get version
+        $version      = get_post_meta($doc_id, '_apollo_doc_version', true);
+        $version_text = $version ? sprintf(__('Versão %d', 'apollo-social'), absint($version)) : '';
 
-		// Get version
-		$version = get_post_meta( $doc_id, '_apollo_doc_version', true );
-		$version_text = $version ? sprintf( __( 'Versão %d', 'apollo-social' ), absint( $version ) ) : '';
+        // Build print view HTML
+        $html = self::build_print_html($title, $body_html, $author_name, $formatted_date, $version_text);
 
-		// Build print view HTML
-		$html = self::build_print_html( $title, $body_html, $author_name, $formatted_date, $version_text );
+        // Append signature block if document has signatures
+        if (class_exists('Apollo\\Modules\\Documents\\DocumentsPdfSignatureBlock')) {
+            $html = DocumentsPdfSignatureBlock::append_to_print_view($doc_id, $html);
+        }
 
-		// Append signature block if document has signatures
-		if ( class_exists( 'Apollo\\Modules\\Documents\\DocumentsPdfSignatureBlock' ) ) {
-			$html = DocumentsPdfSignatureBlock::append_to_print_view( $doc_id, $html );
-		}
+        return $html;
+    }
 
-		return $html;
-	}
+    /**
+     * Build complete print HTML document
+     *
+     * @param string $title Document title.
+     * @param string $body_html Document body HTML.
+     * @param string $author_name Author name.
+     * @param string $date Formatted date.
+     * @param string $version Version text.
+     * @return string Complete HTML document.
+     */
+    private static function build_print_html(string $title, string $body_html, string $author_name, string $date, string $version): string
+    {
+        $logo_url = self::get_logo_url();
 
-	/**
-	 * Build complete print HTML document
-	 *
-	 * @param string $title Document title.
-	 * @param string $body_html Document body HTML.
-	 * @param string $author_name Author name.
-	 * @param string $date Formatted date.
-	 * @param string $version Version text.
-	 * @return string Complete HTML document.
-	 */
-	private static function build_print_html( string $title, string $body_html, string $author_name, string $date, string $version ): string {
-		$logo_url = self::get_logo_url();
-
-		$html = <<<HTML
+        $html = <<<HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -288,32 +291,33 @@ class DocumentsPrintView {
 </html>
 HTML;
 
-		return $html;
-	}
+        return $html;
+    }
 
-	/**
-	 * Get Apollo logo URL for print view
-	 *
-	 * @return string HTML img tag or empty string.
-	 */
-	private static function get_logo_url(): string {
-		// Try to get logo from theme or plugin
-		$logo_paths = array(
-			get_template_directory() . '/assets/images/apollo-logo.png',
-			get_template_directory() . '/assets/apollo-logo.png',
-			APOLLO_SOCIAL_PLUGIN_DIR . 'assets/images/apollo-logo.png',
-		);
+    /**
+     * Get Apollo logo URL for print view
+     *
+     * @return string HTML img tag or empty string.
+     */
+    private static function get_logo_url(): string
+    {
+        // Try to get logo from theme or plugin
+        $logo_paths = [
+            get_template_directory() . '/assets/images/apollo-logo.png',
+            get_template_directory() . '/assets/apollo-logo.png',
+            APOLLO_SOCIAL_PLUGIN_DIR . 'assets/images/apollo-logo.png',
+        ];
 
-		foreach ( $logo_paths as $path ) {
-			if ( file_exists( $path ) ) {
-				$upload_dir = wp_upload_dir();
-				$url = str_replace( ABSPATH, home_url( '/' ), $path );
-				return '<img src="' . esc_url( $url ) . '" alt="Apollo" class="print-logo">';
-			}
-		}
+        foreach ($logo_paths as $path) {
+            if (file_exists($path)) {
+                $upload_dir = wp_upload_dir();
+                $url        = str_replace(ABSPATH, home_url('/'), $path);
 
-		// Fallback: text logo
-		return '<div class="print-logo" style="font-size: 18pt; font-weight: 700; color: #0f172a;">APOLLO</div>';
-	}
+                return '<img src="' . esc_url($url) . '" alt="Apollo" class="print-logo">';
+            }
+        }
+
+        // Fallback: text logo
+        return '<div class="print-logo" style="font-size: 18pt; font-weight: 700; color: #0f172a;">APOLLO</div>';
+    }
 }
-

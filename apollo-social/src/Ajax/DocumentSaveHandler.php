@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Social – AJAX Document Save Handler
  *
@@ -75,14 +76,14 @@ class DocumentSaveHandler {
 	 *
 	 * @var string
 	 */
-	const ACTION = 'apollo_save_document';
+	public const ACTION = 'apollo_save_document';
 
 	/**
 	 * Nonce action name for verification.
 	 *
 	 * @var string
 	 */
-	const NONCE_ACTION = 'apollo_editor_image_upload';
+	public const NONCE_ACTION = 'apollo_editor_image_upload';
 	// Same nonce as editor
 
 	/**
@@ -90,42 +91,42 @@ class DocumentSaveHandler {
 	 *
 	 * @var string
 	 */
-	const POST_TYPE = 'apollo_document';
+	public const POST_TYPE = 'apollo_document';
 
 	/**
 	 * Meta key for storing Delta JSON.
 	 *
 	 * @var string
 	 */
-	const DELTA_META_KEY = '_apollo_document_delta';
+	public const DELTA_META_KEY = '_apollo_document_delta';
 
 	/**
 	 * Meta key for storing document type (documento/planilha).
 	 *
 	 * @var string
 	 */
-	const TYPE_META_KEY = '_apollo_document_type';
+	public const TYPE_META_KEY = '_apollo_document_type';
 
 	/**
 	 * Meta key for tracking last autosave timestamp.
 	 *
 	 * @var string
 	 */
-	const AUTOSAVE_META_KEY = '_apollo_last_autosave';
+	public const AUTOSAVE_META_KEY = '_apollo_last_autosave';
 
 	/**
 	 * Meta key for document body HTML (canonical).
 	 *
 	 * @var string
 	 */
-	const BODY_HTML_META_KEY = '_apollo_doc_body_html';
+	public const BODY_HTML_META_KEY = '_apollo_doc_body_html';
 
 	/**
 	 * Meta key for document version.
 	 *
 	 * @var string
 	 */
-	const VERSION_META_KEY = '_apollo_doc_version';
+	public const VERSION_META_KEY = '_apollo_doc_version';
 
 	/**
 	 * Constructor.
@@ -191,6 +192,7 @@ class DocumentSaveHandler {
 				),
 				403
 			);
+
 			return;
 		}
 
@@ -203,6 +205,7 @@ class DocumentSaveHandler {
 				),
 				403
 			);
+
 			return;
 		}
 
@@ -222,6 +225,7 @@ class DocumentSaveHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -241,6 +245,7 @@ class DocumentSaveHandler {
 				),
 				400
 			);
+
 			return;
 		}
 
@@ -317,6 +322,7 @@ class DocumentSaveHandler {
 				foreach ( array_keys( $op ) as $key ) {
 					if ( in_array( $key, $valid_keys, true ) ) {
 						$has_valid_key = true;
+
 						break;
 					}
 				}
@@ -462,7 +468,7 @@ class DocumentSaveHandler {
 
 		// Increment version
 		$current_version = get_post_meta( $document_id, self::VERSION_META_KEY, true );
-		$new_version = $current_version ? absint( $current_version ) + 1 : 1;
+		$new_version     = $current_version ? absint( $current_version ) + 1 : 1;
 		update_post_meta( $document_id, self::VERSION_META_KEY, $new_version );
 
 		// Return success

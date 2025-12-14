@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * Loads the correct template based on the visitor's url
@@ -17,16 +18,18 @@
  * @param string $template Template.
  * @return string Template to include.
  */
-function _pwa_filter_template_include( $template ) {
-	$located_template = null;
-	if ( is_offline() ) {
-		$located_template = get_offline_template();
-	} elseif ( is_500() ) {
-		$located_template = get_500_template();
-	}
-	if ( $located_template ) {
-		$template = $located_template;
-	}
-	return $template;
+function _pwa_filter_template_include($template)
+{
+    $located_template = null;
+    if (is_offline()) {
+        $located_template = get_offline_template();
+    } elseif (is_500()) {
+        $located_template = get_500_template();
+    }
+    if ($located_template) {
+        $template = $located_template;
+    }
+
+    return $template;
 }
-add_filter( 'template_include', '_pwa_filter_template_include' );
+add_filter('template_include', '_pwa_filter_template_include');

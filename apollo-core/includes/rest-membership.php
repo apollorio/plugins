@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -398,6 +399,7 @@ function apollo_rest_can_manage_memberships() {
  */
 function apollo_rest_validate_user_id( $param, $request, $key ) {
 	$user = get_userdata( $param );
+
 	return $user !== false;
 }
 
@@ -475,7 +477,7 @@ function apollo_rest_set_membership( $request ) {
 		);
 	} catch ( Exception $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
 					'[Apollo Core] Membership update error - User: %d, Membership: %s, Message: %s',
@@ -833,7 +835,7 @@ function apollo_rest_set_user_badges( $request ) {
 		}
 
 		// Remove 'nao-verificado' from badges (it's a default, not a badge).
-		$badges = array_filter( $badges, fn( $slug ) => 'nao-verificado' !== $slug );
+		$badges = array_filter( $badges, fn ( $slug ) => 'nao-verificado' !== $slug );
 
 		// Save badges array.
 		$result = update_user_meta( $user_id, '_apollo_badges', array_values( $badges ) );
@@ -873,7 +875,7 @@ function apollo_rest_set_user_badges( $request ) {
 		);
 	} catch ( Exception $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
 			error_log(
 				sprintf(
 					'[Apollo Core] Badges update error - User: %d, Message: %s',

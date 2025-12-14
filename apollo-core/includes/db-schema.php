@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -168,7 +169,7 @@ function apollo_get_mod_log( array $args = array() ): array {
 	$values[] = absint( $args['limit'] );
 	$values[] = absint( $args['offset'] );
 
-	// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	$results = $wpdb->get_results( $wpdb->prepare( $sql, $values ) );
 
 	// Parse JSON details.
@@ -191,7 +192,7 @@ function apollo_cleanup_mod_log( int $days = 90 ): int|false {
 
 	$date = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
 
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	return $wpdb->query(
 		$wpdb->prepare(
 			"DELETE FROM $table WHERE created_at < %s",

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -36,6 +37,7 @@ function apollo_get_client_ip(): string {
 			// Validate IP format
 			if ( filter_var( $raw_ip, FILTER_VALIDATE_IP ) ) {
 				$ip = $raw_ip;
+
 				break;
 			}
 		}

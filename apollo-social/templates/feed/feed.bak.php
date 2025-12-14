@@ -7,18 +7,18 @@
  * NOTE: This is a partial template included in Canvas layout - NO DOCTYPE/HTML/BODY tags
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // FASE 2: Dados já vêm do FeedRenderer via CanvasBuilder
-$posts        = $view['data']['posts'] ?? [];
+$posts        = $view['data']['posts']        ?? [];
 $current_user = $view['data']['current_user'] ?? [];
 
-$ajax_url      = admin_url( 'admin-ajax.php' );
-$rest_url      = rest_url( 'apollo/v1' );
-$nonce         = wp_create_nonce( 'wp_rest' );
-$comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
+$ajax_url      = admin_url('admin-ajax.php');
+$rest_url      = rest_url('apollo/v1');
+$nonce         = wp_create_nonce('wp_rest');
+$comment_nonce = wp_create_nonce('apollo_comment_nonce');
 ?>
 
 <div class="apollo-feed-root aprioEXP-body h-full" id="apollo-feed-root" style="background: var(--bg-surface);">
@@ -33,7 +33,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 			</div>
 			<div>
 			<h1 class="text-[16px] font-extrabold mt-2 text-slate-900">Apollo::rio</h1>
-			<p class="text-[14px] text-slate-500">@<?php echo esc_html( $current_user['name'] ?? 'user' ); ?></p>
+			<p class="text-[14px] text-slate-500">@<?php echo esc_html($current_user['name'] ?? 'user'); ?></p>
 			</div>
 		</div>
 		</div>
@@ -46,7 +46,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 			<i class="ri-notification-3-line text-slate-600"></i>
 		</button>
 		<button class="h-9 w-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
-			<img src="<?php echo esc_url( $current_user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $current_user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+			<img src="<?php echo esc_url($current_user['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($current_user['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 		</button>
 		</div>
 	</div>
@@ -60,7 +60,7 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 		<section class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-4 mb-6">
 		<div class="flex gap-3">
 			<div class="h-10 w-10 rounded-full overflow-hidden shrink-0">
-			<img src="<?php echo esc_url( $current_user['avatar'] ?? '' ); ?>" alt="<?php echo esc_attr( $current_user['name'] ?? '' ); ?>" class="h-full w-full object-cover" />
+			<img src="<?php echo esc_url($current_user['avatar'] ?? ''); ?>" alt="<?php echo esc_attr($current_user['name'] ?? ''); ?>" class="h-full w-full object-cover" />
 			</div>
 			<div class="flex-1">
 			<input 
@@ -113,30 +113,30 @@ $comment_nonce = wp_create_nonce( 'apollo_comment_nonce' );
 
 		<!-- TAB: TUDO -->
 		<div data-tab-panel="feed-all" role="tabpanel" class="space-y-6">
-			<?php if ( empty( $posts ) ) : ?>
+			<?php if (empty($posts)) : ?>
 			<article class="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-5">
 				<p class="text-[15px] text-slate-800 text-center">Nenhum post ainda. Seja o primeiro a compartilhar!</p>
 			</article>
 			<?php else : ?>
-				<?php foreach ( $posts as $post_item ) : ?>
+				<?php foreach ($posts as $post_item) : ?>
 					<?php
-					// FASE 2: Usar partials baseado no tipo
-					$post_type = $post_item['type'] ?? 'user_post';
-					$post_data = $post_item;
+                    // FASE 2: Usar partials baseado no tipo
+                    $post_type = $post_item['type'] ?? 'user_post';
+				    $post_data             = $post_item;
 
-					if ( $post_type === 'event' ) {
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
-					} elseif ( $post_type === 'ad' ) {
-						// TODO: Criar partial para anúncios
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					} elseif ( $post_type === 'news' ) {
-						// TODO: Criar partial para notícias
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					} else {
-						// Post de usuário (padrão)
-						include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
-					}
-					?>
+				    if ($post_type === 'event') {
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-event.php';
+				    } elseif ($post_type === 'ad') {
+				        // TODO: Criar partial para anúncios
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    } elseif ($post_type === 'news') {
+				        // TODO: Criar partial para notícias
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    } else {
+				        // Post de usuário (padrão)
+				        include APOLLO_SOCIAL_PLUGIN_DIR . 'templates/feed/partials/post-user.php';
+				    }
+				    ?>
 			<?php endforeach; ?>
 			<?php endif; ?>
 		   
@@ -307,11 +307,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 window.apolloFeedData = {
-	ajaxUrl: <?php echo json_encode( $ajax_url ); ?>,
-	restUrl: <?php echo json_encode( $rest_url ); ?>,
-	nonce: <?php echo json_encode( $nonce ); ?>,
-	commentNonce: <?php echo json_encode( $comment_nonce ); ?>,
-	currentUserId: <?php echo absint( $current_user['id'] ?? 0 ); ?>,
-	posts: <?php echo json_encode( $posts ); ?>
+	ajaxUrl: <?php echo json_encode($ajax_url); ?>,
+	restUrl: <?php echo json_encode($rest_url); ?>,
+	nonce: <?php echo json_encode($nonce); ?>,
+	commentNonce: <?php echo json_encode($comment_nonce); ?>,
+	currentUserId: <?php echo absint($current_user['id'] ?? 0); ?>,
+	posts: <?php echo json_encode($posts); ?>
 };
 </script>

@@ -7,74 +7,74 @@
  * @package Apollo_Events_Manager
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '../includes/helpers/event-data-helper.php';
+require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
 
 // Get current user data
 $current_user = wp_get_current_user();
 $user_id      = $current_user->ID;
 $display_name = $current_user->display_name;
 $user_email   = $current_user->user_email;
-$avatar_url   = get_avatar_url( $user_id, array( 'size' => 80 ) );
+$avatar_url   = get_avatar_url($user_id, [ 'size' => 80 ]);
 
 // Get user meta
-$bio           = get_user_meta( $user_id, 'bio_full', true );
-$location      = get_user_meta( $user_id, 'location', true );
-$membership    = get_user_meta( $user_id, 'membership', true );
-$roles_display = get_user_meta( $user_id, 'roles_display', true );
+$bio           = get_user_meta($user_id, 'bio_full', true);
+$location      = get_user_meta($user_id, 'location', true);
+$membership    = get_user_meta($user_id, 'membership', true);
+$roles_display = get_user_meta($user_id, 'roles_display', true);
 
 // Get stats
-$events_created  = count_user_posts( $user_id, 'event_listing' );
+$events_created  = count_user_posts($user_id, 'event_listing');
 $favorites_count = 0;
-if ( function_exists( 'get_user_favorites' ) ) {
-	$favorites       = get_user_favorites( $user_id );
-	$favorites_count = is_array( $favorites ) ? count( $favorites ) : 0;
+if (function_exists('get_user_favorites')) {
+    $favorites       = get_user_favorites($user_id);
+    $favorites_count = is_array($favorites) ? count($favorites) : 0;
 } else {
-	$favorites_meta  = get_user_meta( $user_id, 'apollo_favorites', true );
-	$favorites_count = is_array( $favorites_meta ) ? count( $favorites_meta ) : 0;
+    $favorites_meta  = get_user_meta($user_id, 'apollo_favorites', true);
+    $favorites_count = is_array($favorites_meta) ? count($favorites_meta) : 0;
 }
 
 // Get eventos em gestão
 $gestao_count = 0;
-if ( function_exists( 'get_coauthors' ) ) {
-	$gestao_events       = get_posts(
-		array(
-			'post_type'      => 'event_listing',
-			'posts_per_page' => -1,
-			'meta_query'     => array(
-				array(
-					'key'     => '_event_gestao',
-					'value'   => $user_id,
-					'compare' => 'LIKE',
-				),
-			),
-		)
-	);
-	$gestao_count = count( $gestao_events );
+if (function_exists('get_coauthors')) {
+    $gestao_events = get_posts(
+        [
+            'post_type'      => 'event_listing',
+            'posts_per_page' => -1,
+            'meta_query'     => [
+                [
+                    'key'     => '_event_gestao',
+                    'value'   => $user_id,
+                    'compare' => 'LIKE',
+                ],
+            ],
+        ]
+    );
+    $gestao_count = count($gestao_events);
 }
 
 // Enqueue Apollo Global Assets (UNI.CSS + base.js)
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+if (function_exists('apollo_enqueue_global_assets')) {
+    apollo_enqueue_global_assets();
 } else {
-	// Fallback if Apollo Core not active
-	wp_enqueue_style( 'apollo-uni', 'https://assets.apollo.rio.br/uni.css', array(), null );
-	wp_enqueue_script( 'apollo-base', 'https://assets.apollo.rio.br/base.js', array(), null, true );
+    // Fallback if Apollo Core not active
+    wp_enqueue_style('apollo-uni', 'https://assets.apollo.rio.br/uni.css', [], null);
+    wp_enqueue_script('apollo-base', 'https://assets.apollo.rio.br/base.js', [], null, true);
 }
 // Tailwind for utility classes (complement to UNI.CSS)
-wp_enqueue_script( 'tailwind', 'https://cdn.tailwindcss.com', array(), null, true );
+wp_enqueue_script('tailwind', 'https://cdn.tailwindcss.com', [], null, true);
 
 // Localize script for AJAX
 wp_localize_script(
-	'apollo-base',
-	'apolloProfileAjax',
-	array(
-		'ajaxurl' => admin_url( 'admin-ajax.php' ),
-		'nonce'   => wp_create_nonce( 'apollo_profile_nonce' ),
-	)
+    'apollo-base',
+    'apolloProfileAjax',
+    [
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('apollo_profile_nonce'),
+    ]
 );
 ?>
 
@@ -83,26 +83,26 @@ wp_localize_script(
 	<!-- Top header -->
 	<header class="h-14 flex items-center justify-between border-b bg-white/80 backdrop-blur px-3 md:px-6">
 		<div class="flex items-center gap-3">
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="inline-flex h-8 w-8 items-center justify-center menutags bg-slate-90099 text-white">
+		<a href="<?php echo esc_url(home_url('/')); ?>" class="inline-flex h-8 w-8 items-center justify-center menutags bg-slate-90099 text-white">
 			<i class="ri-slack-line text-[18px]"></i>
 		</a>
 		<div class="flex flex-col">
 			<span class="text-[10px] uppercase tracking-[0.12em] text-slate-400">Rede Social CULTURAl Carioca</span>
-			<span class="text-sm font-semibold">@<?php echo esc_html( $current_user->user_login ); ?> · Apollo::rio</span>
+			<span class="text-sm font-semibold">@<?php echo esc_html($current_user->user_login); ?> · Apollo::rio</span>
 		</div>
 		</div>
 		<div class="flex items-center gap-2 text-[11px]">
-		<a href="<?php echo esc_url( get_author_posts_url( $user_id ) ); ?>" class="hidden md:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50">
+		<a href="<?php echo esc_url(get_author_posts_url($user_id)); ?>" class="hidden md:inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-medium text-slate-700 hover:bg-slate-50">
 			<i class="ri-eye-line text-xs"></i>
 			<span>Ver como visitante</span>
 		</a>
-		<a href="<?php echo esc_url( get_author_posts_url( $user_id ) ); ?>" class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 font-medium text-white">
+		<a href="<?php echo esc_url(get_author_posts_url($user_id)); ?>" class="inline-flex items-center gap-1 rounded-md bg-slate-90099 px-3 py-1.5 font-medium text-white">
 			<i class="ri-external-link-line text-xs"></i>
 			<span>Abrir página pública</span>
 		</a>
 		<button class="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100">
 			<div class="h-7 w-7 overflow-hidden rounded-full bg-slate-200">
-			<img src="<?php echo esc_url( $avatar_url ); ?>" alt="<?php echo esc_attr( $display_name ); ?>" class="h-full w-full object-cover" />
+			<img src="<?php echo esc_url($avatar_url); ?>" alt="<?php echo esc_attr($display_name); ?>" class="h-full w-full object-cover" />
 			</div>
 		</button>
 		</div>
@@ -120,7 +120,7 @@ wp_localize_script(
 				<div class="aprioEXP-user-data-section">
 				<div class="relative shrink-0">
 					<div class="h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-full bg-gradient-to-tr from-orange-500 via-rose-500 to-amber-400 aspect-square">
-					<img src="<?php echo esc_url( $avatar_url ); ?>" alt="Avatar" class="h-full w-full object-cover mix-blend-luminosity" />
+					<img src="<?php echo esc_url($avatar_url); ?>" alt="Avatar" class="h-full w-full object-cover mix-blend-luminosity" />
 					</div>
 					<span class="absolute bottom-0 right-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[11px] text-white ring-2 ring-white z-10">
 					<i class="ri-flashlight-fill"></i>
@@ -128,28 +128,28 @@ wp_localize_script(
 				</div>
 				<div class="min-w-0">
 					<div class="flex flex-wrap items-center gap-2">
-					<h1 class="truncate text-base md:text-lg font-semibold"><?php echo esc_html( $display_name ); ?> · Apollo::rio</h1>
-					<?php if ( $roles_display ) : ?>
+					<h1 class="truncate text-base md:text-lg font-semibold"><?php echo esc_html($display_name); ?> · Apollo::rio</h1>
+					<?php if ($roles_display) : ?>
 					<span class="aprioEXP-metric-chip">
 						<i class="ri-music-2-line text-xs"></i>
-						<span><?php echo esc_html( $roles_display ); ?></span>
+						<span><?php echo esc_html($roles_display); ?></span>
 					</span>
 					<?php endif; ?>
 					</div>
 					<p class="mt-1 text-[11px] md:text-[12px] text-slate-600 line-clamp-2">
-					<?php echo esc_html( $bio ?: 'Conectando eventos, comunidades e dados da cena eletrônica do Rio.' ); ?>
+					<?php echo esc_html($bio ?: 'Conectando eventos, comunidades e dados da cena eletrônica do Rio.'); ?>
 					</p>
 					<div class="mt-2 flex flex-wrap gap-2 text-[10px] md:text-[11px] text-slate-500">
-					<?php if ( $location ) : ?>
+					<?php if ($location) : ?>
 					<span class="aprioEXP-metric-chip">
 						<i class="ri-map-pin-line text-xs"></i>
-						<?php echo esc_html( $location ); ?>
+						<?php echo esc_html($location); ?>
 					</span>
 					<?php endif; ?>
-					<?php if ( $membership ) : ?>
+					<?php if ($membership) : ?>
 					<span class="aprioEXP-metric-chip">
 						<i class="ri-vip-crown-2-line text-xs"></i>
-						<?php echo esc_html( $membership ); ?>
+						<?php echo esc_html($membership); ?>
 					</span>
 					<?php endif; ?>
 					</div>
@@ -158,17 +158,17 @@ wp_localize_script(
 				<!-- STATS SECTION -->
 				<div class="aprioEXP-stats-section">
 				<div class="aprioEXP-cards-container">
-					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__( 'Número de eventos que você criou como organizador/produtor', 'apollo-events-manager' ); ?>">
+					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Número de eventos que você criou como organizador/produtor', 'apollo-events-manager'); ?>">
 					<span class="aprioEXP-card-numbers-title">Producer</span>
-					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html( $events_created ); ?></span>
+					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($events_created); ?></span>
 					</div>
-					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__( 'Eventos marcados como Ir, Talvez ou salvos para acompanhar', 'apollo-events-manager' ); ?>">
+					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Eventos marcados como Ir, Talvez ou salvos para acompanhar', 'apollo-events-manager'); ?>">
 					<span class="aprioEXP-card-numbers-title">Favoritado</span>
-					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html( $favorites_count ); ?></span>
+					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($favorites_count); ?></span>
 					</div>
-					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__( 'Eventos onde você é co-autor/colaborador', 'apollo-events-manager' ); ?>">
+					<div class="aprioEXP-stat-card" data-tooltip="<?php echo esc_attr__('Eventos onde você é co-autor/colaborador', 'apollo-events-manager'); ?>">
 					<span class="aprioEXP-card-numbers-title">Co-autor</span>
-					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html( $gestao_count ); ?></span>
+					<span class="aprioEXP-card-numbers-numbers"><?php echo esc_html($gestao_count); ?></span>
 					</div>
 				</div>
 				<button class="aprioEXP-edit-btn" id="editProfileBtn">
@@ -212,21 +212,21 @@ wp_localize_script(
 				<!-- TAB: Eventos favoritos -->
 				<div data-tab-panel="events" role="tabpanel" class="space-y-3">
 				<?php
-				// Get favorite events
-				$favorite_events = array();
-				if ( function_exists( 'get_user_favorites' ) ) {
-					$fav_ids = get_user_favorites( $user_id );
-					if ( ! empty( $fav_ids ) ) {
-						$favorite_events = get_posts(
-							array(
-								'post_type'      => 'event_listing',
-								'post__in'       => $fav_ids,
-								'posts_per_page' => 10,
-							)
-						);
-					}
-				}
-				?>
+                // Get favorite events
+                $favorite_events = [];
+if (function_exists('get_user_favorites')) {
+    $fav_ids = get_user_favorites($user_id);
+    if (! empty($fav_ids)) {
+        $favorite_events = get_posts(
+            [
+                'post_type'      => 'event_listing',
+                'post__in'       => $fav_ids,
+                'posts_per_page' => 10,
+            ]
+        );
+    }
+}
+?>
 				<div class="flex flex-col md:flex-row md:items-center gap-3">
 					<div class="flex-1">
 					<h2 class="text-sm font-semibold">Eventos favoritados</h2>
@@ -234,26 +234,26 @@ wp_localize_script(
 					</div>
 				</div>
 				<div class="grid gap-3 md:grid-cols-2 text-[12px]">
-					<?php if ( ! empty( $favorite_events ) ) : ?>
+					<?php if (! empty($favorite_events)) : ?>
 						<?php
-						foreach ( $favorite_events as $event ) :
-							$event_date = get_post_meta( $event->ID, '_event_start_date', true );
-							$local      = Apollo_Event_Data_Helper::get_local_data( $event->ID );
-							$local_name = $local ? $local['name'] : '';
-							?>
+        foreach ($favorite_events as $event) :
+            $event_date = get_post_meta($event->ID, '_event_start_date', true);
+            $local      = Apollo_Event_Data_Helper::get_local_data($event->ID);
+            $local_name = $local ? $local['name'] : '';
+            ?>
 					<article class="aprioEXP-card-shell p-3 flex flex-col justify-between">
 						<div class="flex items-start justify-between gap-2">
 						<div>
-							<h3 class="text-sm font-semibold"><?php echo esc_html( $event->post_title ); ?></h3>
-							<p class="text-[11px] text-slate-600"><?php echo esc_html( $local_name ); ?> · <?php echo $event_date ? date_i18n( 'H:i', strtotime( $event_date ) ) : ''; ?></p>
-							<p class="mt-1 text-[11px] text-slate-600 line-clamp-2"><?php echo esc_html( wp_trim_words( $event->post_content, 15 ) ); ?></p>
+							<h3 class="text-sm font-semibold"><?php echo esc_html($event->post_title); ?></h3>
+							<p class="text-[11px] text-slate-600"><?php echo esc_html($local_name); ?> · <?php echo $event_date ? date_i18n('H:i', strtotime($event_date)) : ''; ?></p>
+							<p class="mt-1 text-[11px] text-slate-600 line-clamp-2"><?php echo esc_html(wp_trim_words($event->post_content, 15)); ?></p>
 						</div>
 						<div class="flex flex-col items-end text-[11px]">
 							<span class="rounded-md bg-slate-90099 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white">Ir</span>
 						</div>
 						</div>
 						<div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
-						<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100">
+						<a href="<?php echo esc_url(get_permalink($event->ID)); ?>" class="inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-slate-100">
 							<i class="ri-external-link-line text-xs"></i>
 							<span>Ver evento</span>
 						</a>
@@ -275,17 +275,17 @@ wp_localize_script(
 					<div class="aprioEXP-card-shell p-4">
 					<h3 class="text-sm font-semibold mb-2">Estatísticas</h3>
 					<div class="space-y-2 text-[12px]">
-						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__( 'Total de eventos que você organizou/produziu na plataforma', 'apollo-events-manager' ); ?>">
+						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Total de eventos que você organizou/produziu na plataforma', 'apollo-events-manager'); ?>">
 						<span>Eventos criados</span>
-						<strong><?php echo esc_html( $events_created ); ?></strong>
+						<strong><?php echo esc_html($events_created); ?></strong>
 						</div>
-						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__( 'Eventos salvos como Ir, Talvez ou favoritos', 'apollo-events-manager' ); ?>">
+						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Eventos salvos como Ir, Talvez ou favoritos', 'apollo-events-manager'); ?>">
 						<span>Eventos favoritados</span>
-						<strong><?php echo esc_html( $favorites_count ); ?></strong>
+						<strong><?php echo esc_html($favorites_count); ?></strong>
 						</div>
-						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__( 'Eventos onde você colaborou como co-autor', 'apollo-events-manager' ); ?>">
+						<div class="flex justify-between" data-tooltip="<?php echo esc_attr__('Eventos onde você colaborou como co-autor', 'apollo-events-manager'); ?>">
 						<span>Co-autorado</span>
-						<strong><?php echo esc_html( $gestao_count ); ?></strong>
+						<strong><?php echo esc_html($gestao_count); ?></strong>
 						</div>
 					</div>
 					</div>

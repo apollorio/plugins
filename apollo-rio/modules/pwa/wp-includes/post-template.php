@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * WordPress Post Template Functions.
@@ -22,14 +23,16 @@
  * @param string[] $classes One or more classes.
  * @return string[] Array of classes.
  */
-function pwa_filter_body_class( $classes ) {
-	if ( is_500() ) {
-		$classes[] = 'error';
-		$classes[] = 'error500';
-	} elseif ( is_offline() ) {
-		$classes[] = 'error';
-		$classes[] = 'offline';
-	}
-	return $classes;
+function pwa_filter_body_class($classes)
+{
+    if (is_500()) {
+        $classes[] = 'error';
+        $classes[] = 'error500';
+    } elseif (is_offline()) {
+        $classes[] = 'error';
+        $classes[] = 'offline';
+    }
+
+    return $classes;
 }
-add_filter( 'body_class', 'pwa_filter_body_class' );
+add_filter('body_class', 'pwa_filter_body_class');

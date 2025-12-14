@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WP CLI class
  */
 class Apollo_Moderation_WP_CLI {
+
 	/**
 	 * Initialize
 	 */
@@ -61,6 +63,7 @@ class Apollo_Moderation_WP_CLI {
 
 		if ( empty( $logs ) ) {
 			WP_CLI::warning( 'No log entries found.' );
+
 			return;
 		}
 
@@ -90,15 +93,15 @@ class Apollo_Moderation_WP_CLI {
 		global $wpdb;
 		$table = $wpdb->prefix . 'apollo_mod_log';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$total = $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$by_action = $wpdb->get_results(
 			"SELECT action, COUNT(*) as count FROM $table GROUP BY action ORDER BY count DESC"
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$by_actor = $wpdb->get_results(
 			"SELECT actor_id, COUNT(*) as count FROM $table GROUP BY actor_id ORDER BY count DESC LIMIT 10"
 		);
@@ -149,11 +152,13 @@ class Apollo_Moderation_WP_CLI {
 
 		if ( ! $post ) {
 			WP_CLI::error( 'Post not found.' );
+
 			return;
 		}
 
 		if ( ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
 			WP_CLI::error( 'Post is not in draft or pending status.' );
+
 			return;
 		}
 
@@ -206,6 +211,7 @@ class Apollo_Moderation_WP_CLI {
 
 		if ( ! $user ) {
 			WP_CLI::error( 'User not found.' );
+
 			return;
 		}
 
@@ -213,6 +219,7 @@ class Apollo_Moderation_WP_CLI {
 
 		if ( ! $success ) {
 			WP_CLI::error( 'Failed to suspend user.' );
+
 			return;
 		}
 

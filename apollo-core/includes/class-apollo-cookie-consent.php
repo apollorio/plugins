@@ -29,16 +29,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Apollo_Cookie_Consent {
 
 	/** @var string Option name for consent settings. */
-	const OPTION_NAME = 'apollo_cookie_consent_settings';
+	public const OPTION_NAME = 'apollo_cookie_consent_settings';
 
 	/** @var string Cookie name for user consent. */
-	const COOKIE_NAME = 'apollo_cookie_consent';
+	public const COOKIE_NAME = 'apollo_cookie_consent';
 
 	/** @var int Cookie expiry in seconds (1 year). */
-	const COOKIE_EXPIRY = YEAR_IN_SECONDS;
+	public const COOKIE_EXPIRY = YEAR_IN_SECONDS;
 
 	/** @var array Valid consent values. */
-	const VALID_CONSENT_VALUES = array( 'accepted', 'declined', 'pending' );
+	public const VALID_CONSENT_VALUES = array( 'accepted', 'declined', 'pending' );
 
 	/**
 	 * Initialize hooks.
@@ -439,6 +439,7 @@ class Apollo_Cookie_Consent {
 		// SAFETY: Verify nonce.
 		if ( ! check_ajax_referer( 'apollo_cookie_consent', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid security token.', 'apollo-core' ) ), 403 );
+
 			return;
 		}
 
@@ -447,6 +448,7 @@ class Apollo_Cookie_Consent {
 
 		if ( ! in_array( $consent, array( 'accept', 'decline' ), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid consent value.', 'apollo-core' ) ), 400 );
+
 			return;
 		}
 
@@ -459,6 +461,7 @@ class Apollo_Cookie_Consent {
 
 		if ( ! $result ) {
 			wp_send_json_error( array( 'message' => __( 'Failed to set cookie.', 'apollo-core' ) ), 500 );
+
 			return;
 		}
 

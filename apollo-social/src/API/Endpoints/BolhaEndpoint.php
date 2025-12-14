@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Bolha (Bubble) REST API Endpoints
  *
@@ -211,6 +212,7 @@ class BolhaEndpoint {
 				array( 'status' => 401 )
 			);
 		}
+
 		return true;
 	}
 
@@ -222,6 +224,7 @@ class BolhaEndpoint {
 	 */
 	public function validate_user_id( $value ): bool {
 		$user_id = absint( $value );
+
 		return $user_id > 0 && get_user_by( 'id', $user_id ) !== false;
 	}
 
@@ -621,6 +624,7 @@ class BolhaEndpoint {
 	 */
 	private function get_bolha( int $user_id ): array {
 		$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
+
 		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : array();
 	}
 
@@ -632,6 +636,7 @@ class BolhaEndpoint {
 	 */
 	private function get_pedidos_outgoing( int $user_id ): array {
 		$outgoing = get_user_meta( $user_id, 'apollo_bolha_pedidos_outgoing', true );
+
 		return is_array( $outgoing ) ? array_map( 'absint', $outgoing ) : array();
 	}
 
@@ -643,6 +648,7 @@ class BolhaEndpoint {
 	 */
 	private function get_pedidos_incoming( int $user_id ): array {
 		$incoming = get_user_meta( $user_id, 'apollo_bolha_pedidos_incoming', true );
+
 		return is_array( $incoming ) ? array_map( 'absint', $incoming ) : array();
 	}
 
@@ -703,6 +709,7 @@ class BolhaEndpoint {
 	 */
 	public static function get_user_bolha_ids( int $user_id ): array {
 		$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
+
 		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : array();
 	}
 }

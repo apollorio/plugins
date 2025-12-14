@@ -129,6 +129,7 @@ class Apollo_User_Moderation {
 	 */
 	public static function get_user_status( int $user_id ): string {
 		$status = get_user_meta( $user_id, 'apollo_status', true );
+
 		return in_array( $status, array( self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ), true )
 			? $status
 			: self::STATUS_ACTIVE;
@@ -145,6 +146,7 @@ class Apollo_User_Moderation {
 		if ( ! in_array( $status, array( self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ), true ) ) {
 			return false;
 		}
+
 		return (bool) update_user_meta( $user_id, 'apollo_status', $status );
 	}
 
@@ -165,6 +167,7 @@ class Apollo_User_Moderation {
 		if ( $until > 0 && $until < time() ) {
 			// Auto-unsuspend.
 			self::unsuspend_user( $user_id, 0, 'Suspensão expirada automaticamente' );
+
 			return false;
 		}
 
@@ -574,6 +577,7 @@ class Apollo_User_Moderation {
 	 */
 	public static function get_ip_blocklist(): array {
 		$list = get_option( 'apollo_ip_blocklist', array() );
+
 		return is_array( $list ) ? $list : array();
 	}
 
@@ -654,6 +658,7 @@ class Apollo_User_Moderation {
 			if ( $entry['hash'] === $ip_hash ) {
 				unset( $blocklist[ $key ] );
 				$found = true;
+
 				break;
 			}
 		}
@@ -745,6 +750,7 @@ class Apollo_User_Moderation {
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$parts    = explode( '.', $ip );
 			$parts[3] = 'xxx';
+
 			return implode( '.', $parts );
 		}
 
@@ -846,6 +852,7 @@ class Apollo_User_Moderation {
 					)
 				);
 			}
+
 			return new WP_Error(
 				'apollo_suspended',
 				__( 'Sua conta está suspensa.', 'apollo-core' )

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Analytics Configuration (Script Only - No API)
  * Simple analytics with Plausible script injection on Canvas routes

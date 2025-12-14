@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Apollo\Security;
@@ -161,8 +162,9 @@ class EmailSecurityLog {
 		);
 
 		if ( $result === false ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Security audit logging for DB failures.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Security audit logging for DB failures.
 			error_log( '[Apollo Email Security] Failed to log: ' . $wpdb->last_error );
+
 			return false;
 		}
 
@@ -506,12 +508,15 @@ class EmailSecurityLog {
 		switch ( $period ) {
 			case 'today':
 				$date_start = gmdate( 'Y-m-d 00:00:00' );
+
 				break;
 			case 'week':
 				$date_start = gmdate( 'Y-m-d 00:00:00', strtotime( '-7 days' ) );
+
 				break;
 			case 'month':
 				$date_start = gmdate( 'Y-m-d 00:00:00', strtotime( '-30 days' ) );
+
 				break;
 			default:
 				$date_start = '1970-01-01 00:00:00';

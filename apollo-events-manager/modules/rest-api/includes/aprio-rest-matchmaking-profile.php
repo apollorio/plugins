@@ -1,649 +1,656 @@
 <?php
+
 // phpcs:ignoreFile
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
-class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller {
-	protected $namespace = 'aprio';
+class APRIO_REST_MatchMaking_Profile extends APRIO_REST_CRUD_Controller
+{
+    protected $namespace = 'aprio';
 
-	public function __construct() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ), 10 );
-	}
-	/**
-	 * Register the routes for the objects of the controller.
-	 *
-	 * @since 1.1.0
-	 */
-	public function register_routes() {
-		$auth_controller = new APRIO_REST_Authentication();
-		register_rest_route(
-			$this->namespace,
-			'/preferencias',
-			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'aprio_get_compatibilidade_profile_data' ),
-				'args'     => array(
-					'attendeeId' => array(
-						'required' => false,
-						'type'     => 'integer',
-					),
-				),
-			)
-		);
+    public function __construct()
+    {
+        add_action('rest_api_init', [ $this, 'register_routes' ], 10);
+    }
+    /**
+     * Register the routes for the objects of the controller.
+     *
+     * @since 1.1.0
+     */
+    public function register_routes()
+    {
+        $auth_controller = new APRIO_REST_Authentication();
+        register_rest_route(
+            $this->namespace,
+            '/preferencias',
+            [
+                'methods'  => WP_REST_Server::READABLE,
+                'callback' => [ $this, 'aprio_get_compatibilidade_profile_data' ],
+                'args'     => [
+                    'attendeeId' => [
+                        'required' => false,
+                        'type'     => 'integer',
+                    ],
+                ],
+            ]
+        );
 
-		register_rest_route(
-			$this->namespace,
-			'/preferencias/update',
-			array(
-				'methods'  => WP_REST_Server::EDITABLE,
-				'callback' => array( $this, 'aprio_update_compatibilidade_profile' ),
-				'args'     => array(
-					'user_id' => array(
-						'required' => true,
-						'type'     => 'integer',
-					),
-				),
-			)
-		);
+        register_rest_route(
+            $this->namespace,
+            '/preferencias/update',
+            [
+                'methods'  => WP_REST_Server::EDITABLE,
+                'callback' => [ $this, 'aprio_update_compatibilidade_profile' ],
+                'args'     => [
+                    'user_id' => [
+                        'required' => true,
+                        'type'     => 'integer',
+                    ],
+                ],
+            ]
+        );
 
-		register_rest_route(
-			$this->namespace,
-			'/upload-photo',
-			array(
-				'methods'  => WP_REST_Server::CREATABLE,
-				'callback' => array( $this, 'upload_user_file' ),
-				// 'permission_callback' => array($auth_controller, 'check_authentication'),
-				'args'     => array(
-					'user_id' => array(
-						'required' => true,
-						'type'     => 'integer',
-					),
-				),
-			)
-		);
-	}
+        register_rest_route(
+            $this->namespace,
+            '/upload-photo',
+            [
+                'methods'  => WP_REST_Server::CREATABLE,
+                'callback' => [ $this, 'upload_user_file' ],
+                // 'permission_callback' => array($auth_controller, 'check_authentication'),
+                'args' => [
+                    'user_id' => [
+                        'required' => true,
+                        'type'     => 'integer',
+                    ],
+                ],
+            ]
+        );
+    }
 
-	/**
-	 * Get Matchmaking Profile Data
-	 *
-	 * Returns a WP_REST_Response with the given status code and data.
-	 *
-	 * @param WP_REST_Request $request
-	 * @since 1.1.0
-	 * @return WP_REST_Response
-	 */
-	public function aprio_get_compatibilidade_profile_data( $request ) {
-		if ( ! get_option( 'enable_compatibilidade', false ) ) {
-			return new WP_REST_Response(
-				array(
-					'code'    => 403,
-					'status'  => 'Disabled',
-					'message' => 'Matchmaking functionality is not enabled.',
-					'data'    => null,
-				),
-				403
-			);
-		}
-		$auth_check = $this->aprio_check_authorized_user();
-		if ( $auth_check ) {
-			return self::prepare_error_for_response( 405 );
-		} else {
-			$attendee_id = $request->get_param( 'attendeeId' );
-			$countries   = aprio_get_all_countries();
-			if ( $attendee_id ) {
-				// Check if user exists
-				$user = get_user_by( 'ID', $attendee_id );
-				if ( ! $user ) {
-					return new WP_REST_Response(
-						array(
-							'code'    => 404,
-							'status'  => 'Not Found',
-							'message' => 'Attendee not found.',
-							'data'    => null,
-						),
-						404
-					);
-				}
+    /**
+     * Get Matchmaking Profile Data
+     *
+     * Returns a WP_REST_Response with the given status code and data.
+     *
+     * @param WP_REST_Request $request
+     * @since 1.1.0
+     * @return WP_REST_Response
+     */
+    public function aprio_get_compatibilidade_profile_data($request)
+    {
+        if (! get_option('enable_compatibilidade', false)) {
+            return new WP_REST_Response(
+                [
+                    'code'    => 403,
+                    'status'  => 'Disabled',
+                    'message' => 'Matchmaking functionality is not enabled.',
+                    'data'    => null,
+                ],
+                403
+            );
+        }
+        $auth_check = $this->aprio_check_authorized_user();
+        if ($auth_check) {
+            return self::prepare_error_for_response(405);
+        } else {
+            $attendee_id = $request->get_param('attendeeId');
+            $countries   = aprio_get_all_countries();
+            if ($attendee_id) {
+                // Check if user exists
+                $user = get_user_by('ID', $attendee_id);
+                if (! $user) {
+                    return new WP_REST_Response(
+                        [
+                            'code'    => 404,
+                            'status'  => 'Not Found',
+                            'message' => 'Attendee not found.',
+                            'data'    => null,
+                        ],
+                        404
+                    );
+                }
 
-				// Get all user meta
-				$user_meta         = get_user_meta( $attendee_id );
-				$photo             = get_aprio_user_profile_photo( $attendee_id ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
-				$organization_logo = get_user_meta( $attendee_id, '_organization_logo', true );
-				$organization_logo = maybe_unserialize( $organization_logo );
-				if ( is_array( $organization_logo ) ) {
-					$organization_logo = reset( $organization_logo );
-					// get first value in the array
-				}
-				$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
-				$country_value     = isset( $user_meta['_country'][0] ) ? sanitize_text_field( $user_meta['_country'][0] ) : '';
-				$country_code      = '';
-				if ( $country_value ) {
-					if ( isset( $countries[ $country_value ] ) ) {
-						$country_code = $country_value;
-					} else {
-						$country_code = array_search( $country_value, $countries );
-					}
-				}
-				// Get organization country value from user meta
-				$org_country_value = isset( $user_meta['_organization_country'][0] ) ? sanitize_text_field( $user_meta['_organization_country'][0] ) : '';
-				$org_country_code  = '';
-				if ( $org_country_value ) {
-					if ( isset( $countries[ $org_country_value ] ) ) {
-						$org_country_code = $org_country_value;
-					} else {
-						$org_country_code = array_search( $org_country_value, $countries );
-					}
-				}
-				$meta              = get_user_meta( $attendee_id, '_available_for_meeting', true );
-				$meeting_available = ( $meta !== '' && $meta !== null ) ? ( (int) $meta === 0 ? 0 : 1 ) : 1;
-				// Get all profession terms [slug => name]
-				$professions = get_event_registration_taxonomy_list( 'event_registration_professions' );
+                // Get all user meta
+                $user_meta         = get_user_meta($attendee_id);
+                $photo             = get_aprio_user_profile_photo($attendee_id) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+                $organization_logo = get_user_meta($attendee_id, '_organization_logo', true);
+                $organization_logo = maybe_unserialize($organization_logo);
+                if (is_array($organization_logo)) {
+                    $organization_logo = reset($organization_logo);
+                    // get first value in the array
+                }
+                $organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
+                $country_value     = isset($user_meta['_country'][0]) ? sanitize_text_field($user_meta['_country'][0]) : '';
+                $country_code      = '';
+                if ($country_value) {
+                    if (isset($countries[ $country_value ])) {
+                        $country_code = $country_value;
+                    } else {
+                        $country_code = array_search($country_value, $countries);
+                    }
+                }
+                // Get organization country value from user meta
+                $org_country_value = isset($user_meta['_organization_country'][0]) ? sanitize_text_field($user_meta['_organization_country'][0]) : '';
+                $org_country_code  = '';
+                if ($org_country_value) {
+                    if (isset($countries[ $org_country_value ])) {
+                        $org_country_code = $org_country_value;
+                    } else {
+                        $org_country_code = array_search($org_country_value, $countries);
+                    }
+                }
+                $meta              = get_user_meta($attendee_id, '_available_for_meeting', true);
+                $meeting_available = ($meta !== '' && $meta !== null) ? ((int) $meta === 0 ? 0 : 1) : 1;
+                // Get all profession terms [slug => name]
+                $professions = get_event_registration_taxonomy_list('event_registration_professions');
 
-				// Get saved profession value
-				$profession_value = isset( $user_meta['_profession'][0] ) ? sanitize_text_field( $user_meta['_profession'][0] ) : '';
-				$profession_slug  = $profession_value;
+                // Get saved profession value
+                $profession_value = isset($user_meta['_profession'][0]) ? sanitize_text_field($user_meta['_profession'][0]) : '';
+                $profession_slug  = $profession_value;
 
-				// If it's a name, convert to slug
-				if ( $profession_value && ! isset( $professions[ $profession_value ] ) ) {
-					$found_slug = array_search( $profession_value, $professions );
-					if ( $found_slug ) {
-						$profession_slug = $found_slug;
-					}
-				}
-				$skills_slugs = array();
-				$skills_arr   = maybe_unserialize( $user_meta['_skills'][0] );
-				if ( is_array( $skills_arr ) ) {
-					foreach ( $skills_arr as $skill ) {
-						$term = get_term_by( 'slug', $skill, 'event_registration_skills' );
-						if ( ! $term ) {
-							$term = get_term_by( 'name', $skill, 'event_registration_skills' );
-						}
-						if ( ! $term ) {
-							$term = get_term_by( 'id', $skill, 'event_registration_skills' );
-						}
-						if ( $term ) {
-							$skills_slugs[] = $term->slug;
-						}
-					}
-				}
-				$skills_slugs = array_filter( $skills_slugs );
-				// remove blanks
-				$skills_serialized = serialize( $skills_slugs );
+                // If it's a name, convert to slug
+                if ($profession_value && ! isset($professions[ $profession_value ])) {
+                    $found_slug = array_search($profession_value, $professions);
+                    if ($found_slug) {
+                        $profession_slug = $found_slug;
+                    }
+                }
+                $skills_slugs = [];
+                $skills_arr   = maybe_unserialize($user_meta['_skills'][0]);
+                if (is_array($skills_arr)) {
+                    foreach ($skills_arr as $skill) {
+                        $term = get_term_by('slug', $skill, 'event_registration_skills');
+                        if (! $term) {
+                            $term = get_term_by('name', $skill, 'event_registration_skills');
+                        }
+                        if (! $term) {
+                            $term = get_term_by('id', $skill, 'event_registration_skills');
+                        }
+                        if ($term) {
+                            $skills_slugs[] = $term->slug;
+                        }
+                    }
+                }
+                $skills_slugs = array_filter($skills_slugs);
+                // remove blanks
+                $skills_serialized = serialize($skills_slugs);
 
-				// --- Interests ---
-				$interests_slugs = array();
-				$interests_arr   = maybe_unserialize( $user_meta['_interests'][0] );
-				if ( is_array( $interests_arr ) ) {
-					foreach ( $interests_arr as $interest ) {
-						$term = get_term_by( 'slug', $interest, 'event_registration_interests' );
-						if ( ! $term ) {
-							$term = get_term_by( 'name', $interest, 'event_registration_interests' );
-						}
-						if ( ! $term ) {
-							$term = get_term_by( 'id', $interest, 'event_registration_interests' );
-						}
-						if ( $term ) {
-							$interests_slugs[] = $term->slug;
-						}
-					}
-				}
-				$interests_slugs      = array_filter( $interests_slugs );
-				$interests_serialized = serialize( $interests_slugs );
+                // --- Interests ---
+                $interests_slugs = [];
+                $interests_arr   = maybe_unserialize($user_meta['_interests'][0]);
+                if (is_array($interests_arr)) {
+                    foreach ($interests_arr as $interest) {
+                        $term = get_term_by('slug', $interest, 'event_registration_interests');
+                        if (! $term) {
+                            $term = get_term_by('name', $interest, 'event_registration_interests');
+                        }
+                        if (! $term) {
+                            $term = get_term_by('id', $interest, 'event_registration_interests');
+                        }
+                        if ($term) {
+                            $interests_slugs[] = $term->slug;
+                        }
+                    }
+                }
+                $interests_slugs      = array_filter($interests_slugs);
+                $interests_serialized = serialize($interests_slugs);
 
-				// Format the profile data
-				$profile = array(
-					'user_id'                   => $attendee_id,
-					'display_name'              => $user->display_name,
-					'first_name'                => isset( $user_meta['first_name'][0] ) ? sanitize_text_field( $user_meta['first_name'][0] ) : '',
-					'last_name'                 => isset( $user_meta['last_name'][0] ) ? sanitize_text_field( $user_meta['last_name'][0] ) : '',
-					'email'                     => $user->user_email,
-					'compatibilidade_profile'       => isset( $user_meta['_compatibilidade_profile'][0] ) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
-					'profile_photo'             => $photo,
-					'profession'                => $profession_slug,
-					'experience'                => isset( $user_meta['_experience'][0] ) ? (float) $user_meta['_experience'][0] : 0,
-					'company_name'              => isset( $user_meta['_company_name'][0] ) ? sanitize_text_field( $user_meta['_company_name'][0] ) : '',
-					'country'                   => $country_code,
-					'city'                      => isset( $user_meta['_city'][0] ) ? sanitize_text_field( $user_meta['_city'][0] ) : '',
-					'about'                     => isset( $user_meta['_about'][0] ) ? sanitize_textarea_field( $user_meta['_about'][0] ) : '',
-					'skills'                    => $skills_serialized,
-					'interests'                 => $interests_serialized,
-					'message_notification'      => isset( $user_meta['_message_notification'][0] ) ? (int) $user_meta['_message_notification'][0] : 0,
-					'organization_name'         => isset( $user_meta['_organization_name'][0] ) ? sanitize_text_field( $user_meta['_organization_name'][0] ) : '',
-					'organization_logo'         => $organization_logo,
-					'organization_country'      => $org_country_code,
-					'organization_city'         => isset( $user_meta['_organization_city'][0] ) ? sanitize_text_field( $user_meta['_organization_city'][0] ) : '',
-					'organization_description'  => isset( $user_meta['_organization_description'][0] ) ? sanitize_textarea_field( $user_meta['_organization_description'][0] ) : '',
-					'organization_website'      => isset( $user_meta['_organization_website'][0] ) ? sanitize_text_field( $user_meta['_organization_website'][0] ) : '',
-					'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
-					'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
-					'available_for_meeting'     => (int) $meeting_available,
-				);
+                // Format the profile data
+                $profile = [
+                    'user_id'                    => $attendee_id,
+                    'display_name'               => $user->display_name,
+                    'first_name'                 => isset($user_meta['first_name'][0]) ? sanitize_text_field($user_meta['first_name'][0]) : '',
+                    'last_name'                  => isset($user_meta['last_name'][0]) ? sanitize_text_field($user_meta['last_name'][0]) : '',
+                    'email'                      => $user->user_email,
+                    'compatibilidade_profile'    => isset($user_meta['_compatibilidade_profile'][0]) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
+                    'profile_photo'              => $photo,
+                    'profession'                 => $profession_slug,
+                    'experience'                 => isset($user_meta['_experience'][0]) ? (float) $user_meta['_experience'][0] : 0,
+                    'company_name'               => isset($user_meta['_company_name'][0]) ? sanitize_text_field($user_meta['_company_name'][0]) : '',
+                    'country'                    => $country_code,
+                    'city'                       => isset($user_meta['_city'][0]) ? sanitize_text_field($user_meta['_city'][0]) : '',
+                    'about'                      => isset($user_meta['_about'][0]) ? sanitize_textarea_field($user_meta['_about'][0]) : '',
+                    'skills'                     => $skills_serialized,
+                    'interests'                  => $interests_serialized,
+                    'message_notification'       => isset($user_meta['_message_notification'][0]) ? (int) $user_meta['_message_notification'][0] : 0,
+                    'organization_name'          => isset($user_meta['_organization_name'][0]) ? sanitize_text_field($user_meta['_organization_name'][0]) : '',
+                    'organization_logo'          => $organization_logo,
+                    'organization_country'       => $org_country_code,
+                    'organization_city'          => isset($user_meta['_organization_city'][0]) ? sanitize_text_field($user_meta['_organization_city'][0]) : '',
+                    'organization_description'   => isset($user_meta['_organization_description'][0]) ? sanitize_textarea_field($user_meta['_organization_description'][0]) : '',
+                    'organization_website'       => isset($user_meta['_organization_website'][0]) ? sanitize_text_field($user_meta['_organization_website'][0]) : '',
+                    'approve_profile_status'     => isset($user_meta['_approve_profile_status'][0]) ? (int) $user_meta['_approve_profile_status'][0] : 0,
+                    'aprio_meeting_request_mode' => isset($user_meta['_aprio_meeting_request_mode'][0]) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
+                    'available_for_meeting'      => (int) $meeting_available,
+                ];
 
-				return new WP_REST_Response(
-					array(
-						'code'    => 200,
-						'status'  => 'OK',
-						'message' => 'Profile retrieved successfully.',
-						'data'    => $profile,
-					),
-					200
-				);
-			} else {
-				// Get all users with compatibilidade profiles
-				$args  = array(
-					'meta_key'     => '_compatibilidade_profile',
-					'meta_value'   => '1',
-					'meta_compare' => '=',
-				);
-				$users = get_users( $args );
+                return new WP_REST_Response(
+                    [
+                        'code'    => 200,
+                        'status'  => 'OK',
+                        'message' => 'Profile retrieved successfully.',
+                        'data'    => $profile,
+                    ],
+                    200
+                );
+            } else {
+                // Get all users with compatibilidade profiles
+                $args = [
+                    'meta_key'     => '_compatibilidade_profile',
+                    'meta_value'   => '1',
+                    'meta_compare' => '=',
+                ];
+                $users = get_users($args);
 
-				$profiles = array();
-				foreach ( $users as $user ) {
-					$user_meta         = get_user_meta( $user->ID );
-					$photo             = get_aprio_user_profile_photo( $user->ID ) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
-					$organization_logo = get_user_meta( $user->ID, '_organization_logo', true );
-					$organization_logo = maybe_unserialize( $organization_logo );
-					if ( is_array( $organization_logo ) ) {
-						$organization_logo = reset( $organization_logo );
-					}
-					$organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
-					$country_value     = isset( $user_meta['_country'][0] ) ? sanitize_text_field( $user_meta['_country'][0] ) : '';
-					$country_code      = '';
-					if ( $country_value ) {
-						if ( isset( $countries[ $country_value ] ) ) {
-							$country_code = $country_value;
-						} else {
-							$country_code = array_search( $country_value, $countries );
-						}
-					}
-					$org_country_value = isset( $user_meta['_organization_country'][0] ) ? sanitize_text_field( $user_meta['_organization_country'][0] ) : '';
-					$org_country_code  = '';
-					if ( $org_country_value ) {
-						if ( isset( $countries[ $org_country_value ] ) ) {
-							$org_country_code = $org_country_value;
-						} else {
-							$org_country_code = array_search( $org_country_value, $countries );
-						}
-					}
-					$meta              = get_user_meta( $user->ID, '_available_for_meeting', true );
-					$meeting_available = ( $meta !== '' && $meta !== null ) ? ( (int) $meta === 0 ? 0 : 1 ) : 1;
-					// Profession slug logic
-					$professions      = get_event_registration_taxonomy_list( 'event_registration_professions' );
-					$profession_value = isset( $user_meta['_profession'][0] ) ? sanitize_text_field( $user_meta['_profession'][0] ) : '';
-					$profession_slug  = $profession_value;
-					if ( $profession_value && ! isset( $professions[ $profession_value ] ) ) {
-						$found_slug = array_search( $profession_value, $professions );
-						if ( $found_slug ) {
-							$profession_slug = $found_slug;
-						}
-					}
-					$skills_slugs = array();
-					$skills_arr   = maybe_unserialize( $user_meta['_skills'][0] );
-					if ( is_array( $skills_arr ) ) {
-						foreach ( $skills_arr as $skill ) {
-							$term = get_term_by( 'slug', $skill, 'event_registration_skills' );
-							if ( ! $term ) {
-								$term = get_term_by( 'name', $skill, 'event_registration_skills' );
-							}
-							if ( ! $term ) {
-								$term = get_term_by( 'id', $skill, 'event_registration_skills' );
-							}
-							if ( $term ) {
-								$skills_slugs[] = $term->slug;
-							}
-						}
-					}
-					$skills_slugs = array_filter( $skills_slugs );
-					// remove blanks
-					$skills_serialized = serialize( $skills_slugs );
+                $profiles = [];
+                foreach ($users as $user) {
+                    $user_meta         = get_user_meta($user->ID);
+                    $photo             = get_aprio_user_profile_photo($user->ID) ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png';
+                    $organization_logo = get_user_meta($user->ID, '_organization_logo', true);
+                    $organization_logo = maybe_unserialize($organization_logo);
+                    if (is_array($organization_logo)) {
+                        $organization_logo = reset($organization_logo);
+                    }
+                    $organization_logo = $organization_logo ?: EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg';
+                    $country_value     = isset($user_meta['_country'][0]) ? sanitize_text_field($user_meta['_country'][0]) : '';
+                    $country_code      = '';
+                    if ($country_value) {
+                        if (isset($countries[ $country_value ])) {
+                            $country_code = $country_value;
+                        } else {
+                            $country_code = array_search($country_value, $countries);
+                        }
+                    }
+                    $org_country_value = isset($user_meta['_organization_country'][0]) ? sanitize_text_field($user_meta['_organization_country'][0]) : '';
+                    $org_country_code  = '';
+                    if ($org_country_value) {
+                        if (isset($countries[ $org_country_value ])) {
+                            $org_country_code = $org_country_value;
+                        } else {
+                            $org_country_code = array_search($org_country_value, $countries);
+                        }
+                    }
+                    $meta              = get_user_meta($user->ID, '_available_for_meeting', true);
+                    $meeting_available = ($meta !== '' && $meta !== null) ? ((int) $meta === 0 ? 0 : 1) : 1;
+                    // Profession slug logic
+                    $professions      = get_event_registration_taxonomy_list('event_registration_professions');
+                    $profession_value = isset($user_meta['_profession'][0]) ? sanitize_text_field($user_meta['_profession'][0]) : '';
+                    $profession_slug  = $profession_value;
+                    if ($profession_value && ! isset($professions[ $profession_value ])) {
+                        $found_slug = array_search($profession_value, $professions);
+                        if ($found_slug) {
+                            $profession_slug = $found_slug;
+                        }
+                    }
+                    $skills_slugs = [];
+                    $skills_arr   = maybe_unserialize($user_meta['_skills'][0]);
+                    if (is_array($skills_arr)) {
+                        foreach ($skills_arr as $skill) {
+                            $term = get_term_by('slug', $skill, 'event_registration_skills');
+                            if (! $term) {
+                                $term = get_term_by('name', $skill, 'event_registration_skills');
+                            }
+                            if (! $term) {
+                                $term = get_term_by('id', $skill, 'event_registration_skills');
+                            }
+                            if ($term) {
+                                $skills_slugs[] = $term->slug;
+                            }
+                        }
+                    }
+                    $skills_slugs = array_filter($skills_slugs);
+                    // remove blanks
+                    $skills_serialized = serialize($skills_slugs);
 
-					// --- Interests ---
-					$interests_slugs = array();
-					$interests_arr   = maybe_unserialize( $user_meta['_interests'][0] );
-					if ( is_array( $interests_arr ) ) {
-						foreach ( $interests_arr as $interest ) {
-							$term = get_term_by( 'slug', $interest, 'event_registration_interests' );
-							if ( ! $term ) {
-								$term = get_term_by( 'name', $interest, 'event_registration_interests' );
-							}
-							if ( ! $term ) {
-								$term = get_term_by( 'id', $interest, 'event_registration_interests' );
-							}
-							if ( $term ) {
-								$interests_slugs[] = $term->slug;
-							}
-						}
-					}
-					$interests_slugs      = array_filter( $interests_slugs );
-					$interests_serialized = serialize( $interests_slugs );
+                    // --- Interests ---
+                    $interests_slugs = [];
+                    $interests_arr   = maybe_unserialize($user_meta['_interests'][0]);
+                    if (is_array($interests_arr)) {
+                        foreach ($interests_arr as $interest) {
+                            $term = get_term_by('slug', $interest, 'event_registration_interests');
+                            if (! $term) {
+                                $term = get_term_by('name', $interest, 'event_registration_interests');
+                            }
+                            if (! $term) {
+                                $term = get_term_by('id', $interest, 'event_registration_interests');
+                            }
+                            if ($term) {
+                                $interests_slugs[] = $term->slug;
+                            }
+                        }
+                    }
+                    $interests_slugs      = array_filter($interests_slugs);
+                    $interests_serialized = serialize($interests_slugs);
 
-					$profiles[] = array(
-						'user_id'                   => $user->ID,
-						'display_name'              => $user->display_name,
-						'first_name'                => isset( $user_meta['first_name'][0] ) ? sanitize_text_field( $user_meta['first_name'][0] ) : '',
-						'last_name'                 => isset( $user_meta['last_name'][0] ) ? sanitize_text_field( $user_meta['last_name'][0] ) : '',
-						'email'                     => $user->user_email,
-						'compatibilidade_profile'       => isset( $user_meta['_compatibilidade_profile'][0] ) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
-						'profile_photo'             => $photo,
-						'profession'                => $profession_slug,
-						'experience'                => isset( $user_meta['_experience'][0] ) ? (float) $user_meta['_experience'][0] : 0,
-						'company_name'              => isset( $user_meta['_company_name'][0] ) ? sanitize_text_field( $user_meta['_company_name'][0] ) : '',
-						'country'                   => $country_code,
-						'city'                      => isset( $user_meta['_city'][0] ) ? sanitize_text_field( $user_meta['_city'][0] ) : '',
-						'about'                     => isset( $user_meta['_about'][0] ) ? sanitize_textarea_field( $user_meta['_about'][0] ) : '',
-						'skills'                    => $skills_serialized,
-						'interests'                 => $interests_serialized,
-						'message_notification'      => isset( $user_meta['_message_notification'][0] ) ? (int) $user_meta['_message_notification'][0] : 0,
-						'organization_name'         => isset( $user_meta['_organization_name'][0] ) ? sanitize_text_field( $user_meta['_organization_name'][0] ) : '',
-						'organization_logo'         => $organization_logo,
-						'organization_country'      => $org_country_code,
-						'organization_city'         => isset( $user_meta['_organization_city'][0] ) ? sanitize_text_field( $user_meta['_organization_city'][0] ) : '',
-						'organization_description'  => isset( $user_meta['_organization_description'][0] ) ? sanitize_textarea_field( $user_meta['_organization_description'][0] ) : '',
-						'organization_website'      => isset( $user_meta['_organization_website'][0] ) ? sanitize_text_field( $user_meta['_organization_website'][0] ) : '',
-						'approve_profile_status'    => isset( $user_meta['_approve_profile_status'][0] ) ? (int) $user_meta['_approve_profile_status'][0] : 0,
-						'aprio_meeting_request_mode' => isset( $user_meta['_aprio_meeting_request_mode'][0] ) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
-						'available_for_meeting'     => (int) $meeting_available,
-					);
-				}//end foreach
+                    $profiles[] = [
+                        'user_id'                    => $user->ID,
+                        'display_name'               => $user->display_name,
+                        'first_name'                 => isset($user_meta['first_name'][0]) ? sanitize_text_field($user_meta['first_name'][0]) : '',
+                        'last_name'                  => isset($user_meta['last_name'][0]) ? sanitize_text_field($user_meta['last_name'][0]) : '',
+                        'email'                      => $user->user_email,
+                        'compatibilidade_profile'    => isset($user_meta['_compatibilidade_profile'][0]) ? (int) $user_meta['_compatibilidade_profile'][0] : 0,
+                        'profile_photo'              => $photo,
+                        'profession'                 => $profession_slug,
+                        'experience'                 => isset($user_meta['_experience'][0]) ? (float) $user_meta['_experience'][0] : 0,
+                        'company_name'               => isset($user_meta['_company_name'][0]) ? sanitize_text_field($user_meta['_company_name'][0]) : '',
+                        'country'                    => $country_code,
+                        'city'                       => isset($user_meta['_city'][0]) ? sanitize_text_field($user_meta['_city'][0]) : '',
+                        'about'                      => isset($user_meta['_about'][0]) ? sanitize_textarea_field($user_meta['_about'][0]) : '',
+                        'skills'                     => $skills_serialized,
+                        'interests'                  => $interests_serialized,
+                        'message_notification'       => isset($user_meta['_message_notification'][0]) ? (int) $user_meta['_message_notification'][0] : 0,
+                        'organization_name'          => isset($user_meta['_organization_name'][0]) ? sanitize_text_field($user_meta['_organization_name'][0]) : '',
+                        'organization_logo'          => $organization_logo,
+                        'organization_country'       => $org_country_code,
+                        'organization_city'          => isset($user_meta['_organization_city'][0]) ? sanitize_text_field($user_meta['_organization_city'][0]) : '',
+                        'organization_description'   => isset($user_meta['_organization_description'][0]) ? sanitize_textarea_field($user_meta['_organization_description'][0]) : '',
+                        'organization_website'       => isset($user_meta['_organization_website'][0]) ? sanitize_text_field($user_meta['_organization_website'][0]) : '',
+                        'approve_profile_status'     => isset($user_meta['_approve_profile_status'][0]) ? (int) $user_meta['_approve_profile_status'][0] : 0,
+                        'aprio_meeting_request_mode' => isset($user_meta['_aprio_meeting_request_mode'][0]) ? $user_meta['_aprio_meeting_request_mode'][0] : 'approval',
+                        'available_for_meeting'      => (int) $meeting_available,
+                    ];
+                }//end foreach
 
-				return new WP_REST_Response(
-					array(
-						'code'    => 200,
-						'status'  => 'OK',
-						'message' => 'All profiles retrieved successfully.',
-						'data'    => $profiles,
-					),
-					200
-				);
-			}//end if
-		}//end if
-	}
-	/**
-	 * Update a user's compatibilidade profile.
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 * @since 1.1.0
-	 * @return WP_REST_Response
-	 */
-	public function aprio_update_compatibilidade_profile( $request ) {
-		if ( ! get_option( 'enable_compatibilidade', false ) ) {
-			return new WP_REST_Response(
-				array(
-					'code'    => 403,
-					'status'  => 'Disabled',
-					'message' => 'Matchmaking functionality is not enabled.',
-				),
-				403
-			);
-		}
-		$auth_check = $this->aprio_check_authorized_user();
-		if ( $auth_check ) {
-			return self::prepare_error_for_response( 405 );
-		} else {
-			$user_id = $request->get_param( 'user_id' );
-			$user    = get_user_by( 'id', $user_id );
+                return new WP_REST_Response(
+                    [
+                        'code'    => 200,
+                        'status'  => 'OK',
+                        'message' => 'All profiles retrieved successfully.',
+                        'data'    => $profiles,
+                    ],
+                    200
+                );
+            }//end if
+        }//end if
+    }
+    /**
+     * Update a user's compatibilidade profile.
+     *
+     * @param WP_REST_Request $request The request object.
+     * @since 1.1.0
+     * @return WP_REST_Response
+     */
+    public function aprio_update_compatibilidade_profile($request)
+    {
+        if (! get_option('enable_compatibilidade', false)) {
+            return new WP_REST_Response(
+                [
+                    'code'    => 403,
+                    'status'  => 'Disabled',
+                    'message' => 'Matchmaking functionality is not enabled.',
+                ],
+                403
+            );
+        }
+        $auth_check = $this->aprio_check_authorized_user();
+        if ($auth_check) {
+            return self::prepare_error_for_response(405);
+        } else {
+            $user_id = $request->get_param('user_id');
+            $user    = get_user_by('id', $user_id);
 
-			if ( ! $user ) {
-				return new WP_REST_Response(
-					array(
-						'code'    => 404,
-						'status'  => 'Not Found',
-						'message' => 'User not found.',
-					),
-					404
-				);
-			}
+            if (! $user) {
+                return new WP_REST_Response(
+                    [
+                        'code'    => 404,
+                        'status'  => 'Not Found',
+                        'message' => 'User not found.',
+                    ],
+                    404
+                );
+            }
 
-			// List of all meta fields we can update
-			$meta_fields = array(
-				'profession',
-				'experience',
-				'company_name',
-				'country',
-				'city',
-				'about',
-				'skills',
-				'interests',
-				'organization_name',
-				'organization_logo',
-				'organization_city',
-				'organization_country',
-				'organization_description',
-				'organization_website',
-				'message_notification',
-				'compatibilidade_profile',
-			);
+            // List of all meta fields we can update
+            $meta_fields = [
+                'profession',
+                'experience',
+                'company_name',
+                'country',
+                'city',
+                'about',
+                'skills',
+                'interests',
+                'organization_name',
+                'organization_logo',
+                'organization_city',
+                'organization_country',
+                'organization_description',
+                'organization_website',
+                'message_notification',
+                'compatibilidade_profile',
+            ];
 
-			// Handle normal meta fields
-			foreach ( $meta_fields as $field ) {
-				if ( $request->get_param( $field ) !== null ) {
-					$value = $request->get_param( $field );
+            // Handle normal meta fields
+            foreach ($meta_fields as $field) {
+                if ($request->get_param($field) !== null) {
+                    $value = $request->get_param($field);
 
-					// For skills and interests, always save as serialized array
-					if ( in_array( $field, array( 'skills', 'interests' ) ) ) {
-						// Ensure value is always an array
-						if ( ! is_array( $value ) ) {
-							$value = array( $value );
-						}
-						$value = array_filter(
-							$value,
-							function ( $v ) {
-								return $v !== null && $v !== '';
-							}
-						);
-						$value = array_values( $value );
-						// reindex after filtering
+                    // For skills and interests, always save as serialized array
+                    if (in_array($field, [ 'skills', 'interests' ])) {
+                        // Ensure value is always an array
+                        if (! is_array($value)) {
+                            $value = [ $value ];
+                        }
+                        $value = array_filter(
+                            $value,
+                            function ($v) {
+                                return $v !== null && $v !== '';
+                            }
+                        );
+                        $value = array_values($value);
+                        // reindex after filtering
 
-						// Save as serialized array (produces a:2:{i:0;s:...;i:1;s:...;} format)
-						if ( ! empty( $value ) ) {
-							update_user_meta( $user_id, '_' . $field, $value );
-						} else {
-							update_user_meta( $user_id, '_' . $field, '' );
-						}
-					} else {
-						// For other fields
-						if ( is_array( $value ) ) {
-							$value = array_filter(
-								$value,
-								function ( $v ) {
-									return $v !== null && $v !== '';
-								}
-							);
-							$value = array_values( $value );
-							// reindex after filtering
-						}
-						if ( ! empty( $value ) ) {
-							update_user_meta( $user_id, '_' . $field, $value );
-						} else {
-							update_user_meta( $user_id, '_' . $field, '' );
-							// cleanup if blank
-						}
-					}//end if
-				}//end if
-			}//end foreach
-			// Handle profile_photo file upload
-			if ( ! empty( $_FILES['profile_photo'] ) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-				$upload_overrides = array( 'test_form' => false );
-				$movefile         = wp_handle_upload( $_FILES['profile_photo'], $upload_overrides );
+                        // Save as serialized array (produces a:2:{i:0;s:...;i:1;s:...;} format)
+                        if (! empty($value)) {
+                            update_user_meta($user_id, '_' . $field, $value);
+                        } else {
+                            update_user_meta($user_id, '_' . $field, '');
+                        }
+                    } else {
+                        // For other fields
+                        if (is_array($value)) {
+                            $value = array_filter(
+                                $value,
+                                function ($v) {
+                                    return $v !== null && $v !== '';
+                                }
+                            );
+                            $value = array_values($value);
+                            // reindex after filtering
+                        }
+                        if (! empty($value)) {
+                            update_user_meta($user_id, '_' . $field, $value);
+                        } else {
+                            update_user_meta($user_id, '_' . $field, '');
+                            // cleanup if blank
+                        }
+                    }//end if
+                }//end if
+            }//end foreach
+            // Handle profile_photo file upload
+            if (! empty($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                $upload_overrides = [ 'test_form' => false ];
+                $movefile         = wp_handle_upload($_FILES['profile_photo'], $upload_overrides);
 
-				if ( isset( $movefile['url'] ) ) {
-					update_user_meta( $user_id, '_profile_photo', esc_url_raw( $movefile['url'] ) );
+                if (isset($movefile['url'])) {
+                    update_user_meta($user_id, '_profile_photo', esc_url_raw($movefile['url']));
 
-				} else {
-					return new WP_REST_Response(
-						array(
-							'code'    => 500,
-							'status'  => 'Error',
-							'message' => 'Profile photo upload failed.',
-						),
-						500
-					);
-				}
-			} elseif ( $request->get_param( 'profile_photo' ) ) {
-				update_user_meta( $user_id, '_profile_photo', esc_url_raw( $request->get_param( 'profile_photo' ) ) );
-			} elseif ( isset( $_FILES['profile_photo'] ) && $_FILES['profile_photo']['full_path'] == '' ) {
-				update_user_meta( $user_id, '_profile_photo', EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png' );
-			}//end if
+                } else {
+                    return new WP_REST_Response(
+                        [
+                            'code'    => 500,
+                            'status'  => 'Error',
+                            'message' => 'Profile photo upload failed.',
+                        ],
+                        500
+                    );
+                }
+            } elseif ($request->get_param('profile_photo')) {
+                update_user_meta($user_id, '_profile_photo', esc_url_raw($request->get_param('profile_photo')));
+            } elseif (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['full_path'] == '') {
+                update_user_meta($user_id, '_profile_photo', EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/user-profile-photo.png');
+            }//end if
 
-			// Handle organization_logo file upload
-			if ( ! empty( $_FILES['organization_logo'] ) && $_FILES['organization_logo']['error'] === UPLOAD_ERR_OK ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-				$upload_overrides = array( 'test_form' => false );
-				$movefile         = wp_handle_upload( $_FILES['organization_logo'], $upload_overrides );
+            // Handle organization_logo file upload
+            if (! empty($_FILES['organization_logo']) && $_FILES['organization_logo']['error'] === UPLOAD_ERR_OK) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                $upload_overrides = [ 'test_form' => false ];
+                $movefile         = wp_handle_upload($_FILES['organization_logo'], $upload_overrides);
 
-				if ( isset( $movefile['url'] ) ) {
-					update_user_meta( $user_id, '_organization_logo', esc_url_raw( $movefile['url'] ) );
-				} else {
-					return new WP_REST_Response(
-						array(
-							'code'    => 500,
-							'status'  => 'Error',
-							'message' => 'Organization logo upload failed.',
-						),
-						500
-					);
-				}
-			} elseif ( $request->get_param( 'organization_logo' ) ) {
-				update_user_meta( $user_id, '_organization_logo', esc_url_raw( $request->get_param( 'organization_logo' ) ) );
-			} elseif ( isset( $_FILES['organization_logo'] ) && $_FILES['organization_logo']['full_path'] == '' ) {
-				update_user_meta( $user_id, '_organization_logo', EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg' );
-			}//end if
+                if (isset($movefile['url'])) {
+                    update_user_meta($user_id, '_organization_logo', esc_url_raw($movefile['url']));
+                } else {
+                    return new WP_REST_Response(
+                        [
+                            'code'    => 500,
+                            'status'  => 'Error',
+                            'message' => 'Organization logo upload failed.',
+                        ],
+                        500
+                    );
+                }
+            } elseif ($request->get_param('organization_logo')) {
+                update_user_meta($user_id, '_organization_logo', esc_url_raw($request->get_param('organization_logo')));
+            } elseif (isset($_FILES['organization_logo']) && $_FILES['organization_logo']['full_path'] == '') {
+                update_user_meta($user_id, '_organization_logo', EVENT_MANAGER_REGISTRATIONS_PLUGIN_URL . '/assets/images/organisation-icon.jpg');
+            }//end if
 
-			// Update basic WP user fields
-			if ( $request->get_param( 'first_name' ) ) {
-				update_user_meta( $user_id, 'first_name', sanitize_text_field( $request->get_param( 'first_name' ) ) );
-			}
+            // Update basic WP user fields
+            if ($request->get_param('first_name')) {
+                update_user_meta($user_id, 'first_name', sanitize_text_field($request->get_param('first_name')));
+            }
 
-			if ( $request->get_param( 'last_name' ) ) {
-				update_user_meta( $user_id, 'last_name', sanitize_text_field( $request->get_param( 'last_name' ) ) );
-			}
+            if ($request->get_param('last_name')) {
+                update_user_meta($user_id, 'last_name', sanitize_text_field($request->get_param('last_name')));
+            }
 
-			if ( $request->get_param( 'email' ) ) {
-				$email        = sanitize_email( $request->get_param( 'email' ) );
-				$email_exists = email_exists( $email );
+            if ($request->get_param('email')) {
+                $email        = sanitize_email($request->get_param('email'));
+                $email_exists = email_exists($email);
 
-				if ( $email_exists && $email_exists != $user_id ) {
-					return new WP_REST_Response(
-						array(
-							'code'    => 400,
-							'status'  => 'Error',
-							'message' => 'Email already in use.',
-						),
-						400
-					);
-				}
+                if ($email_exists && $email_exists != $user_id) {
+                    return new WP_REST_Response(
+                        [
+                            'code'    => 400,
+                            'status'  => 'Error',
+                            'message' => 'Email already in use.',
+                        ],
+                        400
+                    );
+                }
 
-				$result = wp_update_user(
-					array(
-						'ID'         => $user_id,
-						'user_email' => $email,
-					)
-				);
+                $result = wp_update_user(
+                    [
+                        'ID'         => $user_id,
+                        'user_email' => $email,
+                    ]
+                );
 
-				if ( is_wp_error( $result ) ) {
-					return new WP_REST_Response(
-						array(
-							'code'    => 500,
-							'status'  => 'Error',
-							'message' => $result->get_error_message(),
-						),
-						500
-					);
-				}
-			}//end if
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(
+                        [
+                            'code'    => 500,
+                            'status'  => 'Error',
+                            'message' => $result->get_error_message(),
+                        ],
+                        500
+                    );
+                }
+            }//end if
 
-			return new WP_REST_Response(
-				array(
-					'code'    => 200,
-					'status'  => 'OK',
-					'message' => 'Profile updated successfully.',
-				),
-				200
-			);
-		}//end if
-	}
-	/**
-	 * Upload a file for the user with the given ID
-	 *
-	 * @param WP_REST_Request $request
-	 * @return WP_REST_Response
-	 * @since 1.1.0
-	 */
-	public function upload_user_file( $request ) {
-		if ( ! get_option( 'enable_compatibilidade', false ) ) {
-			return new WP_REST_Response(
-				array(
-					'code'    => 403,
-					'status'  => 'Disabled',
-					'message' => 'Matchmaking functionality is not enabled.',
-				),
-				403
-			);
-		}
-		$auth_check = $this->aprio_check_authorized_user();
-		if ( $auth_check ) {
-			return self::prepare_error_for_response( 405 );
-		} else {
-			$user_id = $request->get_param( 'user_id' );
-			$user    = get_user_by( 'id', $user_id );
+            return new WP_REST_Response(
+                [
+                    'code'    => 200,
+                    'status'  => 'OK',
+                    'message' => 'Profile updated successfully.',
+                ],
+                200
+            );
+        }//end if
+    }
+    /**
+     * Upload a file for the user with the given ID
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     * @since 1.1.0
+     */
+    public function upload_user_file($request)
+    {
+        if (! get_option('enable_compatibilidade', false)) {
+            return new WP_REST_Response(
+                [
+                    'code'    => 403,
+                    'status'  => 'Disabled',
+                    'message' => 'Matchmaking functionality is not enabled.',
+                ],
+                403
+            );
+        }
+        $auth_check = $this->aprio_check_authorized_user();
+        if ($auth_check) {
+            return self::prepare_error_for_response(405);
+        } else {
+            $user_id = $request->get_param('user_id');
+            $user    = get_user_by('id', $user_id);
 
-			if ( ! $user ) {
-				return new WP_REST_Response(
-					array(
-						'code'    => 404,
-						'status'  => 'Not Found',
-						'message' => 'User not found.',
-					),
-					404
-				);
-			}
+            if (! $user) {
+                return new WP_REST_Response(
+                    [
+                        'code'    => 404,
+                        'status'  => 'Not Found',
+                        'message' => 'User not found.',
+                    ],
+                    404
+                );
+            }
 
-			if ( empty( $_FILES['file'] ) ) {
-				return new WP_REST_Response(
-					array(
-						'code'    => 400,
-						'status'  => 'Error',
-						'message' => 'No file uploaded.',
-					),
-					400
-				);
-			}
+            if (empty($_FILES['file'])) {
+                return new WP_REST_Response(
+                    [
+                        'code'    => 400,
+                        'status'  => 'Error',
+                        'message' => 'No file uploaded.',
+                    ],
+                    400
+                );
+            }
 
-			require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/file.php';
 
-			$file             = $_FILES['file'];
-			$upload_overrides = array( 'test_form' => false );
-			$movefile         = wp_handle_upload( $file, $upload_overrides );
+            $file             = $_FILES['file'];
+            $upload_overrides = [ 'test_form' => false ];
+            $movefile         = wp_handle_upload($file, $upload_overrides);
 
-			if ( ! isset( $movefile['url'] ) ) {
-				return new WP_REST_Response(
-					array(
-						'code'    => 500,
-						'status'  => 'Error',
-						'message' => 'File upload failed.',
-					),
-					500
-				);
-			}
+            if (! isset($movefile['url'])) {
+                return new WP_REST_Response(
+                    [
+                        'code'    => 500,
+                        'status'  => 'Error',
+                        'message' => 'File upload failed.',
+                    ],
+                    500
+                );
+            }
 
-			$file_url = esc_url_raw( $movefile['url'] );
+            $file_url = esc_url_raw($movefile['url']);
 
-			// Update both profile photo meta fields
-			update_user_meta( $user_id, '_profile_photo', $file_url );
+            // Update both profile photo meta fields
+            update_user_meta($user_id, '_profile_photo', $file_url);
 
-			return new WP_REST_Response(
-				array(
-					'code'    => 200,
-					'status'  => 'OK',
-					'message' => 'File uploaded and stored successfully.',
-					'data'    => array(
-						'profile_photo' => $file_url,
-						'meta_updated'  => true,
-					),
-				),
-				200
-			);
-		}//end if
-	}
+            return new WP_REST_Response(
+                [
+                    'code'    => 200,
+                    'status'  => 'OK',
+                    'message' => 'File uploaded and stored successfully.',
+                    'data'    => [
+                        'profile_photo' => $file_url,
+                        'meta_updated'  => true,
+                    ],
+                ],
+                200
+            );
+        }//end if
+    }
 }
 new APRIO_REST_MatchMaking_Profile();

@@ -10,7 +10,7 @@
 
 	<!-- Header -->
 	<div class="table-header">
-		<h3><?php echo esc_html( $title ?? 'DJ Contacts' ); ?></h3>
+		<h3><?php echo esc_html($title ?? 'DJ Contacts'); ?></h3>
 	</div>
 
 	<!-- Table -->
@@ -18,46 +18,46 @@
 		<table class="table">
 		<thead>
 			<tr>
-			<th><?php _e( 'Name', 'apollo-social' ); ?></th>
-			<th><?php _e( 'Role', 'apollo-social' ); ?></th>
-			<th><?php _e( 'Email', 'apollo-social' ); ?></th>
-			<th><?php _e( 'Phone', 'apollo-social' ); ?></th>
-			<th><?php _e( 'Score', 'apollo-social' ); ?></th>
-			<th><?php _e( 'Platform', 'apollo-social' ); ?></th>
+			<th><?php _e('Name', 'apollo-social'); ?></th>
+			<th><?php _e('Role', 'apollo-social'); ?></th>
+			<th><?php _e('Email', 'apollo-social'); ?></th>
+			<th><?php _e('Phone', 'apollo-social'); ?></th>
+			<th><?php _e('Score', 'apollo-social'); ?></th>
+			<th><?php _e('Platform', 'apollo-social'); ?></th>
 			<th></th>
 			</tr>
 		</thead>
 		<tbody>
-			<?php if ( ! empty( $contacts ) && is_array( $contacts ) ) : ?>
-				<?php foreach ( $contacts as $contact ) : ?>
+			<?php if (! empty($contacts) && is_array($contacts)) : ?>
+				<?php foreach ($contacts as $contact) : ?>
 				<tr>
 				<td>
 					<div style="display:flex;align-items:center;gap:.75rem;">
-					<img src="<?php echo esc_url( $contact['avatar'] ?? '' ); ?>" class="avatar" alt="<?php echo esc_attr( $contact['name'] ?? '' ); ?>">
-					<a href="<?php echo esc_url( $contact['profile_url'] ?? '#' ); ?>" style="color:var(--text-primary);font-weight:600;">
-						<?php echo esc_html( $contact['name'] ?? '' ); ?>
+					<img src="<?php echo esc_url($contact['avatar'] ?? ''); ?>" class="avatar" alt="<?php echo esc_attr($contact['name'] ?? ''); ?>">
+					<a href="<?php echo esc_url($contact['profile_url'] ?? '#'); ?>" style="color:var(--text-primary);font-weight:600;">
+						<?php echo esc_html($contact['name'] ?? ''); ?>
 					</a>
 					</div>
 				</td>
-				<td><?php echo esc_html( $contact['role'] ?? '' ); ?></td>
+				<td><?php echo esc_html($contact['role'] ?? ''); ?></td>
 				<td>
-					<a href="mailto:<?php echo esc_attr( $contact['email'] ?? '' ); ?>" style="color:var(--text-main);">
-					<?php echo esc_html( $contact['email'] ?? '' ); ?>
+					<a href="mailto:<?php echo esc_attr($contact['email'] ?? ''); ?>" style="color:var(--text-main);">
+					<?php echo esc_html($contact['email'] ?? ''); ?>
 					</a>
 				</td>
 				<td>
-					<a href="tel:<?php echo esc_attr( $contact['phone'] ?? '' ); ?>" style="color:var(--text-main);">
-					<?php echo esc_html( $contact['phone'] ?? '' ); ?>
+					<a href="tel:<?php echo esc_attr($contact['phone'] ?? ''); ?>" style="color:var(--text-main);">
+					<?php echo esc_html($contact['phone'] ?? ''); ?>
 					</a>
 				</td>
 				<td>
-					<span class="badge badge-<?php echo esc_attr( get_score_class( $contact['score'] ?? 0 ) ); ?>">
-					<?php echo esc_html( ( $contact['score'] ?? 0 ) . '/10' ); ?>
+					<span class="badge badge-<?php echo esc_attr(get_score_class($contact['score'] ?? 0)); ?>">
+					<?php echo esc_html(($contact['score'] ?? 0) . '/10'); ?>
 					</span>
 				</td>
 				<td>
-					<a href="<?php echo esc_url( $contact['platform_url'] ?? '#' ); ?>" style="color:var(--text-primary);">
-					<?php echo esc_html( $contact['platform'] ?? '' ); ?>
+					<a href="<?php echo esc_url($contact['platform_url'] ?? '#'); ?>" style="color:var(--text-primary);">
+					<?php echo esc_html($contact['platform'] ?? ''); ?>
 					</a>
 				</td>
 				<td class="gear-cell" style="position:relative;">
@@ -65,14 +65,14 @@
 					<i class="ri-settings-6-line"></i>
 					</div>
 					<div class="gear-menu glass">
-					<a href="<?php echo esc_url( $contact['profile_url'] ?? '#' ); ?>" class="gear-item">
-						<i class="ri-user-line"></i> <?php _e( 'View Profile', 'apollo-social' ); ?>
+					<a href="<?php echo esc_url($contact['profile_url'] ?? '#'); ?>" class="gear-item">
+						<i class="ri-user-line"></i> <?php _e('View Profile', 'apollo-social'); ?>
 					</a>
-					<a href="<?php echo esc_url( $contact['message_url'] ?? '#' ); ?>" class="gear-item">
-						<i class="ri-message-3-line"></i> <?php _e( 'Send Message', 'apollo-social' ); ?>
+					<a href="<?php echo esc_url($contact['message_url'] ?? '#'); ?>" class="gear-item">
+						<i class="ri-message-3-line"></i> <?php _e('Send Message', 'apollo-social'); ?>
 					</a>
-					<a href="#" class="gear-item" onclick="return confirm('<?php _e( 'Are you sure you want to remove this contact?', 'apollo-social' ); ?>');">
-						<i class="ri-delete-bin-line"></i> <?php _e( 'Remove', 'apollo-social' ); ?>
+					<a href="#" class="gear-item" onclick="return confirm('<?php _e('Are you sure you want to remove this contact?', 'apollo-social'); ?>');">
+						<i class="ri-delete-bin-line"></i> <?php _e('Remove', 'apollo-social'); ?>
 					</a>
 					</div>
 				</td>
@@ -162,15 +162,17 @@
 /**
  * Helper method to get score badge class
  */
-if ( ! function_exists( 'get_score_class' ) ) {
-	function get_score_class( $score ) {
-		if ( $score >= 7 ) {
-			return 'success';
-		}
-		if ( $score >= 4 ) {
-			return 'warning';
-		}
-		return 'danger';
-	}
+if (! function_exists('get_score_class')) {
+    function get_score_class($score)
+    {
+        if ($score >= 7) {
+            return 'success';
+        }
+        if ($score >= 4) {
+            return 'warning';
+        }
+
+        return 'danger';
+    }
 }
 ?>

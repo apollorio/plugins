@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -30,6 +31,7 @@ function apollo_check_user_suspension( $user, $username, $password ) {
 	$is_blocked = get_user_meta( $user->ID, '_apollo_blocked', true );
 	if ( $is_blocked ) {
 		$reason = get_user_meta( $user->ID, '_apollo_block_reason', true );
+
 		return new WP_Error(
 			'apollo_user_blocked',
 			sprintf(
@@ -44,6 +46,7 @@ function apollo_check_user_suspension( $user, $username, $password ) {
 	$suspended_until = get_user_meta( $user->ID, '_apollo_suspended_until', true );
 	if ( $suspended_until && time() < intval( $suspended_until ) ) {
 		$reason = get_user_meta( $user->ID, '_apollo_suspension_reason', true );
+
 		return new WP_Error(
 			'apollo_user_suspended',
 			sprintf(
@@ -125,6 +128,7 @@ add_filter(
 		if ( $apollo_message ) {
 			$message .= '<div class="message">' . esc_html( $apollo_message ) . '</div>';
 		}
+
 		return $message;
 	}
 );

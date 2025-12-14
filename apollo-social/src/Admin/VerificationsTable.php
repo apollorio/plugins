@@ -131,9 +131,9 @@ class VerificationsTable {
 		$stats         = $this->userRepo->getVerificationStats();
 
 		// Get filters from URL (admin page, nonce not required for GET filters).
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
 		$current_status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : 'all';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
 		$search_query = isset( $_GET['search'] ) ? sanitize_text_field( wp_unslash( $_GET['search'] ) ) : '';
 
 		?>
@@ -422,6 +422,7 @@ class VerificationsTable {
 					'message' => 'Invalid user ID',
 				)
 			);
+
 			return;
 		}
 		$result = $this->verifyUser( $user_id );
@@ -449,6 +450,7 @@ class VerificationsTable {
 					'message' => 'Invalid user ID',
 				)
 			);
+
 			return;
 		}
 		$reason = isset( $_POST['reason'] ) ? sanitize_textarea_field( wp_unslash( $_POST['reason'] ) ) : '';
@@ -478,6 +480,7 @@ class VerificationsTable {
 					'message' => 'Invalid user ID',
 				)
 			);
+
 			return;
 		}
 		$verification = $this->getVerificationData( $user_id );
@@ -489,6 +492,7 @@ class VerificationsTable {
 					'message' => 'Verificação não encontrada',
 				)
 			);
+
 			return;
 		}
 
@@ -517,7 +521,7 @@ class VerificationsTable {
 			$verification_table = $wpdb->prefix . 'apollo_verifications';
 
 			// Update verification status.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$updated = $wpdb->update(
 				$verification_table,
 				array(
@@ -550,8 +554,9 @@ class VerificationsTable {
 			);
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'Error verifying user: ' . $e->getMessage() );
+
 			return array(
 				'success' => false,
 				'message' => 'Erro interno',
@@ -572,7 +577,7 @@ class VerificationsTable {
 		try {
 			$verification_table = $wpdb->prefix . 'apollo_verifications';
 
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table.
 			$updated = $wpdb->update(
 				$verification_table,
 				array(
@@ -603,8 +608,9 @@ class VerificationsTable {
 			);
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'Error rejecting user: ' . $e->getMessage() );
+
 			return array(
 				'success' => false,
 				'message' => 'Erro interno',
@@ -623,8 +629,8 @@ class VerificationsTable {
 
 		$verification_table = $wpdb->prefix . 'apollo_verifications';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names cannot use placeholders.
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names cannot use placeholders.
 		return $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT v.*, u.user_login, u.user_email, u.display_name, u.user_registered
@@ -636,8 +642,8 @@ class VerificationsTable {
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
@@ -759,23 +765,23 @@ class VerificationsTable {
 
 		$audit_table = $wpdb->prefix . 'apollo_audit_log';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_exists = $wpdb->get_var(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
 				$audit_table
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( $table_exists !== $audit_table ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server variable, sanitized with filter.
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server variable, sanitized with filter.
 		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : '';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
 			$audit_table,
 			array(
@@ -796,7 +802,7 @@ class VerificationsTable {
 				'created_at'  => current_time( 'mysql' ),
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	/**
@@ -817,7 +823,7 @@ class VerificationsTable {
 
 		foreach ( $ip_headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP validation.
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP validation.
 				$ip = filter_var( wp_unslash( $_SERVER[ $header ] ), FILTER_VALIDATE_IP );
 				if ( $ip ) {
 					return $ip;

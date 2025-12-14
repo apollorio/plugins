@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 $dj_id = get_the_ID();
-if ( get_post_type( $dj_id ) !== 'event_dj' ) {
-	wp_die( esc_html__( 'Este template é apenas para DJs.', 'apollo-events-manager' ) );
+if (get_post_type($dj_id) !== 'event_dj') {
+    wp_die(esc_html__('Este template é apenas para DJs.', 'apollo-events-manager'));
 }
 
 // ============================================
@@ -26,245 +26,247 @@ if ( get_post_type( $dj_id ) !== 'event_dj' ) {
 // ============================================
 
 // Nome Principal (display name)
-$dj_name = apollo_get_post_meta( $dj_id, '_dj_name', true );
-if ( empty( $dj_name ) ) {
-	$dj_name = get_the_title();
+$dj_name = apollo_get_post_meta($dj_id, '_dj_name', true);
+if (empty($dj_name)) {
+    $dj_name = get_the_title();
 }
 
 // Tagline
-$dj_tagline = apollo_get_post_meta( $dj_id, '_dj_tagline', true );
+$dj_tagline = apollo_get_post_meta($dj_id, '_dj_tagline', true);
 
 // Roles (comma-separated: DJ, Producer, Label Owner)
-$dj_roles = apollo_get_post_meta( $dj_id, '_dj_roles', true );
+$dj_roles = apollo_get_post_meta($dj_id, '_dj_roles', true);
 
 // Bio
-$dj_bio = apollo_get_post_meta( $dj_id, '_dj_bio', true );
-if ( empty( $dj_bio ) ) {
-	$dj_bio = get_the_content();
+$dj_bio = apollo_get_post_meta($dj_id, '_dj_bio', true);
+if (empty($dj_bio)) {
+    $dj_bio = get_the_content();
 }
-$dj_bio_excerpt = apollo_get_post_meta( $dj_id, '_dj_bio_excerpt', true );
-if ( empty( $dj_bio_excerpt ) && ! empty( $dj_bio ) ) {
-	$dj_bio_excerpt = wp_trim_words( strip_tags( $dj_bio ), 50, '...' );
+$dj_bio_excerpt = apollo_get_post_meta($dj_id, '_dj_bio_excerpt', true);
+if (empty($dj_bio_excerpt) && ! empty($dj_bio)) {
+    $dj_bio_excerpt = wp_trim_words(strip_tags($dj_bio), 50, '...');
 }
 
 // Avatar/Image
-$dj_image = apollo_get_post_meta( $dj_id, '_dj_image', true );
-if ( empty( $dj_image ) && has_post_thumbnail( $dj_id ) ) {
-	$dj_image = get_the_post_thumbnail_url( $dj_id, 'large' );
+$dj_image = apollo_get_post_meta($dj_id, '_dj_image', true);
+if (empty($dj_image) && has_post_thumbnail($dj_id)) {
+    $dj_image = get_the_post_thumbnail_url($dj_id, 'large');
 }
-if ( ! empty( $dj_image ) && is_numeric( $dj_image ) ) {
-	$dj_image = wp_get_attachment_image_url( (int) $dj_image, 'large' );
+if (! empty($dj_image) && is_numeric($dj_image)) {
+    $dj_image = wp_get_attachment_image_url((int) $dj_image, 'large');
 }
-if ( empty( $dj_image ) ) {
-	$dj_image = 'https://assets.apollo.rio.br/placeholder-dj.jpg';
+if (empty($dj_image)) {
+    $dj_image = 'https://assets.apollo.rio.br/placeholder-dj.jpg';
 }
 
 // Track info for vinyl player
-$dj_track_title = apollo_get_post_meta( $dj_id, '_dj_track_title', true );
+$dj_track_title = apollo_get_post_meta($dj_id, '_dj_track_title', true);
 
 // Redes & Plataformas (Music Links)
-$dj_soundcloud       = apollo_get_post_meta( $dj_id, '_dj_soundcloud', true );
-$dj_spotify          = apollo_get_post_meta( $dj_id, '_dj_spotify', true );
-$dj_youtube          = apollo_get_post_meta( $dj_id, '_dj_youtube', true );
-$dj_mixcloud         = apollo_get_post_meta( $dj_id, '_dj_mixcloud', true );
-$dj_beatport         = apollo_get_post_meta( $dj_id, '_dj_beatport', true );
-$dj_bandcamp         = apollo_get_post_meta( $dj_id, '_dj_bandcamp', true );
-$dj_resident_advisor = apollo_get_post_meta( $dj_id, '_dj_resident_advisor', true );
+$dj_soundcloud       = apollo_get_post_meta($dj_id, '_dj_soundcloud', true);
+$dj_spotify          = apollo_get_post_meta($dj_id, '_dj_spotify', true);
+$dj_youtube          = apollo_get_post_meta($dj_id, '_dj_youtube', true);
+$dj_mixcloud         = apollo_get_post_meta($dj_id, '_dj_mixcloud', true);
+$dj_beatport         = apollo_get_post_meta($dj_id, '_dj_beatport', true);
+$dj_bandcamp         = apollo_get_post_meta($dj_id, '_dj_bandcamp', true);
+$dj_resident_advisor = apollo_get_post_meta($dj_id, '_dj_resident_advisor', true);
 
 // Social Links
-$dj_instagram = apollo_get_post_meta( $dj_id, '_dj_instagram', true );
-$dj_twitter   = apollo_get_post_meta( $dj_id, '_dj_twitter', true );
-$dj_tiktok    = apollo_get_post_meta( $dj_id, '_dj_tiktok', true );
-$dj_facebook  = apollo_get_post_meta( $dj_id, '_dj_facebook', true );
+$dj_instagram = apollo_get_post_meta($dj_id, '_dj_instagram', true);
+$dj_twitter   = apollo_get_post_meta($dj_id, '_dj_twitter', true);
+$dj_tiktok    = apollo_get_post_meta($dj_id, '_dj_tiktok', true);
+$dj_facebook  = apollo_get_post_meta($dj_id, '_dj_facebook', true);
 
 // Asset Links (downloads)
-$dj_media_kit_url    = apollo_get_post_meta( $dj_id, '_dj_media_kit_url', true );
-$dj_rider_url        = apollo_get_post_meta( $dj_id, '_dj_rider_url', true );
-$dj_press_photos_url = apollo_get_post_meta( $dj_id, '_dj_press_photos_url', true );
+$dj_media_kit_url    = apollo_get_post_meta($dj_id, '_dj_media_kit_url', true);
+$dj_rider_url        = apollo_get_post_meta($dj_id, '_dj_rider_url', true);
+$dj_press_photos_url = apollo_get_post_meta($dj_id, '_dj_press_photos_url', true);
 
 // Projetos Originais
-$dj_project_1 = apollo_get_post_meta( $dj_id, '_dj_original_project_1', true );
-$dj_project_2 = apollo_get_post_meta( $dj_id, '_dj_original_project_2', true );
-$dj_project_3 = apollo_get_post_meta( $dj_id, '_dj_original_project_3', true );
-$projects     = array_filter( array( $dj_project_1, $dj_project_2, $dj_project_3 ) );
+$dj_project_1 = apollo_get_post_meta($dj_id, '_dj_original_project_1', true);
+$dj_project_2 = apollo_get_post_meta($dj_id, '_dj_original_project_2', true);
+$dj_project_3 = apollo_get_post_meta($dj_id, '_dj_original_project_3', true);
+$projects     = array_filter([ $dj_project_1, $dj_project_2, $dj_project_3 ]);
 
 // SoundCloud Track URL for player
-$dj_soundcloud_track = apollo_get_post_meta( $dj_id, '_dj_soundcloud_track', true );
-if ( empty( $dj_soundcloud_track ) ) {
-	$dj_soundcloud_track = $dj_soundcloud;
+$dj_soundcloud_track = apollo_get_post_meta($dj_id, '_dj_soundcloud_track', true);
+if (empty($dj_soundcloud_track)) {
+    $dj_soundcloud_track = $dj_soundcloud;
 }
 
 // More Platforms text
-$dj_more_platforms = apollo_get_post_meta( $dj_id, '_dj_more_platforms', true );
+$dj_more_platforms = apollo_get_post_meta($dj_id, '_dj_more_platforms', true);
 
 // Normalize social handles
-function apollo_dj_normalize_url( string $url, string $platform ): string {
-	if ( empty( $url ) ) {
-		return '';
-	}
+function apollo_dj_normalize_url(string $url, string $platform): string
+{
+    if (empty($url)) {
+        return '';
+    }
 
-	$platforms = array(
-		'instagram' => 'https://instagram.com/',
-		'twitter'   => 'https://twitter.com/',
-		'tiktok'    => 'https://tiktok.com/@',
-		'facebook'  => 'https://facebook.com/',
-	);
+    $platforms = [
+        'instagram' => 'https://instagram.com/',
+        'twitter'   => 'https://twitter.com/',
+        'tiktok'    => 'https://tiktok.com/@',
+        'facebook'  => 'https://facebook.com/',
+    ];
 
-	if ( strpos( $url, 'http' ) === 0 ) {
-		return $url;
-	}
+    if (strpos($url, 'http') === 0) {
+        return $url;
+    }
 
-	$handle = ltrim( $url, '@' );
-	return isset( $platforms[ $platform ] ) ? $platforms[ $platform ] . $handle : $url;
+    $handle = ltrim($url, '@');
+
+    return isset($platforms[ $platform ]) ? $platforms[ $platform ] . $handle : $url;
 }
 
 // Build link arrays
-$music_links = array();
-if ( $dj_soundcloud ) {
-	$music_links[] = array(
-		'url'    => $dj_soundcloud,
-		'icon'   => 'ri-soundcloud-line',
-		'label'  => 'SoundCloud',
-		'active' => true,
-	);
+$music_links = [];
+if ($dj_soundcloud) {
+    $music_links[] = [
+        'url'    => $dj_soundcloud,
+        'icon'   => 'ri-soundcloud-line',
+        'label'  => 'SoundCloud',
+        'active' => true,
+    ];
 }
-if ( $dj_spotify ) {
-	$music_links[] = array(
-		'url'    => $dj_spotify,
-		'icon'   => 'ri-spotify-line',
-		'label'  => 'Spotify',
-		'active' => false,
-	);
+if ($dj_spotify) {
+    $music_links[] = [
+        'url'    => $dj_spotify,
+        'icon'   => 'ri-spotify-line',
+        'label'  => 'Spotify',
+        'active' => false,
+    ];
 }
-if ( $dj_youtube ) {
-	$music_links[] = array(
-		'url'    => $dj_youtube,
-		'icon'   => 'ri-youtube-line',
-		'label'  => 'YouTube',
-		'active' => false,
-	);
-}
-
-$social_links = array();
-if ( $dj_instagram ) {
-	$social_links[] = array(
-		'url'   => apollo_dj_normalize_url( $dj_instagram, 'instagram' ),
-		'icon'  => 'ri-instagram-line',
-		'label' => 'Instagram',
-	);
-}
-if ( $dj_facebook ) {
-	$social_links[] = array(
-		'url'   => apollo_dj_normalize_url( $dj_facebook, 'facebook' ),
-		'icon'  => 'ri-facebook-circle-line',
-		'label' => 'Facebook',
-	);
-}
-if ( $dj_twitter ) {
-	$social_links[] = array(
-		'url'   => apollo_dj_normalize_url( $dj_twitter, 'twitter' ),
-		'icon'  => 'ri-twitter-x-line',
-		'label' => 'Twitter',
-	);
-}
-if ( $dj_tiktok ) {
-	$social_links[] = array(
-		'url'   => apollo_dj_normalize_url( $dj_tiktok, 'tiktok' ),
-		'icon'  => 'ri-tiktok-line',
-		'label' => 'TikTok',
-	);
+if ($dj_youtube) {
+    $music_links[] = [
+        'url'    => $dj_youtube,
+        'icon'   => 'ri-youtube-line',
+        'label'  => 'YouTube',
+        'active' => false,
+    ];
 }
 
-$asset_links = array();
-if ( $dj_media_kit_url ) {
-	$asset_links[] = array(
-		'url'   => $dj_media_kit_url,
-		'icon'  => 'ri-clipboard-line',
-		'label' => 'Media kit',
-	);
+$social_links = [];
+if ($dj_instagram) {
+    $social_links[] = [
+        'url'   => apollo_dj_normalize_url($dj_instagram, 'instagram'),
+        'icon'  => 'ri-instagram-line',
+        'label' => 'Instagram',
+    ];
 }
-if ( $dj_rider_url ) {
-	$asset_links[] = array(
-		'url'   => $dj_rider_url,
-		'icon'  => 'ri-clipboard-fill',
-		'label' => 'Rider',
-	);
+if ($dj_facebook) {
+    $social_links[] = [
+        'url'   => apollo_dj_normalize_url($dj_facebook, 'facebook'),
+        'icon'  => 'ri-facebook-circle-line',
+        'label' => 'Facebook',
+    ];
 }
-if ( $dj_press_photos_url ) {
-	$asset_links[] = array(
-		'url'   => $dj_press_photos_url,
-		'icon'  => 'ri-play-list-2-line',
-		'label' => 'Mix / Playlist',
-	);
+if ($dj_twitter) {
+    $social_links[] = [
+        'url'   => apollo_dj_normalize_url($dj_twitter, 'twitter'),
+        'icon'  => 'ri-twitter-x-line',
+        'label' => 'Twitter',
+    ];
+}
+if ($dj_tiktok) {
+    $social_links[] = [
+        'url'   => apollo_dj_normalize_url($dj_tiktok, 'tiktok'),
+        'icon'  => 'ri-tiktok-line',
+        'label' => 'TikTok',
+    ];
+}
+
+$asset_links = [];
+if ($dj_media_kit_url) {
+    $asset_links[] = [
+        'url'   => $dj_media_kit_url,
+        'icon'  => 'ri-clipboard-line',
+        'label' => 'Media kit',
+    ];
+}
+if ($dj_rider_url) {
+    $asset_links[] = [
+        'url'   => $dj_rider_url,
+        'icon'  => 'ri-clipboard-fill',
+        'label' => 'Rider',
+    ];
+}
+if ($dj_press_photos_url) {
+    $asset_links[] = [
+        'url'   => $dj_press_photos_url,
+        'icon'  => 'ri-play-list-2-line',
+        'label' => 'Mix / Playlist',
+    ];
 }
 
 // Prepare DJ_DATA for JavaScript
-$dj_data_js = array(
-	'name'            => $dj_name,
-	'tagline'         => $dj_tagline ?: 'Artist & DJ from Rio BRA',
-	'roles'           => $dj_roles ?: 'DJ · Producer',
-	'avatar'          => $dj_image,
-	'mediakitUrl'     => $dj_media_kit_url ?: '#',
-	'projects'        => $projects,
-	'bioExcerpt'      => $dj_bio_excerpt ?: '',
-	'bioFull'         => $dj_bio ?: '',
-	'musicLinks'      => $music_links,
-	'socialLinks'     => $social_links,
-	'assetLinks'      => $asset_links,
-	'morePlatforms'   => $dj_more_platforms ?: 'Mixcloud · Beatport · Bandcamp · Resident Advisor',
-	'soundcloudTrack' => $dj_soundcloud_track ?: '',
-	'trackTitle'      => $dj_track_title ?: 'Featured Set',
-);
+$dj_data_js = [
+    'name'            => $dj_name,
+    'tagline'         => $dj_tagline ?: 'Artist & DJ from Rio BRA',
+    'roles'           => $dj_roles ?: 'DJ · Producer',
+    'avatar'          => $dj_image,
+    'mediakitUrl'     => $dj_media_kit_url ?: '#',
+    'projects'        => $projects,
+    'bioExcerpt'      => $dj_bio_excerpt ?: '',
+    'bioFull'         => $dj_bio ?: '',
+    'musicLinks'      => $music_links,
+    'socialLinks'     => $social_links,
+    'assetLinks'      => $asset_links,
+    'morePlatforms'   => $dj_more_platforms ?: 'Mixcloud · Beatport · Bandcamp · Resident Advisor',
+    'soundcloudTrack' => $dj_soundcloud_track ?: '',
+    'trackTitle'      => $dj_track_title ?: 'Featured Set',
+];
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			array(),
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Tailwind (CDN for dev).
-		wp_enqueue_script(
-			'tailwindcss',
-			'https://cdn.tailwindcss.com',
-			array(),
-			'3.4.0',
-			false
-		);
+        // Tailwind (CDN for dev).
+        wp_enqueue_script(
+            'tailwindcss',
+            'https://cdn.tailwindcss.com',
+            [],
+            '3.4.0',
+            false
+        );
 
-		// Motion One.
-		wp_enqueue_script(
-			'motion-one',
-			'https://unpkg.com/@motionone/dom@10.16.4/dist/index.js',
-			array(),
-			'10.16.4',
-			true
-		);
+        // Motion One.
+        wp_enqueue_script(
+            'motion-one',
+            'https://unpkg.com/@motionone/dom@10.16.4/dist/index.js',
+            [],
+            '10.16.4',
+            true
+        );
 
-		// SoundCloud API.
-		wp_enqueue_script(
-			'soundcloud-api',
-			'https://w.soundcloud.com/player/api.js',
-			array(),
-			'1.0.0',
-			true
-		);
+        // SoundCloud API.
+        wp_enqueue_script(
+            'soundcloud-api',
+            'https://w.soundcloud.com/player/api.js',
+            [],
+            '1.0.0',
+            true
+        );
 
-		// Inline DJ-specific styles.
-		$dj_css = '
+        // Inline DJ-specific styles.
+        $dj_css = '
 			* { box-sizing: border-box; }
 			html, body { font-size: 16px; }
 			body {
@@ -275,32 +277,32 @@ add_action(
 				font-size: 16px;
 			}
 		';
-		wp_add_inline_style( 'apollo-uni-css', $dj_css );
-	},
-	10
+        wp_add_inline_style('apollo-uni-css', $dj_css);
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo esc_html( $dj_name ); ?> · Apollo Roster</title>
+	<title><?php echo esc_html($dj_name); ?> · Apollo Roster</title>
 
 	<!-- Open Graph -->
-	<meta property="og:title" content="<?php echo esc_attr( $dj_name ); ?> · Apollo Roster">
-	<meta property="og:description" content="<?php echo esc_attr( $dj_bio_excerpt ); ?>">
-	<meta property="og:image" content="<?php echo esc_url( $dj_image ); ?>">
+	<meta property="og:title" content="<?php echo esc_attr($dj_name); ?> · Apollo Roster">
+	<meta property="og:description" content="<?php echo esc_attr($dj_bio_excerpt); ?>">
+	<meta property="og:image" content="<?php echo esc_url($dj_image); ?>">
 	<meta property="og:type" content="profile">
 
 	<?php wp_head(); ?>
 </head>
-<body <?php body_class( 'apollo-dj-roster' ); ?>>
+<body <?php body_class('apollo-dj-roster'); ?>>
 
 <section class="dj-shell">
 	<div class="dj-page" id="djPage">
@@ -309,15 +311,15 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			<!-- HEADER -->
 			<header class="dj-header">
 				<div class="dj-header-left">
-					<span data-tooltip="<?php echo esc_attr__( 'Sistema Apollo Roster', 'apollo-events-manager' ); ?>">Apollo::rio · DJ Roster</span>
-					<strong id="dj-header-name" data-tooltip="<?php echo esc_attr__( 'Nome do DJ em destaque', 'apollo-events-manager' ); ?>"><?php echo esc_html( strtoupper( $dj_name ) ); ?></strong>
+					<span data-tooltip="<?php echo esc_attr__('Sistema Apollo Roster', 'apollo-events-manager'); ?>">Apollo::rio · DJ Roster</span>
+					<strong id="dj-header-name" data-tooltip="<?php echo esc_attr__('Nome do DJ em destaque', 'apollo-events-manager'); ?>"><?php echo esc_html(strtoupper($dj_name)); ?></strong>
 				</div>
-				<?php if ( $dj_media_kit_url ) : ?>
-				<a href="<?php echo esc_url( $dj_media_kit_url ); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener" data-tooltip="<?php echo esc_attr__( 'Baixar media kit completo', 'apollo-events-manager' ); ?>">
+				<?php if ($dj_media_kit_url) : ?>
+				<a href="<?php echo esc_url($dj_media_kit_url); ?>" id="mediakit-link" class="dj-pill-link" target="_blank" rel="noopener" data-tooltip="<?php echo esc_attr__('Baixar media kit completo', 'apollo-events-manager'); ?>">
 					<i class="ri-clipboard-line"></i>Media kit
 				</a>
 				<?php else : ?>
-				<span class="dj-placeholder dj-pill-link" data-tooltip="<?php echo esc_attr__( 'Adicione URL do media kit no admin', 'apollo-events-manager' ); ?>">
+				<span class="dj-placeholder dj-pill-link" data-tooltip="<?php echo esc_attr__('Adicione URL do media kit no admin', 'apollo-events-manager'); ?>">
 					<i class="ri-clipboard-line"></i>Media kit
 				</span>
 				<?php endif; ?>
@@ -326,19 +328,19 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			<!-- HERO -->
 			<section class="dj-hero" id="djHero">
 				<div class="dj-hero-name">
-					<div class="dj-tagline" id="dj-tagline" data-tooltip="<?php echo empty( $dj_tagline ) ? esc_attr__( 'Adicione tagline no admin', 'apollo-events-manager' ) : ''; ?>">
-						<?php echo esc_html( $dj_tagline ?: 'Artist & DJ from Rio BRA' ); ?>
+					<div class="dj-tagline" id="dj-tagline" data-tooltip="<?php echo empty($dj_tagline) ? esc_attr__('Adicione tagline no admin', 'apollo-events-manager') : ''; ?>">
+						<?php echo esc_html($dj_tagline ?: 'Artist & DJ from Rio BRA'); ?>
 					</div>
-					<div class="dj-name-main" id="dj-name" data-tooltip="<?php echo esc_attr__( 'Nome artístico', 'apollo-events-manager' ); ?>">
-						<?php echo implode( '<br>', explode( ' ', esc_html( $dj_name ) ) ); ?>
+					<div class="dj-name-main" id="dj-name" data-tooltip="<?php echo esc_attr__('Nome artístico', 'apollo-events-manager'); ?>">
+						<?php echo implode('<br>', explode(' ', esc_html($dj_name))); ?>
 					</div>
-					<div class="dj-name-sub" id="dj-roles" data-tooltip="<?php echo empty( $dj_roles ) ? esc_attr__( 'Adicione roles: DJ, Producer, etc', 'apollo-events-manager' ) : ''; ?>">
-						<?php echo esc_html( $dj_roles ?: 'DJ · Producer' ); ?>
+					<div class="dj-name-sub" id="dj-roles" data-tooltip="<?php echo empty($dj_roles) ? esc_attr__('Adicione roles: DJ, Producer, etc', 'apollo-events-manager') : ''; ?>">
+						<?php echo esc_html($dj_roles ?: 'DJ · Producer'); ?>
 					</div>
-					<div class="dj-projects" id="dj-projects" data-tooltip="<?php echo empty( $projects ) ? esc_attr__( 'Adicione projetos originais no admin', 'apollo-events-manager' ) : ''; ?>">
-						<?php if ( ! empty( $projects ) ) : ?>
-							<?php foreach ( $projects as $i => $project ) : ?>
-								<span <?php echo $i === 0 ? 'style="font-weight:800"' : ''; ?>><?php echo esc_html( $project ); ?></span>
+					<div class="dj-projects" id="dj-projects" data-tooltip="<?php echo empty($projects) ? esc_attr__('Adicione projetos originais no admin', 'apollo-events-manager') : ''; ?>">
+						<?php if (! empty($projects)) : ?>
+							<?php foreach ($projects as $i => $project) : ?>
+								<span <?php echo $i === 0 ? 'style="font-weight:800"' : ''; ?>><?php echo esc_html($project); ?></span>
 							<?php endforeach; ?>
 						<?php else : ?>
 							<span class="dj-placeholder">Adicionar projetos</span>
@@ -346,22 +348,22 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 					</div>
 				</div>
 
-				<figure class="dj-hero-photo" id="djPhoto" data-tooltip="<?php echo esc_attr__( 'Foto principal do DJ', 'apollo-events-manager' ); ?>">
-					<img id="dj-avatar" src="<?php echo esc_url( $dj_image ); ?>" alt="<?php echo esc_attr( $dj_name ); ?>">
+				<figure class="dj-hero-photo" id="djPhoto" data-tooltip="<?php echo esc_attr__('Foto principal do DJ', 'apollo-events-manager'); ?>">
+					<img id="dj-avatar" src="<?php echo esc_url($dj_image); ?>" alt="<?php echo esc_attr($dj_name); ?>">
 				</figure>
 			</section>
 
 			<!-- PLAYER -->
 			<section class="dj-player-block" id="djPlayerBlock">
 				<div>
-					<div class="dj-player-title" data-tooltip="<?php echo esc_attr__( 'Set em destaque para bookers', 'apollo-events-manager' ); ?>">Feature set para escuta</div>
-					<div class="dj-player-sub" id="track-title" data-tooltip="<?php echo empty( $dj_track_title ) ? esc_attr__( 'Adicione título da track no admin', 'apollo-events-manager' ) : ''; ?>">
-						<?php echo esc_html( $dj_track_title ?: 'Featured Set' ); ?>
+					<div class="dj-player-title" data-tooltip="<?php echo esc_attr__('Set em destaque para bookers', 'apollo-events-manager'); ?>">Feature set para escuta</div>
+					<div class="dj-player-sub" id="track-title" data-tooltip="<?php echo empty($dj_track_title) ? esc_attr__('Adicione título da track no admin', 'apollo-events-manager') : ''; ?>">
+						<?php echo esc_html($dj_track_title ?: 'Featured Set'); ?>
 					</div>
 				</div>
 
 				<main class="vinyl-zone">
-					<div class="vinyl-player is-paused" id="vinylPlayer" role="button" aria-label="Play / Pause set" data-tooltip="<?php echo esc_attr__( 'Clique para tocar/pausar', 'apollo-events-manager' ); ?>">
+					<div class="vinyl-player is-paused" id="vinylPlayer" role="button" aria-label="Play / Pause set" data-tooltip="<?php echo esc_attr__('Clique para tocar/pausar', 'apollo-events-manager'); ?>">
 						<div class="vinyl-shadow"></div>
 
 						<div class="vinyl-disc">
@@ -369,8 +371,8 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 							<div class="vinyl-rings"></div>
 
 							<div class="vinyl-label">
-								<div class="vinyl-label-text" id="vinylLabelText" data-tooltip="<?php echo esc_attr__( 'Nome do DJ no vinil', 'apollo-events-manager' ); ?>">
-									<?php echo implode( '<br>', explode( ' ', esc_html( strtoupper( $dj_name ) ) ) ); ?>
+								<div class="vinyl-label-text" id="vinylLabelText" data-tooltip="<?php echo esc_attr__('Nome do DJ no vinil', 'apollo-events-manager'); ?>">
+									<?php echo implode('<br>', explode(' ', esc_html(strtoupper($dj_name)))); ?>
 								</div>
 							</div>
 
@@ -385,18 +387,18 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 					</div>
 				</main>
 
-				<p class="now-playing" data-tooltip="<?php echo esc_attr__( 'Plataforma de streaming do set', 'apollo-events-manager' ); ?>">
+				<p class="now-playing" data-tooltip="<?php echo esc_attr__('Plataforma de streaming do set', 'apollo-events-manager'); ?>">
 					Set de referência em destaque no <strong>SoundCloud</strong>.
 				</p>
 
-				<iframe id="scPlayer" scrolling="no" frameborder="no" allow="autoplay" src="" style="display:none;" data-tooltip="<?php echo esc_attr__( 'Player SoundCloud embutido', 'apollo-events-manager' ); ?>"></iframe>
+				<iframe id="scPlayer" scrolling="no" frameborder="no" allow="autoplay" src="" style="display:none;" data-tooltip="<?php echo esc_attr__('Player SoundCloud embutido', 'apollo-events-manager'); ?>"></iframe>
 
 				<div class="player-cta-row">
-					<button class="btn-player-main" id="vinylToggle" type="button" data-tooltip="<?php echo esc_attr__( 'Controle de reprodução do set', 'apollo-events-manager' ); ?>">
+					<button class="btn-player-main" id="vinylToggle" type="button" data-tooltip="<?php echo esc_attr__('Controle de reprodução do set', 'apollo-events-manager'); ?>">
 						<i class="ri-play-fill" id="vinylIcon"></i>
 						<span>Play / Pause set</span>
 					</button>
-					<p class="player-note" data-tooltip="<?php echo esc_attr__( 'Informações para bookers', 'apollo-events-manager' ); ?>">
+					<p class="player-note" data-tooltip="<?php echo esc_attr__('Informações para bookers', 'apollo-events-manager'); ?>">
 						Contato e condições completas no media kit e rider técnico.
 					</p>
 				</div>
@@ -405,16 +407,16 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 			<!-- INFO GRID -->
 			<section class="dj-info-grid">
 				<div class="dj-info-block">
-					<h2 data-tooltip="<?php echo esc_attr__( 'Biografia do artista', 'apollo-events-manager' ); ?>">Sobre</h2>
-					<div class="dj-bio-excerpt" id="dj-bio-excerpt" data-tooltip="<?php echo empty( $dj_bio_excerpt ) ? esc_attr__( 'Adicione biografia no admin', 'apollo-events-manager' ) : ''; ?>">
-						<?php if ( ! empty( $dj_bio_excerpt ) ) : ?>
-							<?php echo esc_html( $dj_bio_excerpt ); ?>
+					<h2 data-tooltip="<?php echo esc_attr__('Biografia do artista', 'apollo-events-manager'); ?>">Sobre</h2>
+					<div class="dj-bio-excerpt" id="dj-bio-excerpt" data-tooltip="<?php echo empty($dj_bio_excerpt) ? esc_attr__('Adicione biografia no admin', 'apollo-events-manager') : ''; ?>">
+						<?php if (! empty($dj_bio_excerpt)) : ?>
+							<?php echo esc_html($dj_bio_excerpt); ?>
 						<?php else : ?>
 							<span class="dj-placeholder">Biografia não cadastrada. Adicione no painel de administração.</span>
 						<?php endif; ?>
 					</div>
-					<?php if ( ! empty( $dj_bio ) ) : ?>
-					<button type="button" class="dj-bio-toggle" id="bioToggle" data-tooltip="<?php echo esc_attr__( 'Ver biografia completa', 'apollo-events-manager' ); ?>">
+					<?php if (! empty($dj_bio)) : ?>
+					<button type="button" class="dj-bio-toggle" id="bioToggle" data-tooltip="<?php echo esc_attr__('Ver biografia completa', 'apollo-events-manager'); ?>">
 						<span>ler bio completa</span>
 						<i class="ri-arrow-right-up-line"></i>
 					</button>
@@ -422,19 +424,19 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 				</div>
 
 				<div class="dj-info-block">
-					<h2 data-tooltip="<?php echo esc_attr__( 'Links de redes e plataformas', 'apollo-events-manager' ); ?>">Links principais</h2>
+					<h2 data-tooltip="<?php echo esc_attr__('Links de redes e plataformas', 'apollo-events-manager'); ?>">Links principais</h2>
 
 					<div>
-						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__( 'Plataformas de música', 'apollo-events-manager' ); ?>">Música</div>
-						<div class="dj-links-row" id="music-links" data-tooltip="<?php echo empty( $music_links ) ? esc_attr__( 'Adicione links de SoundCloud, Spotify, etc', 'apollo-events-manager' ) : ''; ?>">
-							<?php if ( ! empty( $music_links ) ) : ?>
-								<?php foreach ( $music_links as $link ) : ?>
-								<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill <?php echo $link['active'] ? 'active' : ''; ?>" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr( $link['label'] ); ?>">
-									<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__('Plataformas de música', 'apollo-events-manager'); ?>">Música</div>
+						<div class="dj-links-row" id="music-links" data-tooltip="<?php echo empty($music_links) ? esc_attr__('Adicione links de SoundCloud, Spotify, etc', 'apollo-events-manager') : ''; ?>">
+							<?php if (! empty($music_links)) : ?>
+								<?php foreach ($music_links as $link) : ?>
+								<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill <?php echo $link['active'] ? 'active' : ''; ?>" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr($link['label']); ?>">
+									<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 								</a>
 								<?php endforeach; ?>
 							<?php else : ?>
-								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__( 'Nenhum link de música cadastrado', 'apollo-events-manager' ); ?>">
+								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__('Nenhum link de música cadastrado', 'apollo-events-manager'); ?>">
 									<i class="ri-music-2-line"></i> Adicionar links
 								</span>
 							<?php endif; ?>
@@ -442,16 +444,16 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 					</div>
 
 					<div>
-						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__( 'Redes sociais', 'apollo-events-manager' ); ?>">Social</div>
-						<div class="dj-links-row" id="social-links" data-tooltip="<?php echo empty( $social_links ) ? esc_attr__( 'Adicione Instagram, Twitter, etc', 'apollo-events-manager' ) : ''; ?>">
-							<?php if ( ! empty( $social_links ) ) : ?>
-								<?php foreach ( $social_links as $link ) : ?>
-								<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr( $link['label'] ); ?>">
-									<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__('Redes sociais', 'apollo-events-manager'); ?>">Social</div>
+						<div class="dj-links-row" id="social-links" data-tooltip="<?php echo empty($social_links) ? esc_attr__('Adicione Instagram, Twitter, etc', 'apollo-events-manager') : ''; ?>">
+							<?php if (! empty($social_links)) : ?>
+								<?php foreach ($social_links as $link) : ?>
+								<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr($link['label']); ?>">
+									<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 								</a>
 								<?php endforeach; ?>
 							<?php else : ?>
-								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__( 'Nenhuma rede social cadastrada', 'apollo-events-manager' ); ?>">
+								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__('Nenhuma rede social cadastrada', 'apollo-events-manager'); ?>">
 									<i class="ri-user-add-line"></i> Adicionar redes
 								</span>
 							<?php endif; ?>
@@ -459,25 +461,25 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 					</div>
 
 					<div>
-						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__( 'Arquivos para download', 'apollo-events-manager' ); ?>">Assets</div>
-						<div class="dj-links-row" id="asset-links" data-tooltip="<?php echo empty( $asset_links ) ? esc_attr__( 'Adicione media kit, rider, EPK', 'apollo-events-manager' ) : ''; ?>">
-							<?php if ( ! empty( $asset_links ) ) : ?>
-								<?php foreach ( $asset_links as $link ) : ?>
-								<a href="<?php echo esc_url( $link['url'] ); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr__( 'Baixar', 'apollo-events-manager' ) . ' ' . esc_attr( $link['label'] ); ?>">
-									<i class="<?php echo esc_attr( $link['icon'] ); ?>"></i> <?php echo esc_html( $link['label'] ); ?>
+						<div class="dj-links-label" data-tooltip="<?php echo esc_attr__('Arquivos para download', 'apollo-events-manager'); ?>">Assets</div>
+						<div class="dj-links-row" id="asset-links" data-tooltip="<?php echo empty($asset_links) ? esc_attr__('Adicione media kit, rider, EPK', 'apollo-events-manager') : ''; ?>">
+							<?php if (! empty($asset_links)) : ?>
+								<?php foreach ($asset_links as $link) : ?>
+								<a href="<?php echo esc_url($link['url']); ?>" class="dj-link-pill" target="_blank" rel="noopener noreferrer" data-tooltip="<?php echo esc_attr__('Baixar', 'apollo-events-manager') . ' ' . esc_attr($link['label']); ?>">
+									<i class="<?php echo esc_attr($link['icon']); ?>"></i> <?php echo esc_html($link['label']); ?>
 								</a>
 								<?php endforeach; ?>
 							<?php else : ?>
-								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__( 'Nenhum arquivo para download', 'apollo-events-manager' ); ?>">
+								<span class="dj-placeholder dj-link-pill" data-tooltip="<?php echo esc_attr__('Nenhum arquivo para download', 'apollo-events-manager'); ?>">
 									<i class="ri-file-add-line"></i> Adicionar arquivos
 								</span>
 							<?php endif; ?>
 						</div>
 					</div>
 
-					<?php if ( $dj_more_platforms ) : ?>
-					<p class="more-platforms" id="more-platforms" data-tooltip="<?php echo esc_attr__( 'Outras plataformas onde encontrar o artista', 'apollo-events-manager' ); ?>">
-						<span>More platforms:</span> <?php echo esc_html( $dj_more_platforms ); ?>
+					<?php if ($dj_more_platforms) : ?>
+					<p class="more-platforms" id="more-platforms" data-tooltip="<?php echo esc_attr__('Outras plataformas onde encontrar o artista', 'apollo-events-manager'); ?>">
+						<span>More platforms:</span> <?php echo esc_html($dj_more_platforms); ?>
 					</p>
 					<?php endif; ?>
 				</div>
@@ -485,8 +487,8 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 
 			<!-- FOOTER -->
 			<footer class="dj-footer">
-				<span data-tooltip="<?php echo esc_attr__( 'Sistema Apollo Roster', 'apollo-events-manager' ); ?>">Apollo::rio<br>Roster preview</span>
-				<span data-tooltip="<?php echo esc_attr__( 'Público-alvo desta página', 'apollo-events-manager' ); ?>">Para bookers,<br>selos e clubes</span>
+				<span data-tooltip="<?php echo esc_attr__('Sistema Apollo Roster', 'apollo-events-manager'); ?>">Apollo::rio<br>Roster preview</span>
+				<span data-tooltip="<?php echo esc_attr__('Público-alvo desta página', 'apollo-events-manager'); ?>">Para bookers,<br>selos e clubes</span>
 			</footer>
 
 		</div>
@@ -494,19 +496,19 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 </section>
 
 <!-- BIO MODAL -->
-<div class="dj-bio-modal-backdrop" id="bioBackdrop" data-open="false" data-tooltip="<?php echo esc_attr__( 'Modal de biografia completa', 'apollo-events-manager' ); ?>">
+<div class="dj-bio-modal-backdrop" id="bioBackdrop" data-open="false" data-tooltip="<?php echo esc_attr__('Modal de biografia completa', 'apollo-events-manager'); ?>">
 	<div class="dj-bio-modal">
 		<div class="dj-bio-modal-header">
-			<h3 id="dj-bio-modal-title" data-tooltip="<?php echo esc_attr__( 'Título do modal', 'apollo-events-manager' ); ?>">Bio completa · <?php echo esc_html( $dj_name ); ?></h3>
-			<button type="button" class="dj-bio-modal-close" id="bioClose" data-tooltip="<?php echo esc_attr__( 'Fechar modal', 'apollo-events-manager' ); ?>">
+			<h3 id="dj-bio-modal-title" data-tooltip="<?php echo esc_attr__('Título do modal', 'apollo-events-manager'); ?>">Bio completa · <?php echo esc_html($dj_name); ?></h3>
+			<button type="button" class="dj-bio-modal-close" id="bioClose" data-tooltip="<?php echo esc_attr__('Fechar modal', 'apollo-events-manager'); ?>">
 				<i class="ri-close-line"></i>
 			</button>
 		</div>
-		<div class="dj-bio-modal-body" id="bio-full" data-tooltip="<?php echo esc_attr__( 'Conteúdo completo da biografia', 'apollo-events-manager' ); ?>">
-			<?php if ( ! empty( $dj_bio ) ) : ?>
-				<?php echo wp_kses_post( wpautop( $dj_bio ) ); ?>
+		<div class="dj-bio-modal-body" id="bio-full" data-tooltip="<?php echo esc_attr__('Conteúdo completo da biografia', 'apollo-events-manager'); ?>">
+			<?php if (! empty($dj_bio)) : ?>
+				<?php echo wp_kses_post(wpautop($dj_bio)); ?>
 			<?php else : ?>
-				<p class="dj-placeholder"><?php echo esc_html__( 'Biografia completa não cadastrada. Adicione no painel de administração.', 'apollo-events-manager' ); ?></p>
+				<p class="dj-placeholder"><?php echo esc_html__('Biografia completa não cadastrada. Adicione no painel de administração.', 'apollo-events-manager'); ?></p>
 			<?php endif; ?>
 		</div>
 	</div>
@@ -514,7 +516,7 @@ if ( ! did_action( 'wp_enqueue_scripts' ) ) {
 
 <!-- DJ DATA for JavaScript -->
 <script>
-const DJ_DATA = <?php echo wp_json_encode( $dj_data_js ); ?>;
+const DJ_DATA = <?php echo wp_json_encode($dj_data_js); ?>;
 </script>
 
 <!-- DJ TEMPLATE JAVASCRIPT -->

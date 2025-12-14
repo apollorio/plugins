@@ -565,7 +565,8 @@ function apollo_admin_cabin_render_moderators(): void {
 				<?php foreach ( $level_labels as $level => $label ) : ?>
 					<?php
 					if ( $level < 0 ) {
-						continue;}
+						continue;
+					}
 					?>
 					<div class="level-card level-<?php echo esc_attr( $level ); ?>">
 						<h4><?php echo esc_html( $label ); ?></h4>

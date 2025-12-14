@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Audit Log class
  */
 class Apollo_Moderation_Audit_Log {
+
 	/**
 	 * Initialize
 	 */
@@ -84,7 +86,7 @@ class Apollo_Moderation_Audit_Log {
 		global $wpdb;
 		$table = $wpdb->prefix . 'apollo_mod_log';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM $table
@@ -116,7 +118,7 @@ class Apollo_Moderation_Audit_Log {
 		global $wpdb;
 		$table = $wpdb->prefix . 'apollo_mod_log';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM $table
@@ -146,7 +148,7 @@ class Apollo_Moderation_Audit_Log {
 		global $wpdb;
 		$table = $wpdb->prefix . 'apollo_mod_log';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM $table

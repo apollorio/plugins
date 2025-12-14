@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -358,18 +359,21 @@ function apollo_validate_field_value( $value, $field_schema ) {
 			if ( ! is_email( $value ) ) {
 				return new WP_Error( 'invalid_email', __( 'Invalid email address.', 'apollo-core' ) );
 			}
+
 			break;
 
 		case 'number':
 			if ( ! is_numeric( $value ) ) {
 				return new WP_Error( 'invalid_number', __( 'Must be a number.', 'apollo-core' ) );
 			}
+
 			break;
 
 		case 'instagram':
 			if ( ! preg_match( '/^[A-Za-z0-9_]{1,30}$/', $value ) ) {
 				return new WP_Error( 'invalid_instagram', __( 'Invalid Instagram username. Only letters, numbers, and underscores allowed (max 30 characters).', 'apollo-core' ) );
 			}
+
 			break;
 	}
 

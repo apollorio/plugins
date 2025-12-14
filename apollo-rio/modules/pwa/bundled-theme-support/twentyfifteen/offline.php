@@ -8,18 +8,18 @@
  */
 
 // Prevent showing nav menus.
-add_filter( 'has_nav_menu', '__return_false' );
-add_filter( 'pre_wp_nav_menu', '__return_empty_string' );
+add_filter('has_nav_menu', '__return_false');
+add_filter('pre_wp_nav_menu', '__return_empty_string');
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		wp_add_inline_style( 'twentyfifteen-style', '.secondary-toggle { display: none; }' );
-	},
-	20
+    'wp_enqueue_scripts',
+    function () {
+        wp_add_inline_style('twentyfifteen-style', '.secondary-toggle { display: none; }');
+    },
+    20
 );
 
 // Prevent showing widgets.
-add_filter( 'sidebars_widgets', '__return_empty_array' );
+add_filter('sidebars_widgets', '__return_empty_array');
 
 get_header(); ?>
 
@@ -28,15 +28,15 @@ get_header(); ?>
 
 		<section class="error-404 not-found">
 			<header class="page-header">
-				<h1 class="page-title"><?php esc_html_e( 'Offline', 'pwa' ); ?></h1>
+				<h1 class="page-title"><?php esc_html_e('Offline', 'pwa'); ?></h1>
 			</header><!-- .page-header -->
 
 			<div class="page-content">
 				<?php
-				if ( function_exists( 'wp_service_worker_error_message_placeholder' ) ) {
-					wp_service_worker_error_message_placeholder();
-				}
-				?>
+                if (function_exists('wp_service_worker_error_message_placeholder')) {
+                    wp_service_worker_error_message_placeholder();
+                }
+?>
 			</div><!-- .page-content -->
 		</section><!-- .error-404 -->
 

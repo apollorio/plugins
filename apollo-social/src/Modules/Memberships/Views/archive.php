@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Memberships archive view (stub)
  *

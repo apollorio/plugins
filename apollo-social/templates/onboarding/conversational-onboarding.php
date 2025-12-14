@@ -9,41 +9,41 @@
  * @version 2.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Base JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
+        // Base JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
 
-		// Onboarding-specific inline styles.
-		$onboarding_css = '
+        // Onboarding-specific inline styles.
+        $onboarding_css = '
 			.ap-onboarding-page {
 				min-height: 100vh;
 				display: flex;
@@ -69,17 +69,17 @@ add_action(
 				padding: 20px;
 			}
 		';
-		wp_add_inline_style( 'apollo-uni-css', $onboarding_css );
-	},
-	10
+        wp_add_inline_style('apollo-uni-css', $onboarding_css);
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 
-$nonce = wp_create_nonce( 'apollo_onboarding' );
+$nonce = wp_create_nonce('apollo_onboarding');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full">
@@ -720,7 +720,7 @@ $nonce = wp_create_nonce( 'apollo_onboarding' );
 				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 				body: new URLSearchParams({
 					action: action,
-					nonce: '<?php echo esc_js( $nonce ); ?>',
+					nonce: '<?php echo esc_js($nonce); ?>',
 					...data
 				})
 			});

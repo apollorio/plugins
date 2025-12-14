@@ -196,6 +196,7 @@ class DJContactsTable {
 	public function renderShortcode( $atts ): string {
 		ob_start();
 		$this->renderTable( $atts );
+
 		return ob_get_clean();
 	}
 
@@ -209,6 +210,7 @@ class DJContactsTable {
 		if ( $score >= 4 ) {
 			return 'warning';
 		}
+
 		return 'danger';
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -26,6 +27,7 @@ require_once APOLLO_MODERATION_MODULE_DIR . 'includes/class-wp-cli.php';
  * Moderation Module class
  */
 class Apollo_Moderation_Module {
+
 	/**
 	 * Initialize module
 	 */

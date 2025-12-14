@@ -1,0 +1,804 @@
+/**
+ * Apollo Plano Editor Styles
+ * 
+ * Extracted from HTML standalone editor
+ * NO TAILWIND - Uses Apollo design system (ap-*, ario-*)
+ * 
+ * @package Apollo_Social
+ */
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+.ap-plano-editor * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ap-plano-editor body {
+  user-select: none;
+}
+
+.ap-plano-editor.body-text-editing-mode,
+.ap-plano-editor.body-text-editing-mode * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+.ap-plano-editor html,
+.ap-plano-editor body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh; /* Dynamic viewport height for mobile Safari */
+  min-height: -webkit-fill-available;
+  font: 400 15px/1.25 system-ui, sans-serif;
+  color: rgba(19, 21, 23, 0.65);
+  overflow: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  position: relative;
+  background: #f5f9f7;
+  /* iOS Safe Area support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.ap-plano-editor i {
+  font-size: 21px;
+  color: #121212;
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* ============================================
+   TOP MENU
+   ============================================ */
+.ap-plano-top-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 998;
+}
+
+.ap-plano-top-menu-blur {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  background: linear-gradient(
+    to bottom,
+    rgba(253, 253, 253, 0.35) 0%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(to bottom, #000 0%, transparent 100%);
+  mask: linear-gradient(to bottom, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.ap-plano-logo,
+#ap-plano-logo,
+#ap-plano-bal-dropper {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  height: 23px;
+  width: auto;
+  opacity: 0.8;
+  cursor: grab;
+  z-index: 1;
+}
+
+.ap-plano-menu-container {
+  position: absolute;
+  top: 18px;
+  right: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  z-index: 1;
+}
+
+.ap-plano-menu-container i {
+  font-size: 1.45rem;
+  color: rgba(19, 21, 23, 0.65);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.ap-plano-menu-container i:hover {
+  color: rgba(19, 21, 23, 0.9);
+}
+
+/* ============================================
+   COLOR PICKERS
+   ============================================ */
+.ap-plano-color-picker-container,
+#ap-plano-elem-color-input {
+  position: relative;
+  height: 26px;
+  width: 26px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  display: inline-block;
+  background: #eaddd0;
+}
+
+.ap-plano-color-picker-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ============================================
+   CANVAS WRAPPER
+   ============================================ */
+#ap-plano-canvas-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 53%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 320px;
+  aspect-ratio: 9/16;
+  border-radius: 35px;
+  box-shadow: 0 20px 150px rgba(33, 33, 33, 0.07);
+  overflow: hidden;
+  z-index: 10;
+  transition: all 0.35s ease;
+}
+
+#ap-plano-canvas-wrapper.ratio-square {
+  aspect-ratio: 1/1;
+  max-width: 400px;
+}
+
+#ap-plano-canvas-wrapper canvas {
+  border-radius: 20px;
+}
+
+#ap-plano-download-btn {
+  margin-right: 2px;
+  cursor: pointer;
+  z-index: 10000;
+}
+
+/* ============================================
+   SIDE MENU & PANELS
+   ============================================ */
+.ap-plano-side-menu {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 20px;
+  width: 48px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 25px;
+  corner-shape: squircle;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  z-index: 200;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.ap-plano-side-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #333;
+  transition: 0.2s;
+}
+
+.ap-plano-side-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.ap-plano-side-btn:active {
+  transform: scale(0.92);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.ap-plano-slide-panel {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 73px;
+  width: 0;
+  opacity: 0;
+  background: white;
+  border-radius: 15px;
+  corner-shape: squircle;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 190;
+}
+
+.ap-plano-slide-panel.active {
+  width: 200px;
+  opacity: 1;
+}
+
+.ap-plano-panel-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-plano-panel-btn {
+  padding: 12px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 10px;
+  corner-shape: squircle;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s;
+  font-size: 14px;
+  color: #333;
+}
+
+.ap-plano-panel-btn:hover {
+  background: rgba(233, 233, 233, 0.8);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+/* ============================================
+   ELEMENT CONTROLS
+   ============================================ */
+.ap-plano-element-controls {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: none;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 180;
+  transition: all 0.25s ease;
+  opacity: 0;
+  pointer-events: none;
+  max-width: calc(100vw - 40px);
+  overflow: hidden;
+}
+
+.ap-plano-element-controls.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ap-plano-control-group {
+  display: flex;
+  gap: 8px;
+}
+
+.ap-plano-font-control,
+.ap-plano-box-control {
+  display: none;
+}
+
+.ap-plano-element-controls.text-active .ap-plano-font-control {
+  display: flex;
+}
+
+.ap-plano-element-controls.text-active .ap-plano-box-control {
+  display: none !important;
+}
+
+.ap-plano-element-controls.box-active .ap-plano-box-control {
+  display: flex;
+}
+
+.ap-plano-element-controls.box-active .ap-plano-font-control {
+  display: none !important;
+}
+
+.ap-plano-element-controls.image-active .ap-plano-box-control {
+  display: flex;
+}
+
+.ap-plano-element-controls.image-active .ap-plano-font-control {
+  display: none !important;
+}
+
+.ap-plano-color-picker-circle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ap-plano-color-picker-circle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* ============================================
+   CONTROL POPUPS
+   ============================================ */
+.ap-plano-control-popup {
+  position: fixed;
+  background: rgba(255, 255, 255, 0);
+  z-index: 300;
+  display: none;
+  left: 73px;
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+}
+
+.ap-plano-control-popup.active {
+  display: block;
+  transform: translateY(-44px) translateX(-159px) !important;
+}
+
+.ap-plano-control-popup.active label {
+  font-size: 12px;
+  margin: 0 0 -5px 0;
+  padding: 0 3px;
+}
+
+.ap-plano-control-popup input[type="range"] {
+  width: 140px;
+}
+
+.ap-plano-control-popup select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+  font-size: 14px;
+  color: #333;
+}
+
+/* ============================================
+   MODALS
+   ============================================ */
+.ap-plano-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.ap-plano-modal.hidden {
+  display: none;
+}
+
+.ap-plano-modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  width: 88vw;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow: auto;
+  position: relative;
+}
+
+.ap-plano-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ap-plano-modal-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   GRID ITEMS
+   ============================================ */
+.ap-plano-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ap-plano-grid-item {
+  aspect-ratio: 9/16;
+  border-radius: 10px;
+  corner-shape: squircle;
+  cursor: default;
+  color: #333;
+  opacity: 0.5;
+  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.ap-plano-grid-item:hover {
+  transform: scale(1.02);
+}
+
+.ap-plano-template-preview {
+  font-size: 8px;
+  color: rgba(51, 51, 51, 0.8);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.ap-plano-preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* ============================================
+   UNDO/REDO
+   ============================================ */
+.ap-plano-undo-redo-group {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.ap-plano-undo-redo-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.ap-plano-undo-redo-btn:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.ap-plano-undo-redo-btn:active {
+  transform: scale(0.92);
+}
+
+.ap-plano-undo-redo-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ap-plano-undo-redo-btn i {
+  font-size: 16px;
+  color: #333;
+}
+
+/* ============================================
+   BEACH TOGGLE (Transparent BG)
+   ============================================ */
+.ap-plano-beach-toggle {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 26px;
+  height: 26px;
+  border-radius: 1.125rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 2s ease;
+  background-color: #fff;
+  background-image: linear-gradient(
+      45deg,
+      #d4d4d8 25%,
+      transparent 25%,
+      transparent 75%,
+      #d4d4d8 75%,
+      #d4d4d8
+    ),
+    linear-gradient(
+      45deg,
+      #d4d4d8 25%,
+      transparent 25%,
+      transparent 75%,
+      #d4d4d8 75%,
+      #d4d4d8
+    );
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+}
+
+.ap-plano-beach-toggle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  box-shadow: 0 0.1rem 5px rgba(0, 0, 0, 0.15);
+  outline: 2px solid #fff;
+  z-index: 3;
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.ap-plano-beach-toggle__water {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(85deg, #78d6c6, #419197, #12486b);
+  background-size: 200% 100%;
+  z-index: 1;
+  opacity: 1;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  clip-path: inset(0 0 0 0);
+  animation: ap-plano-beach-waves 4.5s infinite ease-in-out;
+}
+
+.ap-plano-beach-toggle__water::before,
+.ap-plano-beach-toggle__water::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(120, 214, 198, 0.3);
+  opacity: 0.6;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  transform: translateX(0);
+}
+
+.ap-plano-beach-toggle__water::before {
+  animation: ap-plano-beach-waves-2 5s infinite ease-in-out;
+}
+
+.ap-plano-beach-toggle__water::after {
+  animation: ap-plano-beach-waves-3 4s infinite ease-in-out;
+}
+
+@keyframes ap-plano-beach-waves {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes ap-plano-beach-waves-2 {
+  0%,
+  100% {
+    left: 0;
+    filter: brightness(1.5) saturate(1.5);
+    clip-path: path("M 45 0 C 27 0 36 18 18 36 C 72 36 72 0 72 0");
+  }
+  50% {
+    left: 20%;
+    filter: brightness(0.6) saturate(1) contrast(0.8);
+    clip-path: path("M 22.5 0 C 27 0 36 18 27 36 C 49.5 36 54 0 72 0");
+  }
+}
+
+@keyframes ap-plano-beach-waves-3 {
+  0%,
+  100% {
+    left: 20%;
+    clip-path: path("M 54 0 C 45 0 54 18 40.5 36 C 27 36 72 4.5 0 0");
+  }
+  50% {
+    left: 0;
+    filter: brightness(1.5) saturate(1.5);
+    clip-path: path("M 54 0 C 67.5 0 72 18 40.5 36 C 4.5 36 49.5 4.5 0 0");
+  }
+}
+
+.ap-plano-beach-toggle--active .ap-plano-beach-toggle__water {
+  transform: translateX(110%);
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+.ap-plano-beach-toggle--active .ap-plano-beach-toggle__water::before {
+  transform: translateX(110%);
+  opacity: 0;
+  transition-delay: 0.5s;
+}
+
+.ap-plano-beach-toggle--active .ap-plano-beach-toggle__water::after {
+  transform: translateX(110%);
+  opacity: 0;
+  transition-delay: 1s;
+}
+
+/* ============================================
+   TEXT TYPE SELECTOR
+   ============================================ */
+.ap-plano-text-type-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ap-plano-text-type-btn {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f5f5f5;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ap-plano-text-type-btn:hover {
+  background: #e0e0e0;
+}
+
+.ap-plano-text-type-btn.active {
+  background: #ff8c00;
+  color: #fff;
+  border-color: #ff8c00;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+@media (max-width: 989px) {
+  .ap-plano-side-menu {
+    position: fixed;
+    top: 50%;
+    left: 3.8px !important;
+    width: 39px !important;
+    padding: 8px 0;
+    gap: 8px;
+  }
+
+  .ap-plano-control-group {
+    display: flex;
+    gap: 2px;
+  }
+
+  .ap-plano-editor i {
+    font-size: 17px;
+  }
+
+  .ap-plano-side-btn {
+    font-size: 15px;
+    width: 36px;
+    height: 36px;
+    touch-action: manipulation;
+  }
+
+  .ap-plano-control-popup.active {
+    display: block;
+    transform: translateY(-44px) translateX(-100px) !important;
+  }
+
+  .ap-plano-element-controls {
+    gap: 4px !important;
+    left: 5px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 5px !important;
+    justify-content: center;
+    flex-wrap: nowrap;
+    padding: 6px 10px !important;
+    overflow: hidden !important;
+  }
+
+  .ap-plano-color-picker-circle {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    aspect-ratio: 1/1 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .ap-plano-slide-panel {
+    left: 53px !important;
+  }
+
+  #ap-plano-layer-up-btn {
+    position: absolute;
+    transform: translateY(-50%);
+    left: 48px;
+    top: 22%;
+  }
+
+  #ap-plano-layer-down-btn {
+    position: absolute;
+    transform: translateY(-50%);
+    left: 48px;
+    top: 80%;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  #ap-plano-elem-font-btn {
+    margin-left: 33px !important;
+  }
+
+  .ap-plano-logo,
+  #ap-plano-logo,
+  #ap-plano-bal-dropper {
+    position: absolute;
+    top: calc(3px + env(safe-area-inset-top, 0px)) !important;
+    left: 19px;
+  }
+
+  .ap-plano-menu-container {
+    position: absolute;
+    top: calc(3px + env(safe-area-inset-top, 0px)) !important;
+    right: 17px;
+  }
+
+  #ap-plano-canvas-wrapper {
+    top: calc(
+      50% + env(safe-area-inset-top, 0px) / 2 - env(safe-area-inset-bottom, 0px) /
+        2
+    );
+  }
+
+  .ap-plano-modal-content {
+    max-height: calc(80vh - env(safe-area-inset-bottom, 0px));
+  }
+}

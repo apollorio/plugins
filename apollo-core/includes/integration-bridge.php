@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Core Integration Bridge
  *
@@ -298,12 +299,15 @@ if ( ! function_exists( 'apollo_enqueue_global_assets' ) ) {
 		switch ( $scope ) {
 			case 'css':
 				Apollo_Global_Assets::enqueue_css();
+
 				break;
 			case 'js':
 				Apollo_Global_Assets::enqueue_js();
+
 				break;
 			default:
 				Apollo_Global_Assets::enqueue_all();
+
 				break;
 		}
 	}
@@ -319,6 +323,7 @@ if ( ! function_exists( 'apollo_is_using_cdn' ) ) {
 		if ( class_exists( 'Apollo_Global_Assets' ) ) {
 			return Apollo_Global_Assets::is_using_cdn();
 		}
+
 		return true;
 		// Default to CDN
 	}
@@ -630,6 +635,7 @@ if ( ! function_exists( 'apollo_save_user_sounds' ) ) {
 	 */
 	function apollo_save_user_sounds( int $user_id, array $sounds ): bool {
 		$sounds = array_map( 'sanitize_text_field', $sounds );
+
 		return (bool) update_user_meta( $user_id, 'apollo_sounds', $sounds );
 	}
 }
@@ -643,6 +649,7 @@ if ( ! function_exists( 'apollo_get_user_sounds' ) ) {
 	 */
 	function apollo_get_user_sounds( int $user_id ): array {
 		$sounds = get_user_meta( $user_id, 'apollo_sounds', true );
+
 		return is_array( $sounds ) ? $sounds : array();
 	}
 }
@@ -1253,9 +1260,9 @@ add_action(
 				// Create DJ profile for user
 				$dj_id = wp_insert_post(
 					array(
-						'post_type'   => 'event_dj',
-						'post_title'  => $user->display_name,
-						'post_status' => 'draft',
+						'post_type'                                           => 'event_dj',
+						'post_title'                                          => $user->display_name,
+						'post_status'                                         => 'draft',
 						// Draft until user completes profile
 																'post_author' => $user_id,
 					)

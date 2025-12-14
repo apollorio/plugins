@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Onboarding Endpoints.
  *
@@ -213,7 +214,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getOnboardingOptions error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -269,7 +270,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::beginOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -321,7 +322,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::completeOnboardingProcess error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -373,7 +374,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::requestDmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -418,7 +419,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getVerificationStatus error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -467,7 +468,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::confirmVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -517,7 +518,7 @@ class OnboardingEndpoints {
 			return new \WP_REST_Response( $result, $result['success'] ? 200 : 400 );
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::cancelVerification error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -562,7 +563,7 @@ class OnboardingEndpoints {
 			);
 
 		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Production error logging.
 			error_log( 'OnboardingEndpoints::getUserProfile error: ' . $e->getMessage() );
 
 			return new \WP_REST_Response(
@@ -702,6 +703,7 @@ class OnboardingEndpoints {
 			foreach ( $data['roles'] as $role ) {
 				if ( ! in_array( $role, $valid_roles, true ) ) {
 					$errors['roles'] = 'Função inválida detectada';
+
 					break;
 				}
 			}
@@ -713,6 +715,7 @@ class OnboardingEndpoints {
 			foreach ( $data['member_of'] as $membership ) {
 				if ( ! in_array( $membership, $valid_memberships, true ) ) {
 					$errors['member_of'] = 'Membro inválido detectado';
+
 					break;
 				}
 			}
@@ -742,7 +745,7 @@ class OnboardingEndpoints {
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) && ! empty( $_SERVER[ $header ] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- IP address validation.
 				return sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			}
 		}
@@ -780,6 +783,7 @@ class OnboardingEndpoints {
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
+
 					return array_map( 'sanitize_key', $value );
 				},
 				'validate_callback' => function ( $value ) {
@@ -793,6 +797,7 @@ class OnboardingEndpoints {
 					if ( ! is_array( $value ) ) {
 						return array();
 					}
+
 					return array_map( 'sanitize_key', $value );
 				},
 				'validate_callback' => function ( $value ) {

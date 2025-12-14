@@ -16,7 +16,7 @@ class Apollo_Email_Templates_CPT {
 	 *
 	 * @var string
 	 */
-	const POST_TYPE = 'apollo_email_template';
+	public const POST_TYPE = 'apollo_email_template';
 
 	/**
 	 * Initialize
@@ -214,8 +214,7 @@ class Apollo_Email_Templates_CPT {
 			return;
 		}
 
-		if ( ! isset( $_POST['apollo_email_template_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_email_template_nonce'] ) ), 'apollo_email_template_meta' ) ) {
+		if ( ! isset( $_POST['apollo_email_template_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_email_template_nonce'] ) ), 'apollo_email_template_meta' ) ) {
 			return;
 		}
 
@@ -257,6 +256,7 @@ class Apollo_Email_Templates_CPT {
 				$new_columns['flow_default']  = __( 'Default Flow', 'apollo-core' );
 			}
 		}
+
 		return $new_columns;
 	}
 
@@ -272,11 +272,13 @@ class Apollo_Email_Templates_CPT {
 			case 'template_slug':
 				$slug = get_post_meta( $post_id, '_apollo_template_slug', true );
 				echo esc_html( $slug ?: '—' );
+
 				break;
 
 			case 'flow_default':
 				$flow = get_post_meta( $post_id, '_apollo_flow_default', true );
 				echo esc_html( $flow ?: '—' );
+
 				break;
 		}
 	}
@@ -284,4 +286,6 @@ class Apollo_Email_Templates_CPT {
 
 // Initialize.
 Apollo_Email_Templates_CPT::init();
+
+
 

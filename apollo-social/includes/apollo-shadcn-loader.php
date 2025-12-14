@@ -27,6 +27,7 @@ class Apollo_ShadCN_Loader {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -51,6 +52,7 @@ class Apollo_ShadCN_Loader {
 		// Verificar se já foi carregado por outro plugin
 		if ( wp_script_is( 'tailwind-cdn', 'enqueued' ) || wp_script_is( 'tailwind-cdn', 'registered' ) ) {
 			self::$tailwind_loaded = true;
+
 			return;
 		}
 
@@ -140,6 +142,7 @@ class Apollo_ShadCN_Loader {
 		// Verificar se já foi carregado
 		if ( wp_style_is( 'shadcn-ui', 'enqueued' ) || wp_style_is( 'shadcn-ui', 'registered' ) ) {
 			self::$shadcn_loaded = true;
+
 			return;
 		}
 
@@ -257,4 +260,3 @@ function apollo_shadcn_init() {
 	}
 }
 add_action( 'plugins_loaded', 'apollo_shadcn_init', 5 );
-

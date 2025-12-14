@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Loader: só ativa apollo-social se o plugin base (WordPress) estiver ativo.
  *
@@ -31,7 +32,7 @@ if ( file_exists( $main_file ) ) {
 } else {
 	// Log error only when debugging is enabled.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging.
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional debug logging.
 		error_log( 'Apollo Social: Arquivo principal não encontrado: ' . $main_file );
 	}
 

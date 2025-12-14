@@ -1,4 +1,5 @@
 <?php
+
 namespace Apollo\API\Endpoints;
 
 /**
@@ -23,6 +24,7 @@ class WidgetsEndpoints {
 
 		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'apollo_canvas_' . $route ) ) {
 			wp_send_json_error( array( 'message' => 'Nonce inválido' ) );
+
 			return;
 		}
 
@@ -30,12 +32,14 @@ class WidgetsEndpoints {
 
 		if ( ! $page_id ) {
 			wp_send_json_error( array( 'message' => 'ID da página inválido' ) );
+
 			return;
 		}
 
 		// Check permissions
 		if ( ! current_user_can( 'edit_post', $page_id ) ) {
 			wp_send_json_error( array( 'message' => 'Sem permissão para editar' ) );
+
 			return;
 		}
 
@@ -45,6 +49,7 @@ class WidgetsEndpoints {
 
 		if ( ! is_array( $widgets ) ) {
 			wp_send_json_error( array( 'message' => 'Dados de widgets inválidos' ) );
+
 			return;
 		}
 
@@ -73,6 +78,7 @@ class WidgetsEndpoints {
 
 		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'apollo_canvas_' . $route ) ) {
 			wp_send_json_error( array( 'message' => 'Nonce inválido' ) );
+
 			return;
 		}
 
@@ -81,6 +87,7 @@ class WidgetsEndpoints {
 
 		if ( ! $user_id || empty( $content ) ) {
 			wp_send_json_error( array( 'message' => 'Dados inválidos' ) );
+
 			return;
 		}
 
@@ -89,6 +96,7 @@ class WidgetsEndpoints {
 
 		if ( ! $user_page ) {
 			wp_send_json_error( array( 'message' => 'Página do usuário não encontrada' ) );
+
 			return;
 		}
 
@@ -99,12 +107,14 @@ class WidgetsEndpoints {
 		foreach ( $widgets as $widget ) {
 			if ( $widget['type'] === 'depoimentos' ) {
 				$depoimentos_widget = $widget;
+
 				break;
 			}
 		}
 
 		if ( ! $depoimentos_widget || ( $depoimentos_widget['config']['allow_comments'] ?? true ) === false ) {
 			wp_send_json_error( array( 'message' => 'Comentários não permitidos' ) );
+
 			return;
 		}
 
@@ -124,6 +134,7 @@ class WidgetsEndpoints {
 
 		if ( ! $comment_id ) {
 			wp_send_json_error( array( 'message' => 'Erro ao criar depoimento' ) );
+
 			return;
 		}
 
@@ -157,6 +168,7 @@ class WidgetsEndpoints {
 
 		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'apollo_canvas_' . $route ) ) {
 			wp_send_json_error( array( 'message' => 'Nonce inválido' ) );
+
 			return;
 		}
 
@@ -165,12 +177,14 @@ class WidgetsEndpoints {
 
 		if ( ! $page_id || empty( $widget_id ) ) {
 			wp_send_json_error( array( 'message' => 'Dados inválidos' ) );
+
 			return;
 		}
 
 		// Check permissions
 		if ( ! current_user_can( 'edit_post', $page_id ) ) {
 			wp_send_json_error( array( 'message' => 'Sem permissão' ) );
+
 			return;
 		}
 
@@ -179,6 +193,7 @@ class WidgetsEndpoints {
 
 		if ( ! is_array( $widgets ) ) {
 			wp_send_json_error( array( 'message' => 'Widgets não encontrados' ) );
+
 			return;
 		}
 

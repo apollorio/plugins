@@ -9,33 +9,35 @@ use Apollo\Modules\Moderation\Services\ModerationService;
  *
  * Handles mod dashboard and AJAX requests.
  */
-class ModerationController {
+class ModerationController
+{
+    private ModerationService $modService;
 
-	private ModerationService $modService;
+    public function __construct()
+    {
+        $this->modService = new ModerationService();
 
-	public function __construct() {
-		$this->modService = new ModerationService();
+        // Register AJAX handlers
+        \add_action('wp_ajax_apollo_moderate_approve', [ $this, 'handleApprove' ]);
+        \add_action('wp_ajax_apollo_moderate_reject', [ $this, 'handleReject' ]);
+        \add_action('wp_ajax_apollo_mod_queue', [ $this, 'getModerationQueue' ]);
+        \add_action('wp_ajax_apollo_mod_stats', [ $this, 'getModerationStats' ]);
+    }
 
-		// Register AJAX handlers
-		\add_action( 'wp_ajax_apollo_moderate_approve', [ $this, 'handleApprove' ] );
-		\add_action( 'wp_ajax_apollo_moderate_reject', [ $this, 'handleReject' ] );
-		\add_action( 'wp_ajax_apollo_mod_queue', [ $this, 'getModerationQueue' ] );
-		\add_action( 'wp_ajax_apollo_mod_stats', [ $this, 'getModerationStats' ] );
-	}
+    /**
+     * Render mod dashboard
+     */
+    public function renderDashboard(): void
+    {
+        // Check permissions
+        if (! current_user_can('apollo_moderate')) {
+            \wp_die('Acesso negado');
+        }
 
-	/**
-	 * Render mod dashboard
-	 */
-	public function renderDashboard(): void {
-		// Check permissions
-		if ( ! current_user_can( 'apollo_moderate' ) ) {
-			\wp_die( 'Acesso negado' );
-		}
+        $queue = $this->modService->getModerationQueue([ 'status' => 'pending' ]);
+        $stats = $this->modService->getModerationStats();
 
-		$queue = $this->modService->getModerationQueue( [ 'status' => 'pending' ] );
-		$stats = $this->modService->getModerationStats();
-
-		?>
+        ?>
 		<!DOCTYPE html>
 		<html lang="pt-BR">
 		<head>
@@ -358,25 +360,25 @@ class ModerationController {
 				<div class="stats-grid">
 					<div class="stat-card">
 						<h3>Pendentes</h3>
-						<div class="stat-value"><?php echo esc_html( $stats['pending'] ); ?></div>
+						<div class="stat-value"><?php echo esc_html($stats['pending']); ?></div>
 						<div class="stat-label">Aguardando revisão</div>
 					</div>
 					
 					<div class="stat-card">
 						<h3>Aprovados (30d)</h3>
-						<div class="stat-value"><?php echo esc_html( $stats['approved'] ); ?></div>
+						<div class="stat-value"><?php echo esc_html($stats['approved']); ?></div>
 						<div class="stat-label">Itens aprovados</div>
 					</div>
 					
 					<div class="stat-card">
 						<h3>Rejeitados (30d)</h3>
-						<div class="stat-value"><?php echo esc_html( $stats['rejected'] ); ?></div>
+						<div class="stat-value"><?php echo esc_html($stats['rejected']); ?></div>
 						<div class="stat-label">Itens rejeitados</div>
 					</div>
 					
 					<div class="stat-card">
 						<h3>Tempo Médio</h3>
-						<div class="stat-value"><?php echo esc_html( round( $stats['avg_processing_time'], 1 ) ); ?>h</div>
+						<div class="stat-value"><?php echo esc_html(round($stats['avg_processing_time'], 1)); ?>h</div>
 						<div class="stat-label">Para processamento</div>
 					</div>
 				</div>
@@ -404,46 +406,46 @@ class ModerationController {
 					</div>
 
 					<div id="queueContent">
-						<?php if ( empty( $queue ) ) : ?>
+						<?php if (empty($queue)) : ?>
 							<div class="empty-queue">
 								<div class="icon">🎉</div>
 								<h3>Nenhum item pendente!</h3>
 								<p>Todos os itens foram revisados.</p>
 							</div>
 						<?php else : ?>
-							<?php foreach ( $queue as $item ) : ?>
-								<div class="queue-item" data-id="<?php echo esc_attr( $item['id'] ); ?>">
+							<?php foreach ($queue as $item) : ?>
+								<div class="queue-item" data-id="<?php echo esc_attr($item['id']); ?>">
 									<div class="item-header">
 										<div class="item-info">
 											<h4>
-												<?php echo esc_html( $item['entity_data']['name'] ?? $item['entity_data']['title'] ?? 'Item sem título' ); ?>
+												<?php echo esc_html($item['entity_data']['name'] ?? $item['entity_data']['title'] ?? 'Item sem título'); ?>
 											</h4>
 											<div class="item-meta">
-												<span>📁 <?php echo esc_html( ucfirst( $item['entity_type'] ) ); ?></span>
-												<span>👤 <?php echo esc_html( $item['submitter_data']['name'] ?? 'Usuário desconhecido' ); ?></span>
-												<span>📅 <?php echo esc_html( date( 'd/m/Y H:i', strtotime( $item['submitted_at'] ) ) ); ?></span>
+												<span>📁 <?php echo esc_html(ucfirst($item['entity_type'])); ?></span>
+												<span>👤 <?php echo esc_html($item['submitter_data']['name'] ?? 'Usuário desconhecido'); ?></span>
+												<span>📅 <?php echo esc_html(date('d/m/Y H:i', strtotime($item['submitted_at']))); ?></span>
 											</div>
 										</div>
-										<span class="priority-badge priority-<?php echo esc_attr( $item['priority'] ); ?>">
-											<?php echo esc_html( ucfirst( $item['priority'] ) ); ?>
+										<span class="priority-badge priority-<?php echo esc_attr($item['priority']); ?>">
+											<?php echo esc_html(ucfirst($item['priority'])); ?>
 										</span>
 									</div>
 
 									<div class="item-content">
 										<?php
-										$submission_data = json_decode( $item['submission_data'], true );
-										echo esc_html( $submission_data['reason'] ?? 'Sem descrição disponível.' );
-										?>
+                                        $submission_data = json_decode($item['submission_data'], true);
+							    echo esc_html($submission_data['reason'] ?? 'Sem descrição disponível.');
+							    ?>
 									</div>
 
 									<div class="item-actions">
-										<button class="btn btn-details" onclick="viewDetails(<?php echo esc_attr( $item['id'] ); ?>)">
+										<button class="btn btn-details" onclick="viewDetails(<?php echo esc_attr($item['id']); ?>)">
 											👁️ Detalhes
 										</button>
-										<button class="btn btn-approve" onclick="showApprovalModal(<?php echo esc_attr( $item['id'] ); ?>)">
+										<button class="btn btn-approve" onclick="showApprovalModal(<?php echo esc_attr($item['id']); ?>)">
 											✅ Aprovar
 										</button>
-										<button class="btn btn-reject" onclick="showRejectionModal(<?php echo esc_attr( $item['id'] ); ?>)">
+										<button class="btn btn-reject" onclick="showRejectionModal(<?php echo esc_attr($item['id']); ?>)">
 											❌ Rejeitar
 										</button>
 									</div>
@@ -519,7 +521,7 @@ class ModerationController {
 					const notes = document.getElementById('approvalNotes').value;
 					
 					try {
-						const response = await fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+						const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded',
@@ -528,7 +530,7 @@ class ModerationController {
 								action: 'apollo_moderate_approve',
 								mod_id: currentModerationId,
 								notes: notes,
-								nonce: '<?php echo wp_create_nonce( 'apollo_mod' ); ?>'
+								nonce: '<?php echo wp_create_nonce('apollo_mod'); ?>'
 							})
 						});
 						
@@ -557,7 +559,7 @@ class ModerationController {
 					}
 					
 					try {
-						const response = await fetch('<?php echo admin_url( 'admin-ajax.php' ); ?>', {
+						const response = await fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
 							method: 'POST',
 							headers: {
 								'Content-Type': 'application/x-www-form-urlencoded',
@@ -566,7 +568,7 @@ class ModerationController {
 								action: 'apollo_moderate_reject',
 								mod_id: currentModerationId,
 								reason: reason,
-								nonce: '<?php echo wp_create_nonce( 'apollo_mod' ); ?>'
+								nonce: '<?php echo wp_create_nonce('apollo_mod'); ?>'
 							})
 						});
 						
@@ -629,91 +631,95 @@ class ModerationController {
 		</body>
 		</html>
 		<?php
-	}
+    }
 
-	/**
-	 * Handle approval AJAX request
-	 */
-	public function handleApprove(): void {
-		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_mod' ) ) {
-			\wp_die( 'Security check failed' );
-		}
+    /**
+     * Handle approval AJAX request
+     */
+    public function handleApprove(): void
+    {
+        if (! \wp_verify_nonce($_POST['nonce'] ?? '', 'apollo_mod')) {
+            \wp_die('Security check failed');
+        }
 
-		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
-		}
+        if (! \current_user_can('apollo_moderate')) {
+            \wp_send_json_error([ 'error' => 'Permissão negada' ]);
+        }
 
-		$mod_id = intval( $_POST['mod_id'] ?? 0 );
-		$notes         = \sanitize_textarea_field( $_POST['notes'] ?? '' );
+        $mod_id = intval($_POST['mod_id'] ?? 0);
+        $notes  = \sanitize_textarea_field($_POST['notes'] ?? '');
 
-		if ( ! $mod_id ) {
-			\wp_send_json_error( [ 'error' => 'ID de moderação inválido' ] );
-		}
+        if (! $mod_id) {
+            \wp_send_json_error([ 'error' => 'ID de moderação inválido' ]);
+        }
 
-		$result = $this->modService->approve( $mod_id, \get_current_user_id(), $notes );
+        $result = $this->modService->approve($mod_id, \get_current_user_id(), $notes);
 
-		if ( $result['success'] ) {
-			\wp_send_json_success( $result );
-		} else {
-			\wp_send_json_error( $result );
-		}
-	}
+        if ($result['success']) {
+            \wp_send_json_success($result);
+        } else {
+            \wp_send_json_error($result);
+        }
+    }
 
-	/**
-	 * Handle rejection AJAX request
-	 */
-	public function handleReject(): void {
-		if ( ! \wp_verify_nonce( $_POST['nonce'] ?? '', 'apollo_mod' ) ) {
-			\wp_die( 'Security check failed' );
-		}
+    /**
+     * Handle rejection AJAX request
+     */
+    public function handleReject(): void
+    {
+        if (! \wp_verify_nonce($_POST['nonce'] ?? '', 'apollo_mod')) {
+            \wp_die('Security check failed');
+        }
 
-		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
-		}
+        if (! \current_user_can('apollo_moderate')) {
+            \wp_send_json_error([ 'error' => 'Permissão negada' ]);
+        }
 
-		$mod_id = intval( $_POST['mod_id'] ?? 0 );
-		$reason        = \sanitize_textarea_field( $_POST['reason'] ?? '' );
+        $mod_id = intval($_POST['mod_id'] ?? 0);
+        $reason = \sanitize_textarea_field($_POST['reason'] ?? '');
 
-		if ( ! $mod_id || ! $reason ) {
-			\wp_send_json_error( [ 'error' => 'Dados obrigatórios não fornecidos' ] );
-		}
+        if (! $mod_id || ! $reason) {
+            \wp_send_json_error([ 'error' => 'Dados obrigatórios não fornecidos' ]);
+        }
 
-		$result = $this->modService->reject( $mod_id, \get_current_user_id(), $reason );
+        $result = $this->modService->reject($mod_id, \get_current_user_id(), $reason);
 
-		if ( $result['success'] ) {
-			\wp_send_json_success( $result );
-		} else {
-			\wp_send_json_error( $result );
-		}
-	}
+        if ($result['success']) {
+            \wp_send_json_success($result);
+        } else {
+            \wp_send_json_error($result);
+        }
+    }
 
-	/**
-	 * Get mod queue via AJAX
-	 */
-	public function getModerationQueue(): void {
-		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
-		}
+    /**
+     * Get mod queue via AJAX
+     */
+    public function getModerationQueue(): void
+    {
+        if (! \current_user_can('apollo_moderate')) {
+            \wp_send_json_error([ 'error' => 'Permissão negada' ]);
+        }
 
-		$filters = [
-			'status'      => \sanitize_text_field( $_POST['status'] ?? 'pending' ),
-			'entity_type' => \sanitize_text_field( $_POST['entity_type'] ?? '' ),
-			'priority'    => \sanitize_text_field( $_POST['priority'] ?? '' ),
-		];
+        $filters = [
+            'status'      => \sanitize_text_field($_POST['status'] ?? 'pending'),
+            'entity_type' => \sanitize_text_field($_POST['entity_type'] ?? ''),
+            'priority'    => \sanitize_text_field($_POST['priority'] ?? ''),
+        ];
 
-		$queue = $this->modService->getModerationQueue( $filters );
-		\wp_send_json_success( $queue );
-	}
+        $queue = $this->modService->getModerationQueue($filters);
+        \wp_send_json_success($queue);
+    }
 
-	/**
-	 * Get mod stats via AJAX
-	 */
-	public function getModerationStats(): void {
-		if ( ! \current_user_can( 'apollo_moderate' ) ) {
-			\wp_send_json_error( [ 'error' => 'Permissão negada' ] );
-		}
+    /**
+     * Get mod stats via AJAX
+     */
+    public function getModerationStats(): void
+    {
+        if (! \current_user_can('apollo_moderate')) {
+            \wp_send_json_error([ 'error' => 'Permissão negada' ]);
+        }
 
-		$stats = $this->modService->getModerationStats();
-		\wp_send_json_success( $stats );
-	}
+        $stats = $this->modService->getModerationStats();
+        \wp_send_json_success($stats);
+    }
 }

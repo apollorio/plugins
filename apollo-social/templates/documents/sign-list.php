@@ -19,7 +19,7 @@ $signatures_table = $wpdb->prefix . 'apollo_document_signatures';
 
 // Buscar documentos que requerem assinatura
 $documents = $wpdb->get_results(
-	"
+    "
     SELECT
         d.*,
         (SELECT COUNT(*) FROM {$signatures_table} WHERE document_id = d.id AND status = 'signed') as signed_count
@@ -27,7 +27,7 @@ $documents = $wpdb->get_results(
     WHERE d.requires_signatures = 1
     ORDER BY d.created_at DESC
 ",
-	ARRAY_A
+    ARRAY_A
 );
 
 ?>
@@ -429,7 +429,7 @@ $documents = $wpdb->get_results(
 	</div>
 
 	<!-- Grid de documentos -->
-	<?php if ( empty( $documents ) ) : ?>
+	<?php if (empty($documents)) : ?>
 		<div class="empty-state">
 			<div class="empty-state-icon">📭</div>
 			<h3>Nenhum documento ainda</h3>
@@ -438,27 +438,27 @@ $documents = $wpdb->get_results(
 	<?php else : ?>
 		<div class="documents-grid">
 			<?php
-			foreach ( $documents as $doc ) :
-				$completion  = $doc_manager->getCompletionPercentage( $doc['id'] );
-				$is_partial  = $completion > 0 && $completion < 100;
-				$is_complete = $completion >= 100;
+            foreach ($documents as $doc) :
+                $completion  = $doc_manager->getCompletionPercentage($doc['id']);
+                $is_partial  = $completion > 0 && $completion < 100;
+                $is_complete = $completion >= 100;
 
-				// Buscar assinaturas
-				$signatures = $wpdb->get_results(
-					$wpdb->prepare(
-						"SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY signer_party",
-						$doc['id']
-					),
-					ARRAY_A
-				);
-				?>
-			<div class="document-card" data-status="<?php echo esc_attr( $doc['status'] ); ?>">
+                // Buscar assinaturas
+                $signatures = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY signer_party",
+                        $doc['id']
+                    ),
+                    ARRAY_A
+                );
+                ?>
+			<div class="document-card" data-status="<?php echo esc_attr($doc['status']); ?>">
 				<div class="document-header">
-					<span class="document-type type-<?php echo esc_attr( $doc['type'] ); ?>">
-						<?php echo esc_html( 'documento' === $doc['type'] ? '📄 DOC' : '📊 PLAN' ); ?>
+					<span class="document-type type-<?php echo esc_attr($doc['type']); ?>">
+						<?php echo esc_html('documento' === $doc['type'] ? '📄 DOC' : '📊 PLAN'); ?>
 					</span>
-					<h3 class="document-title" title="<?php echo esc_attr( $doc['title'] ); ?>">
-						<?php echo esc_html( $doc['title'] ); ?>
+					<h3 class="document-title" title="<?php echo esc_attr($doc['title']); ?>">
+						<?php echo esc_html($doc['title']); ?>
 					</h3>
 				</div>
 
@@ -467,11 +467,11 @@ $documents = $wpdb->get_results(
 					<div class="progress-section">
 						<div class="progress-label">
 							<span>Progresso</span>
-							<span><?php echo esc_html( number_format( $completion, 0 ) ); ?>%</span>
+							<span><?php echo esc_html(number_format($completion, 0)); ?>%</span>
 						</div>
 						<div class="progress-bar">
 							<div class="progress-fill <?php echo $is_partial ? 'partial' : ''; ?>"
-								style="width: <?php echo esc_attr( $completion ); ?>%;">
+								style="width: <?php echo esc_attr($completion); ?>%;">
 							</div>
 						</div>
 					</div>
@@ -479,39 +479,39 @@ $documents = $wpdb->get_results(
 					<!-- Status das assinaturas -->
 					<div class="signatures-status">
 						<?php
-						$party_a = array_filter( $signatures, fn( $s ) => $s['signer_party'] === 'party_a' )[0] ?? null;
-						$party_b = array_filter( $signatures, fn( $s ) => $s['signer_party'] === 'party_b' )[0] ?? null;
-						?>
+                        $party_a = array_filter($signatures, fn ($s) => $s['signer_party'] === 'party_a')[0] ?? null;
+                $party_b         = array_filter($signatures, fn ($s) => $s['signer_party'] === 'party_b')[0]         ?? null;
+                ?>
 
-						<div class="signature-item <?php echo ( $party_a && $party_a['status'] === 'signed' ) ? 'signed' : 'pending'; ?>" data-ap-tooltip="<?php echo ( $party_a && $party_a['status'] === 'signed' ) ? esc_attr__( 'Assinatura concluída', 'apollo-social' ) : esc_attr__( 'Aguardando assinatura', 'apollo-social' ); ?>">
+						<div class="signature-item <?php echo ($party_a && $party_a['status'] === 'signed') ? 'signed' : 'pending'; ?>" data-ap-tooltip="<?php echo ($party_a && $party_a['status'] === 'signed') ? esc_attr__('Assinatura concluída', 'apollo-social') : esc_attr__('Aguardando assinatura', 'apollo-social'); ?>">
 							<div class="signature-label">Parte A</div>
 							<div class="signature-icon">
-								<?php echo ( $party_a && $party_a['status'] === 'signed' ) ? '✅' : '⏳'; ?>
+								<?php echo ($party_a && $party_a['status'] === 'signed') ? '✅' : '⏳'; ?>
 							</div>
 							<div class="signature-name">
 								<?php
-								if ( $party_a && $party_a['status'] === 'signed' ) {
-									echo esc_html( $party_a['signer_name'] );
-								} else {
-									echo 'Aguardando';
-								}
-								?>
+                        if ($party_a && $party_a['status'] === 'signed') {
+                            echo esc_html($party_a['signer_name']);
+                        } else {
+                            echo 'Aguardando';
+                        }
+                ?>
 							</div>
 						</div>
 
-						<div class="signature-item <?php echo ( $party_b && $party_b['status'] === 'signed' ) ? 'signed' : 'pending'; ?>" data-ap-tooltip="<?php echo ( $party_b && $party_b['status'] === 'signed' ) ? esc_attr__( 'Assinatura concluída', 'apollo-social' ) : esc_attr__( 'Aguardando assinatura', 'apollo-social' ); ?>">
+						<div class="signature-item <?php echo ($party_b && $party_b['status'] === 'signed') ? 'signed' : 'pending'; ?>" data-ap-tooltip="<?php echo ($party_b && $party_b['status'] === 'signed') ? esc_attr__('Assinatura concluída', 'apollo-social') : esc_attr__('Aguardando assinatura', 'apollo-social'); ?>">
 							<div class="signature-label">Parte B</div>
 							<div class="signature-icon">
-								<?php echo ( $party_b && $party_b['status'] === 'signed' ) ? '✅' : '⏳'; ?>
+								<?php echo ($party_b && $party_b['status'] === 'signed') ? '✅' : '⏳'; ?>
 							</div>
 							<div class="signature-name">
 								<?php
-								if ( $party_b && $party_b['status'] === 'signed' ) {
-									echo esc_html( $party_b['signer_name'] );
-								} else {
-									echo 'Aguardando';
-								}
-								?>
+                if ($party_b && $party_b['status'] === 'signed') {
+                    echo esc_html($party_b['signer_name']);
+                } else {
+                    echo 'Aguardando';
+                }
+                ?>
 							</div>
 						</div>
 					</div>
@@ -519,36 +519,36 @@ $documents = $wpdb->get_results(
 					<!-- Status badge -->
 					<div style="margin-bottom: 15px;">
 						<?php
-						$status_labels   = [
-							'ready'     => '🔵 Pronto',
-							'signing'   => '🟡 Em assinatura',
-							'completed' => '🟢 Concluído',
-						];
-						$status_tooltips = [
-							'ready'     => __( 'Documento pronto para assinatura', 'apollo-social' ),
-							'signing'   => __( 'Documento em processo de assinatura', 'apollo-social' ),
-							'completed' => __( 'Todas as assinaturas foram concluídas', 'apollo-social' ),
-						];
-						$status_tooltip  = $status_tooltips[ $doc['status'] ] ?? $doc['status'];
-						?>
-						<span class="status-badge status-<?php echo esc_attr( $doc['status'] ); ?>" data-ap-tooltip="<?php echo esc_attr( $status_tooltip ); ?>">
-							<?php echo esc_html( $status_labels[ $doc['status'] ] ?? $doc['status'] ); ?>
+                        $status_labels = [
+                            'ready'     => '🔵 Pronto',
+                            'signing'   => '🟡 Em assinatura',
+                            'completed' => '🟢 Concluído',
+                        ];
+                $status_tooltips = [
+                    'ready'     => __('Documento pronto para assinatura', 'apollo-social'),
+                    'signing'   => __('Documento em processo de assinatura', 'apollo-social'),
+                    'completed' => __('Todas as assinaturas foram concluídas', 'apollo-social'),
+                ];
+                $status_tooltip = $status_tooltips[ $doc['status'] ] ?? $doc['status'];
+                ?>
+						<span class="status-badge status-<?php echo esc_attr($doc['status']); ?>" data-ap-tooltip="<?php echo esc_attr($status_tooltip); ?>">
+							<?php echo esc_html($status_labels[ $doc['status'] ] ?? $doc['status']); ?>
 						</span>
 					</div>
 
 					<!-- Ações -->
 					<div class="document-actions">
-						<?php if ( $is_complete ) : ?>
-							<a href="<?php echo esc_url( $doc['pdf_path'] ); ?>" class="btn btn-success" download>
+						<?php if ($is_complete) : ?>
+							<a href="<?php echo esc_url($doc['pdf_path']); ?>" class="btn btn-success" download>
 								⬇️ Download
 							</a>
 						<?php else : ?>
-							<a href="/sign/<?php echo esc_attr( $doc['file_id'] ); ?>" class="btn btn-primary">
+							<a href="/sign/<?php echo esc_attr($doc['file_id']); ?>" class="btn btn-primary">
 								✍️ Gerenciar
 							</a>
 						<?php endif; ?>
 
-						<a href="<?php echo esc_url( $doc['pdf_path'] ); ?>" class="btn btn-secondary" target="_blank">
+						<a href="<?php echo esc_url($doc['pdf_path']); ?>" class="btn btn-secondary" target="_blank">
 							👁️ Visualizar
 						</a>
 					</div>

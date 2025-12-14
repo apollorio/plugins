@@ -20,6 +20,7 @@ require_once __DIR__ . '/class-coauthors-settings.php';
  * Admin UI class
  */
 class Apollo_Moderation_Admin_UI {
+
 	/**
 	 * Initialize
 	 */
@@ -123,15 +124,19 @@ class Apollo_Moderation_Admin_UI {
 				switch ( $current_tab ) {
 					case 'settings':
 						self::render_tab_settings();
+
 						break;
 					case 'queue':
 						self::render_tab_queue();
+
 						break;
 					case 'users':
 						self::render_tab_users();
+
 						break;
 					case 'coauthors':
 						Apollo_Coauthors_Settings::render_tab();
+
 						break;
 				}
 				?>
@@ -388,4 +393,3 @@ class Apollo_Moderation_Admin_UI {
 		exit;
 	}
 }
-

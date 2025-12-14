@@ -2,6 +2,7 @@
 /**
  * Collection of dropdown menus (notifications, apps grid, profile menu).
  *
+ * @package ApolloCore
  * @var array $notifications
  * @var array $app_grid
  * @var array $messages
@@ -197,15 +198,15 @@ $profile_links = $profile_links ?? array(
 </div>
 
 <div id="ap-menu-profile" class="ap-dropdown">
-	<?php foreach ( $profile_links as $index => $link ) : ?>
+	<?php foreach ( $profile_links as $index => $profile_link ) : ?>
 		<?php if ( 2 === $index ) : ?>
 			<div class="ap-profile-divider"></div>
 			<div class="ap-darkmode-wrapper">
 				<div class="ap-tdnn"><div class="ap-moon"></div></div>
 			</div>
 		<?php endif; ?>
-		<a href="<?php echo esc_url( $link['href'] ?? '#' ); ?>" class="ap-profile-link <?php echo esc_attr( $link['class'] ?? '' ); ?>">
-			<?php echo esc_html( $link['label'] ?? '' ); ?>
+		<a href="<?php echo esc_url( $profile_link['href'] ?? '#' ); ?>" class="ap-profile-link <?php echo esc_attr( $profile_link['class'] ?? '' ); ?>">
+			<?php echo esc_html( $profile_link['label'] ?? '' ); ?>
 		</a>
 	<?php endforeach; ?>
 </div>

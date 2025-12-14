@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Signature Audit Log.
  *
@@ -31,32 +32,34 @@ namespace Apollo\Modules\Signatures;
 /**
  * Audit Log Manager
  */
-class AuditLog {
+class AuditLog
+{
+    /** @var string Tabela de logs */
+    private string $table_name;
 
-	/** @var string Tabela de logs */
-	private string $table_name;
+    /** @var string Tabela de protocolos */
+    private string $protocol_table;
 
-	/** @var string Tabela de protocolos */
-	private string $protocol_table;
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        global $wpdb;
+        $this->table_name     = $wpdb->prefix . 'apollo_signature_audit';
+        $this->protocol_table = $wpdb->prefix . 'apollo_signature_protocols';
+    }
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		global $wpdb;
-		$this->table_name     = $wpdb->prefix . 'apollo_signature_audit';
-		$this->protocol_table = $wpdb->prefix . 'apollo_signature_protocols';
-	}
+    /**
+     * Create audit tables
+     */
+    public function createTables(): void
+    {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
 
-	/**
-	 * Create audit tables
-	 */
-	public function createTables(): void {
-		global $wpdb;
-		$charset_collate = $wpdb->get_charset_collate();
-
-		// Tabela de logs de auditoria
-		$sql1 = "CREATE TABLE {$this->table_name} (
+        // Tabela de logs de auditoria
+        $sql1 = "CREATE TABLE {$this->table_name} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             document_id bigint(20) unsigned NOT NULL,
             action enum('created','viewed','edited','finalized','signature_requested','signed','verified','rejected','revoked') NOT NULL,
@@ -81,8 +84,8 @@ class AuditLog {
             KEY hash_idx (document_hash)
         ) $charset_collate;";
 
-		// Tabela de protocolos de verificação
-		$sql2 = "CREATE TABLE {$this->protocol_table} (
+        // Tabela de protocolos de verificação
+        $sql2 = "CREATE TABLE {$this->protocol_table} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             protocol_code varchar(32) NOT NULL UNIQUE,
             document_id bigint(20) unsigned NOT NULL,
@@ -101,618 +104,629 @@ class AuditLog {
             KEY status_idx (status)
         ) $charset_collate;";
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $sql1 );
-		dbDelta( $sql2 );
-	}
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql1);
+        dbDelta($sql2);
+    }
 
-	/**
-	 * Log action
-	 *
-	 * @param int    $document_id Document ID
-	 * @param string $action Action type
-	 * @param array  $data Additional data
-	 * @return int|false Log ID or false
-	 */
-	public function log( int $document_id, string $action, array $data = [] ): int|false {
-		global $wpdb;
+    /**
+     * Log action
+     *
+     * @param int    $document_id Document ID
+     * @param string $action Action type
+     * @param array  $data Additional data
+     * @return int|false Log ID or false
+     */
+    public function log(int $document_id, string $action, array $data = []): int|false
+    {
+        global $wpdb;
 
-		$user_id = get_current_user_id();
-		$user    = $user_id ? get_userdata( $user_id ) : null;
+        $user_id = get_current_user_id();
+        $user    = $user_id ? get_userdata($user_id) : null;
 
-		$insert_data = [
-			'document_id'    => $document_id,
-			'action'         => $action,
-			'actor_id'       => $data['actor_id'] ?? $user_id,
-			'actor_type'     => $data['actor_type'] ?? 'user',
-			'actor_name'     => $data['actor_name'] ?? ( $user ? $user->display_name : null ),
-			'actor_cpf'      => $data['actor_cpf'] ?? null,
-			'actor_email'    => $data['actor_email'] ?? ( $user ? $user->user_email : null ),
-			'details'        => isset( $data['details'] ) ? json_encode( $data['details'] ) : null,
-			'document_hash'  => $data['document_hash'] ?? null,
-			'signature_hash' => $data['signature_hash'] ?? null,
-			'ip_address'     => $this->getClientIp(),
-			'user_agent'     => $_SERVER['HTTP_USER_AGENT'] ?? null,
-			'geo_location'   => $this->getGeoLocation(),
-			'timestamp_unix' => time(),
-		];
+        $insert_data = [
+            'document_id'    => $document_id,
+            'action'         => $action,
+            'actor_id'       => $data['actor_id']    ?? $user_id,
+            'actor_type'     => $data['actor_type']  ?? 'user',
+            'actor_name'     => $data['actor_name']  ?? ($user ? $user->display_name : null),
+            'actor_cpf'      => $data['actor_cpf']   ?? null,
+            'actor_email'    => $data['actor_email'] ?? ($user ? $user->user_email : null),
+            'details'        => isset($data['details']) ? json_encode($data['details']) : null,
+            'document_hash'  => $data['document_hash']  ?? null,
+            'signature_hash' => $data['signature_hash'] ?? null,
+            'ip_address'     => $this->getClientIp(),
+            'user_agent'     => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            'geo_location'   => $this->getGeoLocation(),
+            'timestamp_unix' => time(),
+        ];
 
-		$result = $wpdb->insert( $this->table_name, $insert_data );
+        $result = $wpdb->insert($this->table_name, $insert_data);
 
-		return $result ? $wpdb->insert_id : false;
-	}
+        return $result ? $wpdb->insert_id : false;
+    }
 
-	/**
-	 * Log signature action
-	 *
-	 * @param int    $document_id Document ID
-	 * @param array  $signer Signer data
-	 * @param string $signature_hash Hash of the signature
-	 * @param string $document_hash Hash of the document
-	 * @return int|false Log ID
-	 */
-	public function logSignature(
-		int $document_id,
-		array $signer,
-		string $signature_hash,
-		string $document_hash
-	): int|false {
-		return $this->log(
-			$document_id,
-			'signed',
-			[
-				'actor_name'     => $signer['name'] ?? '',
-				'actor_cpf'      => $signer['cpf'] ?? '',
-				'actor_email'    => $signer['email'] ?? '',
-				'signature_hash' => $signature_hash,
-				'document_hash'  => $document_hash,
-				'details'        => [
-					'signature_type'     => $signer['type'] ?? 'electronic',
-					'certificate_serial' => $signer['certificate_serial'] ?? null,
-					'timestamp'          => current_time( 'mysql' ),
-				],
-			]
-		);
-	}
+    /**
+     * Log signature action
+     *
+     * @param int    $document_id Document ID
+     * @param array  $signer Signer data
+     * @param string $signature_hash Hash of the signature
+     * @param string $document_hash Hash of the document
+     * @return int|false Log ID
+     */
+    public function logSignature(
+        int $document_id,
+        array $signer,
+        string $signature_hash,
+        string $document_hash
+    ): int|false {
+        return $this->log(
+            $document_id,
+            'signed',
+            [
+                'actor_name'     => $signer['name']  ?? '',
+                'actor_cpf'      => $signer['cpf']   ?? '',
+                'actor_email'    => $signer['email'] ?? '',
+                'signature_hash' => $signature_hash,
+                'document_hash'  => $document_hash,
+                'details'        => [
+                    'signature_type'     => $signer['type']               ?? 'electronic',
+                    'certificate_serial' => $signer['certificate_serial'] ?? null,
+                    'timestamp'          => current_time('mysql'),
+                ],
+            ]
+        );
+    }
 
-	/**
-	 * Generate protocol code for document
-	 *
-	 * @param int    $document_id Document ID
-	 * @param string $document_hash Document hash
-	 * @return array Protocol info
-	 */
-	public function generateProtocol( int $document_id, string $document_hash ): array {
-		global $wpdb;
+    /**
+     * Generate protocol code for document
+     *
+     * @param int    $document_id Document ID
+     * @param string $document_hash Document hash
+     * @return array Protocol info
+     */
+    public function generateProtocol(int $document_id, string $document_hash): array
+    {
+        global $wpdb;
 
-		// Check if protocol already exists
-		$existing = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->protocol_table}
+        // Check if protocol already exists
+        $existing = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->protocol_table}
                  WHERE document_id = %d AND status = 'active'",
-				$document_id
-			),
-			ARRAY_A
-		);
+                $document_id
+            ),
+            ARRAY_A
+        );
 
-		if ( $existing ) {
-			return [
-				'success'       => true,
-				'protocol_code' => $existing['protocol_code'],
-				'existing'      => true,
-			];
-		}
+        if ($existing) {
+            return [
+                'success'       => true,
+                'protocol_code' => $existing['protocol_code'],
+                'existing'      => true,
+            ];
+        }
 
-		// Generate unique protocol code
-		// Format: APR-DOC-YYYY-XXXXX (e.g., APR-DOC-2025-A1B2C)
-		$year          = date( 'Y' );
-		$random        = strtoupper( substr( md5( uniqid( (string) mt_rand(), true ) ), 0, 5 ) );
-		$protocol_code = "APR-DOC-{$year}-{$random}";
+        // Generate unique protocol code
+        // Format: APR-DOC-YYYY-XXXXX (e.g., APR-DOC-2025-A1B2C)
+        $year          = date('Y');
+        $random        = strtoupper(substr(md5(uniqid((string) mt_rand(), true)), 0, 5));
+        $protocol_code = "APR-DOC-{$year}-{$random}";
 
-		// Ensure uniqueness
-		$attempts = 0;
-		while ( $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$this->protocol_table} WHERE protocol_code = %s",
-				$protocol_code
-			)
-		) > 0 && $attempts < 10 ) {
-			$random        = strtoupper( substr( md5( uniqid( (string) mt_rand(), true ) ), 0, 5 ) );
-			$protocol_code = "APR-DOC-{$year}-{$random}";
-			++$attempts;
-		}
+        // Ensure uniqueness
+        $attempts = 0;
+        while ($wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->protocol_table} WHERE protocol_code = %s",
+                $protocol_code
+            )
+        ) > 0 && $attempts < 10) {
+            $random        = strtoupper(substr(md5(uniqid((string) mt_rand(), true)), 0, 5));
+            $protocol_code = "APR-DOC-{$year}-{$random}";
+            ++$attempts;
+        }
 
-		$now     = time();
-		$expires = strtotime( '+5 years' );
+        $now     = time();
+        $expires = strtotime('+5 years');
 
-		$result = $wpdb->insert(
-			$this->protocol_table,
-			[
-				'protocol_code' => $protocol_code,
-				'document_id'   => $document_id,
-				'document_hash' => $document_hash,
-				'created_unix'  => $now,
-				'expires_at'    => date( 'Y-m-d H:i:s', $expires ),
-				'metadata'      => json_encode(
-					[
-						'created_by'  => get_current_user_id(),
-						'server_time' => date( 'Y-m-d H:i:s' ),
-						'timezone'    => wp_timezone_string(),
-					]
-				),
-			]
-		);
+        $result = $wpdb->insert(
+            $this->protocol_table,
+            [
+                'protocol_code' => $protocol_code,
+                'document_id'   => $document_id,
+                'document_hash' => $document_hash,
+                'created_unix'  => $now,
+                'expires_at'    => date('Y-m-d H:i:s', $expires),
+                'metadata'      => json_encode(
+                    [
+                        'created_by'  => get_current_user_id(),
+                        'server_time' => date('Y-m-d H:i:s'),
+                        'timezone'    => wp_timezone_string(),
+                    ]
+                ),
+            ]
+        );
 
-		if ( $result ) {
-			// Log protocol creation
-			$this->log(
-				$document_id,
-				'created',
-				[
-					'details'       => [ 'protocol_code' => $protocol_code ],
-					'document_hash' => $document_hash,
-				]
-			);
+        if ($result) {
+            // Log protocol creation
+            $this->log(
+                $document_id,
+                'created',
+                [
+                    'details'       => [ 'protocol_code' => $protocol_code ],
+                    'document_hash' => $document_hash,
+                ]
+            );
 
-			return [
-				'success'          => true,
-				'protocol_code'    => $protocol_code,
-				'created_at'       => date( 'Y-m-d H:i:s' ),
-				'expires_at'       => date( 'Y-m-d H:i:s', $expires ),
-				'verification_url' => site_url( "/verificar/{$protocol_code}" ),
-			];
-		}
+            return [
+                'success'          => true,
+                'protocol_code'    => $protocol_code,
+                'created_at'       => date('Y-m-d H:i:s'),
+                'expires_at'       => date('Y-m-d H:i:s', $expires),
+                'verification_url' => site_url("/verificar/{$protocol_code}"),
+            ];
+        }
 
-		return [
-			'success' => false,
-			'error'   => 'Falha ao gerar protocolo',
-		];
-	}
+        return [
+            'success' => false,
+            'error'   => 'Falha ao gerar protocolo',
+        ];
+    }
 
-	/**
-	 * Verify document by protocol
-	 *
-	 * @param string      $protocol_code Protocol code
-	 * @param string|null $provided_hash Optional hash to compare
-	 * @return array Verification result
-	 */
-	public function verifyByProtocol( string $protocol_code, ?string $provided_hash = null ): array {
-		global $wpdb;
+    /**
+     * Verify document by protocol
+     *
+     * @param string      $protocol_code Protocol code
+     * @param string|null $provided_hash Optional hash to compare
+     * @return array Verification result
+     */
+    public function verifyByProtocol(string $protocol_code, ?string $provided_hash = null): array
+    {
+        global $wpdb;
 
-		$protocol = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->protocol_table} WHERE protocol_code = %s",
-				strtoupper( $protocol_code )
-			),
-			ARRAY_A
-		);
+        $protocol = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->protocol_table} WHERE protocol_code = %s",
+                strtoupper($protocol_code)
+            ),
+            ARRAY_A
+        );
 
-		if ( ! $protocol ) {
-			return [
-				'valid' => false,
-				'error' => 'Protocolo não encontrado',
-			];
-		}
+        if (! $protocol) {
+            return [
+                'valid' => false,
+                'error' => 'Protocolo não encontrado',
+            ];
+        }
 
-		// Check status
-		if ( $protocol['status'] === 'revoked' ) {
-			return [
-				'valid'    => false,
-				'error'    => 'Protocolo foi revogado',
-				'protocol' => $protocol_code,
-			];
-		}
+        // Check status
+        if ($protocol['status'] === 'revoked') {
+            return [
+                'valid'    => false,
+                'error'    => 'Protocolo foi revogado',
+                'protocol' => $protocol_code,
+            ];
+        }
 
-		if ( $protocol['status'] === 'expired' || strtotime( $protocol['expires_at'] ) < time() ) {
-			return [
-				'valid'    => false,
-				'error'    => 'Protocolo expirado',
-				'protocol' => $protocol_code,
-			];
-		}
+        if ($protocol['status'] === 'expired' || strtotime($protocol['expires_at']) < time()) {
+            return [
+                'valid'    => false,
+                'error'    => 'Protocolo expirado',
+                'protocol' => $protocol_code,
+            ];
+        }
 
-		// Get document info
-		$documents_table = $wpdb->prefix . 'apollo_documents';
-		$document        = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT id, file_id, title, pdf_hash, status FROM {$documents_table} WHERE id = %d",
-				$protocol['document_id']
-			),
-			ARRAY_A
-		);
+        // Get document info
+        $documents_table = $wpdb->prefix . 'apollo_documents';
+        $document        = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT id, file_id, title, pdf_hash, status FROM {$documents_table} WHERE id = %d",
+                $protocol['document_id']
+            ),
+            ARRAY_A
+        );
 
-		// Update verification count
-		$wpdb->update(
-			$this->protocol_table,
-			[
-				'verification_count' => $protocol['verification_count'] + 1,
-				'last_verified_at'   => current_time( 'mysql' ),
-			],
-			[ 'id' => $protocol['id'] ]
-		);
+        // Update verification count
+        $wpdb->update(
+            $this->protocol_table,
+            [
+                'verification_count' => $protocol['verification_count'] + 1,
+                'last_verified_at'   => current_time('mysql'),
+            ],
+            [ 'id' => $protocol['id'] ]
+        );
 
-		// Log verification
-		$this->log(
-			$protocol['document_id'],
-			'verified',
-			[
-				'details' => [ 'protocol_code' => $protocol_code ],
-			]
-		);
+        // Log verification
+        $this->log(
+            $protocol['document_id'],
+            'verified',
+            [
+                'details' => [ 'protocol_code' => $protocol_code ],
+            ]
+        );
 
-		// Get signature history
-		$signatures = $this->getDocumentSignatures( $protocol['document_id'] );
+        // Get signature history
+        $signatures = $this->getDocumentSignatures($protocol['document_id']);
 
-		// Hash verification
-		$hash_valid = true;
-		if ( $provided_hash ) {
-			$hash_valid = $provided_hash === $protocol['document_hash'];
-		}
+        // Hash verification
+        $hash_valid = true;
+        if ($provided_hash) {
+            $hash_valid = $provided_hash === $protocol['document_hash'];
+        }
 
-		return [
-			'valid'       => true,
-			'protocol'    => [
-				'code'               => $protocol['protocol_code'],
-				'created_at'         => $protocol['created_at'],
-				'expires_at'         => $protocol['expires_at'],
-				'verification_count' => $protocol['verification_count'] + 1,
-			],
-			'document'    => [
-				'id'      => $document['id'] ?? null,
-				'file_id' => $document['file_id'] ?? null,
-				'title'   => $document['title'] ?? 'Documento não encontrado',
-				'status'  => $document['status'] ?? 'unknown',
-			],
-			'hash'        => [
-				'stored'   => $protocol['document_hash'],
-				'provided' => $provided_hash,
-				'match'    => $hash_valid,
-			],
-			'signatures'  => $signatures,
-			'verified_at' => current_time( 'mysql' ),
-		];
-	}
+        return [
+            'valid'    => true,
+            'protocol' => [
+                'code'               => $protocol['protocol_code'],
+                'created_at'         => $protocol['created_at'],
+                'expires_at'         => $protocol['expires_at'],
+                'verification_count' => $protocol['verification_count'] + 1,
+            ],
+            'document' => [
+                'id'      => $document['id']      ?? null,
+                'file_id' => $document['file_id'] ?? null,
+                'title'   => $document['title']   ?? 'Documento não encontrado',
+                'status'  => $document['status']  ?? 'unknown',
+            ],
+            'hash' => [
+                'stored'   => $protocol['document_hash'],
+                'provided' => $provided_hash,
+                'match'    => $hash_valid,
+            ],
+            'signatures'  => $signatures,
+            'verified_at' => current_time('mysql'),
+        ];
+    }
 
-	/**
-	 * Verify document by hash
-	 *
-	 * @param string $hash Document hash
-	 * @return array Verification result
-	 */
-	public function verifyByHash( string $hash ): array {
-		global $wpdb;
+    /**
+     * Verify document by hash
+     *
+     * @param string $hash Document hash
+     * @return array Verification result
+     */
+    public function verifyByHash(string $hash): array
+    {
+        global $wpdb;
 
-		// Search in protocols
-		$protocol = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->protocol_table} WHERE document_hash = %s AND status = 'active'",
-				$hash
-			),
-			ARRAY_A
-		);
+        // Search in protocols
+        $protocol = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->protocol_table} WHERE document_hash = %s AND status = 'active'",
+                $hash
+            ),
+            ARRAY_A
+        );
 
-		if ( $protocol ) {
-			return $this->verifyByProtocol( $protocol['protocol_code'] );
-		}
+        if ($protocol) {
+            return $this->verifyByProtocol($protocol['protocol_code']);
+        }
 
-		// Search in documents directly
-		$documents_table = $wpdb->prefix . 'apollo_documents';
-		$document        = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$documents_table} WHERE pdf_hash = %s",
-				$hash
-			),
-			ARRAY_A
-		);
+        // Search in documents directly
+        $documents_table = $wpdb->prefix . 'apollo_documents';
+        $document        = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$documents_table} WHERE pdf_hash = %s",
+                $hash
+            ),
+            ARRAY_A
+        );
 
-		if ( $document ) {
-			return [
-				'valid'    => true,
-				'document' => [
-					'id'      => $document['id'],
-					'file_id' => $document['file_id'],
-					'title'   => $document['title'],
-					'status'  => $document['status'],
-				],
-				'hash'     => [
-					'stored' => $document['pdf_hash'],
-					'match'  => true,
-				],
-				'note'     => 'Documento encontrado mas sem protocolo de verificação',
-			];
-		}
+        if ($document) {
+            return [
+                'valid'    => true,
+                'document' => [
+                    'id'      => $document['id'],
+                    'file_id' => $document['file_id'],
+                    'title'   => $document['title'],
+                    'status'  => $document['status'],
+                ],
+                'hash' => [
+                    'stored' => $document['pdf_hash'],
+                    'match'  => true,
+                ],
+                'note' => 'Documento encontrado mas sem protocolo de verificação',
+            ];
+        }
 
-		return [
-			'valid' => false,
-			'error' => 'Nenhum documento encontrado com este hash',
-		];
-	}
+        return [
+            'valid' => false,
+            'error' => 'Nenhum documento encontrado com este hash',
+        ];
+    }
 
-	/**
-	 * Get document signatures
-	 *
-	 * @param int $document_id Document ID
-	 * @return array Signatures
-	 */
-	public function getDocumentSignatures( int $document_id ): array {
-		global $wpdb;
+    /**
+     * Get document signatures
+     *
+     * @param int $document_id Document ID
+     * @return array Signatures
+     */
+    public function getDocumentSignatures(int $document_id): array
+    {
+        global $wpdb;
 
-		$signatures_table = $wpdb->prefix . 'apollo_document_signatures';
+        $signatures_table = $wpdb->prefix . 'apollo_document_signatures';
 
-		$signatures = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY signed_at DESC",
-				$document_id
-			),
-			ARRAY_A
-		);
+        $signatures = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$signatures_table} WHERE document_id = %d ORDER BY signed_at DESC",
+                $document_id
+            ),
+            ARRAY_A
+        );
 
-		// Mask CPFs
-		foreach ( $signatures as &$sig ) {
-			if ( ! empty( $sig['signer_cpf'] ) ) {
-				$cpf                      = $sig['signer_cpf'];
-				$sig['signer_cpf_masked'] = substr( $cpf, 0, 3 ) . '.***.***-' . substr( $cpf, -2 );
-			}
-		}
+        // Mask CPFs
+        foreach ($signatures as &$sig) {
+            if (! empty($sig['signer_cpf'])) {
+                $cpf                      = $sig['signer_cpf'];
+                $sig['signer_cpf_masked'] = substr($cpf, 0, 3) . '.***.***-' . substr($cpf, -2);
+            }
+        }
 
-		return $signatures;
-	}
+        return $signatures;
+    }
 
-	/**
-	 * Get audit log for document
-	 *
-	 * @param int   $document_id Document ID
-	 * @param array $args Query args
-	 * @return array Logs
-	 */
-	public function getDocumentLogs( int $document_id, array $args = [] ): array {
-		global $wpdb;
+    /**
+     * Get audit log for document
+     *
+     * @param int   $document_id Document ID
+     * @param array $args Query args
+     * @return array Logs
+     */
+    public function getDocumentLogs(int $document_id, array $args = []): array
+    {
+        global $wpdb;
 
-		$where  = [ 'document_id = %d' ];
-		$params = [ $document_id ];
+        $where  = [ 'document_id = %d' ];
+        $params = [ $document_id ];
 
-		// Action filter
-		if ( ! empty( $args['action'] ) ) {
-			$where[]  = 'action = %s';
-			$params[] = $args['action'];
-		}
+        // Action filter
+        if (! empty($args['action'])) {
+            $where[]  = 'action = %s';
+            $params[] = $args['action'];
+        }
 
-		// Date range
-		if ( ! empty( $args['from_date'] ) ) {
-			$where[]  = 'timestamp >= %s';
-			$params[] = $args['from_date'];
-		}
+        // Date range
+        if (! empty($args['from_date'])) {
+            $where[]  = 'timestamp >= %s';
+            $params[] = $args['from_date'];
+        }
 
-		if ( ! empty( $args['to_date'] ) ) {
-			$where[]  = 'timestamp <= %s';
-			$params[] = $args['to_date'];
-		}
+        if (! empty($args['to_date'])) {
+            $where[]  = 'timestamp <= %s';
+            $params[] = $args['to_date'];
+        }
 
-		$where_sql = implode( ' AND ', $where );
+        $where_sql = implode(' AND ', $where);
 
-		// Pagination
-		$per_page = (int) ( $args['per_page'] ?? 50 );
-		$page     = (int) ( $args['page'] ?? 1 );
-		$offset   = ( $page - 1 ) * $per_page;
+        // Pagination
+        $per_page = (int) ($args['per_page'] ?? 50);
+        $page     = (int) ($args['page'] ?? 1);
+        $offset   = ($page - 1) * $per_page;
 
-		$logs = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->table_name}
+        $logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->table_name}
                  WHERE {$where_sql}
                  ORDER BY timestamp DESC
                  LIMIT %d OFFSET %d",
-				[ ...$params, $per_page, $offset ]
-			),
-			ARRAY_A
-		);
+                [ ...$params, $per_page, $offset ]
+            ),
+            ARRAY_A
+        );
 
-		// Parse JSON details
-		foreach ( $logs as &$log ) {
-			if ( $log['details'] ) {
-				$log['details'] = json_decode( $log['details'], true );
-			}
-		}
+        // Parse JSON details
+        foreach ($logs as &$log) {
+            if ($log['details']) {
+                $log['details'] = json_decode($log['details'], true);
+            }
+        }
 
-		return $logs;
-	}
+        return $logs;
+    }
 
-	/**
-	 * Generate verification report
-	 *
-	 * @param int $document_id Document ID
-	 * @return array Report data
-	 */
-	public function generateVerificationReport( int $document_id ): array {
-		global $wpdb;
+    /**
+     * Generate verification report
+     *
+     * @param int $document_id Document ID
+     * @return array Report data
+     */
+    public function generateVerificationReport(int $document_id): array
+    {
+        global $wpdb;
 
-		$documents_table = $wpdb->prefix . 'apollo_documents';
+        $documents_table = $wpdb->prefix . 'apollo_documents';
 
-		// Get document
-		$document = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM {$documents_table} WHERE id = %d", $document_id ),
-			ARRAY_A
-		);
+        // Get document
+        $document = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM {$documents_table} WHERE id = %d", $document_id),
+            ARRAY_A
+        );
 
-		if ( ! $document ) {
-			return [
-				'success' => false,
-				'error'   => 'Documento não encontrado',
-			];
-		}
+        if (! $document) {
+            return [
+                'success' => false,
+                'error'   => 'Documento não encontrado',
+            ];
+        }
 
-		// Get protocol
-		$protocol = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->protocol_table} WHERE document_id = %d AND status = 'active'",
-				$document_id
-			),
-			ARRAY_A
-		);
+        // Get protocol
+        $protocol = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->protocol_table} WHERE document_id = %d AND status = 'active'",
+                $document_id
+            ),
+            ARRAY_A
+        );
 
-		// Get signatures
-		$signatures = $this->getDocumentSignatures( $document_id );
+        // Get signatures
+        $signatures = $this->getDocumentSignatures($document_id);
 
-		// Get audit logs
-		$logs = $this->getDocumentLogs( $document_id );
+        // Get audit logs
+        $logs = $this->getDocumentLogs($document_id);
 
-		// Build report
-		return [
-			'success'                          => true,
-			'generated_at'                     => current_time( 'mysql' ),
-			'document'                         => [
-				'id'           => $document['id'],
-				'file_id'      => $document['file_id'],
-				'title'        => $document['title'],
-				'type'         => $document['type'],
-				'status'       => $document['status'],
-				'created_at'   => $document['created_at'],
-				'finalized_at' => $document['finalized_at'],
-				'pdf_hash'     => $document['pdf_hash'],
-			],
-			'protocol'                         => $protocol ? [
-				'code'               => $protocol['protocol_code'],
-				'created_at'         => $protocol['created_at'],
-				'expires_at'         => $protocol['expires_at'],
-				'status'             => $protocol['status'],
-				'verification_count' => $protocol['verification_count'],
-			] : null,
-			'signatures'                       => array_map(
-				function ( $sig ) {
-					return [
-						'party'      => $sig['signer_party'],
-						'name'       => $sig['signer_name'],
-						'cpf_masked' => $sig['signer_cpf_masked'] ?? '',
-						'email'      => $sig['signer_email'],
-						'status'     => $sig['status'],
-						'signed_at'  => $sig['signed_at'],
-						'ip_address' => $sig['ip_address'],
-					];
-				},
-				$signatures
-			),
-			'signatures_summary'               => [
-				'total'   => count( $signatures ),
-				'signed'  => count( array_filter( $signatures, fn( $s ) => $s['status'] === 'signed' ) ),
-				'pending' => count( array_filter( $signatures, fn( $s ) => $s['status'] === 'pending' ) ),
-			],
-			'audit_trail'                      => array_slice( $logs, 0, 20 ),
-			// Last 20 events
-							'verification_url' => $protocol ? site_url( "/verificar/{$protocol['protocol_code']}" ) : null,
-		];
-	}
+        // Build report
+        return [
+            'success'      => true,
+            'generated_at' => current_time('mysql'),
+            'document'     => [
+                'id'           => $document['id'],
+                'file_id'      => $document['file_id'],
+                'title'        => $document['title'],
+                'type'         => $document['type'],
+                'status'       => $document['status'],
+                'created_at'   => $document['created_at'],
+                'finalized_at' => $document['finalized_at'],
+                'pdf_hash'     => $document['pdf_hash'],
+            ],
+            'protocol' => $protocol ? [
+                'code'               => $protocol['protocol_code'],
+                'created_at'         => $protocol['created_at'],
+                'expires_at'         => $protocol['expires_at'],
+                'status'             => $protocol['status'],
+                'verification_count' => $protocol['verification_count'],
+            ] : null,
+            'signatures' => array_map(
+                function ($sig) {
+                    return [
+                        'party'      => $sig['signer_party'],
+                        'name'       => $sig['signer_name'],
+                        'cpf_masked' => $sig['signer_cpf_masked'] ?? '',
+                        'email'      => $sig['signer_email'],
+                        'status'     => $sig['status'],
+                        'signed_at'  => $sig['signed_at'],
+                        'ip_address' => $sig['ip_address'],
+                    ];
+                },
+                $signatures
+            ),
+            'signatures_summary' => [
+                'total'   => count($signatures),
+                'signed'  => count(array_filter($signatures, fn ($s) => $s['status'] === 'signed')),
+                'pending' => count(array_filter($signatures, fn ($s) => $s['status'] === 'pending')),
+            ],
+            'audit_trail' => array_slice($logs, 0, 20),
+            // Last 20 events
+                            'verification_url' => $protocol ? site_url("/verificar/{$protocol['protocol_code']}") : null,
+        ];
+    }
 
-	/**
-	 * Revoke protocol
-	 *
-	 * @param string $protocol_code Protocol code
-	 * @param string $reason Reason for revocation
-	 * @return array Result
-	 */
-	public function revokeProtocol( string $protocol_code, string $reason = '' ): array {
-		global $wpdb;
+    /**
+     * Revoke protocol
+     *
+     * @param string $protocol_code Protocol code
+     * @param string $reason Reason for revocation
+     * @return array Result
+     */
+    public function revokeProtocol(string $protocol_code, string $reason = ''): array
+    {
+        global $wpdb;
 
-		$protocol = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$this->protocol_table} WHERE protocol_code = %s",
-				$protocol_code
-			),
-			ARRAY_A
-		);
+        $protocol = $wpdb->get_row(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->protocol_table} WHERE protocol_code = %s",
+                $protocol_code
+            ),
+            ARRAY_A
+        );
 
-		if ( ! $protocol ) {
-			return [
-				'success' => false,
-				'error'   => 'Protocolo não encontrado',
-			];
-		}
+        if (! $protocol) {
+            return [
+                'success' => false,
+                'error'   => 'Protocolo não encontrado',
+            ];
+        }
 
-		if ( $protocol['status'] === 'revoked' ) {
-			return [
-				'success' => false,
-				'error'   => 'Protocolo já foi revogado',
-			];
-		}
+        if ($protocol['status'] === 'revoked') {
+            return [
+                'success' => false,
+                'error'   => 'Protocolo já foi revogado',
+            ];
+        }
 
-		$result = $wpdb->update(
-			$this->protocol_table,
-			[ 'status' => 'revoked' ],
-			[ 'id' => $protocol['id'] ]
-		);
+        $result = $wpdb->update(
+            $this->protocol_table,
+            [ 'status' => 'revoked' ],
+            [ 'id'     => $protocol['id'] ]
+        );
 
-		if ( $result !== false ) {
-			// Log revocation
-			$this->log(
-				$protocol['document_id'],
-				'revoked',
-				[
-					'details' => [
-						'protocol_code' => $protocol_code,
-						'reason'        => $reason,
-					],
-				]
-			);
+        if ($result !== false) {
+            // Log revocation
+            $this->log(
+                $protocol['document_id'],
+                'revoked',
+                [
+                    'details' => [
+                        'protocol_code' => $protocol_code,
+                        'reason'        => $reason,
+                    ],
+                ]
+            );
 
-			return [
-				'success' => true,
-				'message' => 'Protocolo revogado',
-			];
-		}
+            return [
+                'success' => true,
+                'message' => 'Protocolo revogado',
+            ];
+        }
 
-		return [
-			'success' => false,
-			'error'   => 'Erro ao revogar protocolo',
-		];
-	}
+        return [
+            'success' => false,
+            'error'   => 'Erro ao revogar protocolo',
+        ];
+    }
 
-	/**
-	 * Get client IP
-	 */
-	private function getClientIp(): string {
-		$ip_keys = [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
+    /**
+     * Get client IP
+     */
+    private function getClientIp(): string
+    {
+        $ip_keys = [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
 
-		foreach ( $ip_keys as $key ) {
-			if ( ! empty( $_SERVER[ $key ] ) ) {
-				$ip = $_SERVER[ $key ];
-				// Handle comma-separated IPs
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = trim( explode( ',', $ip )[0] );
-				}
-				if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-					return $ip;
-				}
-			}
-		}
+        foreach ($ip_keys as $key) {
+            if (! empty($_SERVER[ $key ])) {
+                $ip = $_SERVER[ $key ];
+                // Handle comma-separated IPs
+                if (strpos($ip, ',') !== false) {
+                    $ip = trim(explode(',', $ip)[0]);
+                }
+                if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                    return $ip;
+                }
+            }
+        }
 
-		return '0.0.0.0';
-	}
+        return '0.0.0.0';
+    }
 
-	/**
-	 * Get geolocation from IP (simplified)
-	 */
-	private function getGeoLocation(): string {
-		// This could be enhanced with a GeoIP service
-		// For now, just return timezone
-		return wp_timezone_string();
-	}
+    /**
+     * Get geolocation from IP (simplified)
+     */
+    private function getGeoLocation(): string
+    {
+        // This could be enhanced with a GeoIP service
+        // For now, just return timezone
+        return wp_timezone_string();
+    }
 
-	/**
-	 * Generate printable verification certificate
-	 *
-	 * @param int $document_id Document ID
-	 * @return string HTML certificate
-	 */
-	public function generateVerificationCertificate( int $document_id ): string {
-		$report = $this->generateVerificationReport( $document_id );
+    /**
+     * Generate printable verification certificate
+     *
+     * @param int $document_id Document ID
+     * @return string HTML certificate
+     */
+    public function generateVerificationCertificate(int $document_id): string
+    {
+        $report = $this->generateVerificationReport($document_id);
 
-		if ( ! $report['success'] ) {
-			return '<p>Erro ao gerar certificado: ' . esc_html( $report['error'] ) . '</p>';
-		}
+        if (! $report['success']) {
+            return '<p>Erro ao gerar certificado: ' . esc_html($report['error']) . '</p>';
+        }
 
-		$doc        = $report['document'];
-		$protocol   = $report['protocol'];
-		$signatures = $report['signatures'];
+        $doc        = $report['document'];
+        $protocol   = $report['protocol'];
+        $signatures = $report['signatures'];
 
-		$html = <<<HTML
+        $html = <<<HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -763,8 +777,8 @@ class AuditLog {
     </div>
 HTML;
 
-		if ( $protocol ) {
-			$html .= <<<HTML
+        if ($protocol) {
+            $html .= <<<HTML
     <div class="section">
         <h2>Protocolo de Verificação</h2>
         <div class="field">
@@ -785,13 +799,13 @@ HTML;
         </div>
     </div>
 HTML;
-		}//end if
+        }//end if
 
-		$html .= '<div class="section"><h2>Assinaturas</h2>';
+        $html .= '<div class="section"><h2>Assinaturas</h2>';
 
-		foreach ( $signatures as $sig ) {
-			$status_class = $sig['status'] === 'signed' ? 'status-signed' : 'status-pending';
-			$html        .= <<<HTML
+        foreach ($signatures as $sig) {
+            $status_class = $sig['status'] === 'signed' ? 'status-signed' : 'status-pending';
+            $html .= <<<HTML
         <div class="signature-box">
             <div class="field">
                 <span class="field-label">Nome:</span>
@@ -811,12 +825,12 @@ HTML;
             </div>
         </div>
 HTML;
-		}//end foreach
+        }//end foreach
 
-		$html .= '</div>';
+        $html .= '</div>';
 
-		if ( $doc['pdf_hash'] ) {
-			$html .= <<<HTML
+        if ($doc['pdf_hash']) {
+            $html .= <<<HTML
     <div class="section">
         <h2>Verificação de Integridade</h2>
         <p>Hash SHA-256 do documento:</p>
@@ -826,9 +840,9 @@ HTML;
         </p>
     </div>
 HTML;
-		}
+        }
 
-		$html .= <<<HTML
+        $html .= <<<HTML
     <div class="footer">
         <p>Certificado gerado em {$report['generated_at']}</p>
         <p>Para verificar a autenticidade deste documento, acesse: {$report['verification_url']}</p>
@@ -838,6 +852,6 @@ HTML;
 </html>
 HTML;
 
-		return $html;
-	}
+        return $html;
+    }
 }

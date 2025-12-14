@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -183,6 +184,7 @@ function apollo_seed_default_quiz_questions(): bool {
  */
 function apollo_get_default_quiz_question( $question_id ) {
 	$defaults = apollo_get_default_quiz_questions();
+
 	return isset( $defaults[ $question_id ] ) ? $defaults[ $question_id ] : false;
 }
 
@@ -194,5 +196,6 @@ function apollo_get_default_quiz_question( $question_id ) {
  */
 function apollo_is_default_quiz_question( $question_id ) {
 	$defaults = apollo_get_default_quiz_questions();
+
 	return isset( $defaults[ $question_id ] );
 }

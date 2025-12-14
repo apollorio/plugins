@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Push Notifications Integration
  *
@@ -47,6 +48,7 @@ class Apollo_Push_Notifications {
 		if ( ! self::$plugin_available ) {
 			// Add admin notice only on plugin page.
 			add_action( 'admin_notices', array( __CLASS__, 'maybe_show_plugin_notice' ) );
+
 			return;
 		}
 
@@ -124,11 +126,13 @@ class Apollo_Push_Notifications {
 		// SAFETY: Validate inputs.
 		if ( ! is_numeric( $post_id ) || $post_id <= 0 ) {
 			self::log_error( 'Invalid post_id for event notification', array( 'post_id' => $post_id ) );
+
 			return;
 		}
 
 		if ( ! $post instanceof WP_Post ) {
 			self::log_error( 'Invalid post object for event notification', array( 'post_id' => $post_id ) );
+
 			return;
 		}
 
@@ -180,12 +184,14 @@ class Apollo_Push_Notifications {
 		// SAFETY: Validate document_id.
 		if ( ! is_numeric( $document_id ) || $document_id <= 0 ) {
 			self::log_error( 'Invalid document_id for notification', array( 'document_id' => $document_id ) );
+
 			return;
 		}
 
 		// SAFETY: Validate document is array.
 		if ( ! is_array( $document ) ) {
 			self::log_error( 'Invalid document data for notification', array( 'document_id' => $document_id ) );
+
 			return;
 		}
 
@@ -217,6 +223,7 @@ class Apollo_Push_Notifications {
 		// SAFETY: Final validation of all inputs.
 		if ( empty( $title ) || empty( $message ) ) {
 			self::log_error( 'Empty title or message for notification', compact( 'title', 'message', 'url' ) );
+
 			return false;
 		}
 
@@ -235,6 +242,7 @@ class Apollo_Push_Notifications {
 						'url'     => $url,
 					)
 				);
+
 				return true;
 			}
 
@@ -247,10 +255,12 @@ class Apollo_Push_Notifications {
 						'url'   => $url,
 					)
 				);
+
 				return true;
 			}
 		} catch ( Exception $e ) {
 			self::log_error( 'Push notification send failed', array( 'error' => $e->getMessage() ) );
+
 			return false;
 		}
 

@@ -16,10 +16,10 @@
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width">
-	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
+	<title><?php echo esc_html(wp_get_document_title()); ?></title>
 
 	<!-- The following style is copied from _default_wp_die_handler(). -->
 	<style type="text/css">
@@ -128,18 +128,18 @@
 	}
 
 	<?php
-	if ( is_rtl() ) {
-		echo 'body { font-family: Tahoma, Arial; }';
-	}
-	?>
+    if (is_rtl()) {
+        echo 'body { font-family: Tahoma, Arial; }';
+    }
+?>
 	</style>
 	<?php
-	/**
-	 * Prints scripts or data in the error template <head> tag.
-	 *
-	 * @since 0.2
-	 */
-	do_action( 'error_head' );
-	?>
+/**
+ * Prints scripts or data in the error template <head> tag.
+ *
+ * @since 0.2
+ */
+do_action('error_head');
+?>
 </head>
 <body id="error-page" <?php body_class(); ?>>

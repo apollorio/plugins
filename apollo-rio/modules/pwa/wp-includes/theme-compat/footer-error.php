@@ -15,7 +15,7 @@
  *
  * @since 0.2
  */
-do_action( 'error_footer' );
+do_action('error_footer');
 ?>
 </body>
 </html>

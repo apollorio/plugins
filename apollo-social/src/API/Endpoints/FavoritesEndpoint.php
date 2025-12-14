@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API SMOKE TEST – PASSED
  * Route: /apollo/v1/favs
@@ -19,7 +20,7 @@
  * phpcs:disable WordPress.DB.DirectDatabaseQuery
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace Apollo\API\Endpoints;
 
@@ -139,6 +140,7 @@ class FavoritesEndpoint {
 				array( 'status' => 401 )
 			);
 		}
+
 		return true;
 	}
 
@@ -319,6 +321,7 @@ class FavoritesEndpoint {
 			}
 			// Recalculate if not cached.
 			$this->updateEventFavoriteCount( $content_id );
+
 			return (int) get_post_meta( $content_id, '_favorites_count', true );
 		}
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -28,6 +29,7 @@ class Apollo_Email_Service {
 		if ( self::$instance === null ) {
 			self::$instance = new self();
 		}
+
 		return self::$instance;
 	}
 
@@ -364,6 +366,7 @@ HTML;
 		$domain = $parts[1];
 
 		$masked_local = substr( $local, 0, 2 ) . '***';
+
 		return $masked_local . '@' . $domain;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -99,6 +100,7 @@ function apollo_cache_quiz_schema( string $form_type, array $schema ): void {
  */
 function apollo_cache_get_quiz_schema( string $form_type ) {
 	$key = apollo_cache_versioned_key( "quiz_schema_{$form_type}", 'apollo_quiz' );
+
 	return wp_cache_get( $key, 'apollo_quiz' );
 }
 
@@ -122,6 +124,7 @@ function apollo_cache_form_schema( string $form_type, array $schema ): void {
  */
 function apollo_cache_get_form_schema( string $form_type ) {
 	$key = apollo_cache_versioned_key( "form_schema_{$form_type}", 'apollo_forms' );
+
 	return wp_cache_get( $key, 'apollo_forms' );
 }
 
@@ -143,6 +146,7 @@ function apollo_cache_memberships( array $memberships ): void {
  */
 function apollo_cache_get_memberships() {
 	$key = apollo_cache_versioned_key( 'memberships', 'apollo_memberships' );
+
 	return wp_cache_get( $key, 'apollo_memberships' );
 }
 

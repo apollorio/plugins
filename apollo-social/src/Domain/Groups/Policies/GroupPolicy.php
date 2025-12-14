@@ -1,4 +1,5 @@
 <?php
+
 namespace Apollo\Domain\Groups\Policies;
 
 use Apollo\Domain\Entities\User;
@@ -7,155 +8,165 @@ use Apollo\Domain\Entities\GroupEntity;
 /**
  * Group Policy - Define access rules for groups
  */
-class GroupPolicy {
+class GroupPolicy
+{
+    private $config;
 
-	private $config;
+    public function __construct()
+    {
+        $this->config = include APOLLO_SOCIAL_PLUGIN_DIR . 'config/groups.php';
+    }
 
-	public function __construct() {
-		$this->config = include APOLLO_SOCIAL_PLUGIN_DIR . 'config/groups.php';
-	}
+    /**
+     * Can user view group content?
+     *
+     * @param GroupEntity $group The group to check
+     * @param User|null   $user The user (optional, null for guests)
+     */
+    public function canView(GroupEntity $group, ?User $user = null): bool
+    {
+        $type_config = $this->getTypeConfig($group->type);
 
-	/**
-	 * Can user view group content?
-	 *
-	 * @param GroupEntity $group The group to check
-	 * @param User|null   $user The user (optional, null for guests)
-	 */
-	public function canView( GroupEntity $group, ?User $user = null ): bool {
-		$type_config = $this->getTypeConfig( $group->type );
+        switch ($type_config['visibility']) {
+            case 'public':
+                return true;
 
-		switch ( $type_config['visibility'] ) {
-			case 'public':
-				return true;
+            case 'private':
+                // Núcleo: apenas membros podem ver conteúdo
+                return $user && $this->isMember($user, $group);
 
-			case 'private':
-				// Núcleo: apenas membros podem ver conteúdo
-				return $user && $this->isMember( $user, $group );
+            default:
+                return false;
+        }
+    }
 
-			default:
-				return false;
-		}
-	}
+    /**
+     * Can user join group?
+     */
+    public function canJoin(User $user, GroupEntity $group): bool
+    {
+        if (! $user->isLoggedIn()) {
+            return false;
+        }
 
-	/**
-	 * Can user join group?
-	 */
-	public function canJoin( User $user, GroupEntity $group ): bool {
-		if ( ! $user->isLoggedIn() ) {
-			return false;
-		}
+        // Already a member
+        if ($this->isMember($user, $group)) {
+            return false;
+        }
 
-		// Already a member
-		if ( $this->isMember( $user, $group ) ) {
-			return false;
-		}
+        $type_config = $this->getTypeConfig($group->type);
 
-		$type_config = $this->getTypeConfig( $group->type );
+        switch ($type_config['join']) {
+            case 'open':
+                return true;
 
-		switch ( $type_config['join'] ) {
-			case 'open':
-				return true;
+            case 'invite_only':
+                return false;
+                // Must be invited
 
-			case 'invite_only':
-				return false;
-			// Must be invited
+            case 'request':
+                return true;
+                // Can request to join
 
-			case 'request':
-				return true;
-			// Can request to join
+            default:
+                return false;
+        }
+    }
 
-			default:
-				return false;
-		}
-	}
+    /**
+     * Can user invite others to group?
+     */
+    public function canInvite(User $user, GroupEntity $group): bool
+    {
+        if (! $user->isLoggedIn()) {
+            return false;
+        }
 
-	/**
-	 * Can user invite others to group?
-	 */
-	public function canInvite( User $user, GroupEntity $group ): bool {
-		if ( ! $user->isLoggedIn() ) {
-			return false;
-		}
+        $type_config = $this->getTypeConfig($group->type);
 
-		$type_config = $this->getTypeConfig( $group->type );
+        switch ($type_config['invite']) {
+            case 'any_member':
+                return $this->isMember($user, $group);
 
-		switch ( $type_config['invite'] ) {
-			case 'any_member':
-				return $this->isMember( $user, $group );
+            case 'insiders_only':
+                return $this->isMember($user, $group);
 
-			case 'insiders_only':
-				return $this->isMember( $user, $group );
+            case 'moderators':
+                return $this->isModerator($user, $group);
 
-			case 'moderators':
-				return $this->isModerator( $user, $group );
+            default:
+                return false;
+        }
+    }
 
-			default:
-				return false;
-		}
-	}
+    /**
+     * Can user post in specific scope?
+     */
+    public function canPost(User $user, GroupEntity $group, string $scope): bool
+    {
+        if (! $user->isLoggedIn()) {
+            return false;
+        }
 
-	/**
-	 * Can user post in specific scope?
-	 */
-	public function canPost( User $user, GroupEntity $group, string $scope ): bool {
-		if ( ! $user->isLoggedIn() ) {
-			return false;
-		}
+        if (! $this->isMember($user, $group)) {
+            return false;
+        }
 
-		if ( ! $this->isMember( $user, $group ) ) {
-			return false;
-		}
+        $type_config = $this->getTypeConfig($group->type);
+        $posting     = $type_config['posting'] ?? [];
 
-		$type_config = $this->getTypeConfig( $group->type );
-		$posting     = $type_config['posting'] ?? [];
+        // Check if scope is allowed for this group type
+        if (isset($posting['scopes']) && ! in_array($scope, $posting['scopes'])) {
+            return false;
+        }
 
-		// Check if scope is allowed for this group type
-		if ( isset( $posting['scopes'] ) && ! in_array( $scope, $posting['scopes'] ) ) {
-			return false;
-		}
+        // Check user role
+        $user_role = $this->getUserRoleInGroup($user, $group);
 
-		// Check user role
-		$user_role = $this->getUserRoleInGroup( $user, $group );
-		return in_array( $user_role, $posting['roles'] ?? [] );
-	}
+        return in_array($user_role, $posting['roles'] ?? []);
+    }
 
-	/**
-	 * Get configuration for group type
-	 */
-	private function getTypeConfig( string $type ): array {
-		return $this->config[ $type ] ?? [];
-	}
+    /**
+     * Get configuration for group type
+     */
+    private function getTypeConfig(string $type): array
+    {
+        return $this->config[ $type ] ?? [];
+    }
 
-	/**
-	 * Check if user is member of group (mock implementation)
-	 */
-	private function isMember( User $user, GroupEntity $group ): bool {
-		// TODO: Implement real membership check
-		// For now, mock based on user ID and group ID
-		return ( $user->id % 3 ) === ( $group->id % 3 );
-	}
+    /**
+     * Check if user is member of group (mock implementation)
+     */
+    private function isMember(User $user, GroupEntity $group): bool
+    {
+        // TODO: Implement real membership check
+        // For now, mock based on user ID and group ID
+        return ($user->id % 3) === ($group->id % 3);
+    }
 
-	/**
-	 * Check if user is moderator of group (mock implementation)
-	 */
-	private function isModerator( User $user, GroupEntity $group ): bool {
-		// TODO: Implement real moderator check
-		return $user->hasRole( 'administrator' ) || ( $user->id === $group->created_by );
-	}
+    /**
+     * Check if user is moderator of group (mock implementation)
+     */
+    private function isModerator(User $user, GroupEntity $group): bool
+    {
+        // TODO: Implement real moderator check
+        return $user->hasRole('administrator') || ($user->id === $group->created_by);
+    }
 
-	/**
-	 * Get user role in group (mock implementation)
-	 */
-	private function getUserRoleInGroup( User $user, GroupEntity $group ): string {
-		// TODO: Implement real role detection
-		if ( $this->isModerator( $user, $group ) ) {
-			return 'moderator';
-		}
+    /**
+     * Get user role in group (mock implementation)
+     */
+    private function getUserRoleInGroup(User $user, GroupEntity $group): string
+    {
+        // TODO: Implement real role detection
+        if ($this->isModerator($user, $group)) {
+            return 'moderator';
+        }
 
-		if ( $this->isMember( $user, $group ) ) {
-			return 'member';
-		}
+        if ($this->isMember($user, $group)) {
+            return 'member';
+        }
 
-		return 'guest';
-	}
+        return 'guest';
+    }
 }

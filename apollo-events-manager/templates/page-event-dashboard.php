@@ -7,12 +7,12 @@
  * Shows appropriate message for non-logged-in users
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 // If user is logged in and has permissions, redirect to admin dashboard
-if ( is_user_logged_in() && current_user_can( 'edit_event_listings' ) ) {
-	wp_redirect( admin_url( 'admin.php?page=apollo-events-dashboard' ) );
-	exit;
+if (is_user_logged_in() && current_user_can('edit_event_listings')) {
+    wp_redirect(admin_url('admin.php?page=apollo-events-dashboard'));
+    exit;
 }
 
 // Get header
@@ -22,23 +22,23 @@ get_header();
 <div class="apollo-event-dashboard-public">
 	<div class="apollo-container">
 		<div class="apollo-dashboard-message">
-			<h1><?php echo esc_html__( 'Dashboard de Eventos', 'apollo-events-manager' ); ?></h1>
+			<h1><?php echo esc_html__('Dashboard de Eventos', 'apollo-events-manager'); ?></h1>
 			
-			<?php if ( is_user_logged_in() ) : ?>
-				<p><?php echo esc_html__( 'Você não tem permissão para acessar o dashboard de eventos.', 'apollo-events-manager' ); ?></p>
+			<?php if (is_user_logged_in()) : ?>
+				<p><?php echo esc_html__('Você não tem permissão para acessar o dashboard de eventos.', 'apollo-events-manager'); ?></p>
 				<p>
-					<a href="<?php echo esc_url( home_url() ); ?>" class="button">
-						<?php echo esc_html__( 'Voltar para a página inicial', 'apollo-events-manager' ); ?>
+					<a href="<?php echo esc_url(home_url()); ?>" class="button">
+						<?php echo esc_html__('Voltar para a página inicial', 'apollo-events-manager'); ?>
 					</a>
 				</p>
 			<?php else : ?>
-				<p><?php echo esc_html__( 'Você precisa fazer login para acessar o dashboard de eventos.', 'apollo-events-manager' ); ?></p>
+				<p><?php echo esc_html__('Você precisa fazer login para acessar o dashboard de eventos.', 'apollo-events-manager'); ?></p>
 				<p>
-					<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="button button-primary">
-						<?php echo esc_html__( 'Fazer Login', 'apollo-events-manager' ); ?>
+					<a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="button button-primary">
+						<?php echo esc_html__('Fazer Login', 'apollo-events-manager'); ?>
 					</a>
-					<a href="<?php echo esc_url( home_url() ); ?>" class="button">
-						<?php echo esc_html__( 'Voltar para a página inicial', 'apollo-events-manager' ); ?>
+					<a href="<?php echo esc_url(home_url()); ?>" class="button">
+						<?php echo esc_html__('Voltar para a página inicial', 'apollo-events-manager'); ?>
 					</a>
 				</p>
 			<?php endif; ?>
@@ -48,4 +48,3 @@ get_header();
 
 <?php
 get_footer();
-

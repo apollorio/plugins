@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Single season view (stub)
  *

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Suspension class
  */
 class Apollo_Moderation_Suspension {
+
 	/**
 	 * Initialize
 	 */

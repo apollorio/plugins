@@ -171,3 +171,6 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-email-admin-ui.php'
 5. Create default templates in CPT
 6. Test end-to-end email sending
 
+
+
+

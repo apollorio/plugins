@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:ignoreFile
 /**
  * Tests for class WP_Service_Worker_Theme_Asset_Caching_Component.
@@ -13,126 +14,132 @@ use Yoast\WPTestUtils\WPIntegration\TestCase;
  *
  * @coversDefaultClass WP_Service_Worker_Theme_Asset_Caching_Component
  */
-class Test_WP_Service_Worker_Theme_Asset_Caching_Component extends TestCase {
+class Test_WP_Service_Worker_Theme_Asset_Caching_Component extends TestCase
+{
+    /**
+     * Get data for test_serve.
+     *
+     * @return array[]
+     */
+    public function get_test_serve_data()
+    {
+        $theme_directory_uri_patterns = [
+            preg_quote(trailingslashit(get_template_directory_uri()), '/'),
+        ];
+        if (get_template() !== get_stylesheet()) {
+            $theme_directory_uri_patterns[] = preg_quote(trailingslashit(get_stylesheet_directory_uri()), '/');
+        }
+        $default_route = '^(' . implode('|', $theme_directory_uri_patterns) . ').*';
 
-	/**
-	 * Get data for test_serve.
-	 *
-	 * @return array[]
-	 */
-	public function get_test_serve_data() {
-		$theme_directory_uri_patterns = array(
-			preg_quote( trailingslashit( get_template_directory_uri() ), '/' ),
-		);
-		if ( get_template() !== get_stylesheet() ) {
-			$theme_directory_uri_patterns[] = preg_quote( trailingslashit( get_stylesheet_directory_uri() ), '/' );
-		}
-		$default_route = '^(' . implode( '|', $theme_directory_uri_patterns ) . ').*';
+        $default_cache_name = 'theme-assets';
 
-		$default_cache_name = 'theme-assets';
+        return [
+            'no_filter' => [
+                null,
+                [
+                    'strategy'   => WP_Service_Worker_Caching_Routes::STRATEGY_NETWORK_FIRST,
+                    'cache_name' => $default_cache_name,
+                    'expiration' => [
+                        'max_entries' => 34,
+                    ],
+                    'route' => $default_route,
+                ],
+            ],
 
-		return array(
-			'no_filter'                               => array(
-				null,
-				array(
-					'strategy'   => WP_Service_Worker_Caching_Routes::STRATEGY_NETWORK_FIRST,
-					'cache_name' => $default_cache_name,
-					'expiration' => array(
-						'max_entries' => 34,
-					),
-					'route'      => $default_route,
-				),
-			),
+            'disabling_filter' => [
+                '__return_empty_array',
+                null,
+            ],
 
-			'disabling_filter'                        => array(
-				'__return_empty_array',
-				null,
-			),
+            'filtering_out_strategy' => [
+                function ($args) {
+                    unset($args['strategy']);
 
-			'filtering_out_strategy'                  => array(
-				function ( $args ) {
-					unset( $args['strategy'] );
-					return $args;
-				},
-				null,
-			),
+                    return $args;
+                },
+                null,
+            ],
 
-			'filtering_out_route'                     => array(
-				function ( $args ) {
-					unset( $args['route'] );
-					return $args;
-				},
-				null,
-			),
+            'filtering_out_route' => [
+                function ($args) {
+                    unset($args['route']);
 
-			'cache_first_strategy_and_plugin_changes' => array(
-				function ( $args ) {
-					$args['strategy'] = WP_Service_Worker_Caching_Routes::STRATEGY_CACHE_FIRST;
-					$args['expiration']['max_age_seconds'] = MONTH_IN_SECONDS;
-					$args['broadcast_update'] = array();
-					return $args;
-				},
-				array(
-					'strategy'         => WP_Service_Worker_Caching_Routes::STRATEGY_CACHE_FIRST,
-					'cache_name'       => $default_cache_name,
-					'expiration'       => array(
-						'max_entries'     => 34,
-						'max_age_seconds' => MONTH_IN_SECONDS,
-					),
-					'broadcast_update' => array(),
-					'route'            => $default_route,
-				),
-			),
-		);
-	}
+                    return $args;
+                },
+                null,
+            ],
 
-	/**
-	 * Test registering a route.
-	 *
-	 * @dataProvider get_test_serve_data
-	 *
-	 * @param callable|null $filter_callback Filter callback.
-	 * @param array|null    $expected_item   Expected item.
-	 *
-	 * @covers ::serve()
-	 */
-	public function test_serve( $filter_callback, $expected_item ) {
-		if ( $filter_callback ) {
-			add_filter( 'wp_service_worker_theme_asset_caching', $filter_callback );
-		}
+            'cache_first_strategy_and_plugin_changes' => [
+                function ($args) {
+                    $args['strategy']                      = WP_Service_Worker_Caching_Routes::STRATEGY_CACHE_FIRST;
+                    $args['expiration']['max_age_seconds'] = MONTH_IN_SECONDS;
+                    $args['broadcast_update']              = [];
 
-		$component = new WP_Service_Worker_Theme_Asset_Caching_Component();
+                    return $args;
+                },
+                [
+                    'strategy'   => WP_Service_Worker_Caching_Routes::STRATEGY_CACHE_FIRST,
+                    'cache_name' => $default_cache_name,
+                    'expiration' => [
+                        'max_entries'     => 34,
+                        'max_age_seconds' => MONTH_IN_SECONDS,
+                    ],
+                    'broadcast_update' => [],
+                    'route'            => $default_route,
+                ],
+            ],
+        ];
+    }
 
-		$scripts = new WP_Service_Worker_Scripts(
-			new WP_Service_Worker_Caching_Routes(),
-			new WP_Service_Worker_Precaching_Routes(),
-			array(
-				'theme_asset_caching' => $component,
-			)
-		);
+    /**
+     * Test registering a route.
+     *
+     * @dataProvider get_test_serve_data
+     *
+     * @param callable|null $filter_callback Filter callback.
+     * @param array|null    $expected_item   Expected item.
+     *
+     * @covers ::serve()
+     */
+    public function test_serve($filter_callback, $expected_item)
+    {
+        if ($filter_callback) {
+            add_filter('wp_service_worker_theme_asset_caching', $filter_callback);
+        }
 
-		$this->assertEmpty( $scripts->caching_routes()->get_all() );
+        $component = new WP_Service_Worker_Theme_Asset_Caching_Component();
 
-		$component->serve( $scripts );
+        $scripts = new WP_Service_Worker_Scripts(
+            new WP_Service_Worker_Caching_Routes(),
+            new WP_Service_Worker_Precaching_Routes(),
+            [
+                'theme_asset_caching' => $component,
+            ]
+        );
 
-		$all_scripts = $scripts->caching_routes()->get_all();
+        $this->assertEmpty($scripts->caching_routes()->get_all());
 
-		if ( empty( $expected_item ) ) {
-			$this->assertCount( 0, $all_scripts );
-		} else {
-			$this->assertCount( 1, $all_scripts );
-			$entry = current( $all_scripts );
-			$this->assertEquals( $entry, $expected_item );
-		}
-	}
+        $component->serve($scripts);
 
-	/**
-	 * Test get_priority.
-	 *
-	 * @covers ::get_priority()
-	 */
-	public function test_get_priority() {
-		$instance = new WP_Service_Worker_Theme_Asset_Caching_Component();
-		$this->assertSame( 10, $instance->get_priority() );
-	}
+        $all_scripts = $scripts->caching_routes()->get_all();
+
+        if (empty($expected_item)) {
+            $this->assertCount(0, $all_scripts);
+        } else {
+            $this->assertCount(1, $all_scripts);
+            $entry = current($all_scripts);
+            $this->assertEquals($entry, $expected_item);
+        }
+    }
+
+    /**
+     * Test get_priority.
+     *
+     * @covers ::get_priority()
+     */
+    public function test_get_priority()
+    {
+        $instance = new WP_Service_Worker_Theme_Asset_Caching_Component();
+        $this->assertSame(10, $instance->get_priority());
+    }
 }

@@ -128,6 +128,16 @@ function apollo_core_render_hub_page(): void {
 				<span class="dashicons dashicons-admin-settings"></span>
 				<?php esc_html_e( 'Settings', 'apollo-core' ); ?>
 			</a>
+			<a href="?page=apollo-core-hub&tab=rbac" 
+				class="nav-tab <?php echo $current_tab === 'rbac' ? 'nav-tab-active' : ''; ?>">
+				<span class="dashicons dashicons-groups"></span>
+				<?php esc_html_e( 'Permissões Apollo', 'apollo-core' ); ?>
+			</a>
+			<a href="?page=apollo-core-hub&tab=audit" 
+				class="nav-tab <?php echo $current_tab === 'audit' ? 'nav-tab-active' : ''; ?>">
+				<span class="dashicons dashicons-book"></span>
+				<?php esc_html_e( 'Audit Log', 'apollo-core' ); ?>
+			</a>
 		</nav>
 		
 		<div class="apollo-hub-content">
@@ -135,21 +145,35 @@ function apollo_core_render_hub_page(): void {
 			switch ( $current_tab ) {
 				case 'shortcodes':
 					apollo_core_render_shortcodes_content();
+
 					break;
 				case 'placeholders':
 					apollo_core_render_placeholders_content();
+
 					break;
 				case 'forms':
 					apollo_core_render_forms_content();
+
 					break;
 				case 'roles':
 					apollo_core_render_roles_content();
+
 					break;
 				case 'metakeys':
 					apollo_core_render_metakeys_content();
+
 					break;
 				case 'settings':
 					apollo_core_render_settings_content();
+
+					break;
+				case 'rbac':
+					apollo_core_render_rbac_content();
+
+					break;
+				case 'audit':
+					apollo_core_render_audit_content();
+
 					break;
 				default:
 					apollo_core_render_intro_content();
@@ -533,8 +557,7 @@ function apollo_core_render_metakeys_content(): void {
  */
 function apollo_core_render_settings_content(): void {
 	// Handle form submission
-	if ( isset( $_POST['apollo_core_settings_nonce'] ) &&
-		wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_core_settings_nonce'] ) ), 'apollo_core_save_settings' ) ) {
+	if ( isset( $_POST['apollo_core_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_core_settings_nonce'] ) ), 'apollo_core_save_settings' ) ) {
 
 		update_option( 'apollo_core_mod_enabled', isset( $_POST['mod_enabled'] ) ? 1 : 0 );
 		update_option( 'apollo_core_cenario_enabled', isset( $_POST['cenario_enabled'] ) ? 1 : 0 );
@@ -1216,6 +1239,176 @@ function apollo_core_get_all_metakeys(): array {
 	);
 }
 
+/**
+ * Render the RBAC (Role-Based Access Control) content for the Apollo Core Hub.
+ */
+function apollo_core_render_rbac_content() {
+	// Get all roles and capabilities
+	$roles               = wp_roles()->roles;
+	$apollo_capabilities = array(
+		'manage_apollo'             => 'Manage Apollo',
+		'manage_apollo_security'    => 'Manage Apollo Security',
+		'manage_apollo_uploads'     => 'Manage Apollo Uploads',
+		'manage_apollo_compression' => 'Manage Apollo Compression',
+		'manage_apollo_audit'       => 'Manage Apollo Audit',
+		'view_apollo_reports'       => 'View Apollo Reports',
+		'edit_apollo_settings'      => 'Edit Apollo Settings',
+	);
 
+	echo '<div class="wrap">';
+	echo '<h1>Apollo RBAC Matrix</h1>';
+	echo '<p>This matrix shows the capabilities assigned to each role for Apollo plugins.</p>';
 
+	echo '<table class="widefat fixed" cellspacing="0">';
+	echo '<thead>';
+	echo '<tr>';
+	echo '<th>Role</th>';
+	foreach ( $apollo_capabilities as $cap => $label ) {
+		echo '<th>' . esc_html( $label ) . '</th>';
+	}
+	echo '</tr>';
+	echo '</thead>';
+	echo '<tbody>';
 
+	foreach ( $roles as $role_slug => $role_data ) {
+		echo '<tr>';
+		echo '<td><strong>' . esc_html( $role_data['name'] ) . '</strong></td>';
+		foreach ( $apollo_capabilities as $cap => $label ) {
+			$has_cap = isset( $role_data['capabilities'][ $cap ] ) && $role_data['capabilities'][ $cap ];
+			$icon    = $has_cap ? '✓' : '✗';
+			$class   = $has_cap ? 'apollo-cap-yes' : 'apollo-cap-no';
+			echo '<td class="' . esc_attr( $class ) . '">' . esc_html( $icon ) . '</td>';
+		}
+		echo '</tr>';
+	}
+
+	echo '</tbody>';
+	echo '</table>';
+
+	echo '<style>';
+	echo '.apollo-cap-yes { background-color: #d4edda; color: #155724; }';
+	echo '.apollo-cap-no { background-color: #f8d7da; color: #721c24; }';
+	echo '</style>';
+
+	echo '</div>';
+}
+
+/**
+ * Render the Audit Log content for the Apollo Core Hub.
+ */
+function apollo_core_render_audit_content() {
+	if ( ! current_user_can( 'manage_apollo_audit' ) ) {
+		wp_die( esc_html__( 'You do not have permission to view the audit log.', 'apollo-core' ) );
+	}
+
+	require_once APOLLO_CORE_DIR . 'includes/class-apollo-audit-log.php';
+
+	// Handle filters
+	$event_type = isset( $_GET['event_type'] ) ? sanitize_key( $_GET['event_type'] ) : '';
+	$severity   = isset( $_GET['severity'] ) ? sanitize_key( $_GET['severity'] ) : '';
+	$limit      = isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 50;
+
+	$args = array(
+		'limit' => $limit,
+	);
+
+	if ( ! empty( $event_type ) ) {
+		$args['event_type'] = $event_type;
+	}
+
+	if ( ! empty( $severity ) ) {
+		$args['severity'] = $severity;
+	}
+
+	$entries = Apollo_Audit_Log::get_entries( $args );
+
+	echo '<div class="wrap">';
+	echo '<h1>Apollo Audit Log</h1>';
+
+	// Filters
+	echo '<div class="tablenav top">';
+	echo '<form method="get" action="">';
+	echo '<input type="hidden" name="page" value="apollo-core-hub">';
+	echo '<input type="hidden" name="tab" value="audit">';
+
+	echo '<select name="event_type">';
+	echo '<option value="">All Event Types</option>';
+	$event_types = array_unique( wp_list_pluck( $entries, 'event_type' ) );
+	foreach ( $event_types as $type ) {
+		$selected = selected( $event_type, $type, false );
+		echo '<option value="' . esc_attr( $type ) . '" ' . $selected . '>' . esc_html( $type ) . '</option>';
+	}
+	echo '</select>';
+
+	echo '<select name="severity">';
+	echo '<option value="">All Severities</option>';
+	echo '<option value="info" ' . selected( $severity, 'info', false ) . '>Info</option>';
+	echo '<option value="warning" ' . selected( $severity, 'warning', false ) . '>Warning</option>';
+	echo '<option value="critical" ' . selected( $severity, 'critical', false ) . '>Critical</option>';
+	echo '</select>';
+
+	echo '<select name="limit">';
+	echo '<option value="25" ' . selected( $limit, 25, false ) . '>25</option>';
+	echo '<option value="50" ' . selected( $limit, 50, false ) . '>50</option>';
+	echo '<option value="100" ' . selected( $limit, 100, false ) . '>100</option>';
+	echo '</select>';
+
+	echo '<input type="submit" class="button" value="Filter">';
+	echo '</form>';
+	echo '</div>';
+
+	if ( empty( $entries ) ) {
+		echo '<p>No audit log entries found.</p>';
+	} else {
+		echo '<table class="widefat fixed striped" cellspacing="0">';
+		echo '<thead>';
+		echo '<tr>';
+		echo '<th>Time</th>';
+		echo '<th>Event Type</th>';
+		echo '<th>User</th>';
+		echo '<th>Severity</th>';
+		echo '<th>Message</th>';
+		echo '<th>Details</th>';
+		echo '</tr>';
+		echo '</thead>';
+		echo '<tbody>';
+
+		foreach ( $entries as $entry ) {
+			$user      = get_user_by( 'id', $entry->actor_id );
+			$user_name = $user ? $user->display_name : 'Unknown';
+
+			$severity_class = 'audit-severity-' . $entry->severity;
+
+			echo '<tr>';
+			echo '<td>' . esc_html( $entry->created_at ) . '</td>';
+			echo '<td>' . esc_html( $entry->event_type ) . '</td>';
+			echo '<td>' . esc_html( $user_name ) . '</td>';
+			echo '<td class="' . esc_attr( $severity_class ) . '">' . esc_html( ucfirst( $entry->severity ) ) . '</td>';
+			echo '<td>' . esc_html( $entry->message ) . '</td>';
+			echo '<td>';
+			if ( ! empty( $entry->context ) ) {
+				echo '<details>';
+				echo '<summary>View Details</summary>';
+				echo '<pre>' . esc_html( wp_json_encode( $entry->context, JSON_PRETTY_PRINT ) ) . '</pre>';
+				echo '</details>';
+			} else {
+				echo '—';
+			}
+			echo '</td>';
+			echo '</tr>';
+		}
+
+		echo '</tbody>';
+		echo '</table>';
+	}
+
+	echo '<style>';
+	echo '.audit-severity-info { color: #17a2b8; }';
+	echo '.audit-severity-warning { color: #ffc107; font-weight: bold; }';
+	echo '.audit-severity-critical { color: #dc3545; font-weight: bold; }';
+	echo 'details { margin: 0.5em 0; }';
+	echo 'details pre { background: #f8f9fa; padding: 1em; margin: 0.5em 0; overflow-x: auto; }';
+	echo '</style>';
+
+	echo '</div>';
+}

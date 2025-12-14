@@ -8,13 +8,13 @@
  * @version 2.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue UNI.CSS assets
-if ( function_exists( 'apollo_enqueue_global_assets' ) ) {
-	apollo_enqueue_global_assets();
+if (function_exists('apollo_enqueue_global_assets')) {
+    apollo_enqueue_global_assets();
 }
 
 $user_obj = wp_get_current_user();
@@ -22,48 +22,48 @@ $user_id  = get_current_user_id();
 
 // Membership levels
 $membership_levels = [
-	'clubber'  => [
-		'icon'        => 'ri-user-line',
-		'label'       => 'Clubber',
-		'description' => 'Acesso básico à comunidade Apollo',
-		'color'       => 'var(--ap-text-muted)',
-		'features'    => [ 'Perfil público', 'Feed social', 'Favoritar eventos' ],
-	],
-	'dj'       => [
-		'icon'        => 'ri-disc-line',
-		'label'       => 'DJ',
-		'description' => 'Artista verificado na plataforma',
-		'color'       => 'var(--ap-orange-500)',
-		'features'    => [ 'Página de artista', 'Agenda pública', 'Booking requests', 'Analytics' ],
-	],
-	'producer' => [
-		'icon'        => 'ri-music-2-line',
-		'label'       => 'Producer',
-		'description' => 'Produtor musical verificado',
-		'color'       => '#a855f7',
-		'features'    => [ 'Portfolio de tracks', 'Colaborações', 'Releases', 'Analytics' ],
-	],
-	'promoter' => [
-		'icon'        => 'ri-megaphone-line',
-		'label'       => 'Promoter',
-		'description' => 'Produtor de eventos verificado',
-		'color'       => '#3b82f6',
-		'features'    => [ 'Criar eventos', 'Gestão de lineup', 'Contratos', 'Vendas' ],
-	],
-	'venue'    => [
-		'icon'        => 'ri-building-2-line',
-		'label'       => 'Venue',
-		'description' => 'Local/club verificado',
-		'color'       => '#10b981',
-		'features'    => [ 'Página do local', 'Calendário', 'Booking', 'Analytics' ],
-	],
+    'clubber' => [
+        'icon'        => 'ri-user-line',
+        'label'       => 'Clubber',
+        'description' => 'Acesso básico à comunidade Apollo',
+        'color'       => 'var(--ap-text-muted)',
+        'features'    => [ 'Perfil público', 'Feed social', 'Favoritar eventos' ],
+    ],
+    'dj' => [
+        'icon'        => 'ri-disc-line',
+        'label'       => 'DJ',
+        'description' => 'Artista verificado na plataforma',
+        'color'       => 'var(--ap-orange-500)',
+        'features'    => [ 'Página de artista', 'Agenda pública', 'Booking requests', 'Analytics' ],
+    ],
+    'producer' => [
+        'icon'        => 'ri-music-2-line',
+        'label'       => 'Producer',
+        'description' => 'Produtor musical verificado',
+        'color'       => '#a855f7',
+        'features'    => [ 'Portfolio de tracks', 'Colaborações', 'Releases', 'Analytics' ],
+    ],
+    'promoter' => [
+        'icon'        => 'ri-megaphone-line',
+        'label'       => 'Promoter',
+        'description' => 'Produtor de eventos verificado',
+        'color'       => '#3b82f6',
+        'features'    => [ 'Criar eventos', 'Gestão de lineup', 'Contratos', 'Vendas' ],
+    ],
+    'venue' => [
+        'icon'        => 'ri-building-2-line',
+        'label'       => 'Venue',
+        'description' => 'Local/club verificado',
+        'color'       => '#10b981',
+        'features'    => [ 'Página do local', 'Calendário', 'Booking', 'Analytics' ],
+    ],
 ];
 
 // Get user's current membership
-$user_membership_raw   = get_user_meta( $user_id, 'membership_level', true );
-$user_membership       = ! empty( $user_membership_raw ) ? $user_membership_raw : 'clubber';
-$membership_status_raw = get_user_meta( $user_id, 'membership_status', true );
-$membership_status     = ! empty( $membership_status_raw ) ? $membership_status_raw : 'active';
+$user_membership_raw   = get_user_meta($user_id, 'membership_level', true);
+$user_membership       = ! empty($user_membership_raw) ? $user_membership_raw : 'clubber';
+$membership_status_raw = get_user_meta($user_id, 'membership_status', true);
+$membership_status     = ! empty($membership_status_raw) ? $membership_status_raw : 'active';
 
 get_header();
 ?>
@@ -74,7 +74,7 @@ get_header();
 		<div class="ap-container">
 			<div class="ap-header-content">
 				<div class="ap-breadcrumb">
-					<a href="<?php echo esc_url( home_url() ); ?>" data-ap-tooltip="Voltar ao início">
+					<a href="<?php echo esc_url(home_url()); ?>" data-ap-tooltip="Voltar ao início">
 						<i class="ri-home-4-line"></i>
 					</a>
 					<i class="ri-arrow-right-s-line"></i>
@@ -87,25 +87,25 @@ get_header();
 	</header>
 
 	<!-- Current Membership Banner -->
-	<?php if ( is_user_logged_in() ) : ?>
+	<?php if (is_user_logged_in()) : ?>
 	<section class="ap-section ap-bg-surface">
 		<div class="ap-container">
-			<div class="ap-card ap-card-highlight" style="border-left: 4px solid <?php echo esc_attr( $membership_levels[ $user_membership ]['color'] ); ?>;">
+			<div class="ap-card ap-card-highlight" style="border-left: 4px solid <?php echo esc_attr($membership_levels[ $user_membership ]['color']); ?>;">
 				<div class="ap-card-body">
 					<div class="ap-flex ap-flex-between ap-flex-center-v">
 						<div class="ap-flex ap-gap-3 ap-flex-center-v">
-							<div class="ap-avatar ap-avatar-lg" style="background: <?php echo esc_attr( $membership_levels[ $user_membership ]['color'] ); ?>;">
-								<i class="<?php echo esc_attr( $membership_levels[ $user_membership ]['icon'] ); ?>"></i>
+							<div class="ap-avatar ap-avatar-lg" style="background: <?php echo esc_attr($membership_levels[ $user_membership ]['color']); ?>;">
+								<i class="<?php echo esc_attr($membership_levels[ $user_membership ]['icon']); ?>"></i>
 							</div>
 							<div>
 								<h3 class="ap-heading-4">Seu nível atual</h3>
-								<p class="ap-text-lg ap-text-bold" style="color: <?php echo esc_attr( $membership_levels[ $user_membership ]['color'] ); ?>;">
-									<?php echo esc_html( $membership_levels[ $user_membership ]['label'] ); ?>
+								<p class="ap-text-lg ap-text-bold" style="color: <?php echo esc_attr($membership_levels[ $user_membership ]['color']); ?>;">
+									<?php echo esc_html($membership_levels[ $user_membership ]['label']); ?>
 								</p>
 							</div>
 						</div>
 						<div class="ap-flex ap-gap-2">
-							<?php if ( $membership_status === 'pending' ) : ?>
+							<?php if ($membership_status === 'pending') : ?>
 							<span class="ap-badge ap-badge-warning" data-ap-tooltip="Aguardando aprovação do admin">
 								<i class="ri-time-line"></i> Pendente
 							</span>
@@ -132,18 +132,18 @@ get_header();
 
 			<div class="ap-grid ap-grid-3 ap-gap-4">
 				<?php
-				foreach ( $membership_levels as $level_key => $level ) :
-					$is_current = ( $user_membership === $level_key );
-					?>
+                foreach ($membership_levels as $level_key => $level) :
+                    $is_current = ($user_membership === $level_key);
+                    ?>
 				<div class="ap-card ap-card-hover <?php echo $is_current ? 'ap-card-active' : ''; ?>"
-					style="<?php echo $is_current ? 'border-color: ' . esc_attr( $level['color'] ) . ';' : ''; ?>">
+					style="<?php echo $is_current ? 'border-color: ' . esc_attr($level['color']) . ';' : ''; ?>">
 
 					<!-- Card Header -->
 					<div class="ap-card-header">
-						<div class="ap-avatar ap-avatar-md" style="background: <?php echo esc_attr( $level['color'] ); ?>;">
-							<i class="<?php echo esc_attr( $level['icon'] ); ?>" style="color: white;"></i>
+						<div class="ap-avatar ap-avatar-md" style="background: <?php echo esc_attr($level['color']); ?>;">
+							<i class="<?php echo esc_attr($level['icon']); ?>" style="color: white;"></i>
 						</div>
-						<?php if ( $is_current ) : ?>
+						<?php if ($is_current) : ?>
 						<span class="ap-badge ap-badge-primary" data-ap-tooltip="Este é seu nível atual">
 							<i class="ri-check-line"></i> Atual
 						</span>
@@ -152,17 +152,17 @@ get_header();
 
 					<!-- Card Body -->
 					<div class="ap-card-body">
-						<h3 class="ap-card-title" style="color: <?php echo esc_attr( $level['color'] ); ?>;">
-							<?php echo esc_html( $level['label'] ); ?>
+						<h3 class="ap-card-title" style="color: <?php echo esc_attr($level['color']); ?>;">
+							<?php echo esc_html($level['label']); ?>
 						</h3>
-						<p class="ap-card-text"><?php echo esc_html( $level['description'] ); ?></p>
+						<p class="ap-card-text"><?php echo esc_html($level['description']); ?></p>
 
 						<!-- Features List -->
 						<ul class="ap-list ap-list-check">
-							<?php foreach ( $level['features'] as $feature ) : ?>
+							<?php foreach ($level['features'] as $feature) : ?>
 							<li>
-								<i class="ri-check-line" style="color: <?php echo esc_attr( $level['color'] ); ?>;"></i>
-								<?php echo esc_html( $feature ); ?>
+								<i class="ri-check-line" style="color: <?php echo esc_attr($level['color']); ?>;"></i>
+								<?php echo esc_html($feature); ?>
 							</li>
 							<?php endforeach; ?>
 						</ul>
@@ -170,22 +170,22 @@ get_header();
 
 					<!-- Card Footer -->
 					<div class="ap-card-footer">
-						<?php if ( $is_current ) : ?>
-						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>"
+						<?php if ($is_current) : ?>
+						<a href="<?php echo esc_url(home_url('/membership/' . $level_key)); ?>"
 							class="ap-btn ap-btn-outline ap-btn-block"
 							data-ap-tooltip="Ver detalhes do seu membership">
 							<i class="ri-eye-line"></i>
 							Ver Detalhes
 						</a>
-						<?php elseif ( $level_key === 'clubber' ) : ?>
+						<?php elseif ($level_key === 'clubber') : ?>
 						<span class="ap-btn ap-btn-secondary ap-btn-block ap-btn-disabled">
 							<i class="ri-user-line"></i>
 							Nível Básico
 						</span>
 						<?php else : ?>
-						<a href="<?php echo esc_url( home_url( '/membership/' . $level_key ) ); ?>"
+						<a href="<?php echo esc_url(home_url('/membership/' . $level_key)); ?>"
 							class="ap-btn ap-btn-primary ap-btn-block"
-							data-ap-tooltip="Solicitar upgrade para <?php echo esc_attr( $level['label'] ); ?>">
+							data-ap-tooltip="Solicitar upgrade para <?php echo esc_attr($level['label']); ?>">
 							<i class="ri-arrow-up-circle-line"></i>
 							Solicitar Upgrade
 						</a>

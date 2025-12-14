@@ -6,7 +6,7 @@
  */
 
 // Get current filters
-$category_filter = $_GET['category'] ?? '';
+$category_filter = $_GET['category']   ?? '';
 $group_filter    = $_GET['group_type'] ?? '';
 
 ?>
@@ -17,7 +17,7 @@ $group_filter    = $_GET['group_type'] ?? '';
 		<h1>Anúncios Classificados</h1>
 		
 		<div class="classifieds-actions">
-			<button class="btn btn-primary apollo-create-ad-btn" data-category="<?php echo esc_attr( $category_filter ); ?>" data-group-type="<?php echo esc_attr( $group_filter ); ?>">
+			<button class="btn btn-primary apollo-create-ad-btn" data-category="<?php echo esc_attr($category_filter); ?>" data-group-type="<?php echo esc_attr($group_filter); ?>">
 				Criar Anúncio
 			</button>
 		</div>
@@ -27,7 +27,7 @@ $group_filter    = $_GET['group_type'] ?? '';
 			<select id="category-filter" class="apollo-filter" data-filter-type="category">
 				<option value="">Todas as Categorias</option>
 				<option value="veiculos" <?php echo $category_filter === 'veiculos' ? 'selected' : ''; ?>>Veículos</option>
-				<option value="imoveis" <?php echo $category_filter === 'imoveis' ? 'selected' : ''; ?>>Imóveis</option>
+				<option value="imoveis" <?php echo $category_filter  === 'imoveis' ? 'selected' : ''; ?>>Imóveis</option>
 				<option value="servicos" <?php echo $category_filter === 'servicos' ? 'selected' : ''; ?>>Serviços</option>
 				<option value="produtos" <?php echo $category_filter === 'produtos' ? 'selected' : ''; ?>>Produtos</option>
 			</select>
@@ -35,8 +35,8 @@ $group_filter    = $_GET['group_type'] ?? '';
 			<select id="group-filter" class="apollo-filter" data-filter-type="group_type">
 				<option value="">Todos os Grupos</option>
 				<option value="comunidade" <?php echo $group_filter === 'comunidade' ? 'selected' : ''; ?>>Comunidade</option>
-				<option value="nucleo" <?php echo $group_filter === 'nucleo' ? 'selected' : ''; ?>>Núcleo</option>
-				<option value="season" <?php echo $group_filter === 'season' ? 'selected' : ''; ?>>Season</option>
+				<option value="nucleo" <?php echo $group_filter     === 'nucleo' ? 'selected' : ''; ?>>Núcleo</option>
+				<option value="season" <?php echo $group_filter     === 'season' ? 'selected' : ''; ?>>Season</option>
 			</select>
 			
 			<button class="btn apollo-apply-filters-btn">Aplicar Filtros</button>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apollo Unions Directory Widget for Elementor (stub)
  */

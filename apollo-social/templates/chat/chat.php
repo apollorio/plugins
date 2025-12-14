@@ -5,63 +5,63 @@
  * @package Apollo_Social
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 
 // Enqueue assets via WordPress proper methods.
 add_action(
-	'wp_enqueue_scripts',
-	function () {
-		// UNI.CSS Framework.
-		wp_enqueue_style(
-			'apollo-uni-css',
-			'https://assets.apollo.rio.br/uni.css',
-			[],
-			'2.0.0'
-		);
+    'wp_enqueue_scripts',
+    function () {
+        // UNI.CSS Framework.
+        wp_enqueue_style(
+            'apollo-uni-css',
+            'https://assets.apollo.rio.br/uni.css',
+            [],
+            '2.0.0'
+        );
 
-		// Remix Icons.
-		wp_enqueue_style(
-			'remixicon',
-			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			[],
-			'4.7.0'
-		);
+        // Remix Icons.
+        wp_enqueue_style(
+            'remixicon',
+            'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
+            [],
+            '4.7.0'
+        );
 
-		// Tailwind (CDN for dev).
-		wp_enqueue_script(
-			'tailwindcss',
-			'https://cdn.tailwindcss.com',
-			[],
-			'3.4.0',
-			false
-		);
+        // Tailwind (CDN for dev).
+        wp_enqueue_script(
+            'tailwindcss',
+            'https://cdn.tailwindcss.com',
+            [],
+            '3.4.0',
+            false
+        );
 
-		// Motion.dev.
-		wp_enqueue_script(
-			'motion-one',
-			'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
-			[],
-			'10.16.4',
-			true
-		);
+        // Motion.dev.
+        wp_enqueue_script(
+            'motion-one',
+            'https://unpkg.com/@motionone/dom/dist/motion-one.umd.js',
+            [],
+            '10.16.4',
+            true
+        );
 
-		// Base Apollo JS.
-		wp_enqueue_script(
-			'apollo-base-js',
-			'https://assets.apollo.rio.br/base.js',
-			[],
-			'2.0.0',
-			true
-		);
-	},
-	10
+        // Base Apollo JS.
+        wp_enqueue_script(
+            'apollo-base-js',
+            'https://assets.apollo.rio.br/base.js',
+            [],
+            '2.0.0',
+            true
+        );
+    },
+    10
 );
 
 // Trigger enqueue if not already done.
-if ( ! did_action( 'wp_enqueue_scripts' ) ) {
-	do_action( 'wp_enqueue_scripts' );
+if (! did_action('wp_enqueue_scripts')) {
+    do_action('wp_enqueue_scripts');
 }
 ?>
 <!DOCTYPE html>

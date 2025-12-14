@@ -8,8 +8,8 @@
  * ============================================
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (! defined('ABSPATH')) {
+    exit;
 }
 ?>
 	</main><!-- #apollo-content -->
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			
 			<div class="apollo-footer-info-minimal">
 				<p class="apollo-copyright-minimal">
-					&copy; <?php echo date( 'Y' ); ?> Apollo::Rio
+					&copy; <?php echo date('Y'); ?> Apollo::Rio
 				</p>
 			</div>
 			

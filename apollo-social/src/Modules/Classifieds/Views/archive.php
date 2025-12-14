@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Classifieds archive view (stub) - /anuncio/
  */
