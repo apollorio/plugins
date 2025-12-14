@@ -19,50 +19,50 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array Default memberships array
  */
 function apollo_get_default_memberships(): array {
-	return array(
-		'nao-verificado' => array(
+	return [
+		'nao-verificado' => [
 			'label'          => __( 'Não Verificado', 'apollo-core' ),
 			'frontend_label' => __( 'Não Verificado', 'apollo-core' ),
 			'color'          => '#9AA0A6',
 			'text_color'     => '#6E7376',
-		),
-		'apollo'         => array(
+		],
+		'apollo'         => [
 			'label'          => __( 'Apollo', 'apollo-core' ),
 			'frontend_label' => __( 'Apollo', 'apollo-core' ),
 			'color'          => '#FF8C42',
 			'text_color'     => '#7A3E00',
-		),
-		'prod'           => array(
+		],
+		'prod'           => [
 			'label'          => __( 'Prod', 'apollo-core' ),
 			'frontend_label' => __( 'Prod', 'apollo-core' ),
 			'color'          => '#8A2BE2',
 			'text_color'     => '#4B0082',
-		),
-		'dj'             => array(
+		],
+		'dj'             => [
 			'label'          => __( 'DJ', 'apollo-core' ),
 			'frontend_label' => __( 'DJ', 'apollo-core' ),
 			'color'          => '#8A2BE2',
 			'text_color'     => '#4B0082',
-		),
-		'host'           => array(
+		],
+		'host'           => [
 			'label'          => __( 'Host', 'apollo-core' ),
 			'frontend_label' => __( 'Host', 'apollo-core' ),
 			'color'          => '#8A2BE2',
 			'text_color'     => '#4B0082',
-		),
-		'govern'         => array(
+		],
+		'govern'         => [
 			'label'          => __( 'Govern', 'apollo-core' ),
 			'frontend_label' => __( 'Govern', 'apollo-core' ),
 			'color'          => '#007BFF',
 			'text_color'     => '#003F7F',
-		),
-		'business-pers'  => array(
+		],
+		'business-pers'  => [
 			'label'          => __( 'Business', 'apollo-core' ),
 			'frontend_label' => __( 'Business', 'apollo-core' ),
 			'color'          => '#FFD700',
 			'text_color'     => '#8B6B00',
-		),
-	);
+		],
+	];
 }
 
 /**
@@ -77,7 +77,7 @@ function apollo_get_memberships(): array {
 		return $cached;
 	}
 
-	$custom   = get_option( 'apollo_memberships', array() );
+	$custom   = get_option( 'apollo_memberships', [] );
 	$defaults = apollo_get_default_memberships();
 
 	$memberships = wp_parse_args( $custom, $defaults );
@@ -107,7 +107,7 @@ function apollo_save_memberships( array $memberships ): bool {
 		}
 
 		// Required fields.
-		$required = array( 'label', 'frontend_label', 'color', 'text_color' );
+		$required = [ 'label', 'frontend_label', 'color', 'text_color' ];
 		foreach ( $required as $field ) {
 			if ( ! isset( $data[ $field ] ) || empty( $data[ $field ] ) ) {
 				return false;
@@ -206,13 +206,13 @@ function apollo_set_user_membership( int $user_id, string $membership_slug, ?int
 			'membership_changed',
 			'user',
 			$user_id,
-			array(
+			[
 				'from'       => $old_membership,
 				'to'         => $membership_slug,
 				'from_label' => isset( $memberships[ $old_membership ] ) ? $memberships[ $old_membership ]['label'] : $old_membership,
 				'to_label'   => $memberships[ $membership_slug ]['label'],
 				'timestamp'  => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -228,7 +228,7 @@ function apollo_init_memberships_option() {
 
 	if ( false === $option ) {
 		// Create option with empty array (defaults will be merged when retrieved).
-		add_option( 'apollo_memberships', array() );
+		add_option( 'apollo_memberships', [] );
 		add_option( 'apollo_memberships_version', '1.0.0' );
 	}
 }
@@ -238,7 +238,7 @@ function apollo_init_memberships_option() {
  * This should be called during plugin activation
  */
 function apollo_assign_default_memberships() {
-	$users = get_users( array( 'fields' => 'ID' ) );
+	$users = get_users( [ 'fields' => 'ID' ] );
 
 	foreach ( $users as $user_id ) {
 		$membership = get_user_meta( $user_id, '_apollo_membership', true );
@@ -310,11 +310,11 @@ function apollo_delete_membership( $slug ) {
 
 	// Reassign users to nao-verificado.
 	$users = get_users(
-		array(
+		[
 			'meta_key'   => '_apollo_membership',
 			'meta_value' => $slug,
 			'fields'     => 'ID',
-		)
+		]
 	);
 
 	foreach ( $users as $user_id ) {
@@ -333,14 +333,14 @@ function apollo_delete_membership( $slug ) {
  * @return string JSON string.
  */
 function apollo_export_memberships_json() {
-	$memberships = get_option( 'apollo_memberships', array() );
+	$memberships = get_option( 'apollo_memberships', [] );
 	$version     = get_option( 'apollo_memberships_version', '1.0.0' );
 
-	$export = array(
+	$export = [
 		'version'     => $version,
 		'exported_at' => current_time( 'mysql' ),
 		'memberships' => $memberships,
-	);
+	];
 
 	return wp_json_encode( $export, JSON_PRETTY_PRINT );
 }

@@ -135,10 +135,10 @@ class DocumentSaveHandler {
 	public function __construct() {
 		// Register AJAX handler for logged-in users only
 		// Documents should not be editable by non-authenticated users
-		add_action( 'wp_ajax_' . self::ACTION, array( $this, 'handle_save' ) );
+		add_action( 'wp_ajax_' . self::ACTION, [ $this, 'handle_save' ] );
 
 		// Ensure custom post type is registered
-		add_action( 'init', array( $this, 'register_post_type' ), 5 );
+		add_action( 'init', [ $this, 'register_post_type' ], 5 );
 	}
 
 	/**
@@ -154,22 +154,22 @@ class DocumentSaveHandler {
 
 		register_post_type(
 			self::POST_TYPE,
-			array(
-				'labels'          => array(
+			[
+				'labels'          => [
 					'name'          => __( 'Documentos', 'apollo-social' ),
 					'singular_name' => __( 'Documento', 'apollo-social' ),
-				),
+				],
 				'public'          => false,
 				'show_ui'         => true,
 				'show_in_menu'    => true,
 				'menu_icon'       => 'dashicons-media-document',
 				'capability_type' => 'post',
 				'hierarchical'    => false,
-				'supports'        => array( 'title', 'editor', 'author', 'revisions' ),
+				'supports'        => [ 'title', 'editor', 'author', 'revisions' ],
 				'has_archive'     => false,
 				'rewrite'         => false,
 				'query_var'       => false,
-			)
+			]
 		);
 	}
 
@@ -186,10 +186,10 @@ class DocumentSaveHandler {
 		// The nonce is shared with the image upload handler for simplicity
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], self::NONCE_ACTION ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Sessão expirada. Recarregue a página e tente novamente.', 'apollo-social' ),
 					'code'    => 'invalid_nonce',
-				),
+				],
 				403
 			);
 
@@ -199,10 +199,10 @@ class DocumentSaveHandler {
 		// Step 2: Check user is logged in
 		if ( ! is_user_logged_in() ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Você precisa estar logado para salvar documentos.', 'apollo-social' ),
 					'code'    => 'not_logged_in',
-				),
+				],
 				403
 			);
 
@@ -219,10 +219,10 @@ class DocumentSaveHandler {
 		$delta_validation = $this->validate_delta( $delta_json );
 		if ( is_wp_error( $delta_validation ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => $delta_validation->get_error_message(),
 					'code'    => $delta_validation->get_error_code(),
-				),
+				],
 				400
 			);
 
@@ -239,10 +239,10 @@ class DocumentSaveHandler {
 		// Step 6: Return result
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => $result->get_error_message(),
 					'code'    => $result->get_error_code(),
-				),
+				],
 				400
 			);
 
@@ -317,7 +317,7 @@ class DocumentSaveHandler {
 				}
 
 				// Each op should have at least one key: insert, delete, or retain
-				$valid_keys    = array( 'insert', 'delete', 'retain', 'attributes' );
+				$valid_keys    = [ 'insert', 'delete', 'retain', 'attributes' ];
 				$has_valid_key = false;
 				foreach ( array_keys( $op ) as $key ) {
 					if ( in_array( $key, $valid_keys, true ) ) {
@@ -368,13 +368,13 @@ class DocumentSaveHandler {
 		}
 
 		// Create the post
-		$post_data = array(
+		$post_data = [
 			'post_type'    => self::POST_TYPE,
 			'post_title'   => $title,
 			'post_content' => $html,
 			'post_status'  => 'draft',
 			'post_author'  => get_current_user_id(),
-		);
+		];
 
 		$post_id = wp_insert_post( $post_data, true );
 
@@ -397,12 +397,12 @@ class DocumentSaveHandler {
 		update_post_meta( $post_id, self::VERSION_META_KEY, 1 );
 
 		// Return success with new document info
-		return array(
+		return [
 			'documentId' => $post_id,
 			'editUrl'    => home_url( '/doc/' . $post_id ),
 			'message'    => __( 'Documento criado com sucesso.', 'apollo-social' ),
 			'created'    => true,
-		);
+		];
 	}
 
 	/**
@@ -437,9 +437,9 @@ class DocumentSaveHandler {
 		}
 
 		// Prepare update data
-		$post_data = array(
+		$post_data = [
 			'ID' => $document_id,
-		);
+		];
 
 		// Only update title if provided
 		if ( ! empty( $title ) ) {
@@ -472,12 +472,12 @@ class DocumentSaveHandler {
 		update_post_meta( $document_id, self::VERSION_META_KEY, $new_version );
 
 		// Return success
-		return array(
+		return [
 			'documentId' => $document_id,
 			'editUrl'    => home_url( '/doc/' . $document_id ),
 			'message'    => __( 'Documento salvo.', 'apollo-social' ),
 			'updated'    => true,
-		);
+		];
 	}
 
 	/**

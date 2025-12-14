@@ -34,7 +34,7 @@ class Response {
 	/**
 	 * HTTP status code mapping
 	 */
-	private static array $statusCodes = array(
+	private static array $statusCodes = [
 		self::ERROR_UNAUTHORIZED => 401,
 		self::ERROR_FORBIDDEN    => 403,
 		self::ERROR_NOT_FOUND    => 404,
@@ -44,7 +44,7 @@ class Response {
 		self::ERROR_BAD_REQUEST  => 400,
 		self::ERROR_CONFLICT     => 409,
 		self::ERROR_GONE         => 410,
-	);
+	];
 
 	/**
 	 * Create standardized error response
@@ -63,19 +63,19 @@ class Response {
 	public static function error(
 		string $code,
 		string $message,
-		array $data = array(),
+		array $data = [],
 		?int $status = null
 	): WP_REST_Response {
 		$httpStatus = $status ?? ( self::$statusCodes[ $code ] ?? 400 );
 
-		$response = array(
+		$response = [
 			'success' => false,
-			'error'   => array(
+			'error'   => [
 				'code'      => $code,
 				'message'   => $message,
 				'timestamp' => current_time( 'c' ),
-			),
-		);
+			],
+		];
 
 		if ( ! empty( $data ) ) {
 			$response['error']['data'] = $data;
@@ -107,12 +107,12 @@ class Response {
 		$data = null,
 		string $message = '',
 		int $status = 200,
-		array $meta = array()
+		array $meta = []
 	): WP_REST_Response {
-		$response = array(
+		$response = [
 			'success' => true,
 			'data'    => $data,
-		);
+		];
 
 		if ( $message ) {
 			$response['message'] = $message;
@@ -149,15 +149,15 @@ class Response {
 			$items,
 			$message,
 			200,
-			array(
-				'pagination' => array(
+			[
+				'pagination' => [
 					'total'        => $total,
 					'per_page'     => $per_page,
 					'current_page' => $page,
 					'total_pages'  => $total_pages,
 					'has_more'     => $page < $total_pages,
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -190,7 +190,7 @@ class Response {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function accepted( string $message = 'Processando', array $data = array() ): WP_REST_Response {
+	public static function accepted( string $message = 'Processando', array $data = [] ): WP_REST_Response {
 		return self::success( $data, $message, 202 );
 	}
 
@@ -209,7 +209,7 @@ class Response {
 		return self::error(
 			is_string( $code ) ? $code : self::ERROR_SERVER,
 			$message,
-			is_array( $data ) ? $data : array()
+			is_array( $data ) ? $data : []
 		);
 	}
 
@@ -230,7 +230,7 @@ class Response {
 		return self::error(
 			self::ERROR_VALIDATION,
 			'Erro de validação',
-			array( 'fields' => $errors )
+			[ 'fields' => $errors ]
 		);
 	}
 
@@ -278,7 +278,7 @@ class Response {
 		$response = self::error(
 			self::ERROR_RATE_LIMIT,
 			'Limite de requisições excedido',
-			array( 'retry_after' => $retry_after )
+			[ 'retry_after' => $retry_after ]
 		);
 
 		$response->header( 'Retry-After', (string) $retry_after );

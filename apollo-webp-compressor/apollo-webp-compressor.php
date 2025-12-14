@@ -72,7 +72,7 @@ function apollo_webp_convert_on_upload( $metadata, $attachment_id ) {
 function apollo_webp_is_image( $file ) {
 	$ext = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
 
-	return in_array( $ext, array( 'jpg', 'jpeg', 'png' ), true );
+	return in_array( $ext, [ 'jpg', 'jpeg', 'png' ], true );
 }
 
 /**
@@ -103,19 +103,19 @@ function apollo_webp_convert_image( $source ) {
 
 		Apollo_Audit_Log::log_event(
 			'image_compression',
-			array(
+			[
 				'message'     => 'Image converted to WebP format',
 				'target_type' => 'file',
 				'target_id'   => basename( $source ),
-				'context'     => array(
+				'context'     => [
 					'source'          => $source,
 					'destination'     => $destination,
 					'original_size'   => $original_size,
 					'webp_size'       => $webp_size,
 					'savings_percent' => $savings,
-				),
+				],
 				'severity'    => 'info',
-			)
+			]
 		);
 	}
 

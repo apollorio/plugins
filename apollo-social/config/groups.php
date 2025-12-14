@@ -4,46 +4,46 @@
  * Configuração de Políticas dos Grupos
  */
 
-return array(
-	'comunidade' => array(
+return [
+	'comunidade' => [
 		'label'      => 'Comunidade',
 		'visibility' => 'public',
 		'join'       => 'open',
 		'invite'     => 'any_member',
-		'chat'       => array(
+		'chat'       => [
 			'visibility' => 'members_only',
-		),
-		'posting'    => array(
-			'roles'  => array( 'member', 'moderator', 'admin' ),
-			'scopes' => array( 'post', 'discussion' ),
-		),
-	),
+		],
+		'posting'    => [
+			'roles'  => [ 'member', 'moderator', 'admin' ],
+			'scopes' => [ 'post', 'discussion' ],
+		],
+	],
 
-	'nucleo'     => array(
+	'nucleo'     => [
 		'label'      => 'Núcleo',
 		'visibility' => 'private',
 		'join'       => 'invite_only',
 		'invite'     => 'insiders_only',
-		'chat'       => array(
+		'chat'       => [
 			'visibility' => 'members_only',
-		),
-		'posting'    => array(
-			'roles'  => array( 'member', 'moderator', 'admin' ),
-			'scopes' => array( 'post', 'discussion' ),
-		),
-	),
+		],
+		'posting'    => [
+			'roles'  => [ 'member', 'moderator', 'admin' ],
+			'scopes' => [ 'post', 'discussion' ],
+		],
+	],
 
-	'season'     => array(
+	'season'     => [
 		'label'      => 'Season',
 		'visibility' => 'public',
 		'join'       => 'request',
 		'invite'     => 'moderators',
-		'chat'       => array(
+		'chat'       => [
 			'visibility' => 'members_only',
-		),
-		'posting'    => array(
-			'roles'  => array( 'member', 'moderator', 'admin' ),
-			'scopes' => array( 'post', 'classified' ),
-		),
-	),
-);
+		],
+		'posting'    => [
+			'roles'  => [ 'member', 'moderator', 'admin' ],
+			'scopes' => [ 'post', 'classified' ],
+		],
+	],
+];

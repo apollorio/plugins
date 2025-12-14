@@ -802,3 +802,248 @@
     max-height: calc(80vh - env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* ============================================
+   SPIN ANIMATION
+   ============================================ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   LIBRARY MODAL
+   ============================================ */
+.ap-plano-library-content {
+  max-width: 90vw;
+  width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ap-plano-library-search {
+  margin: 12px 0;
+}
+
+.ap-plano-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.ap-plano-library-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.ap-plano-library-tab {
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ap-plano-library-tab:hover {
+  color: #333;
+}
+
+.ap-plano-library-tab.active {
+  color: #ff8c00;
+  border-bottom-color: #ff8c00;
+  font-weight: 600;
+}
+
+.ap-plano-library-tab-panel {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ap-plano-library-tab-panel.active {
+  display: block;
+}
+
+.ap-plano-library-subtabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.ap-plano-library-subtab {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.ap-plano-library-subtab:hover {
+  background: #e5e5e5;
+}
+
+.ap-plano-library-subtab.active {
+  background: #ff8c00;
+  color: white;
+  border-color: #ff8c00;
+}
+
+.ap-plano-library-subtab-content {
+  min-height: 200px;
+}
+
+.ap-plano-texture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ap-plano-texture-item {
+  aspect-ratio: 9/16;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.ap-plano-texture-item:hover {
+  border-color: #ff8c00;
+  transform: scale(1.05);
+}
+
+.ap-plano-texture-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ap-plano-texture-preview {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+.ap-plano-texture-item:hover .ap-plano-texture-preview {
+  display: flex;
+}
+
+.ap-plano-post-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ap-plano-post-search input {
+  flex: 1;
+}
+
+.ap-plano-btn-primary {
+  padding: 10px 20px;
+  background: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.ap-plano-btn-primary:hover {
+  background: #e67a00;
+}
+
+.ap-plano-gradient-item {
+  aspect-ratio: 9/16;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: all 0.2s;
+}
+
+.ap-plano-gradient-item:hover {
+  border-color: #ff8c00;
+  transform: scale(1.02);
+}
+
+/* ============================================
+   FILTERS MODAL
+   ============================================ */
+.ap-plano-filters-content {
+  padding: 16px 0;
+}
+
+.ap-plano-filter-control {
+  margin-bottom: 20px;
+}
+
+.ap-plano-filter-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.ap-plano-filter-control input[type="range"] {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.ap-plano-filter-control span {
+  float: right;
+  color: #666;
+  font-size: 12px;
+}
+
+.ap-plano-filter-presets {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.ap-plano-filter-preset {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.ap-plano-filter-preset:hover {
+  background: #e5e5e5;
+  border-color: #ff8c00;
+}
+
+.ap-plano-filter-preset:active {
+  background: #ff8c00;
+  color: white;
+  border-color: #ff8c00;
+}

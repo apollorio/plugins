@@ -8,42 +8,42 @@
  */
 
 $stats = wp_parse_args(
-	$stats ?? array(),
-	array(
+	$stats ?? [],
+	[
 		'created' => '24',
 		'signed'  => '18',
 		'pending' => '6',
-	)
+	]
 );
 
-$quick_actions = $quick_actions ?? array(
-	array(
+$quick_actions = $quick_actions ?? [
+	[
 		'icon'  => 'ri-add-line',
 		'label' => 'Novo documento em branco',
 		'href'  => '/doc/new',
-	),
-	array(
+	],
+	[
 		'icon'  => 'ri-upload-2-line',
 		'label' => 'Subir PDF para assinatura',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'icon'  => 'ri-download-2-line',
 		'label' => 'Exportar como PDF',
 		'href'  => '#',
-	),
-);
+	],
+];
 
-$shortcuts = $shortcuts ?? array(
-	array(
+$shortcuts = $shortcuts ?? [
+	[
 		'label' => 'Privacidade',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'label' => 'Termos',
 		'href'  => '#',
-	),
-);
+	],
+];
 ?>
 <aside class="hidden lg:block space-y-4">
 	<div class="aprioEXP-card-shell p-4">

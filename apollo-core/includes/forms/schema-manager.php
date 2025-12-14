@@ -29,10 +29,10 @@ function apollo_get_form_schema( string $form_type ): array {
 		return $cached;
 	}
 
-	$schemas = get_option( 'apollo_form_schemas', array() );
+	$schemas = get_option( 'apollo_form_schemas', [] );
 
 	// If schema doesn't exist, return default.
-	$schema = array();
+	$schema = [];
 	if ( ! isset( $schemas[ $form_type ] ) ) {
 		$schema = apollo_get_default_form_schema( $form_type );
 	} else {
@@ -59,7 +59,7 @@ function apollo_save_form_schema( string $form_type, array $schema ): bool {
 	}
 
 	// Get all schemas.
-	$schemas = get_option( 'apollo_form_schemas', array() );
+	$schemas = get_option( 'apollo_form_schemas', [] );
 
 	// Update specific schema.
 	$schemas[ $form_type ] = $schema;
@@ -85,9 +85,9 @@ function apollo_save_form_schema( string $form_type, array $schema ): bool {
  * @return array Default schema.
  */
 function apollo_get_default_form_schema( $form_type ) {
-	$defaults = array(
-		'new_user'  => array(
-			array(
+	$defaults = [
+		'new_user'  => [
+			[
 				'key'        => 'user_login',
 				'label'      => __( 'Username', 'apollo-core' ),
 				'type'       => 'text',
@@ -96,8 +96,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '/^[a-z0-9_-]{3,15}$/i',
 				'order'      => 1,
-			),
-			array(
+			],
+			[
 				'key'        => 'user_email',
 				'label'      => __( 'Email', 'apollo-core' ),
 				'type'       => 'email',
@@ -106,8 +106,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => 'email',
 				'order'      => 2,
-			),
-			array(
+			],
+			[
 				'key'        => 'user_pass',
 				'label'      => __( 'Password', 'apollo-core' ),
 				'type'       => 'password',
@@ -116,8 +116,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 3,
-			),
-			array(
+			],
+			[
 				'key'        => 'instagram_user_id',
 				'label'      => __( 'Instagram ID', 'apollo-core' ),
 				'type'       => 'instagram',
@@ -126,10 +126,10 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '/^[A-Za-z0-9_]{1,30}$/',
 				'order'      => 4,
-			),
-		),
-		'cpt_event' => array(
-			array(
+			],
+		],
+		'cpt_event' => [
+			[
 				'key'        => 'post_title',
 				'label'      => __( 'Event Title', 'apollo-core' ),
 				'type'       => 'text',
@@ -138,8 +138,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 1,
-			),
-			array(
+			],
+			[
 				'key'        => 'post_content',
 				'label'      => __( 'Description', 'apollo-core' ),
 				'type'       => 'textarea',
@@ -148,8 +148,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 2,
-			),
-			array(
+			],
+			[
 				'key'        => '_event_start_date',
 				'label'      => __( 'Start Date', 'apollo-core' ),
 				'type'       => 'date',
@@ -158,8 +158,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => 'date',
 				'order'      => 3,
-			),
-			array(
+			],
+			[
 				'key'        => 'instagram_user_id',
 				'label'      => __( 'Event Instagram', 'apollo-core' ),
 				'type'       => 'instagram',
@@ -168,10 +168,10 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '/^[A-Za-z0-9_]{1,30}$/',
 				'order'      => 4,
-			),
-		),
-		'cpt_local' => array(
-			array(
+			],
+		],
+		'cpt_local' => [
+			[
 				'key'        => 'post_title',
 				'label'      => __( 'Venue Name', 'apollo-core' ),
 				'type'       => 'text',
@@ -180,8 +180,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 1,
-			),
-			array(
+			],
+			[
 				'key'        => 'post_content',
 				'label'      => __( 'Description', 'apollo-core' ),
 				'type'       => 'textarea',
@@ -190,8 +190,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 2,
-			),
-			array(
+			],
+			[
 				'key'        => '_local_address',
 				'label'      => __( 'Address', 'apollo-core' ),
 				'type'       => 'text',
@@ -200,10 +200,10 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 3,
-			),
-		),
-		'cpt_dj'    => array(
-			array(
+			],
+		],
+		'cpt_dj'    => [
+			[
 				'key'        => 'post_title',
 				'label'      => __( 'DJ Name', 'apollo-core' ),
 				'type'       => 'text',
@@ -212,8 +212,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 1,
-			),
-			array(
+			],
+			[
 				'key'        => 'post_content',
 				'label'      => __( 'Bio', 'apollo-core' ),
 				'type'       => 'textarea',
@@ -222,8 +222,8 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '',
 				'order'      => 2,
-			),
-			array(
+			],
+			[
 				'key'        => 'instagram_user_id',
 				'label'      => __( 'Instagram ID', 'apollo-core' ),
 				'type'       => 'instagram',
@@ -232,11 +232,11 @@ function apollo_get_default_form_schema( $form_type ) {
 				'default'    => '',
 				'validation' => '/^[A-Za-z0-9_]{1,30}$/',
 				'order'      => 3,
-			),
-		),
-	);
+			],
+		],
+	];
 
-	return isset( $defaults[ $form_type ] ) ? $defaults[ $form_type ] : array();
+	return isset( $defaults[ $form_type ] ) ? $defaults[ $form_type ] : [];
 }
 
 /**
@@ -252,7 +252,7 @@ function apollo_validate_form_schema( $schema ) {
 
 	foreach ( $schema as $field ) {
 		// Check required keys.
-		$required_keys = array( 'key', 'label', 'type', 'required', 'visible', 'order' );
+		$required_keys = [ 'key', 'label', 'type', 'required', 'visible', 'order' ];
 		foreach ( $required_keys as $required_key ) {
 			if ( ! isset( $field[ $required_key ] ) ) {
 				return false;
@@ -260,7 +260,7 @@ function apollo_validate_form_schema( $schema ) {
 		}
 
 		// Validate type.
-		$valid_types = array( 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' );
+		$valid_types = [ 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' ];
 		if ( ! in_array( $field['type'], $valid_types, true ) ) {
 			return false;
 		}
@@ -276,12 +276,12 @@ function apollo_init_form_schemas() {
 	$schemas = get_option( 'apollo_form_schemas' );
 
 	if ( false === $schemas ) {
-		$default_schemas = array(
+		$default_schemas = [
 			'new_user'  => apollo_get_default_form_schema( 'new_user' ),
 			'cpt_event' => apollo_get_default_form_schema( 'cpt_event' ),
 			'cpt_local' => apollo_get_default_form_schema( 'cpt_local' ),
 			'cpt_dj'    => apollo_get_default_form_schema( 'cpt_dj' ),
-		);
+		];
 
 		add_option( 'apollo_form_schemas', $default_schemas );
 		add_option( 'apollo_form_schema_version', '1.0.0' );
@@ -320,11 +320,11 @@ function apollo_log_schema_change( $form_type, $schema ) {
 		'schema_updated',
 		'form_schema',
 		0,
-		array(
+		[
 			'form_type'   => $form_type,
 			'field_count' => count( $schema ),
 			'timestamp'   => current_time( 'mysql' ),
-		)
+		]
 	);
 }
 
@@ -403,11 +403,11 @@ function apollo_validate_field_value( $value, $field_schema ) {
  */
 function apollo_is_instagram_id_unique( string $instagram_id, int $exclude_user_id = 0 ): bool {
 	$users = get_users(
-		array(
+		[
 			'meta_key'   => '_apollo_instagram_id',
 			'meta_value' => $instagram_id,
 			'fields'     => 'ID',
-		)
+		]
 	);
 
 	foreach ( $users as $user_id ) {

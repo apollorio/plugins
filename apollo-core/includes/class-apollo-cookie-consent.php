@@ -38,7 +38,7 @@ class Apollo_Cookie_Consent {
 	public const COOKIE_EXPIRY = YEAR_IN_SECONDS;
 
 	/** @var array Valid consent values. */
-	public const VALID_CONSENT_VALUES = array( 'accepted', 'declined', 'pending' );
+	public const VALID_CONSENT_VALUES = [ 'accepted', 'declined', 'pending' ];
 
 	/**
 	 * Initialize hooks.
@@ -48,21 +48,21 @@ class Apollo_Cookie_Consent {
 	 */
 	public static function init(): void {
 		// Frontend hooks.
-		add_action( 'wp_footer', array( __CLASS__, 'render_banner' ), 100 );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		add_action( 'wp_footer', [ __CLASS__, 'render_banner' ], 100 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 
 		// AJAX handlers (with nonce verification).
-		add_action( 'wp_ajax_apollo_save_consent', array( __CLASS__, 'ajax_save_consent' ) );
-		add_action( 'wp_ajax_nopriv_apollo_save_consent', array( __CLASS__, 'ajax_save_consent' ) );
+		add_action( 'wp_ajax_apollo_save_consent', [ __CLASS__, 'ajax_save_consent' ] );
+		add_action( 'wp_ajax_nopriv_apollo_save_consent', [ __CLASS__, 'ajax_save_consent' ] );
 
 		// Filter to check if analytics can load.
-		add_filter( 'apollo_can_load_analytics', array( __CLASS__, 'can_load_analytics' ) );
+		add_filter( 'apollo_can_load_analytics', [ __CLASS__, 'can_load_analytics' ] );
 
 		// Admin settings.
 		if ( is_admin() ) {
-			add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
-			add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-			add_action( 'admin_notices', array( __CLASS__, 'show_admin_status' ) );
+			add_action( 'admin_menu', [ __CLASS__, 'add_settings_page' ] );
+			add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
+			add_action( 'admin_notices', [ __CLASS__, 'show_admin_status' ] );
 		}
 	}
 
@@ -76,7 +76,7 @@ class Apollo_Cookie_Consent {
 			__( 'Cookie Consent', 'apollo-core' ),
 			'manage_options',
 			'apollo-cookie-consent',
-			array( __CLASS__, 'render_settings_page' )
+			[ __CLASS__, 'render_settings_page' ]
 		);
 	}
 
@@ -87,11 +87,11 @@ class Apollo_Cookie_Consent {
 		register_setting(
 			'apollo_cookie_consent_group',
 			self::OPTION_NAME,
-			array(
+			[
 				'type'              => 'array',
-				'sanitize_callback' => array( __CLASS__, 'sanitize_settings' ),
+				'sanitize_callback' => [ __CLASS__, 'sanitize_settings' ],
 				'default'           => self::get_default_settings(),
-			)
+			]
 		);
 	}
 
@@ -105,7 +105,7 @@ class Apollo_Cookie_Consent {
 	 */
 	public static function sanitize_settings( $input ): array {
 		$defaults  = self::get_default_settings();
-		$sanitized = array();
+		$sanitized = [];
 
 		// Sanitize message.
 		$sanitized['message'] = isset( $input['message'] )
@@ -138,13 +138,13 @@ class Apollo_Cookie_Consent {
 	 * @return array Default settings array.
 	 */
 	private static function get_default_settings(): array {
-		return array(
+		return [
 			'message'      => __( 'We use cookies to improve your experience. By continuing to use this site, you consent to our use of cookies.', 'apollo-core' ),
 			'accept_text'  => __( 'Accept', 'apollo-core' ),
 			'decline_text' => __( 'Decline', 'apollo-core' ),
 			'privacy_url'  => '',
 			'enabled'      => true,
-		);
+		];
 	}
 
 	/**
@@ -287,12 +287,12 @@ class Apollo_Cookie_Consent {
 			wp_enqueue_style(
 				'apollo-cookie-consent',
 				APOLLO_CORE_PLUGIN_URL . 'assets/css/cookie-consent.css',
-				array(),
+				[],
 				filemtime( $css_path )
 			);
 		} else {
 			// Inline fallback styles.
-			add_action( 'wp_head', array( __CLASS__, 'inline_fallback_styles' ) );
+			add_action( 'wp_head', [ __CLASS__, 'inline_fallback_styles' ] );
 		}
 
 		// Enqueue JS with fallback.
@@ -301,7 +301,7 @@ class Apollo_Cookie_Consent {
 			wp_enqueue_script(
 				'apollo-cookie-consent',
 				APOLLO_CORE_PLUGIN_URL . 'assets/js/cookie-consent.js',
-				array( 'jquery' ),
+				[ 'jquery' ],
 				filemtime( $js_path ),
 				true
 			);
@@ -311,12 +311,12 @@ class Apollo_Cookie_Consent {
 		wp_localize_script(
 			'apollo-cookie-consent',
 			'apolloCookieConsent',
-			array(
+			[
 				'ajaxUrl'    => esc_url( admin_url( 'admin-ajax.php' ) ),
 				'nonce'      => wp_create_nonce( 'apollo_cookie_consent' ),
 				'cookieName' => self::COOKIE_NAME,
 				'expiry'     => self::COOKIE_EXPIRY,
-			)
+			]
 		);
 	}
 
@@ -438,7 +438,7 @@ class Apollo_Cookie_Consent {
 	public static function ajax_save_consent(): void {
 		// SAFETY: Verify nonce.
 		if ( ! check_ajax_referer( 'apollo_cookie_consent', 'nonce', false ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid security token.', 'apollo-core' ) ), 403 );
+			wp_send_json_error( [ 'message' => __( 'Invalid security token.', 'apollo-core' ) ], 403 );
 
 			return;
 		}
@@ -446,8 +446,8 @@ class Apollo_Cookie_Consent {
 		// SAFETY: Sanitize and validate consent value.
 		$consent = isset( $_POST['consent'] ) ? sanitize_text_field( wp_unslash( $_POST['consent'] ) ) : '';
 
-		if ( ! in_array( $consent, array( 'accept', 'decline' ), true ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid consent value.', 'apollo-core' ) ), 400 );
+		if ( ! in_array( $consent, [ 'accept', 'decline' ], true ) ) {
+			wp_send_json_error( [ 'message' => __( 'Invalid consent value.', 'apollo-core' ) ], 400 );
 
 			return;
 		}
@@ -460,16 +460,16 @@ class Apollo_Cookie_Consent {
 		$result = setcookie( self::COOKIE_NAME, $value, $expiry, COOKIEPATH, COOKIE_DOMAIN, $secure, true );
 
 		if ( ! $result ) {
-			wp_send_json_error( array( 'message' => __( 'Failed to set cookie.', 'apollo-core' ) ), 500 );
+			wp_send_json_error( [ 'message' => __( 'Failed to set cookie.', 'apollo-core' ) ], 500 );
 
 			return;
 		}
 
 		wp_send_json_success(
-			array(
+			[
 				'consent'   => $value,
 				'timestamp' => current_time( 'mysql' ),
-			)
+			]
 		);
 	}
 
@@ -537,7 +537,7 @@ class Apollo_Cookie_Consent {
 
 		// SAFETY: Ensure settings is array.
 		if ( ! is_array( $settings ) ) {
-			$settings = array();
+			$settings = [];
 		}
 
 		$merged = wp_parse_args( $settings, $defaults );
@@ -552,4 +552,4 @@ class Apollo_Cookie_Consent {
 }
 
 // Initialize on init.
-add_action( 'init', array( 'Apollo_Cookie_Consent', 'init' ) );
+add_action( 'init', [ 'Apollo_Cookie_Consent', 'init' ] );

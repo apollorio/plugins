@@ -36,18 +36,18 @@ class Apollo_Membership_CLI_Command {
 			return;
 		}
 
-		$table_data = array();
+		$table_data = [];
 		foreach ( $memberships as $slug => $data ) {
-			$table_data[] = array(
+			$table_data[] = [
 				'Slug'           => $slug,
 				'Label'          => $data['label'],
 				'Frontend Label' => $data['frontend_label'],
 				'Color'          => $data['color'],
 				'Text Color'     => $data['text_color'],
-			);
+			];
 		}
 
-		WP_CLI\Utils\format_items( 'table', $table_data, array( 'Slug', 'Label', 'Frontend Label', 'Color', 'Text Color' ) );
+		WP_CLI\Utils\format_items( 'table', $table_data, [ 'Slug', 'Label', 'Frontend Label', 'Color', 'Text Color' ] );
 
 		$version = get_option( 'apollo_memberships_version', '1.0.0' );
 		WP_CLI::line( '' );
@@ -84,7 +84,7 @@ class Apollo_Membership_CLI_Command {
 		$slug = sanitize_key( $args[0] );
 
 		// Validate required parameters.
-		$required = array( 'label', 'frontend-label', 'color', 'text-color' );
+		$required = [ 'label', 'frontend-label', 'color', 'text-color' ];
 		foreach ( $required as $param ) {
 			if ( empty( $assoc_args[ $param ] ) ) {
 				WP_CLI::error( sprintf( 'Required parameter --%s is missing.', $param ) );
@@ -106,15 +106,15 @@ class Apollo_Membership_CLI_Command {
 		}
 
 		// Get current memberships.
-		$memberships = get_option( 'apollo_memberships', array() );
+		$memberships = get_option( 'apollo_memberships', [] );
 
 		// Add new membership.
-		$memberships[ $slug ] = array(
+		$memberships[ $slug ] = [
 			'label'          => sanitize_text_field( $assoc_args['label'] ),
 			'frontend_label' => sanitize_text_field( $assoc_args['frontend-label'] ),
 			'color'          => sanitize_hex_color( $assoc_args['color'] ),
 			'text_color'     => sanitize_hex_color( $assoc_args['text-color'] ),
-		);
+		];
 
 		// Save.
 		$result = apollo_save_memberships( $memberships );
@@ -129,10 +129,10 @@ class Apollo_Membership_CLI_Command {
 			'membership_type_created_cli',
 			'membership',
 			0,
-			array(
+			[
 				'slug'  => $slug,
 				'label' => $memberships[ $slug ]['label'],
-			)
+			]
 		);
 
 		WP_CLI::success( sprintf( 'Membership "%s" created successfully.', $slug ) );
@@ -287,9 +287,9 @@ class Apollo_Membership_CLI_Command {
 			'memberships_imported_cli',
 			'membership',
 			0,
-			array(
+			[
 				'file' => $file,
-			)
+			]
 		);
 
 		WP_CLI::success( 'Memberships imported successfully.' );
@@ -347,9 +347,9 @@ class Apollo_Membership_CLI_Command {
 			'membership_type_deleted_cli',
 			'membership',
 			0,
-			array(
+			[
 				'slug' => $slug,
-			)
+			]
 		);
 
 		WP_CLI::success( 'Membership deleted successfully. Users reassigned to nao-verificado.' );
@@ -367,28 +367,28 @@ class Apollo_Membership_CLI_Command {
 	public function stats( $args, $assoc_args ) {
 		$memberships = apollo_get_memberships();
 
-		$table_data = array();
+		$table_data = [];
 		foreach ( $memberships as $slug => $data ) {
 			$count = count(
 				get_users(
-					array(
+					[
 						'meta_key'   => '_apollo_membership',
 						'meta_value' => $slug,
 						'fields'     => 'ID',
-					)
+					]
 				)
 			);
 
-			$table_data[] = array(
+			$table_data[] = [
 				'Membership' => $data['label'],
 				'Slug'       => $slug,
 				'Users'      => $count,
-			);
+			];
 		}
 
-		WP_CLI\Utils\format_items( 'table', $table_data, array( 'Membership', 'Slug', 'Users' ) );
+		WP_CLI\Utils\format_items( 'table', $table_data, [ 'Membership', 'Slug', 'Users' ] );
 
-		$total_users = count( get_users( array( 'fields' => 'ID' ) ) );
+		$total_users = count( get_users( [ 'fields' => 'ID' ] ) );
 		WP_CLI::line( '' );
 		WP_CLI::line( 'Total Users: ' . $total_users );
 	}

@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$canvas_data = apply_filters( 'apollo_canvas_template_data', array() );
+$canvas_data = apply_filters( 'apollo_canvas_template_data', [] );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?> class="h-full">

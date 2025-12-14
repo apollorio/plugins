@@ -22,24 +22,24 @@ class Apollo_Core_Migration {
 	 *
 	 * @var array
 	 */
-	private static $option_mappings = array(
+	private static $option_mappings = [
 		'apollo_events_version'       => 'apollo_core_version',
 		'apollo_social_version'       => 'apollo_core_version',
 		'apollo_rio_version'          => 'apollo_core_version',
 		'apollo_events_settings'      => 'apollo_mod_settings',
 		'apollo_social_settings'      => 'apollo_mod_settings',
 		'apollo_canvas_pages_created' => 'apollo_core_canvas_pages_created',
-	);
+	];
 
 	/**
 	 * Meta key mappings
 	 *
 	 * @var array
 	 */
-	private static $meta_mappings = array(
+	private static $meta_mappings = [
 		'_apollo_canvas_page' => '_apollo_canvas',
 		// Add more mappings as needed.
-	);
+	];
 
 	/**
 	 * Run migration
@@ -49,17 +49,17 @@ class Apollo_Core_Migration {
 	public static function run() {
 		// Check if already migrated.
 		if ( get_option( 'apollo_core_migration_completed', false ) ) {
-			return array(
+			return [
 				'success' => false,
 				'message' => __( 'Migration already completed.', 'apollo-core' ),
-			);
+			];
 		}
 
-		$results = array(
+		$results = [
 			'options_migrated' => 0,
 			'meta_migrated'    => 0,
-			'errors'           => array(),
-		);
+			'errors'           => [],
+		];
 
 		// Create backup.
 		self::create_backup();
@@ -75,20 +75,20 @@ class Apollo_Core_Migration {
 		update_option( 'apollo_core_migration_version', APOLLO_CORE_VERSION );
 		update_option( 'apollo_core_migration_date', current_time( 'mysql' ) );
 
-		return array(
+		return [
 			'success' => true,
 			'results' => $results,
-		);
+		];
 	}
 
 	/**
 	 * Create backup before migration
 	 */
 	private static function create_backup() {
-		$backup_data = array(
-			'options' => array(),
+		$backup_data = [
+			'options' => [],
 			'date'    => current_time( 'mysql' ),
-		);
+		];
 
 		// Backup old options.
 		foreach ( array_keys( self::$option_mappings ) as $old_key ) {

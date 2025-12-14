@@ -26,13 +26,13 @@ class Apollo_Cena_Rio_Submissions {
 	 */
 	public static function init(): void {
 		// Register shortcode for front-end submission form
-		add_shortcode( 'apollo_cena_submit_event', array( __CLASS__, 'render_submission_form' ) );
+		add_shortcode( 'apollo_cena_submit_event', [ __CLASS__, 'render_submission_form' ] );
 
 		// Handle form submission
-		add_action( 'template_redirect', array( __CLASS__, 'handle_submission' ) );
+		add_action( 'template_redirect', [ __CLASS__, 'handle_submission' ] );
 
 		// REST API endpoint for AJAX submissions
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 	}
 
 	/**
@@ -43,95 +43,95 @@ class Apollo_Cena_Rio_Submissions {
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/agenda',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_events' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ),
+				'callback'            => [ __CLASS__, 'rest_get_events' ],
+				'permission_callback' => [ __CLASS__, 'check_submission_permission' ],
 			// Only CENA members
-			)
+			]
 		);
 
 		// Submit new event (creates as 'expected')
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/enviar',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_submit_event' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ),
-				'args'                => array(
-					'event_title'       => array(
+				'callback'            => [ __CLASS__, 'rest_submit_event' ],
+				'permission_callback' => [ __CLASS__, 'check_submission_permission' ],
+				'args'                => [
+					'event_title'       => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_description' => array(
+					],
+					'event_description' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'wp_kses_post',
-					),
-					'event_start_date'  => array(
+					],
+					'event_start_date'  => [
 						'required'          => true,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_end_date'    => array(
+					],
+					'event_end_date'    => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_start_time'  => array(
+					],
+					'event_start_time'  => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_end_time'    => array(
+					],
+					'event_end_time'    => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_venue'       => array(
+					],
+					'event_venue'       => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'event_lat'         => array(
+					],
+					'event_lat'         => [
 						'type' => 'number',
-					),
-					'event_lng'         => array(
+					],
+					'event_lng'         => [
 						'type' => 'number',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// CENA-RIO internal confirm (industry confirms event → goes to MOD queue)
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/confirmar/(?P<id>\d+)',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_confirm_event' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ),
-				'args'                => array(
-					'id' => array(
+				'callback'            => [ __CLASS__, 'rest_confirm_event' ],
+				'permission_callback' => [ __CLASS__, 'check_submission_permission' ],
+				'args'                => [
+					'id' => [
 						'required' => true,
 						'type'     => 'integer',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// CENA-RIO internal unconfirm (revert back to expected)
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/cancelar/(?P<id>\d+)',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_unconfirm_event' ),
-				'permission_callback' => array( __CLASS__, 'check_submission_permission' ),
-				'args'                => array(
-					'id' => array(
+				'callback'            => [ __CLASS__, 'rest_unconfirm_event' ],
+				'permission_callback' => [ __CLASS__, 'check_submission_permission' ],
+				'args'                => [
+					'id' => [
 						'required' => true,
 						'type'     => 'integer',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -157,23 +157,23 @@ class Apollo_Cena_Rio_Submissions {
 		// CENA-RIO calendar shows ALL internal events (private + pending + draft)
 		// These are NOT public events - only for industry members
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
-				'post_status'    => array( 'private', 'pending', 'draft', 'publish' ),
+				'post_status'    => [ 'private', 'pending', 'draft', 'publish' ],
 				'posts_per_page' => -1,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'   => '_apollo_source',
 						'value' => 'cena-rio',
-					),
-				),
+					],
+				],
 				'orderby'        => 'meta_value',
 				'meta_key'       => '_event_start_date',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
-		$events = array();
+		$events = [];
 		foreach ( $query->posts as $post ) {
 			$cena_status = get_post_meta( $post->ID, '_apollo_cena_status', true );
 
@@ -190,7 +190,7 @@ class Apollo_Cena_Rio_Submissions {
 				// Already public
 			}
 
-			$events[] = array(
+			$events[] = [
 				'id'                             => $post->ID,
 				'title'                          => get_the_title( $post->ID ),
 				'description'                    => $post->post_content,
@@ -209,15 +209,15 @@ class Apollo_Cena_Rio_Submissions {
 				'dateKey'                        => get_post_meta( $post->ID, '_event_start_date', true ),
 				'is_public'                      => 'publish' === $post->post_status,
 				'awaiting_mod'                   => 'confirmed' === $cena_status && 'draft' === $post->post_status,
-			);
+			];
 		}//end foreach
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'total'   => count( $events ),
 				'events'  => $events,
-			),
+			],
 			200
 		);
 	}
@@ -241,7 +241,7 @@ class Apollo_Cena_Rio_Submissions {
 			return new WP_Error(
 				'invalid_post',
 				__( 'Evento não encontrado.', 'apollo-core' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -251,7 +251,7 @@ class Apollo_Cena_Rio_Submissions {
 			return new WP_Error(
 				'invalid_source',
 				__( 'Este evento não pertence ao CENA-RIO.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -261,7 +261,7 @@ class Apollo_Cena_Rio_Submissions {
 			return new WP_Error(
 				'already_confirmed',
 				__( 'Este evento já foi confirmado.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -272,10 +272,10 @@ class Apollo_Cena_Rio_Submissions {
 
 		// Change post status to DRAFT - NOW it appears in MOD queue!
 		wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'draft',
-			)
+			]
 		);
 
 		// Log action
@@ -285,24 +285,24 @@ class Apollo_Cena_Rio_Submissions {
 				'cena_event_confirmed',
 				'event_listing',
 				$post_id,
-				array(
+				[
 					'title'  => $post->post_title,
 					'action' => 'Industry confirmed - sent to MOD queue',
-				)
+				]
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Evento confirmado! Enviado para aprovação do MOD.', 'apollo-core' ),
-				'event'   => array(
+				'event'   => [
 					'id'           => $post_id,
 					'cena_status'  => 'confirmed',
 					'post_status'  => 'draft',
 					'awaiting_mod' => true,
-				),
-			),
+				],
+			],
 			200
 		);
 	}
@@ -324,7 +324,7 @@ class Apollo_Cena_Rio_Submissions {
 			return new WP_Error(
 				'invalid_post',
 				__( 'Evento não encontrado.', 'apollo-core' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -333,7 +333,7 @@ class Apollo_Cena_Rio_Submissions {
 			return new WP_Error(
 				'already_published',
 				__( 'Não é possível reverter um evento já publicado.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -344,22 +344,22 @@ class Apollo_Cena_Rio_Submissions {
 
 		// Change post status back to PRIVATE - removes from MOD queue
 		wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'private',
-			)
+			]
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Evento revertido para esperado.', 'apollo-core' ),
-				'event'   => array(
+				'event'   => [
 					'id'          => $post_id,
 					'cena_status' => 'expected',
 					'post_status' => 'private',
-				),
-			),
+				],
+			],
 			200
 		);
 	}
@@ -371,7 +371,7 @@ class Apollo_Cena_Rio_Submissions {
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
 	public static function rest_submit_event( WP_REST_Request $request ) {
-		$event_data = array(
+		$event_data = [
 			'title'       => $request->get_param( 'event_title' ),
 			'description' => $request->get_param( 'event_description' ),
 			'start_date'  => $request->get_param( 'event_start_date' ),
@@ -381,7 +381,7 @@ class Apollo_Cena_Rio_Submissions {
 			'venue'       => $request->get_param( 'event_venue' ) ?? '',
 			'lat'         => $request->get_param( 'event_lat' ),
 			'lng'         => $request->get_param( 'event_lng' ),
-		);
+		];
 
 		$event_id = self::create_cena_event( $event_data );
 
@@ -390,12 +390,12 @@ class Apollo_Cena_Rio_Submissions {
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'  => true,
 				'message'  => __( 'Evento enviado para moderação com sucesso!', 'apollo-core' ),
 				'event_id' => $event_id,
 				'status'   => 'pending',
-			),
+			],
 			201
 		);
 	}
@@ -608,7 +608,7 @@ class Apollo_Cena_Rio_Submissions {
 		}
 
 		// Sanitize input
-		$event_data = array(
+		$event_data = [
 			'title'       => isset( $_POST['event_title'] ) ? sanitize_text_field( wp_unslash( $_POST['event_title'] ) ) : '',
 			'description' => isset( $_POST['event_description'] ) ? wp_kses_post( wp_unslash( $_POST['event_description'] ) ) : '',
 			'start_date'  => isset( $_POST['event_start_date'] ) ? sanitize_text_field( wp_unslash( $_POST['event_start_date'] ) ) : '',
@@ -618,7 +618,7 @@ class Apollo_Cena_Rio_Submissions {
 			'venue'       => isset( $_POST['event_venue'] ) ? sanitize_text_field( wp_unslash( $_POST['event_venue'] ) ) : '',
 			'lat'         => isset( $_POST['event_lat'] ) ? floatval( $_POST['event_lat'] ) : null,
 			'lng'         => isset( $_POST['event_lng'] ) ? floatval( $_POST['event_lng'] ) : null,
-		);
+		];
 
 		// Create event
 		$event_id = self::create_cena_event( $event_data );
@@ -658,14 +658,14 @@ class Apollo_Cena_Rio_Submissions {
 		// Create post as PRIVATE - NOT visible to MOD yet!
 		// Only visible in CENA-RIO internal calendar
 		$post_id = wp_insert_post(
-			array(
+			[
 				'post_type'                                   => 'event_listing',
 				'post_title'                                  => $event_data['title'],
 				'post_content'                                => $event_data['description'],
 				'post_status'                                 => 'private',
 				// Internal only - NOT in MOD queue
 												'post_author' => get_current_user_id(),
-			),
+			],
 			true
 		);
 
@@ -713,11 +713,11 @@ class Apollo_Cena_Rio_Submissions {
 				'cena_event_submitted',
 				'event_listing',
 				$post_id,
-				array(
+				[
 					'title'  => $event_data['title'],
 					'status' => 'pending',
 					'source' => 'cena-rio',
-				)
+				]
 			);
 		}
 

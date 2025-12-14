@@ -35,7 +35,7 @@ class Apollo_Moderation_Queue_Unified {
 	 *
 	 * @var array
 	 */
-	private static array $mod_cpts = array(
+	private static array $mod_cpts = [
 		'event_listing',
 		'event_local',
 		'event_dj',
@@ -44,26 +44,26 @@ class Apollo_Moderation_Queue_Unified {
 		'apollo_classified',
 		'apollo_social_post',
 		'post',
-	);
+	];
 
 	/**
 	 * Initialize
 	 */
 	public static function init(): void {
 		// Add pending count to admin menu
-		add_action( 'admin_menu', array( __CLASS__, 'add_pending_count_badge' ), 999 );
+		add_action( 'admin_menu', [ __CLASS__, 'add_pending_count_badge' ], 999 );
 
 		// Hook into post save to trigger mod visibility
-		add_action( 'save_post', array( __CLASS__, 'on_post_save' ), 10, 3 );
-		add_action( 'transition_post_status', array( __CLASS__, 'on_status_change' ), 10, 3 );
+		add_action( 'save_post', [ __CLASS__, 'on_post_save' ], 10, 3 );
+		add_action( 'transition_post_status', [ __CLASS__, 'on_status_change' ], 10, 3 );
 
 		// Register REST endpoint for unified queue
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 
 		// Clear transient cache when posts change
-		add_action( 'save_post', array( __CLASS__, 'clear_pending_cache' ) );
-		add_action( 'delete_post', array( __CLASS__, 'clear_pending_cache' ) );
-		add_action( 'wp_trash_post', array( __CLASS__, 'clear_pending_cache' ) );
+		add_action( 'save_post', [ __CLASS__, 'clear_pending_cache' ] );
+		add_action( 'delete_post', [ __CLASS__, 'clear_pending_cache' ] );
+		add_action( 'wp_trash_post', [ __CLASS__, 'clear_pending_cache' ] );
 	}
 
 	/**
@@ -73,31 +73,31 @@ class Apollo_Moderation_Queue_Unified {
 		register_rest_route(
 			'apollo/v1',
 			'mod/em-fila',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_unified_queue' ),
-				'permission_callback' => array( __CLASS__, 'check_mod_permission' ),
-				'args'                => array(
-					'post_type' => array(
+				'callback'            => [ __CLASS__, 'rest_get_unified_queue' ],
+				'permission_callback' => [ __CLASS__, 'check_mod_permission' ],
+				'args'                => [
+					'post_type' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'source'    => array(
+					],
+					'source'    => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'mod/pendentes',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_pending_count' ),
-				'permission_callback' => array( __CLASS__, 'check_mod_permission' ),
-			)
+				'callback'            => [ __CLASS__, 'rest_get_pending_count' ],
+				'permission_callback' => [ __CLASS__, 'check_mod_permission' ],
+			]
 		);
 	}
 
@@ -208,7 +208,7 @@ class Apollo_Moderation_Queue_Unified {
 
 		// If post is pending/draft and from a moderated CPT, mark it
 		if (
-			in_array( $post->post_status, array( 'pending', 'draft' ), true )
+			in_array( $post->post_status, [ 'pending', 'draft' ], true )
 			&& in_array( $post->post_type, self::get_mod_cpts(), true )
 		) {
 			// Mark when the post was submitted for mod
@@ -234,7 +234,7 @@ class Apollo_Moderation_Queue_Unified {
 		self::clear_pending_cache();
 
 		// If post was approved (pending/draft -> publish)
-		if ( 'publish' === $new_status && in_array( $old_status, array( 'pending', 'draft' ), true ) ) {
+		if ( 'publish' === $new_status && in_array( $old_status, [ 'pending', 'draft' ], true ) ) {
 			update_post_meta( $post->ID, '_apollo_approved_at', current_time( 'mysql' ) );
 			update_post_meta( $post->ID, '_apollo_approved_by', get_current_user_id() );
 
@@ -257,26 +257,26 @@ class Apollo_Moderation_Queue_Unified {
 
 		// Apply post type filter
 		if ( $post_type_filter && in_array( $post_type_filter, $cpts, true ) ) {
-			$cpts = array( $post_type_filter );
+			$cpts = [ $post_type_filter ];
 		}
 
-		$meta_query = array();
+		$meta_query = [];
 
 		// Filter by source (e.g., 'cena-rio')
 		if ( $source_filter ) {
-			$meta_query[] = array(
+			$meta_query[] = [
 				'key'   => '_apollo_source',
 				'value' => $source_filter,
-			);
+			];
 		}
 
-		$query_args = array(
+		$query_args = [
 			'post_type'      => $cpts,
-			'post_status'    => array( 'pending', 'draft' ),
+			'post_status'    => [ 'pending', 'draft' ],
 			'posts_per_page' => 100,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
-		);
+		];
 
 		if ( ! empty( $meta_query ) ) {
 			$query_args['meta_query'] = $meta_query;
@@ -284,21 +284,21 @@ class Apollo_Moderation_Queue_Unified {
 
 		$query = new WP_Query( $query_args );
 
-		$items = array();
+		$items = [];
 		foreach ( $query->posts as $post ) {
 			$author = get_userdata( $post->post_author );
 			$source = get_post_meta( $post->ID, '_apollo_source', true );
 
-			$items[] = array(
+			$items[] = [
 				'id'          => $post->ID,
 				'title'       => $post->post_title ?: __( '(sem título)', 'apollo-core' ),
 				'type'        => $post->post_type,
 				'type_label'  => self::get_post_type_label( $post->post_type ),
 				'status'      => $post->post_status,
-				'author'      => array(
+				'author'      => [
 					'id'   => $post->post_author,
 					'name' => $author ? $author->display_name : __( 'Desconhecido', 'apollo-core' ),
-				),
+				],
 				'date'        => $post->post_date,
 				'date_human'  => human_time_diff( strtotime( $post->post_date ), current_time( 'timestamp' ) ) . ' ' . __( 'atrás', 'apollo-core' ),
 				'edit_link'   => get_edit_post_link( $post->ID, 'raw' ),
@@ -306,26 +306,26 @@ class Apollo_Moderation_Queue_Unified {
 				'source'      => $source ?: 'wordpress',
 				'is_cena_rio' => 'cena-rio' === $source,
 				'excerpt'     => wp_trim_words( $post->post_content, 20 ),
-			);
+			];
 		}//end foreach
 
 		// Group by source for easy filtering
-		$by_source = array(
+		$by_source = [
 			'cena-rio'  => array_filter( $items, fn ( $i ) => $i['is_cena_rio'] ),
 			'wordpress' => array_filter( $items, fn ( $i ) => ! $i['is_cena_rio'] ),
-		);
+		];
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'   => true,
 				'total'     => count( $items ),
 				'items'     => $items,
-				'by_source' => array(
+				'by_source' => [
 					'cena_rio'  => count( $by_source['cena-rio'] ),
 					'wordpress' => count( $by_source['wordpress'] ),
-				),
+				],
 				'by_type'   => self::count_by_type( $items ),
-			),
+			],
 			200
 		);
 	}
@@ -341,27 +341,27 @@ class Apollo_Moderation_Queue_Unified {
 
 		// Get CENA-RIO specific count
 		$cena_query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'pending',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'   => '_apollo_source',
 						'value' => 'cena-rio',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'  => true,
 				'total'    => $count,
 				'cena_rio' => $cena_query->found_posts,
 				'other'    => $count - $cena_query->found_posts,
-			),
+			],
 			200
 		);
 	}
@@ -373,7 +373,7 @@ class Apollo_Moderation_Queue_Unified {
 	 * @return string Human-readable label.
 	 */
 	private static function get_post_type_label( string $post_type ): string {
-		$labels = array(
+		$labels = [
 			'event_listing'      => __( 'Evento', 'apollo-core' ),
 			'event_local'        => __( 'Local', 'apollo-core' ),
 			'event_dj'           => __( 'DJ', 'apollo-core' ),
@@ -382,7 +382,7 @@ class Apollo_Moderation_Queue_Unified {
 			'apollo_classified'  => __( 'Classificado', 'apollo-core' ),
 			'apollo_social_post' => __( 'Post Social', 'apollo-core' ),
 			'post'               => __( 'Post', 'apollo-core' ),
-		);
+		];
 
 		return $labels[ $post_type ] ?? $post_type;
 	}
@@ -394,7 +394,7 @@ class Apollo_Moderation_Queue_Unified {
 	 * @return array Counts by type.
 	 */
 	private static function count_by_type( array $items ): array {
-		$counts = array();
+		$counts = [];
 		foreach ( $items as $item ) {
 			$type = $item['type'];
 			if ( ! isset( $counts[ $type ] ) ) {
@@ -420,31 +420,31 @@ class Apollo_Moderation_Queue_Unified {
 		$cpts = self::get_mod_cpts();
 
 		if ( $post_type && in_array( $post_type, $cpts, true ) ) {
-			$cpts = array( $post_type );
+			$cpts = [ $post_type ];
 		}
 
-		$args = array(
+		$args = [
 			'post_type'      => $cpts,
-			'post_status'    => array( 'pending', 'draft' ),
+			'post_status'    => [ 'pending', 'draft' ],
 			'posts_per_page' => 100,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
-		);
+		];
 
 		if ( $source ) {
-			$args['meta_query'] = array(
-				array(
+			$args['meta_query'] = [
+				[
 					'key'   => '_apollo_source',
 					'value' => $source,
-				),
-			);
+				],
+			];
 		}
 
 		$posts = get_posts( $args );
 
 		// Filter out CENA-RIO events that are not confirmed by industry yet
 		// CENA-RIO events only appear in MOD queue when _apollo_cena_status = 'confirmed'
-		$filtered_posts = array();
+		$filtered_posts = [];
 		foreach ( $posts as $post ) {
 			$source = get_post_meta( $post->ID, '_apollo_source', true );
 
@@ -477,7 +477,7 @@ class Apollo_Moderation_Queue_Unified {
 		}
 
 		// Must be draft or pending
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
+		if ( ! in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 			return false;
 		}
 

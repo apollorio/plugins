@@ -24,41 +24,41 @@ function apollo_register_forms_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'forms/enviar',
-		array(
+		[
 			'methods'                          => WP_REST_Server::CREATABLE,
 			'callback'                         => 'apollo_rest_submit_form',
 			'permission_callback'              => '__return_true',
 			// Public, validated within.
-										'args' => array(
-											'form_type' => array(
+										'args' => [
+											'form_type' => [
 												'required'          => true,
 												'sanitize_callback' => 'sanitize_text_field',
-											),
-											'data'      => array(
+											],
+											'data'      => [
 												'required'          => true,
 												'type'              => 'object',
 												'sanitize_callback' => 'apollo_sanitize_form_data',
-											),
-										),
-		)
+											],
+										],
+		]
 	);
 
 	// Get schema endpoint.
 	register_rest_route(
 		'apollo/v1',
 		'forms/schema',
-		array(
+		[
 			'methods'                          => WP_REST_Server::READABLE,
 			'callback'                         => 'apollo_rest_get_form_schema',
 			'permission_callback'              => '__return_true',
 			// Public.
-										'args' => array(
-											'form_type' => array(
+										'args' => [
+											'form_type' => [
 												'required'          => true,
 												'sanitize_callback' => 'sanitize_text_field',
-											),
-										),
-		)
+											],
+										],
+		]
 	);
 }
 add_action( 'rest_api_init', 'apollo_register_forms_rest_routes' );
@@ -122,7 +122,7 @@ function apollo_rest_submit_form( $request ) {
 		return new WP_Error(
 			'invalid_nonce',
 			__( 'Invalid security token.', 'apollo-core' ),
-			array( 'status' => 403 )
+			[ 'status' => 403 ]
 		);
 	}
 
@@ -133,7 +133,7 @@ function apollo_rest_submit_form( $request ) {
 		return new WP_Error(
 			'invalid_form_type',
 			__( 'Invalid form type.', 'apollo-core' ),
-			array( 'status' => 400 )
+			[ 'status' => 400 ]
 		);
 	}
 
@@ -149,17 +149,17 @@ function apollo_rest_submit_form( $request ) {
 				return new WP_Error(
 					'quiz_failed',
 					__( 'You must pass the quiz to register.', 'apollo-core' ),
-					array(
+					[
 						'status'  => 400,
 						'results' => $quiz_result['results'],
-					)
+					]
 				);
 			}
 		}
 	}
 
 	// Validate all fields.
-	$errors = array();
+	$errors = [];
 	foreach ( $schema as $field ) {
 		if ( ! $field['visible'] ) {
 			continue;
@@ -176,10 +176,10 @@ function apollo_rest_submit_form( $request ) {
 	// Return validation errors.
 	if ( ! empty( $errors ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'errors'  => $errors,
-			),
+			],
 			400
 		);
 	}
@@ -208,20 +208,20 @@ function apollo_rest_submit_form( $request ) {
 		// Return result.
 		if ( is_wp_error( $result ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => $result->get_error_message(),
-				),
+				],
 				400
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Form submitted successfully.', 'apollo-core' ),
 				'data'    => $result,
-			),
+			],
 			200
 		);
 	} catch ( Exception $e ) {
@@ -243,10 +243,10 @@ function apollo_rest_submit_form( $request ) {
 		return new WP_Error(
 			'form_submission_failed',
 			__( 'Form submission failed. Please try again or contact support if the problem persists.', 'apollo-core' ),
-			array(
+			[
 				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
-			)
+			]
 		);
 	}//end try
 }
@@ -313,10 +313,10 @@ function apollo_process_new_user_form( $data ) {
 		}
 	}
 
-	return array(
+	return [
 		'user_id'    => $user_id,
 		'user_login' => $user_login,
-	);
+	];
 }
 
 /**
@@ -328,11 +328,11 @@ function apollo_process_new_user_form( $data ) {
  */
 function apollo_process_cpt_form( $form_type, $data ) {
 	// Map form type to post type.
-	$post_type_map = array(
+	$post_type_map = [
 		'cpt_event' => 'event_listing',
 		'cpt_local' => 'event_local',
 		'cpt_dj'    => 'event_dj',
-	);
+	];
 
 	$post_type = $post_type_map[ $form_type ];
 
@@ -342,14 +342,14 @@ function apollo_process_cpt_form( $form_type, $data ) {
 
 	// Create post as draft.
 	$post_id = wp_insert_post(
-		array(
+		[
 			'post_type'                               => $post_type,
 			'post_title'                              => $post_title,
 			'post_content'                            => $post_content,
 			'post_status'                             => 'draft',
 			// Requires mod.
 										'post_author' => get_current_user_id() ? get_current_user_id() : 1,
-		),
+		],
 		true
 	);
 
@@ -373,11 +373,11 @@ function apollo_process_cpt_form( $form_type, $data ) {
 		}
 	}
 
-	return array(
+	return [
 		'post_id'   => $post_id,
 		'post_type' => $post_type,
 		'status'    => 'draft',
-	);
+	];
 }
 
 /**
@@ -394,7 +394,7 @@ function apollo_rest_get_form_schema( $request ) {
 	// Remove internal fields if needed.
 	$public_schema = array_map(
 		function ( $field ) {
-			return array(
+			return [
 				'key'        => $field['key'],
 				'label'      => $field['label'],
 				'type'       => $field['type'],
@@ -402,13 +402,13 @@ function apollo_rest_get_form_schema( $request ) {
 				'visible'    => $field['visible'],
 				'default'    => $field['default'],
 				'validation' => $field['validation'],
-			);
+			];
 		},
 		$schema
 	);
 
 	// Add quiz questions if enabled for this form type.
-	$quiz_questions = array();
+	$quiz_questions = [];
 	$quiz_enabled   = false;
 
 	if ( function_exists( 'apollo_get_active_quiz_questions' ) ) {
@@ -419,31 +419,31 @@ function apollo_rest_get_form_schema( $request ) {
 
 			// Format questions for frontend (hide correct answers).
 			foreach ( $active_questions as $id => $question ) {
-				$quiz_questions[ $id ] = array(
+				$quiz_questions[ $id ] = [
 					'id'          => $id,
 					'title'       => $question['title'],
 					'answers'     => $question['answers'],
 					'mandatory'   => $question['mandatory'] ?? true,
 					'max_retries' => $question['max_retries'] ?? 5,
-				);
+				];
 			}
 		}
 	}
 
 	// Add Instagram info if available.
-	$insta_info = array();
+	$insta_info = [];
 	if ( function_exists( 'apollo_get_insta_info' ) ) {
 		$insta_info = apollo_get_insta_info( $form_type );
 	}
 
 	return new WP_REST_Response(
-		array(
+		[
 			'form_type'      => $form_type,
 			'schema'         => $public_schema,
 			'quiz_enabled'   => $quiz_enabled,
 			'quiz_questions' => $quiz_questions,
 			'insta_info'     => $insta_info,
-		),
+		],
 		200
 	);
 }

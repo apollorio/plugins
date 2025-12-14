@@ -20,3 +20,4 @@ foreach (glob(__DIR__ . '/*.php') as $file) {
         require_once $file;
     }
 }
+require_once APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/tabs/class-user-privacy-tab.php';

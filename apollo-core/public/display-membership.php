@@ -19,12 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array $args    Display arguments.
  * @return string HTML markup for membership badge.
  */
-function apollo_display_membership_badge( $user_id, $args = array() ) {
-	$defaults = array(
+function apollo_display_membership_badge( $user_id, $args = [] ) {
+	$defaults = [
 		'show_instagram' => true,
 		'badge_class'    => '',
 		'show_label'     => true,
-	);
+	];
 	$args     = wp_parse_args( $args, $defaults );
 
 	// Get user membership.
@@ -42,10 +42,10 @@ function apollo_display_membership_badge( $user_id, $args = array() ) {
 	}
 
 	// Build badge HTML.
-	$badge_classes = array(
+	$badge_classes = [
 		'apollo-membership',
 		'apollo-membership--' . esc_attr( $membership_slug ),
-	);
+	];
 
 	if ( ! empty( $args['badge_class'] ) ) {
 		$badge_classes[] = esc_attr( $args['badge_class'] );
@@ -91,7 +91,7 @@ function apollo_display_membership_badge( $user_id, $args = array() ) {
  * @param int   $user_id User ID.
  * @param array $args    Display arguments.
  */
-function apollo_the_membership_badge( $user_id, $args = array() ) {
+function apollo_the_membership_badge( $user_id, $args = [] ) {
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo apollo_display_membership_badge( $user_id, $args );
 }
@@ -208,7 +208,7 @@ add_filter( 'manage_users_columns', 'apollo_add_membership_column' );
  */
 function apollo_display_membership_column( $output, $column_name, $user_id ) {
 	if ( 'apollo_membership' === $column_name ) {
-		$output = apollo_display_membership_badge( $user_id, array( 'show_instagram' => false ) );
+		$output = apollo_display_membership_badge( $user_id, [ 'show_instagram' => false ] );
 	}
 
 	return $output;
@@ -259,7 +259,7 @@ function apollo_add_membership_to_comment( $comment_text, $comment = null ) {
 		return $comment_text;
 	}
 
-	$badge = apollo_display_membership_badge( $comment->user_id, array( 'show_instagram' => false ) );
+	$badge = apollo_display_membership_badge( $comment->user_id, [ 'show_instagram' => false ] );
 
 	if ( empty( $badge ) ) {
 		return $comment_text;

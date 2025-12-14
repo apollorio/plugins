@@ -24,8 +24,8 @@ class Apollo_Events_Module {
 	 * Initialize module
 	 */
 	public static function init() {
-		add_action( 'init', array( __CLASS__, 'register_post_types' ) );
-		add_action( 'apollo_core_register_rest_routes', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'init', [ __CLASS__, 'register_post_types' ] );
+		add_action( 'apollo_core_register_rest_routes', [ __CLASS__, 'register_rest_routes' ] );
 	}
 
 	/**
@@ -54,23 +54,23 @@ class Apollo_Events_Module {
 		// This provides minimal events functionality for Core-only installations
 		register_post_type(
 			'event_listing',
-			array(
-				'labels'          => array(
+			[
+				'labels'          => [
 					'name'          => __( 'Events', 'apollo-core' ),
 					'singular_name' => __( 'Event', 'apollo-core' ),
-				),
+				],
 				'public'          => true,
 				'has_archive'     => true,
 				'show_in_rest'    => true,
 				'capability_type' => 'post',
-				'supports'        => array( 'title', 'editor', 'thumbnail', 'author', 'comments' ),
+				'supports'        => [ 'title', 'editor', 'thumbnail', 'author', 'comments' ],
 				'menu_icon'       => 'dashicons-calendar-alt',
 				// Use 'evento' to match Events Manager slug for consistency
-				'rewrite'         => array(
+				'rewrite'         => [
 					'slug'       => 'evento',
 					'with_front' => false,
-				),
-			)
+				],
+			]
 		);
 
 		// NOTE: event_dj and event_local CPTs are ONLY registered by Apollo Events Manager
@@ -84,56 +84,56 @@ class Apollo_Events_Module {
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
 			'eventos',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( __CLASS__, 'get_events' ),
+				'callback'            => [ __CLASS__, 'get_events' ],
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'per_page' => array(
+				'args'                => [
+					'per_page' => [
 						'default'           => 10,
 						'sanitize_callback' => 'absint',
-					),
-					'page'     => array(
+					],
+					'page'     => [
 						'default'           => 1,
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
 			'evento/(?P<id>\d+)',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( __CLASS__, 'get_event' ),
+				'callback'            => [ __CLASS__, 'get_event' ],
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'id' => array(
+				'args'                => [
+					'id' => [
 						'required'          => true,
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			Apollo_Core_Rest_Bootstrap::get_namespace(),
 			'eventos',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'create_event' ),
-				'permission_callback' => array( 'Apollo_Core_Permissions', 'rest_logged_in' ),
-				'args'                => array(
-					'title'   => array(
+				'callback'            => [ __CLASS__, 'create_event' ],
+				'permission_callback' => [ 'Apollo_Core_Permissions', 'rest_logged_in' ],
+				'args'                => [
+					'title'   => [
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'content' => array(
+					],
+					'content' => [
 						'sanitize_callback' => 'wp_kses_post',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -148,32 +148,32 @@ class Apollo_Events_Module {
 		$page     = $request->get_param( 'page' );
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => $per_page,
 				'paged'          => $page,
-			)
+			]
 		);
 
-		$events = array();
+		$events = [];
 		foreach ( $query->posts as $post ) {
-			$events[] = array(
+			$events[] = [
 				'id'      => $post->ID,
 				'title'   => $post->post_title,
 				'content' => apply_filters( 'the_content', $post->post_content ),
 				'date'    => $post->post_date,
 				'link'    => get_permalink( $post->ID ),
-			);
+			];
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'data'    => $events,
 				'total'   => $query->found_posts,
 				'pages'   => $query->max_num_pages,
-			),
+			],
 			200
 		);
 	}
@@ -190,25 +190,25 @@ class Apollo_Events_Module {
 
 		if ( ! $post || 'event_listing' !== $post->post_type ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Event not found.', 'apollo-core' ),
-				),
+				],
 				404
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
-				'data'    => array(
+				'data'    => [
 					'id'      => $post->ID,
 					'title'   => $post->post_title,
 					'content' => apply_filters( 'the_content', $post->post_content ),
 					'date'    => $post->post_date,
 					'link'    => get_permalink( $post->ID ),
-				),
-			),
+				],
+			],
 			200
 		);
 	}
@@ -224,34 +224,34 @@ class Apollo_Events_Module {
 		$content = $request->get_param( 'content' );
 
 		$event_id = wp_insert_post(
-			array(
+			[
 				'post_type'    => 'event_listing',
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_status'  => 'draft',
 				'post_author'  => get_current_user_id(),
-			)
+			]
 		);
 
 		if ( is_wp_error( $event_id ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => $event_id->get_error_message(),
-				),
+				],
 				500
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
-				'data'    => array(
+				'data'    => [
 					'id'    => $event_id,
 					'title' => $title,
-				),
+				],
 				'message' => __( 'Event created successfully.', 'apollo-core' ),
-			),
+			],
 			201
 		);
 	}

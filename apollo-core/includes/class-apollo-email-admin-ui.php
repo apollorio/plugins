@@ -17,11 +17,11 @@ class Apollo_Email_Admin_UI {
 	 * @return void
 	 */
 	public static function init(): void {
-		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
-		add_action( 'wp_ajax_apollo_email_save_flow', array( __CLASS__, 'ajax_save_flow' ) );
-		add_action( 'wp_ajax_apollo_email_send_test', array( __CLASS__, 'ajax_send_test' ) );
-		add_action( 'wp_ajax_apollo_email_preview', array( __CLASS__, 'ajax_preview' ) );
+		add_action( 'admin_menu', [ __CLASS__, 'add_menu' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'wp_ajax_apollo_email_save_flow', [ __CLASS__, 'ajax_save_flow' ] );
+		add_action( 'wp_ajax_apollo_email_send_test', [ __CLASS__, 'ajax_send_test' ] );
+		add_action( 'wp_ajax_apollo_email_preview', [ __CLASS__, 'ajax_preview' ] );
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Apollo_Email_Admin_UI {
 			__( '📧 Emails', 'apollo-core' ),
 			'manage_options',
 			'apollo-emails',
-			array( __CLASS__, 'render_page' )
+			[ __CLASS__, 'render_page' ]
 		);
 	}
 
@@ -66,7 +66,7 @@ class Apollo_Email_Admin_UI {
 
 		$flows         = self::get_available_flows();
 		$templates     = self::get_templates();
-		$current_flows = get_option( 'apollo_email_flows', array() );
+		$current_flows = get_option( 'apollo_email_flows', [] );
 
 		?>
 		<div class="wrap apollo-email-admin">
@@ -124,7 +124,7 @@ class Apollo_Email_Admin_UI {
 
 			<?php foreach ( $flows as $flow_slug => $flow_data ) : ?>
 				<?php
-				$flow_config      = $current_flows[ $flow_slug ] ?? array();
+				$flow_config      = $current_flows[ $flow_slug ] ?? [];
 				$enabled          = ! empty( $flow_config['enabled'] );
 				$template_id      = $flow_config['template_id'] ?? '';
 				$subject          = $flow_config['subject'] ?? $flow_data['default_subject'];
@@ -352,18 +352,18 @@ class Apollo_Email_Admin_UI {
 	 * @return array
 	 */
 	private static function get_available_flows(): array {
-		return array(
-			'registration_confirm' => array(
+		return [
+			'registration_confirm' => [
 				'name'            => __( 'Registration Confirmation', 'apollo-core' ),
 				'description'     => __( 'Sent to new users with a confirmation link', 'apollo-core' ),
 				'default_subject' => __( 'Bem-vindo ao {{site_name}}! Confirme sua conta', 'apollo-core' ),
-			),
-			'producer_notify'      => array(
+			],
+			'producer_notify'      => [
 				'name'            => __( 'Producer Notification', 'apollo-core' ),
 				'description'     => __( 'Sent to party producers when relevant event actions happen', 'apollo-core' ),
 				'default_subject' => __( 'Novo evento: {{event_title}}', 'apollo-core' ),
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -373,11 +373,11 @@ class Apollo_Email_Admin_UI {
 	 */
 	private static function get_templates(): array {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'apollo_email_template',
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -392,26 +392,26 @@ class Apollo_Email_Admin_UI {
 		check_ajax_referer( 'apollo_email_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Permission denied', 'apollo-core' ) ] );
 		}
 
 		$flow_slug = sanitize_key( $_POST['flow'] ?? '' );
 		if ( empty( $flow_slug ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid flow', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Invalid flow', 'apollo-core' ) ] );
 		}
 
-		$flows = get_option( 'apollo_email_flows', array() );
+		$flows = get_option( 'apollo_email_flows', [] );
 
-		$flows[ $flow_slug ] = array(
+		$flows[ $flow_slug ] = [
 			'enabled'          => ! empty( $_POST['enabled'] ),
 			'template_id'      => absint( $_POST['template_id'] ?? 0 ),
 			'subject'          => sanitize_text_field( $_POST['subject'] ?? '' ),
 			'extra_recipients' => sanitize_text_field( $_POST['extra_recipients'] ?? '' ),
-		);
+		];
 
 		update_option( 'apollo_email_flows', $flows );
 
-		wp_send_json_success( array( 'message' => __( 'Flow saved successfully', 'apollo-core' ) ) );
+		wp_send_json_success( [ 'message' => __( 'Flow saved successfully', 'apollo-core' ) ] );
 	}
 
 	/**
@@ -423,24 +423,24 @@ class Apollo_Email_Admin_UI {
 		check_ajax_referer( 'apollo_email_test', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Permission denied', 'apollo-core' ) ] );
 		}
 
 		$flow  = sanitize_key( $_POST['flow'] ?? '' );
 		$email = sanitize_email( $_POST['email'] ?? '' );
 
 		if ( empty( $flow ) || ! is_email( $email ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid flow or email address', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Invalid flow or email address', 'apollo-core' ) ] );
 		}
 
 		$email_service = Apollo_Email_Service::instance();
 		$result        = $email_service->send_test( $flow, $email );
 
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			wp_send_json_error( [ 'message' => $result->get_error_message() ] );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'Test email sent successfully', 'apollo-core' ) ) );
+		wp_send_json_success( [ 'message' => __( 'Test email sent successfully', 'apollo-core' ) ] );
 	}
 
 	/**
@@ -452,19 +452,19 @@ class Apollo_Email_Admin_UI {
 		check_ajax_referer( 'apollo_email_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Permission denied', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Permission denied', 'apollo-core' ) ] );
 		}
 
 		$flow = sanitize_key( $_POST['flow'] ?? '' );
 		if ( empty( $flow ) ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid flow', 'apollo-core' ) ) );
+			wp_send_json_error( [ 'message' => __( 'Invalid flow', 'apollo-core' ) ] );
 		}
 
 		$email_service    = Apollo_Email_Service::instance();
 		$sample_variables = $email_service->get_sample_variables( $flow );
 
 		// Get flow config to determine template.
-		$flow_config = get_option( 'apollo_email_flows', array() );
+		$flow_config = get_option( 'apollo_email_flows', [] );
 		$template_id = $flow_config[ $flow ]['template_id'] ?? '';
 
 		if ( $template_id ) {
@@ -474,10 +474,10 @@ class Apollo_Email_Admin_UI {
 		}
 
 		if ( is_wp_error( $template_html ) ) {
-			wp_send_json_error( array( 'message' => $template_html->get_error_message() ) );
+			wp_send_json_error( [ 'message' => $template_html->get_error_message() ] );
 		}
 
-		wp_send_json_success( array( 'html' => $template_html ) );
+		wp_send_json_success( [ 'html' => $template_html ] );
 	}
 }
 

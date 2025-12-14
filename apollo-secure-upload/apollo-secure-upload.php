@@ -30,7 +30,7 @@ if ( file_exists( WP_PLUGIN_DIR . '/apollo-core/includes/class-apollo-audit-log.
 class Apollo_Secure_Upload_Handler {
 
 	protected $options;
-	protected $error_messages = array(
+	protected $error_messages = [
 		1                     => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
 		2                     => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
 		3                     => 'The uploaded file was only partially uploaded',
@@ -52,21 +52,21 @@ class Apollo_Secure_Upload_Handler {
 		'image_resize'        => 'Failed to resize image',
 		'nonce_invalid'       => 'Security check failed',
 		'no_permission'       => 'No permission to upload',
-	);
+	];
 
-	protected $response = array();
+	protected $response = [];
 
 	public function __construct( $options = null ) {
 		$upload_dir    = wp_upload_dir();
-		$this->options = array(
+		$this->options = [
 			'upload_dir'        => $upload_dir['basedir'] . '/apollo-uploads/',
 			'upload_url'        => $upload_dir['baseurl'] . '/apollo-uploads/',
 			'param_name'        => 'files',
 			'max_file_size'     => 10 * 1024 * 1024, // 10MB
 			'min_file_size'     => 1,
 			'accept_file_types' => '/\.(jpe?g|png|webp)$/i', // Only images, no SVG for security
-			'image_versions'    => array(),
-		);
+			'image_versions'    => [],
+		];
 		if ( $options ) {
 			$this->options = array_merge( $this->options, $options );
 		}
@@ -81,12 +81,12 @@ class Apollo_Secure_Upload_Handler {
 		// Check nonce.
 		$nonce = isset( $_REQUEST['nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'apollo_secure_upload' ) ) {
-			return $this->generate_response( array( 'error' => $this->error_messages['nonce_invalid'] ) );
+			return $this->generate_response( [ 'error' => $this->error_messages['nonce_invalid'] ] );
 		}
 
 		// Check permission.
 		if ( ! current_user_can( 'upload_files' ) && ! current_user_can( 'apollo_upload_media' ) ) {
-			return $this->generate_response( array( 'error' => $this->error_messages['no_permission'] ) );
+			return $this->generate_response( [ 'error' => $this->error_messages['no_permission'] ] );
 		}
 
 		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
@@ -94,7 +94,7 @@ class Apollo_Secure_Upload_Handler {
 			case 'POST':
 				return $this->post();
 			default:
-				return $this->generate_response( array( 'error' => 'Method not allowed' ) );
+				return $this->generate_response( [ 'error' => 'Method not allowed' ] );
 		}
 	}
 
@@ -106,23 +106,23 @@ class Apollo_Secure_Upload_Handler {
 			 */
 	protected function validate_file( $file ) {
 		// Check upload error first
-		if ( isset( $file['error'] ) && 0 !== $file['error'] ) {
+		if ( isset( $file['error'] ) && $file['error'] !== 0 ) {
 			return isset( $this->error_messages[ $file['error'] ] ) ? $file['error'] : 'abort';
 		}
 
 		// Use wp_check_filetype_and_ext
 		$checked = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'] );
-		if ( false === $checked['type'] || ! preg_match( $this->options['accept_file_types'], $file['name'] ) ) {
+		if ( $checked['type'] === false || ! preg_match( $this->options['accept_file_types'], $file['name'] ) ) {
 			return 'accept_file_types';
 		}
 
 		// Check size
-		if ( $this->options['max_file_size'] < $file['size'] ) { // Yoda
+		if ( $file['size'] > $this->options['max_file_size'] ) {
 			return 'max_file_size';
 		}
 
 		// Check if image
-		if ( false === getimagesize( $file['tmp_name'] ) ) { // Yoda
+		if ( getimagesize( $file['tmp_name'] ) === false ) {
 			return 'invalid_file_type';
 		}
 
@@ -137,12 +137,11 @@ class Apollo_Secure_Upload_Handler {
 	 */
 	protected function handle_file_upload( $file ) {
 		$validation = $this->validate_file( $file );
-		if ( true !== $validation ) {
-			return array( 'error' => $this->error_messages[ $validation ] );
+		if ( $validation !== true ) {
+			return [ 'error' => $this->error_messages[ $validation ] ];
 		}
 
 		// Generate unique name
-		$ext  = pathinfo( $file['name'], PATHINFO_EXTENSION );
 		$name = wp_unique_filename( $this->options['upload_dir'], sanitize_file_name( $file['name'] ) );
 
 		$file_path = $this->options['upload_dir'] . $name;
@@ -156,43 +155,43 @@ class Apollo_Secure_Upload_Handler {
 			$hash = hash_file( 'sha256', $file_path );
 
 			// Store metadata
-			$metadata = array(
+			$metadata = [
 				'name'        => $name,
 				'hash'        => $hash,
 				'size'        => $file['size'],
 				'user_id'     => get_current_user_id(),
 				'source'      => 'apollo_secure_upload',
 				'uploaded_at' => current_time( 'mysql' ),
-			);
+			];
 			update_option( 'apollo_upload_' . $hash, $metadata );
 
 			// Log successful upload
 			if ( function_exists( 'Apollo_Audit_Log' ) ) {
 				Apollo_Audit_Log::log_event(
 					'file_upload',
-					array(
+					[
 						'message'     => 'File uploaded via Apollo Secure Upload',
 						'target_type' => 'file',
 						'target_id'   => $hash,
-						'context'     => array(
+						'context'     => [
 							'filename' => $name,
 							'size'     => $file['size'],
 							'hash'     => $hash,
 							'url'      => $file_url,
-						),
+						],
 						'severity'    => 'info',
-					)
+					]
 				);
 			}
 
-			return array(
+			return [
 				'name' => $name,
 				'size' => $file['size'],
 				'url'  => $file_url,
 				'hash' => $hash,
-			);
+			];
 		} else {
-			return array( 'error' => 'Failed to save file' );
+			return [ 'error' => 'Failed to save file' ];
 		}
 	}
 
@@ -202,33 +201,33 @@ class Apollo_Secure_Upload_Handler {
 			 * @return array Response array.
 			 */
 	protected function post() {
-		$files = array();
+		$files = [];
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_request().
 		if ( ! empty( $_FILES[ $this->options['param_name'] ] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- $_FILES is validated and sanitized in handle_file_upload().
 			$uploads = $_FILES[ $this->options['param_name'] ];
 			if ( is_array( $uploads['tmp_name'] ) ) {
 				foreach ( $uploads['tmp_name'] as $index => $tmp_name ) {
-					$file    = array(
+					$file    = [
 						'tmp_name' => $tmp_name, // tmp_name is a system path, should not be sanitized.
 						'name'     => isset( $uploads['name'][ $index ] ) ? sanitize_file_name( $uploads['name'][ $index ] ) : '',
 						'size'     => isset( $uploads['size'][ $index ] ) ? intval( $uploads['size'][ $index ] ) : 0,
 						'error'    => isset( $uploads['error'][ $index ] ) ? intval( $uploads['error'][ $index ] ) : 0,
-					);
+					];
 					$files[] = $this->handle_file_upload( $file );
 				}
 			} else {
-				$file    = array(
+				$file    = [
 					'tmp_name' => $uploads['tmp_name'],
 					'name'     => sanitize_file_name( $uploads['name'] ),
 					'size'     => intval( $uploads['size'] ),
 					'error'    => intval( $uploads['error'] ),
-				);
+				];
 				$files[] = $this->handle_file_upload( $file );
 			}
 		}
 
-		return $this->generate_response( array( $this->options['param_name'] => $files ) );
+		return $this->generate_response( [ $this->options['param_name'] => $files ] );
 	}
 
 	/**

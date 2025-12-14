@@ -28,32 +28,32 @@ class Apollo_Cross_Module_Integration {
 	 */
 	public static function init(): void {
 		// Cross-post event to social feed.
-		add_action( 'publish_event_listing', array( __CLASS__, 'maybe_create_event_social_post' ), 10, 2 );
+		add_action( 'publish_event_listing', [ __CLASS__, 'maybe_create_event_social_post' ], 10, 2 );
 
 		// Filter explore endpoint for bolha priority.
-		add_filter( 'apollo_explore_query_args', array( __CLASS__, 'prioritize_bolha_content' ), 10, 2 );
+		add_filter( 'apollo_explore_query_args', [ __CLASS__, 'prioritize_bolha_content' ], 10, 2 );
 
 		// Add "Eventos que vou" filter to feed.
-		add_filter( 'apollo_feed_filters', array( __CLASS__, 'add_events_attending_filter' ) );
+		add_filter( 'apollo_feed_filters', [ __CLASS__, 'add_events_attending_filter' ] );
 
 		// Hook into bolha changes for notifications.
-		add_action( 'apollo_user_added_to_bolha', array( __CLASS__, 'notify_bolha_accepted' ), 10, 2 );
-		add_action( 'apollo_bolha_invite_sent', array( __CLASS__, 'notify_bolha_invite' ), 10, 2 );
+		add_action( 'apollo_user_added_to_bolha', [ __CLASS__, 'notify_bolha_accepted' ], 10, 2 );
+		add_action( 'apollo_bolha_invite_sent', [ __CLASS__, 'notify_bolha_invite' ], 10, 2 );
 
 		// Hook into event RSVP for notifications.
-		add_action( 'apollo_event_rsvp_added', array( __CLASS__, 'notify_event_rsvp' ), 10, 3 );
+		add_action( 'apollo_event_rsvp_added', [ __CLASS__, 'notify_event_rsvp' ], 10, 3 );
 
 		// Check module enabled before each feature.
-		add_filter( 'apollo_can_create_event', array( __CLASS__, 'check_events_module' ) );
-		add_filter( 'apollo_can_create_post', array( __CLASS__, 'check_social_module' ) );
-		add_filter( 'apollo_can_use_bolha', array( __CLASS__, 'check_bolha_module' ) );
-		add_filter( 'apollo_can_create_comuna', array( __CLASS__, 'check_comunas_module' ) );
+		add_filter( 'apollo_can_create_event', [ __CLASS__, 'check_events_module' ] );
+		add_filter( 'apollo_can_create_post', [ __CLASS__, 'check_social_module' ] );
+		add_filter( 'apollo_can_use_bolha', [ __CLASS__, 'check_bolha_module' ] );
+		add_filter( 'apollo_can_create_comuna', [ __CLASS__, 'check_comunas_module' ] );
 
 		// Integrate events into comuna pages.
-		add_filter( 'apollo_comuna_sidebar_widgets', array( __CLASS__, 'add_comuna_events_widget' ) );
+		add_filter( 'apollo_comuna_sidebar_widgets', [ __CLASS__, 'add_comuna_events_widget' ] );
 
 		// REST API filters.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_integration_routes' ) );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_integration_routes' ] );
 	}
 
 	// =========================================================================
@@ -146,18 +146,18 @@ class Apollo_Cross_Module_Integration {
 		);
 
 		$social_post_id = wp_insert_post(
-			array(
+			[
 				'post_type'    => 'apollo_social_post',
 				'post_status'  => 'publish',
 				'post_author'  => $post->post_author,
 				'post_content' => $content,
-				'meta_input'   => array(
+				'meta_input'   => [
 					'_apollo_linked_event_id' => $post_id,
 					'_apollo_post_type'       => 'event_share',
 					'_apollo_event_url'       => $event_url,
 					'_apollo_event_thumbnail' => $thumbnail,
-				),
-			)
+				],
+			]
 		);
 
 		if ( $social_post_id && ! is_wp_error( $social_post_id ) ) {
@@ -206,10 +206,10 @@ class Apollo_Cross_Module_Integration {
 			return $filters;
 		}
 
-		$filters['events_attending'] = array(
+		$filters['events_attending'] = [
 			'label' => __( 'Eventos que vou', 'apollo-core' ),
 			'icon'  => 'ri-calendar-check-line',
-		);
+		];
 
 		return $filters;
 	}
@@ -234,7 +234,7 @@ class Apollo_Cross_Module_Integration {
 			return;
 		}
 
-		$notification_data = array(
+		$notification_data = [
 			'user_id' => $inviter_id,
 			'type'    => 'bolha_accepted',
 			'title'   => __( 'Convite de bolha aceito!', 'apollo-core' ),
@@ -245,7 +245,7 @@ class Apollo_Cross_Module_Integration {
 			),
 			'url'     => home_url( '/u/' . $invitee->user_nicename ),
 			'icon'    => 'ri-bubble-chart-line',
-		);
+		];
 
 		do_action( 'apollo_send_notification', $notification_data );
 	}
@@ -266,7 +266,7 @@ class Apollo_Cross_Module_Integration {
 			return;
 		}
 
-		$notification_data = array(
+		$notification_data = [
 			'user_id' => $invitee_id,
 			'type'    => 'bolha_invite',
 			'title'   => __( 'Novo convite de bolha!', 'apollo-core' ),
@@ -277,19 +277,19 @@ class Apollo_Cross_Module_Integration {
 			),
 			'url'     => home_url( '/u/' . $inviter->user_nicename ),
 			'icon'    => 'ri-bubble-chart-line',
-			'actions' => array(
-				array(
+			'actions' => [
+				[
 					'label'  => __( 'Aceitar', 'apollo-core' ),
 					'action' => 'accept_bolha',
-					'data'   => array( 'inviter_id' => $inviter_id ),
-				),
-				array(
+					'data'   => [ 'inviter_id' => $inviter_id ],
+				],
+				[
 					'label'  => __( 'Recusar', 'apollo-core' ),
 					'action' => 'reject_bolha',
-					'data'   => array( 'inviter_id' => $inviter_id ),
-				),
-			),
-		);
+					'data'   => [ 'inviter_id' => $inviter_id ],
+				],
+			],
+		];
 
 		do_action( 'apollo_send_notification', $notification_data );
 	}
@@ -323,13 +323,13 @@ class Apollo_Cross_Module_Integration {
 			return;
 		}
 
-		$status_labels = array(
+		$status_labels = [
 			'going'      => __( 'confirmou presença', 'apollo-core' ),
 			'interested' => __( 'está interessado(a)', 'apollo-core' ),
 			'maybe'      => __( 'talvez vá', 'apollo-core' ),
-		);
+		];
 
-		$notification_data = array(
+		$notification_data = [
 			'user_id' => $organizer_id,
 			'type'    => 'event_rsvp',
 			'title'   => __( 'Nova confirmação no evento!', 'apollo-core' ),
@@ -342,7 +342,7 @@ class Apollo_Cross_Module_Integration {
 			),
 			'url'     => get_permalink( $event_id ),
 			'icon'    => 'ri-calendar-check-line',
-		);
+		];
 
 		do_action( 'apollo_send_notification', $notification_data );
 	}
@@ -362,11 +362,11 @@ class Apollo_Cross_Module_Integration {
 			return $widgets;
 		}
 
-		$widgets['comuna_events'] = array(
+		$widgets['comuna_events'] = [
 			'title'    => __( 'Próximos Eventos', 'apollo-core' ),
-			'callback' => array( __CLASS__, 'render_comuna_events_widget' ),
+			'callback' => [ __CLASS__, 'render_comuna_events_widget' ],
 			'priority' => 20,
-		);
+		];
 
 		return $widgets;
 	}
@@ -379,20 +379,20 @@ class Apollo_Cross_Module_Integration {
 	public static function render_comuna_events_widget( int $comuna_id ): void {
 		// Get events linked to this comuna.
 		$events = get_posts(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => 5,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'   => '_apollo_comuna_id',
 						'value' => $comuna_id,
-					),
-				),
+					],
+				],
 				'meta_key'       => '_event_start_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
 		if ( empty( $events ) ) {
@@ -426,56 +426,56 @@ class Apollo_Cross_Module_Integration {
 		register_rest_route(
 			'apollo/v1',
 			'me/events-attending',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_events_attending' ),
+				'callback'            => [ __CLASS__, 'rest_get_events_attending' ],
 				'permission_callback' => function () {
 					return is_user_logged_in();
 				},
-			)
+			]
 		);
 
 		// Get feed filtered by bolha.
 		register_rest_route(
 			'apollo/v1',
 			'explore/bolha',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_bolha_feed' ),
+				'callback'            => [ __CLASS__, 'rest_get_bolha_feed' ],
 				'permission_callback' => function () {
 					return is_user_logged_in();
 				},
-				'args'                => array(
-					'page'     => array(
+				'args'                => [
+					'page'     => [
 						'type'              => 'integer',
 						'default'           => 1,
 						'sanitize_callback' => 'absint',
-					),
-					'per_page' => array(
+					],
+					'per_page' => [
 						'type'              => 'integer',
 						'default'           => 20,
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get comuna events.
 		register_rest_route(
 			'apollo/v1',
 			'comuna/(?P<id>\d+)/eventos',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_comuna_events' ),
+				'callback'            => [ __CLASS__, 'rest_get_comuna_events' ],
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'id' => array(
+				'args'                => [
+					'id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -498,11 +498,11 @@ class Apollo_Cross_Module_Integration {
 		);
 
 		if ( empty( $event_ids ) ) {
-			return new WP_REST_Response( array( 'events' => array() ), 200 );
+			return new WP_REST_Response( [ 'events' => [] ], 200 );
 		}
 
 		$events = get_posts(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'post__in'       => $event_ids,
@@ -510,21 +510,21 @@ class Apollo_Cross_Module_Integration {
 				'meta_key'       => '_event_start_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
-		$result = array();
+		$result = [];
 		foreach ( $events as $event ) {
-			$result[] = array(
+			$result[] = [
 				'id'        => $event->ID,
 				'title'     => $event->post_title,
 				'url'       => get_permalink( $event->ID ),
 				'date'      => get_post_meta( $event->ID, '_event_start_date', true ),
 				'thumbnail' => get_the_post_thumbnail_url( $event->ID, 'thumbnail' ),
-			);
+			];
 		}
 
-		return new WP_REST_Response( array( 'events' => $result ), 200 );
+		return new WP_REST_Response( [ 'events' => $result ], 200 );
 	}
 
 	/**
@@ -539,17 +539,17 @@ class Apollo_Cross_Module_Integration {
 		$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
 		if ( ! is_array( $bolha ) || empty( $bolha ) ) {
 			return new WP_REST_Response(
-				array(
-					'posts'   => array(),
+				[
+					'posts'   => [],
 					'message' => __( 'Sua bolha está vazia.', 'apollo-core' ),
-				),
+				],
 				200
 			);
 		}
 
 		// Get posts from bolha users.
 		$posts = get_posts(
-			array(
+			[
 				'post_type'      => 'apollo_social_post',
 				'post_status'    => 'publish',
 				'author__in'     => $bolha,
@@ -557,26 +557,26 @@ class Apollo_Cross_Module_Integration {
 				'paged'          => $page,
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
-		$result = array();
+		$result = [];
 		foreach ( $posts as $post ) {
 			$author   = get_userdata( $post->post_author );
-			$result[] = array(
+			$result[] = [
 				'id'      => $post->ID,
 				'content' => wp_trim_words( $post->post_content, 50 ),
 				'date'    => $post->post_date,
-				'author'  => array(
+				'author'  => [
 					'id'     => $author->ID,
 					'name'   => $author->display_name,
-					'avatar' => get_avatar_url( $author->ID, array( 'size' => 48 ) ),
-				),
+					'avatar' => get_avatar_url( $author->ID, [ 'size' => 48 ] ),
+				],
 				'url'     => get_permalink( $post->ID ),
-			);
+			];
 		}
 
-		return new WP_REST_Response( array( 'posts' => $result ), 200 );
+		return new WP_REST_Response( [ 'posts' => $result ], 200 );
 	}
 
 	/**
@@ -586,36 +586,36 @@ class Apollo_Cross_Module_Integration {
 		$comuna_id = $request->get_param( 'id' );
 
 		$events = get_posts(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'publish',
 				'posts_per_page' => 20,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'   => '_apollo_comuna_id',
 						'value' => $comuna_id,
-					),
-				),
+					],
+				],
 				'meta_key'       => '_event_start_date',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
-			)
+			]
 		);
 
-		$result = array();
+		$result = [];
 		foreach ( $events as $event ) {
-			$result[] = array(
+			$result[] = [
 				'id'        => $event->ID,
 				'title'     => $event->post_title,
 				'url'       => get_permalink( $event->ID ),
 				'date'      => get_post_meta( $event->ID, '_event_start_date', true ),
 				'thumbnail' => get_the_post_thumbnail_url( $event->ID, 'thumbnail' ),
-			);
+			];
 		}
 
-		return new WP_REST_Response( array( 'events' => $result ), 200 );
+		return new WP_REST_Response( [ 'events' => $result ], 200 );
 	}
 }
 
 // Initialize on plugins_loaded.
-add_action( 'plugins_loaded', array( 'Apollo_Cross_Module_Integration', 'init' ), 15 );
+add_action( 'plugins_loaded', [ 'Apollo_Cross_Module_Integration', 'init' ], 15 );

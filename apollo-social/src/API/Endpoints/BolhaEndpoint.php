@@ -50,7 +50,7 @@ class BolhaEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
 	}
 
 	/**
@@ -61,141 +61,141 @@ class BolhaEndpoint {
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/pedir',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'pedir_bolha' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'target_id' => array(
+				'callback'            => [ $this, 'pedir_bolha' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'target_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID do usuário que receberá o pedido.', 'apollo-social' ),
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// POST /bolha/aceitar - Aceitar pedido de bolha
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/aceitar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'aceitar_bolha' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ $this, 'aceitar_bolha' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID do usuário que solicitou a bolha.', 'apollo-social' ),
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// POST /bolha/rejeitar - Rejeitar pedido de bolha
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/rejeitar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'rejeitar_bolha' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ $this, 'rejeitar_bolha' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID do usuário cujo pedido será rejeitado.', 'apollo-social' ),
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// POST /bolha/remover - Remover pessoa da bolha
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/remover',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'remover_bolha' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ $this, 'remover_bolha' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID do usuário a ser removido da bolha.', 'apollo-social' ),
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// GET /bolha/listar - Listar pessoas na bolha
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/listar',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'listar_bolha' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-			)
+				'callback'            => [ $this, 'listar_bolha' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+			]
 		);
 
 		// GET /bolha/pedidos - Listar pedidos pendentes
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/pedidos',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'listar_pedidos' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-			)
+				'callback'            => [ $this, 'listar_pedidos' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+			]
 		);
 
 		// GET /bolha/status/{user_id} - Status da relação com um usuário
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/status/(?P<user_id>\d+)',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_status' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ $this, 'get_status' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// POST /bolha/cancelar - Cancelar pedido enviado
 		register_rest_route(
 			self::NAMESPACE,
 			'/bolha/cancelar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'cancelar_pedido' ),
-				'permission_callback' => array( $this, 'check_logged_in' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ $this, 'cancelar_pedido' ],
+				'permission_callback' => [ $this, 'check_logged_in' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'ID do usuário para quem o pedido foi enviado.', 'apollo-social' ),
-						'validate_callback' => array( $this, 'validate_user_id' ),
+						'validate_callback' => [ $this, 'validate_user_id' ],
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -209,7 +209,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'Você precisa estar logado para acessar esta funcionalidade.', 'apollo-social' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -243,7 +243,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_self_request',
 				__( 'Você não pode adicionar a si mesmo à sua bolha.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -260,29 +260,29 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_already_exists',
 				__( 'Esta pessoa já está na sua bolha.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		// Verificar se já existe pedido outgoing
 		if ( in_array( $target_id, $meus_outgoing, true ) ) {
 			return rest_ensure_response(
-				array(
+				[
 					'success' => true,
 					'status'  => 'pedido_ja_enviado',
 					'message' => __( 'Você já enviou um pedido para esta pessoa. Aguardando resposta.', 'apollo-social' ),
-				)
+				]
 			);
 		}
 
 		// Verificar se existe pedido incoming (o target já pediu para eu)
 		if ( in_array( $target_id, $meus_incoming, true ) ) {
 			return rest_ensure_response(
-				array(
+				[
 					'success' => true,
 					'status'  => 'pedido_pendente_aceitar',
 					'message' => __( 'Esta pessoa já te enviou um pedido! Aceite para criar a bolha.', 'apollo-social' ),
-				)
+				]
 			);
 		}
 
@@ -291,7 +291,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_limit_reached',
 				__( 'Sua bolha está cheia (máx. 15 pessoas).', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -300,7 +300,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_target_limit_reached',
 				__( 'A bolha dessa pessoa está cheia (máx. 15 pessoas).', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -315,11 +315,11 @@ class BolhaEndpoint {
 		do_action( 'apollo_bolha_pedido_enviado', $current_user_id, $target_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'status'  => 'pedido_enviado',
 				'message' => __( 'Pedido de bolha enviado com sucesso!', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -342,7 +342,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_no_pending_request',
 				__( 'Não existe pedido pendente desta pessoa.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -354,7 +354,7 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_limit_reached',
 				__( 'Sua bolha está cheia (máx. 15 pessoas).', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -362,13 +362,13 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_solicitante_limit_reached',
 				__( 'A bolha da pessoa que te convidou está cheia.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		// Remover dos pendentes
-		$meus_incoming        = array_diff( $meus_incoming, array( $solicitante_id ) );
-		$solicitante_outgoing = array_diff( $solicitante_outgoing, array( $current_user_id ) );
+		$meus_incoming        = array_diff( $meus_incoming, [ $solicitante_id ] );
+		$solicitante_outgoing = array_diff( $solicitante_outgoing, [ $current_user_id ] );
 
 		update_user_meta( $current_user_id, 'apollo_bolha_pedidos_incoming', array_values( $meus_incoming ) );
 		update_user_meta( $solicitante_id, 'apollo_bolha_pedidos_outgoing', array_values( $solicitante_outgoing ) );
@@ -384,11 +384,11 @@ class BolhaEndpoint {
 		do_action( 'apollo_bolha_criada', $current_user_id, $solicitante_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'status'  => 'bolha_criada',
 				'message' => __( 'Bolha criada! Vocês agora estão conectados.', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -411,13 +411,13 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_no_pending_request',
 				__( 'Não existe pedido pendente desta pessoa.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		// Remover dos pendentes
-		$meus_incoming        = array_diff( $meus_incoming, array( $solicitante_id ) );
-		$solicitante_outgoing = array_diff( $solicitante_outgoing, array( $current_user_id ) );
+		$meus_incoming        = array_diff( $meus_incoming, [ $solicitante_id ] );
+		$solicitante_outgoing = array_diff( $solicitante_outgoing, [ $current_user_id ] );
 
 		update_user_meta( $current_user_id, 'apollo_bolha_pedidos_incoming', array_values( $meus_incoming ) );
 		update_user_meta( $solicitante_id, 'apollo_bolha_pedidos_outgoing', array_values( $solicitante_outgoing ) );
@@ -426,11 +426,11 @@ class BolhaEndpoint {
 		do_action( 'apollo_bolha_pedido_rejeitado', $current_user_id, $solicitante_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'status'  => 'pedido_rejeitado',
 				'message' => __( 'Pedido rejeitado.', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -449,8 +449,8 @@ class BolhaEndpoint {
 		$target_bolha = $this->get_bolha( $target_id );
 
 		// Remover de ambos os lados
-		$minha_bolha  = array_diff( $minha_bolha, array( $target_id ) );
-		$target_bolha = array_diff( $target_bolha, array( $current_user_id ) );
+		$minha_bolha  = array_diff( $minha_bolha, [ $target_id ] );
+		$target_bolha = array_diff( $target_bolha, [ $current_user_id ] );
 
 		update_user_meta( $current_user_id, 'apollo_bolha', array_values( $minha_bolha ) );
 		update_user_meta( $target_id, 'apollo_bolha', array_values( $target_bolha ) );
@@ -462,11 +462,11 @@ class BolhaEndpoint {
 		do_action( 'apollo_bolha_removida', $current_user_id, $target_id );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'status'  => 'removido_da_bolha',
 				'message' => __( 'Pessoa removida da sua bolha.', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -489,23 +489,23 @@ class BolhaEndpoint {
 			return new WP_Error(
 				'bolha_no_outgoing_request',
 				__( 'Não existe pedido pendente para esta pessoa.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
 		// Remover dos pendentes
-		$meus_outgoing   = array_diff( $meus_outgoing, array( $target_id ) );
-		$target_incoming = array_diff( $target_incoming, array( $current_user_id ) );
+		$meus_outgoing   = array_diff( $meus_outgoing, [ $target_id ] );
+		$target_incoming = array_diff( $target_incoming, [ $current_user_id ] );
 
 		update_user_meta( $current_user_id, 'apollo_bolha_pedidos_outgoing', array_values( $meus_outgoing ) );
 		update_user_meta( $target_id, 'apollo_bolha_pedidos_incoming', array_values( $target_incoming ) );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'status'  => 'pedido_cancelado',
 				'message' => __( 'Pedido cancelado.', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -519,7 +519,7 @@ class BolhaEndpoint {
 		$current_user_id = get_current_user_id();
 		$bolha_ids       = $this->get_bolha( $current_user_id );
 
-		$users = array();
+		$users = [];
 		foreach ( $bolha_ids as $user_id ) {
 			$user_data = $this->format_user_minimal( $user_id );
 			if ( $user_data ) {
@@ -528,10 +528,10 @@ class BolhaEndpoint {
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
 				'data'    => $users,
-			)
+			]
 		);
 	}
 
@@ -547,7 +547,7 @@ class BolhaEndpoint {
 		$incoming_ids = $this->get_pedidos_incoming( $current_user_id );
 		$outgoing_ids = $this->get_pedidos_outgoing( $current_user_id );
 
-		$incoming = array();
+		$incoming = [];
 		foreach ( $incoming_ids as $user_id ) {
 			$user_data = $this->format_user_minimal( $user_id );
 			if ( $user_data ) {
@@ -555,7 +555,7 @@ class BolhaEndpoint {
 			}
 		}
 
-		$outgoing = array();
+		$outgoing = [];
 		foreach ( $outgoing_ids as $user_id ) {
 			$user_data = $this->format_user_minimal( $user_id );
 			if ( $user_data ) {
@@ -564,13 +564,13 @@ class BolhaEndpoint {
 		}
 
 		return rest_ensure_response(
-			array(
+			[
 				'success' => true,
-				'data'    => array(
+				'data'    => [
 					'incoming' => $incoming,
 					'outgoing' => $outgoing,
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -602,13 +602,13 @@ class BolhaEndpoint {
 		$target_bolha_count = count( $this->get_bolha( $target_id ) );
 
 		return rest_ensure_response(
-			array(
+			[
 				'success'            => true,
 				'status'             => $status,
 				'pode_pedir'         => $status === 'none' && $minha_bolha_count < self::BOLHA_LIMIT && $target_bolha_count < self::BOLHA_LIMIT,
 				'minha_bolha_cheia'  => $minha_bolha_count >= self::BOLHA_LIMIT,
 				'target_bolha_cheia' => $target_bolha_count >= self::BOLHA_LIMIT,
-			)
+			]
 		);
 	}
 
@@ -625,7 +625,7 @@ class BolhaEndpoint {
 	private function get_bolha( int $user_id ): array {
 		$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
 
-		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : array();
+		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : [];
 	}
 
 	/**
@@ -637,7 +637,7 @@ class BolhaEndpoint {
 	private function get_pedidos_outgoing( int $user_id ): array {
 		$outgoing = get_user_meta( $user_id, 'apollo_bolha_pedidos_outgoing', true );
 
-		return is_array( $outgoing ) ? array_map( 'absint', $outgoing ) : array();
+		return is_array( $outgoing ) ? array_map( 'absint', $outgoing ) : [];
 	}
 
 	/**
@@ -649,7 +649,7 @@ class BolhaEndpoint {
 	private function get_pedidos_incoming( int $user_id ): array {
 		$incoming = get_user_meta( $user_id, 'apollo_bolha_pedidos_incoming', true );
 
-		return is_array( $incoming ) ? array_map( 'absint', $incoming ) : array();
+		return is_array( $incoming ) ? array_map( 'absint', $incoming ) : [];
 	}
 
 	/**
@@ -661,22 +661,22 @@ class BolhaEndpoint {
 	private function limpar_pendentes( int $user_a, int $user_b ): void {
 		// A's outgoing
 		$a_outgoing = $this->get_pedidos_outgoing( $user_a );
-		$a_outgoing = array_diff( $a_outgoing, array( $user_b ) );
+		$a_outgoing = array_diff( $a_outgoing, [ $user_b ] );
 		update_user_meta( $user_a, 'apollo_bolha_pedidos_outgoing', array_values( $a_outgoing ) );
 
 		// A's incoming
 		$a_incoming = $this->get_pedidos_incoming( $user_a );
-		$a_incoming = array_diff( $a_incoming, array( $user_b ) );
+		$a_incoming = array_diff( $a_incoming, [ $user_b ] );
 		update_user_meta( $user_a, 'apollo_bolha_pedidos_incoming', array_values( $a_incoming ) );
 
 		// B's outgoing
 		$b_outgoing = $this->get_pedidos_outgoing( $user_b );
-		$b_outgoing = array_diff( $b_outgoing, array( $user_a ) );
+		$b_outgoing = array_diff( $b_outgoing, [ $user_a ] );
 		update_user_meta( $user_b, 'apollo_bolha_pedidos_outgoing', array_values( $b_outgoing ) );
 
 		// B's incoming
 		$b_incoming = $this->get_pedidos_incoming( $user_b );
-		$b_incoming = array_diff( $b_incoming, array( $user_a ) );
+		$b_incoming = array_diff( $b_incoming, [ $user_a ] );
 		update_user_meta( $user_b, 'apollo_bolha_pedidos_incoming', array_values( $b_incoming ) );
 	}
 
@@ -692,13 +692,13 @@ class BolhaEndpoint {
 			return null;
 		}
 
-		return array(
+		return [
 			'id'           => $user->ID,
 			'display_name' => $user->display_name,
 			'user_login'   => $user->user_login,
-			'avatar_url'   => get_avatar_url( $user->ID, array( 'size' => 96 ) ),
+			'avatar_url'   => get_avatar_url( $user->ID, [ 'size' => 96 ] ),
 			'profile_url'  => home_url( '/u/' . $user->user_login . '/' ),
-		);
+		];
 	}
 
 	/**
@@ -710,6 +710,6 @@ class BolhaEndpoint {
 	public static function get_user_bolha_ids( int $user_id ): array {
 		$bolha = get_user_meta( $user_id, 'apollo_bolha', true );
 
-		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : array();
+		return is_array( $bolha ) ? array_map( 'absint', $bolha ) : [];
 	}
 }

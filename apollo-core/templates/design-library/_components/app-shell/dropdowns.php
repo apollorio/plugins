@@ -9,112 +9,112 @@
  * @var array $profile_links
  */
 
-$notifications = $notifications ?? array(
-	array(
+$notifications = $notifications ?? [
+	[
 		'icon_class' => 'ap-bg-red',
 		'icon'       => '<i class="ri-alarm-warning-line"></i>',
 		'title'      => 'Sistema',
 		'desc'       => 'Backup do servidor finalizado.',
 		'time'       => '2m atrás',
-	),
-	array(
+	],
+	[
 		'icon_class' => 'ap-bg-blue',
 		'icon'       => '<i class="ri-user-follow-line"></i>',
 		'title'      => 'Novo Seguidor',
 		'desc'       => 'Spectra Visuals começou a seguir você.',
 		'time'       => '1h atrás',
-	),
-	array(
+	],
+	[
 		'icon_class' => 'ap-bg-green',
 		'icon'       => '<i class="ri-check-double-line"></i>',
 		'title'      => 'Pagamento Aprovado',
 		'desc'       => 'Orçamento #4523 foi aprovado.',
 		'time'       => '3h atrás',
-	),
-);
+	],
+];
 
-$app_grid = $app_grid ?? array(
-	array(
+$app_grid = $app_grid ?? [
+	[
 		'label' => 'Excel',
 		'abbr'  => 'XL',
 		'class' => 'ap-bg-green',
-	),
-	array(
+	],
+	[
 		'label' => 'Word',
 		'abbr'  => 'WD',
 		'class' => 'ap-bg-blue',
-	),
-	array(
+	],
+	[
 		'label' => 'Slide',
 		'abbr'  => 'PP',
 		'class' => 'ap-bg-orange',
-	),
-	array(
+	],
+	[
 		'label' => 'Teams',
 		'abbr'  => 'TM',
 		'class' => 'ap-bg-purple',
-	),
-	array(
+	],
+	[
 		'label' => 'Leitor',
 		'abbr'  => 'PDF',
 		'class' => 'ap-bg-red',
-	),
-	array(
+	],
+	[
 		'label' => 'Drive',
 		'abbr'  => 'DR',
 		'class' => 'ap-bg-gray',
-	),
-	array(
+	],
+	[
 		'label' => 'Meet',
 		'abbr'  => 'MT',
 		'class' => 'ap-bg-blue',
-	),
-	array(
+	],
+	[
 		'label' => 'Add',
 		'abbr'  => '+',
 		'class' => 'ap-bg-gray',
-	),
-);
+	],
+];
 
-$messages = $messages ?? array(
-	array(
+$messages = $messages ?? [
+	[
 		'avatar'  => 'M',
 		'color'   => 'ap-bg-gray',
 		'name'    => 'Matheus',
 		'time'    => 'Agora',
 		'preview' => 'Cara, você viu o novo layout? Ficou insano!',
-	),
-	array(
+	],
+	[
 		'avatar'  => 'B',
 		'color'   => 'ap-bg-purple',
 		'name'    => 'Bruna',
 		'time'    => '5m atrás',
 		'preview' => 'Reunião adiada para as 16h.',
-	),
-	array(
+	],
+	[
 		'avatar'  => 'L',
 		'color'   => 'ap-bg-blue',
 		'name'    => 'Lucas',
 		'time'    => '20m atrás',
 		'preview' => 'Enviou os documentos do projeto.',
-	),
-);
+	],
+];
 
-$profile_links = $profile_links ?? array(
-	array(
+$profile_links = $profile_links ?? [
+	[
 		'label' => 'Perfil',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'label' => 'Ajustes',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'label' => 'Sair',
 		'href'  => '#',
 		'class' => 'ap-danger',
-	),
-);
+	],
+];
 ?>
 <div id="ap-menu-notif" class="ap-dropdown">
 	<div class="ap-section-title">

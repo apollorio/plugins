@@ -21,8 +21,8 @@ class Apollo_Base_Assets {
 	 * Initialize asset enqueuing
 	 */
 	public static function init() {
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_base_js' ), 5 );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_base_js' ), 5 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_base_js' ], 5 );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_base_js' ], 5 );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Apollo_Base_Assets {
 		wp_enqueue_script(
 			'apollo-base-js',
 			$script_url,
-			array(), // No dependencies - base.js is standalone.
+			[], // No dependencies - base.js is standalone.
 			$version,
 			true
 		);
@@ -62,7 +62,7 @@ class Apollo_Base_Assets {
 			wp_register_script(
 				'apollo-base-js-local',
 				$local_url,
-				array(),
+				[],
 				filemtime( $local_path ) ?: APOLLO_SOCIAL_VERSION,
 				true
 			);

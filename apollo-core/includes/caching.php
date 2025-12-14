@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function apollo_cache_remember( string $key, callable $callback, string $group = 'apollo_core', int $ttl = 3600 ) {
 	$cached = wp_cache_get( $key, $group );
 
-	if ( false !== $cached ) {
+	if ( $cached !== false ) {
 		return $cached;
 	}
 
@@ -72,7 +72,7 @@ function apollo_cache_versioned_key( string $key, string $group ): string {
 	$version_key = "apollo_cache_version_{$group}";
 	$version     = (int) wp_cache_get( $version_key, 'apollo_core' );
 
-	if ( 0 === $version ) {
+	if ( $version === 0 ) {
 		$version = 1;
 		wp_cache_set( $version_key, $version, 'apollo_core', DAY_IN_SECONDS );
 	}

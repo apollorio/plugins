@@ -30,7 +30,7 @@ class Apollo_Modules_Config {
 	/**
 	 * Available modules with defaults
 	 */
-	private static array $default_modules = array(
+	private static array $default_modules = [
 		'social'          => true,  // Feed social, posts, likes, comments.
 		'events'          => true,  // Apollo Events Manager.
 		'bolha'           => true,  // Sistema de bolha (15 pessoas).
@@ -43,12 +43,12 @@ class Apollo_Modules_Config {
 		'notifications'   => true, // Sistema de notificações.
 		'onboarding'      => true,  // Trilha de onboarding.
 		'achievements'    => false, // Conquistas privadas (futuro).
-	);
+	];
 
 	/**
 	 * Default limits
 	 */
-	private static array $default_limits = array(
+	private static array $default_limits = [
 		// Events.
 		'max_events_per_user_month'  => 10,
 		'max_events_pending_review'  => 5,
@@ -81,7 +81,7 @@ class Apollo_Modules_Config {
 		'max_uploads_per_day'        => 50,
 		'max_upload_size_mb'         => 10,
 		'max_reports_per_day'        => 10,
-	);
+	];
 
 	/**
 	 * Cached modules (loaded once per request)
@@ -115,8 +115,8 @@ class Apollo_Modules_Config {
 			return self::$modules_cache;
 		}
 
-		$saved   = get_option( 'apollo_modules', array() );
-		$modules = array_merge( self::$default_modules, is_array( $saved ) ? $saved : array() );
+		$saved   = get_option( 'apollo_modules', [] );
+		$modules = array_merge( self::$default_modules, is_array( $saved ) ? $saved : [] );
 
 		self::$modules_cache = $modules;
 
@@ -159,7 +159,7 @@ class Apollo_Modules_Config {
 
 		// Log action.
 		if ( function_exists( 'apollo_mod_log_action' ) ) {
-			apollo_mod_log_action( $actor_id, 'enable_module', 'module', 0, array( 'module' => $module ) );
+			apollo_mod_log_action( $actor_id, 'enable_module', 'module', 0, [ 'module' => $module ] );
 		}
 
 		do_action( 'apollo_module_enabled', $module, $actor_id );
@@ -191,7 +191,7 @@ class Apollo_Modules_Config {
 
 		// Log action.
 		if ( function_exists( 'apollo_mod_log_action' ) ) {
-			apollo_mod_log_action( $actor_id, 'disable_module', 'module', 0, array( 'module' => $module ) );
+			apollo_mod_log_action( $actor_id, 'disable_module', 'module', 0, [ 'module' => $module ] );
 		}
 
 		do_action( 'apollo_module_disabled', $module, $actor_id );
@@ -231,7 +231,7 @@ class Apollo_Modules_Config {
 		}
 
 		$current = self::get_modules();
-		$changes = array();
+		$changes = [];
 
 		foreach ( $modules as $module => $enabled ) {
 			if ( ! isset( self::$default_modules[ $module ] ) ) {
@@ -254,7 +254,7 @@ class Apollo_Modules_Config {
 
 		// Log action.
 		if ( function_exists( 'apollo_mod_log_action' ) ) {
-			apollo_mod_log_action( $actor_id, 'update_modules', 'module', 0, array( 'changes' => $changes ) );
+			apollo_mod_log_action( $actor_id, 'update_modules', 'module', 0, [ 'changes' => $changes ] );
 		}
 
 		do_action( 'apollo_modules_updated', $changes, $actor_id );
@@ -285,8 +285,8 @@ class Apollo_Modules_Config {
 			return self::$limits_cache;
 		}
 
-		$saved  = get_option( 'apollo_limits', array() );
-		$limits = array_merge( self::$default_limits, is_array( $saved ) ? $saved : array() );
+		$saved  = get_option( 'apollo_limits', [] );
+		$limits = array_merge( self::$default_limits, is_array( $saved ) ? $saved : [] );
 
 		self::$limits_cache = $limits;
 
@@ -337,11 +337,11 @@ class Apollo_Modules_Config {
 				'set_limit',
 				'limit',
 				0,
-				array(
+				[
 					'key'       => $key,
 					'old_value' => $old_value,
 					'new_value' => $value,
-				)
+				]
 			);
 		}
 
@@ -361,7 +361,7 @@ class Apollo_Modules_Config {
 		}
 
 		$current = self::get_limits();
-		$changes = array();
+		$changes = [];
 
 		foreach ( $limits as $key => $value ) {
 			if ( ! isset( self::$default_limits[ $key ] ) ) {
@@ -370,10 +370,10 @@ class Apollo_Modules_Config {
 
 			$value = max( 0, (int) $value );
 			if ( $current[ $key ] !== $value ) {
-				$changes[ $key ] = array(
+				$changes[ $key ] = [
 					'old' => $current[ $key ],
 					'new' => $value,
-				);
+				];
 				$current[ $key ] = $value;
 			}
 		}
@@ -387,7 +387,7 @@ class Apollo_Modules_Config {
 
 		// Log action.
 		if ( function_exists( 'apollo_mod_log_action' ) ) {
-			apollo_mod_log_action( $actor_id, 'update_limits', 'limit', 0, array( 'changes' => $changes ) );
+			apollo_mod_log_action( $actor_id, 'update_limits', 'limit', 0, [ 'changes' => $changes ] );
 		}
 
 		do_action( 'apollo_limits_updated', $changes, $actor_id );
@@ -440,22 +440,22 @@ class Apollo_Modules_Config {
 
 		// Admins bypass limits.
 		if ( user_can( $user_id, 'manage_options' ) ) {
-			return array(
+			return [
 				'allowed'   => true,
 				'remaining' => PHP_INT_MAX,
 				'limit'     => $limit,
 				'bypassed'  => true,
-			);
+			];
 		}
 
 		$remaining = max( 0, $limit - $current );
 
-		return array(
+		return [
 			'allowed'   => $current < $limit,
 			'remaining' => $remaining,
 			'limit'     => $limit,
 			'bypassed'  => false,
-		);
+		];
 	}
 
 	/**
@@ -552,20 +552,20 @@ class Apollo_Modules_Config {
 	 * @return array [ 'allowed' => bool, 'message' => string ].
 	 */
 	public static function can_create_resource( int $user_id, string $resource ): array {
-		$mapping = array(
-			'event'         => array( 'events_month', 'max_events_per_user_month' ),
-			'post'          => array( 'posts_day', 'max_social_posts_per_day' ),
-			'bubble_invite' => array( 'bubble', 'max_bubble_members' ),
-			'comuna'        => array( 'comunas', 'max_comunas_per_user' ),
-			'ad'            => array( 'ads', 'max_ads_per_user' ),
-			'doc'           => array( 'docs', 'max_docs_per_user' ),
-		);
+		$mapping = [
+			'event'         => [ 'events_month', 'max_events_per_user_month' ],
+			'post'          => [ 'posts_day', 'max_social_posts_per_day' ],
+			'bubble_invite' => [ 'bubble', 'max_bubble_members' ],
+			'comuna'        => [ 'comunas', 'max_comunas_per_user' ],
+			'ad'            => [ 'ads', 'max_ads_per_user' ],
+			'doc'           => [ 'docs', 'max_docs_per_user' ],
+		];
 
 		if ( ! isset( $mapping[ $resource ] ) ) {
-			return array(
+			return [
 				'allowed' => true,
 				'message' => '',
-			);
+			];
 		}
 
 		list($count_key, $limit_key) = $mapping[ $resource ];
@@ -574,27 +574,27 @@ class Apollo_Modules_Config {
 		$check   = self::check_limit( $user_id, $limit_key, $current );
 
 		if ( $check['allowed'] ) {
-			return array(
+			return [
 				'allowed'   => true,
 				'message'   => '',
 				'remaining' => $check['remaining'],
-			);
+			];
 		}
 
-		$messages = array(
+		$messages = [
 			'event'         => __( 'Você atingiu o limite de eventos por mês.', 'apollo-core' ),
 			'post'          => __( 'Você atingiu o limite de posts por dia.', 'apollo-core' ),
 			'bubble_invite' => __( 'Sua bolha está cheia (máximo 15 pessoas).', 'apollo-core' ),
 			'comuna'        => __( 'Você atingiu o limite de comunas.', 'apollo-core' ),
 			'ad'            => __( 'Você atingiu o limite de anúncios ativos.', 'apollo-core' ),
 			'doc'           => __( 'Você atingiu o limite de documentos.', 'apollo-core' ),
-		);
+		];
 
-		return array(
+		return [
 			'allowed'   => false,
 			'message'   => $messages[ $resource ] ?? __( 'Limite atingido.', 'apollo-core' ),
 			'remaining' => 0,
-		);
+		];
 	}
 }
 

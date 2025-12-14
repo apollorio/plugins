@@ -21,7 +21,7 @@ function apollo_render_membership_types_manager() {
 	}
 
 	$memberships = apollo_get_memberships();
-	$custom_only = get_option( 'apollo_memberships', array() );
+	$custom_only = get_option( 'apollo_memberships', [] );
 	$defaults    = apollo_get_default_memberships();
 	?>
 	<div class="apollo-membership-types-manager" style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;" data-ap-tooltip="<?php esc_attr_e( 'Gerenciar tipos de membership disponíveis no sistema', 'apollo-core' ); ?>">
@@ -197,7 +197,7 @@ function apollo_render_user_membership_selector( $user ) {
 	if ( empty( $current_badges ) || ! is_array( $current_badges ) ) {
 		// Fallback: legacy single membership
 		$legacy_membership = apollo_get_user_membership( $user->ID );
-		$current_badges    = ! empty( $legacy_membership ) && $legacy_membership !== 'nao-verificado' ? array( $legacy_membership ) : array();
+		$current_badges    = ! empty( $legacy_membership ) && $legacy_membership !== 'nao-verificado' ? [ $legacy_membership ] : [];
 	}
 	$current_badges = array_map( 'sanitize_key', $current_badges );
 

@@ -42,7 +42,7 @@ class Apollo_SEO_Handler {
 	 *
 	 * @var array
 	 */
-	private array $seo_data = array();
+	private array $seo_data = [];
 
 	/**
 	 * Get singleton instance.
@@ -69,11 +69,11 @@ class Apollo_SEO_Handler {
 	 */
 	private function init_hooks(): void {
 		// Hook early to detect content type.
-		add_action( 'template_redirect', array( $this, 'detect_content_type' ), 5 );
+		add_action( 'template_redirect', [ $this, 'detect_content_type' ], 5 );
 		// Output SEO tags in wp_head.
-		add_action( 'wp_head', array( $this, 'output_seo_tags' ), 1 );
+		add_action( 'wp_head', [ $this, 'output_seo_tags' ], 1 );
 		// Filter document title parts.
-		add_filter( 'document_title_parts', array( $this, 'filter_title_parts' ), 20 );
+		add_filter( 'document_title_parts', [ $this, 'filter_title_parts' ], 20 );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class Apollo_SEO_Handler {
 			return;
 		}
 
-		if ( 'group_single' === $apollo_route && in_array( $apollo_type, array( 'comunidade', 'nucleo', 'season' ), true ) ) {
+		if ( 'group_single' === $apollo_route && in_array( $apollo_type, [ 'comunidade', 'nucleo', 'season' ], true ) ) {
 			// Map 'season' to the appropriate admin setting key.
 			$this->current_type = ( 'season' === $apollo_type ) ? 'comunidade' : $apollo_type;
 			$this->seo_data     = $this->get_group_seo_data( $apollo_param, $apollo_type );
@@ -217,19 +217,19 @@ class Apollo_SEO_Handler {
 	 */
 	private function get_user_seo_data( string $user_param ): array {
 		if ( empty( $user_param ) ) {
-			return array();
+			return [];
 		}
 
 		// Try to get user by ID first, then by login.
 		$user = is_numeric( $user_param ) ? get_user_by( 'id', (int) $user_param ) : get_user_by( 'login', $user_param );
 
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
 		$display_name = $user->display_name;
 		$bio          = get_user_meta( $user->ID, 'description', true );
-		$avatar       = get_avatar_url( $user->ID, array( 'size' => 600 ) );
+		$avatar       = get_avatar_url( $user->ID, [ 'size' => 600 ] );
 
 		// Try to get custom profile image.
 		$custom_avatar = get_user_meta( $user->ID, 'apollo_profile_image', true );
@@ -237,7 +237,7 @@ class Apollo_SEO_Handler {
 			$avatar = $custom_avatar;
 		}
 
-		return array(
+		return [
 			'title'       => sprintf(
 				/* translators: %s: User display name */
 				__( '%s - Perfil', 'apollo-rio' ),
@@ -251,7 +251,7 @@ class Apollo_SEO_Handler {
 			'image'       => $avatar,
 			'url'         => home_url( '/a/' . $user->user_login . '/' ),
 			'og_type'     => 'profile',
-		);
+		];
 	}
 
 	/**
@@ -263,25 +263,25 @@ class Apollo_SEO_Handler {
 	 */
 	private function get_group_seo_data( string $slug, string $type ): array {
 		if ( empty( $slug ) ) {
-			return array();
+			return [];
 		}
 
 		// Get group via Apollo Social Groups system.
 		$group = $this->get_group_by_slug( $slug, $type );
 
 		if ( ! $group ) {
-			return array();
+			return [];
 		}
 
-		$type_labels = array(
+		$type_labels = [
 			'comunidade' => __( 'Comunidade', 'apollo-rio' ),
 			'nucleo'     => __( 'Núcleo', 'apollo-rio' ),
 			'season'     => __( 'Temporada', 'apollo-rio' ),
-		);
+		];
 
 		$type_label = $type_labels[ $type ] ?? __( 'Grupo', 'apollo-rio' );
 
-		return array(
+		return [
 			'title'       => $group['name'] . ' - ' . $type_label,
 			'description' => ! empty( $group['description'] ) ? wp_trim_words( $group['description'], 25 ) : sprintf(
 				/* translators: 1: Type label, 2: Group name */
@@ -292,7 +292,7 @@ class Apollo_SEO_Handler {
 			'image'       => $group['avatar'] ?? '',
 			'url'         => home_url( '/' . $type . '/' . $slug . '/' ),
 			'og_type'     => 'website',
-		);
+		];
 	}
 
 	/**
@@ -339,13 +339,13 @@ class Apollo_SEO_Handler {
 			)
 		);
 
-		return array(
+		return [
 			'id'          => $group['id'],
 			'name'        => $group['name'],
 			'slug'        => $group['slug'],
 			'description' => $group['description'] ?? '',
 			'avatar'      => ! empty( $avatar ) ? $avatar : '',
-		);
+		];
 	}
 
 	/**
@@ -364,18 +364,18 @@ class Apollo_SEO_Handler {
 		}
 
 		if ( ! $ad || 'advert' !== $ad->post_type ) {
-			return array();
+			return [];
 		}
 
 		$image = get_the_post_thumbnail_url( $ad->ID, 'large' );
 
-		return array(
+		return [
 			'title'       => $ad->post_title,
 			'description' => ! empty( $ad->post_excerpt ) ? $ad->post_excerpt : wp_trim_words( $ad->post_content, 25 ),
 			'image'       => ! empty( $image ) ? $image : '',
 			'url'         => home_url( '/anuncio/' . $ad->post_name . '/' ),
 			'og_type'     => 'product',
-		);
+		];
 	}
 
 	/**
@@ -388,7 +388,7 @@ class Apollo_SEO_Handler {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return array();
+			return [];
 		}
 
 		$image      = get_the_post_thumbnail_url( $post_id, 'large' );
@@ -403,13 +403,13 @@ class Apollo_SEO_Handler {
 			$description    = $formatted_date . ' - ' . $description;
 		}
 
-		return array(
+		return [
 			'title'       => $post->post_title,
 			'description' => $description,
 			'image'       => ! empty( $image ) ? $image : '',
 			'url'         => get_permalink( $post_id ),
 			'og_type'     => 'event',
-		);
+		];
 	}
 
 	/**
@@ -422,19 +422,19 @@ class Apollo_SEO_Handler {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return array();
+			return [];
 		}
 
 		$image = get_the_post_thumbnail_url( $post_id, 'large' );
 		$bio   = get_post_meta( $post_id, '_dj_bio', true );
-		$genre = wp_get_post_terms( $post_id, 'event_listing_category', array( 'fields' => 'names' ) );
+		$genre = wp_get_post_terms( $post_id, 'event_listing_category', [ 'fields' => 'names' ] );
 
 		$description = ! empty( $bio ) ? wp_trim_words( $bio, 25 ) : wp_trim_words( $post->post_content, 25 );
 		if ( ! is_wp_error( $genre ) && ! empty( $genre ) ) {
 			$description = implode( ', ', array_slice( $genre, 0, 3 ) ) . ' - ' . $description;
 		}
 
-		return array(
+		return [
 			'title'       => sprintf(
 				/* translators: %s: DJ name */
 				__( 'DJ %s', 'apollo-rio' ),
@@ -444,7 +444,7 @@ class Apollo_SEO_Handler {
 			'image'       => ! empty( $image ) ? $image : '',
 			'url'         => get_permalink( $post_id ),
 			'og_type'     => 'profile',
-		);
+		];
 	}
 
 	/**
@@ -457,7 +457,7 @@ class Apollo_SEO_Handler {
 		$post = get_post( $post_id );
 
 		if ( ! $post ) {
-			return array();
+			return [];
 		}
 
 		$image   = get_the_post_thumbnail_url( $post_id, 'large' );
@@ -467,20 +467,20 @@ class Apollo_SEO_Handler {
 		$description = ! empty( $post->post_excerpt ) ? $post->post_excerpt : wp_trim_words( $post->post_content, 25 );
 
 		// Add location to description.
-		$location_parts = array_filter( array( $address, $city ) );
+		$location_parts = array_filter( [ $address, $city ] );
 		if ( ! empty( $location_parts ) ) {
 			$description = implode( ', ', $location_parts ) . ' - ' . $description;
 		}
 
-		return array(
+		return [
 			'title'       => $post->post_title,
 			'description' => $description,
 			'image'       => ! empty( $image ) ? $image : '',
 			'url'         => get_permalink( $post_id ),
 			'og_type'     => 'place',
-		);
+		];
 	}
 }
 
 // Initialize the SEO handler.
-add_action( 'init', array( 'Apollo_SEO_Handler', 'get_instance' ) );
+add_action( 'init', [ 'Apollo_SEO_Handler', 'get_instance' ] );

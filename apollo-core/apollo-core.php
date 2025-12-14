@@ -62,7 +62,7 @@ require_once APOLLO_CORE_PLUGIN_DIR . 'includes/forms/rest.php';
 // Load quiz system.
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/quiz-defaults.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/schema-manager.php';
-require_once APOLLO_CORE_PLUGIN_DIR . 'includestentantivas.php';
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/attempts.php';
 require_once APOLLO_CORE_PLUGIN_DIR . 'includes/quiz/rest.php';
 
 // Load unified mod queue (auto-detects ALL pending posts).
@@ -84,6 +84,10 @@ if ( is_admin() ) {
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/moderate-users-membership.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/migration-page.php';
 	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/admin-apollo-cabin.php'; // FASE 3: Admin Cabin.
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/class-apollo-unified-control-panel.php'; // Unified Control Panel.
+	require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-user-visit-tracker.php';
+	require_once APOLLO_CORE_PLUGIN_DIR . 'admin/class-apollo-unified-control-panel.php'; // Unified Control Panel.
+require_once APOLLO_CORE_PLUGIN_DIR . 'includes/class-user-visit-tracker.php';
 }
 
 // Load public display.
@@ -138,10 +142,10 @@ if ( ! defined( 'APOLLO_CORE_BOOTSTRAPPED' ) ) {
 }
 
 // Register activation hook.
-register_activation_hook( __FILE__, array( 'Apollo_Core', 'activate' ) );
+register_activation_hook( __FILE__, [ 'Apollo_Core', 'activate' ] );
 
 // Register deactivation hook.
-register_deactivation_hook( __FILE__, array( 'Apollo_Core', 'deactivate' ) );
+register_deactivation_hook( __FILE__, [ 'Apollo_Core', 'deactivate' ] );
 
 // Initialize plugin.
 /**

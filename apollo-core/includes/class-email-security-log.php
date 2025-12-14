@@ -45,16 +45,16 @@ class EmailSecurityLog {
 	 * Initialize the logger
 	 */
 	public static function init(): void {
-		add_action( 'admin_init', array( self::class, 'maybeCreateTable' ) );
-		add_action( 'apollo_email_sent', array( self::class, 'logEmailSent' ), 10, 4 );
-		add_action( 'apollo_email_failed', array( self::class, 'logEmailFailed' ), 10, 4 );
-		add_action( 'wp_mail_failed', array( self::class, 'logWpMailFailed' ) );
+		add_action( 'admin_init', [ self::class, 'maybeCreateTable' ] );
+		add_action( 'apollo_email_sent', [ self::class, 'logEmailSent' ], 10, 4 );
+		add_action( 'apollo_email_failed', [ self::class, 'logEmailFailed' ], 10, 4 );
+		add_action( 'wp_mail_failed', [ self::class, 'logWpMailFailed' ] );
 
 		// Scheduled cleanup
 		if ( ! wp_next_scheduled( 'apollo_email_log_cleanup' ) ) {
 			wp_schedule_event( time(), 'daily', 'apollo_email_log_cleanup' );
 		}
-		add_action( 'apollo_email_log_cleanup', array( self::class, 'cleanup' ) );
+		add_action( 'apollo_email_log_cleanup', [ self::class, 'cleanup' ] );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class EmailSecurityLog {
 	public static function log(
 		string $type,
 		string $recipient,
-		array $data = array(),
+		array $data = [],
 		string $severity = self::SEVERITY_INFO
 	) {
 		global $wpdb;
@@ -129,7 +129,7 @@ class EmailSecurityLog {
 			: '';
 
 		// Prepare insert data
-		$insert_data = array(
+		$insert_data = [
 			'type'            => sanitize_key( $type ),
 			'severity'        => sanitize_key( $severity ),
 			'user_id'         => get_current_user_id() ?: null,
@@ -141,12 +141,12 @@ class EmailSecurityLog {
 			'error_message'   => isset( $data['error'] ) ? sanitize_text_field( $data['error'] ) : null,
 			'metadata'        => isset( $data['metadata'] ) ? wp_json_encode( $data['metadata'] ) : null,
 			'created_at'      => current_time( 'mysql' ),
-		);
+		];
 
 		$result = $wpdb->insert(
 			$table_name,
 			$insert_data,
-			array(
+			[
 				'%s',
 				'%s',
 				'%d',
@@ -158,7 +158,7 @@ class EmailSecurityLog {
 				'%s',
 				'%s',
 				'%s',
-			)
+			]
 		);
 
 		if ( $result === false ) {
@@ -177,15 +177,15 @@ class EmailSecurityLog {
 	/**
 	 * Log successful email send
 	 */
-	public static function logEmailSent( string $to, string $subject, string $template = '', array $metadata = array() ): void {
+	public static function logEmailSent( string $to, string $subject, string $template = '', array $metadata = [] ): void {
 		self::log(
 			self::TYPE_SENT,
 			$to,
-			array(
+			[
 				'subject'  => $subject,
 				'template' => $template,
 				'metadata' => $metadata,
-			),
+			],
 			self::SEVERITY_INFO
 		);
 	}
@@ -197,11 +197,11 @@ class EmailSecurityLog {
 		self::log(
 			self::TYPE_FAILED,
 			$to,
-			array(
+			[
 				'subject'  => $subject,
 				'template' => $template,
 				'error'    => $error,
-			),
+			],
 			self::SEVERITY_ERROR
 		);
 	}
@@ -220,10 +220,10 @@ class EmailSecurityLog {
 		self::log(
 			self::TYPE_FAILED,
 			$to,
-			array(
+			[
 				'error'    => $error->get_error_message(),
-				'metadata' => array( 'wp_error_code' => $error->get_error_code() ),
-			),
+				'metadata' => [ 'wp_error_code' => $error->get_error_code() ],
+			],
 			self::SEVERITY_ERROR
 		);
 	}
@@ -272,13 +272,13 @@ class EmailSecurityLog {
 			self::log(
 				self::TYPE_RATE_LIMITED,
 				'rate-limit@blocked',
-				array(
-					'metadata' => array(
+				[
+					'metadata' => [
 						'user_id' => $user_id,
 						'ip'      => $ip,
 						'count'   => $count,
-					),
-				),
+					],
+				],
 				self::SEVERITY_WARNING
 			);
 
@@ -312,13 +312,13 @@ class EmailSecurityLog {
 			self::log(
 				self::TYPE_SUSPICIOUS,
 				$recipient,
-				array(
+				[
 					'error'    => 'Rapid email activity detected',
-					'metadata' => array(
+					'metadata' => [
 						'ip'         => $ip,
 						'count_5min' => $rapid_count,
-					),
-				),
+					],
+				],
 				self::SEVERITY_WARNING
 			);
 
@@ -326,11 +326,11 @@ class EmailSecurityLog {
 			if ( (int) $rapid_count > 25 ) {
 				self::notifyAdmins(
 					'Atividade suspeita de email detectada',
-					array(
+					[
 						'IP'                  => $ip,
 						'Emails em 5 min'     => $rapid_count,
 						'Último destinatário' => $recipient,
-					)
+					]
 				);
 			}
 		}//end if
@@ -350,13 +350,13 @@ class EmailSecurityLog {
 			self::log(
 				self::TYPE_SUSPICIOUS,
 				$recipient,
-				array(
+				[
 					'error'    => 'Multiple email failures from same IP',
-					'metadata' => array(
+					'metadata' => [
 						'ip'           => $ip,
 						'failed_count' => $failed_count,
-					),
-				),
+					],
+				],
 				self::SEVERITY_WARNING
 			);
 		}
@@ -384,7 +384,7 @@ class EmailSecurityLog {
 			$admin_email,
 			"[{$site_name}] {$subject}",
 			$body,
-			array( 'Content-Type: text/plain; charset=UTF-8' )
+			[ 'Content-Type: text/plain; charset=UTF-8' ]
 		);
 	}
 
@@ -395,12 +395,12 @@ class EmailSecurityLog {
 	 *
 	 * @return array
 	 */
-	public static function getLogs( array $args = array() ): array {
+	public static function getLogs( array $args = [] ): array {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::TABLE_NAME;
 
-		$defaults = array(
+		$defaults = [
 			'type'      => '',
 			'severity'  => '',
 			'user_id'   => 0,
@@ -413,11 +413,11 @@ class EmailSecurityLog {
 			'page'      => 1,
 			'orderby'   => 'created_at',
 			'order'     => 'DESC',
-		);
+		];
 
 		$args   = wp_parse_args( $args, $defaults );
-		$where  = array( '1=1' );
-		$values = array();
+		$where  = [ '1=1' ];
+		$values = [];
 
 		// Build WHERE clause
 		if ( $args['type'] ) {
@@ -463,7 +463,7 @@ class EmailSecurityLog {
 		$where_sql = implode( ' AND ', $where );
 
 		// Sanitize orderby
-		$allowed_orderby = array( 'id', 'type', 'severity', 'recipient_email', 'template_key', 'created_at' );
+		$allowed_orderby = [ 'id', 'type', 'severity', 'recipient_email', 'template_key', 'created_at' ];
 		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'created_at';
 		$order           = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
 
@@ -484,12 +484,12 @@ class EmailSecurityLog {
 
 		$results = $wpdb->get_results( $wpdb->prepare( $sql, $values ), ARRAY_A );
 
-		return array(
-			'items' => $results ?: array(),
+		return [
+			'items' => $results ?: [],
 			'total' => $total,
 			'pages' => (int) ceil( $total / $args['per_page'] ),
 			'page'  => $args['page'],
-		);
+		];
 	}
 
 	/**
@@ -522,15 +522,15 @@ class EmailSecurityLog {
 				$date_start = '1970-01-01 00:00:00';
 		}
 
-		$stats = array(
+		$stats = [
 			'total_sent'       => 0,
 			'total_failed'     => 0,
 			'total_blocked'    => 0,
 			'total_suspicious' => 0,
-			'by_template'      => array(),
-			'by_severity'      => array(),
-			'top_recipients'   => array(),
-		);
+			'by_template'      => [],
+			'by_severity'      => [],
+			'top_recipients'   => [],
+		];
 
 		// Total by type
 		$type_counts = $wpdb->get_results(
@@ -659,7 +659,7 @@ class EmailSecurityLog {
 	 *
 	 * @return string CSV content
 	 */
-	public static function exportCsv( array $args = array() ): string {
+	public static function exportCsv( array $args = [] ): string {
 		$args['per_page'] = 10000;
 		// Max export
 		$logs = self::getLogs( $args );
@@ -686,4 +686,4 @@ class EmailSecurityLog {
 }
 
 // Initialize
-add_action( 'plugins_loaded', array( EmailSecurityLog::class, 'init' ), 5 );
+add_action( 'plugins_loaded', [ EmailSecurityLog::class, 'init' ], 5 );

@@ -47,17 +47,17 @@ class Apollo_Push_Notifications {
 		// Only proceed if a compatible plugin is active.
 		if ( ! self::$plugin_available ) {
 			// Add admin notice only on plugin page.
-			add_action( 'admin_notices', array( __CLASS__, 'maybe_show_plugin_notice' ) );
+			add_action( 'admin_notices', [ __CLASS__, 'maybe_show_plugin_notice' ] );
 
 			return;
 		}
 
 		// Register hooks for sending notifications.
-		add_action( 'publish_event_listing', array( __CLASS__, 'notify_new_event' ), 10, 2 );
-		add_action( 'apollo_document_published', array( __CLASS__, 'notify_new_document' ), 10, 2 );
+		add_action( 'publish_event_listing', [ __CLASS__, 'notify_new_event' ], 10, 2 );
+		add_action( 'apollo_document_published', [ __CLASS__, 'notify_new_document' ], 10, 2 );
 
 		// Add admin status indicator.
-		add_action( 'admin_notices', array( __CLASS__, 'show_status_notice' ) );
+		add_action( 'admin_notices', [ __CLASS__, 'show_status_notice' ] );
 	}
 
 	/**
@@ -125,13 +125,13 @@ class Apollo_Push_Notifications {
 	public static function notify_new_event( $post_id, $post ): void {
 		// SAFETY: Validate inputs.
 		if ( ! is_numeric( $post_id ) || $post_id <= 0 ) {
-			self::log_error( 'Invalid post_id for event notification', array( 'post_id' => $post_id ) );
+			self::log_error( 'Invalid post_id for event notification', [ 'post_id' => $post_id ] );
 
 			return;
 		}
 
 		if ( ! $post instanceof WP_Post ) {
-			self::log_error( 'Invalid post object for event notification', array( 'post_id' => $post_id ) );
+			self::log_error( 'Invalid post object for event notification', [ 'post_id' => $post_id ] );
 
 			return;
 		}
@@ -183,14 +183,14 @@ class Apollo_Push_Notifications {
 	public static function notify_new_document( $document_id, $document ): void {
 		// SAFETY: Validate document_id.
 		if ( ! is_numeric( $document_id ) || $document_id <= 0 ) {
-			self::log_error( 'Invalid document_id for notification', array( 'document_id' => $document_id ) );
+			self::log_error( 'Invalid document_id for notification', [ 'document_id' => $document_id ] );
 
 			return;
 		}
 
 		// SAFETY: Validate document is array.
 		if ( ! is_array( $document ) ) {
-			self::log_error( 'Invalid document data for notification', array( 'document_id' => $document_id ) );
+			self::log_error( 'Invalid document data for notification', [ 'document_id' => $document_id ] );
 
 			return;
 		}
@@ -236,11 +236,11 @@ class Apollo_Push_Notifications {
 			// Push Notifications for WP (pnfw).
 			if ( 'pnfw' === self::$active_plugin && function_exists( 'pnfw_send_notification' ) ) {
 				pnfw_send_notification(
-					array(
+					[
 						'title'   => $title,
 						'message' => $message,
 						'url'     => $url,
-					)
+					]
 				);
 
 				return true;
@@ -249,17 +249,17 @@ class Apollo_Push_Notifications {
 			// JESWPN Push Notifications alternative.
 			if ( 'jeswpn' === self::$active_plugin && class_exists( 'JESWPN_Push_Notifications' ) ) {
 				JESWPN_Push_Notifications::send(
-					array(
+					[
 						'title' => $title,
 						'body'  => $message,
 						'url'   => $url,
-					)
+					]
 				);
 
 				return true;
 			}
 		} catch ( Exception $e ) {
-			self::log_error( 'Push notification send failed', array( 'error' => $e->getMessage() ) );
+			self::log_error( 'Push notification send failed', [ 'error' => $e->getMessage() ] );
 
 			return false;
 		}
@@ -273,7 +273,7 @@ class Apollo_Push_Notifications {
 	 * @param string $message Error message.
 	 * @param array  $context Additional context.
 	 */
-	private static function log_error( string $message, array $context = array() ): void {
+	private static function log_error( string $message, array $context = [] ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 			error_log(
 				sprintf(
@@ -307,4 +307,4 @@ class Apollo_Push_Notifications {
 }
 
 // Initialize on plugins_loaded.
-add_action( 'plugins_loaded', array( 'Apollo_Push_Notifications', 'init' ) );
+add_action( 'plugins_loaded', [ 'Apollo_Push_Notifications', 'init' ] );

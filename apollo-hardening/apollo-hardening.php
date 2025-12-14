@@ -21,33 +21,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Security Settings
  */
-const APOLLO_HARDENING_SETTINGS = array(
-	'disable_xmlrpc'      => array(
+const APOLLO_HARDENING_SETTINGS = [
+	'disable_xmlrpc'      => [
 		'label'       => 'Disable XML-RPC',
 		'description' => 'Disables XML-RPC to prevent pingbacks and reduce attack surface.',
 		'input'       => 'settingsCheckbox',
-	),
-	'hide_wp_version'     => array(
+	],
+	'hide_wp_version'     => [
 		'label'       => 'Hide WordPress Version',
 		'description' => 'Removes WordPress version from headers and scripts.',
 		'input'       => 'settingsCheckbox',
-	),
-	'disable_file_editor' => array(
+	],
+	'disable_file_editor' => [
 		'label'       => 'Disable File Editor in Admin',
 		'description' => 'Prevents editing themes and plugins via admin panel.',
 		'input'       => 'settingsCheckbox',
-	),
-	'secure_headers'      => array(
+	],
+	'secure_headers'      => [
 		'label'       => 'Enforce Secure Headers',
 		'description' => 'Adds X-Frame-Options, X-Content-Type-Options, and basic CSP.',
 		'input'       => 'settingsCheckbox',
-	),
-	'restrict_rest_api'   => array(
+	],
+	'restrict_rest_api'   => [
 		'label'       => 'Restrict REST API for Unauthenticated Users',
 		'description' => 'Limits REST API access, whitelisting Apollo endpoints.',
 		'input'       => 'settingsCheckbox',
-	),
-);
+	],
+];
 
 /**
  * Business Logic - Disable XML-RPC
@@ -55,7 +55,7 @@ const APOLLO_HARDENING_SETTINGS = array(
 function apollo_hardening_disable_xmlrpc(): void {
 	add_filter( 'xmlrpc_enabled', fn () => false );
 	add_filter( 'pings_open', fn () => false );
-	add_filter( 'wp_headers', fn ( $headers ) => array_merge( $headers, array( 'X-Pingback' => null ) ) );
+	add_filter( 'wp_headers', fn ( $headers ) => array_merge( $headers, [ 'X-Pingback' => null ] ) );
 }
 
 /**
@@ -103,18 +103,18 @@ function apollo_hardening_restrict_rest_api(): void {
 			}
 			if ( ! is_user_logged_in() ) {
 				$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-				$allowed     = array(
+				$allowed     = [
 					'/wp-json/apollo-core/',
 					'/wp-json/apollo-events-manager/',
 					'/wp-json/apollo-social/',
-				);
+				];
 				foreach ( $allowed as $prefix ) {
-					if ( 0 === strpos( $request_uri, $prefix ) ) {
+					if ( strpos( $request_uri, $prefix ) === 0 ) {
 						return $result;
 					}
 				}
 
-				return new WP_Error( 'rest_not_logged_in', __( 'You are not authorized to access this endpoint.', 'apollo-hardening' ), array( 'status' => 401 ) );
+				return new WP_Error( 'rest_not_logged_in', __( 'You are not authorized to access this endpoint.', 'apollo-hardening' ), [ 'status' => 401 ] );
 			}
 
 			return $result;
@@ -142,7 +142,7 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 					__( 'Apollo Hardening', 'apollo-hardening' ),
 					'manage_apollo_security',
 					'apollo-hardening-settings',
-					array( self::class, 'settingsPage' ),
+					[ self::class, 'settingsPage' ],
 					'dashicons-shield-alt'
 				);
 			} else {
@@ -152,17 +152,17 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 					__( 'Hardening', 'apollo-hardening' ),
 					'manage_apollo_security',
 					'apollo-hardening-settings',
-					array( self::class, 'settingsPage' )
+					[ self::class, 'settingsPage' ]
 				);
 			}
 		}
 
 		public static function enqueueStyles( $hook ) {
-			if ( 'apollo-core_page_apollo-hardening-settings' === $hook ) {
+			if ( $hook === 'apollo-core_page_apollo-hardening-settings' ) {
 				wp_enqueue_style(
 					'apollo-hardening-uni',
 					plugins_url( 'apollo-core/templates/design-library/assets/uni.css', dirname( __DIR__, 1 ) ),
-					array(),
+					[],
 					'1.0.0'
 				);
 			}
@@ -173,7 +173,7 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 			add_settings_section(
 				'apollo_hardening_core_section',
 				__( 'Apollo Hardening Plugin', 'apollo-hardening' ),
-				array( self::class, 'settingsCoreSection' ),
+				[ self::class, 'settingsCoreSection' ],
 				'apollo_hardening'
 			);
 
@@ -181,10 +181,10 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 				add_settings_field(
 					$field,
 					esc_html( $args['label'] ),
-					array( self::class, $args['input'] ),
+					[ self::class, $args['input'] ],
 					'apollo_hardening',
 					'apollo_hardening_core_section',
-					array_merge( array( 'field' => $field ), $args )
+					array_merge( [ 'field' => $field ], $args )
 				);
 			}
 		}
@@ -232,7 +232,7 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 				return;
 			}
 			foreach ( $options as $key => $value ) {
-				if ( 'on' !== $value ) {
+				if ( $value !== 'on' ) {
 					continue;
 				}
 
@@ -252,14 +252,15 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 		 *
 		 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Required by WordPress hook signature.
 		 */
-		public static function logSettingsChange( $old_value, $new_value, $option ) {
+		public static function logSettingsChange( $old_value, $new_value, $option ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter -- Required by WordPress hook signature.
+			unset( $option ); // Mark as intentionally unused.
 			if ( ! function_exists( 'Apollo_Audit_Log' ) ) {
 				require_once WP_PLUGIN_DIR . '/apollo-core/includes/class-apollo-audit-log.php';
 			}
 
-			$changes      = array();
-			$old_settings = is_array( $old_value ) ? $old_value : array();
-			$new_settings = is_array( $new_value ) ? $new_value : array();
+			$changes      = [];
+			$old_settings = is_array( $old_value ) ? $old_value : [];
+			$new_settings = is_array( $new_value ) ? $new_value : [];
 
 			foreach ( APOLLO_HARDENING_SETTINGS as $key => $config ) {
 				$old_val = isset( $old_settings[ $key ] ) ? $old_settings[ $key ] : 'off';
@@ -273,23 +274,23 @@ if ( ! class_exists( 'ApolloHardening' ) ) {
 			if ( ! empty( $changes ) ) {
 				Apollo_Audit_Log::log_event(
 					'security_settings_change',
-					array(
+					[
 						'message'  => 'Apollo Hardening settings updated',
-						'context'  => array(
+						'context'  => [
 							'changes'      => $changes,
 							'old_settings' => $old_settings,
 							'new_settings' => $new_settings,
-						),
+						],
 						'severity' => 'warning',
-					)
+					]
 				);
 			}
 		}
 	}
 
-	add_action( 'admin_menu', array( ApolloHardening::class, 'initPages' ) );
-	add_action( 'admin_init', array( ApolloHardening::class, 'initSettings' ) );
-	add_action( 'admin_enqueue_scripts', array( ApolloHardening::class, 'enqueueStyles' ) );
-	add_action( 'init', array( ApolloHardening::class, 'applySettings' ) );
-	add_action( 'update_option_apollo_hardening_settings', array( ApolloHardening::class, 'logSettingsChange' ), 10, 3 );
+	add_action( 'admin_menu', [ ApolloHardening::class, 'initPages' ] );
+	add_action( 'admin_init', [ ApolloHardening::class, 'initSettings' ] );
+	add_action( 'admin_enqueue_scripts', [ ApolloHardening::class, 'enqueueStyles' ] );
+	add_action( 'init', [ ApolloHardening::class, 'applySettings' ] );
+	add_action( 'update_option_apollo_hardening_settings', [ ApolloHardening::class, 'logSettingsChange' ], 10, 3 );
 }

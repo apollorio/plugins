@@ -52,13 +52,13 @@ class Apollo_User_Moderation {
 	/**
 	 * Capabilities by mod level
 	 */
-	private static array $mod_capabilities = array(
-		0 => array(
+	private static array $mod_capabilities = [
+		0 => [
 			'apollo_moderate_basic',
 			'apollo_view_mod_queue',
 			'apollo_approve_content',
-		),
-		1 => array(
+		],
+		1 => [
 			'apollo_moderate_basic',
 			'apollo_moderate_advanced',
 			'apollo_view_mod_queue',
@@ -66,8 +66,8 @@ class Apollo_User_Moderation {
 			'apollo_edit_user_content',
 			'apollo_remove_content',
 			'apollo_suspend_users_temp',
-		),
-		3 => array(
+		],
+		3 => [
 			'apollo_moderate_basic',
 			'apollo_moderate_advanced',
 			'apollo_moderate_full',
@@ -79,42 +79,42 @@ class Apollo_User_Moderation {
 			'apollo_suspend_users',
 			'apollo_ban_users',
 			'apollo_view_audit_log',
-		),
-	);
+		],
+	];
 
 	/**
 	 * Admin-only capabilities (never given to moderators)
 	 */
-	private static array $admin_only_capabilities = array(
+	private static array $admin_only_capabilities = [
 		'apollo_block_ip',
 		'apollo_manage_moderators',
 		'apollo_manage_modules',
 		'apollo_manage_limits',
 		'apollo_view_analytics',
 		'apollo_lockdown',
-	);
+	];
 
 	/**
 	 * Initialize hooks
 	 */
 	public static function init(): void {
 		// Block suspended/banned users on every page load.
-		add_action( 'init', array( __CLASS__, 'check_user_access' ), 1 );
+		add_action( 'init', [ __CLASS__, 'check_user_access' ], 1 );
 
 		// Block IPs on init.
-		add_action( 'init', array( __CLASS__, 'check_ip_blocklist' ), 0 );
+		add_action( 'init', [ __CLASS__, 'check_ip_blocklist' ], 0 );
 
 		// Auto-unsuspend expired suspensions.
-		add_action( 'init', array( __CLASS__, 'maybe_auto_unsuspend' ), 2 );
+		add_action( 'init', [ __CLASS__, 'maybe_auto_unsuspend' ], 2 );
 
 		// Add capabilities on role setup.
-		add_action( 'admin_init', array( __CLASS__, 'setup_capabilities' ) );
+		add_action( 'admin_init', [ __CLASS__, 'setup_capabilities' ] );
 
 		// REST API endpoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 
 		// Filter user authentication.
-		add_filter( 'authenticate', array( __CLASS__, 'block_suspended_login' ), 100, 3 );
+		add_filter( 'authenticate', [ __CLASS__, 'block_suspended_login' ], 100, 3 );
 	}
 
 	// =========================================================================
@@ -130,7 +130,7 @@ class Apollo_User_Moderation {
 	public static function get_user_status( int $user_id ): string {
 		$status = get_user_meta( $user_id, 'apollo_status', true );
 
-		return in_array( $status, array( self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ), true )
+		return in_array( $status, [ self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ], true )
 			? $status
 			: self::STATUS_ACTIVE;
 	}
@@ -143,7 +143,7 @@ class Apollo_User_Moderation {
 	 * @return bool Success.
 	 */
 	public static function set_user_status( int $user_id, string $status ): bool {
-		if ( ! in_array( $status, array( self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ), true ) ) {
+		if ( ! in_array( $status, [ self::STATUS_ACTIVE, self::STATUS_SUSPENDED, self::STATUS_BANNED ], true ) ) {
 			return false;
 		}
 
@@ -255,11 +255,11 @@ class Apollo_User_Moderation {
 				'suspend_user',
 				'user',
 				$user_id,
-				array(
+				[
 					'reason'   => $reason,
 					'duration' => $duration,
 					'until'    => $duration > 0 ? gmdate( 'Y-m-d H:i:s', time() + $duration ) : 'indefinite',
-				)
+				]
 			);
 		}
 
@@ -298,7 +298,7 @@ class Apollo_User_Moderation {
 				'unsuspend_user',
 				'user',
 				$user_id,
-				array( 'reason' => $reason )
+				[ 'reason' => $reason ]
 			);
 		}
 
@@ -370,7 +370,7 @@ class Apollo_User_Moderation {
 				'ban_user',
 				'user',
 				$user_id,
-				array( 'reason' => $reason )
+				[ 'reason' => $reason ]
 			);
 		}
 
@@ -413,7 +413,7 @@ class Apollo_User_Moderation {
 				'unban_user',
 				'user',
 				$user_id,
-				array( 'reason' => $reason )
+				[ 'reason' => $reason ]
 			);
 		}
 
@@ -441,7 +441,7 @@ class Apollo_User_Moderation {
 
 		$level = (int) get_user_meta( $user_id, 'apollo_mod_level', true );
 
-		if ( in_array( $level, array( self::MOD_LEVEL_BASIC, self::MOD_LEVEL_ADVANCED, self::MOD_LEVEL_FULL ), true ) ) {
+		if ( in_array( $level, [ self::MOD_LEVEL_BASIC, self::MOD_LEVEL_ADVANCED, self::MOD_LEVEL_FULL ], true ) ) {
 			return $level;
 		}
 
@@ -463,12 +463,12 @@ class Apollo_User_Moderation {
 		}
 
 		// Validate level.
-		$valid_levels = array(
+		$valid_levels = [
 			self::MOD_LEVEL_NONE,
 			self::MOD_LEVEL_BASIC,
 			self::MOD_LEVEL_ADVANCED,
 			self::MOD_LEVEL_FULL,
-		);
+		];
 		if ( ! in_array( $level, $valid_levels, true ) ) {
 			return false;
 		}
@@ -491,10 +491,10 @@ class Apollo_User_Moderation {
 				'set_mod_level',
 				'user',
 				$user_id,
-				array(
+				[
 					'old_level' => $old_level,
 					'new_level' => $level,
-				)
+				]
 			);
 		}
 
@@ -576,9 +576,9 @@ class Apollo_User_Moderation {
 	 * @return array Array of blocked IP hashes.
 	 */
 	public static function get_ip_blocklist(): array {
-		$list = get_option( 'apollo_ip_blocklist', array() );
+		$list = get_option( 'apollo_ip_blocklist', [] );
 
-		return is_array( $list ) ? $list : array();
+		return is_array( $list ) ? $list : [];
 	}
 
 	/**
@@ -612,12 +612,12 @@ class Apollo_User_Moderation {
 			}
 		}
 
-		$blocklist[] = array(
+		$blocklist[] = [
 			'hash'       => $ip_hash,
 			'blocked_at' => time(),
 			'blocked_by' => $actor_id,
 			'reason'     => sanitize_text_field( $reason ),
-		);
+		];
 
 		update_option( 'apollo_ip_blocklist', $blocklist );
 
@@ -628,10 +628,10 @@ class Apollo_User_Moderation {
 				'block_ip',
 				'ip',
 				0,
-				array(
+				[
 					'ip_partial' => self::mask_ip( $ip ),
 					'reason'     => $reason,
-				)
+				]
 			);
 		}
 
@@ -676,7 +676,7 @@ class Apollo_User_Moderation {
 				'unblock_ip',
 				'ip',
 				0,
-				array( 'ip_hash' => substr( $ip_hash, 0, 12 ) . '...' )
+				[ 'ip_hash' => substr( $ip_hash, 0, 12 ) . '...' ]
 			);
 		}
 
@@ -714,7 +714,7 @@ class Apollo_User_Moderation {
 				wp_die(
 					$message,
 					esc_html__( 'Acesso Bloqueado', 'apollo-core' ),
-					array( 'response' => 403 )
+					[ 'response' => 403 ]
 				);
 			}
 		}
@@ -790,7 +790,7 @@ class Apollo_User_Moderation {
 			wp_die(
 				$message,
 				esc_html__( 'Conta Banida', 'apollo-core' ),
-				array( 'response' => 403 )
+				[ 'response' => 403 ]
 			);
 		}
 
@@ -813,7 +813,7 @@ class Apollo_User_Moderation {
 			wp_die(
 				wp_kses_post( $message ),
 				esc_html__( 'Conta Suspensa', 'apollo-core' ),
-				array( 'response' => 403 )
+				[ 'response' => 403 ]
 			);
 		}
 	}
@@ -903,97 +903,97 @@ class Apollo_User_Moderation {
 		register_rest_route(
 			'apollo/v1',
 			'mod/suspender',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_suspend_user' ),
+				'callback'            => [ __CLASS__, 'rest_suspend_user' ],
 				'permission_callback' => function () {
 					return self::can_moderate( get_current_user_id(), 'suspend' );
 				},
-				'args'                => array(
-					'user_id'  => array(
+				'args'                => [
+					'user_id'  => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'reason'   => array(
+					],
+					'reason'   => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'default'           => '',
-					),
-					'duration' => array(
+					],
+					'duration' => [
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'default'           => 0,
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'mod/unsuspend',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_unsuspend_user' ),
+				'callback'            => [ __CLASS__, 'rest_unsuspend_user' ],
 				'permission_callback' => function () {
 					return self::can_moderate( get_current_user_id(), 'suspend' );
 				},
-				'args'                => array(
-					'user_id' => array(
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'reason'  => array(
+					],
+					'reason'  => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'default'           => '',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'mod/ban',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_ban_user' ),
+				'callback'            => [ __CLASS__, 'rest_ban_user' ],
 				'permission_callback' => function () {
 					return self::can_moderate( get_current_user_id(), 'ban' );
 				},
-				'args'                => array(
-					'user_id' => array(
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-					'reason'  => array(
+					],
+					'reason'  => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'default'           => '',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'mod/user-status/(?P<user_id>\d+)',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_user_status' ),
+				'callback'            => [ __CLASS__, 'rest_get_user_status' ],
 				'permission_callback' => function () {
 					return self::can_moderate( get_current_user_id(), 'view' );
 				},
-				'args'                => array(
-					'user_id' => array(
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -1010,20 +1010,20 @@ class Apollo_User_Moderation {
 
 		if ( ! $success ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Não foi possível suspender o usuário.', 'apollo-core' ),
-				),
+				],
 				400
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Usuário suspenso com sucesso.', 'apollo-core' ),
 				'status'  => self::get_user_status( $user_id ),
-			),
+			],
 			200
 		);
 	}
@@ -1040,20 +1040,20 @@ class Apollo_User_Moderation {
 
 		if ( ! $success ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Não foi possível reativar o usuário.', 'apollo-core' ),
-				),
+				],
 				400
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Usuário reativado com sucesso.', 'apollo-core' ),
 				'status'  => self::get_user_status( $user_id ),
-			),
+			],
 			200
 		);
 	}
@@ -1070,20 +1070,20 @@ class Apollo_User_Moderation {
 
 		if ( ! $success ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Não foi possível banir o usuário.', 'apollo-core' ),
-				),
+				],
 				400
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Usuário banido com sucesso.', 'apollo-core' ),
 				'status'  => self::get_user_status( $user_id ),
-			),
+			],
 			200
 		);
 	}
@@ -1097,38 +1097,38 @@ class Apollo_User_Moderation {
 
 		if ( ! $user ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Usuário não encontrado.', 'apollo-core' ),
-				),
+				],
 				404
 			);
 		}
 
 		$status = self::get_user_status( $user_id );
 
-		$data = array(
+		$data = [
 			'success'   => true,
 			'user_id'   => $user_id,
 			'status'    => $status,
 			'mod_level' => self::get_mod_level( $user_id ),
-		);
+		];
 
 		if ( self::STATUS_SUSPENDED === $status ) {
-			$data['suspension'] = array(
+			$data['suspension'] = [
 				'reason' => get_user_meta( $user_id, 'apollo_suspension_reason', true ),
 				'until'  => get_user_meta( $user_id, 'apollo_suspension_until', true ),
 				'at'     => get_user_meta( $user_id, 'apollo_suspended_at', true ),
 				'by'     => get_user_meta( $user_id, 'apollo_suspended_by', true ),
-			);
+			];
 		}
 
 		if ( self::STATUS_BANNED === $status ) {
-			$data['ban'] = array(
+			$data['ban'] = [
 				'reason' => get_user_meta( $user_id, 'apollo_banned_reason', true ),
 				'at'     => get_user_meta( $user_id, 'apollo_banned_at', true ),
 				'by'     => get_user_meta( $user_id, 'apollo_banned_by', true ),
-			);
+			];
 		}
 
 		return new WP_REST_Response( $data, 200 );

@@ -48,7 +48,7 @@ function apollo_enqueue_forms_admin_assets( $hook ) {
 	wp_enqueue_style(
 		'apollo-forms-admin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/css/forms-admin.css',
-		array(),
+		[],
 		APOLLO_CORE_VERSION
 	);
 
@@ -56,7 +56,7 @@ function apollo_enqueue_forms_admin_assets( $hook ) {
 	wp_enqueue_script(
 		'apollo-forms-admin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/js/forms-admin.js',
-		array( 'jquery', 'jquery-ui-sortable', 'wp-util' ),
+		[ 'jquery', 'jquery-ui-sortable', 'wp-util' ],
 		APOLLO_CORE_VERSION,
 		true
 	);
@@ -65,18 +65,18 @@ function apollo_enqueue_forms_admin_assets( $hook ) {
 	wp_localize_script(
 		'apollo-forms-admin',
 		'apolloFormsAdmin',
-		array(
+		[
 			'nonce'      => wp_create_nonce( 'apollo_forms_admin' ),
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-			'validTypes' => array( 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' ),
-			'strings'    => array(
+			'validTypes' => [ 'text', 'textarea', 'number', 'email', 'select', 'checkbox', 'date', 'instagram', 'password' ],
+			'strings'    => [
 				'confirmDelete' => __( 'Are you sure you want to delete this field?', 'apollo-core' ),
 				'addField'      => __( 'Add Field', 'apollo-core' ),
 				'editField'     => __( 'Edit Field', 'apollo-core' ),
 				'save'          => __( 'Save', 'apollo-core' ),
 				'cancel'        => __( 'Cancel', 'apollo-core' ),
-			),
-		)
+			],
+		]
 	);
 }
 add_action( 'admin_enqueue_scripts', 'apollo_enqueue_forms_admin_assets' );
@@ -164,10 +164,10 @@ function apollo_render_forms_admin_page() {
 					<?php
 					echo apollo_render_form(
 						$current_form_type,
-						array(
+						[
 							'action'    => '#',
 							'css_class' => 'apollo-form apollo-form-preview',
-						)
+						]
 					);
 					?>
 				</div>
@@ -291,24 +291,24 @@ function apollo_ajax_save_form_schema() {
 
 	// Check capability.
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_send_json_error( array( 'message' => __( 'Permission denied.', 'apollo-core' ) ) );
+		wp_send_json_error( [ 'message' => __( 'Permission denied.', 'apollo-core' ) ] );
 	}
 
 	// Get data.
 	$form_type = isset( $_POST['form_type'] ) ? sanitize_text_field( wp_unslash( $_POST['form_type'] ) ) : '';
-	$schema    = isset( $_POST['schema'] ) ? json_decode( wp_unslash( $_POST['schema'] ), true ) : array();
+	$schema    = isset( $_POST['schema'] ) ? json_decode( wp_unslash( $_POST['schema'] ), true ) : [];
 
 	if ( empty( $form_type ) || empty( $schema ) ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid data.', 'apollo-core' ) ) );
+		wp_send_json_error( [ 'message' => __( 'Invalid data.', 'apollo-core' ) ] );
 	}
 
 	// Save schema.
 	$result = apollo_save_form_schema( $form_type, $schema );
 
 	if ( $result ) {
-		wp_send_json_success( array( 'message' => __( 'Schema saved successfully.', 'apollo-core' ) ) );
+		wp_send_json_success( [ 'message' => __( 'Schema saved successfully.', 'apollo-core' ) ] );
 	} else {
-		wp_send_json_error( array( 'message' => __( 'Failed to save schema.', 'apollo-core' ) ) );
+		wp_send_json_error( [ 'message' => __( 'Failed to save schema.', 'apollo-core' ) ] );
 	}
 }
 add_action( 'wp_ajax_apollo_save_form_schema', 'apollo_ajax_save_form_schema' );

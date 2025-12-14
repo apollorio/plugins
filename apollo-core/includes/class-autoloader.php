@@ -42,7 +42,7 @@ class Apollo_Core_Autoloader {
 	 * Register autoloader
 	 */
 	public function register() {
-		spl_autoload_register( array( $this, 'autoload' ) );
+		spl_autoload_register( [ $this, 'autoload' ] );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Apollo_Core_Autoloader {
 		$relative_class = substr( $class, $len );
 
 		// Convert namespace to file path.
-		$file = $this->base_dir . 'class-' . strtolower( str_replace( array( '\\', '_' ), array( '/', '-' ), $relative_class ) ) . '.php';
+		$file = $this->base_dir . 'class-' . strtolower( str_replace( [ '\\', '_' ], [ '/', '-' ], $relative_class ) ) . '.php';
 
 		// Require file if exists.
 		if ( file_exists( $file ) ) {

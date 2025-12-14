@@ -6,29 +6,29 @@
  * @var string $primary_cta
  */
 
-$filters     = $filters ?? array(
-	array(
+$filters     = $filters ?? [
+	[
 		'slug'   => 'all',
 		'label'  => 'Todos',
 		'icon'   => 'ri-apps-2-line',
 		'active' => true,
-	),
-	array(
+	],
+	[
 		'slug'  => 'draft',
 		'label' => 'Em rascunho',
 		'icon'  => 'ri-edit-box-line',
-	),
-	array(
+	],
+	[
 		'slug'  => 'waiting',
 		'label' => 'Aguardando assinatura',
 		'icon'  => 'ri-file-shield-2-line',
-	),
-	array(
+	],
+	[
 		'slug'  => 'signed',
 		'label' => 'Assinados',
 		'icon'  => 'ri-check-double-line',
-	),
-);
+	],
+];
 $primary_cta = $primary_cta ?? 'Novo documento';
 ?>
 <section class="aprioEXP-card-shell p-4">
@@ -58,7 +58,7 @@ $primary_cta = $primary_cta ?? 'Novo documento';
 	<div class="space-y-1.5 text-[12px]" id="documents-list">
 		<?php if ( ! empty( $documents ) ) : ?>
 			<?php foreach ( $documents as $document ) : ?>
-				<?php apollo_core_component( 'docs/document-row', array( 'document' => $document ) ); ?>
+				<?php apollo_core_component( 'docs/document-row', [ 'document' => $document ] ); ?>
 			<?php endforeach; ?>
 		<?php else : ?>
 			<p class="text-center text-slate-400 py-4">Sem documentos cadastrados.</p>

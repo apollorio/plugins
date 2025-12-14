@@ -73,14 +73,14 @@ class Apollo_Global_Assets {
 	 * Asset versions for cache busting
 	 * Updated: 2025-12-01 (UNI.CSS Refactor)
 	 */
-	private static $asset_versions = array(
+	private static $asset_versions = [
 		'uni.css'                 => '5.2.0',
 		// UNI.CSS v5.2 - Classifieds/Marketplace (advert cards, currency widget)
 					'base.js'     => '4.2.0',
 		// base.js v4.2 - Classifieds utilities, currency converter
 					'animate.css' => '1.0.0',
 		'event-page.js'           => '1.0.0',
-	);
+	];
 
 	/**
 	 * Flag to track if assets have been enqueued
@@ -98,11 +98,11 @@ class Apollo_Global_Assets {
 		self::$use_cdn = (bool) apply_filters( 'apollo_use_cdn_assets', self::$use_cdn );
 
 		// Register assets on init
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ), 5 );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'register_assets' ), 5 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_assets' ], 5 );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'register_assets' ], 5 );
 
 		// Auto-enqueue on Apollo pages
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'maybe_auto_enqueue' ), 10 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'maybe_auto_enqueue' ], 10 );
 	}
 
 	/**
@@ -115,7 +115,7 @@ class Apollo_Global_Assets {
 		wp_register_style(
 			'apollo-uni-css',
 			self::get_asset_url( 'uni.css' ),
-			array(),
+			[],
 			self::get_asset_version( 'uni.css' )
 		);
 
@@ -123,7 +123,7 @@ class Apollo_Global_Assets {
 		wp_register_style(
 			'apollo-remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -131,7 +131,7 @@ class Apollo_Global_Assets {
 		wp_register_style(
 			'apollo-animate-css',
 			self::get_asset_url( 'animate.css' ),
-			array(),
+			[],
 			self::get_asset_version( 'animate.css' )
 		);
 
@@ -139,7 +139,7 @@ class Apollo_Global_Assets {
 		wp_register_script(
 			'apollo-base-js',
 			self::get_asset_url( 'base.js' ),
-			array(),
+			[],
 			self::get_asset_version( 'base.js' ),
 			true
 		);
@@ -148,7 +148,7 @@ class Apollo_Global_Assets {
 		wp_register_script(
 			'apollo-event-page-js',
 			self::get_asset_url( 'event-page.js' ),
-			array(),
+			[],
 			self::get_asset_version( 'event-page.js' ),
 			true
 		);
@@ -157,7 +157,7 @@ class Apollo_Global_Assets {
 		wp_register_script(
 			'apollo-motion',
 			'https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.umd.js',
-			array(),
+			[],
 			null,
 			true
 		);
@@ -198,7 +198,7 @@ class Apollo_Global_Assets {
 		// Check URL patterns
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-		$apollo_routes = array(
+		$apollo_routes = [
 			'/a/',
 			'/comunidade/',
 			'/nucleo/',
@@ -223,7 +223,7 @@ class Apollo_Global_Assets {
 			'/eventos/',
 			'/evento/',
 			'/dj/',
-		);
+		];
 
 		foreach ( $apollo_routes as $route ) {
 			if ( strpos( $request_uri, $route ) !== false ) {
@@ -232,7 +232,7 @@ class Apollo_Global_Assets {
 		}
 
 		// Check for Apollo CPTs
-		$apollo_post_types = array( 'event_listing', 'event_local', 'event_dj', 'apollo_group', 'user_page' );
+		$apollo_post_types = [ 'event_listing', 'event_local', 'event_dj', 'apollo_group', 'user_page' ];
 		if ( is_singular( $apollo_post_types ) || is_post_type_archive( $apollo_post_types ) ) {
 			return true;
 		}
@@ -308,13 +308,13 @@ class Apollo_Global_Assets {
 		wp_localize_script(
 			'apollo-base-js',
 			'apolloGlobal',
-			array(
+			[
 				'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 				'restUrl'    => rest_url( 'apollo/v1/' ),
 				'nonce'      => wp_create_nonce( 'apollo_global' ),
 				'isDarkMode' => self::get_user_dark_mode_preference(),
 				'locale'     => get_locale(),
-			)
+			]
 		);
 
 		self::$js_enqueued = true;
@@ -426,12 +426,12 @@ class Apollo_Global_Assets {
 			return;
 		}
 
-		$allowed_patterns = array(
+		$allowed_patterns = [
 			'apollo-',
 			'assets.apollo.rio.br',
 			'remixicon',
 			'cdn.jsdelivr.net/npm/motion',
-		);
+		];
 
 		foreach ( $wp_styles->queue as $handle ) {
 			$keep = false;
@@ -465,8 +465,8 @@ class Apollo_Global_Assets {
 	 * @return array
 	 */
 	public static function get_component_classes(): array {
-		return array(
-			'cards'     => array(
+		return [
+			'cards'     => [
 				'.aprioEXP-card-shell' => 'Standard Apollo card with glass effect',
 				'.card-glass'          => 'Glassmorphism card effect',
 				'.community-card'      => 'Community/group card with gradient blur',
@@ -474,14 +474,14 @@ class Apollo_Global_Assets {
 				'.event-card'          => 'Event listing card',
 				'.ticket-card'         => 'Ticket/CTA card',
 				'.calendar-card'       => 'Calendar widget card',
-			),
-			'buttons'   => array(
+			],
+			'buttons'   => [
 				'.bottom-btn'         => 'Standard action button',
 				'.bottom-btn.primary' => 'Primary action button',
 				'.btn-player-main'    => 'Media player button',
 				'.route-button'       => 'Navigation/route button',
-			),
-			'badges'    => array(
+			],
+			'badges'    => [
 				'.apollo-badge'               => 'Base badge class',
 				'.apollo-badge-role-dj'       => 'DJ role badge (blue)',
 				'.apollo-badge-role-producer' => 'Producer role badge (blue)',
@@ -493,44 +493,44 @@ class Apollo_Global_Assets {
 				'.status-badge-expected'      => 'Expected status (orange)',
 				'.status-badge-confirmed'     => 'Confirmed status (green)',
 				'.status-badge-published'     => 'Published status (blue)',
-			),
-			'avatars'   => array(
+			],
+			'avatars'   => [
 				'.avatar'             => 'Base avatar class',
 				'.avatar-small'       => '24px avatar',
 				'.avatar-medium'      => '32px avatar',
 				'.avatar-large'       => '40px avatar',
 				'.avatar-xlarge'      => '56px avatar',
 				'.avatar-with-status' => 'Avatar with online indicator',
-			),
-			'forms'     => array(
+			],
+			'forms'     => [
 				'.box-search'  => 'Search input container',
 				'.route-input' => 'Text input with icon',
 				'.menutag'     => 'Filter/category tag button',
-			),
-			'layout'    => array(
+			],
+			'layout'    => [
 				'.main-container' => 'Main page container',
 				'.hero-section'   => 'Hero/header section',
 				'.event_listings' => 'Event grid container',
 				'.event_listing'  => 'Single event card',
 				'.card-grid'      => 'Bento/masonry grid',
-			),
-			'utilities' => array(
+			],
+			'utilities' => [
 				'.glass'           => 'Glassmorphism effect',
 				'.no-scrollbar'    => 'Hide scrollbar',
 				'.pb-safe'         => 'Safe area padding (iOS)',
 				'.visually-hidden' => 'Screen reader only',
 				'.disabled'        => 'Disabled state',
-			),
-			'colors'    => array(
+			],
+			'colors'    => [
 				'.bg-orange-{0-1000}'     => 'Orange background scale',
 				'.text-orange-{0-1000}'   => 'Orange text scale',
 				'.border-orange-{0-1000}' => 'Orange border scale',
 				'.bg-grama'               => 'Green gradient background',
 				'.online'                 => 'Online status green',
-			),
-		);
+			],
+		];
 	}
 }
 
 // Initialize on plugins_loaded
-add_action( 'plugins_loaded', array( 'Apollo_Global_Assets', 'init' ), 5 );
+add_action( 'plugins_loaded', [ 'Apollo_Global_Assets', 'init' ], 5 );

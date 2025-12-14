@@ -113,14 +113,14 @@ function apollo_core_render_migration_page(): void {
 
 	// Check for old plugin options
 	$has_old_options = false;
-	$old_options     = array(
+	$old_options     = [
 		'apollo_events_version',
 		'apollo_social_version',
 		'apollo_rio_version',
 		'apollo_events_settings',
 		'apollo_social_settings',
 		'apollo_canvas_pages_created',
-	);
+	];
 
 	foreach ( $old_options as $option ) {
 		if ( get_option( $option ) !== false ) {

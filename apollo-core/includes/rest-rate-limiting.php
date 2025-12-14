@@ -23,7 +23,7 @@ function apollo_get_client_ip(): string {
 	$ip = '0.0.0.0';
 
 	// Check various headers in order of trust
-	$ip_keys = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+	$ip_keys = [ 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' ];
 
 	foreach ( $ip_keys as $key ) {
 		if ( ! empty( $_SERVER[ $key ] ) ) {
@@ -58,7 +58,7 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 	$ip       = apollo_get_client_ip();
 
 	// Different limits for different endpoint types
-	$limits = array(
+	$limits = [
 		'/apollo/v1/forms/submit'                => 10,
 		// 10 submissions per minute
 					'/apollo/v1tentantiva'       => 5,
@@ -69,7 +69,7 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 		// 30 approvals per minute
 					'default'                    => 100,
 	// 100 requests per minute for other endpoints
-	);
+	];
 
 	$limit = $limits[ $endpoint ] ?? $limits['default'];
 
@@ -92,12 +92,12 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 				'rate_limit_exceeded',
 				'rest_endpoint',
 				0,
-				array(
+				[
 					'endpoint' => $endpoint,
 					'attempts' => $attempts,
 					'limit'    => $limit,
 					'ip'       => $ip,
-				)
+				]
 			);
 		}
 
@@ -108,12 +108,12 @@ function apollo_rest_rate_limit_check( WP_REST_Request $request ) {
 				__( 'Rate limit exceeded. Maximum %d requests per minute allowed.', 'apollo-core' ),
 				$limit
 			),
-			array(
+			[
 				'status' => 429,
 				'limit'  => $limit,
 				'reset'  => 60,
 			// Seconds until reset
-			)
+			]
 		);
 	}//end if
 
@@ -206,7 +206,7 @@ function apollo_get_rate_limit_status( string $endpoint, int $user_id = 0 ): arr
 	$limit    = 100;
 	// Default
 
-	return array(
+	return [
 		'endpoint'  => $endpoint,
 		'user_id'   => $user_id,
 		'ip'        => $ip,
@@ -214,7 +214,7 @@ function apollo_get_rate_limit_status( string $endpoint, int $user_id = 0 ): arr
 		'limit'     => $limit,
 		'remaining' => max( 0, $limit - $attempts ),
 		'reset_in'  => 60,
-	);
+	];
 }
 
 /**

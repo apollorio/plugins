@@ -6,36 +6,36 @@
  * @var array $fab
  */
 
-$items = $items ?? array(
-	array(
+$items = $items ?? [
+	[
 		'label' => 'Agenda',
 		'icon'  => 'ri-calendar-line',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'label'  => 'Pro',
 		'icon'   => 'ri-bar-chart-grouped-line',
 		'href'   => '#',
 		'active' => true,
-	),
-	array(
+	],
+	[
 		'label' => 'Docs',
 		'icon'  => 'ri-file-text-line',
 		'href'  => '#',
-	),
-	array(
+	],
+	[
 		'label' => 'Perfil',
 		'icon'  => 'ri-user-3-line',
 		'href'  => '#',
-	),
-);
+	],
+];
 $fab   = wp_parse_args(
-	$fab ?? array(),
-	array(
+	$fab ?? [],
+	[
 		'icon'     => 'ri-add-line',
 		'href'     => '#',
 		'disabled' => false,
-	)
+	]
 );
 ?>
 <div class="ap-mobile-nav">

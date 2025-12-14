@@ -21,7 +21,7 @@ class Apollo_Moderation_Roles {
 	 * Initialize
 	 */
 	public static function init() {
-		add_action( 'apollo_core_activated', array( __CLASS__, 'setup_roles' ) );
+		add_action( 'apollo_core_activated', [ __CLASS__, 'setup_roles' ] );
 	}
 
 	/**
@@ -60,8 +60,8 @@ class Apollo_Moderation_Roles {
 	 * Setup content-type specific capabilities
 	 */
 	private static function setup_content_type_capabilities() {
-		$settings = get_option( 'apollo_mod_settings', array() );
-		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : array();
+		$settings = get_option( 'apollo_mod_settings', [] );
+		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : [];
 
 		$apollo = get_role( 'apollo' );
 		if ( ! $apollo ) {
@@ -69,7 +69,7 @@ class Apollo_Moderation_Roles {
 		}
 
 		// List of all possible capabilities.
-		$all_caps = array(
+		$all_caps = [
 			'edit_events',
 			'publish_events',
 			'edit_locals',
@@ -82,7 +82,7 @@ class Apollo_Moderation_Roles {
 			'publish_comunidades',
 			'edit_classifieds',
 			'edit_posts',
-		);
+		];
 
 		// Add or remove capabilities based on settings.
 		foreach ( $all_caps as $cap ) {
@@ -102,11 +102,11 @@ class Apollo_Moderation_Roles {
 	 * @return bool
 	 */
 	public static function can_moderate_content_type( $user_id, $content_type ) {
-		$settings = get_option( 'apollo_mod_settings', array() );
-		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : array();
+		$settings = get_option( 'apollo_mod_settings', [] );
+		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : [];
 
 		// Map content type to capability.
-		$cap_map = array(
+		$cap_map = [
 			'event_listing'      => 'publish_events',
 			'event_local'        => 'publish_locals',
 			'event_dj'           => 'publish_djs',
@@ -115,7 +115,7 @@ class Apollo_Moderation_Roles {
 			'apollo_classified'  => 'edit_classifieds',
 			'apollo_social_post' => 'edit_posts',
 			'post'               => 'edit_posts',
-		);
+		];
 
 		$required_cap = isset( $cap_map[ $content_type ] ) ? $cap_map[ $content_type ] : false;
 
@@ -140,10 +140,10 @@ class Apollo_Moderation_Roles {
 	 * @return array
 	 */
 	public static function get_enabled_content_types(): array {
-		$settings = get_option( 'apollo_mod_settings', array() );
-		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : array();
+		$settings = get_option( 'apollo_mod_settings', [] );
+		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : [];
 
-		$types = array();
+		$types = [];
 
 		// Always include event_listing (core CPT for events/CENA-RIO)
 		$types[] = 'event_listing';

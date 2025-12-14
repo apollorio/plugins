@@ -24,11 +24,11 @@ class Apollo_Email_Templates_CPT {
 	 * @return void
 	 */
 	public static function init(): void {
-		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
-		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_boxes' ) );
-		add_action( 'save_post', array( __CLASS__, 'save_meta' ) );
-		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'add_columns' ) );
-		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'render_column' ), 10, 2 );
+		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'add_meta_boxes', [ __CLASS__, 'add_meta_boxes' ] );
+		add_action( 'save_post', [ __CLASS__, 'save_meta' ] );
+		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', [ __CLASS__, 'add_columns' ] );
+		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', [ __CLASS__, 'render_column' ], 10, 2 );
 	}
 
 	/**
@@ -39,8 +39,8 @@ class Apollo_Email_Templates_CPT {
 	public static function register_post_type(): void {
 		register_post_type(
 			self::POST_TYPE,
-			array(
-				'labels'            => array(
+			[
+				'labels'            => [
 					'name'          => __( 'Email Templates', 'apollo-core' ),
 					'singular_name' => __( 'Email Template', 'apollo-core' ),
 					'add_new'       => __( 'Add New Template', 'apollo-core' ),
@@ -49,20 +49,20 @@ class Apollo_Email_Templates_CPT {
 					'new_item'      => __( 'New Email Template', 'apollo-core' ),
 					'view_item'     => __( 'View Email Template', 'apollo-core' ),
 					'search_items'  => __( 'Search Templates', 'apollo-core' ),
-				),
+				],
 				'public'            => false,
 				'show_ui'           => true,
 				'show_in_menu'      => false, // Will be added to Apollo Hub menu.
 				'show_in_admin_bar' => true,
 				'capability_type'   => 'post',
 				'hierarchical'      => false,
-				'supports'          => array( 'title', 'editor' ),
+				'supports'          => [ 'title', 'editor' ],
 				'has_archive'       => false,
 				'rewrite'           => false,
 				'query_var'         => false,
 				'can_export'        => true,
 				'show_in_rest'      => false,
-			)
+			]
 		);
 	}
 
@@ -75,7 +75,7 @@ class Apollo_Email_Templates_CPT {
 		add_meta_box(
 			'apollo_email_template_meta',
 			__( 'Template Settings', 'apollo-core' ),
-			array( __CLASS__, 'render_meta_box' ),
+			[ __CLASS__, 'render_meta_box' ],
 			self::POST_TYPE,
 			'side',
 			'default'
@@ -84,7 +84,7 @@ class Apollo_Email_Templates_CPT {
 		add_meta_box(
 			'apollo_email_template_placeholders',
 			__( 'Available Placeholders', 'apollo-core' ),
-			array( __CLASS__, 'render_placeholders_box' ),
+			[ __CLASS__, 'render_placeholders_box' ],
 			self::POST_TYPE,
 			'normal',
 			'low'
@@ -150,28 +150,28 @@ class Apollo_Email_Templates_CPT {
 	 * @return void
 	 */
 	public static function render_placeholders_box( \WP_Post $post ): void {
-		$placeholders = array(
-			'User'   => array(
+		$placeholders = [
+			'User'   => [
 				'{{user_name}}'  => __( 'User display name', 'apollo-core' ),
 				'{{user_email}}' => __( 'User email address', 'apollo-core' ),
 				'{{first_name}}' => __( 'User first name', 'apollo-core' ),
 				'{{last_name}}'  => __( 'User last name', 'apollo-core' ),
-			),
-			'Event'  => array(
+			],
+			'Event'  => [
 				'{{event_title}}' => __( 'Event title', 'apollo-core' ),
 				'{{event_date}}'  => __( 'Event date', 'apollo-core' ),
 				'{{event_venue}}' => __( 'Event venue', 'apollo-core' ),
 				'{{event_url}}'   => __( 'Event URL', 'apollo-core' ),
-			),
-			'Site'   => array(
+			],
+			'Site'   => [
 				'{{site_name}}' => __( 'Site name', 'apollo-core' ),
 				'{{site_url}}'  => __( 'Site URL', 'apollo-core' ),
-			),
-			'System' => array(
+			],
+			'System' => [
 				'{{confirm_url}}'   => __( 'Confirmation URL (for registration)', 'apollo-core' ),
 				'{{producer_name}}' => __( 'Producer/Event creator name', 'apollo-core' ),
-			),
-		);
+			],
+		];
 
 		?>
 		<div class="apollo-placeholders-help">
@@ -248,7 +248,7 @@ class Apollo_Email_Templates_CPT {
 	 * @return array
 	 */
 	public static function add_columns( array $columns ): array {
-		$new_columns = array();
+		$new_columns = [];
 		foreach ( $columns as $key => $value ) {
 			$new_columns[ $key ] = $value;
 			if ( 'title' === $key ) {

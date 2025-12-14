@@ -21,8 +21,8 @@ class Apollo_Moderation_Suspension {
 	 * Initialize
 	 */
 	public static function init() {
-		add_filter( 'authenticate', array( __CLASS__, 'check_suspension' ), 30, 3 );
-		add_action( 'wp_login', array( __CLASS__, 'clear_expired_suspension' ), 10, 2 );
+		add_filter( 'authenticate', [ __CLASS__, 'check_suspension' ], 30, 3 );
+		add_action( 'wp_login', [ __CLASS__, 'clear_expired_suspension' ], 10, 2 );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class Apollo_Moderation_Suspension {
 				return new WP_Error(
 					'blocked',
 					__( 'Your account has been blocked by an administrator. Please contact support.', 'apollo-core' ),
-					array( 'status' => 403 )
+					[ 'status' => 403 ]
 				);
 			}
 
@@ -55,7 +55,7 @@ class Apollo_Moderation_Suspension {
 						__( 'Your account is suspended until %s.', 'apollo-core' ),
 						gmdate( 'Y-m-d H:i:s', intval( $suspended_until ) )
 					),
-					array( 'status' => 403 )
+					[ 'status' => 403 ]
 				);
 			}
 		}//end if
@@ -104,11 +104,11 @@ class Apollo_Moderation_Suspension {
 			'suspend_user',
 			'user',
 			$user_id,
-			array(
+			[
 				'days'   => $days,
 				'until'  => gmdate( 'Y-m-d H:i:s', $until ),
 				'reason' => $reason,
-			)
+			]
 		);
 
 		return true;
@@ -140,7 +140,7 @@ class Apollo_Moderation_Suspension {
 			'block_user',
 			'user',
 			$user_id,
-			array( 'reason' => $reason )
+			[ 'reason' => $reason ]
 		);
 
 		return true;
@@ -171,7 +171,7 @@ class Apollo_Moderation_Suspension {
 			'unblock_user',
 			'user',
 			$user_id,
-			array()
+			[]
 		);
 
 		return true;

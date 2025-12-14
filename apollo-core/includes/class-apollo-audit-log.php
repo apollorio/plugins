@@ -24,23 +24,23 @@ class Apollo_Audit_Log {
 	 * @param array  $data Event data including actor_id, target_type, target_id, message, context, severity.
 	 * @return bool|int Insert ID or false on failure.
 	 */
-	public static function log_event( $event_type, $data = array() ) {
+	public static function log_event( $event_type, $data = [] ) {
 		global $wpdb;
 
 		// Check if audit logging is enabled.
-		$settings = get_option( 'apollo_mod_settings', array() );
+		$settings = get_option( 'apollo_mod_settings', [] );
 		if ( empty( $settings['audit_log_enabled'] ) ) {
 			return false;
 		}
 
-		$defaults = array(
+		$defaults = [
 			'actor_id'    => get_current_user_id(),
 			'target_type' => null,
 			'target_id'   => null,
 			'severity'    => 'info',
 			'message'     => '',
-			'context'     => array(),
-		);
+			'context'     => [],
+		];
 
 		$data = wp_parse_args( $data, $defaults );
 
@@ -56,20 +56,20 @@ class Apollo_Audit_Log {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Audit logs stored in custom table.
 		$result = $wpdb->insert(
 			$wpdb->prefix . 'apollo_audit_log',
-			array(
+			[
 				'event_type'    => sanitize_key( $event_type ),
 				'actor_id'      => intval( $data['actor_id'] ),
 				'actor_ip_hash' => $ip_hash,
 				'target_type'   => $data['target_type'] ? sanitize_key( $data['target_type'] ) : null,
 				'target_id'     => $data['target_id'] ? intval( $data['target_id'] ) : null,
-				'severity'      => in_array( $data['severity'], array( 'info', 'warning', 'critical' ), true ) ? $data['severity'] : 'info',
+				'severity'      => in_array( $data['severity'], [ 'info', 'warning', 'critical' ], true ) ? $data['severity'] : 'info',
 				'message'       => sanitize_text_field( $data['message'] ),
 				'context'       => $context_json,
-			),
-			array( '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s' )
+			],
+			[ '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s' ]
 		);
 
-		if ( false === $result ) {
+		if ( $result === false ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Audit log failures should be logged.
 			error_log( 'Apollo Audit Log: Failed to insert audit event: ' . $wpdb->last_error );
 
@@ -85,10 +85,10 @@ class Apollo_Audit_Log {
 	 * @param array $args Query arguments.
 	 * @return array Audit log entries.
 	 */
-	public static function get_entries( $args = array() ) {
+	public static function get_entries( $args = [] ) {
 		global $wpdb;
 
-		$defaults = array(
+		$defaults = [
 			'event_type' => '',
 			'actor_id'   => '',
 			'severity'   => '',
@@ -96,12 +96,12 @@ class Apollo_Audit_Log {
 			'offset'     => 0,
 			'orderby'    => 'created_at',
 			'order'      => 'DESC',
-		);
+		];
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$where  = array();
-		$values = array();
+		$where  = [];
+		$values = [];
 
 		if ( ! empty( $args['event_type'] ) ) {
 			$where[]  = 'event_type = %s';
@@ -128,14 +128,17 @@ class Apollo_Audit_Log {
 			$offset = (int) $args['offset'];
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic table name and WHERE clause.
 			$query  = "SELECT * FROM {$table_name} {$where_clause} {$order_clause} LIMIT %d OFFSET %d";
-			$params = array_merge( $values, array( $limit, $offset ) );
+			$params = array_merge( $values, [ $limit, $offset ] );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Audit logs require direct queries for security.
 			$results = $wpdb->get_results( $wpdb->prepare( $query, $params ) );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic table name, no WHERE needed.
-			$results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			// Build safe query with table name validation.
+			$table_name = $wpdb->_escape( $table_name ); // phpcs:ignore WordPress.DB.RestrictedFunctions.restricted_db_escape -- Table name is validated.
+			$order_clause = $wpdb->_escape( $order_clause ); // phpcs:ignore WordPress.DB.RestrictedFunctions.restricted_db_escape -- Order clause is validated.
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic table name validated, order clause validated.
+			$results = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$table_name} {$order_clause} LIMIT %d OFFSET %d",
+					"SELECT * FROM `{$table_name}` {$order_clause} LIMIT %d OFFSET %d",
 					$args['limit'],
 					$args['offset']
 				)
@@ -147,7 +150,7 @@ class Apollo_Audit_Log {
 			if ( ! empty( $result->context ) ) {
 				$result->context = json_decode( $result->context, true );
 			} else {
-				$result->context = array();
+				$result->context = [];
 			}
 		}
 

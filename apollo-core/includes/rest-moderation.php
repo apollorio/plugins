@@ -39,23 +39,23 @@ function apollo_register_mod_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'mod/aprovar',
-		array(
+		[
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'apollo_rest_approve_content',
 			'permission_callback' => 'apollo_rest_can_moderate',
-			'args'                => array(
-				'post_id' => array(
+			'args'                => [
+				'post_id' => [
 					'required'          => true,
 					'validate_callback' => function ( $param ) {
 						return is_numeric( $param );
 					},
 					'sanitize_callback' => 'absint',
-				),
-				'note'    => array(
+				],
+				'note'    => [
 					'sanitize_callback' => 'sanitize_textarea_field',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// Suspend user endpoint - DEPRECATED, forwards to Apollo_User_Moderation.
@@ -63,32 +63,32 @@ function apollo_register_mod_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'users/suspender',
-		array(
+		[
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'apollo_rest_suspend_user',
 			'permission_callback' => function () {
 				return is_user_logged_in() && current_user_can( 'suspend_users' );
 			},
-			'args'                => array(
-				'user_id' => array(
+			'args'                => [
+				'user_id' => [
 					'required'          => true,
 					'validate_callback' => function ( $param ) {
 						return is_numeric( $param );
 					},
 					'sanitize_callback' => 'absint',
-				),
-				'days'    => array(
+				],
+				'days'    => [
 					'required'          => true,
 					'validate_callback' => function ( $param ) {
 						return is_numeric( $param ) && $param > 0;
 					},
 					'sanitize_callback' => 'absint',
-				),
-				'reason'  => array(
+				],
+				'reason'  => [
 					'sanitize_callback' => 'sanitize_textarea_field',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// Block user endpoint - DEPRECATED, forwards to Apollo_User_Moderation.
@@ -96,25 +96,25 @@ function apollo_register_mod_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'users/bloquear',
-		array(
+		[
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'apollo_rest_block_user',
 			'permission_callback' => function () {
 				return is_user_logged_in() && current_user_can( 'block_users' );
 			},
-			'args'                => array(
-				'user_id' => array(
+			'args'                => [
+				'user_id' => [
 					'required'          => true,
 					'validate_callback' => function ( $param ) {
 						return is_numeric( $param );
 					},
 					'sanitize_callback' => 'absint',
-				),
-				'reason'  => array(
+				],
+				'reason'  => [
 					'sanitize_callback' => 'sanitize_textarea_field',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 }
 add_action( 'rest_api_init', 'apollo_register_mod_rest_routes' );
@@ -129,7 +129,7 @@ function apollo_rest_can_moderate() {
 		return new WP_Error(
 			'rest_not_logged_in',
 			__( 'You must be logged in to perform this action.', 'apollo-core' ),
-			array( 'status' => 401 )
+			[ 'status' => 401 ]
 		);
 	}
 
@@ -137,7 +137,7 @@ function apollo_rest_can_moderate() {
 		return new WP_Error(
 			'rest_forbidden',
 			__( 'You do not have permission to moderate content.', 'apollo-core' ),
-			array( 'status' => 403 )
+			[ 'status' => 403 ]
 		);
 	}
 
@@ -161,16 +161,16 @@ function apollo_rest_approve_content( $request ) {
 			return new WP_Error(
 				'post_not_found',
 				__( 'Post not found.', 'apollo-core' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
 		// Check if post is draft.
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
+		if ( ! in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 			return new WP_Error(
 				'post_not_draft',
 				__( 'Only draft or pending posts can be approved.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -184,16 +184,16 @@ function apollo_rest_approve_content( $request ) {
 					__( 'Publishing %s is not currently enabled.', 'apollo-core' ),
 					$post->post_type
 				),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
 		// Publish the post.
 		$result = wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'publish',
-			),
+			],
 			true
 		);
 
@@ -207,23 +207,23 @@ function apollo_rest_approve_content( $request ) {
 			'approve_post',
 			$post->post_type,
 			$post_id,
-			array( 'note' => $note )
+			[ 'note' => $note ]
 		);
 
 		// Get updated post.
 		$updated_post = get_post( $post_id );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Content approved and published successfully.', 'apollo-core' ),
-				'post'    => array(
+				'post'    => [
 					'id'     => $updated_post->ID,
 					'title'  => $updated_post->post_title,
 					'status' => $updated_post->post_status,
 					'link'   => get_permalink( $updated_post->ID ),
-				),
-			),
+				],
+			],
 			200
 		);
 	} catch ( Exception $e ) {
@@ -241,10 +241,10 @@ function apollo_rest_approve_content( $request ) {
 		return new WP_Error(
 			'approval_failed',
 			__( 'Failed to approve content. Please try again.', 'apollo-core' ),
-			array(
+			[
 				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
-			)
+			]
 		);
 	}//end try
 }
@@ -273,7 +273,7 @@ function apollo_rest_suspend_user( $request ) {
 		return new WP_Error(
 			'user_not_found',
 			__( 'User not found.', 'apollo-core' ),
-			array( 'status' => 404 )
+			[ 'status' => 404 ]
 		);
 	}
 
@@ -282,7 +282,7 @@ function apollo_rest_suspend_user( $request ) {
 		return new WP_Error(
 			'cannot_suspend_admin',
 			__( 'Cannot suspend an administrator.', 'apollo-core' ),
-			array( 'status' => 403 )
+			[ 'status' => 403 ]
 		);
 	}
 
@@ -297,27 +297,27 @@ function apollo_rest_suspend_user( $request ) {
 		'suspend_user',
 		'user',
 		$user_id,
-		array(
+		[
 			'days'   => $days,
 			'until'  => gmdate( 'Y-m-d H:i:s', $suspended_until ),
 			'reason' => $reason,
-		)
+		]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success' => true,
 			'message' => sprintf(
 				/* translators: %d: number of days */
 				__( 'User suspended for %d days.', 'apollo-core' ),
 				$days
 			),
-			'user'    => array(
+			'user'    => [
 				'id'              => $user_id,
 				'suspended_until' => gmdate( 'Y-m-d H:i:s', $suspended_until ),
 				'reason'          => $reason,
-			),
-		),
+			],
+		],
 		200
 	);
 }
@@ -345,7 +345,7 @@ function apollo_rest_block_user( $request ) {
 		return new WP_Error(
 			'user_not_found',
 			__( 'User not found.', 'apollo-core' ),
-			array( 'status' => 404 )
+			[ 'status' => 404 ]
 		);
 	}
 
@@ -354,7 +354,7 @@ function apollo_rest_block_user( $request ) {
 		return new WP_Error(
 			'cannot_block_admin',
 			__( 'Cannot block an administrator.', 'apollo-core' ),
-			array( 'status' => 403 )
+			[ 'status' => 403 ]
 		);
 	}
 
@@ -368,18 +368,18 @@ function apollo_rest_block_user( $request ) {
 		'block_user',
 		'user',
 		$user_id,
-		array( 'reason' => $reason )
+		[ 'reason' => $reason ]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success' => true,
 			'message' => __( 'User blocked successfully.', 'apollo-core' ),
-			'user'    => array(
+			'user'    => [
 				'id'     => $user_id,
 				'reason' => $reason,
-			),
-		),
+			],
+		],
 		200
 	);
 }
@@ -391,7 +391,7 @@ function apollo_rest_block_user( $request ) {
  * @return string|false Capability key or false if not mapped.
  */
 function apollo_map_post_type_to_capability( $post_type ) {
-	$map = array(
+	$map = [
 		'event_listing'      => 'publish_events',
 		'event_local'        => 'publish_locals',
 		'event_dj'           => 'publish_djs',
@@ -400,7 +400,7 @@ function apollo_map_post_type_to_capability( $post_type ) {
 		'apollo_social_post' => 'edit_posts',
 		'post'               => 'edit_posts',
 		'apollo_classified'  => 'edit_classifieds',
-	);
+	];
 
 	return isset( $map[ $post_type ] ) ? $map[ $post_type ] : false;
 }

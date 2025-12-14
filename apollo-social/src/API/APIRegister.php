@@ -20,8 +20,8 @@ class APIRegister {
 	 * Initialize API registration
 	 */
 	public function init(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
-		add_action( 'rest_api_init', array( $this, 'addCorsHeaders' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
+		add_action( 'rest_api_init', [ $this, 'addCorsHeaders' ] );
 	}
 
 	/**
@@ -35,11 +35,11 @@ class APIRegister {
 		register_rest_route(
 			'apollo/v1',
 			'/docs',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'getApiDocumentation' ),
+				'callback'            => [ $this, 'getApiDocumentation' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		// NOTE: /testando health check is registered in apollo-core/includes/class-rest-bootstrap.php
@@ -76,11 +76,11 @@ class APIRegister {
 	 */
 	private function isAllowedOrigin( string $origin ): bool {
 		$site_url        = get_site_url();
-		$allowed_origins = array(
+		$allowed_origins = [
 			$site_url,
 			str_replace( 'http://', 'https://', $site_url ),
 			str_replace( 'https://', 'http://', $site_url ),
-		);
+		];
 
 		// Allow localhost for development
 		if ( strpos( $origin, 'localhost' ) !== false || strpos( $origin, '127.0.0.1' ) !== false ) {
@@ -94,88 +94,88 @@ class APIRegister {
 	 * API documentation endpoint
 	 */
 	public function getApiDocumentation( \WP_REST_Request $request ): \WP_REST_Response {
-		$documentation = array(
+		$documentation = [
 			'version'        => '1.0.0',
 			'name'           => 'Apollo Onboarding API',
 			'description'    => 'REST API for Apollo conversational onboarding system',
-			'endpoints'      => array(
-				'GET /apollo/v1/integra/options'             => array(
+			'endpoints'      => [
+				'GET /apollo/v1/integra/options'             => [
 					'description'    => 'Get available industries, roles, and membership options',
 					'authentication' => 'required',
-					'response'       => array(
+					'response'       => [
 						'industries'  => 'object',
 						'roles'       => 'object',
 						'memberships' => 'object',
-					),
-				),
-				'POST /apollo/v1/integra/begin'              => array(
+					],
+				],
+				'POST /apollo/v1/integra/begin'              => [
 					'description'    => 'Begin onboarding process and validate user data',
 					'authentication' => 'required',
-					'parameters'     => array(
+					'parameters'     => [
 						'name'      => 'string (required)',
 						'industry'  => 'string (required)',
 						'roles'     => 'array (optional)',
 						'member_of' => 'array (optional)',
 						'whatsapp'  => 'string (optional)',
 						'instagram' => 'string (optional)',
-					),
-				),
-				'POST /apollo/v1/integra/complete'           => array(
+					],
+				],
+				'POST /apollo/v1/integra/complete'           => [
 					'description'    => 'Complete onboarding and create verification record',
 					'authentication' => 'required',
-					'parameters'     => array(
+					'parameters'     => [
 						'confirm' => 'boolean (required)',
-					),
-				),
-				'POST /apollo/v1/integra/verificar/upload'   => array(
+					],
+				],
+				'POST /apollo/v1/integra/verificar/upload'   => [
 					'description'    => 'Upload Instagram verification images',
 					'authentication' => 'required',
-					'parameters'     => array(
+					'parameters'     => [
 						'verification_images' => 'file[] (1-3 images, max 5MB each)',
-					),
-				),
-				'GET /apollo/v1/integra/verificar/status'    => array(
+					],
+				],
+				'GET /apollo/v1/integra/verificar/status'    => [
 					'description'    => 'Get current verification status',
 					'authentication' => 'required',
-				),
-				'DELETE /apollo/v1/integra/verificar/delete' => array(
+				],
+				'DELETE /apollo/v1/integra/verificar/delete' => [
 					'description'    => 'Delete verification assets for re-upload',
 					'authentication' => 'required',
-				),
-				'GET /apollo/v1/integra/profile'             => array(
+				],
+				'GET /apollo/v1/integra/profile'             => [
 					'description'    => 'Get user onboarding profile data',
 					'authentication' => 'required',
-				),
-			),
-			'authentication' => array(
+				],
+			],
+			'authentication' => [
 				'type'        => 'WordPress Authentication',
 				'description' => 'Uses WordPress user authentication and nonce verification',
-				'headers'     => array(
+				'headers'     => [
 					'X-WP-Nonce' => 'WordPress nonce for CSRF protection',
-				),
-			),
-			'rate_limiting'  => array(
+				],
+			],
+			'rate_limiting'  => [
 				'description' => 'Rate limited to 100 requests per hour per IP',
-				'headers'     => array(
+				'headers'     => [
 					'X-RateLimit-Limit'     => 'Request limit per hour',
 					'X-RateLimit-Remaining' => 'Remaining requests',
-				),
-			),
-			'errors'         => array(
-				'format'     => array(
+				],
+			],
+			'errors'         => [
+				'format'     => [
 					'success' => false,
 					'message' => 'Human readable error message',
 					'errors'  => 'Field-specific validation errors (optional)',
-				),
-				'http_codes' => array(
+				],
+				'http_codes' => [
 					'200' => 'Success',
 					'400' => 'Bad Request / Validation Error',
 					'401' => 'Unauthorized',
 					'429' => 'Rate Limited',
 					'500' => 'Internal Server Error',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		return new \WP_REST_Response( $documentation, 200 );
 	}
@@ -186,12 +186,12 @@ class APIRegister {
 	public function healthCheck( \WP_REST_Request $request ): \WP_REST_Response {
 		global $wpdb;
 
-		$health = array(
+		$health = [
 			'status'    => 'healthy',
 			'timestamp' => current_time( 'mysql' ),
 			'version'   => '1.0.0',
-			'checks'    => array(),
-		);
+			'checks'    => [],
+		];
 
 		// Database check
 		try {
@@ -203,13 +203,13 @@ class APIRegister {
 		}
 
 		// Tables check
-		$required_tables = array(
+		$required_tables = [
 			$wpdb->prefix . 'apollo_verifications',
 			$wpdb->prefix . 'apollo_audit_log',
 			$wpdb->prefix . 'apollo_analytics_events',
-		);
+		];
 
-		$missing_tables = array();
+		$missing_tables = [];
 		foreach ( $required_tables as $table ) {
 			if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) != $table ) {
 				$missing_tables[] = $table;

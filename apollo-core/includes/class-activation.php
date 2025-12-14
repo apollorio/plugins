@@ -160,15 +160,15 @@ class Apollo_Core_Activation {
 	 * Create default options
 	 */
 	private static function create_options() {
-		$default_settings = array(
+		$default_settings = [
 			'auto_approve_events' => false,
 			'auto_approve_posts'  => false,
-			'require_mod'         => array( 'event_listing', 'apollo_social_post' ),
-			'mod_roles'           => array( 'apollo', 'editor', 'administrator' ),
+			'require_mod'         => [ 'event_listing', 'apollo_social_post' ],
+			'mod_roles'           => [ 'apollo', 'editor', 'administrator' ],
 			'audit_log_enabled'   => true,
 			'canvas_mode_enabled' => true,
 			'migration_completed' => false,
-		);
+		];
 
 		add_option( 'apollo_mod_settings', $default_settings );
 	}

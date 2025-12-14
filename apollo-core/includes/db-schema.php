@@ -77,7 +77,7 @@ function apollo_create_db_tables(): void {
  * @param array  $details     Additional details as associative array.
  * @return int|false Insert ID on success, false on failure.
  */
-function apollo_mod_log_action( int $actor_id, string $action, string $target_type, int $target_id, array $details = array() ): int|false {
+function apollo_mod_log_action( int $actor_id, string $action, string $target_type, int $target_id, array $details = [] ): int|false {
 	// Check if audit log is enabled.
 	$settings = apollo_get_mod_settings();
 	if ( empty( $settings['audit_log_enabled'] ) ) {
@@ -96,7 +96,7 @@ function apollo_mod_log_action( int $actor_id, string $action, string $target_ty
 
 	$result = $wpdb->insert(
 		$table,
-		array(
+		[
 			'actor_id'    => absint( $actor_id ),
 			'actor_role'  => sanitize_text_field( $actor_role ),
 			'action'      => sanitize_text_field( $action ),
@@ -104,8 +104,8 @@ function apollo_mod_log_action( int $actor_id, string $action, string $target_ty
 			'target_id'   => absint( $target_id ),
 			'details'     => $details_json,
 			'created_at'  => current_time( 'mysql', 1 ),
-		),
-		array( '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+		],
+		[ '%d', '%s', '%s', '%s', '%d', '%s', '%s' ]
 	);
 
 	return $result ? $wpdb->insert_id : false;
@@ -117,11 +117,11 @@ function apollo_mod_log_action( int $actor_id, string $action, string $target_ty
  * @param array $args Query arguments.
  * @return array Array of log entries.
  */
-function apollo_get_mod_log( array $args = array() ): array {
+function apollo_get_mod_log( array $args = [] ): array {
 	global $wpdb;
 	$table = $wpdb->prefix . 'apollo_mod_log';
 
-	$defaults = array(
+	$defaults = [
 		'actor_id'    => null,
 		'action'      => null,
 		'target_type' => null,
@@ -130,13 +130,13 @@ function apollo_get_mod_log( array $args = array() ): array {
 		'offset'      => 0,
 		'orderby'     => 'created_at',
 		'order'       => 'DESC',
-	);
+	];
 
 	$args = wp_parse_args( $args, $defaults );
 
 	// Build WHERE clause.
-	$where  = array( '1=1' );
-	$values = array();
+	$where  = [ '1=1' ];
+	$values = [];
 
 	if ( $args['actor_id'] ) {
 		$where[]  = 'actor_id = %d';
@@ -161,7 +161,7 @@ function apollo_get_mod_log( array $args = array() ): array {
 	$where_clause = implode( ' AND ', $where );
 
 	// Add ORDER BY and LIMIT.
-	$orderby = in_array( $args['orderby'], array( 'id', 'created_at', 'actor_id' ), true ) ? $args['orderby'] : 'created_at';
+	$orderby = in_array( $args['orderby'], [ 'id', 'created_at', 'actor_id' ], true ) ? $args['orderby'] : 'created_at';
 	$order   = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
 	$sql = "SELECT * FROM $table WHERE $where_clause ORDER BY $orderby $order LIMIT %d OFFSET %d";

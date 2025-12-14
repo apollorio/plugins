@@ -58,7 +58,7 @@ class Apollo_Email_Service {
 
 		// Process template if provided.
 		if ( ! empty( $message_data['template_slug'] ) ) {
-			$template_html = $this->load_template( $message_data['template_slug'], $message_data['variables'] ?? array() );
+			$template_html = $this->load_template( $message_data['template_slug'], $message_data['variables'] ?? [] );
 			if ( is_wp_error( $template_html ) ) {
 				return $template_html;
 			}
@@ -82,7 +82,7 @@ class Apollo_Email_Service {
 		}
 
 		// Prepare headers.
-		$headers = $message_data['headers'] ?? array();
+		$headers = $message_data['headers'] ?? [];
 		if ( ! in_array( 'Content-Type: text/html; charset=UTF-8', $headers, true ) ) {
 			$headers[] = 'Content-Type: text/html; charset=UTF-8';
 		}
@@ -93,7 +93,7 @@ class Apollo_Email_Service {
 			$message_data['subject'] ?? '',
 			$message_data['body_html'] ?? '',
 			$headers,
-			$message_data['attachments'] ?? array()
+			$message_data['attachments'] ?? []
 		);
 
 		// Log result.
@@ -112,7 +112,7 @@ class Apollo_Email_Service {
 	 * @param array  $variables     Variables to replace.
 	 * @return string|WP_Error Template HTML or error.
 	 */
-	public function load_template( string $template_slug, array $variables = array() ): string|WP_Error {
+	public function load_template( string $template_slug, array $variables = [] ): string|WP_Error {
 		// Try to load from CPT first.
 		$template_post = get_page_by_path( $template_slug, OBJECT, 'apollo_email_template' );
 		if ( ! $template_post && is_numeric( $template_slug ) ) {
@@ -140,7 +140,7 @@ class Apollo_Email_Service {
 	 * @return array|WP_Error Flow config or error.
 	 */
 	public function get_flow_config( string $flow_slug ): array|WP_Error {
-		$flows = get_option( 'apollo_email_flows', array() );
+		$flows = get_option( 'apollo_email_flows', [] );
 
 		if ( ! isset( $flows[ $flow_slug ] ) ) {
 			return new WP_Error( 'flow_not_found', __( 'Email flow not configured', 'apollo-core' ) );
@@ -180,11 +180,11 @@ class Apollo_Email_Service {
 	 * @return string Template HTML.
 	 */
 	private function get_default_template( string $template_slug ): string {
-		$defaults = array(
+		$defaults = [
 			'registration_confirm' => $this->get_default_registration_template(),
 			'producer_notify'      => $this->get_default_producer_template(),
 			'general'              => $this->get_default_general_template(),
-		);
+		];
 
 		return $defaults[ $template_slug ] ?? '';
 	}
@@ -286,11 +286,11 @@ HTML;
 		$sample_variables = $this->get_sample_variables( $flow_slug );
 
 		return $this->send(
-			array(
+			[
 				'to'        => $test_email,
 				'flow'      => $flow_slug,
 				'variables' => $sample_variables,
-			)
+			]
 		);
 	}
 
@@ -301,26 +301,26 @@ HTML;
 	 * @return array Sample variables.
 	 */
 	public function get_sample_variables( string $flow_slug ): array {
-		$samples = array(
-			'registration_confirm' => array(
+		$samples = [
+			'registration_confirm' => [
 				'user_name'   => 'João Silva',
 				'confirm_url' => home_url( '/confirmar?token=test123' ),
 				'site_name'   => get_bloginfo( 'name' ),
-			),
-			'producer_notify'      => array(
+			],
+			'producer_notify'      => [
 				'producer_name' => 'Maria Santos',
 				'event_title'   => 'Sunset Sessions Vol. 5',
 				'event_date'    => 'Sábado, 25 de Março de 2024',
 				'event_venue'   => 'Club Rio',
 				'event_url'     => home_url( '/evento/sunset-sessions' ),
 				'site_name'     => get_bloginfo( 'name' ),
-			),
-		);
+			],
+		];
 
-		return $samples[ $flow_slug ] ?? array(
+		return $samples[ $flow_slug ] ?? [
 			'site_name' => get_bloginfo( 'name' ),
 			'content'   => 'Este é um email de teste do sistema Apollo.',
-		);
+		];
 	}
 
 	/**
@@ -335,13 +335,13 @@ HTML;
 			return;
 		}
 
-		$log_data = array(
+		$log_data = [
 			'flow'      => $message_data['flow'] ?? 'manual',
 			'to'        => $this->mask_email( $message_data['to'] ?? '' ),
 			'subject'   => $message_data['subject'] ?? '',
 			'success'   => $result,
 			'timestamp' => current_time( 'mysql' ),
-		);
+		];
 
 		error_log( '[Apollo Email] ' . wp_json_encode( $log_data ) );
 	}

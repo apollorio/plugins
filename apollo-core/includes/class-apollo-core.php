@@ -85,8 +85,8 @@ final class Apollo_Core {
 	 * Initialize hooks
 	 */
 	private function init_hooks() {
-		add_action( 'plugins_loaded', array( $this, 'init' ), 0 );
-		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'plugins_loaded', [ $this, 'init' ], 0 );
+		add_action( 'init', [ $this, 'load_textdomain' ] );
 	}
 
 	/**
@@ -129,7 +129,7 @@ final class Apollo_Core {
 
 		if ( version_compare( $migration_version, APOLLO_CORE_VERSION, '<' ) ) {
 			// Migration needed - admin will trigger manually.
-			add_action( 'admin_notices', array( $this, 'migration_notice' ) );
+			add_action( 'admin_notices', [ $this, 'migration_notice' ] );
 		}
 	}
 

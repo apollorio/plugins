@@ -44,9 +44,9 @@ class Apollo_Moderation_Audit_Log {
 	 * @param array  $details Additional details.
 	 * @return bool|int Insert ID or false on failure.
 	 */
-	public static function log_action( $actor_id, $action, $target_type, $target_id, $details = array() ) {
+	public static function log_action( $actor_id, $action, $target_type, $target_id, $details = [] ) {
 		// Check if audit log is enabled.
-		$settings = get_option( 'apollo_mod_settings', array() );
+		$settings = get_option( 'apollo_mod_settings', [] );
 		if ( empty( $settings['audit_log_enabled'] ) ) {
 			return false;
 		}
@@ -59,7 +59,7 @@ class Apollo_Moderation_Audit_Log {
 
 		$result = $wpdb->insert(
 			$table,
-			array(
+			[
 				'actor_id'    => $actor_id,
 				'actor_role'  => $actor_role,
 				'action'      => $action,
@@ -67,8 +67,8 @@ class Apollo_Moderation_Audit_Log {
 				'target_id'   => $target_id,
 				'details'     => wp_json_encode( $details ),
 				'created_at'  => current_time( 'mysql', 1 ),
-			),
-			array( '%d', '%s', '%s', '%s', '%d', '%s', '%s' )
+			],
+			[ '%d', '%s', '%s', '%s', '%d', '%s', '%s' ]
 		);
 
 		return $result ? $wpdb->insert_id : false;

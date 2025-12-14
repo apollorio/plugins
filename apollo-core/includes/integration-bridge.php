@@ -65,30 +65,30 @@ if ( ! function_exists( 'apollo_get_plugin_data' ) ) {
 	 * @return array Plugin data or empty array
 	 */
 	function apollo_get_plugin_data( string $plugin ): array {
-		$plugins = array(
-			'core'   => array(
+		$plugins = [
+			'core'   => [
 				'slug'             => 'apollo-core',
 				'file'             => 'apollo-core/apollo-core.php',
 				'version_constant' => 'APOLLO_CORE_VERSION',
-			),
-			'social' => array(
+			],
+			'social' => [
 				'slug'             => 'apollo-social',
 				'file'             => 'apollo-social/apollo-social.php',
 				'version_constant' => 'APOLLO_SOCIAL_VERSION',
-			),
-			'events' => array(
+			],
+			'events' => [
 				'slug'             => 'apollo-events-manager',
 				'file'             => 'apollo-events-manager/apollo-events-manager.php',
 				'version_constant' => 'APOLLO_APRIO_VERSION',
-			),
-			'rio'    => array(
+			],
+			'rio'    => [
 				'slug'             => 'apollo-rio',
 				'file'             => 'apollo-rio/apollo-rio.php',
 				'version_constant' => 'APOLLO_RIO_VERSION',
-			),
-		);
+			],
+		];
 
-		return $plugins[ $plugin ] ?? array();
+		return $plugins[ $plugin ] ?? [];
 	}
 }//end if
 
@@ -194,19 +194,19 @@ if ( ! function_exists( 'apollo_get_template' ) ) {
 	 * @return string|false Template path or false if not found
 	 */
 	function apollo_get_template( string $template_name, string $plugin = 'core' ) {
-		$paths = array();
+		$paths = [];
 
 		// Theme can override templates
 		$paths[] = get_stylesheet_directory() . '/apollo/' . $template_name;
 		$paths[] = get_template_directory() . '/apollo/' . $template_name;
 
 		// Plugin-specific templates
-		$plugin_dirs = array(
+		$plugin_dirs = [
 			'core'   => defined( 'APOLLO_CORE_PLUGIN_DIR' ) ? APOLLO_CORE_PLUGIN_DIR : '',
 			'social' => defined( 'APOLLO_SOCIAL_PLUGIN_DIR' ) ? APOLLO_SOCIAL_PLUGIN_DIR : '',
 			'events' => defined( 'APOLLO_APRIO_PATH' ) ? APOLLO_APRIO_PATH : '',
 			'rio'    => defined( 'APOLLO_RIO_PATH' ) ? APOLLO_RIO_PATH : '',
-		);
+		];
 
 		// Prioritize specified plugin
 		if ( ! empty( $plugin_dirs[ $plugin ] ) ) {
@@ -268,7 +268,7 @@ if ( ! function_exists( 'apollo_enqueue_canvas_assets' ) ) {
 			wp_enqueue_style(
 				'apollo-uni-css',
 				apollo_get_asset_url( 'uni.css' ),
-				array(),
+				[],
 				defined( 'APOLLO_CORE_VERSION' ) ? APOLLO_CORE_VERSION : '1.0.0'
 			);
 		}
@@ -409,27 +409,27 @@ if ( ! function_exists( 'apollo_add_notification' ) ) {
 	 * @param array  $data Additional data
 	 * @return int|false Notification ID or false on failure
 	 */
-	function apollo_add_notification( int $user_id, string $type, string $message, array $data = array() ) {
+	function apollo_add_notification( int $user_id, string $type, string $message, array $data = [] ) {
 		/**
 		 * Filter: apollo_notification_before_create
 		 * Allows modifying notification before creation
 		 */
 		$notification = apply_filters(
 			'apollo_notification_before_create',
-			array(
+			[
 				'user_id'    => $user_id,
 				'type'       => $type,
 				'message'    => $message,
 				'data'       => $data,
 				'created_at' => current_time( 'mysql' ),
 				'read'       => false,
-			)
+			]
 		);
 
 		// Store notification (implementation depends on storage method)
 		$notifications = get_user_meta( $user_id, 'apollo_notifications', true );
 		if ( ! is_array( $notifications ) ) {
-			$notifications = array();
+			$notifications = [];
 		}
 
 		$notification['id'] = count( $notifications ) + 1;
@@ -458,25 +458,25 @@ if ( ! function_exists( 'apollo_get_ecosystem_status' ) ) {
 	 * @return array Status of each plugin
 	 */
 	function apollo_get_ecosystem_status(): array {
-		return array(
-			'core'   => array(
+		return [
+			'core'   => [
 				'active'                          => true,
 				// Core is running if this code executes
 										'version' => defined( 'APOLLO_CORE_VERSION' ) ? APOLLO_CORE_VERSION : 'unknown',
-			),
-			'social' => array(
+			],
+			'social' => [
 				'active'  => apollo_is_plugin_active( 'social' ),
 				'version' => defined( 'APOLLO_SOCIAL_VERSION' ) ? APOLLO_SOCIAL_VERSION : 'unknown',
-			),
-			'events' => array(
+			],
+			'events' => [
 				'active'  => apollo_is_plugin_active( 'events' ),
 				'version' => defined( 'APOLLO_APRIO_VERSION' ) ? APOLLO_APRIO_VERSION : 'unknown',
-			),
-			'rio'    => array(
+			],
+			'rio'    => [
 				'active'  => apollo_is_plugin_active( 'rio' ),
 				'version' => defined( 'APOLLO_RIO_VERSION' ) ? APOLLO_RIO_VERSION : 'unknown',
-			),
-		);
+			],
+		];
 	}
 }//end if
 
@@ -496,40 +496,40 @@ if ( ! function_exists( 'apollo_get_shared_taxonomies' ) ) {
 	function apollo_get_shared_taxonomies(): array {
 		return apply_filters(
 			'apollo_shared_taxonomies',
-			array(
+			[
 				// From Events Manager
-				'event_sounds'           => array(
+				'event_sounds'           => [
 					'plugin'     => 'events',
-					'post_types' => array( 'event_listing', 'event_dj' ),
+					'post_types' => [ 'event_listing', 'event_dj' ],
 					'label'      => __( 'Sons/Gêneros', 'apollo-core' ),
 					'rest_base'  => 'event-sounds',
-				),
-				'event_listing_category' => array(
+				],
+				'event_listing_category' => [
 					'plugin'     => 'events',
-					'post_types' => array( 'event_listing' ),
+					'post_types' => [ 'event_listing' ],
 					'label'      => __( 'Categorias de Evento', 'apollo-core' ),
 					'rest_base'  => 'event-categories',
-				),
-				'event_listing_type'     => array(
+				],
+				'event_listing_type'     => [
 					'plugin'     => 'events',
-					'post_types' => array( 'event_listing' ),
+					'post_types' => [ 'event_listing' ],
 					'label'      => __( 'Tipos de Evento', 'apollo-core' ),
 					'rest_base'  => 'event-types',
-				),
-				'event_listing_tag'      => array(
+				],
+				'event_listing_tag'      => [
 					'plugin'     => 'events',
-					'post_types' => array( 'event_listing' ),
+					'post_types' => [ 'event_listing' ],
 					'label'      => __( 'Tags de Evento', 'apollo-core' ),
 					'rest_base'  => 'event-tags',
-				),
+				],
 				// From Social
-				'apollo_post_category'   => array(
+				'apollo_post_category'   => [
 					'plugin'     => 'social',
-					'post_types' => array( 'apollo_social_post' ),
+					'post_types' => [ 'apollo_social_post' ],
 					'label'      => __( 'Categorias de Post', 'apollo-core' ),
 					'rest_base'  => 'post-categories',
-				),
-			)
+				],
+			]
 		);
 	}
 }//end if
@@ -588,7 +588,7 @@ if ( ! function_exists( 'apollo_get_sounds' ) ) {
 			// This ensures Social plugin can work independently
 			return apply_filters(
 				'apollo_fallback_sounds',
-				array(
+				[
 					'house'       => 'House',
 					'techno'      => 'Techno',
 					'trance'      => 'Trance',
@@ -601,22 +601,22 @@ if ( ! function_exists( 'apollo_get_sounds' ) ) {
 					'funk'        => 'Funk',
 					'disco'       => 'Disco',
 					'tribal'      => 'Tribal',
-				)
+				]
 			);
 		}//end if
 
 		$terms = get_terms(
-			array(
+			[
 				'taxonomy'   => $taxonomy,
 				'hide_empty' => $hide_empty,
-			)
+			]
 		);
 
 		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return array();
+			return [];
 		}
 
-		$sounds = array();
+		$sounds = [];
 		foreach ( $terms as $term ) {
 			$sounds[ $term->slug ] = $term->name;
 		}
@@ -650,7 +650,7 @@ if ( ! function_exists( 'apollo_get_user_sounds' ) ) {
 	function apollo_get_user_sounds( int $user_id ): array {
 		$sounds = get_user_meta( $user_id, 'apollo_sounds', true );
 
-		return is_array( $sounds ) ? $sounds : array();
+		return is_array( $sounds ) ? $sounds : [];
 	}
 }
 
@@ -667,64 +667,64 @@ if ( ! function_exists( 'apollo_get_shared_cpts' ) ) {
 	function apollo_get_shared_cpts(): array {
 		return apply_filters(
 			'apollo_shared_cpts',
-			array(
+			[
 				// Events Manager CPTs
-				'event_listing'      => array(
+				'event_listing'      => [
 					'plugin'   => 'events',
 					'label'    => __( 'Eventos', 'apollo-core' ),
 					'singular' => __( 'Evento', 'apollo-core' ),
 					'icon'     => 'dashicons-calendar-alt',
-				),
-				'event_dj'           => array(
+				],
+				'event_dj'           => [
 					'plugin'   => 'events',
 					'label'    => __( 'DJs', 'apollo-core' ),
 					'singular' => __( 'DJ', 'apollo-core' ),
 					'icon'     => 'dashicons-admin-users',
-				),
-				'event_local'        => array(
+				],
+				'event_local'        => [
 					'plugin'   => 'events',
 					'label'    => __( 'Locais', 'apollo-core' ),
 					'singular' => __( 'Local', 'apollo-core' ),
 					'icon'     => 'dashicons-location',
-				),
+				],
 				// Social CPTs
-				'apollo_social_post' => array(
+				'apollo_social_post' => [
 					'plugin'   => 'social',
 					'label'    => __( 'Posts Sociais', 'apollo-core' ),
 					'singular' => __( 'Post', 'apollo-core' ),
 					'icon'     => 'dashicons-format-status',
-				),
-				'apollo_home'        => array(
+				],
+				'apollo_home'        => [
 					'plugin'   => 'social',
 					'label'    => __( 'Clubber Homes', 'apollo-core' ),
 					'singular' => __( 'Clubber Home', 'apollo-core' ),
 					'icon'     => 'dashicons-admin-home',
-				),
-				'apollo_document'    => array(
+				],
+				'apollo_document'    => [
 					'plugin'   => 'social',
 					'label'    => __( 'Documentos', 'apollo-core' ),
 					'singular' => __( 'Documento', 'apollo-core' ),
 					'icon'     => 'dashicons-media-document',
-				),
-				'user_page'          => array(
+				],
+				'user_page'          => [
 					'plugin'   => 'social',
 					'label'    => __( 'Páginas de Usuário', 'apollo-core' ),
 					'singular' => __( 'Página', 'apollo-core' ),
 					'icon'     => 'dashicons-id-alt',
-				),
-				'cena_rio_doc'       => array(
+				],
+				'cena_rio_doc'       => [
 					'plugin'   => 'social',
 					'label'    => __( 'Docs Cena::Rio', 'apollo-core' ),
 					'singular' => __( 'Doc', 'apollo-core' ),
 					'icon'     => 'dashicons-media-text',
-				),
-				'cena_rio_plan'      => array(
+				],
+				'cena_rio_plan'      => [
 					'plugin'   => 'social',
 					'label'    => __( 'Planos Cena::Rio', 'apollo-core' ),
 					'singular' => __( 'Plano', 'apollo-core' ),
 					'icon'     => 'dashicons-clipboard',
-				),
-			)
+				],
+			]
 		);
 	}
 }//end if
@@ -742,291 +742,291 @@ if ( ! function_exists( 'apollo_get_shared_meta_keys' ) ) {
 	function apollo_get_shared_meta_keys(): array {
 		return apply_filters(
 			'apollo_shared_meta_keys',
-			array(
+			[
 				// ==== EVENT META KEYS ====
-				'event' => array(
-					'_event_start_date'  => array(
+				'event' => [
+					'_event_start_date'  => [
 						'type'  => 'date',
 						'label' => __( 'Data de Início', 'apollo-core' ),
-					),
-					'_event_end_date'    => array(
+					],
+					'_event_end_date'    => [
 						'type'  => 'date',
 						'label' => __( 'Data de Fim', 'apollo-core' ),
-					),
-					'_event_start_time'  => array(
+					],
+					'_event_start_time'  => [
 						'type'  => 'time',
 						'label' => __( 'Hora de Início', 'apollo-core' ),
-					),
-					'_event_end_time'    => array(
+					],
+					'_event_end_time'    => [
 						'type'  => 'time',
 						'label' => __( 'Hora de Fim', 'apollo-core' ),
-					),
-					'_event_location'    => array(
+					],
+					'_event_location'    => [
 						'type'  => 'text',
 						'label' => __( 'Endereço', 'apollo-core' ),
-					),
-					'_event_local_id'    => array(
+					],
+					'_event_local_id'    => [
 						'type'  => 'post_id',
 						'label' => __( 'Local (ID)', 'apollo-core' ),
-					),
-					'_event_dj_ids'      => array(
+					],
+					'_event_dj_ids'      => [
 						'type'  => 'array',
 						'label' => __( 'DJs (IDs)', 'apollo-core' ),
-					),
-					'_event_lineup'      => array(
+					],
+					'_event_lineup'      => [
 						'type'  => 'array',
 						'label' => __( 'Line-up', 'apollo-core' ),
-					),
-					'_event_description' => array(
+					],
+					'_event_description' => [
 						'type'  => 'textarea',
 						'label' => __( 'Descrição', 'apollo-core' ),
-					),
-					'_tickets_ext'       => array(
+					],
+					'_tickets_ext'       => [
 						'type'  => 'url',
 						'label' => __( 'Link de Ingressos', 'apollo-core' ),
-					),
-					'_3_imagens_promo'   => array(
+					],
+					'_3_imagens_promo'   => [
 						'type'  => 'array',
 						'label' => __( 'Imagens Promo', 'apollo-core' ),
-					),
-					'_imagem_final'      => array(
+					],
+					'_imagem_final'      => [
 						'type'  => 'attachment',
 						'label' => __( 'Imagem Final', 'apollo-core' ),
-					),
-				),
+					],
+				],
 				// ==== DJ META KEYS ====
-				'dj'    => array(
-					'_dj_image'              => array(
+				'dj'    => [
+					'_dj_image'              => [
 						'type'  => 'attachment',
 						'label' => __( 'Avatar', 'apollo-core' ),
-					),
-					'_dj_banner'             => array(
+					],
+					'_dj_banner'             => [
 						'type'  => 'attachment',
 						'label' => __( 'Banner', 'apollo-core' ),
-					),
-					'_dj_website'            => array(
+					],
+					'_dj_website'            => [
 						'type'  => 'url',
 						'label' => __( 'Website', 'apollo-core' ),
-					),
-					'_dj_instagram'          => array(
+					],
+					'_dj_instagram'          => [
 						'type'  => 'text',
 						'label' => __( 'Instagram', 'apollo-core' ),
-					),
-					'_dj_facebook'           => array(
+					],
+					'_dj_facebook'           => [
 						'type'  => 'url',
 						'label' => __( 'Facebook', 'apollo-core' ),
-					),
-					'_dj_soundcloud'         => array(
+					],
+					'_dj_soundcloud'         => [
 						'type'  => 'url',
 						'label' => __( 'SoundCloud', 'apollo-core' ),
-					),
-					'_dj_spotify'            => array(
+					],
+					'_dj_spotify'            => [
 						'type'  => 'url',
 						'label' => __( 'Spotify', 'apollo-core' ),
-					),
-					'_dj_youtube'            => array(
+					],
+					'_dj_youtube'            => [
 						'type'  => 'url',
 						'label' => __( 'YouTube', 'apollo-core' ),
-					),
-					'_dj_mixcloud'           => array(
+					],
+					'_dj_mixcloud'           => [
 						'type'  => 'url',
 						'label' => __( 'Mixcloud', 'apollo-core' ),
-					),
-					'_dj_beatport'           => array(
+					],
+					'_dj_beatport'           => [
 						'type'  => 'url',
 						'label' => __( 'Beatport', 'apollo-core' ),
-					),
-					'_dj_bandcamp'           => array(
+					],
+					'_dj_bandcamp'           => [
 						'type'  => 'url',
 						'label' => __( 'Bandcamp', 'apollo-core' ),
-					),
-					'_dj_resident_advisor'   => array(
+					],
+					'_dj_resident_advisor'   => [
 						'type'  => 'url',
 						'label' => __( 'Resident Advisor', 'apollo-core' ),
-					),
-					'_dj_twitter'            => array(
+					],
+					'_dj_twitter'            => [
 						'type'  => 'text',
 						'label' => __( 'Twitter/X', 'apollo-core' ),
-					),
-					'_dj_tiktok'             => array(
+					],
+					'_dj_tiktok'             => [
 						'type'  => 'text',
 						'label' => __( 'TikTok', 'apollo-core' ),
-					),
-					'_dj_original_project_1' => array(
+					],
+					'_dj_original_project_1' => [
 						'type'  => 'text',
 						'label' => __( 'Projeto 1', 'apollo-core' ),
-					),
-					'_dj_original_project_2' => array(
+					],
+					'_dj_original_project_2' => [
 						'type'  => 'text',
 						'label' => __( 'Projeto 2', 'apollo-core' ),
-					),
-					'_dj_original_project_3' => array(
+					],
+					'_dj_original_project_3' => [
 						'type'  => 'text',
 						'label' => __( 'Projeto 3', 'apollo-core' ),
-					),
-					'_dj_set_url'            => array(
+					],
+					'_dj_set_url'            => [
 						'type'  => 'url',
 						'label' => __( 'URL do Set', 'apollo-core' ),
-					),
-					'_dj_media_kit_url'      => array(
+					],
+					'_dj_media_kit_url'      => [
 						'type'  => 'url',
 						'label' => __( 'Media Kit', 'apollo-core' ),
-					),
-					'_dj_rider_url'          => array(
+					],
+					'_dj_rider_url'          => [
 						'type'  => 'url',
 						'label' => __( 'Rider', 'apollo-core' ),
-					),
-					'_dj_mix_url'            => array(
+					],
+					'_dj_mix_url'            => [
 						'type'  => 'url',
 						'label' => __( 'Mix/Playlist', 'apollo-core' ),
-					),
-				),
+					],
+				],
 				// ==== LOCAL META KEYS ====
-				'local' => array(
-					'_local_address'   => array(
+				'local' => [
+					'_local_address'   => [
 						'type'  => 'text',
 						'label' => __( 'Endereço', 'apollo-core' ),
-					),
-					'_local_city'      => array(
+					],
+					'_local_city'      => [
 						'type'  => 'text',
 						'label' => __( 'Cidade', 'apollo-core' ),
-					),
-					'_local_state'     => array(
+					],
+					'_local_state'     => [
 						'type'  => 'text',
 						'label' => __( 'Estado', 'apollo-core' ),
-					),
-					'_local_zip'       => array(
+					],
+					'_local_zip'       => [
 						'type'  => 'text',
 						'label' => __( 'CEP', 'apollo-core' ),
-					),
-					'_local_lat'       => array(
+					],
+					'_local_lat'       => [
 						'type'  => 'float',
 						'label' => __( 'Latitude', 'apollo-core' ),
-					),
-					'_local_lng'       => array(
+					],
+					'_local_lng'       => [
 						'type'  => 'float',
 						'label' => __( 'Longitude', 'apollo-core' ),
-					),
-					'_local_capacity'  => array(
+					],
+					'_local_capacity'  => [
 						'type'  => 'number',
 						'label' => __( 'Capacidade', 'apollo-core' ),
-					),
-					'_local_website'   => array(
+					],
+					'_local_website'   => [
 						'type'  => 'url',
 						'label' => __( 'Website', 'apollo-core' ),
-					),
-					'_local_instagram' => array(
+					],
+					'_local_instagram' => [
 						'type'  => 'text',
 						'label' => __( 'Instagram', 'apollo-core' ),
-					),
-					'_local_phone'     => array(
+					],
+					'_local_phone'     => [
 						'type'  => 'text',
 						'label' => __( 'Telefone', 'apollo-core' ),
-					),
-				),
+					],
+				],
 				// ==== USER META KEYS (Shared between plugins) ====
-				'user'  => array(
-					'apollo_cpf'                   => array(
+				'user'  => [
+					'apollo_cpf'                   => [
 						'type'  => 'text',
 						'label' => __( 'CPF', 'apollo-core' ),
-					),
-					'apollo_passport'              => array(
+					],
+					'apollo_passport'              => [
 						'type'  => 'text',
 						'label' => __( 'Passaporte', 'apollo-core' ),
-					),
-					'apollo_passport_country'      => array(
+					],
+					'apollo_passport_country'      => [
 						'type'  => 'text',
 						'label' => __( 'País do Passaporte', 'apollo-core' ),
-					),
-					'apollo_doc_type'              => array(
+					],
+					'apollo_doc_type'              => [
 						'type'  => 'select',
 						'label' => __( 'Tipo de Documento', 'apollo-core' ),
-					),
-					'apollo_sounds'                => array(
+					],
+					'apollo_sounds'                => [
 						'type'  => 'array',
 						'label' => __( 'Gêneros Preferidos', 'apollo-core' ),
-					),
-					'apollo_can_sign_documents'    => array(
+					],
+					'apollo_can_sign_documents'    => [
 						'type'  => 'bool',
 						'label' => __( 'Pode Assinar Docs', 'apollo-core' ),
-					),
-					'apollo_membership_type'       => array(
+					],
+					'apollo_membership_type'       => [
 						'type'  => 'text',
 						'label' => __( 'Tipo de Membro', 'apollo-core' ),
-					),
-					'apollo_membership_status'     => array(
+					],
+					'apollo_membership_status'     => [
 						'type'  => 'text',
 						'label' => __( 'Status do Membro', 'apollo-core' ),
-					),
-					'apollo_cultura_identities'    => array(
+					],
+					'apollo_cultura_identities'    => [
 						'type'  => 'array',
 						'label' => __( 'Identidades Culturais', 'apollo-core' ),
-					),
-					'apollo_cultura_registered_at' => array(
+					],
+					'apollo_cultura_registered_at' => [
 						'type'  => 'datetime',
 						'label' => __( 'Data de Registro', 'apollo-core' ),
-					),
-					'apollo_membership_requested'  => array(
+					],
+					'apollo_membership_requested'  => [
 						'type'  => 'array',
 						'label' => __( 'Memberships Solicitadas', 'apollo-core' ),
-					),
-					'apollo_membership_approved'   => array(
+					],
+					'apollo_membership_approved'   => [
 						'type'  => 'array',
 						'label' => __( 'Memberships Aprovadas', 'apollo-core' ),
-					),
-					'apollo_notifications'         => array(
+					],
+					'apollo_notifications'         => [
 						'type'  => 'array',
 						'label' => __( 'Notificações', 'apollo-core' ),
-					),
-				),
+					],
+				],
 				// ==== GROUP META KEYS ====
-				'group' => array(
-					'_group_description'   => array(
+				'group' => [
+					'_group_description'   => [
 						'type'  => 'textarea',
 						'label' => __( 'Descrição', 'apollo-core' ),
-					),
-					'_group_cover'         => array(
+					],
+					'_group_cover'         => [
 						'type'  => 'attachment',
 						'label' => __( 'Capa', 'apollo-core' ),
-					),
-					'_group_avatar'        => array(
+					],
+					'_group_avatar'        => [
 						'type'  => 'attachment',
 						'label' => __( 'Avatar', 'apollo-core' ),
-					),
-					'_group_members_count' => array(
+					],
+					'_group_members_count' => [
 						'type'  => 'number',
 						'label' => __( 'Qtd. Membros', 'apollo-core' ),
-					),
-					'_group_events_count'  => array(
+					],
+					'_group_events_count'  => [
 						'type'  => 'number',
 						'label' => __( 'Qtd. Eventos', 'apollo-core' ),
-					),
-					'_group_is_private'    => array(
+					],
+					'_group_is_private'    => [
 						'type'  => 'bool',
 						'label' => __( 'Privado', 'apollo-core' ),
-					),
-					'_group_category'      => array(
+					],
+					'_group_category'      => [
 						'type'  => 'text',
 						'label' => __( 'Categoria', 'apollo-core' ),
-					),
-					'_group_location'      => array(
+					],
+					'_group_location'      => [
 						'type'  => 'text',
 						'label' => __( 'Localização', 'apollo-core' ),
-					),
-					'_group_members'       => array(
+					],
+					'_group_members'       => [
 						'type'  => 'array',
 						'label' => __( 'Membros', 'apollo-core' ),
-					),
-					'_group_moderators'    => array(
+					],
+					'_group_moderators'    => [
 						'type'  => 'array',
 						'label' => __( 'Moderadores', 'apollo-core' ),
-					),
-					'_group_memberships'   => array(
+					],
+					'_group_memberships'   => [
 						'type'  => 'array',
 						'label' => __( 'Memberships', 'apollo-core' ),
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 }//end if
@@ -1045,22 +1045,22 @@ if ( ! function_exists( 'apollo_get_dj_data' ) ) {
 	 */
 	function apollo_get_dj_data( int $dj_id ): array {
 		if ( ! post_type_exists( 'event_dj' ) ) {
-			return array();
+			return [];
 		}
 
 		$post = get_post( $dj_id );
 		if ( ! $post || $post->post_type !== 'event_dj' ) {
-			return array();
+			return [];
 		}
 
-		$meta_keys = apollo_get_shared_meta_keys()['dj'] ?? array();
-		$data      = array(
+		$meta_keys = apollo_get_shared_meta_keys()['dj'] ?? [];
+		$data      = [
 			'id'        => $dj_id,
 			'name'      => $post->post_title,
 			'bio'       => $post->post_content,
 			'slug'      => $post->post_name,
 			'permalink' => get_permalink( $dj_id ),
-		);
+		];
 
 		// Get all DJ meta
 		foreach ( array_keys( $meta_keys ) as $key ) {
@@ -1068,8 +1068,8 @@ if ( ! function_exists( 'apollo_get_dj_data' ) ) {
 		}
 
 		// Get sounds/genres
-		$sounds         = wp_get_post_terms( $dj_id, 'event_sounds', array( 'fields' => 'names' ) );
-		$data['sounds'] = is_wp_error( $sounds ) ? array() : $sounds;
+		$sounds         = wp_get_post_terms( $dj_id, 'event_sounds', [ 'fields' => 'names' ] );
+		$data['sounds'] = is_wp_error( $sounds ) ? [] : $sounds;
 
 		return apply_filters( 'apollo_dj_data', $data, $dj_id );
 	}
@@ -1085,22 +1085,22 @@ if ( ! function_exists( 'apollo_get_local_data' ) ) {
 	 */
 	function apollo_get_local_data( int $local_id ): array {
 		if ( ! post_type_exists( 'event_local' ) ) {
-			return array();
+			return [];
 		}
 
 		$post = get_post( $local_id );
 		if ( ! $post || $post->post_type !== 'event_local' ) {
-			return array();
+			return [];
 		}
 
-		$meta_keys = apollo_get_shared_meta_keys()['local'] ?? array();
-		$data      = array(
+		$meta_keys = apollo_get_shared_meta_keys()['local'] ?? [];
+		$data      = [
 			'id'          => $local_id,
 			'name'        => $post->post_title,
 			'description' => $post->post_content,
 			'slug'        => $post->post_name,
 			'permalink'   => get_permalink( $local_id ),
-		);
+		];
 
 		// Get all local meta
 		foreach ( array_keys( $meta_keys ) as $key ) {
@@ -1121,23 +1121,23 @@ if ( ! function_exists( 'apollo_get_event_data' ) ) {
 	 */
 	function apollo_get_event_data( int $event_id ): array {
 		if ( ! post_type_exists( 'event_listing' ) ) {
-			return array();
+			return [];
 		}
 
 		$post = get_post( $event_id );
 		if ( ! $post || $post->post_type !== 'event_listing' ) {
-			return array();
+			return [];
 		}
 
-		$meta_keys = apollo_get_shared_meta_keys()['event'] ?? array();
-		$data      = array(
+		$meta_keys = apollo_get_shared_meta_keys()['event'] ?? [];
+		$data      = [
 			'id'          => $event_id,
 			'title'       => $post->post_title,
 			'description' => $post->post_content,
 			'slug'        => $post->post_name,
 			'permalink'   => get_permalink( $event_id ),
 			'author_id'   => $post->post_author,
-		);
+		];
 
 		// Get all event meta
 		foreach ( array_keys( $meta_keys ) as $key ) {
@@ -1145,17 +1145,17 @@ if ( ! function_exists( 'apollo_get_event_data' ) ) {
 		}
 
 		// Get taxonomies
-		$sounds         = wp_get_post_terms( $event_id, 'event_sounds', array( 'fields' => 'all' ) );
-		$data['sounds'] = is_wp_error( $sounds ) ? array() : $sounds;
+		$sounds         = wp_get_post_terms( $event_id, 'event_sounds', [ 'fields' => 'all' ] );
+		$data['sounds'] = is_wp_error( $sounds ) ? [] : $sounds;
 
-		$categories         = wp_get_post_terms( $event_id, 'event_listing_category', array( 'fields' => 'all' ) );
-		$data['categories'] = is_wp_error( $categories ) ? array() : $categories;
+		$categories         = wp_get_post_terms( $event_id, 'event_listing_category', [ 'fields' => 'all' ] );
+		$data['categories'] = is_wp_error( $categories ) ? [] : $categories;
 
-		$types         = wp_get_post_terms( $event_id, 'event_listing_type', array( 'fields' => 'all' ) );
-		$data['types'] = is_wp_error( $types ) ? array() : $types;
+		$types         = wp_get_post_terms( $event_id, 'event_listing_type', [ 'fields' => 'all' ] );
+		$data['types'] = is_wp_error( $types ) ? [] : $types;
 
-		$tags         = wp_get_post_terms( $event_id, 'event_listing_tag', array( 'fields' => 'all' ) );
-		$data['tags'] = is_wp_error( $tags ) ? array() : $tags;
+		$tags         = wp_get_post_terms( $event_id, 'event_listing_tag', [ 'fields' => 'all' ] );
+		$data['tags'] = is_wp_error( $tags ) ? [] : $tags;
 
 		return apply_filters( 'apollo_event_data', $data, $event_id );
 	}
@@ -1171,18 +1171,18 @@ if ( ! function_exists( 'apollo_get_user_profile_data' ) ) {
 	function apollo_get_user_profile_data( int $user_id ): array {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return array();
+			return [];
 		}
 
-		$meta_keys = apollo_get_shared_meta_keys()['user'] ?? array();
-		$data      = array(
+		$meta_keys = apollo_get_shared_meta_keys()['user'] ?? [];
+		$data      = [
 			'id'           => $user_id,
 			'username'     => $user->user_login,
 			'email'        => $user->user_email,
 			'display_name' => $user->display_name,
 			'registered'   => $user->user_registered,
 			'roles'        => $user->roles,
-		);
+		];
 
 		// Get all user meta
 		foreach ( array_keys( $meta_keys ) as $key ) {
@@ -1190,7 +1190,7 @@ if ( ! function_exists( 'apollo_get_user_profile_data' ) ) {
 		}
 
 		// Get avatar
-		$data['avatar_url'] = get_avatar_url( $user_id, array( 'size' => 256 ) );
+		$data['avatar_url'] = get_avatar_url( $user_id, [ 'size' => 256 ] );
 
 		return apply_filters( 'apollo_user_profile_data', $data, $user_id );
 	}
@@ -1246,12 +1246,12 @@ add_action(
 
 		// Check if user already has a DJ profile
 		$existing = get_posts(
-			array(
+			[
 				'post_type'      => 'event_dj',
 				'meta_key'       => '_dj_user_id',
 				'meta_value'     => $user_id,
 				'posts_per_page' => 1,
-			)
+			]
 		);
 
 		if ( empty( $existing ) ) {
@@ -1259,13 +1259,13 @@ add_action(
 			if ( $user ) {
 				// Create DJ profile for user
 				$dj_id = wp_insert_post(
-					array(
+					[
 						'post_type'                                           => 'event_dj',
 						'post_title'                                          => $user->display_name,
 						'post_status'                                         => 'draft',
 						// Draft until user completes profile
 																'post_author' => $user_id,
-					)
+					]
 				);
 
 				if ( $dj_id && ! is_wp_error( $dj_id ) ) {
@@ -1277,7 +1277,7 @@ add_action(
 						$user_id,
 						'dj_profile_created',
 						__( 'Seu perfil de DJ foi criado! Complete suas informações.', 'apollo-core' ),
-						array( 'dj_id' => $dj_id )
+						[ 'dj_id' => $dj_id ]
 					);
 				}
 			}//end if

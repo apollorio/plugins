@@ -33,7 +33,7 @@ class Apollo_Moderation_REST_API {
 	 * Initialize
 	 */
 	public static function init() {
-		add_action( 'apollo_core_register_rest_routes', array( __CLASS__, 'register_routes' ) );
+		add_action( 'apollo_core_register_rest_routes', [ __CLASS__, 'register_routes' ] );
 	}
 
 	/**
@@ -50,51 +50,51 @@ class Apollo_Moderation_REST_API {
 		register_rest_route(
 			$namespace,
 			'mod/aprovar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'approve_post' ),
-				'permission_callback' => array( __CLASS__, 'permission_moderate' ),
-				'args'                => array(
-					'post_id' => array(
+				'callback'            => [ __CLASS__, 'approve_post' ],
+				'permission_callback' => [ __CLASS__, 'permission_moderate' ],
+				'args'                => [
+					'post_id' => [
 						'required'          => true,
 						'sanitize_callback' => 'absint',
-					),
-					'note'    => array(
+					],
+					'note'    => [
 						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Reject post - UNIQUE to this file.
 		register_rest_route(
 			$namespace,
 			'mod/negar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'reject_post' ),
-				'permission_callback' => array( __CLASS__, 'permission_moderate' ),
-				'args'                => array(
-					'post_id' => array(
+				'callback'            => [ __CLASS__, 'reject_post' ],
+				'permission_callback' => [ __CLASS__, 'permission_moderate' ],
+				'args'                => [
+					'post_id' => [
 						'required'          => true,
 						'sanitize_callback' => 'absint',
-					),
-					'note'    => array(
+					],
+					'note'    => [
 						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Get mod queue - UNIQUE to this file.
 		register_rest_route(
 			$namespace,
 			'mod/fila',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( __CLASS__, 'get_queue' ),
-				'permission_callback' => array( __CLASS__, 'permission_view_queue' ),
-			)
+				'callback'            => [ __CLASS__, 'get_queue' ],
+				'permission_callback' => [ __CLASS__, 'permission_view_queue' ],
+			]
 		);
 
 		// NOTE: mod/suspender-user and mod/bloquear-user REMOVED
@@ -108,21 +108,21 @@ class Apollo_Moderation_REST_API {
 		register_rest_route(
 			$namespace,
 			'mod/notificar',
-			array(
+			[
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( __CLASS__, 'notify_user' ),
-				'permission_callback' => array( __CLASS__, 'permission_notify' ),
-				'args'                => array(
-					'user_id' => array(
+				'callback'            => [ __CLASS__, 'notify_user' ],
+				'permission_callback' => [ __CLASS__, 'permission_notify' ],
+				'args'                => [
+					'user_id' => [
 						'required'          => true,
 						'sanitize_callback' => 'absint',
-					),
-					'message' => array(
+					],
+					'message' => [
 						'required'          => true,
 						'sanitize_callback' => 'wp_kses_post',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -138,11 +138,11 @@ class Apollo_Moderation_REST_API {
 
 		$post = get_post( $post_id );
 
-		if ( ! $post || ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
+		if ( ! $post || ! in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 			return new WP_Error(
 				'invalid_post',
 				__( 'Post not found or not in draft/pending status.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -151,16 +151,16 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'forbidden',
 				__( 'You do not have permission to moderate this content type.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
 		// Publish post.
 		$result = wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'publish',
-			),
+			],
 			true
 		);
 
@@ -174,15 +174,15 @@ class Apollo_Moderation_REST_API {
 			'approve_publish',
 			$post->post_type,
 			$post_id,
-			array( 'note' => $note )
+			[ 'note' => $note ]
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'post_id' => $post_id,
 				'message' => __( 'Post approved and published successfully.', 'apollo-core' ),
-			),
+			],
 			200
 		);
 	}
@@ -199,11 +199,11 @@ class Apollo_Moderation_REST_API {
 
 		$post = get_post( $post_id );
 
-		if ( ! $post || ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
+		if ( ! $post || ! in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 			return new WP_Error(
 				'invalid_post',
 				__( 'Post not found or not in draft/pending status.', 'apollo-core' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -212,7 +212,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'forbidden',
 				__( 'You do not have permission to moderate this content type.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -225,18 +225,18 @@ class Apollo_Moderation_REST_API {
 			'reject_post',
 			$post->post_type,
 			$post_id,
-			array( 'note' => $note )
+			[ 'note' => $note ]
 		);
 
 		// Optionally trash or set to draft.
 		wp_trash_post( $post_id );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'post_id' => $post_id,
 				'message' => __( 'Post rejected successfully.', 'apollo-core' ),
-			),
+			],
 			200
 		);
 	}
@@ -252,48 +252,48 @@ class Apollo_Moderation_REST_API {
 
 		if ( empty( $content_types ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => true,
-					'data'    => array(),
+					'data'    => [],
 					'total'   => 0,
-				),
+				],
 				200
 			);
 		}
 
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => $content_types,
-				'post_status'    => array( 'draft', 'pending' ),
+				'post_status'    => [ 'draft', 'pending' ],
 				'posts_per_page' => 50,
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
-		$queue = array();
+		$queue = [];
 		foreach ( $query->posts as $post ) {
-			$queue[] = array(
+			$queue[] = [
 				'id'        => $post->ID,
 				'title'     => $post->post_title,
 				'type'      => $post->post_type,
 				'status'    => $post->post_status,
-				'author'    => array(
+				'author'    => [
 					'id'   => $post->post_author,
 					'name' => get_the_author_meta( 'display_name', $post->post_author ),
-				),
+				],
 				'date'      => $post->post_date,
 				'edit_link' => get_edit_post_link( $post->ID, 'raw' ),
 				'thumbnail' => get_the_post_thumbnail_url( $post->ID, 'thumbnail' ),
-			);
+			];
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'data'    => $queue,
 				'total'   => $query->found_posts,
-			),
+			],
 			200
 		);
 	}
@@ -322,19 +322,19 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'suspension_failed',
 				__( 'Failed to suspend user.', 'apollo-core' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => sprintf(
 					/* translators: %d: number of days */
 					__( 'User suspended for %d days.', 'apollo-core' ),
 					$days
 				),
-			),
+			],
 			200
 		);
 	}
@@ -362,15 +362,15 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'block_failed',
 				__( 'Failed to block user.', 'apollo-core' ),
-				array( 'status' => 500 )
+				[ 'status' => 500 ]
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'User blocked successfully.', 'apollo-core' ),
-			),
+			],
 			200
 		);
 	}
@@ -390,7 +390,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'invalid_user',
 				__( 'User not found.', 'apollo-core' ),
-				array( 'status' => 404 )
+				[ 'status' => 404 ]
 			);
 		}
 
@@ -404,14 +404,14 @@ class Apollo_Moderation_REST_API {
 			'send_notification',
 			'user',
 			$user_id,
-			array( 'message' => $message )
+			[ 'message' => $message ]
 		);
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => $sent,
 				'message' => $sent ? __( 'Notification sent successfully.', 'apollo-core' ) : __( 'Failed to send notification.', 'apollo-core' ),
-			),
+			],
 			$sent ? 200 : 500
 		);
 	}
@@ -426,7 +426,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -434,7 +434,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to moderate content.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -451,7 +451,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -459,7 +459,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to view the mod queue.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -476,7 +476,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -484,7 +484,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to suspend users.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -501,7 +501,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -509,7 +509,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to block users.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -526,7 +526,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -534,7 +534,7 @@ class Apollo_Moderation_REST_API {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to send notifications.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 

@@ -173,6 +173,15 @@
 			R.redoBtn.addEventListener('click', () => HistoryManager.redo());
 		}
 
+		// Initialize CanvasTools (modular tool panel)
+		let canvasTools = null;
+		if (typeof CanvasTools !== 'undefined') {
+			canvasTools = new CanvasTools({
+				canvas: canvas,
+				container: document.querySelector('.ap-plano-editor')
+			});
+		}
+
 		// Canvas event handlers.
 		canvas.on('selection:created', updateControls);
 		canvas.on('selection:updated', updateControls);
@@ -192,6 +201,112 @@
 				canvas.requestRenderAll();
 			}
 		}
+
+		// Apply filters to active object
+		function applyFilters() {
+			const obj = canvas.getActiveObject();
+			if (!obj || obj.type !== 'image') return;
+
+			const filters = [];
+			const brightness = parseFloat(document.getElementById('ap-plano-filter-brightness')?.value || 0);
+			const contrast = parseFloat(document.getElementById('ap-plano-filter-contrast')?.value || 0);
+			const saturation = parseFloat(document.getElementById('ap-plano-filter-saturation')?.value || 0);
+			const hue = parseFloat(document.getElementById('ap-plano-filter-hue')?.value || 0);
+
+			if (brightness !== 0) {
+				filters.push(new fabric.Image.filters.Brightness({ brightness: brightness }));
+			}
+			if (contrast !== 0) {
+				filters.push(new fabric.Image.filters.Contrast({ contrast: contrast }));
+			}
+			if (saturation !== 0) {
+				filters.push(new fabric.Image.filters.Saturation({ saturation: saturation }));
+			}
+			if (hue !== 0) {
+				filters.push(new fabric.Image.filters.HueRotation({ rotation: hue / 180 }));
+			}
+
+			obj.filters = filters;
+			obj.applyFilters();
+			canvas.renderAll();
+		}
+
+		// Filters modal
+		const filtersBtn = document.getElementById('ap-plano-elem-filters-btn');
+		const filtersModal = document.getElementById('ap-plano-filters-modal');
+		const closeFilters = document.getElementById('ap-plano-close-filters');
+
+		if (filtersBtn && filtersModal) {
+			filtersBtn.addEventListener('click', () => {
+				const obj = canvas.getActiveObject();
+				if (obj && obj.type === 'image') {
+					filtersModal.classList.remove('hidden');
+				}
+			});
+		}
+
+		if (closeFilters && filtersModal) {
+			closeFilters.addEventListener('click', () => {
+				filtersModal.classList.add('hidden');
+			});
+		}
+
+		// Filter sliders
+		const filterControls = ['brightness', 'contrast', 'saturation', 'hue'];
+		filterControls.forEach(control => {
+			const slider = document.getElementById(`ap-plano-filter-${control}`);
+			const valueSpan = document.getElementById(`ap-plano-filter-${control}-value`);
+			
+			if (slider && valueSpan) {
+				slider.addEventListener('input', (e) => {
+					valueSpan.textContent = e.target.value;
+					applyFilters();
+				});
+			}
+		});
+
+		// Filter presets
+		document.querySelectorAll('.ap-plano-filter-preset').forEach(preset => {
+			preset.addEventListener('click', () => {
+				const presetType = preset.dataset.preset;
+				const brightnessSlider = document.getElementById('ap-plano-filter-brightness');
+				const contrastSlider = document.getElementById('ap-plano-filter-contrast');
+				const saturationSlider = document.getElementById('ap-plano-filter-saturation');
+				const hueSlider = document.getElementById('ap-plano-filter-hue');
+
+				switch (presetType) {
+					case 'warm':
+						if (brightnessSlider) brightnessSlider.value = 0.2;
+						if (saturationSlider) saturationSlider.value = 0.3;
+						if (hueSlider) hueSlider.value = 10;
+						break;
+					case 'cool':
+						if (contrastSlider) contrastSlider.value = 0.2;
+						if (hueSlider) hueSlider.value = -10;
+						break;
+					case 'bw':
+						if (saturationSlider) saturationSlider.value = -1;
+						break;
+					case 'reset':
+						if (brightnessSlider) brightnessSlider.value = 0;
+						if (contrastSlider) contrastSlider.value = 0;
+						if (saturationSlider) saturationSlider.value = 0;
+						if (hueSlider) hueSlider.value = 0;
+						break;
+				}
+
+				// Update value displays
+				filterControls.forEach(control => {
+					const slider = document.getElementById(`ap-plano-filter-${control}`);
+					const valueSpan = document.getElementById(`ap-plano-filter-${control}-value`);
+					if (slider && valueSpan) {
+						valueSpan.textContent = slider.value;
+					}
+				});
+
+				applyFilters();
+			});
+		});
 
 		// Update controls when object is selected.
 		function updateControls() {
@@ -249,6 +364,9 @@
 			}
 		}
 
+		// CanvasTools handles layer controls and delete, but we keep updateControls here
+		// for compatibility with existing popup controls
+
 		// Hide controls when selection is cleared.
 		function hideControls() {
 			if (R.elementControls) {
@@ -286,72 +404,21 @@
 			}
 		}
 
-		// Add text button.
+		// Tool buttons are now handled by CanvasTools
+		// Close build panel when tools are used
 		if (R.addTextBtn) {
 			R.addTextBtn.addEventListener('click', () => {
-				const text = new fabric.IText('Apollo Rio', {
-					left: 80,
-					top: 100,
-					fontSize: 28,
-					fill: '#000',
-					fontFamily: 'system-ui',
-					fontWeight: 500
-				});
-				canvas.add(text);
-				canvas.setActiveObject(text);
-				canvas.renderAll();
 				if (R.buildPanel) R.buildPanel.classList.remove('active');
 			});
 		}
-
-		// Add box button.
 		if (R.addBoxBtn) {
 			R.addBoxBtn.addEventListener('click', () => {
-				const rect = new fabric.Rect({
-					left: 80,
-					top: 150,
-					width: 150,
-					height: 150,
-					fill: '#ffffff',
-					rx: 0,
-					ry: 0
-				});
-				canvas.add(rect);
-				canvas.setActiveObject(rect);
-				canvas.renderAll();
 				if (R.buildPanel) R.buildPanel.classList.remove('active');
 			});
 		}
-
-		// Add image button.
-		if (R.addImageBtn && R.imageUpload) {
-			R.addImageBtn.addEventListener('click', () => R.imageUpload.click());
-			R.imageUpload.addEventListener('change', (e) => {
-				if (e.target.files && e.target.files[0]) {
-					const reader = new FileReader();
-					reader.onload = (ev) => {
-						fabric.Image.fromURL(ev.target.result, (img) => {
-							img.scaleToWidth(150);
-							img.set({ left: 60, top: 200 });
-							canvas.add(img);
-							canvas.setActiveObject(img);
-							canvas.renderAll();
-						});
-					};
-					reader.readAsDataURL(e.target.files[0]);
-				}
+		if (R.addImageBtn) {
+			R.addImageBtn.addEventListener('click', () => {
 				if (R.buildPanel) R.buildPanel.classList.remove('active');
-			});
-		}
-
-		// Delete button.
-		if (R.deleteBtn) {
-			R.deleteBtn.addEventListener('click', () => {
-				const obj = canvas.getActiveObject();
-				if (obj) {
-					canvas.remove(obj);
-					canvas.renderAll();
-				}
 			});
 		}
 
@@ -530,21 +597,77 @@
 							enableRetinaScaling: true
 						});
 
-						const link = document.createElement('a');
-						link.href = dataURL;
-						link.download = transparentBgEnabled
-							? `apollo-transparent-4k-${Date.now()}.png`
-							: `apollo-4k-${Date.now()}.png`;
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
+						// Save to server via AJAX
+						if (window.planoRest && window.planoRest.ajax_url) {
+							const formData = new FormData();
+							formData.append('action', 'apollo_save_canvas');
+							formData.append('nonce', planoRest.nonce);
+							formData.append('data_url', dataURL);
 
-						if (transparentBgEnabled && originalBg) {
-							canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
+							fetch(planoRest.ajax_url, {
+								method: 'POST',
+								body: formData
+							})
+								.then(res => res.json())
+								.then(data => {
+									if (data.success) {
+										// Also download locally
+										const link = document.createElement('a');
+										link.href = dataURL;
+										link.download = transparentBgEnabled
+											? `apollo-transparent-4k-${Date.now()}.png`
+											: `apollo-4k-${Date.now()}.png`;
+										document.body.appendChild(link);
+										link.click();
+										document.body.removeChild(link);
+
+										// Show success message
+										if (window.plano_i18n && window.plano_i18n.saved) {
+											alert(window.plano_i18n.saved);
+										} else {
+											alert('Canvas salvo com sucesso!');
+										}
+									} else {
+										throw new Error(data.data?.message || 'Erro ao salvar');
+									}
+								})
+								.catch(err => {
+									console.error('Save failed:', err);
+									// Fallback to local download only
+									const link = document.createElement('a');
+									link.href = dataURL;
+									link.download = transparentBgEnabled
+										? `apollo-transparent-4k-${Date.now()}.png`
+										: `apollo-4k-${Date.now()}.png`;
+									document.body.appendChild(link);
+									link.click();
+									document.body.removeChild(link);
+								})
+								.finally(() => {
+									if (transparentBgEnabled && originalBg) {
+										canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
+									}
+									R.downloadBtn.innerHTML = originalIcon;
+									R.downloadBtn.disabled = false;
+								});
+						} else {
+							// Fallback to local download only
+							const link = document.createElement('a');
+							link.href = dataURL;
+							link.download = transparentBgEnabled
+								? `apollo-transparent-4k-${Date.now()}.png`
+								: `apollo-4k-${Date.now()}.png`;
+							document.body.appendChild(link);
+							link.click();
+							document.body.removeChild(link);
+
+							if (transparentBgEnabled && originalBg) {
+								canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
+							}
+
+							R.downloadBtn.innerHTML = originalIcon;
+							R.downloadBtn.disabled = false;
 						}
-
-						R.downloadBtn.innerHTML = originalIcon;
-						R.downloadBtn.disabled = false;
 					}, 100);
 				} catch (error) {
 					console.error('Export failed:', error);
@@ -553,7 +676,11 @@
 					}
 					R.downloadBtn.innerHTML = originalIcon;
 					R.downloadBtn.disabled = false;
-					alert('Erro ao exportar imagem. Tente novamente.');
+					if (window.plano_i18n && window.plano_i18n.error) {
+						alert(window.plano_i18n.error);
+					} else {
+						alert('Erro ao exportar imagem. Tente novamente.');
+					}
 				}
 			});
 		}
@@ -596,6 +723,287 @@
 				closeAllPopups();
 			}
 		});
+
+		// Library modal
+		const libraryBtn = document.getElementById('ap-plano-library-btn');
+		const libraryModal = document.getElementById('ap-plano-library-modal');
+		const closeLibrary = document.getElementById('ap-plano-close-library');
+
+		if (libraryBtn && libraryModal) {
+			libraryBtn.addEventListener('click', () => {
+				libraryModal.classList.remove('hidden');
+				loadLibraryContent();
+			});
+		}
+
+		if (closeLibrary && libraryModal) {
+			closeLibrary.addEventListener('click', () => {
+				libraryModal.classList.add('hidden');
+			});
+		}
+
+		// Library tab switching
+		const libraryTabs = document.querySelectorAll('.ap-plano-library-tab');
+		libraryTabs.forEach(tab => {
+			tab.addEventListener('click', () => {
+				const targetPanel = tab.dataset.tab;
+				
+				// Update tab states
+				libraryTabs.forEach(t => t.classList.remove('active'));
+				tab.classList.add('active');
+				
+				// Update panel states
+				document.querySelectorAll('.ap-plano-library-tab-panel').forEach(p => {
+					p.classList.remove('active');
+				});
+				const panel = document.querySelector(`.ap-plano-library-tab-panel[data-panel="${targetPanel}"]`);
+				if (panel) {
+					panel.classList.add('active');
+					loadLibrarySubtab(targetPanel, panel.querySelector('.ap-plano-library-subtab.active')?.dataset.subtab || '');
+				}
+			});
+		});
+
+		// Library subtab switching
+		document.querySelectorAll('.ap-plano-library-subtab').forEach(subtab => {
+			subtab.addEventListener('click', () => {
+				const panel = subtab.closest('.ap-plano-library-tab-panel');
+				const targetSubtab = subtab.dataset.subtab;
+				
+				// Update subtab states
+				panel.querySelectorAll('.ap-plano-library-subtab').forEach(st => st.classList.remove('active'));
+				subtab.classList.add('active');
+				
+				// Load content
+				const panelType = panel.dataset.panel;
+				loadLibrarySubtab(panelType, targetSubtab);
+			});
+		});
+
+		// Library functions
+		function loadLibraryContent() {
+			const activePanel = document.querySelector('.ap-plano-library-tab-panel.active');
+			if (activePanel) {
+				const panelType = activePanel.dataset.panel;
+				const activeSubtab = activePanel.querySelector('.ap-plano-library-subtab.active')?.dataset.subtab || '';
+				loadLibrarySubtab(panelType, activeSubtab);
+			}
+		}
+
+		function loadLibrarySubtab(panelType, subtab) {
+			if (!window.planoRest) return;
+
+			switch (panelType) {
+				case 'bg':
+					if (subtab === 'gradient') {
+						loadGradients();
+					} else if (subtab === 'texture') {
+						loadTextures('bg');
+					}
+					break;
+				case 'elements':
+					if (subtab === 'stickers') {
+						loadStickers();
+					} else if (subtab === 'texture') {
+						loadTextures('elements');
+					}
+					break;
+				case 'effects':
+					if (subtab === 'texture') {
+						loadTextures('effects');
+					}
+					break;
+			}
+		}
+
+		function loadTextures(context) {
+			if (!window.planoRest) return;
+
+			const container = document.getElementById('ap-plano-effects-content');
+			if (!container) return;
+
+			fetch(`${planoRest.rest_url}textures`)
+				.then(res => res.json())
+				.then(data => {
+					container.innerHTML = '';
+					const grid = document.createElement('div');
+					grid.className = 'ap-plano-texture-grid';
+
+					if (data.textures && data.textures.length > 0) {
+						data.textures.forEach(file => {
+							const item = document.createElement('div');
+							item.className = 'ap-plano-texture-item';
+							const img = document.createElement('img');
+							img.src = `${data.base_url}${file}`;
+							img.alt = file;
+							img.style.aspectRatio = '9/16';
+							img.style.transform = 'scale(0.2)';
+							img.style.width = '100%';
+							img.style.height = 'auto';
+							
+							const preview = document.createElement('div');
+							preview.className = 'ap-plano-texture-preview';
+							preview.textContent = 'Clique para aplicar';
+							
+							item.appendChild(img);
+							item.appendChild(preview);
+							
+							item.addEventListener('click', () => {
+								applyTexture(`${data.base_url}${file}`);
+							});
+							
+							grid.appendChild(item);
+						});
+					} else {
+						grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999;">Nenhuma textura encontrada</p>';
+					}
+
+					container.appendChild(grid);
+				})
+				.catch(err => {
+					console.error('Erro ao carregar texturas:', err);
+				});
+		}
+
+		function loadStickers() {
+			if (!window.planoRest) return;
+
+			const container = document.getElementById('ap-plano-elements-content');
+			if (!container) return;
+
+			fetch(`${planoRest.rest_url}stickers`)
+				.then(res => res.json())
+				.then(data => {
+					container.innerHTML = '';
+					if (data.count === 0) {
+						container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Biblioteca de Adesivos vazia (0 itens)</p>';
+					}
+				})
+				.catch(err => {
+					console.error('Erro ao carregar adesivos:', err);
+				});
+		}
+
+		function loadGradients() {
+			const container = document.getElementById('ap-plano-bg-content');
+			if (!container) return;
+
+			const gradients = [
+				{ name: 'Sunset', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+				{ name: 'Ocean', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+				{ name: 'Forest', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
+				{ name: 'Warm', value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+				{ name: 'Cool', value: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+			];
+
+			container.innerHTML = '';
+			const grid = document.createElement('div');
+			grid.className = 'ap-plano-texture-grid';
+
+			gradients.forEach(grad => {
+				const item = document.createElement('div');
+				item.className = 'ap-plano-gradient-item';
+				item.style.background = grad.value;
+				item.title = grad.name;
+				item.addEventListener('click', () => {
+					canvas.setBackgroundColor(grad.value, canvas.renderAll.bind(canvas));
+					if (libraryModal) libraryModal.classList.add('hidden');
+				});
+				grid.appendChild(item);
+			});
+
+			container.appendChild(grid);
+		}
+
+		function applyTexture(url) {
+			fabric.Image.fromURL(url, img => {
+				// Remove previous texture overlay
+				const objects = canvas.getObjects();
+				objects.forEach(obj => {
+					if (obj.isTextureOverlay) {
+						canvas.remove(obj);
+					}
+				});
+
+				img.set({
+					opacity: 0.5,
+					globalCompositeOperation: 'multiply',
+					isTextureOverlay: true,
+					selectable: false,
+					evented: false
+				});
+				img.scaleToWidth(canvas.width);
+				img.scaleToHeight(canvas.height);
+				canvas.add(img);
+				canvas.sendToBack(img);
+				canvas.renderAll();
+				
+				if (libraryModal) libraryModal.classList.add('hidden');
+			});
+		}
+
+		// Load post by ID
+		const loadPostBtn = document.getElementById('ap-plano-load-post-btn');
+		const postIdInput = document.getElementById('ap-plano-post-id-input');
+		const postPreview = document.getElementById('ap-plano-post-preview');
+
+		if (loadPostBtn && postIdInput) {
+			loadPostBtn.addEventListener('click', () => {
+				const postId = parseInt(postIdInput.value);
+				const activeSubtab = document.querySelector('#ap-plano-posts-content .ap-plano-library-subtab.active')?.dataset.subtab;
+				
+				if (!postId || !activeSubtab) return;
+
+				const postTypeMap = {
+					'classifieds': 'anuncio',
+					'events': 'event_listing',
+					'dj': 'event_dj',
+					'local': 'event_local'
+				};
+
+				const postType = postTypeMap[activeSubtab];
+				if (!postType) return;
+
+				if (!window.planoRest) return;
+
+				fetch(`${planoRest.rest_url}posts/${postType}/${postId}`, {
+					headers: {
+						'X-WP-Nonce': planoRest.nonce
+					}
+				})
+					.then(res => res.json())
+					.then(data => {
+						if (data.error) {
+							postPreview.innerHTML = `<p style="color: red;">${data.message || 'Erro ao carregar post'}</p>`;
+							return;
+						}
+
+						// Render post card
+						let cardHtml = '<div class="ap-plano-post-card" style="border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-top: 12px;">';
+						cardHtml += `<h4>${data.title}</h4>`;
+						if (data.description) cardHtml += `<p>${data.description}</p>`;
+						if (data.image) cardHtml += `<img src="${data.image}" style="max-width: 100%; border-radius: 4px; margin-top: 8px;">`;
+						cardHtml += '<button class="ap-plano-btn-primary" style="margin-top: 12px;">Aplicar ao Canvas</button>';
+						cardHtml += '</div>';
+
+						postPreview.innerHTML = cardHtml;
+
+						// Add apply button handler
+						const applyBtn = postPreview.querySelector('button');
+						if (applyBtn) {
+							applyBtn.addEventListener('click', () => {
+								// TODO: Render post as card on canvas
+								console.log('Aplicar post ao canvas:', data);
+								if (libraryModal) libraryModal.classList.add('hidden');
+							});
+						}
+					})
+					.catch(err => {
+						console.error('Erro ao carregar post:', err);
+						postPreview.innerHTML = '<p style="color: red;">Erro ao carregar post</p>';
+					});
+			});
+		}
 
 		console.log('[Apollo Plano] Editor inicializado.');
 	});

@@ -37,8 +37,8 @@ class PdfExportHandler {
 	 * Constructor - registers AJAX handlers
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_' . self::ACTION, array( $this, 'handleExport' ) );
-		add_action( 'wp_ajax_nopriv_' . self::ACTION, array( $this, 'handleUnauthorized' ) );
+		add_action( 'wp_ajax_' . self::ACTION, [ $this, 'handleExport' ] );
+		add_action( 'wp_ajax_nopriv_' . self::ACTION, [ $this, 'handleUnauthorized' ] );
 	}
 
 	/**
@@ -58,9 +58,9 @@ class PdfExportHandler {
 			self::NONCE_ACTION
 		) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Token de segurança inválido.', 'apollo-social' ),
-				),
+				],
 				403
 			);
 		}
@@ -68,9 +68,9 @@ class PdfExportHandler {
 		// Check user capability
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Você não tem permissão para esta ação.', 'apollo-social' ),
-				),
+				],
 				403
 			);
 		}
@@ -82,9 +82,9 @@ class PdfExportHandler {
 
 		if ( empty( $content ) ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => __( 'Conteúdo do documento está vazio.', 'apollo-social' ),
-				),
+				],
 				400
 			);
 		}
@@ -100,12 +100,12 @@ class PdfExportHandler {
 			$html_url = self::saveAsHtml( $content, $title );
 
 			wp_send_json_success(
-				array(
+				[
 					'pdf_url'  => null,
 					'html_url' => $html_url,
 					'message'  => __( 'Nenhuma biblioteca PDF disponível. Use a versão HTML.', 'apollo-social' ),
 					'fallback' => true,
-				)
+				]
 			);
 		}
 
@@ -120,17 +120,17 @@ class PdfExportHandler {
 		$pdf_path = $pdf_generator->generateFromHtml(
 			$styled_html,
 			$filename,
-			array(
+			[
 				'title'  => $title,
 				'author' => wp_get_current_user()->display_name,
-			)
+			]
 		);
 
 		if ( ! $pdf_path ) {
 			wp_send_json_error(
-				array(
+				[
 					'message' => $pdf_generator->getLastError() ?: __( 'Erro ao gerar PDF.', 'apollo-social' ),
-				),
+				],
 				500
 			);
 		}
@@ -147,23 +147,23 @@ class PdfExportHandler {
 
 			$wpdb->update(
 				$table,
-				array(
+				[
 					'pdf_path' => $relative_path,
 					'status'   => 'ready',
-				),
-				array( 'id' => $document_id ),
-				array( '%s', '%s' ),
-				array( '%d' )
+				],
+				[ 'id' => $document_id ],
+				[ '%s', '%s' ],
+				[ '%d' ]
 			);
 		}
 
 		wp_send_json_success(
-			array(
+			[
 				'pdf_url'  => $pdf_url,
 				'pdf_path' => $pdf_path,
 				'library'  => $pdf_generator->getLibraryUsed(),
 				'message'  => __( 'PDF gerado com sucesso!', 'apollo-social' ),
-			)
+			]
 		);
 	}
 
@@ -172,9 +172,9 @@ class PdfExportHandler {
 	 */
 	public function handleUnauthorized(): void {
 		wp_send_json_error(
-			array(
+			[
 				'message' => __( 'Você precisa estar logado para exportar PDFs.', 'apollo-social' ),
-			),
+			],
 			401
 		);
 	}

@@ -22,14 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array  $args      Additional arguments (action, method, css_class, values).
  * @return string HTML form output.
  */
-function apollo_render_form( $form_type, $args = array() ) {
-	$defaults = array(
+function apollo_render_form( $form_type, $args = [] ) {
+	$defaults = [
 		'action'    => '',
 		'method'    => 'post',
 		'css_class' => 'apollo-form',
-		'values'    => array(),
+		'values'    => [],
 		'id'        => 'apollo-form-' . $form_type,
-	);
+	];
 
 	$args = wp_parse_args( $args, $defaults );
 
@@ -82,7 +82,7 @@ function apollo_render_form( $form_type, $args = array() ) {
  * @param array $values Current values.
  * @return string HTML field output.
  */
-function apollo_render_field( $field, $values = array() ) {
+function apollo_render_field( $field, $values = [] ) {
 	$value = isset( $values[ $field['key'] ] ) ? $values[ $field['key'] ] : $field['default'];
 
 	$required_attr = $field['required'] ? 'required' : '';
@@ -111,7 +111,7 @@ function apollo_render_field( $field, $values = array() ) {
 				break;
 
 			case 'select':
-				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : [];
 				?>
 			<select
 				id="apollo-field-<?php echo esc_attr( $field['key'] ); ?>"
@@ -133,7 +133,7 @@ function apollo_render_field( $field, $values = array() ) {
 				break;
 
 			case 'checkbox':
-				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : [];
 
 				if ( empty( $options ) ) {
 					// Single checkbox
@@ -153,7 +153,7 @@ function apollo_render_field( $field, $values = array() ) {
 					<?php
 				} else {
 					// Multiple checkboxes
-					$selected_values = is_array( $value ) ? $value : ( ! empty( $value ) ? explode( ',', $value ) : array() );
+					$selected_values = is_array( $value ) ? $value : ( ! empty( $value ) ? explode( ',', $value ) : [] );
 					?>
 				<div class="apollo-checkbox-group">
 					<?php foreach ( $options as $option_value => $option_label ) : ?>
@@ -175,7 +175,7 @@ function apollo_render_field( $field, $values = array() ) {
 				break;
 
 			case 'radio':
-				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : array();
+				$options = isset( $field['options'] ) && is_array( $field['options'] ) ? $field['options'] : [];
 				?>
 			<div class="apollo-radio-group">
 				<?php foreach ( $options as $option_value => $option_label ) : ?>
@@ -313,7 +313,7 @@ function apollo_save_user_instagram_on_register( $user_id ) {
 						'instagram_added',
 						'user',
 						$user_id,
-						array( 'instagram_id' => $instagram_id )
+						[ 'instagram_id' => $instagram_id ]
 					);
 				}
 			}
@@ -361,10 +361,10 @@ function apollo_save_user_instagram_on_profile_update( $user_id ) {
 			'instagram_updated',
 			'user',
 			$user_id,
-			array(
+			[
 				'old' => $old_instagram,
 				'new' => $instagram_id,
-			)
+			]
 		);
 	}
 }

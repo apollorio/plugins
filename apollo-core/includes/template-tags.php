@@ -26,7 +26,7 @@ if ( ! function_exists( 'apollo_core_component' ) ) {
 	 *
 	 * @return string Rendered component markup.
 	 */
-	function apollo_core_component( string $slug, array $data = array(), bool $echo = true ): string {
+	function apollo_core_component( string $slug, array $data = [], bool $echo = true ): string {
 		static $component_base = null;
 
 		if ( '' === trim( $slug ) ) {
@@ -38,7 +38,7 @@ if ( ! function_exists( 'apollo_core_component' ) ) {
 		}
 
 		// Basic path hardening: prevent directory traversal or Windows backslashes.
-		$safe_slug = str_replace( array( '..', '\\' ), '', $slug );
+		$safe_slug = str_replace( [ '..', '\\' ], '', $slug );
 		$safe_slug = trim( $safe_slug, '/\\' );
 		$file_path = $component_base . $safe_slug . '.php';
 

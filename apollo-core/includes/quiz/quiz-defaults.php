@@ -19,93 +19,93 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array Default questions
  */
 function apollo_get_default_quiz_questions(): array {
-	return array(
-		'q1' => array(
+	return [
+		'q1' => [
 			'id'          => 'q1',
 			'title'       => __( 'Você costuma avaliar o trabalho de outras pessoas de forma construtiva?', 'apollo-core' ),
-			'answers'     => array(
+			'answers'     => [
 				'A' => __( 'Sim, sempre tento dar feedback construtivo', 'apollo-core' ),
 				'B' => __( 'Às vezes, depende da situação', 'apollo-core' ),
 				'C' => __( 'Raramente', 'apollo-core' ),
 				'D' => __( 'Não, prefiro não opinar', 'apollo-core' ),
 				'E' => '',
-			),
-			'correct'     => array( 'A' ),
+			],
+			'correct'     => [ 'A' ],
 			'mandatory'   => true,
 			'explanation' => __( 'Dar feedback construtivo ajuda a comunidade a crescer. Se escolher outra opção, pense em como transformar críticas em sugestões úteis.', 'apollo-core' ),
 			'max_retries' => 3,
 			'active'      => true,
 			'created_at'  => current_time( 'mysql' ),
-		),
-		'q2' => array(
+		],
+		'q2' => [
 			'id'          => 'q2',
 			'title'       => __( 'Se você discordar do trabalho de alguém, qual é a melhor atitude?', 'apollo-core' ),
-			'answers'     => array(
+			'answers'     => [
 				'A' => __( 'Ignorar e seguir em frente', 'apollo-core' ),
 				'B' => __( 'Criticar publicamente sem contexto', 'apollo-core' ),
 				'C' => __( 'Conversar em privado e oferecer sugestões', 'apollo-core' ),
 				'D' => __( 'Compartilhar para ridicularizar', 'apollo-core' ),
 				'E' => '',
-			),
-			'correct'     => array( 'C' ),
+			],
+			'correct'     => [ 'C' ],
 			'mandatory'   => true,
 			'explanation' => __( 'Conversar em privado e oferecer sugestões é mais respeitoso e eficaz para melhorar o trabalho alheio.', 'apollo-core' ),
 			'max_retries' => 3,
 			'active'      => true,
 			'created_at'  => current_time( 'mysql' ),
-		),
-		'q3' => array(
+		],
+		'q3' => [
 			'id'          => 'q3',
 			'title'       => __( 'Você está disposto a aprender e melhorar habilidades quando recebe feedback?', 'apollo-core' ),
-			'answers'     => array(
+			'answers'     => [
 				'A' => __( 'Sim, busco aprender com feedback', 'apollo-core' ),
 				'B' => __( 'Só se for de alguém que eu respeito', 'apollo-core' ),
 				'C' => __( 'Não, não costumo mudar', 'apollo-core' ),
 				'D' => '',
 				'E' => '',
-			),
-			'correct'     => array( 'A' ),
+			],
+			'correct'     => [ 'A' ],
 			'mandatory'   => true,
 			'explanation' => __( 'Abertura ao aprendizado é essencial para crescimento profissional e comunitário.', 'apollo-core' ),
 			'max_retries' => 3,
 			'active'      => true,
 			'created_at'  => current_time( 'mysql' ),
-		),
-		'q4' => array(
+		],
+		'q4' => [
 			'id'          => 'q4',
 			'title'       => __( 'Ao colaborar em projetos, qual comportamento você considera essencial?', 'apollo-core' ),
-			'answers'     => array(
+			'answers'     => [
 				'A' => __( 'Comunicação clara e respeito', 'apollo-core' ),
 				'B' => __( 'Fazer tudo sozinho para garantir qualidade', 'apollo-core' ),
 				'C' => __( 'Ignorar opiniões divergentes', 'apollo-core' ),
 				'D' => __( 'Priorizar fama sobre trabalho em equipe', 'apollo-core' ),
 				'E' => '',
-			),
-			'correct'     => array( 'A' ),
+			],
+			'correct'     => [ 'A' ],
 			'mandatory'   => false,
 			'explanation' => __( 'Comunicação e respeito são pilares de colaboração saudável.', 'apollo-core' ),
 			'max_retries' => 3,
 			'active'      => true,
 			'created_at'  => current_time( 'mysql' ),
-		),
-		'q5' => array(
+		],
+		'q5' => [
 			'id'          => 'q5',
 			'title'       => __( 'Se alguém pedir ajuda, você costuma:', 'apollo-core' ),
-			'answers'     => array(
+			'answers'     => [
 				'A' => __( 'Ajudar quando possível e orientar', 'apollo-core' ),
 				'B' => __( 'Dizer que não tem tempo e ignorar', 'apollo-core' ),
 				'C' => __( 'Pedir algo em troca imediatamente', 'apollo-core' ),
 				'D' => '',
 				'E' => '',
-			),
-			'correct'     => array( 'A' ),
+			],
+			'correct'     => [ 'A' ],
 			'mandatory'   => false,
 			'explanation' => __( 'Apoiar colegas fortalece a comunidade; pequenas ajudas fazem diferença.', 'apollo-core' ),
 			'max_retries' => 3,
 			'active'      => true,
 			'created_at'  => current_time( 'mysql' ),
-		),
-	);
+		],
+	];
 }
 
 /**
@@ -114,7 +114,7 @@ function apollo_get_default_quiz_questions(): array {
  * @return bool True if seeded, false if already exists
  */
 function apollo_seed_default_quiz_questions(): bool {
-	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
+	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, [] );
 
 	// Check if new_user schema already has questions.
 	if ( isset( $schemas['new_user']['questions'] ) && ! empty( $schemas['new_user']['questions'] ) ) {
@@ -127,11 +127,11 @@ function apollo_seed_default_quiz_questions(): bool {
 
 	// Initialize new_user schema if not present.
 	if ( ! isset( $schemas['new_user'] ) ) {
-		$schemas['new_user'] = array(
+		$schemas['new_user'] = [
 			'enabled'      => true,
 			'require_pass' => false,
-			'questions'    => array(),
-		);
+			'questions'    => [],
+		];
 	}
 
 	// Add default questions.
@@ -164,11 +164,11 @@ function apollo_seed_default_quiz_questions(): bool {
 				'quiz_default_seeded',
 				'quiz_schema',
 				0,
-				array(
+				[
 					'form_type'       => 'new_user',
 					'questions_count' => count( $default_questions ),
 					'active_count'    => min( $active_count, 5 ),
-				)
+				]
 			);
 		}
 	}

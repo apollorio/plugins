@@ -21,7 +21,7 @@ class Apollo_Core_Canvas_Loader {
 	 * Initialize
 	 */
 	public function init() {
-		add_filter( 'template_include', array( $this, 'load_canvas_template' ), 99 );
+		add_filter( 'template_include', [ $this, 'load_canvas_template' ], 99 );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Apollo_Core_Canvas_Loader {
 	 * @param string $template_slug Template slug.
 	 * @param array  $data Template data.
 	 */
-	public static function render( $template_slug, $data = array() ) {
+	public static function render( $template_slug, $data = [] ) {
 		// Locate template.
 		$template_path = self::locate_template( $template_slug );
 
@@ -106,10 +106,10 @@ class Apollo_Core_Canvas_Loader {
 
 		// Check in theme.
 		$theme_template = locate_template(
-			array(
+			[
 				'apollo-core/' . $template_slug,
 				$template_slug,
-			)
+			]
 		);
 
 		if ( $theme_template ) {

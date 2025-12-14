@@ -35,10 +35,10 @@ class Apollo_ShadCN_Loader {
 	 * Inicializa o loader
 	 */
 	public function __construct() {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tailwind' ), 5 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_shadcn' ), 10 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_tailwind' ), 5 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_shadcn' ), 10 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_tailwind' ], 5 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_shadcn' ], 10 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_tailwind' ], 5 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_shadcn' ], 10 );
 	}
 
 	/**
@@ -60,15 +60,15 @@ class Apollo_ShadCN_Loader {
 		wp_enqueue_script(
 			'apollo-tailwind-cdn',
 			'https://cdn.tailwindcss.com',
-			array(),
+			[],
 			'3.4.0',
 			false
 			// false = carrega no <head>
 		);
 
 		// Configuração Tailwind customizada
-		add_action( 'wp_head', array( $this, 'tailwind_config' ), 1 );
-		add_action( 'admin_head', array( $this, 'tailwind_config' ), 1 );
+		add_action( 'wp_head', [ $this, 'tailwind_config' ], 1 );
+		add_action( 'admin_head', [ $this, 'tailwind_config' ], 1 );
 
 		self::$tailwind_loaded = true;
 	}
@@ -150,7 +150,7 @@ class Apollo_ShadCN_Loader {
 		wp_enqueue_style(
 			'remixicon',
 			'https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css',
-			array(),
+			[],
 			'4.7.0'
 		);
 
@@ -158,7 +158,7 @@ class Apollo_ShadCN_Loader {
 		wp_enqueue_style(
 			'apollo-uni-css',
 			'https://assets.apollo.rio.br/uni.css',
-			array(),
+			[],
 			'2.0.0'
 		);
 
@@ -166,13 +166,13 @@ class Apollo_ShadCN_Loader {
 		wp_enqueue_style(
 			'apollo-shadcn-base',
 			APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/shadcn-base.css',
-			array( 'apollo-uni-css', 'remixicon' ),
+			[ 'apollo-uni-css', 'remixicon' ],
 			APOLLO_SOCIAL_VERSION
 		);
 
 		// Variáveis CSS ShadCN
-		add_action( 'wp_head', array( $this, 'shadcn_variables' ), 2 );
-		add_action( 'admin_head', array( $this, 'shadcn_variables' ), 2 );
+		add_action( 'wp_head', [ $this, 'shadcn_variables' ], 2 );
+		add_action( 'admin_head', [ $this, 'shadcn_variables' ], 2 );
 
 		self::$shadcn_loaded = true;
 	}

@@ -20,31 +20,42 @@ add_action(
 		register_rest_route(
 			'apollo/v1',
 			'/textures',
-			array(
+			[
 				'methods'             => 'GET',
 				'callback'            => 'apollo_rest_get_textures',
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'/textures/search',
-			array(
+			[
 				'methods'             => 'GET',
 				'callback'            => 'apollo_rest_search_textures',
 				'permission_callback' => '__return_true',
-				'args'                => array(
-					'q' => array(
+				'args'                => [
+					'q' => [
 						'required'          => false,
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => function ( $param ) {
 							return is_string( $param ) && strlen( $param ) <= 100;
 						},
-					),
-				),
-			)
+					],
+				],
+			]
+		);
+
+		// Stickers endpoint (empty for now)
+		register_rest_route(
+			'apollo/v1',
+			'/stickers',
+			[
+				'methods'             => 'GET',
+				'callback'            => 'apollo_rest_get_stickers',
+				'permission_callback' => '__return_true',
+			]
 		);
 	}
 );
@@ -52,18 +63,19 @@ add_action(
 /**
  * Get all textures
  *
- * @param WP_REST_Request $request Request object.
+ * @param WP_REST_Request $request Request object (unused but required by REST API).
  * @return WP_REST_Response
  */
-function apollo_rest_get_textures( $request ) {
+function apollo_rest_get_textures( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	unset( $request ); // Mark as intentionally unused.
 	$textures_dir = APOLLO_SOCIAL_PLUGIN_DIR . 'assets/img/textures/';
 
 	if ( ! is_dir( $textures_dir ) ) {
 		return rest_ensure_response(
-			array(
-				'textures' => array(),
+			[
+				'textures' => [],
 				'count'    => 0,
-			)
+			]
 		);
 	}
 
@@ -81,11 +93,11 @@ function apollo_rest_get_textures( $request ) {
 	sort( $files );
 
 	return rest_ensure_response(
-		array(
+		[
 			'textures' => $files,
 			'count'    => count( $files ),
 			'base_url' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/img/textures/',
-		)
+		]
 	);
 }
 
@@ -101,10 +113,10 @@ function apollo_rest_search_textures( $request ) {
 
 	if ( ! is_dir( $textures_dir ) ) {
 		return rest_ensure_response(
-			array(
-				'textures' => array(),
+			[
+				'textures' => [],
 				'count'    => 0,
-			)
+			]
 		);
 	}
 
@@ -134,11 +146,53 @@ function apollo_rest_search_textures( $request ) {
 	sort( $all_files );
 
 	return rest_ensure_response(
-		array(
+		[
 			'textures' => $all_files,
 			'count'    => count( $all_files ),
 			'base_url' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/img/textures/',
 			'query'    => $search_term,
+		]
+	);
+}
+
+/**
+ * Get all stickers (empty for now - reserved for future)
+ *
+ * @param WP_REST_Request $request Request object (unused but required by REST API).
+ * @return WP_REST_Response
+ */
+function apollo_rest_get_stickers( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	unset( $request ); // Mark as intentionally unused.
+	$stickers_dir = APOLLO_SOCIAL_PLUGIN_DIR . 'assets/img/stickers/';
+
+	if ( ! is_dir( $stickers_dir ) ) {
+		return rest_ensure_response(
+			[
+				'stickers' => [],
+				'count'    => 0,
+				'base_url' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/img/stickers/',
+			]
+		);
+	}
+
+	// Scan directory for PNG files
+	$files = array_values(
+		array_filter(
+			scandir( $stickers_dir ),
+			function ( $file ) {
+				return preg_match( '/\.png$/i', $file );
+			}
 		)
+	);
+
+	// Sort alphabetically
+	sort( $files );
+
+	return rest_ensure_response(
+		[
+			'stickers' => $files,
+			'count'    => count( $files ),
+			'base_url' => APOLLO_SOCIAL_PLUGIN_URL . 'assets/img/stickers/',
+		]
 	);
 }

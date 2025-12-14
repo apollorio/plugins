@@ -25,9 +25,9 @@ class Apollo_Moderation_Admin_UI {
 	 * Initialize
 	 */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ) );
-		add_action( 'admin_post_apollo_save_mod_settings', array( __CLASS__, 'save_settings' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'admin_menu', [ __CLASS__, 'add_menu' ] );
+		add_action( 'admin_post_apollo_save_mod_settings', [ __CLASS__, 'save_settings' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
 	}
 
 	/**
@@ -39,7 +39,7 @@ class Apollo_Moderation_Admin_UI {
 			__( 'Moderation', 'apollo-core' ),
 			'view_mod_queue',
 			'apollo-mod',
-			array( __CLASS__, 'render_page' ),
+			[ __CLASS__, 'render_page' ],
 			'dashicons-shield',
 			25
 		);
@@ -58,14 +58,14 @@ class Apollo_Moderation_Admin_UI {
 		wp_enqueue_style(
 			'apollo-mod',
 			APOLLO_CORE_PLUGIN_URL . 'modules/mod/assets/mod.css',
-			array(),
+			[],
 			APOLLO_CORE_VERSION
 		);
 
 		wp_enqueue_script(
 			'apollo-mod',
 			APOLLO_CORE_PLUGIN_URL . 'modules/mod/assets/mod.js',
-			array( 'jquery', 'wp-api' ),
+			[ 'jquery', 'wp-api' ],
 			APOLLO_CORE_VERSION,
 			true
 		);
@@ -73,11 +73,11 @@ class Apollo_Moderation_Admin_UI {
 		wp_localize_script(
 			'apollo-mod',
 			'apolloModeration',
-			array(
+			[
 				'restUrl'   => rest_url( Apollo_Core_Rest_Bootstrap::get_namespace() ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'canManage' => current_user_can( 'manage_apollo_mod_settings' ),
-			)
+			]
 		);
 	}
 
@@ -88,7 +88,7 @@ class Apollo_Moderation_Admin_UI {
 		$current_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'settings';
 		$can_manage  = current_user_can( 'manage_apollo_mod_settings' );
 
-		if ( ! $can_manage && in_array( $current_tab, array( 'settings', 'coauthors' ), true ) ) {
+		if ( ! $can_manage && in_array( $current_tab, [ 'settings', 'coauthors' ], true ) ) {
 			$current_tab = 'queue';
 		}
 
@@ -153,9 +153,9 @@ class Apollo_Moderation_Admin_UI {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'apollo-core' ) );
 		}
 
-		$settings = get_option( 'apollo_mod_settings', array() );
-		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : array();
-		$mods     = isset( $settings['mods'] ) ? $settings['mods'] : array();
+		$settings = get_option( 'apollo_mod_settings', [] );
+		$enabled  = isset( $settings['enabled_caps'] ) ? $settings['enabled_caps'] : [];
+		$mods     = isset( $settings['mods'] ) ? $settings['mods'] : [];
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="apollo-mod-settings-form">
 			<?php wp_nonce_field( 'apollo_mod_settings_save', 'apollo_mod_nonce' ); ?>
@@ -172,10 +172,10 @@ class Apollo_Moderation_Admin_UI {
 						<select name="mods[]" id="apollo-moderators" multiple size="10" style="width: 100%; max-width: 400px;">
 							<?php
 							$users = get_users(
-								array(
-									'role__in' => array( 'apollo', 'editor', 'administrator' ),
+								[
+									'role__in' => [ 'apollo', 'editor', 'administrator' ],
 									'orderby'  => 'display_name',
-								)
+								]
 							);
 							foreach ( $users as $user ) :
 								$selected = in_array( $user->ID, $mods, true ) ? 'selected' : '';
@@ -195,7 +195,7 @@ class Apollo_Moderation_Admin_UI {
 
 			<table class="form-table">
 				<?php
-				$capabilities = array(
+				$capabilities = [
 					'publish_events'      => __( 'Publish Events', 'apollo-core' ),
 					'publish_locals'      => __( 'Publish Venues', 'apollo-core' ),
 					'publish_djs'         => __( 'Publish DJs', 'apollo-core' ),
@@ -203,7 +203,7 @@ class Apollo_Moderation_Admin_UI {
 					'publish_comunidades' => __( 'Publish Comunidades', 'apollo-core' ),
 					'edit_classifieds'    => __( 'Edit Classifieds', 'apollo-core' ),
 					'edit_posts'          => __( 'Edit Social Posts', 'apollo-core' ),
-				);
+				];
 
 				foreach ( $capabilities as $cap => $label ) :
 					$checked = ! empty( $enabled[ $cap ] ) ? 'checked' : '';
@@ -311,11 +311,11 @@ class Apollo_Moderation_Admin_UI {
 				<tbody>
 					<?php
 					$users = get_users(
-						array(
+						[
 							'orderby' => 'registered',
 							'order'   => 'DESC',
 							'number'  => 50,
-						)
+						]
 					);
 
 					foreach ( $users as $user ) :
@@ -374,15 +374,15 @@ class Apollo_Moderation_Admin_UI {
 
 		check_admin_referer( 'apollo_mod_settings_save', 'apollo_mod_nonce' );
 
-		$enabled_caps = isset( $_POST['enabled_caps'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enabled_caps'] ) ) : array();
-		$mods         = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
+		$enabled_caps = isset( $_POST['enabled_caps'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enabled_caps'] ) ) : [];
+		$mods         = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : [];
 		$audit_log    = isset( $_POST['audit_log_enabled'] ) ? true : false;
 
-		$settings = array(
+		$settings = [
 			'enabled_caps'      => $enabled_caps,
 			'mods'              => $mods,
 			'audit_log_enabled' => $audit_log,
-		);
+		];
 
 		update_option( 'apollo_mod_settings', $settings );
 

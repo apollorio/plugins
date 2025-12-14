@@ -17,9 +17,6 @@ if ( ! is_user_logged_in() ) {
 	wp_die( esc_html__( 'Você precisa estar logado para acessar o editor.', 'apollo-social' ) );
 }
 
-// Get current user.
-$current_user = wp_get_current_user();
-
 // Enqueue assets (handled by Apollo_Plano_Editor_Assets).
 get_header();
 ?>
@@ -101,6 +98,11 @@ get_header();
 				id="ap-plano-gradient-btn" 
 				title="<?php echo esc_attr__( 'Gradientes', 'apollo-social' ); ?>">
 			<i class="ri-pantone-fill"></i>
+		</button>
+		<button class="ap-plano-side-btn" 
+				id="ap-plano-library-btn" 
+				title="<?php echo esc_attr__( 'Biblioteca', 'apollo-social' ); ?>">
+			<i class="ri-book-open-line"></i>
 		</button>
 		<button class="ap-plano-side-btn" 
 				id="ap-plano-delete-btn" 
@@ -198,9 +200,14 @@ get_header();
 				<i class="ri-dashboard-2-fill"></i>
 			</button>
 			<button class="ap-plano-side-btn" 
-					id="ap-plano-elem-blur-btn" 
-					title="<?php echo esc_attr__( 'Desfoque', 'apollo-social' ); ?>">
+				id="ap-plano-elem-blur-btn" 
+				title="<?php echo esc_attr__( 'Desfoque', 'apollo-social' ); ?>">
 				<i class="ri-focus-2-line"></i>
+			</button>
+			<button class="ap-plano-side-btn" 
+				id="ap-plano-elem-filters-btn" 
+				title="<?php echo esc_attr__( 'Filtros', 'apollo-social' ); ?>">
+				<i class="ri-image-edit-line"></i>
 			</button>
 		</div>
 	</div>
@@ -338,6 +345,73 @@ get_header();
 		</div>
 	</div>
 
+	<!-- Filters Modal -->
+	<div class="ap-plano-modal hidden" id="ap-plano-filters-modal">
+		<div class="ap-plano-modal-content">
+			<button class="ap-plano-modal-close" id="ap-plano-close-filters">×</button>
+			<h3>
+				<i class="ri-image-edit-line"></i> 
+				<?php echo esc_html__( 'Filtros de Imagem', 'apollo-social' ); ?>
+			</h3>
+			<div class="ap-plano-filters-content">
+				<div class="ap-plano-filter-control">
+					<label>
+						<?php echo esc_html__( 'Brilho', 'apollo-social' ); ?>
+						<span id="ap-plano-filter-brightness-value">0</span>
+					</label>
+					<input type="range" 
+						   id="ap-plano-filter-brightness" 
+						   min="-1" 
+						   max="1" 
+						   step="0.1" 
+						   value="0">
+				</div>
+				<div class="ap-plano-filter-control">
+					<label>
+						<?php echo esc_html__( 'Contraste', 'apollo-social' ); ?>
+						<span id="ap-plano-filter-contrast-value">0</span>
+					</label>
+					<input type="range" 
+						   id="ap-plano-filter-contrast" 
+						   min="-1" 
+						   max="1" 
+						   step="0.1" 
+						   value="0">
+				</div>
+				<div class="ap-plano-filter-control">
+					<label>
+						<?php echo esc_html__( 'Saturação', 'apollo-social' ); ?>
+						<span id="ap-plano-filter-saturation-value">0</span>
+					</label>
+					<input type="range" 
+						   id="ap-plano-filter-saturation" 
+						   min="-1" 
+						   max="1" 
+						   step="0.1" 
+						   value="0">
+				</div>
+				<div class="ap-plano-filter-control">
+					<label>
+						<?php echo esc_html__( 'Matiz', 'apollo-social' ); ?>
+						<span id="ap-plano-filter-hue-value">0</span>
+					</label>
+					<input type="range" 
+						   id="ap-plano-filter-hue" 
+						   min="-180" 
+						   max="180" 
+						   step="1" 
+						   value="0">
+				</div>
+				<div class="ap-plano-filter-presets">
+					<button class="ap-plano-filter-preset" data-preset="warm"><?php echo esc_html__( 'Quente', 'apollo-social' ); ?></button>
+					<button class="ap-plano-filter-preset" data-preset="cool"><?php echo esc_html__( 'Frio', 'apollo-social' ); ?></button>
+					<button class="ap-plano-filter-preset" data-preset="bw"><?php echo esc_html__( 'P&B', 'apollo-social' ); ?></button>
+					<button class="ap-plano-filter-preset" data-preset="reset"><?php echo esc_html__( 'Resetar', 'apollo-social' ); ?></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="ap-plano-modal hidden" id="ap-plano-templates-modal">
 		<div class="ap-plano-modal-content">
 			<button class="ap-plano-modal-close" id="ap-plano-close-templates">×</button>
@@ -349,22 +423,118 @@ get_header();
 		</div>
 	</div>
 
+	<!-- Library Modal -->
+	<div class="ap-plano-modal hidden" id="ap-plano-library-modal">
+		<div class="ap-plano-modal-content ap-plano-library-content">
+			<button class="ap-plano-modal-close" id="ap-plano-close-library">×</button>
+			<h3>
+				<i class="ri-book-open-line"></i> 
+				<?php echo esc_html__( 'Biblioteca', 'apollo-social' ); ?>
+			</h3>
+
+			<!-- Search -->
+			<div class="ap-plano-library-search">
+				<input type="text" 
+					   id="ap-plano-library-search-input" 
+					   placeholder="<?php echo esc_attr__( 'Buscar...', 'apollo-social' ); ?>" 
+					   class="ap-plano-search-input" />
+			</div>
+
+			<!-- Tabs -->
+			<div class="ap-plano-library-tabs">
+				<button class="ap-plano-library-tab active" data-tab="bg">
+					<?php echo esc_html__( 'Fundos', 'apollo-social' ); ?>
+				</button>
+				<button class="ap-plano-library-tab" data-tab="elements">
+					<?php echo esc_html__( 'Elementos', 'apollo-social' ); ?>
+				</button>
+				<button class="ap-plano-library-tab" data-tab="posts">
+					<?php echo esc_html__( 'Posts', 'apollo-social' ); ?>
+				</button>
+				<button class="ap-plano-library-tab" data-tab="effects">
+					<?php echo esc_html__( 'Efeitos', 'apollo-social' ); ?>
+				</button>
+				<button class="ap-plano-library-tab" data-tab="video">
+					<?php echo esc_html__( 'Vídeo', 'apollo-social' ); ?>
+				</button>
+			</div>
+
+			<!-- Tab Content -->
+			<div class="ap-plano-library-tab-content" id="ap-plano-library-tab-content">
+				<!-- BG Tab -->
+				<div class="ap-plano-library-tab-panel active" data-panel="bg">
+					<div class="ap-plano-library-subtabs">
+						<button class="ap-plano-library-subtab active" data-subtab="gradient"><?php echo esc_html__( 'Gradiente', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="animation"><?php echo esc_html__( 'Animação', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="video-url"><?php echo esc_html__( 'Vídeo URL', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="widgets"><?php echo esc_html__( 'Widgets', 'apollo-social' ); ?></button>
+					</div>
+					<div class="ap-plano-library-subtab-content" id="ap-plano-bg-content"></div>
+				</div>
+
+				<!-- Elements Tab -->
+				<div class="ap-plano-library-tab-panel" data-panel="elements">
+					<div class="ap-plano-library-subtabs">
+						<button class="ap-plano-library-subtab active" data-subtab="image"><?php echo esc_html__( 'Imagem', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="box"><?php echo esc_html__( 'Caixa', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="text"><?php echo esc_html__( 'Texto', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="stickers"><?php echo esc_html__( 'Adesivos', 'apollo-social' ); ?></button>
+					</div>
+					<div class="ap-plano-library-subtab-content" id="ap-plano-elements-content"></div>
+				</div>
+
+				<!-- Posts Tab -->
+				<div class="ap-plano-library-tab-panel" data-panel="posts">
+					<div class="ap-plano-library-subtabs">
+						<button class="ap-plano-library-subtab active" data-subtab="classifieds"><?php echo esc_html__( 'Anúncios', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="events"><?php echo esc_html__( 'Eventos', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="dj"><?php echo esc_html__( 'DJ', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="local"><?php echo esc_html__( 'Local', 'apollo-social' ); ?></button>
+					</div>
+					<div class="ap-plano-library-subtab-content" id="ap-plano-posts-content">
+						<div class="ap-plano-post-search">
+							<input type="number" 
+								   id="ap-plano-post-id-input" 
+								   placeholder="<?php echo esc_attr__( 'Digite o ID do post', 'apollo-social' ); ?>" 
+								   class="ap-plano-search-input" />
+							<button id="ap-plano-load-post-btn" class="ap-plano-btn-primary">
+								<?php echo esc_html__( 'Carregar', 'apollo-social' ); ?>
+							</button>
+						</div>
+						<div id="ap-plano-post-preview"></div>
+					</div>
+				</div>
+
+				<!-- Effects Tab -->
+				<div class="ap-plano-library-tab-panel" data-panel="effects">
+					<div class="ap-plano-library-subtabs">
+						<button class="ap-plano-library-subtab active" data-subtab="color"><?php echo esc_html__( 'Cor', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="animation-mov"><?php echo esc_html__( 'Animação .mov', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="motion"><?php echo esc_html__( 'Movimento', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="pattern"><?php echo esc_html__( 'Padrão Listrado', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="texture"><?php echo esc_html__( 'Textura', 'apollo-social' ); ?></button>
+					</div>
+					<div class="ap-plano-library-subtab-content" id="ap-plano-effects-content"></div>
+				</div>
+
+				<!-- Video Tab -->
+				<div class="ap-plano-library-tab-panel" data-panel="video">
+					<div class="ap-plano-library-subtabs">
+						<button class="ap-plano-library-subtab active" data-subtab="youtube"><?php echo esc_html__( 'YouTube', 'apollo-social' ); ?></button>
+						<button class="ap-plano-library-subtab" data-subtab="instagram"><?php echo esc_html__( 'Instagram', 'apollo-social' ); ?></button>
+					</div>
+					<div class="ap-plano-library-subtab-content" id="ap-plano-video-content"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<!-- Hidden file input -->
 	<input type="file" 
 		   id="ap-plano-image-upload" 
 		   accept="image/*" 
 		   style="display: none;" />
 </div>
-
-<script>
-	// Add spin animation for loader icon.
-	if (!document.getElementById('ap-plano-spin-style')) {
-		const style = document.createElement('style');
-		style.id = 'ap-plano-spin-style';
-		style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
-		document.head.appendChild(style);
-	}
-</script>
 
 <?php
 get_footer();

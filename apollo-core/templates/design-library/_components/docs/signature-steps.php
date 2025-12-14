@@ -5,26 +5,26 @@
  * @var array $steps
  */
 
-$steps = $steps ?? array(
-	array(
+$steps = $steps ?? [
+	[
 		'label'   => 'Prepare o documento',
 		'time'    => 'Hoje, 09:12',
 		'context' => 'Upload e campos marcados automaticamente.',
 		'variant' => 'done',
-	),
-	array(
+	],
+	[
 		'label'   => 'Assine digitalmente',
 		'time'    => 'Prazo: Hoje, 18:00',
 		'context' => 'Utilize assinatura ICP válida ou assinatura simples.',
 		'variant' => 'current',
-	),
-	array(
+	],
+	[
 		'label'   => 'Envie para o parceiro',
 		'time'    => 'Após assinatura',
 		'context' => 'Fluxo automático com auditoria completa.',
 		'variant' => 'up-next',
-	),
-);
+	],
+];
 ?>
 <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-apcard p-5 shadow-lg">
 	<header class="flex items-center justify-between mb-4">
@@ -40,11 +40,11 @@ $steps = $steps ?? array(
 		<?php
 		foreach ( $steps as $index => $step ) :
 			$variant = $step['variant'] ?? 'up-next';
-			$colors  = array(
+			$colors  = [
 				'done'    => 'bg-emerald-400 text-slate-900',
 				'current' => 'bg-white text-slate-900 animate-pulse',
 				'up-next' => 'bg-white/20 text-white',
-			);
+			];
 			?>
 			<li class="flex items-start gap-3">
 				<span class="h-7 w-7 flex items-center justify-center rounded-full text-[11px] font-black <?php echo esc_attr( $colors[ $variant ] ?? $colors['up-next'] ); ?>">

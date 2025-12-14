@@ -23,13 +23,13 @@ define( 'APOLLO_INSTA_INFO_OPTION', 'apollo_insta_info' );
  * @return array Default quiz schemas
  */
 function apollo_get_default_quiz_schemas(): array {
-	return array(
-		'new_user' => array(
+	return [
+		'new_user' => [
 			'enabled'      => false,
 			'require_pass' => false,
-			'questions'    => array(),
-		),
-	);
+			'questions'    => [],
+		],
+	];
 }
 
 /**
@@ -45,14 +45,14 @@ function apollo_get_quiz_schema( string $form_type ): array {
 		return $cached;
 	}
 
-	$schemas  = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
+	$schemas  = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, [] );
 	$defaults = apollo_get_default_quiz_schemas();
 
-	$schema = array();
+	$schema = [];
 	if ( isset( $schemas[ $form_type ] ) ) {
-		$schema = wp_parse_args( $schemas[ $form_type ], $defaults[ $form_type ] ?? array() );
+		$schema = wp_parse_args( $schemas[ $form_type ], $defaults[ $form_type ] ?? [] );
 	} else {
-		$schema = $defaults[ $form_type ] ?? array();
+		$schema = $defaults[ $form_type ] ?? [];
 	}
 
 	// Cache the result
@@ -69,7 +69,7 @@ function apollo_get_quiz_schema( string $form_type ): array {
  * @return bool True on success
  */
 function apollo_save_quiz_schema( $form_type, $schema ) {
-	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, array() );
+	$schemas = get_option( APOLLO_QUIZ_SCHEMAS_OPTION, [] );
 
 	// Validate schema structure.
 	if ( ! isset( $schema['questions'] ) || ! is_array( $schema['questions'] ) ) {
@@ -117,10 +117,10 @@ function apollo_get_active_quiz_questions( string $form_type ): array {
 	$schema = apollo_get_quiz_schema( $form_type );
 
 	if ( empty( $schema['enabled'] ) || empty( $schema['questions'] ) ) {
-		return array();
+		return [];
 	}
 
-	$active = array();
+	$active = [];
 	foreach ( $schema['questions'] as $id => $question ) {
 		if ( ! empty( $question['active'] ) ) {
 			$active[ $id ] = $question;
@@ -142,7 +142,7 @@ function apollo_save_quiz_question( $form_type, $question, $id = null ) {
 	$schema = apollo_get_quiz_schema( $form_type );
 
 	// Validate question structure.
-	$required = array( 'title', 'answers', 'correct' );
+	$required = [ 'title', 'answers', 'correct' ];
 	foreach ( $required as $field ) {
 		if ( ! isset( $question[ $field ] ) ) {
 			return false;
@@ -157,15 +157,15 @@ function apollo_save_quiz_question( $form_type, $question, $id = null ) {
 	// Set defaults.
 	$question = wp_parse_args(
 		$question,
-		array(
+		[
 			'title'       => '',
-			'answers'     => array(),
-			'correct'     => array(),
+			'answers'     => [],
+			'correct'     => [],
 			'mandatory'   => true,
 			'explanation' => '',
 			'max_retries' => 5,
 			'active'      => false,
-		)
+		]
 	);
 
 	// If setting active, check limit.
@@ -230,14 +230,14 @@ function apollo_set_quiz_enabled( string $form_type, bool $enabled ): bool {
  * @return array Info content
  */
 function apollo_get_insta_info( string $form_type ): array {
-	$info = get_option( APOLLO_INSTA_INFO_OPTION, array() );
+	$info = get_option( APOLLO_INSTA_INFO_OPTION, [] );
 
-	$defaults = array(
+	$defaults = [
 		'title'     => __( 'Conecte seu Instagram', 'apollo-core' ),
 		'subtitle'  => __( 'Encontre amigos e compartilhe momentos', 'apollo-core' ),
 		'paragraph' => __( 'Seu Instagram ajuda outros usuários a te encontrar e se conectar com você na plataforma.', 'apollo-core' ),
 		'quote'     => __( '"A música conecta pessoas" - Apollo', 'apollo-core' ),
-	);
+	];
 
 	return isset( $info[ $form_type ] ) ? wp_parse_args( $info[ $form_type ], $defaults ) : $defaults;
 }
@@ -250,14 +250,14 @@ function apollo_get_insta_info( string $form_type ): array {
  * @return bool True on success
  */
 function apollo_save_insta_info( $form_type, $content ) {
-	$info = get_option( APOLLO_INSTA_INFO_OPTION, array() );
+	$info = get_option( APOLLO_INSTA_INFO_OPTION, [] );
 
-	$info[ $form_type ] = array(
+	$info[ $form_type ] = [
 		'title'     => sanitize_text_field( $content['title'] ?? '' ),
 		'subtitle'  => sanitize_text_field( $content['subtitle'] ?? '' ),
 		'paragraph' => wp_kses_post( $content['paragraph'] ?? '' ),
 		'quote'     => sanitize_text_field( $content['quote'] ?? '' ),
-	);
+	];
 
 	return update_option( APOLLO_INSTA_INFO_OPTION, $info );
 }
@@ -293,12 +293,12 @@ function apollo_get_quiz_stats( $form_type, $question_id ) {
 	// Pass rate.
 	$pass_rate = $total_attempts > 0 ? ( $passed_users / $total_attempts ) * 100 : 0;
 
-	return array(
+	return [
 		'total_attempts' => (int) $total_attempts,
 		'passed_users'   => (int) $passed_users,
 		'failed_users'   => (int) ( $total_attempts - $passed_users ),
 		'pass_rate'      => round( $pass_rate, 2 ),
-	);
+	];
 }
 
 /**
@@ -311,7 +311,7 @@ function apollo_init_quiz_schemas() {
 	}
 
 	if ( false === get_option( APOLLO_INSTA_INFO_OPTION ) ) {
-		add_option( APOLLO_INSTA_INFO_OPTION, array() );
+		add_option( APOLLO_INSTA_INFO_OPTION, [] );
 	}
 }
 

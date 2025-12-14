@@ -27,39 +27,39 @@ class Apollo_Group_Card_Widget extends Widget_Base {
 	}
 
 	public function get_categories() {
-		return array( 'apollo-social' );
+		return [ 'apollo-social' ];
 	}
 
 	protected function register_controls() {
 		$this->start_controls_section(
 			'content_section',
-			array(
+			[
 				'label' => __( 'Content', 'apollo-social' ),
 				'tab'   => Controls_Manager::TAB_CONTENT,
-			)
+			]
 		);
 
 		$this->add_control(
 			'group_slug',
-			array(
+			[
 				'label'       => __( 'Group Slug', 'apollo-social' ),
 				'type'        => Controls_Manager::TEXT,
 				'placeholder' => __( 'desenvolvedores-php', 'apollo-social' ),
-			)
+			]
 		);
 
 		$this->add_control(
 			'group_type',
-			array(
+			[
 				'label'   => __( 'Group Type', 'apollo-social' ),
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'comunidade',
-				'options' => array(
+				'options' => [
 					'comunidade' => __( 'Comunidade', 'apollo-social' ),
 					'nucleo'     => __( 'Núcleo', 'apollo-social' ),
 					'season'     => __( 'Season', 'apollo-social' ),
-				),
-			)
+				],
+			]
 		);
 
 		$this->end_controls_section();
@@ -68,10 +68,10 @@ class Apollo_Group_Card_Widget extends Widget_Base {
 	protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		$template_data = array(
+		$template_data = [
 			'type'  => $settings['group_type'],
 			'param' => $settings['group_slug'],
-		);
+		];
 
 		$renderer = new GroupPageRenderer();
 		$output   = $renderer->render( $template_data );

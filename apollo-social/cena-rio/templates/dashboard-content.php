@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $user_id = get_current_user_id();
 
 // Buscar dados do usuário
-$user_documents = array();
+$user_documents = [];
 if ( class_exists( 'Apollo\CenaRio\CenaRioModule' ) && method_exists( 'Apollo\CenaRio\CenaRioModule', 'getUserDocuments' ) ) {
 	$user_documents = Apollo\CenaRio\CenaRioModule::getUserDocuments( $user_id );
 }
@@ -61,7 +61,7 @@ if ( function_exists( 'bp_get_total_unread_messages_count' ) ) {
 }
 
 // Dados para gráficos
-$chart_labels = array();
+$chart_labels = [];
 for ( $i = 6; $i >= 0; $i-- ) {
 	$chart_labels[] = date_i18n( 'D', strtotime( "-{$i} days" ) );
 }
@@ -311,24 +311,24 @@ for ( $i = 6; $i >= 0; $i-- ) {
 			<tbody>
 			<?php
 			foreach ( array_slice( $user_documents, 0, 5 ) as $doc ) :
-				$status_labels = array(
-					'publish' => array(
+				$status_labels = [
+					'publish' => [
 						'label' => 'Publicado',
 						'color' => '142 76% 36%',
-					),
-					'draft'   => array(
+					],
+					'draft'   => [
 						'label' => 'Rascunho',
 						'color' => '48 96% 53%',
-					),
-					'pending' => array(
+					],
+					'pending' => [
 						'label' => 'Pendente',
 						'color' => '24 95% 53%',
-					),
-				);
-				$status        = $status_labels[ $doc->post_status ] ?? array(
+					],
+				];
+				$status        = $status_labels[ $doc->post_status ] ?? [
 					'label' => $doc->post_status,
 					'color' => '0 0% 50%',
-				);
+				];
 				?>
 				<tr style="border-bottom: 1px solid hsl(var(--border));">
 				<td style="padding: 1rem;">

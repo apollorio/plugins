@@ -178,7 +178,7 @@ class Apollo_Core_Permissions {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -195,7 +195,7 @@ class Apollo_Core_Permissions {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -203,7 +203,7 @@ class Apollo_Core_Permissions {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to approve content.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 
@@ -220,7 +220,7 @@ class Apollo_Core_Permissions {
 			return new WP_Error(
 				'rest_not_logged_in',
 				__( 'You must be logged in.', 'apollo-core' ),
-				array( 'status' => 401 )
+				[ 'status' => 401 ]
 			);
 		}
 
@@ -228,7 +228,7 @@ class Apollo_Core_Permissions {
 			return new WP_Error(
 				'rest_forbidden',
 				__( 'You do not have permission to access CENA RIO.', 'apollo-core' ),
-				array( 'status' => 403 )
+				[ 'status' => 403 ]
 			);
 		}
 

@@ -19,9 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array Default settings array
  */
 function apollo_get_default_mod_settings(): array {
-	return array(
-		'mods'              => array(),
-		'enabled_caps'      => array(
+	return [
+		'mods'              => [],
+		'enabled_caps'      => [
 			'publish_events'      => false,
 			'publish_locals'      => false,
 			'publish_djs'         => false,
@@ -29,10 +29,10 @@ function apollo_get_default_mod_settings(): array {
 			'publish_comunidades' => false,
 			'edit_posts'          => true,
 			'edit_classifieds'    => true,
-		),
+		],
 		'audit_log_enabled' => true,
 		'version'           => '1.0.0',
-	);
+	];
 }
 
 /**
@@ -41,7 +41,7 @@ function apollo_get_default_mod_settings(): array {
  * @return array Settings array
  */
 function apollo_get_mod_settings(): array {
-	$settings = get_option( 'apollo_mod_settings', array() );
+	$settings = get_option( 'apollo_mod_settings', [] );
 
 	return wp_parse_args( $settings, apollo_get_default_mod_settings() );
 }
@@ -58,7 +58,7 @@ function apollo_update_mod_settings( $settings ) {
 
 	// Validate structure.
 	if ( ! is_array( $settings['mods'] ) ) {
-		$settings['mods'] = array();
+		$settings['mods'] = [];
 	}
 
 	if ( ! is_array( $settings['enabled_caps'] ) ) {

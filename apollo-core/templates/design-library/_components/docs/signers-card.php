@@ -6,30 +6,30 @@
  * @var string $count_label
  */
 
-$signers     = $signers ?? array(
-	array(
+$signers     = $signers ?? [
+	[
 		'name'    => 'Você',
 		'avatar'  => 'VC',
 		'subline' => 'CPF ***.***.***-**',
 		'color'   => 'bg-amber-50 border border-amber-100',
-		'badge'   => array(
+		'badge'   => [
 			'label' => 'Pendente',
 			'class' => 'text-amber-600 bg-white',
 			'icon'  => '<span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>',
-		),
-	),
-	array(
+		],
+	],
+	[
 		'name'    => 'Parceiro / Terceiro',
 		'avatar'  => 'PT',
 		'subline' => 'Externo à plataforma',
 		'color'   => 'bg-white border border-slate-100',
-		'badge'   => array(
+		'badge'   => [
 			'label' => 'Assinado',
 			'class' => 'bg-emerald-50 text-emerald-600',
 			'icon'  => '<i class="ri-check-line"></i>',
-		),
-	),
-);
+		],
+	],
+];
 $count_label = $count_label ?? '1/2';
 ?>
 <section class="bg-white rounded-apcard shadow-sm border border-slate-200 p-5">
@@ -44,7 +44,7 @@ $count_label = $count_label ?? '1/2';
 	<div class="space-y-3">
 		<?php
 		foreach ( $signers as $signer ) :
-			$badge = $signer['badge'] ?? array();
+			$badge = $signer['badge'] ?? [];
 			?>
 			<div class="flex items-center justify-between p-3 rounded-xl <?php echo esc_attr( $signer['color'] ?? 'bg-white' ); ?>">
 				<div class="flex items-center gap-3">

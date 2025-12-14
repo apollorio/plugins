@@ -74,7 +74,7 @@ function apollo_core_hub_admin_styles( string $hook ): void {
 	wp_enqueue_style(
 		'apollo-core-hub-admin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/css/admin-hub.css',
-		array(),
+		[],
 		APOLLO_CORE_VERSION
 	);
 }
@@ -732,7 +732,7 @@ function apollo_core_render_design_page(): void {
 	$templates_dir = APOLLO_CORE_PLUGIN_DIR . 'templates/design-library/';
 	$templates     = glob( $templates_dir . '*.html' );
 	$index_file    = $templates_dir . '_index.json';
-	$index         = array();
+	$index         = [];
 
 	if ( file_exists( $index_file ) ) {
 		$index = json_decode( file_get_contents( $index_file ), true );
@@ -814,429 +814,429 @@ function apollo_core_render_design_page(): void {
  * Get all shortcodes data
  */
 function apollo_core_get_all_shortcodes(): array {
-	return array(
-		'CENA-RIO'                   => array(
-			array(
+	return [
+		'CENA-RIO'                   => [
+			[
 				'code'        => '[apollo_cena_submit_event]',
 				'description' => 'Formulário de submissão CENA-RIO',
 				'attributes'  => '',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_cena_mod_queue]',
 				'description' => 'Queue de moderação CENA-RIO',
 				'attributes'  => '',
-			),
-		),
-		'Documentos (Apollo Social)' => array(
-			array(
+			],
+		],
+		'Documentos (Apollo Social)' => [
+			[
 				'code'        => '[apollo_document_editor]',
 				'description' => 'Editor de documentos WYSIWYG',
 				'attributes'  => 'doc_id',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_documents]',
 				'description' => 'Lista de documentos',
 				'attributes'  => 'library',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_sign_document]',
 				'description' => 'Página de assinatura',
 				'attributes'  => 'doc_id',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_verify_document]',
 				'description' => 'Verificar documento',
 				'attributes'  => '',
-			),
-		),
-		'Social'                     => array(
-			array(
+			],
+		],
+		'Social'                     => [
+			[
 				'code'        => '[apollo_profile]',
 				'description' => 'Perfil do usuário',
 				'attributes'  => 'user_id',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_profile_card]',
 				'description' => 'Card de perfil',
 				'attributes'  => 'user_id',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_event_list]',
 				'description' => 'Lista de eventos social',
 				'attributes'  => '',
-			),
-			array(
+			],
+			[
 				'code'        => '[apollo_dj_contacts]',
 				'description' => 'Contatos de DJs',
 				'attributes'  => '',
-			),
-		),
-	);
+			],
+		],
+	];
 }
 
 /**
  * Get all placeholders data
  */
 function apollo_core_get_all_placeholders(): array {
-	return array(
-		'Moderação'  => array(
-			array(
+	return [
+		'Moderação'  => [
+			[
 				'code'        => '{mod_action}',
 				'description' => 'Ação de moderação',
 				'example'     => 'approved/rejected',
-			),
-			array(
+			],
+			[
 				'code'        => '{mod_reason}',
 				'description' => 'Motivo da ação',
 				'example'     => 'Conteúdo aprovado',
-			),
-			array(
+			],
+			[
 				'code'        => '{mod_actor}',
 				'description' => 'Moderador que agiu',
 				'example'     => 'admin',
-			),
-			array(
+			],
+			[
 				'code'        => '{mod_date}',
 				'description' => 'Data da ação',
 				'example'     => '25/12/2025',
-			),
-		),
-		'Documentos' => array(
-			array(
+			],
+		],
+		'Documentos' => [
+			[
 				'code'        => '{doc_title}',
 				'description' => 'Título do documento',
 				'example'     => 'Contrato de Serviço',
-			),
-			array(
+			],
+			[
 				'code'        => '{doc_protocol}',
 				'description' => 'Código do protocolo',
 				'example'     => 'APR-DOC-2025-A1B2C',
-			),
-			array(
+			],
+			[
 				'code'        => '{doc_hash}',
 				'description' => 'Hash SHA-256',
 				'example'     => 'abc123...',
-			),
-			array(
+			],
+			[
 				'code'        => '{doc_status}',
 				'description' => 'Status do documento',
 				'example'     => 'signed',
-			),
-			array(
+			],
+			[
 				'code'        => '{signer_name}',
 				'description' => 'Nome do assinante',
 				'example'     => 'João Silva',
-			),
-			array(
+			],
+			[
 				'code'        => '{signer_cpf}',
 				'description' => 'CPF mascarado',
 				'example'     => '***.456.789-**',
-			),
-		),
-		'CENA-RIO'   => array(
-			array(
+			],
+		],
+		'CENA-RIO'   => [
+			[
 				'code'        => '{cena_event_title}',
 				'description' => 'Título do evento',
 				'example'     => 'Festa Techno',
-			),
-			array(
+			],
+			[
 				'code'        => '{cena_status}',
 				'description' => 'Status interno',
 				'example'     => 'expected/confirmed',
-			),
-			array(
+			],
+			[
 				'code'        => '{cena_submitter}',
 				'description' => 'Quem submeteu',
 				'example'     => 'user@email.com',
-			),
-		),
-	);
+			],
+		],
+	];
 }
 
 /**
  * Get all forms data
  */
 function apollo_core_get_all_forms(): array {
-	return array(
-		array(
+	return [
+		[
 			'name'        => 'Submissão CENA-RIO',
 			'description' => 'Formulário para submissão de eventos pela indústria.',
 			'shortcode'   => '[apollo_cena_submit_event]',
 			'module'      => 'CENA-RIO',
 			'permission'  => 'cena_role ou cena_moderator',
-			'fields'      => array(
-				array(
+			'fields'      => [
+				[
 					'label'    => 'Título do Evento',
 					'type'     => 'text',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'Data',
 					'type'     => 'date',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'Local',
 					'type'     => 'select',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'Descrição',
 					'type'     => 'textarea',
 					'required' => false,
-				),
-			),
-		),
-		array(
+				],
+			],
+		],
+		[
 			'name'        => 'Editor de Documento',
 			'description' => 'Editor WYSIWYG para criar e editar documentos.',
 			'shortcode'   => '[apollo_document_editor]',
 			'module'      => 'Documents',
 			'permission'  => 'Usuários logados (edit_posts)',
-			'fields'      => array(),
-		),
-		array(
+			'fields'      => [],
+		],
+		[
 			'name'        => 'Assinatura Digital',
 			'description' => 'Página para assinar documentos digitalmente.',
 			'shortcode'   => '[apollo_sign_document]',
 			'module'      => 'Signatures',
 			'permission'  => 'Usuário convidado ou logado',
-			'fields'      => array(
-				array(
+			'fields'      => [
+				[
 					'label'    => 'Nome Completo',
 					'type'     => 'text',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'CPF',
 					'type'     => 'cpf',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'Aceitar Termos',
 					'type'     => 'checkbox',
 					'required' => true,
-				),
-				array(
+				],
+				[
 					'label'    => 'Assinatura',
 					'type'     => 'canvas',
 					'required' => true,
-				),
-			),
-		),
-		array(
+				],
+			],
+		],
+		[
 			'name'        => 'Quiz de Registro',
 			'description' => 'Quiz obrigatório no processo de registro.',
 			'shortcode'   => '(interno)',
 			'module'      => 'Quiz',
 			'permission'  => 'Durante registro',
-			'fields'      => array(),
-		),
-	);
+			'fields'      => [],
+		],
+	];
 }
 
 /**
  * Get all roles data
  */
 function apollo_core_get_all_roles(): array {
-	return array(
-		'custom_roles' => array(
-			array(
+	return [
+		'custom_roles' => [
+			[
 				'name'        => 'Apollo Moderator',
 				'slug'        => 'apollo',
 				'description' => 'Moderador geral do sistema Apollo',
-				'caps'        => array( 'view_mod_queue', 'approve_content', 'reject_content', 'send_mod_notifications' ),
-			),
-			array(
+				'caps'        => [ 'view_mod_queue', 'approve_content', 'reject_content', 'send_mod_notifications' ],
+			],
+			[
 				'name'        => 'CENA-RIO User',
 				'slug'        => 'cena_role',
 				'description' => 'Usuário da indústria com acesso ao CENA-RIO',
-				'caps'        => array( 'submit_cena_events', 'view_cena_calendar', 'edit_own_cena_events' ),
-			),
-			array(
+				'caps'        => [ 'submit_cena_events', 'view_cena_calendar', 'edit_own_cena_events' ],
+			],
+			[
 				'name'        => 'CENA-RIO Moderator',
 				'slug'        => 'cena_moderator',
 				'description' => 'Moderador interno do CENA-RIO',
-				'caps'        => array( 'submit_cena_events', 'view_cena_calendar', 'edit_own_cena_events', 'moderate_cena_events', 'confirm_cena_events' ),
-			),
-		),
-		'capabilities' => array(
-			'view_mod_queue'         => array(
+				'caps'        => [ 'submit_cena_events', 'view_cena_calendar', 'edit_own_cena_events', 'moderate_cena_events', 'confirm_cena_events' ],
+			],
+		],
+		'capabilities' => [
+			'view_mod_queue'         => [
 				'label'      => 'Ver Fila de Moderação',
 				'admin'      => true,
 				'apollo'     => true,
 				'cena'       => false,
 				'subscriber' => false,
-			),
-			'approve_content'        => array(
+			],
+			'approve_content'        => [
 				'label'      => 'Aprovar Conteúdo',
 				'admin'      => true,
 				'apollo'     => true,
 				'cena'       => false,
 				'subscriber' => false,
-			),
-			'reject_content'         => array(
+			],
+			'reject_content'         => [
 				'label'      => 'Rejeitar Conteúdo',
 				'admin'      => true,
 				'apollo'     => true,
 				'cena'       => false,
 				'subscriber' => false,
-			),
-			'suspend_users'          => array(
+			],
+			'suspend_users'          => [
 				'label'      => 'Suspender Usuários',
 				'admin'      => true,
 				'apollo'     => false,
 				'cena'       => false,
 				'subscriber' => false,
-			),
-			'submit_cena_events'     => array(
+			],
+			'submit_cena_events'     => [
 				'label'      => 'Submeter Eventos CENA-RIO',
 				'admin'      => true,
 				'apollo'     => false,
 				'cena'       => true,
 				'subscriber' => false,
-			),
-			'view_cena_calendar'     => array(
+			],
+			'view_cena_calendar'     => [
 				'label'      => 'Ver Calendário CENA-RIO',
 				'admin'      => true,
 				'apollo'     => true,
 				'cena'       => true,
 				'subscriber' => false,
-			),
-			'confirm_cena_events'    => array(
+			],
+			'confirm_cena_events'    => [
 				'label'      => 'Confirmar Eventos CENA-RIO',
 				'admin'      => true,
 				'apollo'     => false,
 				'cena'       => true,
 				'subscriber' => false,
-			),
-			'manage_apollo_settings' => array(
+			],
+			'manage_apollo_settings' => [
 				'label'      => 'Gerenciar Configurações Apollo',
 				'admin'      => true,
 				'apollo'     => false,
 				'cena'       => false,
 				'subscriber' => false,
-			),
-		),
-	);
+			],
+		],
+	];
 }
 
 /**
  * Get all meta keys data
  */
 function apollo_core_get_all_metakeys(): array {
-	return array(
-		'Moderação'   => array(
-			array(
+	return [
+		'Moderação'   => [
+			[
 				'key'         => '_apollo_mod_status',
 				'type'        => 'string',
 				'description' => 'Status de moderação',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_mod_actor',
 				'type'        => 'int',
 				'description' => 'ID do moderador',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_mod_date',
 				'type'        => 'datetime',
 				'description' => 'Data da ação',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_mod_reason',
 				'type'        => 'text',
 				'description' => 'Motivo da ação',
-			),
-		),
-		'CENA-RIO'    => array(
-			array(
+			],
+		],
+		'CENA-RIO'    => [
+			[
 				'key'         => '_apollo_cena_status',
 				'type'        => 'string',
 				'description' => 'Status interno (expected/confirmed)',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_cena_submitter',
 				'type'        => 'int',
 				'description' => 'ID do submissor',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_cena_confirmed_by',
 				'type'        => 'int',
 				'description' => 'ID de quem confirmou',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_cena_confirmed_at',
 				'type'        => 'datetime',
 				'description' => 'Data de confirmação',
-			),
-		),
-		'Documentos'  => array(
-			array(
+			],
+		],
+		'Documentos'  => [
+			[
 				'key'         => '_apollo_doc_protocol',
 				'type'        => 'string',
 				'description' => 'Código do protocolo',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_doc_hash',
 				'type'        => 'string',
 				'description' => 'Hash SHA-256',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_doc_library',
 				'type'        => 'string',
 				'description' => 'Biblioteca (apollo/cenario/private)',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_doc_status',
 				'type'        => 'string',
 				'description' => 'Status (draft/ready/signed)',
-			),
-		),
-		'Assinaturas' => array(
-			array(
+			],
+		],
+		'Assinaturas' => [
+			[
 				'key'         => '_apollo_sig_type',
 				'type'        => 'string',
 				'description' => 'Tipo (canvas/icp-brasil)',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_sig_signer_id',
 				'type'        => 'int',
 				'description' => 'ID do assinante',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_sig_cpf',
 				'type'        => 'string',
 				'description' => 'CPF (criptografado)',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_sig_timestamp',
 				'type'        => 'datetime',
 				'description' => 'Data/hora da assinatura',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_sig_ip',
 				'type'        => 'string',
 				'description' => 'IP do assinante',
-			),
-		),
-		'Usuário'     => array(
-			array(
+			],
+		],
+		'Usuário'     => [
+			[
 				'key'         => '_apollo_membership_type',
 				'type'        => 'string',
 				'description' => 'Tipo de membership',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_quiz_completed',
 				'type'        => 'bool',
 				'description' => 'Quiz completado',
-			),
-			array(
+			],
+			[
 				'key'         => '_apollo_quiz_score',
 				'type'        => 'int',
 				'description' => 'Pontuação do quiz',
-			),
-		),
-	);
+			],
+		],
+	];
 }
 
 /**
@@ -1245,7 +1245,7 @@ function apollo_core_get_all_metakeys(): array {
 function apollo_core_render_rbac_content() {
 	// Get all roles and capabilities
 	$roles               = wp_roles()->roles;
-	$apollo_capabilities = array(
+	$apollo_capabilities = [
 		'manage_apollo'             => 'Manage Apollo',
 		'manage_apollo_security'    => 'Manage Apollo Security',
 		'manage_apollo_uploads'     => 'Manage Apollo Uploads',
@@ -1253,7 +1253,7 @@ function apollo_core_render_rbac_content() {
 		'manage_apollo_audit'       => 'Manage Apollo Audit',
 		'view_apollo_reports'       => 'View Apollo Reports',
 		'edit_apollo_settings'      => 'Edit Apollo Settings',
-	);
+	];
 
 	echo '<div class="wrap">';
 	echo '<h1>Apollo RBAC Matrix</h1>';
@@ -1308,9 +1308,9 @@ function apollo_core_render_audit_content() {
 	$severity   = isset( $_GET['severity'] ) ? sanitize_key( $_GET['severity'] ) : '';
 	$limit      = isset( $_GET['limit'] ) ? intval( $_GET['limit'] ) : 50;
 
-	$args = array(
+	$args = [
 		'limit' => $limit,
-	);
+	];
 
 	if ( ! empty( $event_type ) ) {
 		$args['event_type'] = $event_type;

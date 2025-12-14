@@ -28,7 +28,7 @@ class Apollo_Core_Rest_Bootstrap {
 	 * Initialize
 	 */
 	public function init() {
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
 	}
 
 	/**
@@ -39,11 +39,11 @@ class Apollo_Core_Rest_Bootstrap {
 		register_rest_route(
 			self::NAMESPACE,
 			'/testando',
-			array(
+			[
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'health_check' ),
+				'callback'            => [ $this, 'health_check' ],
 				'permission_callback' => '__return_true',
-			)
+			]
 		);
 
 		do_action( 'apollo_core_register_rest_routes' );
@@ -57,11 +57,11 @@ class Apollo_Core_Rest_Bootstrap {
 	 */
 	public function health_check( $request ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'status'  => 'ok',
 				'version' => APOLLO_CORE_VERSION,
 				'modules' => array_keys( apollo_core()->modules->get_modules() ),
-			),
+			],
 			200
 		);
 	}

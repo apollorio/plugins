@@ -22,7 +22,7 @@ class Apollo_Core_Module_Loader {
 	 *
 	 * @var array
 	 */
-	private $modules = array();
+	private $modules = [];
 
 	/**
 	 * Modules directory
@@ -83,10 +83,10 @@ class Apollo_Core_Module_Loader {
 		require_once $bootstrap_file;
 
 		// Store loaded module.
-		$this->modules[ $module_slug ] = array(
+		$this->modules[ $module_slug ] = [
 			'path'      => $module_dir,
 			'bootstrap' => $bootstrap_file,
-		);
+		];
 
 		do_action( 'apollo_core_module_loaded', $module_slug, $module_dir );
 	}
@@ -98,8 +98,8 @@ class Apollo_Core_Module_Loader {
 	 * @return bool
 	 */
 	private function is_module_enabled( $module_slug ) {
-		$settings        = get_option( 'apollo_mod_settings', array() );
-		$enabled_modules = isset( $settings['enabled_modules'] ) ? $settings['enabled_modules'] : array( 'events', 'social', 'mod' );
+		$settings        = get_option( 'apollo_mod_settings', [] );
+		$enabled_modules = isset( $settings['enabled_modules'] ) ? $settings['enabled_modules'] : [ 'events', 'social', 'mod' ];
 
 		return in_array( $module_slug, $enabled_modules, true );
 	}

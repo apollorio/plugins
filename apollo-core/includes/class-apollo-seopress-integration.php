@@ -50,15 +50,15 @@ class Apollo_SEOPress_Integration {
 
 		// Only proceed if SEOPress is active.
 		if ( ! self::$seopress_available ) {
-			add_action( 'admin_notices', array( __CLASS__, 'maybe_show_plugin_notice' ) );
+			add_action( 'admin_notices', [ __CLASS__, 'maybe_show_plugin_notice' ] );
 
 			return;
 		}
 
 		// Set defaults on first run (admin only for safety).
 		if ( is_admin() ) {
-			add_action( 'admin_init', array( __CLASS__, 'maybe_set_defaults' ), 20 );
-			add_action( 'admin_notices', array( __CLASS__, 'show_status_notice' ) );
+			add_action( 'admin_init', [ __CLASS__, 'maybe_set_defaults' ], 20 );
+			add_action( 'admin_notices', [ __CLASS__, 'show_status_notice' ] );
 		}
 	}
 
@@ -139,7 +139,7 @@ class Apollo_SEOPress_Integration {
 			return;
 		}
 
-		$errors = array();
+		$errors = [];
 
 		// Set title settings with error handling.
 		$title_result = self::set_title_settings();
@@ -157,11 +157,11 @@ class Apollo_SEOPress_Integration {
 		if ( empty( $errors ) ) {
 			update_option(
 				self::INIT_FLAG,
-				array(
+				[
 					'timestamp' => current_time( 'mysql' ),
 					'version'   => self::$seopress_version,
 					'user'      => get_current_user_id(),
-				)
+				]
 			);
 
 			// Log success.
@@ -196,7 +196,7 @@ class Apollo_SEOPress_Integration {
 		// SAFETY: Get existing options with fallback.
 		$titles = get_option( 'seopress_titles_option_name' );
 		if ( ! is_array( $titles ) ) {
-			$titles = array();
+			$titles = [];
 		}
 
 		// Home page title - only set if empty.
@@ -234,7 +234,7 @@ class Apollo_SEOPress_Integration {
 		// SAFETY: Get existing options with fallback.
 		$xml = get_option( 'seopress_xml_sitemap_option_name' );
 		if ( ! is_array( $xml ) ) {
-			$xml = array();
+			$xml = [];
 		}
 
 		// Enable XML sitemap - only if not already set.
@@ -250,16 +250,16 @@ class Apollo_SEOPress_Integration {
 		// Include post types - only if not already set.
 		if ( ! isset( $xml['seopress_xml_sitemap_post_types_list'] ) ) {
 			// SAFETY: Only include post types that exist.
-			$post_types = array();
+			$post_types = [];
 
 			if ( post_type_exists( 'post' ) ) {
-				$post_types['post'] = array( 'include' => '1' );
+				$post_types['post'] = [ 'include' => '1' ];
 			}
 			if ( post_type_exists( 'page' ) ) {
-				$post_types['page'] = array( 'include' => '1' );
+				$post_types['page'] = [ 'include' => '1' ];
 			}
 			if ( post_type_exists( 'event_listing' ) ) {
-				$post_types['event_listing'] = array( 'include' => '1' );
+				$post_types['event_listing'] = [ 'include' => '1' ];
 			}
 
 			$xml['seopress_xml_sitemap_post_types_list'] = $post_types;
@@ -316,7 +316,7 @@ class Apollo_SEOPress_Integration {
 	 * @param string $message Error message.
 	 * @param array  $context Additional context.
 	 */
-	private static function log_error( string $message, array $context = array() ): void {
+	private static function log_error( string $message, array $context = [] ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
 			error_log(
 				sprintf(
@@ -330,4 +330,4 @@ class Apollo_SEOPress_Integration {
 }
 
 // Initialize on plugins_loaded.
-add_action( 'plugins_loaded', array( 'Apollo_SEOPress_Integration', 'init' ) );
+add_action( 'plugins_loaded', [ 'Apollo_SEOPress_Integration', 'init' ] );

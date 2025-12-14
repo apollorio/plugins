@@ -27,179 +27,179 @@ function apollo_register_membership_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'/membros',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_get_memberships',
 			'permission_callback' => '__return_true',
-		)
+		]
 	);
 
 	// POST /membros/definir - Definir tipo de membro do usuário.
 	register_rest_route(
 		'apollo/v1',
 		'/membros/definir',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_set_membership',
 			'permission_callback' => 'apollo_rest_can_edit_users',
-			'args'                => array(
-				'user_id'         => array(
+			'args'                => [
+				'user_id'         => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
 					'validate_callback' => 'apollo_rest_validate_user_id',
-				),
-				'membership_slug' => array(
+				],
+				'membership_slug' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
 					'validate_callback' => 'apollo_rest_validate_membership_slug',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /membros/criar - Criar novo tipo de membro (apenas admin).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/criar',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_create_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug'           => array(
+			'args'                => [
+				'slug'           => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-				'label'          => array(
+				],
+				'label'          => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'frontend_label' => array(
+				],
+				'frontend_label' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'color'          => array(
+				],
+				'color'          => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-				'text_color'     => array(
+				],
+				'text_color'     => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /membros/atualizar - Atualizar tipo de membro (apenas admin).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/atualizar',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_update_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug'           => array(
+			'args'                => [
+				'slug'           => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-				'label'          => array(
+				],
+				'label'          => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'frontend_label' => array(
+				],
+				'frontend_label' => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'color'          => array(
+				],
+				'color'          => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-				'text_color'     => array(
+				],
+				'text_color'     => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /membros/excluir - Excluir tipo de membro (apenas admin).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/excluir',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_delete_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug' => array(
+			'args'                => [
+				'slug' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// GET /membros/exportar - Exportar membros como JSON (apenas admin).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/exportar',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_export_memberships',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-		)
+		]
 	);
 
 	// POST /membros/importar - Importar membros de JSON (apenas admin).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/importar',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_import_memberships',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'data' => array(
+			'args'                => [
+				'data' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'wp_kses_post',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /membros/badges - Definir badges do usuário (múltiplos badges).
 	register_rest_route(
 		'apollo/v1',
 		'/membros/badges',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_set_user_badges',
 			'permission_callback' => 'apollo_rest_can_edit_users',
-			'args'                => array(
-				'user_id' => array(
+			'args'                => [
+				'user_id' => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
 					'validate_callback' => 'apollo_rest_validate_user_id',
-				),
-				'badges'  => array(
+				],
+				'badges'  => [
 					'required' => false,
 					'type'     => 'array',
-					'default'  => array(),
-				),
-			),
-		)
+					'default'  => [],
+				],
+			],
+		]
 	);
 
 	// =========================================================================
@@ -219,155 +219,155 @@ function apollo_register_legacy_membership_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'/memberships',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_get_memberships',
 			'permission_callback' => '__return_true',
-		)
+		]
 	);
 
 	// POST /memberships/set - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/set',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_set_membership',
 			'permission_callback' => 'apollo_rest_can_edit_users',
-			'args'                => array(
-				'user_id'         => array(
+			'args'                => [
+				'user_id'         => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
 					'validate_callback' => 'apollo_rest_validate_user_id',
-				),
-				'membership_slug' => array(
+				],
+				'membership_slug' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
 					'validate_callback' => 'apollo_rest_validate_membership_slug',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /memberships/criar/ - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/criar/',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_create_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug'           => array(
+			'args'                => [
+				'slug'           => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-				'label'          => array(
+				],
+				'label'          => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'frontend_label' => array(
+				],
+				'frontend_label' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'color'          => array(
+				],
+				'color'          => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-				'text_color'     => array(
+				],
+				'text_color'     => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /memberships/update - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/update',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_update_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug'           => array(
+			'args'                => [
+				'slug'           => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-				'label'          => array(
+				],
+				'label'          => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'frontend_label' => array(
+				],
+				'frontend_label' => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'color'          => array(
+				],
+				'color'          => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-				'text_color'     => array(
+				],
+				'text_color'     => [
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_hex_color',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// POST /memberships/delete - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/delete',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_delete_membership',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'slug' => array(
+			'args'                => [
+				'slug' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// GET /memberships/export - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/export',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_export_memberships',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-		)
+		]
 	);
 
 	// POST /memberships/import - Legacy alias.
 	register_rest_route(
 		'apollo/v1',
 		'/memberships/import',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_import_memberships',
 			'permission_callback' => 'apollo_rest_can_manage_memberships',
-			'args'                => array(
-				'data' => array(
+			'args'                => [
+				'data' => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'wp_kses_post',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 }
 
@@ -426,11 +426,11 @@ function apollo_rest_get_memberships( $request ) {
 	$version     = get_option( 'apollo_memberships_version', '1.0.0' );
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success'     => true,
 			'version'     => $version,
 			'memberships' => $memberships,
-		),
+		],
 		200
 	);
 }
@@ -454,10 +454,10 @@ function apollo_rest_set_membership( $request ) {
 
 		if ( ! $result ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Failed to update membership', 'apollo-core' ),
-				),
+				],
 				400
 			);
 		}
@@ -466,13 +466,13 @@ function apollo_rest_set_membership( $request ) {
 		$membership_data = apollo_get_membership_data( $membership_slug );
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'    => true,
 				'message'    => __( 'Membership updated successfully', 'apollo-core' ),
 				'user_id'    => $user_id,
 				'user_name'  => $user->display_name,
 				'membership' => $membership_data,
-			),
+			],
 			200
 		);
 	} catch ( Exception $e ) {
@@ -491,10 +491,10 @@ function apollo_rest_set_membership( $request ) {
 		return new WP_Error(
 			'membership_update_failed',
 			__( 'Failed to update membership. Please try again.', 'apollo-core' ),
-			array(
+			[
 				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
-			)
+			]
 		);
 	}//end try
 }
@@ -515,34 +515,34 @@ function apollo_rest_create_membership( $request ) {
 	// Check if slug already exists.
 	if ( apollo_membership_exists( $slug ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Membership with this slug already exists', 'apollo-core' ),
-			),
+			],
 			400
 		);
 	}
 
 	// Get current memberships.
-	$memberships = get_option( 'apollo_memberships', array() );
+	$memberships = get_option( 'apollo_memberships', [] );
 
 	// Add new membership.
-	$memberships[ $slug ] = array(
+	$memberships[ $slug ] = [
 		'label'          => $label,
 		'frontend_label' => $frontend_label,
 		'color'          => $color,
 		'text_color'     => $text_color,
-	);
+	];
 
 	// Save.
 	$result = apollo_save_memberships( $memberships );
 
 	if ( ! $result ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Failed to create membership', 'apollo-core' ),
-			),
+			],
 			500
 		);
 	}
@@ -553,18 +553,18 @@ function apollo_rest_create_membership( $request ) {
 		'membership_type_created',
 		'membership',
 		0,
-		array(
+		[
 			'slug'  => $slug,
 			'label' => $label,
-		)
+		]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success'    => true,
 			'message'    => __( 'Membership created successfully', 'apollo-core' ),
 			'membership' => $memberships[ $slug ],
-		),
+		],
 		201
 	);
 }
@@ -581,10 +581,10 @@ function apollo_rest_update_membership( $request ) {
 	// Check if exists.
 	if ( ! apollo_membership_exists( $slug ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Membership not found', 'apollo-core' ),
-			),
+			],
 			404
 		);
 	}
@@ -593,23 +593,23 @@ function apollo_rest_update_membership( $request ) {
 	$defaults = apollo_get_default_memberships();
 	if ( isset( $defaults[ $slug ] ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Cannot edit default membership types', 'apollo-core' ),
-			),
+			],
 			403
 		);
 	}
 
 	// Get current memberships.
-	$memberships = get_option( 'apollo_memberships', array() );
+	$memberships = get_option( 'apollo_memberships', [] );
 
 	if ( ! isset( $memberships[ $slug ] ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Only custom memberships can be edited', 'apollo-core' ),
-			),
+			],
 			403
 		);
 	}
@@ -638,10 +638,10 @@ function apollo_rest_update_membership( $request ) {
 
 	if ( ! $result ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Failed to update membership', 'apollo-core' ),
-			),
+			],
 			500
 		);
 	}
@@ -652,18 +652,18 @@ function apollo_rest_update_membership( $request ) {
 		'membership_type_updated',
 		'membership',
 		0,
-		array(
+		[
 			'slug'  => $slug,
 			'label' => $memberships[ $slug ]['label'],
-		)
+		]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success'    => true,
 			'message'    => __( 'Membership updated successfully', 'apollo-core' ),
 			'membership' => $memberships[ $slug ],
-		),
+		],
 		200
 	);
 }
@@ -680,10 +680,10 @@ function apollo_rest_delete_membership( $request ) {
 	// Cannot delete nao-verificado.
 	if ( 'nao-verificado' === $slug ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Cannot delete default membership', 'apollo-core' ),
-			),
+			],
 			403
 		);
 	}
@@ -692,10 +692,10 @@ function apollo_rest_delete_membership( $request ) {
 	$defaults = apollo_get_default_memberships();
 	if ( isset( $defaults[ $slug ] ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Cannot delete default membership types', 'apollo-core' ),
-			),
+			],
 			403
 		);
 	}
@@ -705,10 +705,10 @@ function apollo_rest_delete_membership( $request ) {
 
 	if ( ! $result ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => __( 'Failed to delete membership', 'apollo-core' ),
-			),
+			],
 			500
 		);
 	}
@@ -719,16 +719,16 @@ function apollo_rest_delete_membership( $request ) {
 		'membership_type_deleted',
 		'membership',
 		0,
-		array(
+		[
 			'slug' => $slug,
-		)
+		]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success' => true,
 			'message' => __( 'Membership deleted successfully. Users reassigned to Não Verificado.', 'apollo-core' ),
-		),
+		],
 		200
 	);
 }
@@ -743,10 +743,10 @@ function apollo_rest_export_memberships( $request ) {
 	$json = apollo_export_memberships_json();
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success' => true,
 			'data'    => $json,
-		),
+		],
 		200
 	);
 }
@@ -764,10 +764,10 @@ function apollo_rest_import_memberships( $request ) {
 
 	if ( is_wp_error( $result ) ) {
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => false,
 				'message' => $result->get_error_message(),
-			),
+			],
 			400
 		);
 	}
@@ -778,16 +778,16 @@ function apollo_rest_import_memberships( $request ) {
 		'memberships_imported',
 		'membership',
 		0,
-		array(
+		[
 			'timestamp' => current_time( 'mysql' ),
-		)
+		]
 	);
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success' => true,
 			'message' => __( 'Memberships imported successfully', 'apollo-core' ),
-		),
+		],
 		200
 	);
 }
@@ -807,16 +807,16 @@ function apollo_rest_set_user_badges( $request ) {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'User not found', 'apollo-core' ),
-				),
+				],
 				404
 			);
 		}
 
 		// Sanitize badges array.
-		$badges = is_array( $badges ) ? $badges : array();
+		$badges = is_array( $badges ) ? $badges : [];
 		$badges = array_map( 'sanitize_key', $badges );
 		$badges = array_filter( $badges ); // Remove empty values.
 
@@ -825,10 +825,10 @@ function apollo_rest_set_user_badges( $request ) {
 		foreach ( $badges as $badge_slug ) {
 			if ( ! isset( $memberships[ $badge_slug ] ) && 'nao-verificado' !== $badge_slug ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success' => false,
 						'message' => sprintf( __( 'Invalid badge: %s', 'apollo-core' ), $badge_slug ),
-					),
+					],
 					400
 				);
 			}
@@ -842,10 +842,10 @@ function apollo_rest_set_user_badges( $request ) {
 
 		if ( ! $result ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Failed to update badges', 'apollo-core' ),
-				),
+				],
 				500
 			);
 		}
@@ -857,20 +857,20 @@ function apollo_rest_set_user_badges( $request ) {
 				'user_badges_updated',
 				'user',
 				$user_id,
-				array(
+				[
 					'badges'    => $badges,
 					'timestamp' => current_time( 'mysql' ),
-				)
+				]
 			);
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Badges updated successfully', 'apollo-core' ),
 				'user_id' => $user_id,
 				'badges'  => $badges,
-			),
+			],
 			200
 		);
 	} catch ( Exception $e ) {
@@ -888,10 +888,10 @@ function apollo_rest_set_user_badges( $request ) {
 		return new WP_Error(
 			'badges_update_failed',
 			__( 'Failed to update badges. Please try again.', 'apollo-core' ),
-			array(
+			[
 				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
-			)
+			]
 		);
 	}//end try
 }

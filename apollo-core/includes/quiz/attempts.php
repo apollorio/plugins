@@ -41,15 +41,15 @@ function apollo_record_quiz_attempt( $user_id, $question_id, $answers, $passed )
 	// Insert attempt.
 	$result = $wpdb->insert(
 		$table,
-		array(
+		[
 			'user_id'        => absint( $user_id ),
 			'question_id'    => absint( $question_id ),
 			'answers'        => wp_json_encode( $answers ),
 			'passed'         => $passed ? 1 : 0,
 			'attempt_number' => $attempt_number,
 			'created_at'     => current_time( 'mysql' ),
-		),
-		array( '%d', '%d', '%s', '%d', '%d', '%s' )
+		],
+		[ '%d', '%d', '%s', '%d', '%d', '%s' ]
 	);
 
 	return $result ? $wpdb->insert_id : false;
@@ -102,7 +102,7 @@ function apollo_get_question_attempts( $question_id ) {
 		)
 	);
 
-	$results = array();
+	$results = [];
 
 	foreach ( $user_ids as $user_id ) {
 		$user = get_userdata( $user_id );
@@ -115,7 +115,7 @@ function apollo_get_question_attempts( $question_id ) {
 		// Get latest attempt status.
 		$latest = end( $attempts );
 
-		$results[] = array(
+		$results[] = [
 			'user_id'        => $user_id,
 			'user_name'      => $user->display_name,
 			'user_email'     => $user->user_email,
@@ -123,7 +123,7 @@ function apollo_get_question_attempts( $question_id ) {
 			'passed'         => (bool) $latest->passed,
 			'latest_attempt' => $latest,
 			'all_attempts'   => $attempts,
-		);
+		];
 	}//end foreach
 
 	return $results;
@@ -189,7 +189,7 @@ function apollo_validate_quiz_answer( $question_id, $user_answers, $form_type ) 
 	}
 
 	$question = $schema['questions'][ $question_id ];
-	$correct  = $question['correct'] ?? array();
+	$correct  = $question['correct'] ?? [];
 
 	// Sort both arrays to compare.
 	sort( $user_answers );
@@ -210,18 +210,18 @@ function apollo_process_quiz_submission( $quiz_answers, $form_type, $user_id = 0
 	$active_questions = apollo_get_active_quiz_questions( $form_type );
 
 	if ( empty( $active_questions ) ) {
-		return array(
+		return [
 			'success' => true,
 			'passed'  => true,
-			'results' => array(),
-		);
+			'results' => [],
+		];
 	}
 
-	$results    = array();
+	$results    = [];
 	$all_passed = true;
 
 	foreach ( $active_questions as $question_id => $question ) {
-		$user_answers = $quiz_answers[ $question_id ] ?? array();
+		$user_answers = $quiz_answers[ $question_id ] ?? [];
 
 		// Check attempts limit.
 		if ( $user_id > 0 ) {
@@ -229,11 +229,11 @@ function apollo_process_quiz_submission( $quiz_answers, $form_type, $user_id = 0
 			$max_retries   = $question['max_retries'] ?? 5;
 
 			if ( $attempt_count >= $max_retries ) {
-				$results[ $question_id ] = array(
+				$results[ $question_id ] = [
 					'passed'        => false,
 					'max_reached'   => true,
 					'attempt_count' => $attempt_count,
-				);
+				];
 				$all_passed              = false;
 
 				continue;
@@ -248,22 +248,22 @@ function apollo_process_quiz_submission( $quiz_answers, $form_type, $user_id = 0
 			apollo_record_quiz_attempt( $user_id, $question_id, $user_answers, $passed );
 		}
 
-		$results[ $question_id ] = array(
+		$results[ $question_id ] = [
 			'passed'      => $passed,
 			'explanation' => $question['explanation'] ?? '',
 			'correct'     => $question['correct'],
-		);
+		];
 
 		if ( ! $passed ) {
 			$all_passed = false;
 		}
 	}//end foreach
 
-	return array(
+	return [
 		'success' => true,
 		'passed'  => $all_passed,
 		'results' => $results,
-	);
+	];
 }
 
 /**

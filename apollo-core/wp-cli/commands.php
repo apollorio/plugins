@@ -31,7 +31,7 @@ class Apollo_Core_CLI_Commands {
 		WP_CLI::log( WP_CLI::colorize( '%B=== Apollo Core Database Test ===%n' ) );
 		WP_CLI::log( '' );
 
-		$errors = array();
+		$errors = [];
 
 		// Test 1: Database connectivity.
 		WP_CLI::log( '1. Testing database connectivity...' );
@@ -89,12 +89,12 @@ class Apollo_Core_CLI_Commands {
 		if ( $role ) {
 			WP_CLI::success( 'apollo role exists' );
 			WP_CLI::log( '  Capabilities:' );
-			$apollo_caps = array(
+			$apollo_caps = [
 				'moderate_apollo_content',
 				'edit_apollo_users',
 				'view_mod_queue',
 				'send_user_notifications',
-			);
+			];
 			foreach ( $apollo_caps as $cap ) {
 				$has_cap = $role->has_cap( $cap );
 				WP_CLI::log( '    - ' . $cap . ': ' . ( $has_cap ? WP_CLI::colorize( '%G✓%n' ) : WP_CLI::colorize( '%R✗%n' ) ) );
@@ -145,9 +145,9 @@ class Apollo_Core_CLI_Commands {
 		$limit    = isset( $assoc_args['limit'] ) ? absint( $assoc_args['limit'] ) : 20;
 		$actor_id = isset( $assoc_args['actor'] ) ? absint( $assoc_args['actor'] ) : null;
 
-		$query_args = array(
+		$query_args = [
 			'limit' => $limit,
-		);
+		];
 
 		if ( $actor_id ) {
 			$query_args['actor_id'] = $actor_id;
@@ -161,18 +161,18 @@ class Apollo_Core_CLI_Commands {
 			return;
 		}
 
-		$table_data = array();
+		$table_data = [];
 		foreach ( $logs as $log ) {
-			$table_data[] = array(
+			$table_data[] = [
 				'ID'     => $log->id,
 				'Date'   => $log->created_at,
 				'Actor'  => $log->actor_id . ' (' . $log->actor_role . ')',
 				'Action' => $log->action,
 				'Target' => $log->target_type . ':' . $log->target_id,
-			);
+			];
 		}
 
-		WP_CLI\Utils\format_items( 'table', $table_data, array( 'ID', 'Date', 'Actor', 'Action', 'Target' ) );
+		WP_CLI\Utils\format_items( 'table', $table_data, [ 'ID', 'Date', 'Actor', 'Action', 'Target' ] );
 	}
 }
 

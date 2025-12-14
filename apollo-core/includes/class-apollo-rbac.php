@@ -19,7 +19,7 @@ class Apollo_RBAC {
 	/**
 	 * All Apollo capabilities
 	 */
-	const CAPABILITIES = array(
+	const CAPABILITIES = [
 		// Core management
 		'manage_apollo',
 
@@ -42,7 +42,7 @@ class Apollo_RBAC {
 		// Audit
 		'manage_apollo_audit',
 		'view_apollo_reports',
-	);
+	];
 
 	/**
 	 * Register all capabilities
@@ -83,7 +83,7 @@ class Apollo_RBAC {
 	 * Remove capabilities on deactivation
 	 */
 	public static function remove_capabilities_from_roles() {
-		$roles = array( 'administrator', 'editor', 'author' );
+		$roles = [ 'administrator', 'editor', 'author' ];
 
 		foreach ( $roles as $role_slug ) {
 			$role = get_role( $role_slug );
@@ -101,7 +101,7 @@ class Apollo_RBAC {
 	 * @return array RBAC matrix.
 	 */
 	public static function get_rbac_matrix() {
-		$matrix = array();
+		$matrix = [];
 		$roles  = get_editable_roles();
 
 		foreach ( $roles as $role_slug => $role_data ) {
@@ -110,10 +110,10 @@ class Apollo_RBAC {
 				continue;
 			}
 
-			$matrix[ $role_slug ] = array(
+			$matrix[ $role_slug ] = [
 				'name'         => $role_data['name'],
-				'capabilities' => array(),
-			);
+				'capabilities' => [],
+			];
 
 			foreach ( self::CAPABILITIES as $cap ) {
 				$matrix[ $role_slug ]['capabilities'][ $cap ] = $role->has_cap( $cap );

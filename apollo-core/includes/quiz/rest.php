@@ -21,17 +21,17 @@ function apollo_register_quiz_rest_routes() {
 	register_rest_route(
 		'apollo/v1',
 		'quiz/tentativa',
-		array(
+		[
 			'methods'             => 'POST',
 			'callback'            => 'apollo_rest_quiz_attempt',
 			'permission_callback' => 'apollo_rest_quiz_attempt_permission',
-			'args'                => array(
-				'question_id' => array(
+			'args'                => [
+				'question_id' => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
-				),
-				'answers'     => array(
+				],
+				'answers'     => [
 					'required'          => true,
 					'type'              => 'array',
 					'sanitize_callback' => function ( $value ) {
@@ -40,59 +40,59 @@ function apollo_register_quiz_rest_routes() {
 					'validate_callback' => function ( $value ) {
 						return is_array( $value ) && ! empty( $value );
 					},
-				),
-				'form_type'   => array(
+				],
+				'form_type'   => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// GET quiz/stats - Get quiz statistics (admin only).
 	register_rest_route(
 		'apollo/v1',
 		'quiz/stats',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_quiz_stats',
 			'permission_callback' => function () {
 				return current_user_can( 'manage_options' );
 			},
-			'args'                => array(
-				'question_id' => array(
+			'args'                => [
+				'question_id' => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
-				),
-				'form_type'   => array(
+				],
+				'form_type'   => [
 					'required'          => true,
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_key',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 
 	// GET quiz/tentativa-user - Get user attempts for a question.
 	register_rest_route(
 		'apollo/v1',
 		'quiz/tentativa-user',
-		array(
+		[
 			'methods'             => 'GET',
 			'callback'            => 'apollo_rest_user_attempts',
 			'permission_callback' => function () {
 				return is_user_logged_in();
 			},
-			'args'                => array(
-				'question_id' => array(
+			'args'                => [
+				'question_id' => [
 					'required'          => true,
 					'type'              => 'integer',
 					'sanitize_callback' => 'absint',
-				),
-			),
-		)
+				],
+			],
+		]
 	);
 }
 add_action( 'rest_api_init', 'apollo_register_quiz_rest_routes' );
@@ -140,10 +140,10 @@ function apollo_rest_quiz_attempt( $request ) {
 
 		if ( ! apollo_check_quiz_rate_limit( $ip, $user_id ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Too many attempts. Please wait before trying again.', 'apollo-core' ),
-				),
+				],
 				429
 			);
 		}
@@ -153,10 +153,10 @@ function apollo_rest_quiz_attempt( $request ) {
 
 		if ( ! isset( $schema['questions'][ $question_id ] ) ) {
 			return new WP_REST_Response(
-				array(
+				[
 					'success' => false,
 					'message' => __( 'Question not found.', 'apollo-core' ),
-				),
+				],
 				404
 			);
 		}
@@ -170,12 +170,12 @@ function apollo_rest_quiz_attempt( $request ) {
 
 			if ( $attempt_count >= $max_retries ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success'       => false,
 						'message'       => __( 'Maximum retry limit reached.', 'apollo-core' ),
 						'max_reached'   => true,
 						'attempt_count' => $attempt_count,
-					),
+					],
 					403
 				);
 			}
@@ -190,23 +190,23 @@ function apollo_rest_quiz_attempt( $request ) {
 
 			if ( ! $attempt_id ) {
 				return new WP_REST_Response(
-					array(
+					[
 						'success' => false,
 						'message' => __( 'Failed to record attempt.', 'apollo-core' ),
-					),
+					],
 					500
 				);
 			}
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success'       => true,
 				'passed'        => $passed,
 				'explanation'   => $passed ? '' : ( $question['explanation'] ?? '' ),
 				'attempt_count' => $user_id > 0 ? apollo_get_attempt_count( $user_id, $question_id ) : 0,
 				'max_retries'   => $question['max_retries'] ?? 5,
-			),
+			],
 			200
 		);
 	} catch ( Exception $e ) {
@@ -229,10 +229,10 @@ function apollo_rest_quiz_attempt( $request ) {
 		return new WP_Error(
 			'quiz_attempt_failed',
 			__( 'Quiz attempt failed. Please try again or contact support if the problem persists.', 'apollo-core' ),
-			array(
+			[
 				'status'     => 500,
 				'debug_info' => WP_DEBUG ? $e->getMessage() : null,
-			)
+			]
 		);
 	}//end try
 }
@@ -251,11 +251,11 @@ function apollo_rest_quiz_stats( $request ) {
 	$attempts = apollo_get_question_attempts( $question_id );
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success'  => true,
 			'stats'    => $stats,
 			'attempts' => $attempts,
-		),
+		],
 		200
 	);
 }
@@ -273,10 +273,10 @@ function apollo_rest_user_attempts( $request ) {
 	$attempts = apollo_get_user_attempts( $user_id, $question_id );
 
 	return new WP_REST_Response(
-		array(
+		[
 			'success'  => true,
 			'attempts' => $attempts,
-		),
+		],
 		200
 	);
 }

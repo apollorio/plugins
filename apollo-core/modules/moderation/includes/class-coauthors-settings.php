@@ -35,50 +35,50 @@ class Apollo_Coauthors_Settings {
 	 *
 	 * @var array
 	 */
-	private static $cpts = array(
-		'event_listing'      => array(
+	private static $cpts = [
+		'event_listing'      => [
 			'label'        => 'Eventos',
 			'label_single' => 'Evento',
 			'icon'         => 'dashicons-calendar-alt',
 			'extra'        => false,
-		),
-		'event_dj'           => array(
+		],
+		'event_dj'           => [
 			'label'        => 'DJs',
 			'label_single' => 'DJ',
 			'icon'         => 'dashicons-format-audio',
 			'extra'        => false,
-		),
-		'event_local'        => array(
+		],
+		'event_local'        => [
 			'label'        => 'Locais',
 			'label_single' => 'Local',
 			'icon'         => 'dashicons-location',
 			'extra'        => false,
-		),
-		'nucleo'             => array(
+		],
+		'nucleo'             => [
 			'label'        => 'Núcleos',
 			'label_single' => 'Núcleo',
 			'icon'         => 'dashicons-groups',
 			'extra'        => 'nucleo',
-		),
-		'comuna'             => array(
+		],
+		'comuna'             => [
 			'label'        => 'Comunidades',
 			'label_single' => 'Comunidade',
 			'icon'         => 'dashicons-networking',
 			'extra'        => 'comuna',
-		),
-		'apollo_social_post' => array(
+		],
+		'apollo_social_post' => [
 			'label'        => 'Posts Sociais',
 			'label_single' => 'Post Social',
 			'icon'         => 'dashicons-share',
 			'extra'        => false,
-		),
-	);
+		],
+	];
 
 	/**
 	 * Initialize
 	 */
 	public static function init() {
-		add_action( 'admin_post_apollo_save_coauthors_settings', array( __CLASS__, 'save_settings' ) );
+		add_action( 'admin_post_apollo_save_coauthors_settings', [ __CLASS__, 'save_settings' ] );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Apollo_Coauthors_Settings {
 	 * @return array Default settings.
 	 */
 	public static function get_default_settings( string $cpt ): array {
-		$defaults = array(
+		$defaults = [
 			'enabled'              => false,
 			'can_add_coauthors'    => false,
 			'can_edit_coauthors'   => false,
@@ -96,7 +96,7 @@ class Apollo_Coauthors_Settings {
 			'max_coauthors'        => 5,
 			'can_edit_content'     => false,
 			'can_delete_content'   => false,
-		);
+		];
 
 		// Extra settings for núcleo.
 		if ( 'nucleo' === $cpt ) {
@@ -126,9 +126,9 @@ class Apollo_Coauthors_Settings {
 	 * @return array All co-authors settings.
 	 */
 	public static function get_settings(): array {
-		$saved = get_option( self::OPTION_KEY, array() );
+		$saved = get_option( self::OPTION_KEY, [] );
 
-		$settings = array();
+		$settings = [];
 		foreach ( self::$cpts as $cpt => $config ) {
 			$defaults         = self::get_default_settings( $cpt );
 			$settings[ $cpt ] = isset( $saved[ $cpt ] ) ? wp_parse_args( $saved[ $cpt ], $defaults ) : $defaults;
@@ -480,10 +480,10 @@ class Apollo_Coauthors_Settings {
 					$field_prefix . '[default_privacy]',
 					__( 'Qual padrão de núcleos que todos devem ficar agora?', 'apollo-core' ),
 					$settings['default_privacy'] ?? 'private',
-					array(
+					[
 						'public'  => __( 'Público', 'apollo-core' ),
 						'private' => __( 'Privado', 'apollo-core' ),
-					)
+					]
 				);
 
 				// New núcleo privacy.
@@ -491,10 +491,10 @@ class Apollo_Coauthors_Settings {
 					$field_prefix . '[new_nucleo_privacy]',
 					__( 'Qual padrão para os novos núcleos criados?', 'apollo-core' ),
 					$settings['new_nucleo_privacy'] ?? 'private',
-					array(
+					[
 						'public'  => __( 'Público', 'apollo-core' ),
 						'private' => __( 'Privado', 'apollo-core' ),
-					)
+					]
 				);
 
 				// Can post files.
@@ -575,13 +575,13 @@ class Apollo_Coauthors_Settings {
 
 		check_admin_referer( 'apollo_coauthors_settings_save', 'apollo_coauthors_nonce' );
 
-		$input    = isset( $_POST['coauthors'] ) ? wp_unslash( $_POST['coauthors'] ) : array();
-		$settings = array();
+		$input    = isset( $_POST['coauthors'] ) ? wp_unslash( $_POST['coauthors'] ) : [];
+		$settings = [];
 
 		foreach ( self::$cpts as $cpt => $config ) {
-			$cpt_input = isset( $input[ $cpt ] ) ? $input[ $cpt ] : array();
+			$cpt_input = isset( $input[ $cpt ] ) ? $input[ $cpt ] : [];
 
-			$settings[ $cpt ] = array(
+			$settings[ $cpt ] = [
 				// Boolean fields.
 				'enabled'              => ! empty( $cpt_input['enabled'] ),
 				'can_add_coauthors'    => ! empty( $cpt_input['can_add_coauthors'] ),
@@ -592,15 +592,15 @@ class Apollo_Coauthors_Settings {
 
 				// Numeric fields.
 				'max_coauthors'        => isset( $cpt_input['max_coauthors'] ) ? absint( $cpt_input['max_coauthors'] ) : 5,
-			);
+			];
 
 			// Extra fields for núcleo.
 			if ( 'nucleo' === $config['extra'] ) {
 				$settings[ $cpt ]['can_add_members']    = ! empty( $cpt_input['can_add_members'] );
 				$settings[ $cpt ]['can_remove_members'] = ! empty( $cpt_input['can_remove_members'] );
 				$settings[ $cpt ]['can_toggle_privacy'] = ! empty( $cpt_input['can_toggle_privacy'] );
-				$settings[ $cpt ]['default_privacy']    = isset( $cpt_input['default_privacy'] ) && in_array( $cpt_input['default_privacy'], array( 'public', 'private' ), true ) ? $cpt_input['default_privacy'] : 'private';
-				$settings[ $cpt ]['new_nucleo_privacy'] = isset( $cpt_input['new_nucleo_privacy'] ) && in_array( $cpt_input['new_nucleo_privacy'], array( 'public', 'private' ), true ) ? $cpt_input['new_nucleo_privacy'] : 'private';
+				$settings[ $cpt ]['default_privacy']    = isset( $cpt_input['default_privacy'] ) && in_array( $cpt_input['default_privacy'], [ 'public', 'private' ], true ) ? $cpt_input['default_privacy'] : 'private';
+				$settings[ $cpt ]['new_nucleo_privacy'] = isset( $cpt_input['new_nucleo_privacy'] ) && in_array( $cpt_input['new_nucleo_privacy'], [ 'public', 'private' ], true ) ? $cpt_input['new_nucleo_privacy'] : 'private';
 				$settings[ $cpt ]['can_post_files']     = ! empty( $cpt_input['can_post_files'] );
 				$settings[ $cpt ]['max_pinned_files']   = isset( $cpt_input['max_pinned_files'] ) ? absint( $cpt_input['max_pinned_files'] ) : 10;
 			}
@@ -623,7 +623,7 @@ class Apollo_Coauthors_Settings {
 				'coauthors_settings_updated',
 				'settings',
 				0,
-				array( 'timestamp' => current_time( 'mysql' ) )
+				[ 'timestamp' => current_time( 'mysql' ) ]
 			);
 		}
 
@@ -664,7 +664,7 @@ class Apollo_Coauthors_Settings {
 		}
 
 		// Check specific permission.
-		$action_map = array(
+		$action_map = [
 			'add_coauthors'    => 'can_add_coauthors',
 			'edit_coauthors'   => 'can_edit_coauthors',
 			'remove_coauthors' => 'can_edit_coauthors',
@@ -674,7 +674,7 @@ class Apollo_Coauthors_Settings {
 			'remove_members'   => 'can_remove_members',
 			'toggle_privacy'   => 'can_toggle_privacy',
 			'post_files'       => 'can_post_files',
-		);
+		];
 
 		$setting_key = isset( $action_map[ $action ] ) ? $action_map[ $action ] : null;
 

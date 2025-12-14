@@ -25,21 +25,21 @@ class Apollo_Cena_Rio_Moderation {
 	 */
 	public static function init(): void {
 		// Register shortcode for mod queue
-		add_shortcode( 'apollo_cena_mod_queue', array( __CLASS__, 'render_mod_queue' ) );
+		add_shortcode( 'apollo_cena_mod_queue', [ __CLASS__, 'render_mod_queue' ] );
 
 		// Handle POST actions
-		add_action( 'admin_post_apollo_cena_approve', array( __CLASS__, 'handle_approve' ) );
-		add_action( 'admin_post_apollo_cena_reject', array( __CLASS__, 'handle_reject' ) );
+		add_action( 'admin_post_apollo_cena_approve', [ __CLASS__, 'handle_approve' ] );
+		add_action( 'admin_post_apollo_cena_reject', [ __CLASS__, 'handle_reject' ] );
 
 		// AJAX handlers for front-end mod
-		add_action( 'wp_ajax_apollo_cena_approve', array( __CLASS__, 'ajax_approve' ) );
-		add_action( 'wp_ajax_apollo_cena_reject', array( __CLASS__, 'ajax_reject' ) );
+		add_action( 'wp_ajax_apollo_cena_approve', [ __CLASS__, 'ajax_approve' ] );
+		add_action( 'wp_ajax_apollo_cena_reject', [ __CLASS__, 'ajax_reject' ] );
 
 		// REST API endpoints
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 
 		// Filter: Exclude non-approved CENA-RIO events from public calendar queries
-		add_action( 'pre_get_posts', array( __CLASS__, 'filter_cena_rio_events' ), 20 );
+		add_action( 'pre_get_posts', [ __CLASS__, 'filter_cena_rio_events' ], 20 );
 	}
 
 	/**
@@ -65,37 +65,37 @@ class Apollo_Cena_Rio_Moderation {
 		// Get existing meta_query or create new
 		$meta_query = $query->get( 'meta_query' );
 		if ( ! is_array( $meta_query ) ) {
-			$meta_query = array();
+			$meta_query = [];
 		}
 
 		// Add filter: Exclude CENA-RIO events unless approved
 		// Logic: Show event IF (not from cena-rio) OR (cena-rio AND approved)
-		$meta_query[] = array(
+		$meta_query[] = [
 			'relation' => 'OR',
 			// Regular events (no _apollo_source meta)
-			array(
+			[
 				'key'     => '_apollo_source',
 				'compare' => 'NOT EXISTS',
-			),
+			],
 			// Non-cena-rio sources
-			array(
+			[
 				'key'     => '_apollo_source',
 				'value'   => 'cena-rio',
 				'compare' => '!=',
-			),
+			],
 			// Approved CENA-RIO events only
-			array(
+			[
 				'relation' => 'AND',
-				array(
+				[
 					'key'   => '_apollo_source',
 					'value' => 'cena-rio',
-				),
-				array(
+				],
+				[
 					'key'   => '_apollo_cena_status',
 					'value' => 'approved',
-				),
-			),
-		);
+				],
+			],
+		];
 
 		$query->set( 'meta_query', $meta_query );
 	}
@@ -108,53 +108,53 @@ class Apollo_Cena_Rio_Moderation {
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/fila',
-			array(
+			[
 				'methods'             => 'GET',
-				'callback'            => array( __CLASS__, 'rest_get_queue' ),
-				'permission_callback' => array( __CLASS__, 'check_mod_permission' ),
-			)
+				'callback'            => [ __CLASS__, 'rest_get_queue' ],
+				'permission_callback' => [ __CLASS__, 'check_mod_permission' ],
+			]
 		);
 
 		// Approve event
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/aprovar/(?P<id>\d+)',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_approve_event' ),
-				'permission_callback' => array( __CLASS__, 'check_mod_permission' ),
-				'args'                => array(
-					'id'   => array(
+				'callback'            => [ __CLASS__, 'rest_approve_event' ],
+				'permission_callback' => [ __CLASS__, 'check_mod_permission' ],
+				'args'                => [
+					'id'   => [
 						'required' => true,
 						'type'     => 'integer',
-					),
-					'note' => array(
+					],
+					'note' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		// Reject event
 		register_rest_route(
 			'apollo/v1',
 			'cena-rio/negar/(?P<id>\d+)',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( __CLASS__, 'rest_reject_event' ),
-				'permission_callback' => array( __CLASS__, 'check_mod_permission' ),
-				'args'                => array(
-					'id'     => array(
+				'callback'            => [ __CLASS__, 'rest_reject_event' ],
+				'permission_callback' => [ __CLASS__, 'check_mod_permission' ],
+				'args'                => [
+					'id'     => [
 						'required' => true,
 						'type'     => 'integer',
-					),
-					'reason' => array(
+					],
+					'reason' => [
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 	}
 
@@ -176,17 +176,17 @@ class Apollo_Cena_Rio_Moderation {
 	public static function rest_get_queue( $request ): WP_REST_Response {
 		$events = self::get_pending_events();
 
-		$formatted = array();
+		$formatted = [];
 		foreach ( $events as $event ) {
 			$formatted[] = self::format_event_for_api( $event );
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'total'   => count( $formatted ),
 				'events'  => $formatted,
-			),
+			],
 			200
 		);
 	}
@@ -208,11 +208,11 @@ class Apollo_Cena_Rio_Moderation {
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Evento aprovado e publicado com sucesso!', 'apollo-core' ),
 				'event'   => self::format_event_for_api( get_post( $post_id ) ),
-			),
+			],
 			200
 		);
 	}
@@ -234,10 +234,10 @@ class Apollo_Cena_Rio_Moderation {
 		}
 
 		return new WP_REST_Response(
-			array(
+			[
 				'success' => true,
 				'message' => __( 'Evento rejeitado.', 'apollo-core' ),
-			),
+			],
 			200
 		);
 	}
@@ -378,19 +378,19 @@ class Apollo_Cena_Rio_Moderation {
 	 */
 	private static function get_pending_events(): array {
 		$query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'event_listing',
 				'post_status'    => 'pending',
 				'posts_per_page' => -1,
-				'meta_query'     => array(
-					array(
+				'meta_query'     => [
+					[
 						'key'   => '_apollo_source',
 						'value' => 'cena-rio',
-					),
-				),
+					],
+				],
 				'orderby'        => 'date',
 				'order'          => 'DESC',
-			)
+			]
 		);
 
 		return $query->posts;
@@ -430,10 +430,10 @@ class Apollo_Cena_Rio_Moderation {
 
 		// Publish event
 		$result = wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'publish',
-			),
+			],
 			true
 		);
 
@@ -457,10 +457,10 @@ class Apollo_Cena_Rio_Moderation {
 				'cena_event_approved',
 				'event_listing',
 				$post_id,
-				array(
+				[
 					'title' => $post->post_title,
 					'note'  => $note,
-				)
+				]
 			);
 		}
 
@@ -494,11 +494,11 @@ class Apollo_Cena_Rio_Moderation {
 
 		// Move to draft (or trash if you prefer)
 		$result = wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'draft',
 			// or 'trash'
-			),
+			],
 			true
 		);
 
@@ -522,10 +522,10 @@ class Apollo_Cena_Rio_Moderation {
 				'cena_event_rejected',
 				'event_listing',
 				$post_id,
-				array(
+				[
 					'title'  => $post->post_title,
 					'reason' => $reason,
-				)
+				]
 			);
 		}
 
@@ -634,12 +634,12 @@ class Apollo_Cena_Rio_Moderation {
 	 */
 	private static function format_event_for_api( $post ): array {
 		if ( ! $post ) {
-			return array();
+			return [];
 		}
 
 		$author = get_userdata( $post->post_author );
 
-		return array(
+		return [
 			'id'           => $post->ID,
 			'title'        => get_the_title( $post->ID ),
 			'description'  => $post->post_content,
@@ -653,7 +653,7 @@ class Apollo_Cena_Rio_Moderation {
 			'author_id'    => $post->post_author,
 			'submitted_at' => get_post_meta( $post->ID, '_apollo_cena_submitted_at', true ),
 			'cena_status'  => get_post_meta( $post->ID, '_apollo_cena_status', true ),
-		);
+		];
 	}
 }
 

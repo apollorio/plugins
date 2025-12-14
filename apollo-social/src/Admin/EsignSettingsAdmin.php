@@ -43,9 +43,9 @@ class EsignSettingsAdmin {
 	 * Constructor
 	 */
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'registerAdminMenu' ), 100 );
-		add_action( 'admin_init', array( $this, 'registerSettings' ) );
-		add_action( 'admin_notices', array( $this, 'displayValidationNotices' ) );
+		add_action( 'admin_menu', [ $this, 'registerAdminMenu' ], 100 );
+		add_action( 'admin_init', [ $this, 'registerSettings' ] );
+		add_action( 'admin_notices', [ $this, 'displayValidationNotices' ] );
 	}
 
 	/**
@@ -66,7 +66,7 @@ class EsignSettingsAdmin {
 			// Capability
 			self::PAGE_SLUG,
 			// Menu slug
-			array( $this, 'renderSettingsPage' )
+			[ $this, 'renderSettingsPage' ]
 			// Callback
 		);
 	}
@@ -81,38 +81,38 @@ class EsignSettingsAdmin {
 		register_setting(
 			self::SETTINGS_GROUP,
 			self::OPTION_ENABLE,
-			array(
+			[
 				'type'              => 'boolean',
-				'sanitize_callback' => array( $this, 'sanitizeCheckbox' ),
+				'sanitize_callback' => [ $this, 'sanitizeCheckbox' ],
 				'default'           => false,
-			)
+			]
 		);
 
 		register_setting(
 			self::SETTINGS_GROUP,
 			self::OPTION_API_KEY,
-			array(
+			[
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'default'           => '',
-			)
+			]
 		);
 
 		register_setting(
 			self::SETTINGS_GROUP,
 			self::OPTION_API_BASE_URL,
-			array(
+			[
 				'type'              => 'string',
 				'sanitize_callback' => 'esc_url_raw',
 				'default'           => self::DEFAULT_API_BASE_URL,
-			)
+			]
 		);
 
 		// Add settings section
 		add_settings_section(
 			'apollo_esign_main_section',
 			__( 'DocuSeal Integration Settings', 'apollo-social' ),
-			array( $this, 'renderSectionDescription' ),
+			[ $this, 'renderSectionDescription' ],
 			self::PAGE_SLUG
 		);
 
@@ -120,7 +120,7 @@ class EsignSettingsAdmin {
 		add_settings_field(
 			'apollo_esign_enable_field',
 			__( 'Enable Integration', 'apollo-social' ),
-			array( $this, 'renderEnableField' ),
+			[ $this, 'renderEnableField' ],
 			self::PAGE_SLUG,
 			'apollo_esign_main_section'
 		);
@@ -128,7 +128,7 @@ class EsignSettingsAdmin {
 		add_settings_field(
 			'apollo_esign_api_key_field',
 			__( 'API Key', 'apollo-social' ),
-			array( $this, 'renderApiKeyField' ),
+			[ $this, 'renderApiKeyField' ],
 			self::PAGE_SLUG,
 			'apollo_esign_main_section'
 		);
@@ -136,7 +136,7 @@ class EsignSettingsAdmin {
 		add_settings_field(
 			'apollo_esign_api_base_url_field',
 			__( 'API Base URL', 'apollo-social' ),
-			array( $this, 'renderApiBaseUrlField' ),
+			[ $this, 'renderApiBaseUrlField' ],
 			self::PAGE_SLUG,
 			'apollo_esign_main_section'
 		);
@@ -351,10 +351,10 @@ class EsignSettingsAdmin {
 	 * @return array{enabled: bool, api_key: string, base_url: string}
 	 */
 	public static function getConfig(): array {
-		return array(
+		return [
 			'enabled'  => (bool) get_option( self::OPTION_ENABLE, false ),
 			'api_key'  => get_option( self::OPTION_API_KEY, '' ),
 			'base_url' => get_option( self::OPTION_API_BASE_URL, self::DEFAULT_API_BASE_URL ),
-		);
+		];
 	}
 }

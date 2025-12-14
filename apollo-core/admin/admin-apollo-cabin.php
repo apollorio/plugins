@@ -93,14 +93,14 @@ function apollo_admin_cabin_enqueue_assets( string $hook ): void {
 	wp_enqueue_style(
 		'apollo-admin-cabin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/css/admin-cabin.css',
-		array(),
+		[],
 		APOLLO_CORE_VERSION
 	);
 
 	wp_enqueue_script(
 		'apollo-admin-cabin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/js/admin-cabin.js',
-		array( 'jquery' ),
+		[ 'jquery' ],
 		APOLLO_CORE_VERSION,
 		true
 	);
@@ -108,19 +108,19 @@ function apollo_admin_cabin_enqueue_assets( string $hook ): void {
 	wp_localize_script(
 		'apollo-admin-cabin',
 		'apolloCabin',
-		array(
+		[
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'restUrl' => rest_url( 'apollo/v1' ),
 			'nonce'   => wp_create_nonce( 'apollo_cabin_nonce' ),
-			'i18n'    => array(
+			'i18n'    => [
 				'confirmToggle'  => __( 'Tem certeza que deseja alterar este módulo?', 'apollo-core' ),
 				'confirmSuspend' => __( 'Tem certeza que deseja suspender este usuário?', 'apollo-core' ),
 				'confirmBan'     => __( 'ATENÇÃO: Banir é permanente. Tem certeza?', 'apollo-core' ),
 				'confirmBlockIP' => __( 'Tem certeza que deseja bloquear este IP?', 'apollo-core' ),
 				'saved'          => __( 'Salvo com sucesso!', 'apollo-core' ),
 				'error'          => __( 'Erro ao salvar.', 'apollo-core' ),
-			),
-		)
+			],
+		]
 	);
 }
 add_action( 'admin_enqueue_scripts', 'apollo_admin_cabin_enqueue_assets' );
@@ -135,7 +135,7 @@ function apollo_admin_cabin_handle_submissions(): void {
 
 	// Handle modules update.
 	if ( isset( $_POST['apollo_cabin_modules_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_cabin_modules_nonce'] ) ), 'apollo_cabin_modules' ) ) {
-		$modules   = array();
+		$modules   = [];
 		$available = Apollo_Modules_Config::get_available_modules();
 
 		foreach ( $available as $module ) {
@@ -148,7 +148,7 @@ function apollo_admin_cabin_handle_submissions(): void {
 
 	// Handle limits update.
 	if ( isset( $_POST['apollo_cabin_limits_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['apollo_cabin_limits_nonce'] ) ), 'apollo_cabin_limits' ) ) {
-		$limits = array();
+		$limits = [];
 
 		if ( isset( $_POST['limits'] ) && is_array( $_POST['limits'] ) ) {
 			foreach ( $_POST['limits'] as $key => $value ) {
@@ -231,68 +231,68 @@ function apollo_admin_cabin_render_page(): void {
 
 	$modules = Apollo_Modules_Config::get_modules();
 
-	$module_info = array(
-		'social'          => array(
+	$module_info = [
+		'social'          => [
 			'name' => __( 'Social', 'apollo-core' ),
 			'desc' => __( 'Feed social, posts, likes, comentários.', 'apollo-core' ),
 			'icon' => 'dashicons-share',
-		),
-		'events'          => array(
+		],
+		'events'          => [
 			'name' => __( 'Eventos', 'apollo-core' ),
 			'desc' => __( 'Apollo Events Manager - calendário e eventos.', 'apollo-core' ),
 			'icon' => 'dashicons-calendar-alt',
-		),
-		'bolha'           => array(
+		],
+		'bolha'           => [
 			'name' => __( 'Bolha', 'apollo-core' ),
 			'desc' => __( 'Sistema de bolha (até 15 pessoas).', 'apollo-core' ),
 			'icon' => 'dashicons-groups',
-		),
-		'chat'            => array(
+		],
+		'chat'            => [
 			'name' => __( 'Chat', 'apollo-core' ),
 			'desc' => __( 'Mensagens diretas entre usuários.', 'apollo-core' ),
 			'icon' => 'dashicons-format-chat',
-		),
-		'docs'            => array(
+		],
+		'docs'            => [
 			'name' => __( 'Documentos', 'apollo-core' ),
 			'desc' => __( 'Documentos e assinaturas digitais.', 'apollo-core' ),
 			'icon' => 'dashicons-media-document',
-		),
-		'comunas'         => array(
+		],
+		'comunas'         => [
 			'name' => __( 'Comunas', 'apollo-core' ),
 			'desc' => __( 'Comunidades e grupos.', 'apollo-core' ),
 			'icon' => 'dashicons-networking',
-		),
-		'compatibilidade' => array(
+		],
+		'compatibilidade' => [
 			'name' => __( 'Matchmaking', 'apollo-core' ),
 			'desc' => __( 'Match entre usuários (futuro).', 'apollo-core' ),
 			'icon' => 'dashicons-heart',
-		),
-		'cena_rio'        => array(
+		],
+		'cena_rio'        => [
 			'name' => __( 'CENA::RIO', 'apollo-core' ),
 			'desc' => __( 'Submissões e curadoria de eventos.', 'apollo-core' ),
 			'icon' => 'dashicons-location-alt',
-		),
-		'classifieds'     => array(
+		],
+		'classifieds'     => [
 			'name' => __( 'Classificados', 'apollo-core' ),
 			'desc' => __( 'Anúncios e marketplace.', 'apollo-core' ),
 			'icon' => 'dashicons-megaphone',
-		),
-		'notifications'   => array(
+		],
+		'notifications'   => [
 			'name' => __( 'Notificações', 'apollo-core' ),
 			'desc' => __( 'Sistema de notificações push/in-app.', 'apollo-core' ),
 			'icon' => 'dashicons-bell',
-		),
-		'onboarding'      => array(
+		],
+		'onboarding'      => [
 			'name' => __( 'Onboarding', 'apollo-core' ),
 			'desc' => __( 'Trilha de boas-vindas para novos usuários.', 'apollo-core' ),
 			'icon' => 'dashicons-welcome-learn-more',
-		),
-		'achievements'    => array(
+		],
+		'achievements'    => [
 			'name' => __( 'Conquistas', 'apollo-core' ),
 			'desc' => __( 'Conquistas privadas (futuro).', 'apollo-core' ),
 			'icon' => 'dashicons-awards',
-		),
-	);
+		],
+	];
 	?>
 
 	<form method="post" class="apollo-cabin-form">
@@ -301,11 +301,11 @@ function apollo_admin_cabin_render_page(): void {
 		<div class="apollo-cabin-grid">
 			<?php foreach ( $modules as $key => $enabled ) : ?>
 				<?php
-				$info = $module_info[ $key ] ?? array(
+				$info = $module_info[ $key ] ?? [
 					'name' => ucfirst( $key ),
 					'desc' => '',
 					'icon' => 'dashicons-admin-plugins',
-				);
+				];
 				?>
 				<div class="apollo-cabin-card <?php echo $enabled ? 'is-enabled' : 'is-disabled'; ?>">
 					<div class="card-header">
@@ -355,73 +355,73 @@ function apollo_admin_cabin_render_limits(): void {
 	$limits   = Apollo_Modules_Config::get_limits();
 	$defaults = Apollo_Modules_Config::get_default_limits();
 
-	$limit_groups = array(
-		'events'      => array(
+	$limit_groups = [
+		'events'      => [
 			'title'  => __( 'Eventos', 'apollo-core' ),
 			'icon'   => 'dashicons-calendar-alt',
-			'limits' => array(
+			'limits' => [
 				'max_events_per_user_month' => __( 'Eventos por mês', 'apollo-core' ),
 				'max_events_pending_review' => __( 'Eventos pendentes de revisão', 'apollo-core' ),
-			),
-		),
-		'social'      => array(
+			],
+		],
+		'social'      => [
 			'title'  => __( 'Social', 'apollo-core' ),
 			'icon'   => 'dashicons-share',
-			'limits' => array(
+			'limits' => [
 				'max_social_posts_per_day' => __( 'Posts por dia', 'apollo-core' ),
 				'max_comments_per_hour'    => __( 'Comentários por hora', 'apollo-core' ),
-			),
-		),
-		'bolha'       => array(
+			],
+		],
+		'bolha'       => [
 			'title'  => __( 'Bolha', 'apollo-core' ),
 			'icon'   => 'dashicons-groups',
-			'limits' => array(
+			'limits' => [
 				'max_bubble_members'         => __( 'Membros na bolha', 'apollo-core' ),
 				'max_bubble_invites_per_day' => __( 'Convites de bolha por dia', 'apollo-core' ),
-			),
-		),
-		'comunas'     => array(
+			],
+		],
+		'comunas'     => [
 			'title'  => __( 'Comunas', 'apollo-core' ),
 			'icon'   => 'dashicons-networking',
-			'limits' => array(
+			'limits' => [
 				'max_comunas_per_user' => __( 'Comunas por usuário', 'apollo-core' ),
 				'max_comuna_members'   => __( 'Membros por comuna', 'apollo-core' ),
-			),
-		),
-		'chat'        => array(
+			],
+		],
+		'chat'        => [
 			'title'  => __( 'Chat', 'apollo-core' ),
 			'icon'   => 'dashicons-format-chat',
-			'limits' => array(
+			'limits' => [
 				'max_dm_per_hour'           => __( 'DMs por hora', 'apollo-core' ),
 				'max_dm_recipients_per_day' => __( 'Destinatários por dia', 'apollo-core' ),
-			),
-		),
-		'docs'        => array(
+			],
+		],
+		'docs'        => [
 			'title'  => __( 'Documentos', 'apollo-core' ),
 			'icon'   => 'dashicons-media-document',
-			'limits' => array(
+			'limits' => [
 				'max_docs_per_user'      => __( 'Documentos por usuário', 'apollo-core' ),
 				'max_pending_signatures' => __( 'Assinaturas pendentes', 'apollo-core' ),
-			),
-		),
-		'classifieds' => array(
+			],
+		],
+		'classifieds' => [
 			'title'  => __( 'Classificados', 'apollo-core' ),
 			'icon'   => 'dashicons-megaphone',
-			'limits' => array(
+			'limits' => [
 				'max_ads_per_user'     => __( 'Anúncios ativos', 'apollo-core' ),
 				'max_ad_duration_days' => __( 'Duração do anúncio (dias)', 'apollo-core' ),
-			),
-		),
-		'general'     => array(
+			],
+		],
+		'general'     => [
 			'title'  => __( 'Geral', 'apollo-core' ),
 			'icon'   => 'dashicons-admin-settings',
-			'limits' => array(
+			'limits' => [
 				'max_uploads_per_day' => __( 'Uploads por dia', 'apollo-core' ),
 				'max_upload_size_mb'  => __( 'Tamanho máximo de upload (MB)', 'apollo-core' ),
 				'max_reports_per_day' => __( 'Denúncias por dia', 'apollo-core' ),
-			),
-		),
-	);
+			],
+		],
+	];
 	?>
 
 	<form method="post" class="apollo-cabin-form">
@@ -497,25 +497,25 @@ function apollo_admin_cabin_render_moderators(): void {
 
 	// Get users with mod levels.
 	$mod_users = get_users(
-		array(
+		[
 			'meta_key'     => 'apollo_mod_level',
 			'meta_compare' => 'EXISTS',
-		)
+		]
 	);
 
-	$level_labels = array(
+	$level_labels = [
 		-1 => __( 'Nenhum', 'apollo-core' ),
 		0  => __( 'MOD 0 - Básico', 'apollo-core' ),
 		1  => __( 'MOD 1 - Avançado', 'apollo-core' ),
 		3  => __( 'MOD 3 - Pleno', 'apollo-core' ),
-	);
+	];
 
-	$level_descriptions = array(
+	$level_descriptions = [
 		-1 => __( 'Usuário comum, sem permissões de moderação.', 'apollo-core' ),
 		0  => __( 'Visualizar fila de moderação, aprovar conteúdo.', 'apollo-core' ),
 		1  => __( 'Editar/remover conteúdo, suspensão temporária.', 'apollo-core' ),
 		3  => __( 'Suspender/banir usuários, acesso total exceto IP e configurações.', 'apollo-core' ),
-	);
+	];
 	?>
 
 	<div class="apollo-cabin-moderators">
@@ -529,12 +529,12 @@ function apollo_admin_cabin_render_moderators(): void {
 					<label for="mod-user-search"><?php esc_html_e( 'Usuário:', 'apollo-core' ); ?></label>
 					<?php
 					wp_dropdown_users(
-						array(
+						[
 							'name'             => 'mod_user_id',
 							'id'               => 'mod-user-search',
 							'show_option_none' => __( 'Selecione um usuário...', 'apollo-core' ),
 							'class'            => 'regular-text',
-						)
+						]
 					);
 					?>
 				</div>
@@ -771,10 +771,10 @@ function apollo_admin_cabin_render_logs(): void {
 	$per_page      = 50;
 
 	// Build query args.
-	$args = array(
+	$args = [
 		'limit'  => $per_page,
 		'offset' => ( $page_num - 1 ) * $per_page,
-	);
+	];
 
 	if ( $filter_action ) {
 		$args['action'] = $filter_action;
@@ -785,10 +785,10 @@ function apollo_admin_cabin_render_logs(): void {
 	}
 
 	// Get logs.
-	$logs = function_exists( 'apollo_get_mod_log' ) ? apollo_get_mod_log( $args ) : array();
+	$logs = function_exists( 'apollo_get_mod_log' ) ? apollo_get_mod_log( $args ) : [];
 
 	// Available action types for filter.
-	$action_types = array(
+	$action_types = [
 		''               => __( 'Todas as ações', 'apollo-core' ),
 		'suspend_user'   => __( 'Suspensões', 'apollo-core' ),
 		'unsuspend_user' => __( 'Reativações', 'apollo-core' ),
@@ -800,7 +800,7 @@ function apollo_admin_cabin_render_logs(): void {
 		'enable_module'  => __( 'Módulo ativado', 'apollo-core' ),
 		'disable_module' => __( 'Módulo desativado', 'apollo-core' ),
 		'update_limits'  => __( 'Limites alterados', 'apollo-core' ),
-	);
+	];
 	?>
 
 	<div class="apollo-cabin-logs">
@@ -819,11 +819,11 @@ function apollo_admin_cabin_render_logs(): void {
 
 				<?php
 				wp_dropdown_users(
-					array(
+					[
 						'name'            => 'filter_actor',
 						'show_option_all' => __( 'Todos os atores', 'apollo-core' ),
 						'selected'        => $filter_actor,
-					)
+					]
 				);
 				?>
 

@@ -25,10 +25,10 @@ class Apollo_Cena_Rio_Canvas {
 	 * Initialize
 	 */
 	public static function init(): void {
-		add_action( 'init', array( __CLASS__, 'add_rewrite_rules' ), 10 );
-		add_filter( 'query_vars', array( __CLASS__, 'add_query_vars' ) );
-		add_filter( 'template_include', array( __CLASS__, 'handle_canvas_template' ), 999 );
-		add_action( 'template_redirect', array( __CLASS__, 'check_access' ), 5 );
+		add_action( 'init', [ __CLASS__, 'add_rewrite_rules' ], 10 );
+		add_filter( 'query_vars', [ __CLASS__, 'add_query_vars' ] );
+		add_filter( 'template_include', [ __CLASS__, 'handle_canvas_template' ], 999 );
+		add_action( 'template_redirect', [ __CLASS__, 'check_access' ], 5 );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Apollo_Cena_Rio_Canvas {
 				wp_die(
 					esc_html__( 'Você não tem permissão para acessar esta página.', 'apollo-core' ),
 					esc_html__( 'Acesso Negado', 'apollo-core' ),
-					array( 'response' => 403 )
+					[ 'response' => 403 ]
 				);
 			}
 		}
@@ -88,7 +88,7 @@ class Apollo_Cena_Rio_Canvas {
 				wp_die(
 					esc_html__( 'Você não tem permissão para acessar a moderação.', 'apollo-core' ),
 					esc_html__( 'Acesso Negado', 'apollo-core' ),
-					array( 'response' => 403 )
+					[ 'response' => 403 ]
 				);
 			}
 		}
@@ -108,10 +108,10 @@ class Apollo_Cena_Rio_Canvas {
 		}
 
 		// Define template paths
-		$template_map = array(
+		$template_map = [
 			'calendar' => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-calendar.php',
 			'mod'      => APOLLO_CORE_PLUGIN_DIR . 'templates/cena-rio-mod.php',
-		);
+		];
 
 		// Return template if exists
 		if ( isset( $template_map[ $page ] ) && file_exists( $template_map[ $page ] ) ) {

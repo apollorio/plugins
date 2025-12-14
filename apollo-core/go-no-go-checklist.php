@@ -35,7 +35,7 @@ if ( ! current_user_can( 'manage_options' ) && ! defined( 'WP_CLI' ) ) {
  */
 class Apollo_GONO_Checklist {
 
-	private array $results = array();
+	private array $results = [];
 	private int $passed    = 0;
 	private int $failed    = 0;
 	private int $warnings  = 0;
@@ -117,11 +117,11 @@ class Apollo_GONO_Checklist {
 	private function check_required_plugins(): void {
 		$this->output( '--- Plugins Requeridos ---' );
 
-		$plugins = array(
+		$plugins = [
 			'apollo-core'           => 'Apollo Core',
 			'apollo-social'         => 'Apollo Social',
 			'apollo-events-manager' => 'Apollo Events Manager',
-		);
+		];
 
 		foreach ( $plugins as $slug => $name ) {
 			$active = is_plugin_active( "$slug/$slug.php" ) || is_plugin_active( "$slug/plugin.php" );
@@ -143,7 +143,7 @@ class Apollo_GONO_Checklist {
 		$routes = $server->get_routes();
 
 		$apollo_routes       = 0;
-		$routes_without_perm = array();
+		$routes_without_perm = [];
 
 		foreach ( $routes as $route => $handlers ) {
 			if ( strpos( $route, '/apollo/' ) === false ) {
@@ -178,12 +178,12 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check specific sensitive routes.
-		$sensitive_routes = array(
+		$sensitive_routes = [
 			'/apollo/v1/mod/suspender/er/er/',
 			'/apollo/v1/mod/ban',
 			'/apollo/v1/bolha/pedir',
 			'/apollo/v1/bolha/aceitar',
-		);
+		];
 
 		foreach ( $sensitive_routes as $route ) {
 			$found = false;
@@ -209,10 +209,10 @@ class Apollo_GONO_Checklist {
 
 		global $wpdb;
 
-		$tables = array(
+		$tables = [
 			$wpdb->prefix . 'apollo_mod_log',
 			$wpdb->prefix . 'apollo_audit_log',
-		);
+		];
 
 		foreach ( $tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
@@ -234,14 +234,14 @@ class Apollo_GONO_Checklist {
 			$this->pass( 'Classe Apollo_User_Moderation existe' );
 
 			// Check constants.
-			$constants = array(
+			$constants = [
 				'STATUS_ACTIVE',
 				'STATUS_SUSPENDED',
 				'STATUS_BANNED',
 				'MOD_LEVEL_BASIC',
 				'MOD_LEVEL_ADVANCED',
 				'MOD_LEVEL_FULL',
-			);
+			];
 
 			foreach ( $constants as $const ) {
 				if ( defined( "Apollo_User_Moderation::$const" ) ) {
@@ -255,7 +255,7 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check helper functions.
-		$functions = array(
+		$functions = [
 			'apollo_suspend_user',
 			'apollo_unsuspend_user',
 			'apollo_ban_user',
@@ -263,7 +263,7 @@ class Apollo_GONO_Checklist {
 			'apollo_can_user_perform',
 			'apollo_get_mod_level',
 			'apollo_can_moderate',
-		);
+		];
 
 		foreach ( $functions as $func ) {
 			if ( function_exists( $func ) ) {
@@ -293,11 +293,11 @@ class Apollo_GONO_Checklist {
 		}
 
 		// Check helper functions.
-		$functions = array(
+		$functions = [
 			'apollo_is_module_enabled',
 			'apollo_get_limit',
 			'apollo_check_limit',
-		);
+		];
 
 		foreach ( $functions as $func ) {
 			if ( function_exists( $func ) ) {
@@ -348,13 +348,13 @@ class Apollo_GONO_Checklist {
 			return;
 		}
 
-		$required_caps = array(
+		$required_caps = [
 			'apollo_moderate_basic',
 			'apollo_moderate_advanced',
 			'apollo_moderate_full',
 			'apollo_block_ip',
 			'apollo_manage_moderators',
-		);
+		];
 
 		foreach ( $required_caps as $cap ) {
 			if ( $admin->has_cap( $cap ) ) {
@@ -372,7 +372,7 @@ class Apollo_GONO_Checklist {
 		$this->output( '--- Cron Jobs ---' );
 
 		$crons        = _get_cron_array();
-		$apollo_crons = array();
+		$apollo_crons = [];
 
 		foreach ( $crons as $timestamp => $hooks ) {
 			foreach ( $hooks as $hook => $events ) {

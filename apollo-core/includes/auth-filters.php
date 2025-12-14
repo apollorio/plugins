@@ -21,7 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string                $password Password.
  * @return WP_User|WP_Error
  */
-function apollo_check_user_suspension( $user, $username, $password ) {
+function apollo_check_user_suspension( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	unset( $username, $password ); // Mark as intentionally unused - WordPress passes these but we check $user directly.
 	// Only check if we have a valid user.
 	if ( ! is_a( $user, 'WP_User' ) ) {
 		return $user;
@@ -110,11 +111,11 @@ function apollo_login_error_messages() {
 	if ( isset( $_GET['apollo_error'] ) ) {
 		$error = sanitize_text_field( wp_unslash( $_GET['apollo_error'] ) );
 
-		if ( 'blocked' === $error ) {
+		if ( $error === 'blocked' ) {
 			return __( 'Your account has been blocked by an administrator.', 'apollo-core' );
 		}
 
-		if ( 'suspended' === $error ) {
+		if ( $error === 'suspended' ) {
 			return __( 'Your account has been temporarily suspended.', 'apollo-core' );
 		}
 	}
@@ -165,13 +166,13 @@ function apollo_user_can_perform_actions( $user_id = null ) {
  * @return array Status information.
  */
 function apollo_get_user_status( $user_id ) {
-	$status = array(
+	$status = [
 		'is_blocked'      => false,
 		'is_suspended'    => false,
 		'suspended_until' => null,
 		'block_reason'    => null,
 		'suspend_reason'  => null,
-	);
+	];
 
 	// Check blocked.
 	if ( get_user_meta( $user_id, '_apollo_blocked', true ) ) {

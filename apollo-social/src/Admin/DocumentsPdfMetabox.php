@@ -23,8 +23,8 @@ class DocumentsPdfMetabox {
 	 * Initialize the metabox
 	 */
 	public static function init(): void {
-		add_action( 'add_meta_boxes', array( __CLASS__, 'add_metabox' ) );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+		add_action( 'add_meta_boxes', [ __CLASS__, 'add_metabox' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 	}
 
 	/**
@@ -34,7 +34,7 @@ class DocumentsPdfMetabox {
 		add_meta_box(
 			'apollo_doc_pdf',
 			__( 'Exportar como PDF', 'apollo-social' ),
-			array( __CLASS__, 'render_metabox' ),
+			[ __CLASS__, 'render_metabox' ],
 			'apollo_document',
 			'side',
 			'high'

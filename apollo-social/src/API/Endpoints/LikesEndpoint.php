@@ -19,7 +19,7 @@ class LikesEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
-		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
+		add_action( 'rest_api_init', [ $this, 'registerRoutes' ] );
 	}
 
 	/**
@@ -29,12 +29,12 @@ class LikesEndpoint {
 		register_rest_route(
 			'apollo/v1',
 			'wow',
-			array(
+			[
 				'methods'             => 'POST',
-				'callback'            => array( $this, 'toggleLike' ),
-				'permission_callback' => array( $this, 'checkPermission' ),
-				'args'                => array(
-					'content_type' => array(
+				'callback'            => [ $this, 'toggleLike' ],
+				'permission_callback' => [ $this, 'checkPermission' ],
+				'args'                => [
+					'content_type' => [
 						'required'          => true,
 						'type'              => 'string',
 						'description'       => __( 'Content type.', 'apollo-social' ),
@@ -42,12 +42,12 @@ class LikesEndpoint {
 							return sanitize_text_field( wp_unslash( $param ) );
 						},
 						'validate_callback' => function ( $param ) {
-							$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+							$allowed_types = [ 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' ];
 
 							return in_array( $param, $allowed_types, true );
 						},
-					),
-					'content_id'   => array(
+					],
+					'content_id'   => [
 						'required'          => true,
 						'type'              => 'integer',
 						'description'       => __( 'Content ID.', 'apollo-social' ),
@@ -55,21 +55,21 @@ class LikesEndpoint {
 						'validate_callback' => function ( $param ) {
 							return absint( $param ) > 0;
 						},
-					),
-				),
-			)
+					],
+				],
+			]
 		);
 
 		register_rest_route(
 			'apollo/v1',
 			'wow/(?P<content_type>[a-zA-Z0-9_-]+)/(?P<content_id>\d+)',
-			array(
+			[
 				'methods'                              => 'GET',
-				'callback'                             => array( $this, 'getLikeStatus' ),
+				'callback'                             => [ $this, 'getLikeStatus' ],
 				'permission_callback'                  => '__return_true',
 				// Público, mas retorna false se não logado
-												'args' => array(
-													'content_type' => array(
+												'args' => [
+													'content_type' => [
 														'required'          => true,
 														'type'              => 'string',
 														'description'       => __( 'Content type.', 'apollo-social' ),
@@ -77,12 +77,12 @@ class LikesEndpoint {
 															return sanitize_text_field( wp_unslash( $param ) );
 														},
 														'validate_callback' => function ( $param ) {
-															$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+															$allowed_types = [ 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' ];
 
 															return in_array( $param, $allowed_types, true );
 														},
-													),
-													'content_id'   => array(
+													],
+													'content_id'   => [
 														'required'          => true,
 														'type'              => 'integer',
 														'description'       => __( 'Content ID.', 'apollo-social' ),
@@ -90,9 +90,9 @@ class LikesEndpoint {
 														'validate_callback' => function ( $param ) {
 															return absint( $param ) > 0;
 														},
-													),
-												),
-			)
+													],
+												],
+			]
 		);
 	}
 
@@ -121,7 +121,7 @@ class LikesEndpoint {
 			return new \WP_Error(
 				'invalid_params',
 				__( 'Parâmetros inválidos.', 'apollo-social' ),
-				array( 'status' => 400 )
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -142,12 +142,12 @@ class LikesEndpoint {
 			// Remover like
 			$deleted = $wpdb->delete(
 				$table_name,
-				array(
+				[
 					'content_type' => $content_type,
 					'content_id'   => $content_id,
 					'user_id'      => $user_id,
-				),
-				array( '%s', '%d', '%d' )
+				],
+				[ '%s', '%d', '%d' ]
 			);
 
 			if ( $deleted ) {
@@ -155,11 +155,11 @@ class LikesEndpoint {
 				$this->updateLikeCountMeta( $content_type, $content_id );
 
 				return new \WP_REST_Response(
-					array(
+					[
 						'success'    => true,
 						'liked'      => false,
 						'like_count' => $this->getLikeCount( $content_type, $content_id ),
-					),
+					],
 					200
 				);
 			}
@@ -167,13 +167,13 @@ class LikesEndpoint {
 			// Adicionar like
 			$inserted = $wpdb->insert(
 				$table_name,
-				array(
+				[
 					'content_type' => $content_type,
 					'content_id'   => $content_id,
 					'user_id'      => $user_id,
 					'liked_at'     => current_time( 'mysql' ),
-				),
-				array( '%s', '%d', '%d', '%s' )
+				],
+				[ '%s', '%d', '%d', '%s' ]
 			);
 
 			if ( $inserted ) {
@@ -181,11 +181,11 @@ class LikesEndpoint {
 				$this->updateLikeCountMeta( $content_type, $content_id );
 
 				return new \WP_REST_Response(
-					array(
+					[
 						'success'    => true,
 						'liked'      => true,
 						'like_count' => $this->getLikeCount( $content_type, $content_id ),
-					),
+					],
 					200
 				);
 			}
@@ -194,7 +194,7 @@ class LikesEndpoint {
 		return new \WP_Error(
 			'database_error',
 			__( 'Erro ao processar like.', 'apollo-social' ),
-			array( 'status' => 500 )
+			[ 'status' => 500 ]
 		);
 	}
 
@@ -211,10 +211,10 @@ class LikesEndpoint {
 		$user_liked = $user_id ? $this->userLiked( $content_type, $content_id, $user_id ) : false;
 
 		return new \WP_REST_Response(
-			array(
+			[
 				'like_count' => $like_count,
 				'user_liked' => $user_liked,
-			),
+			],
 			200
 		);
 	}

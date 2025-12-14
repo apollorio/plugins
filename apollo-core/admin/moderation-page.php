@@ -59,7 +59,7 @@ function apollo_enqueue_mod_assets( $hook ) {
 	wp_enqueue_script(
 		'apollo-mod-admin',
 		APOLLO_CORE_PLUGIN_URL . 'admin/js/mod-admin.js',
-		array( 'jquery', 'wp-api' ),
+		[ 'jquery', 'wp-api' ],
 		APOLLO_CORE_VERSION,
 		true
 	);
@@ -67,11 +67,11 @@ function apollo_enqueue_mod_assets( $hook ) {
 	wp_localize_script(
 		'apollo-mod-admin',
 		'apolloModerationAdmin',
-		array(
+		[
 			'restUrl'   => rest_url( 'apollo/v1/' ),
 			'nonce'     => wp_create_nonce( 'wp_rest' ),
 			'canManage' => current_user_can( 'manage_apollo_mod_settings' ),
-		)
+		]
 
 		/**
 		 * Render mod page
@@ -147,10 +147,10 @@ function apollo_enqueue_mod_assets( $hook ) {
 					<select name="mods[]" id="apollo-moderators" multiple size="10" style="width: 100%; max-width: 400px;">
 						<?php
 						$users = get_users(
-							array(
-								'role__in' => array( 'apollo', 'editor', 'administrator' ),
+							[
+								'role__in' => [ 'apollo', 'editor', 'administrator' ],
 								'orderby'  => 'display_name',
-							)
+							]
 						);
 						foreach ( $users as $user ) {
 							$selected = in_array( $user->ID, $settings['mods'], true ) ? 'selected' : '';
@@ -192,7 +192,7 @@ function apollo_enqueue_mod_assets( $hook ) {
 			}
 
 			// Use unified queue if available
-			$enabled_types = array();
+			$enabled_types = [];
 			if ( class_exists( 'Apollo_Moderation_Queue_Unified' ) ) {
 				$enabled_types = Apollo_Moderation_Queue_Unified::get_mod_cpts();
 			} else {
@@ -209,18 +209,18 @@ function apollo_enqueue_mod_assets( $hook ) {
 			}
 
 			if ( empty( $enabled_types ) ) {
-				$enabled_types = array( 'event_listing', 'post' );
+				$enabled_types = [ 'event_listing', 'post' ];
 			}
 
 			// Query ALL em-fila/draft posts
 			$query = new WP_Query(
-				array(
+				[
 					'post_type'      => $enabled_types,
-					'post_status'    => array( 'draft', 'em-fila' ),
+					'post_status'    => [ 'draft', 'em-fila' ],
 					'posts_per_page' => 100,
 					'orderby'        => 'date',
 					'order'          => 'DESC',
-				)
+				]
 			);
 
 			// Get counts by source
@@ -297,19 +297,19 @@ function apollo_enqueue_mod_assets( $hook ) {
 
 						// Get post type label
 						$post_type   = get_post_type();
-						$type_labels = array(
+						$type_labels = [
 							'event_listing'      => __( 'Evento', 'apollo-core' ),
 							'event_local'        => __( 'Local', 'apollo-core' ),
 							'event_dj'           => __( 'DJ', 'apollo-core' ),
 							'apollo_social_post' => __( 'Post', 'apollo-core' ),
 							'post'               => __( 'Post', 'apollo-core' ),
-						);
+						];
 						$type_label  = $type_labels[ $post_type ] ?? $post_type;
 						?>
 						<tr data-post-id="<?php echo esc_attr( $post_id ); ?>" style="<?php echo esc_attr( $row_style ); ?>">
 							<td>
 							<?php if ( has_post_thumbnail() ) : ?>
-									<?php the_post_thumbnail( array( 50, 50 ), array( 'style' => 'border-radius: 4px;' ) ); ?>
+									<?php the_post_thumbnail( [ 50, 50 ], [ 'style' => 'border-radius: 4px;' ] ); ?>
 								<?php else : ?>
 									<span class="dashicons dashicons-format-image" style="font-size: 30px; color: #ccc;"></span>
 								<?php endif; ?>
@@ -389,11 +389,11 @@ function apollo_enqueue_mod_assets( $hook ) {
 				}
 
 				$users = get_users(
-					array(
+					[
 						'orderby' => 'registered',
 						'order'   => 'DESC',
 						'number'  => 50,
-					)
+					]
 				);
 
 				?>
@@ -466,17 +466,17 @@ function apollo_enqueue_mod_assets( $hook ) {
 				}
 
 				// Get form data.
-				$mods              = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : array();
-				$enabled_caps      = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : array();
+				$mods              = isset( $_POST['mods'] ) ? array_map( 'absint', wp_unslash( $_POST['mods'] ) ) : [];
+				$enabled_caps      = isset( $_POST['enabled_caps'] ) ? array_map( 'intval', wp_unslash( $_POST['enabled_caps'] ) ) : [];
 				$audit_log_enabled = isset( $_POST['audit_log_enabled'] );
 
 				// Update settings.
-				$settings = array(
+				$settings = [
 					'mods'              => $mods,
 					'enabled_caps'      => $enabled_caps,
 					'audit_log_enabled' => $audit_log_enabled,
 					'version'           => '1.0.0',
-				);
+				];
 
 				apollo_update_mod_settings( $settings );
 
@@ -493,7 +493,7 @@ function apollo_enqueue_mod_assets( $hook ) {
 			 * @return string|false Post type or false.
 			 */
 			function apollo_capability_to_post_type( $capability ) {
-				$map = array(
+				$map = [
 					'publish_events'      => 'event_listing',
 					'publish_locals'      => 'event_local',
 					'publish_djs'         => 'event_dj',
@@ -501,7 +501,7 @@ function apollo_enqueue_mod_assets( $hook ) {
 					'publish_comunidades' => 'apollo_comunidade',
 					'edit_posts'          => 'apollo_social_post',
 					'edit_classifieds'    => 'apollo_classified',
-				);
+				];
 
 				return isset( $map[ $capability ] ) ? $map[ $capability ] : false;
 			}

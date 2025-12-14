@@ -124,7 +124,8 @@ class Plugin
         $existing_count = 0;
 
         // FASE 1: Verificar cada página individualmente (idempotência melhorada).
-        foreach ($pages as $key => $page_data) {
+        // phpcs:ignore Generic.CodeAnalysis.UnusedVariable -- Key not needed, only value.
+        foreach ($pages as $page_key => $page_data) {
             // Check if page exists by slug.
             $existing = get_page_by_path($page_data['slug']);
 

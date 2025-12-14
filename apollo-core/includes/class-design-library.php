@@ -72,17 +72,17 @@ class Apollo_Design_Library {
 		$index_file = self::get_library_path() . '_index.json';
 
 		if ( ! file_exists( $index_file ) ) {
-			return array();
+			return [];
 		}
 
 		$content = file_get_contents( $index_file );
 		if ( false === $content ) {
-			return array();
+			return [];
 		}
 
 		$data = json_decode( $content, true );
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			return array();
+			return [];
 		}
 
 		self::$index_cache = $data;
@@ -98,7 +98,7 @@ class Apollo_Design_Library {
 	public static function list_templates(): array {
 		$index = self::get_index();
 
-		return $index['templates'] ?? array();
+		return $index['templates'] ?? [];
 	}
 
 	/**
@@ -109,7 +109,7 @@ class Apollo_Design_Library {
 	public static function list_components(): array {
 		$index = self::get_index();
 
-		return $index['components'] ?? array();
+		return $index['components'] ?? [];
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Apollo_Design_Library {
 	public static function get_design_tokens(): array {
 		$index = self::get_index();
 
-		return $index['design_tokens'] ?? array();
+		return $index['design_tokens'] ?? [];
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Apollo_Design_Library {
 	public static function get_external_assets(): array {
 		$index = self::get_index();
 
-		return $index['external_assets'] ?? array();
+		return $index['external_assets'] ?? [];
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Apollo_Design_Library {
 	 * @return array Lista de placeholders encontrados.
 	 */
 	public static function extract_placeholders( string $html ): array {
-		$placeholders = array();
+		$placeholders = [];
 
 		// Match {{variable}} patterns
 		preg_match_all( '/\{\{([^}]+)\}\}/', $html, $matches );
@@ -195,7 +195,7 @@ class Apollo_Design_Library {
 	 * @return array Lista de seções encontradas.
 	 */
 	public static function extract_sections( string $html ): array {
-		$sections = array();
+		$sections = [];
 
 		// Match <!-- @section:name --> patterns
 		preg_match_all( '/<!--\s*@section:([a-z0-9_-]+)\s*-->/', $html, $matches );
@@ -214,7 +214,7 @@ class Apollo_Design_Library {
 	 * @return array Lista de componentes referenciados.
 	 */
 	public static function extract_components( string $html ): array {
-		$components = array();
+		$components = [];
 
 		// Match <!-- @component:name --> patterns
 		preg_match_all( '/<!--\s*@component:([a-z0-9_-]+)\s*-->/', $html, $matches );
@@ -233,10 +233,10 @@ class Apollo_Design_Library {
 	 */
 	public static function enqueue_css( string $handle = 'apollo-design' ): void {
 		$assets = self::get_external_assets();
-		$css    = $assets['css'] ?? array();
+		$css    = $assets['css'] ?? [];
 
 		foreach ( $css as $index => $url ) {
-			wp_enqueue_style( "{$handle}-{$index}", $url, array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			wp_enqueue_style( "{$handle}-{$index}", $url, [], null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 		}
 	}
 
@@ -247,10 +247,10 @@ class Apollo_Design_Library {
 	 */
 	public static function enqueue_js( string $handle = 'apollo-design' ): void {
 		$assets = self::get_external_assets();
-		$js     = $assets['js'] ?? array();
+		$js     = $assets['js'] ?? [];
 
 		foreach ( $js as $index => $url ) {
-			wp_enqueue_script( "{$handle}-{$index}", $url, array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			wp_enqueue_script( "{$handle}-{$index}", $url, [], null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 		}
 	}
 
@@ -261,8 +261,8 @@ class Apollo_Design_Library {
 	 */
 	public static function get_css_tokens(): string {
 		$tokens = self::get_design_tokens();
-		$colors = $tokens['colors'] ?? array();
-		$radius = $tokens['radius'] ?? array();
+		$colors = $tokens['colors'] ?? [];
+		$radius = $tokens['radius'] ?? [];
 
 		$css = ':root {' . PHP_EOL;
 
@@ -299,9 +299,9 @@ class Apollo_Design_Library {
 	public static function get_notes(): array {
 		$index = self::get_index();
 
-		return $index['notes'] ?? array();
+		return $index['notes'] ?? [];
 	}
 }
 
 // Inicializa a biblioteca
-add_action( 'plugins_loaded', array( 'Apollo_Design_Library', 'init' ), 5 );
+add_action( 'plugins_loaded', [ 'Apollo_Design_Library', 'init' ], 5 );

@@ -26,7 +26,7 @@ class Apollo_Cena_Rio_Roles {
 	 */
 	public static function init(): void {
 		// Verify roles exist on admin_init (in case activation didn't run)
-		add_action( 'admin_init', array( __CLASS__, 'maybe_setup_roles' ) );
+		add_action( 'admin_init', [ __CLASS__, 'maybe_setup_roles' ] );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Apollo_Cena_Rio_Roles {
 		$cena_role = add_role(
 			'cena_role',
 			__( 'Cena::Rio Membro', 'apollo-core' ),
-			array(
+			[
 				// Basic WP capabilities
 				'read'                                                   => true,
 
@@ -79,7 +79,7 @@ class Apollo_Cena_Rio_Roles {
 												'publish_event_listings' => false,
 				'edit_others_event_listings'                             => false,
 				'delete_published_event_listings'                        => false,
-			)
+			]
 		);
 
 		if ( $cena_role ) {
@@ -93,7 +93,7 @@ class Apollo_Cena_Rio_Roles {
 		$cena_mod = add_role(
 			'cena_moderator',
 			__( 'Cena::Rio Moderador', 'apollo-core' ),
-			array(
+			[
 				// Basic WP capabilities
 				'read'                            => true,
 
@@ -111,7 +111,7 @@ class Apollo_Cena_Rio_Roles {
 
 				// Custom CENA mod capability
 				'apollo_cena_moderate_events'     => true,
-			)
+			]
 		);
 
 		if ( $cena_mod ) {
@@ -177,7 +177,7 @@ class Apollo_Cena_Rio_Roles {
 
 		// Allow cena_role, cena-rio (legacy), cena_moderator, apollo, editor, administrator
 		// Note: cena-rio is legacy role from apollo-social, cena_role is canonical from apollo-core
-		$allowed_roles = array( 'cena_role', 'cena-rio', 'cena_moderator', 'apollo', 'editor', 'administrator' );
+		$allowed_roles = [ 'cena_role', 'cena-rio', 'cena_moderator', 'apollo', 'editor', 'administrator' ];
 
 		foreach ( $allowed_roles as $role ) {
 			if ( in_array( $role, $user->roles, true ) ) {
@@ -210,13 +210,13 @@ class Apollo_Cena_Rio_Roles {
 	 * Setup Apollo capabilities
 	 */
 	public static function setup_apollo_capabilities(): void {
-		$capabilities = array(
+		$capabilities = [
 			'manage_apollo',
 			'manage_apollo_security',
 			'manage_apollo_uploads',
 			'manage_apollo_events',
 			'manage_apollo_social',
-		);
+		];
 
 		$admin_role = get_role( 'administrator' );
 		if ( $admin_role ) {

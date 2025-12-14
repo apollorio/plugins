@@ -25,10 +25,10 @@ class Apollo_Moderation_WP_CLI {
 			return;
 		}
 
-		WP_CLI::add_command( 'apollo mod-log', array( __CLASS__, 'mod_log' ) );
-		WP_CLI::add_command( 'apollo mod-stats', array( __CLASS__, 'mod_stats' ) );
-		WP_CLI::add_command( 'apollo mod-approve', array( __CLASS__, 'mod_approve' ) );
-		WP_CLI::add_command( 'apollo mod-suspend', array( __CLASS__, 'mod_suspend' ) );
+		WP_CLI::add_command( 'apollo mod-log', [ __CLASS__, 'mod_log' ] );
+		WP_CLI::add_command( 'apollo mod-stats', [ __CLASS__, 'mod_stats' ] );
+		WP_CLI::add_command( 'apollo mod-approve', [ __CLASS__, 'mod_approve' ] );
+		WP_CLI::add_command( 'apollo mod-suspend', [ __CLASS__, 'mod_suspend' ] );
 	}
 
 	/**
@@ -67,19 +67,19 @@ class Apollo_Moderation_WP_CLI {
 			return;
 		}
 
-		$table_data = array();
+		$table_data = [];
 		foreach ( $logs as $log ) {
-			$table_data[] = array(
+			$table_data[] = [
 				'ID'      => $log->id,
 				'Date'    => $log->created_at,
 				'Actor'   => $log->actor_id . ' (' . $log->actor_role . ')',
 				'Action'  => $log->action,
 				'Target'  => $log->target_type . ':' . $log->target_id,
 				'Details' => is_array( $log->details ) ? wp_json_encode( $log->details ) : '',
-			);
+			];
 		}
 
-		WP_CLI\Utils\format_items( 'table', $table_data, array( 'ID', 'Date', 'Actor', 'Action', 'Target', 'Details' ) );
+		WP_CLI\Utils\format_items( 'table', $table_data, [ 'ID', 'Date', 'Actor', 'Action', 'Target', 'Details' ] );
 	}
 
 	/**
@@ -156,17 +156,17 @@ class Apollo_Moderation_WP_CLI {
 			return;
 		}
 
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending' ), true ) ) {
+		if ( ! in_array( $post->post_status, [ 'draft', 'pending' ], true ) ) {
 			WP_CLI::error( 'Post is not in draft or pending status.' );
 
 			return;
 		}
 
 		wp_update_post(
-			array(
+			[
 				'ID'          => $post_id,
 				'post_status' => 'publish',
-			)
+			]
 		);
 
 		Apollo_Moderation_Audit_Log::log_action(
@@ -174,7 +174,7 @@ class Apollo_Moderation_WP_CLI {
 			'approve_publish_cli',
 			$post->post_type,
 			$post_id,
-			array( 'note' => $note )
+			[ 'note' => $note ]
 		);
 
 		WP_CLI::success( "Post #$post_id approved and published." );

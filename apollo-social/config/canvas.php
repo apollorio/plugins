@@ -6,7 +6,7 @@
  * Settings for Canvas Mode rendering.
  */
 
-return array(
+return [
 	'force_canvas_on_plugin_routes' => true,
 	'allow_theme_assets'            => false,
 	'allow_admin_bar'               => true,
@@ -22,9 +22,9 @@ return array(
 	'block_theme_js'                => true,
 
 	// Security settings
-	'security'                      => array(
+	'security'                      => [
 		'verify_nonce'    => true,
 		'sanitize_output' => true,
 		'rate_limit'      => false,
-	),
-);
+	],
+];
