@@ -1,8 +1,19 @@
 <?php
+/**
+ * Sticky Note Widget for WordPress Widget System
+ *
+ * @package Apollo\Modules\Builder\Widgets
+ * @phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+ */
 
 namespace Apollo\Modules\Builder\Widgets;
 
-class StickyNoteWidget extends Apollo_Widget_Base
+// WordPress functions are available in this context.
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+class StickyNoteWidget extends Apollo_Module_Widget_Base
 {
     public function __construct()
     {
@@ -20,13 +31,16 @@ class StickyNoteWidget extends Apollo_Widget_Base
 
         ob_start();
         ?>
-		<div class="apollo-sticky-note" style="background: <?php echo esc_attr($color); ?>">
+		<div class="apollo-sticky-note" style="background: <?php echo esc_attr($color); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>">
 			<header class="apollo-sticky-note__header">
 				<span class="apollo-sticky-note__pin"></span>
 				<h3 class="apollo-sticky-note__title"><?php echo esc_html($title); ?></h3>
 			</header>
 			<div class="apollo-sticky-note__content">
-				<?php echo wpautop(wp_kses_post($content)); ?>
+				<?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo wpautop(wp_kses_post($content));
+                ?>
 			</div>
 		</div>
 		<?php
@@ -50,7 +64,7 @@ class StickyNoteWidget extends Apollo_Widget_Base
 				id="<?php echo esc_attr($this->get_field_id('title')); ?>"
 				name="<?php echo esc_attr($this->get_field_name('title')); ?>"
 				type="text"
-				value="<?php echo $title; ?>"
+				value="<?php echo esc_attr($title); ?>"
 			>
 		</div>
 
@@ -63,7 +77,7 @@ class StickyNoteWidget extends Apollo_Widget_Base
 				rows="5"
 				id="<?php echo esc_attr($this->get_field_id('content')); ?>"
 				name="<?php echo esc_attr($this->get_field_name('content')); ?>"
-			><?php echo $content; ?></textarea>
+			><?php echo esc_textarea($content); ?></textarea>
 		</div>
 
 		<div class="apollo-widget-field">
@@ -75,7 +89,7 @@ class StickyNoteWidget extends Apollo_Widget_Base
 				type="color"
 				id="<?php echo esc_attr($this->get_field_id('color')); ?>"
 				name="<?php echo esc_attr($this->get_field_name('color')); ?>"
-				value="<?php echo $color; ?>"
+				value="<?php echo esc_attr($color); ?>"
 			>
 		</div>
 		<?php

@@ -66,7 +66,7 @@ class EmailSecurityLog {
 		$table_name      = $wpdb->prefix . self::TABLE_NAME;
 		$charset_collate = $wpdb->get_charset_collate();
 
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) !== $table_name ) {
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) !== $table_name ) {
 			$sql = "CREATE TABLE {$table_name} (
                 id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 type VARCHAR(20) NOT NULL DEFAULT 'sent',

@@ -59,7 +59,7 @@ class Apollo_Core_Activation_Test extends WP_UnitTestCase
         // Check apollo_mod_log table.
         $table_name = $wpdb->prefix . 'apollo_mod_log';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'");
+        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) === $table_name;
 
         $this->assertEquals($table_name, $table_exists, 'apollo_mod_log table should exist');
     }

@@ -204,7 +204,7 @@ class APRIO_Rest_API
         $table_name = $wpdb->prefix . 'aprio_rest_api_keys';
 
         // Verify table exists before attempting ALTER
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'");
+        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) === $table_name;
 
         if ($table_exists) {
             $columns = $wpdb->get_col("DESC {$table_name}", 0);

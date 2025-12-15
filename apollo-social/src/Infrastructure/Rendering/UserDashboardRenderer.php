@@ -357,7 +357,7 @@ class UserDashboardRenderer
         $likes_count = 0;
         global $wpdb;
         $likes_table = $wpdb->prefix . 'apollo_likes';
-        if ($wpdb->get_var("SHOW TABLES LIKE '$likes_table'") === $likes_table) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $likes_table)) === $likes_table) {
             $likes_count = $wpdb->get_var(
                 $wpdb->prepare(
                     "SELECT COUNT(*) FROM {$likes_table} WHERE user_id = %d",
@@ -390,7 +390,7 @@ class UserDashboardRenderer
         $groups_table  = $wpdb->prefix . 'apollo_groups';
         $members_table = $wpdb->prefix . 'apollo_group_members';
 
-        if ($wpdb->get_var("SHOW TABLES LIKE '$groups_table'") !== $groups_table) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $groups_table)) !== $groups_table) {
             return [];
         }
 
@@ -432,7 +432,7 @@ class UserDashboardRenderer
         $groups_table  = $wpdb->prefix . 'apollo_groups';
         $members_table = $wpdb->prefix . 'apollo_group_members';
 
-        if ($wpdb->get_var("SHOW TABLES LIKE '$groups_table'") !== $groups_table) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $groups_table)) !== $groups_table) {
             return [];
         }
 

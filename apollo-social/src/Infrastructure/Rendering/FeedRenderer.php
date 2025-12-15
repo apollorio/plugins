@@ -313,7 +313,7 @@ class FeedRenderer
         // Tentar tabela custom
         global $wpdb;
         $table_name = $wpdb->prefix . 'apollo_ads';
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) === $table_name) {
             return $wpdb->get_results(
                 $wpdb->prepare(
                     "SELECT * FROM $table_name WHERE status = 'published' ORDER BY created_at DESC LIMIT %d",

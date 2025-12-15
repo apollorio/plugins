@@ -712,7 +712,13 @@ abstract class APRIO_REST_CRUD_Controller extends APRIO_REST_Posts_Controller
             if (! wp_check_password($user_data['password'], $user->user_pass, $user->ID)) {
                 return self::prepare_error_for_response(405);
             } else {
-                $user_info = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}aprio_rest_api_keys WHERE user_id = $user->ID "));
+                $user_info = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$wpdb->prefix}aprio_rest_api_keys WHERE user_id = %d",
+                        $user->ID
+                    ),
+                    ARRAY_A
+                );
                 $user_meta = get_user_meta($user->ID, '_compatibilidade_profile', true);
                 if ($user_info) {
                     $date_expires = date('Y-m-d', strtotime($user_info->date_expires));

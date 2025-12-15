@@ -4,7 +4,14 @@ namespace Apollo\Modules\Builder\Widgets;
 
 use WP_Widget;
 
-abstract class Apollo_Widget_Base extends WP_Widget
+/**
+ * Apollo Module Widget Base
+ * 
+ * NOTE: This is DIFFERENT from apollo-social/src/Builder/widgets/class-widget-base.php
+ * This extends WP_Widget for WordPress widget system integration.
+ * The other Apollo_Widget_Base is for the Apollo Builder canvas system.
+ */
+abstract class Apollo_Module_Widget_Base extends WP_Widget
 {
     public function __construct(string $idBase, string $name, array $widgetOptions = [], array $controlOptions = [])
     {
@@ -24,17 +31,26 @@ abstract class Apollo_Widget_Base extends WP_Widget
 
     /**
      * Render widget on front-end.
+     *
+     * @param array $args     Widget arguments.
+     * @param array $instance Widget instance data.
+     * @return void
      */
     public function widget($args, $instance)
     {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $this->render($args, $instance);
     }
 
     /**
      * Render widget form in admin.
+     *
+     * @param array $instance Widget instance data.
+     * @return void
      */
     public function form($instance)
     {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $this->renderForm($instance);
     }
 
@@ -58,6 +74,10 @@ abstract class Apollo_Widget_Base extends WP_Widget
 
     /**
      * Sanitize data before saving.
+     *
+     * @param array $newInstance New instance data.
+     * @param array $oldInstance Old instance data.
+     * @return array Sanitized instance data.
      */
     protected function sanitize(array $newInstance, array $oldInstance): array
     {

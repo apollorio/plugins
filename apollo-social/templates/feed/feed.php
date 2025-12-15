@@ -495,3 +495,4 @@ window.apolloFeedData = {
 	posts: <?php echo wp_json_encode($feed_posts); ?>
 };
 </script>
+<?php

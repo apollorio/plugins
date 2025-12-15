@@ -50,7 +50,7 @@ class Apollo_Core_CLI_Commands {
 		WP_CLI::log( '2. Checking apollo_mod_log table...' );
 		$table_name = $wpdb->prefix . 'apollo_mod_log';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" );
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) === $table_name;
 
 		if ( $table_exists ) {
 			WP_CLI::success( "Table $table_name exists" );
