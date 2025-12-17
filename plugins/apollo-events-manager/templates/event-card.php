@@ -3,14 +3,14 @@
 
 /**
  * Event Card Template
- * DESIGN LIBRARY: Matches approved HTML from 'events discover event-card.html' 
+ * DESIGN LIBRARY: Matches approved HTML from 'events discover event-card.html'
  * Uses uni.css classes for consistent styling
  * UPDATED: Now uses Apollo_Event_Data_Helper for correct data retrieval with tooltips
  *
  * @package Apollo_Events_Manager
  * @version 3.1.0 - Helper Integration + Tooltips
  *
- * STRUCTURE (matches design-library/original/events discover event-card.html): 
+ * STRUCTURE (matches design-library/original/events discover event-card.html):
  * <a class="event_listing"> (wrapper is anchor)
  *   <div class="box-date-event"> (date badge)
  *   <div class="picture"> (image container)
@@ -37,7 +37,7 @@ if (! defined('ABSPATH')) {
 // Load helper class
 require_once plugin_dir_path(__FILE__) . '../includes/helpers/event-data-helper.php';
 
-// Get event data with fallbacks - support both $event and $post context        
+// Get event data with fallbacks - support both $event and $post context
 $event_id = 0;
 if (isset($event) && is_object($event) && isset($event->ID)) {
     $event_id = (int) $event->ID;
@@ -63,7 +63,7 @@ $banner_url = Apollo_Event_Data_Helper::get_banner_url($event_id);
 $event_date = get_post_meta($event_id, '_event_start_date', true);
 $parsed_date = Apollo_Event_Data_Helper::parse_event_date($event_date);
 
-// Format date components (matches design: day + lowercase month abbrev)        
+// Format date components (matches design: day + lowercase month abbrev)
 $day       = $parsed_date['day'] ?: '--';
 $month     = $parsed_date['month_pt'] ?: '---';
 $month_str = strtolower($month);
@@ -129,7 +129,7 @@ if ($local_data) {
 
 // Get category slug for filtering (data-category attribute)
 $category_slug = 'uncategorized';
-$terms         = wp_get_post_terms($event_id, 'event_listing_category', [ 'fields' => 'slugs' ]);                                                               
+$terms         = wp_get_post_terms($event_id, 'event_listing_category', [ 'fields' => 'slugs' ]);
 if (! is_wp_error($terms) && ! empty($terms)) {
     $category_slug = $terms[0];
 }
@@ -143,8 +143,8 @@ if (! is_wp_error($terms) && ! empty($terms)) {
 
         <!-- [ELEMENT::DATE_BOX] Event Date Badge -->
         <div class="box-date-event" title="<?php echo esc_attr($parsed_date['iso_date'] ?: $event_date); ?>">
-                <span class="date-day"><?php echo esc_html($day); ?></span>     
-                <span class="date-month"><?php echo esc_html($month); ?></span> 
+                <span class="date-day"><?php echo esc_html($day); ?></span>
+                <span class="date-month"><?php echo esc_html($month); ?></span>
         </div>
 
         <!-- [ELEMENT::EVENT_IMAGE] Event Thumbnail -->
@@ -157,8 +157,8 @@ if (! is_wp_error($terms) && ! empty($terms)) {
                 <!-- [ELEMENT::EVENT_TAGS] Category Tags -->
                 <?php if (! empty($genres_array)) : ?>
                         <div class="event-card-tags">
-                                <?php foreach (array_slice($genres_array, 0, 3) as $genre) : ?>                                                                 
-                                        <span title="<?php echo esc_attr($genre); ?>"><?php echo esc_html($genre); ?></span>                                                                            
+                                <?php foreach (array_slice($genres_array, 0, 3) as $genre) : ?>
+                                        <span title="<?php echo esc_attr($genre); ?>"><?php echo esc_html($genre); ?></span>
                                 <?php endforeach; ?>
                         </div>
                 <?php endif; ?>
@@ -168,24 +168,24 @@ if (! is_wp_error($terms) && ! empty($terms)) {
         <div class="event-line">
                 <div class="box-info-event">
                         <!-- [ELEMENT::EVENT_TITLE] -->
-                        <h2 class="event-li-title afasta-bmin" title="<?php echo esc_attr($event_title); ?>"><?php echo esc_html($event_title); ?></h2>                                                       
+                        <h2 class="event-li-title afasta-bmin" title="<?php echo esc_attr($event_title); ?>"><?php echo esc_html($event_title); ?></h2>
 
                         <!-- [ELEMENT::DJ_NAME] with tooltip -->
                         <?php if ($dj_display) : ?>
-                                <p class="event-li-detail of-dj afasta-bmin" 
-                                   title="<?php echo $dj_tooltip; ?>"
-                                   data-tooltip="<?php echo $dj_tooltip; ?>">   
-                                        <i class="ri-sound-module-fill" aria-hidden="true"></i>    
-                                        <span><?php echo esc_html($dj_display); ?></span>                                                                       
+                                <p class="event-li-detail of-dj afasta-bmin"
+                                   title="<?php echo esc_attr($dj_tooltip); ?>"
+                                   data-tooltip="<?php echo esc_attr($dj_tooltip); ?>">
+                                        <i class="ri-sound-module-fill" aria-hidden="true"></i>
+                                        <span><?php echo esc_html($dj_display); ?></span>
                                 </p>
                         <?php endif; ?>
 
                         <!-- [ELEMENT::VENUE_NAME] with tooltip -->
                         <p class="event-li-detail of-location afasta-bmin"
-                           title="<?php echo $location_tooltip; ?>"
-                           data-tooltip="<?php echo $location_tooltip; ?>">     
+                           title="<?php echo esc_attr($location_tooltip); ?>"
+                           data-tooltip="<?php echo esc_attr($location_tooltip); ?>">
                                 <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-                                <span id="local_nome_<?php echo esc_attr($event_id); ?>"><?php echo esc_html($location_display); ?></span>                                                         
+                                <span id="local_nome_<?php echo esc_attr($event_id); ?>"><?php echo esc_html($location_display); ?></span>
                         </p>
                 </div>
         </div>
