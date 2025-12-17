@@ -11,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Include core fix helper to ensure missing functions are defined
+require_once __DIR__ . '/wp-core-fix-helper.php';
+
 /**
  * User Visit Tracker
  */
