@@ -1,0 +1,33 @@
+﻿root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# PHP (segue WordPress / PHPCS)
+[*.php]
+indent_size = 4
+
+# JS/TS – mais confortável com 2 espaços
+[*.js]
+indent_size = 2
+
+[*.ts]
+indent_size = 2
+
+# JSON / YAML / config
+[*.json]
+indent_size = 2
+
+[*.yml]
+indent_size = 2
+
+[*.yaml]
+indent_size = 2
+
+# Markdown – não remover trailing whitespace (pode quebrar quebras de linha)
+[*.md]
+trim_trailing_whitespace = false

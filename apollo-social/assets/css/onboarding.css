@@ -1,0 +1,743 @@
+/**
+ * Apollo Onboarding Chat Styles
+ * Based on CodePen design with chat bubbles, typing animations, and smooth transitions
+ * https://codepen.io/Rafael-Valle-the-looper/pen/xbZpXyM
+ */
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Main container - Apollo Canvas Mode */
+.apollo-canvas.apollo-onboarding {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Chat Container */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+/* Header - Minimal design inspired by CodePen */
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+}
+
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.header-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+    letter-spacing: -0.3px;
+}
+
+.header-status {
+    font-size: 13px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+}
+
+/* Messages Area */
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+}
+
+/* Message Bubbles - CodePen inspired design */
+.message-bubble {
+    margin-bottom: 16px;
+    animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.bot-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.bot-message .message-content {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px;
+    max-width: 85%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    padding: 14px 18px;
+    max-width: 85%;
+    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+    position: relative;
+}
+
+.message-content p {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 15px;
+    word-wrap: break-word;
+}
+
+.message-timestamp {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+.user-message .message-timestamp {
+    text-align: right;
+    color: #64748b;
+}
+
+/* Typing Indicator - CodePen style */
+.typing-indicator {
+    padding: 0 20px 10px 20px;
+    animation: slideUp 0.3s ease;
+}
+
+.typing-bubble {
+    background: #f1f5f9;
+    border-radius: 18px 18px 18px 4px;
+    padding: 12px 16px;
+    max-width: 60px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: #64748b;
+    border-radius: 50%;
+    animation: typingDots 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Chat Input Area */
+.chat-input-area {
+    padding: 16px 20px 20px 20px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    position: relative;
+}
+
+/* Text Input Group */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border-radius: 24px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.input-group:focus-within {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.text-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 16px;
+    font-size: 15px;
+    outline: none;
+    color: #1e293b;
+    font-family: inherit;
+}
+
+.text-input::placeholder {
+    color: #94a3b8;
+}
+
+.send-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.send-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.send-button:active {
+    transform: scale(0.95);
+}
+
+/* Choice Chips - CodePen inspired */
+.choice-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.chip {
+    padding: 10px 18px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 24px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+}
+
+.chip:hover {
+    border-color: #667eea;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chip.selected {
+    color: white;
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.chip.selected::before {
+    opacity: 1;
+}
+
+.chip-category {
+    width: 100%;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    margin: 8px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Contact Form */
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input {
+    border: 1.5px solid #d1d5db;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1e293b;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Continue Button */
+.continue-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    margin-top: 12px;
+}
+
+.continue-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.continue-button:active {
+    transform: translateY(0);
+}
+
+.continue-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Verification Info */
+.verification-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.verification-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.verification-card h4 {
+    margin: 0 0 12px 0;
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.verification-card p {
+    margin: 0 0 12px 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.verification-text {
+    background: white;
+    border: 2px dashed #667eea;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 13px;
+    color: #667eea;
+    margin: 12px 0;
+}
+
+.verification-upload {
+    display: flex;
+    justify-content: center;
+}
+
+.upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #f1f5f9;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.upload-label:hover {
+    background: #e2e8f0;
+    border-color: #9ca3af;
+}
+
+/* Summary Card */
+.summary-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.summary-card h4 {
+    margin: 0 0 16px 0;
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #374151;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-content p:last-child {
+    border-bottom: none;
+}
+
+.summary-content strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Progress Bar */
+.onboarding-progress {
+    padding: 16px 20px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-radius: 3px;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Validation Error */
+.validation-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+    animation: shake 0.3s ease;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes typingDots {
+    0%, 20% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
+    80%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .apollo-canvas.apollo-onboarding {
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+    
+    .chat-header {
+        padding: 12px 16px;
+    }
+    
+    .chat-messages {
+        padding: 16px;
+    }
+    
+    .chat-input-area {
+        padding: 12px 16px 16px 16px;
+    }
+    
+    .choice-chips {
+        flex-direction: column;
+    }
+    
+    .chip {
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .onboarding-progress {
+        padding: 12px 16px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .apollo-canvas.apollo-onboarding {
+        background: #0f172a;
+    }
+    
+    .chat-container {
+        background: #1e293b;
+    }
+    
+    .chat-messages {
+        background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%);
+    }
+    
+    .bot-message .message-content {
+        background: #334155;
+        color: #f1f5f9;
+        border-color: #475569;
+    }
+    
+    .typing-bubble {
+        background: #334155;
+        border-color: #475569;
+    }
+    
+    .chat-input-area {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .input-group {
+        background: #334155;
+        border-color: #475569;
+    }
+    
+    .text-input {
+        color: #f1f5f9;
+    }
+    
+    .text-input::placeholder {
+        color: #64748b;
+    }
+    
+    .chip {
+        background: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+    
+    .chip:hover {
+        background: #475569;
+    }
+    
+    .form-input {
+        background: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+    
+    .verification-card,
+    .summary-card {
+        background: linear-gradient(135deg, #334155 0%, #475569 100%);
+        border-color: #475569;
+    }
+    
+    .verification-card h4,
+    .summary-card h4 {
+        color: #f1f5f9;
+    }
+    
+    .verification-card p,
+    .summary-content p {
+        color: #cbd5e1;
+    }
+    
+    .summary-content strong {
+        color: #f1f5f9;
+    }
+    
+    .onboarding-progress {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .progress-bar {
+        background: #334155;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .bot-message .message-content {
+        border: 2px solid #1e293b;
+    }
+    
+    .user-message .message-content {
+        border: 2px solid #667eea;
+    }
+    
+    .chip {
+        border-width: 2px;
+    }
+    
+    .form-input {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .typing-dots span {
+        animation: none;
+    }
+    
+    .status-dot {
+        animation: none;
+    }
+}

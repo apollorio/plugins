@@ -1,0 +1,15 @@
+{
+  "name": "apollo-social",
+  "version": "0.1.0",
+  "description": "Build tooling for Apollo Social plugin assets (builder and PWA).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:watch": "node scripts/build.mjs --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "picocolors": "^1.0.0"
+  }
+}

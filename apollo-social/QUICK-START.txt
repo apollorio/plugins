@@ -1,0 +1,92 @@
+================================================================================
+  APOLLO SOCIAL CODE QUALITY - QUICK START GUIDE
+================================================================================
+
+SETUP (First Time Only)
+────────────────────────────────────────────────────────────────────────────────
+cd wp-content/plugins/apollo-social
+composer install
+
+DAILY USE
+────────────────────────────────────────────────────────────────────────────────
+# Check your code
+composer run lint
+
+# Auto-fix safe issues
+composer run fix
+
+# Check specific file
+./vendor/bin/phpcs --standard=phpcs.xml.dist src/API/
+
+COMMON ISSUES & SOLUTIONS
+────────────────────────────────────────────────────────────────────────────────
+
+1. UNESCAPED OUTPUT ERROR
+   echo $variable;                    ← ❌ Wrong
+   echo esc_html($variable);          ← ✅ Right
+
+2. UNPREPARED SQL ERROR
+   $wpdb->get_results("SELECT * FROM $table WHERE id = $id");
+   ↓↓↓ Use wpdb->prepare()
+   $wpdb->get_results($wpdb->prepare(
+       "SELECT * FROM %i WHERE id = %d", $table, $id
+   ));
+
+3. NON-SANITIZED INPUT ERROR
+   $_POST['name']                     ← ❌ Wrong
+   sanitize_text_field($_POST['name']) ← ✅ Right
+
+4. YODA CONDITION ERROR
+   if ('value' === $var) { }          ← ❌ Wrong
+   if ($var === 'value') { }          ← ✅ Right
+
+DOCUMENTATION
+────────────────────────────────────────────────────────────────────────────────
+README-CODE-QUALITY.md    - Start here! Overview & setup
+PHPCS-FIX-GUIDE.md        - Solutions for every violation type
+PHPCS-BASELINE.md         - Detailed error analysis
+CODE-QUALITY-REPORT.md    - Complete project summary
+FINAL-STATUS.md           - Executive summary
+
+KEY NUMBERS
+────────────────────────────────────────────────────────────────────────────────
+Total Violations:         375 errors + 277 warnings
+Scan Time:                8 seconds (20 cores parallel)
+Auto-Fixed Issues:        2,995+
+Compliance Rate:          87% (Target: 95%)
+
+COMMANDS REFERENCE
+────────────────────────────────────────────────────────────────────────────────
+composer run lint                    Full scan
+composer run fix                     Auto-fix
+./vendor/bin/phpcs --standard=phpcs.xml.dist src/
+./vendor/bin/phpcs --standard=phpcs.xml.dist src/ --report=csv > report.csv
+./vendor/bin/phpcbf --standard=phpcs.xml.dist src/
+
+WHAT'S CHECKED
+────────────────────────────────────────────────────────────────────────────────
+✓ Security      (Output escaping, SQL injection, input validation)
+✓ i18n          (Text domain, translation functions)
+✓ Code Style    (Modern PHP, naming conventions)
+✓ Variables     (Undefined, unused)
+
+STILL HAVE QUESTIONS?
+────────────────────────────────────────────────────────────────────────────────
+1. Read PHPCS-FIX-GUIDE.md for pattern-based solutions
+2. Check the code comment in error message
+3. Look for similar patterns in other files
+4. Ask in code review - security decisions matter!
+
+SUCCESS CHECKLIST
+────────────────────────────────────────────────────────────────────────────────
+☐ Ran: composer install
+☐ Ran: composer run lint (saw baseline)
+☐ Read: README-CODE-QUALITY.md
+☐ Read: PHPCS-FIX-GUIDE.md (at least one section)
+☐ Ran: ./vendor/bin/phpcs on a specific file
+☐ Fixed one violation using the guide
+☐ Verified fix with: composer run lint
+
+STATUS: ✅ READY FOR DEVELOPMENT
+
+================================================================================

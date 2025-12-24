@@ -1,0 +1,1660 @@
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Apollo::rio :: Catálogo de Fornecedores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+  <!-- ============================================
+       EXTERNAL DEPENDENCIES
+       For WordPress: Enqueue these in functions.php
+       ============================================ -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/icon.js" defer></script>
+  <script src="https://assets.apollo.rio.br/npm/tailwindcss@3.4.1/tailwind.min.js"></script>
+  <script src="https://assets.apollo.rio.br/npm/jquery@3.6.0/jquery.min.js"></script>
+  <script src="https://assets.apollo.rio.br/motionone/index.cjs.js"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Urbanist', 'system-ui', 'sans-serif'] },
+          colors: { slate: { 850: '#1e293b' } }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* =========================================
+       SECTION 1: CORE CSS VARIABLES
+       WordPress Note: Can be moved to separate CSS file
+       ========================================= */
+    :root {
+      /* Typography */
+      --ap-font-primary: "Urbanist", system-ui, -apple-system, sans-serif;
+
+      /* Color System */
+      --ap-bg-main: #ffffff;
+      --ap-bg-surface: #f8fafc;
+      --ap-text-primary: rgba(19, 21, 23, 0.65);
+      --ap-text-secondary: rgba(15, 23, 42, 0.88);
+      --ap-text-muted: rgba(19, 21, 23, 0.4);
+      --ap-orange-500: #FF6925;
+      --ap-orange-600: #E55A1E;
+
+      /* Glass Effect Variables */
+      --glass-surface: rgba(255, 255, 255, 0.92);
+      --glass-border: rgba(226, 232, 240, 0.8);
+      --glass-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+      --item-hover: rgba(15, 23, 42, 0.04);
+      --card-bg: #ffffff;
+
+      /* Layout Dimensions */
+      --nav-height: 70px;
+      --menu-radius: 20px;
+
+      /* Dark Mode Toggle Variables */
+      --toggleHeight: 16em;
+      --toggleWidth: 30em;
+      --toggleBtnRadius: 10em;
+      --bgColor--night: #423966;
+      --mooncolor: #D9FBFF;
+    }
+
+    /* =========================================
+       SECTION 2: BASE RESET & DEFAULTS
+       WordPress Note: Essential for consistent rendering
+       ========================================= */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--ap-font-primary);
+      background-color: var(--ap-bg-main);
+      color: var(--ap-text-secondary);
+      /* CRITICAL FIX: NO STICKY ELEMENTS - Normal scroll only */
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* =========================================
+       SECTION 3: NAVBAR - FIXED TOP
+       WordPress Block: header-navigation
+       CRITICAL: Only element allowed to be fixed!
+       ========================================= */
+    .navbar {
+      /* Fixed positioning - ONLY navbar is fixed */
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+
+      /* Layout */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+      height: var(--nav-height);
+
+      /* Glass Effect - No bottom border as requested */
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: none;
+    }
+
+    /* Logo Animation - Desktop Only */
+    @keyframes pulsar {
+
+      0%,
+      100% {
+        filter: brightness(1);
+        box-shadow: 0px 4px 5px rgba(255, 165, 0, 0.07);
+      }
+
+      50% {
+        filter: brightness(1.15) saturate(1.2);
+        box-shadow: 0px 4px 15px rgba(255, 165, 0, 0.15);
+      }
+    }
+
+    /* Clock Element - Shows on desktop, hidden on mobile */
+    .clock-pill {
+      padding: 0.4rem 1rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--ap-text-primary);
+      cursor: default;
+      margin-right: 0.5rem;
+      background: transparent;
+      border: none;
+    }
+
+    /* Navigation Buttons */
+    .nav-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ap-text-primary);
+      transition: all 0.2s ease;
+      position: relative;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover,
+    .nav-btn[aria-expanded="true"] {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--ap-orange-500);
+      transform: scale(1.05);
+    }
+
+    .nav-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Notification Badge - Pulse Animation */
+    .badge {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      z-index: 10;
+      pointer-events: none;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .badge[data-notif="true"] {
+      background: #ff8c00;
+      box-shadow: 0 0 10px #ff8c00;
+      animation: pulsar-badge 2s infinite ease-in;
+    }
+
+    @keyframes pulsar-badge {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+      }
+
+      100% {
+        transform: scale(1.03);
+        filter: brightness(1.3) saturate(1.5);
+        box-shadow: 0 0 0 15px rgba(255, 140, 0, 0);
+      }
+    }
+
+    /* =========================================
+       SECTION 4: RESPONSIVE NAVBAR
+       WordPress: Conditional classes based on wp_is_mobile()
+       ========================================= */
+
+    /* DESKTOP VIEW: Show all elements */
+    @media (min-width: 769px) {
+      .navbar .clock-pill {
+        display: block;
+      }
+
+      .navbar #btn-notif {
+        display: flex;
+      }
+
+      .navbar #btn-apps {
+        display: flex;
+      }
+
+      .navbar #btn-profile {
+        display: flex;
+      }
+    }
+
+    /* MOBILE VIEW: Only app button, avatar, and clock */
+    @media (max-width: 768px) {
+
+      /* Hide notifications button on mobile */
+      .navbar #btn-notif {
+        display: none !important;
+      }
+
+      /* Show only these elements */
+      .navbar .clock-pill {
+        display: none;
+      }
+
+      /* Clock hidden on mobile as per requirement */
+      .navbar #btn-apps {
+        display: flex !important;
+        margin-left: auto;
+      }
+
+      .navbar #btn-profile {
+        display: flex !important;
+      }
+    }
+
+    /* =========================================
+       SECTION 5: SIDEBAR - NO STICKY!
+       WordPress Block: sidebar-navigation
+       CRITICAL FIX: Removed sticky positioning
+       ========================================= */
+    aside {
+      /* FIXED: Changed from sticky to static positioning */
+      position: static;
+      /* Was: sticky */
+      /* Removed: top: var(--nav-height); */
+      /* Removed: height: calc(100vh - var(--nav-height)); */
+      overflow-y: visible;
+      /* Changed from auto */
+    }
+
+    .aprio-sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 10px 12px;
+      margin-bottom: 4px;
+      border-radius: 12px;
+      border-left: 2px solid transparent;
+      font-size: 13px;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .aprio-sidebar-nav a:hover {
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    .aprio-sidebar-nav a[aria-current="page"] {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      border-left-color: #0f172a;
+      font-weight: 600;
+    }
+
+    /* =========================================
+       SECTION 6: DROPDOWN MENUS
+       WordPress Block: dropdown-menu-component
+       CRITICAL FIXES: Notification & App Menu modals
+       ========================================= */
+
+    /* Base Dropdown Styles */
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(var(--nav-height) + 10px);
+      right: 16px;
+      width: 380px;
+      max-width: 90vw;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      border-radius: var(--menu-radius);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+      max-height: 85vh;
+    }
+
+    /* Active State */
+    .dropdown-menu.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* =========================================
+       NOTIFICATION MODAL - MOBILE FIX
+       CRITICAL: Width 80%, max-height 95vh
+       ========================================= */
+    @media (max-width: 768px) {
+      #menu-notif {
+        /* FIXED: Mobile notification modal sizing */
+        width: 80% !important;
+        height: fit-content !important;
+        max-height: 95vh !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) translateY(-10px) scale(0.98);
+      }
+
+      #menu-notif.active {
+        transform: translateX(-50%) translateY(0) scale(1);
+      }
+    }
+
+    /* =========================================
+       APP MENU MODAL - MOBILE FIX
+       CRITICAL: Width 90vw, Height 90vh
+       ========================================= */
+    @media (max-width: 768px) {
+      #menu-app {
+        /* FIXED: Full screen on mobile as requested */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        width: 90vw !important;
+        height: 90vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        transform: translate(-50%, -50%) scale(0.98);
+        border-radius: var(--menu-radius);
+        padding-top: 1.5rem;
+      }
+
+      #menu-app.active {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ap-text-muted);
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ario-see-all {
+      font-size: 10.5px;
+      font-weight: 300;
+      color: var(--ap-orange-500);
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* =========================================
+       SECTION 7: NOTIFICATION ITEMS
+       WordPress Block: notification-item
+       ========================================= */
+    .notif-item {
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      gap: 0.75rem;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .notif-item:last-of-type {
+      border-bottom: 1px solid var(--glass-border);
+      /* Keep border */
+    }
+
+    .notif-item:hover {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .notif-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .notif-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .notif-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ap-text-secondary);
+    }
+
+    .notif-desc {
+      font-size: 0.8rem;
+      color: var(--ap-text-primary);
+      line-height: 1.3;
+    }
+
+    .notif-time {
+      font-size: 0.7rem;
+      color: var(--ap-text-muted);
+      margin-top: 4px;
+    }
+
+    /* CRITICAL: Load More Button - Always Last Item */
+    .load-more-notif {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--glass-border);
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: var(--ap-orange-500);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .load-more-notif:hover {
+      background: rgba(255, 105, 37, 0.05);
+    }
+
+    /* =========================================
+       SECTION 8: APPS GRID & MESSAGE CARDS
+       WordPress Block: apps-grid, message-cards
+       Based on second CodePen structure
+       ========================================= */
+
+    /* Apps Grid */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 0 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+
+    .app-item:hover {
+      transform: translateY(-3px);
+    }
+
+    .app-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #fff;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s;
+    }
+
+    .app-label {
+      font-size: 0.7rem;
+      color: var(--ap-text-secondary);
+      text-align: center;
+    }
+
+    /* Horizontal Scroll Row - For Messages & Notifications */
+    .scroll-row {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      padding: 10px 1.25rem;
+      margin-bottom: 1.5rem;
+      scrollbar-width: thin;
+    }
+
+    .scroll-row::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .scroll-row::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .scroll-row::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 2px;
+    }
+
+    /* Message Card - Shortened Preview */
+    .msg-card {
+      flex: 0 0 13rem;
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.9rem;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      cursor: pointer;
+    }
+
+    .msg-card:hover {
+      background: #fff;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .msg-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .msg-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .msg-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+      overflow: hidden;
+    }
+
+    .msg-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--ap-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .msg-time {
+      font-size: 0.65rem;
+      color: var(--ap-text-muted);
+    }
+
+    .msg-preview {
+      font-size: 0.75rem;
+      color: var(--ap-text-primary);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Load More Card in Horizontal Scroll */
+    .load-more-card {
+      flex: 0 0 10rem;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.02);
+      border-style: dashed;
+    }
+
+    .load-more-card:hover {
+      background: rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .load-more-text {
+      font-weight: 300;
+      color: rgba(19, 21, 23, 0.6);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    /* =========================================
+       SECTION 9: UTILITY CLASSES
+       WordPress: Can be included in theme utilities
+       ========================================= */
+    .bg-blue {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+
+    .bg-green {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .bg-orange {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+    }
+
+    .bg-purple {
+      background: linear-gradient(135deg, #a855f7, #9333ea);
+    }
+
+    .bg-red {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .bg-gray {
+      background: #64748b;
+    }
+
+    /* =========================================
+       SECTION 10: CONTENT CARDS
+       WordPress Block: supplier-card, filter-chip
+       ========================================= */
+    .supplier-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 16px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .supplier-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-chip {
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .filter-chip:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: #334155;
+    }
+
+    .filter-chip.active {
+      background: #0f172a;
+      color: white;
+    }
+
+    /* Calendar Mini Widgets */
+    .mini-day {
+      text-align: center;
+      padding: 4px 0;
+      border-radius: 6px;
+      font-size: 11px;
+      position: relative;
+    }
+
+    .mini-day.has-events {
+      font-weight: 700;
+      background: #f1f5f9;
+    }
+
+    .mini-day-dot {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #f97316;
+    }
+
+    /* =========================================
+       SECTION 11: DARK MODE TOGGLE
+       WordPress: Can be controlled via theme customizer
+       ========================================= */
+    .tdnn {
+      font-size: 1.2px;
+      position: absolute;
+      right: 1rem;
+      bottom: 1rem;
+      height: 16em;
+      width: 30em;
+      border-radius: 16em;
+      transition: all 500ms ease-in-out;
+      background: #423966;
+      cursor: pointer;
+    }
+
+    .moon {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      transition: all 400ms ease-in-out;
+      top: 3em;
+      left: 3em;
+      transform: rotate(-75deg);
+      width: 10em;
+      height: 10em;
+      background: #423966;
+      box-shadow: 3em 2.5em 0 0em #D9FBFF inset,
+        rgba(255, 255, 255, 0.1) 0em -7em 0 -4.5em;
+    }
+
+    .sun {
+      top: 4.5em;
+      left: 18em;
+      transform: rotate(0deg);
+      width: 7em;
+      height: 7em;
+      background: #fff;
+      box-shadow: 3em 3em 0 5em #fff inset;
+    }
+
+    .day {
+      background: #FFBF71;
+    }
+  </style>
+
+
+
+
+  <!-- =============================================
+     SECTION 12: NAVBAR STRUCTURE
+     WordPress: Convert to get_template_part('template-parts/navigation')
+     ============================================= -->
+  <nav class="navbar">
+
+    <!-- Logo Section - Desktop Full, Mobile Icon Only -->
+    <div class="flex items-center">
+
+      <!-- Desktop Logo -->
+      <div class="hidden md:flex h-16 items-center gap-3 ml-4" style="transform:scale(1.0);">
+        <div
+          class="h-9 w-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center z-20 shadow-md">
+          <i class="ri-slack-fill text-white text-[21px]"></i>
+        </div>
+        <div class="ml-2 flex flex-col leading-tight">
+          <span class="text-[15px] font-bold text-slate-900 opacity-95">Apollo::rio</span>
+          <span
+            class="text-[8.5px] font-regular center text-center text-slate-400 uppercase tracking-[0.18em]">plataforma</span>
+        </div>
+      </div>
+
+      <!-- Mobile Logo - Icon Only -->
+      <div class="md:hidden h-16 flex items-center gap-3 ml-0">
+        <div
+          class="h-9 w-9 rounded-[12px] bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center z-20"
+          style="animation: pulsar 6.2s ease-in-out infinite alternate; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">
+          <i class="ri-slack-fill text-white z-35 text-[20px]"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Side Navigation Controls -->
+    <div class="flex items-center gap-2">
+
+      <!-- Clock - Hidden on Mobile as requested -->
+      <div class="clock-pill hidden sm:block" id="digital-clock">14:24:51</div>
+
+      <!-- Notifications Button - FIXED: Now opens correctly -->
+      <button id="btn-notif" class="nav-btn" aria-label="Notificações" aria-expanded="false">
+        <div class="badge" id="notif-badge" data-notif="true"></div>
+        <i class="ri-gps-line text-xl"></i>
+      </button>
+
+      <!-- Apps Button - FIXED: Now opens correctly on mobile -->
+      <button id="btn-apps" class="nav-btn" aria-label="Aplicativos" aria-expanded="false">
+        <i class="ri-grid-fill text-xl"></i>
+      </button>
+
+      <!-- Profile Avatar Button -->
+      <button id="btn-profile" class="nav-btn font-bold bg-slate-100 rounded-full"
+        style="width:36px; height:36px; font-size:12px;" aria-expanded="false">V</button>
+    </div>
+
+  </nav>
+
+  <!-- =============================================
+     SECTION 13: MAIN LAYOUT
+     WordPress: Main content area with sidebar
+     ============================================= -->
+  <div class="flex pt-[70px]">
+
+    <!-- SIDEBAR - FIXED: No longer sticky! -->
+    <aside class="hidden md:flex flex-col w-64 mr-6 ml-4 pb-2">
+      <nav class="aprio-sidebar-nav flex-1 pl-4 pr-3 mt-1 pt-2 pb-2 overflow-y-auto no-scrollbar text-[13px]">
+
+        <!-- Navigation Section -->
+        <div class="px-1 mb-2 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Navegação</div>
+        <a href="#"><i class="ri-building-3-line"></i><span>Feed</span></a>
+        <a href="#"><i class="ri-calendar-event-line"></i><span>Eventos</span></a>
+        <a href="#"><i class="ri-user-community-fill"></i><span>Comunidades</span></a>
+        <a href="#"><i class="ri-team-fill"></i><span>Núcleos</span></a>
+        <a href="#"><i class="ri-megaphone-line"></i><span>Classificados</span></a>
+        <a href="#"><i class="ri-file-text-line"></i><span>Docs &amp; Contratos</span></a>
+        <a href="#"><i class="ri-user-smile-fill"></i><span>Perfil</span></a>
+
+        <!-- Cena::rio Section -->
+        <div class="mt-6 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Cena::rio</div>
+        <a href="#"><i class="ri-calendar-line"></i><span>Agenda</span></a>
+
+        <!-- Active Item Example -->
+        <a href="#" aria-current="page">
+          <i class="ri-bar-chart-grouped-line"></i>
+          <span>Fornecedores</span>
+        </a>
+
+        <a href="#"><i class="ri-file-text-line"></i><span>Documentos</span></a>
+
+        <!-- Quick Access Section -->
+        <div class="mt-4 px-1 mb-0 text-[9.5px] font-regular text-slate-400 uppercase tracking-wider">Acesso Rápido
+        </div>
+        <a href="#"><i class="ri-settings-6-line"></i><span>Ajustes</span></a>
+      </nav>
+
+      <!-- User Profile Card -->
+      <div class="mt-auto pt-4 border-t border-slate-100 flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-orange-100 overflow-hidden">
+          <img src="https://ui-avatars.com/api/?name=Valle&amp;background=f97316&amp;color=fff"
+            class="object-cover w-full h-full">
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-slate-900">Valle</span>
+          <span class="text-[10px] text-slate-500">Produtor</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+
+
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 pb-safe">
+    <div class="max-w-md mx-auto w-full px-6 py-2 flex items-end justify-between h-[60px]">
+      <div class="flex flex-col items-center justify-center w-14 gap-1">
+        <i class="ri-calendar-line text-xl text-slate-400"></i>
+        <span class="text-[10px] text-slate-400">Agenda</span>
+      </div>
+      <div class="flex flex-col items-center justify-center w-14 gap-1">
+        <i class="ri-bar-chart-grouped-line text-xl text-slate-900"></i>
+        <span class="text-[10px] font-bold text-slate-900">Pro</span>
+      </div>
+      <div class="relative -top-6">
+        <button
+          class="h-14 w-14 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-900/30 active:scale-95 transition-transform">
+          <i class="ri-add-line text-2xl"></i>
+        </button>
+      </div>
+      <div class="flex flex-col items-center justify-center w-14 gap-1">
+        <i class="ri-file-text-line text-xl text-slate-400"></i>
+        <span class="text-[10px] text-slate-400">Docs</span>
+      </div>
+      <div class="flex flex-col items-center justify-center w-14 gap-1">
+        <i class="ri-user-3-line text-xl text-slate-400"></i>
+        <span class="text-[10px] text-slate-400">Perfil</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+     SECTION 14: NOTIFICATION DROPDOWN
+     WordPress: template-parts/modals/notifications
+     FIXED: Now opens correctly, Mobile 80% width
+     ============================================= -->
+  <div id="menu-notif" class="dropdown-menu" style="display: none;">
+    <div class="section-title">Notificações</div>
+
+    <!-- Notification List - Dynamic Content -->
+    <div id="notif-list">
+      <div class="notif-item">
+        <div class="notif-icon bg-red"><i class="ri-alarm-warning-line"></i></div>
+        <div class="notif-content">
+          <span class="notif-title">Sistema</span>
+          <span class="notif-desc">Backup do servidor finalizado.</span>
+          <span class="notif-time">2m atrás</span>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-icon bg-blue"><i class="ri-user-follow-line"></i></div>
+        <div class="notif-content">
+          <span class="notif-title">Novo Seguidor</span>
+          <span class="notif-desc">Spectra Visuals começou a seguir você.</span>
+          <span class="notif-time">1h atrás</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRITICAL: Load More Button - Always Last Item -->
+    <div class="load-more-notif" id="load-more-notif">
+      Carregar mais notificações
+    </div>
+  </div>
+
+  <!-- =============================================
+     SECTION 15: APPS MENU DROPDOWN
+     WordPress: template-parts/modals/apps-menu
+     FIXED: Now opens correctly, Mobile 90vw x 90vh
+     Based on second CodePen structure
+     ============================================= -->
+  <div id="menu-app" class="dropdown-menu" style="display: none;">
+
+    <!-- Apps Grid Section -->
+    <div class="section-title">Aplicativos</div>
+    <div class="apps-grid">
+      <a href="#" class="app-item">
+        <div class="app-icon bg-green">XL</div>
+        <span class="app-label">Excel</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-blue">WD</div>
+        <span class="app-label">Word</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-orange">PP</div>
+        <span class="app-label">Slide</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-purple">TM</div>
+        <span class="app-label">Teams</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-red">PDF</div>
+        <span class="app-label">Leitor</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-gray">DR</div>
+        <span class="app-label">Drive</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-blue">MT</div>
+        <span class="app-label">Meet</span>
+      </a>
+      <a href="#" class="app-item">
+        <div class="app-icon bg-gray">+</div>
+        <span class="app-label">Add</span>
+      </a>
+    </div>
+
+    <!-- Notifications Row - Horizontal Scroll -->
+    <div class="section-title">
+      <span>Notificações Recentes</span>
+      <a href="#" class="ario-see-all">Configurar &gt;</a>
+    </div>
+    <div class="scroll-row">
+      <div class="msg-card">
+        <div class="msg-header">
+          <div class="msg-avatar bg-red">A</div>
+          <div class="msg-info">
+            <span class="msg-name">Alerta Sistema</span>
+            <span class="msg-time">2m atrás</span>
+          </div>
+        </div>
+        <div class="msg-preview">Backup do servidor concluído.</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-header">
+          <div class="msg-avatar bg-blue">J</div>
+          <div class="msg-info">
+            <span class="msg-name">Júlia M.</span>
+            <span class="msg-time">15m atrás</span>
+          </div>
+        </div>
+        <div class="msg-preview">Marcou você em "Revisão de UI".</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-header">
+          <div class="msg-avatar bg-green">R</div>
+          <div class="msg-info">
+            <span class="msg-name">RH</span>
+            <span class="msg-time">1h atrás</span>
+          </div>
+        </div>
+        <div class="msg-preview">Documentos de férias aprovados.</div>
+      </div>
+    </div>
+
+    <!-- Messages Row - Horizontal Scroll with Load More -->
+    <div class="section-title">
+      <span>Chat Recente</span>
+      <a href="#" class="ario-see-all">Abrir Messenger &gt;</a>
+    </div>
+    <div class="scroll-row" id="chat-scroller">
+      <div class="msg-card">
+        <div class="msg-header">
+          <div class="msg-avatar bg-gray">M</div>
+          <div class="msg-info">
+            <span class="msg-name">Matheus</span>
+            <span class="msg-time">Agora</span>
+          </div>
+        </div>
+        <div class="msg-preview">Cara, você viu o novo layout? Ficou insano!</div>
+      </div>
+      <div class="msg-card">
+        <div class="msg-header">
+          <div class="msg-avatar bg-purple">B</div>
+          <div class="msg-info">
+            <span class="msg-name">Bruna</span>
+            <span class="msg-time">5m atrás</span>
+          </div>
+        </div>
+        <div class="msg-preview">Reunião adiada para as 16h.</div>
+      </div>
+
+      <!-- Load More Card -->
+      <div class="msg-card load-more-card" id="load-more-btn">
+        <span class="load-more-text">+ Carregar Mais</span>
+      </div>
+    </div>
+
+    <!-- Dark Mode Toggle for Mobile -->
+    <div class="md:hidden p-6 border-t border-slate-100 mt-4 pb-20">
+      <div class="flex justify-between items-center">
+        <span class="font-bold text-slate-700">Modo Escuro</span>
+        <div style="height: 20px; width: 40px; position: relative;">
+          <div class="tdnn" style="font-size: 0.5px; position: relative; margin:0; right:0; bottom:0;">
+            <div class="moon"></div>
+          </div>
+        </div>
+      </div>
+      <button class="w-full mt-6 py-4 rounded-xl bg-red-50 text-red-600 font-bold text-sm">Sair</button>
+    </div>
+
+  </div>
+
+  <!-- =============================================
+     SECTION 16: PROFILE DROPDOWN
+     WordPress: template-parts/modals/profile-menu
+     ============================================= -->
+  <div id="menu-profile" class="dropdown-menu" style="width: 200px; display: none;">
+    <a href="#" class="profile-link">Perfil</a>
+    <a href="#" class="profile-link">Ajustes</a>
+    <div class="h-px bg-slate-100 my-2"></div>
+
+    <!-- Dark Mode Toggle -->
+    <div style="height: 40px; position: relative; overflow:hidden;">
+      <div class="tdnn">
+        <div class="moon"></div>
+      </div>
+    </div>
+
+    <a href="#" class="profile-link danger">Sair</a>
+  </div>
+
+  <!-- =============================================
+     SECTION 17: DETAIL MODAL
+     WordPress: template-parts/modals/supplier-detail
+     ============================================= -->
+  <div id="detailModal" class="fixed inset-0 z-[2000] hidden">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="detailBackdrop">
+    </div>
+    <div
+      class="absolute bottom-0 w-full max-w-2xl left-1/2 -translate-x-1/2 bg-white rounded-t-[32px] shadow-2xl h-[85vh] transform transition-transform translate-y-full flex flex-col"
+      id="detailPanel">
+
+      <!-- Drag Handle -->
+      <div class="w-full h-6 flex items-center justify-center absolute top-0 z-20 pointer-events-none">
+        <div class="w-12 h-1.5 bg-white/50 rounded-full mt-2 shadow-sm backdrop-blur-md"></div>
+      </div>
+
+      <!-- Banner Section -->
+      <div class="relative h-48 bg-slate-900 shrink-0">
+        <img id="m_banner" class="w-full h-full object-cover opacity-80">
+        <button onclick="closeModal()"
+          class="absolute top-4 right-4 h-8 w-8 bg-black/30 backdrop-blur rounded-full text-white flex items-center justify-center hover:bg-black/50 transition">
+          <i class="ri-close-line text-xl"></i>
+        </button>
+        <div class="absolute -bottom-8 left-6 h-20 w-20 bg-white rounded-2xl p-1 shadow-lg">
+          <img id="m_logo" class="w-full h-full object-contain rounded-xl">
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="flex-1 overflow-y-auto px-6 pt-12 pb-24">
+        <div class="flex justify-between items-start mb-1">
+          <h2 id="m_title" class="text-2xl font-bold text-slate-900 leading-tight"></h2>
+          <div
+            class="bg-green-100 text-green-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+            <i class="ri-verified-badge-fill"></i> Verificado
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mb-4 text-sm">
+          <div id="m_stars" class="text-yellow-400 flex"></div>
+          <span class="font-bold text-slate-700">5.0</span>
+          <span class="text-slate-300">•</span>
+          <span id="m_cat" class="text-orange-600 font-medium uppercase text-xs tracking-wide"></span>
+        </div>
+
+        <div id="m_tags" class="flex flex-wrap gap-2 mb-6"></div>
+
+        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Sobre</h3>
+        <p id="m_desc" class="text-slate-600 text-sm leading-relaxed mb-6"></p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="absolute bottom-0 w-full p-4 bg-white border-t border-slate-100 flex gap-3">
+        <button
+          class="flex-1 bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-slate-900/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+          <i class="ri-whatsapp-line text-lg"></i> Orçamento
+        </button>
+        <button
+          class="h-12 w-12 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors">
+          <i class="ri-share-forward-line text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================
+     SECTION 18: JAVASCRIPT LOGIC
+     WordPress: Enqueue as separate JS file
+     File: assets/js/apollo-rio-main.js
+     ============================================= -->
+  <script>
+    /* =============================================
+       MAIN APPLICATION JAVASCRIPT
+       WordPress Integration Notes:
+       - Move to separate JS file and enqueue properly
+       - Use wp_localize_script() for data
+       - Consider using WordPress REST API for dynamic content
+       ============================================= */
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      /* =========================================
+         1. CLOCK FUNCTIONALITY
+         WordPress: Can use server time with PHP
+         ========================================= */
+      const clockEl = document.getElementById('digital-clock');
+      function updateClock() {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('pt-BR', { hour12: false });
+      }
+      updateClock(); // Initial call
+      setInterval(updateClock, 1000);
+
+      /* =========================================
+         2. MENU TOGGLE SYSTEM
+         CRITICAL FIX: Properly opens all menus
+         ========================================= */
+      const menuApp = document.getElementById('menu-app');
+      const btnApps = document.getElementById('btn-apps');
+      const menuNotif = document.getElementById('menu-notif');
+      const btnNotif = document.getElementById('btn-notif');
+      const menuProfile = document.getElementById('menu-profile');
+      const btnProfile = document.getElementById('btn-profile');
+
+      // Toggle function with proper state management
+      function toggleMenu(menu, btn) {
+        const isActive = menu.classList.contains('active');
+
+        // Close all menus first
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+          m.classList.remove('active');
+          setTimeout(() => {
+            if (!m.classList.contains('active')) {
+              m.style.display = 'none';
+            }
+          }, 300);
+          // Reset all button states
+          document.querySelectorAll('.nav-btn').forEach(b => {
+            b.setAttribute('aria-expanded', 'false');
+          });
+        });
+
+        // If menu wasn't active, open it
+        if (!isActive) {
+          menu.style.display = 'flex';
+          setTimeout(() => menu.classList.add('active'), 10);
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      // Attach event listeners with proper event handling
+      if (btnApps) {
+        btnApps.onclick = (e) => {
+          e.stopPropagation();
+          toggleMenu(menuApp, btnApps);
+        };
+      }
+
+      if (btnNotif) {
+        btnNotif.onclick = (e) => {
+          e.stopPropagation();
+          toggleMenu(menuNotif, btnNotif);
+        };
+      }
+
+      if (btnProfile) {
+        btnProfile.onclick = (e) => {
+          e.stopPropagation();
+          toggleMenu(menuProfile, btnProfile);
+        };
+      }
+
+      // Close menus when clicking outside
+      document.onclick = () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+          m.classList.remove('active');
+          setTimeout(() => {
+            if (!m.classList.contains('active')) {
+              m.style.display = 'none';
+            }
+          }, 300);
+        });
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          b.setAttribute('aria-expanded', 'false');
+        });
+      };
+
+      // Prevent menu close when clicking inside
+      document.querySelectorAll('.dropdown-menu').forEach(m => {
+        m.onclick = (e) => e.stopPropagation();
+      });
+
+      /* =========================================
+         3. DARK MODE TOGGLE
+         WordPress: Can store preference in user meta
+         ========================================= */
+      $('.tdnn').click(function () {
+        $("body").toggleClass('dark-mode');
+        $(".moon").toggleClass('sun');
+        $(".tdnn").toggleClass('day');
+
+        // WordPress: Save preference via AJAX
+        // $.post(ajaxurl, { action: 'save_dark_mode', mode: $("body").hasClass('dark-mode') });
+      });
+
+      /* =========================================
+         4. RENDER SUPPLIERS DATA
+         WordPress: Use WP_Query or REST API
+         ========================================= */
+      const suppliers = [
+        {
+          id: 1,
+          name: "Loudness Som",
+          type: "sound",
+          cat: "Audio",
+          tags: ["Funktion-One", "Raves"],
+          desc: "Especialistas em sonorização de grande porte. Referência em festivais eletrônicos no Rio de Janeiro.",
+          logo: "https://ui-avatars.com/api/?name=LS&background=0f172a&color=fff",
+          banner: "https://images.unsplash.com/photo-1520166012956-add9ba083599?auto=format&fit=crop&w=800"
+        },
+        {
+          id: 2,
+          name: "Spectra Visuals",
+          type: "visuals",
+          cat: "Visuals",
+          tags: ["Mapping", "VJ"],
+          desc: "Experiências visuais imersivas. Projeção mapeada e painéis de LED de alta definição.",
+          logo: "https://ui-avatars.com/api/?name=SV&background=7c3aed&color=fff",
+          banner: "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=800"
+        },
+        {
+          id: 3,
+          name: "DrinkLab",
+          type: "bar",
+          cat: "Bar",
+          tags: ["Cocktails", "Staff"],
+          desc: "Operação completa de bar. Mixologia avançada e gestão de estoque para grandes eventos.",
+          logo: "https://ui-avatars.com/api/?name=DL&background=f97316&color=fff",
+          banner: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=800"
+        },
+        {
+          id: 4,
+          name: "Guerreiros",
+          type: "security",
+          cat: "Segurança",
+          tags: ["Vigilancia", "Acesso"],
+          desc: "Segurança especializada em eventos noturnos. Controle de acesso e gestão de multidões.",
+          logo: "https://ui-avatars.com/api/?name=GS&background=1e293b&color=fff",
+          banner: "https://images.unsplash.com/photo-1555699898-19d298099684?auto=format&fit=crop&w=800"
+        },
+        {
+          id: 5,
+          name: "LedStar Luz",
+          type: "light",
+          cat: "Iluminação",
+          tags: ["Beam", "Lasers"],
+          desc: "Equipamentos de iluminação de ponta. Moving heads, lasers e mesas de operação.",
+          logo: "https://ui-avatars.com/api/?name=LS&background=0ea5e9&color=fff",
+          banner: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800"
+        },
+        {
+          id: 6,
+          name: "Heavy Bass",
+          type: "sound",
+          cat: "Audio",
+          tags: ["Subwoofers", "Line Array"],
+          desc: "Sistemas de som focados em frequências graves. Ideal para Dubstep e Drum & Bass.",
+          logo: "https://ui-avatars.com/api/?name=HB&background=334155&color=fff",
+          banner: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800"
+        }
+      ];
+
+      const grid = document.getElementById('suppliersGrid');
+      const countLabel = document.getElementById('countLabel');
+
+      // Render suppliers to grid
+      function render(data) {
+        grid.innerHTML = '';
+        countLabel.textContent = `${data.length} resultados`;
+
+        data.forEach((s, idx) => {
+          const div = document.createElement('div');
+          div.className = 'supplier-card flex items-start gap-4 group';
+          div.onclick = () => openModal(s);
+          div.innerHTML = `
+          <div class="h-16 w-16 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden shrink-0 relative">
+            <img src="${s.logo}" class="w-full h-full object-cover">
+            <div class="absolute bottom-0 right-0 h-4 w-4 bg-green-500 rounded-tl-lg flex items-center justify-center">
+              <i class="ri-check-line text-white text-[10px]"></i>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-slate-900 truncate text-[15px]">${s.name}</h3>
+            <div class="text-xs text-slate-500 mb-2 flex items-center gap-1">
+              <span class="text-orange-600 font-medium uppercase">${s.cat}</span>
+              <span class="text-slate-300">•</span>
+              <i class="ri-star-fill text-yellow-400"></i>
+              <span class="font-bold text-slate-700">5.0</span>
+            </div>
+            <div class="flex gap-1 flex-wrap">
+              ${s.tags.slice(0, 2).map(t => `
+                <span class="text-[10px] bg-slate-50 px-2 py-0.5 rounded-md text-slate-500 uppercase border border-slate-100 font-semibold">${t}</span>
+              `).join('')}
+            </div>
+          </div>
+          <div class="h-8 w-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
+            <i class="ri-arrow-right-s-line text-lg"></i>
+          </div>
+        `;
+          grid.appendChild(div);
+
+          // Animate entrance with Motion library if available
+          if (window.Motion) {
+            window.Motion.animate(div, {
+              opacity: [0, 1],
+              y: [10, 0]
+            }, {
+              duration: 0.3,
+              delay: idx * 0.05
+            });
+          }
+        });
+      }
+
+      /* =========================================
+         5. FILTER FUNCTIONALITY
+         WordPress: Can use AJAX for dynamic filtering
+         ========================================= */
+      document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.onclick = () => {
+          // Update active state
+          document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          // Filter and render
+          const cat = btn.dataset.cat;
+          const filtered = cat === 'all' ? suppliers : suppliers.filter(s => s.type === cat);
+          render(filtered);
+        };
+      });
+
+      /* =========================================
+         6. SEARCH FUNCTIONALITY
+         WordPress: Consider server-side search
+         ========================================= */
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = suppliers.filter(s =>
+          s.name.toLowerCase().includes(term) ||
+          s.tags.some(t => t.toLowerCase().includes(term))
+        );
+        render(filtered);
+      });
+
+      /* =========================================
+         7. MODAL FUNCTIONS
+         WordPress: Can load content via AJAX
+         ========================================= */
+      window.openModal = (s) => {
+        document.getElementById('m_title').innerText = s.name;
+        document.getElementById('m_desc').innerText = s.desc;
+        document.getElementById('m_cat').innerText = s.cat;
+        document.getElementById('m_logo').src = s.logo;
+        document.getElementById('m_banner').src = s.banner;
+
+        // Tags
+        let tagsHtml = s.tags.map(t => `
+        <span class="px-3 py-1 rounded-full bg-slate-100 text-xs font-bold text-slate-600 uppercase border border-slate-200">${t}</span>
+      `).join('');
+        document.getElementById('m_tags').innerHTML = tagsHtml;
+
+        // Stars
+        let starsHtml = '';
+        for (let i = 0; i < 5; i++) starsHtml += '<i class="ri-star-fill"></i>';
+        document.getElementById('m_stars').innerHTML = starsHtml;
+
+        // Show modal with animation
+        document.getElementById('detailModal').classList.remove('hidden');
+        requestAnimationFrame(() => {
+          document.getElementById('detailBackdrop').classList.remove('opacity-0');
+          document.getElementById('detailPanel').classList.remove('translate-y-full');
+        });
+      };
+
+      window.closeModal = () => {
+        document.getElementById('detailBackdrop').classList.add('opacity-0');
+        document.getElementById('detailPanel').classList.add('translate-y-full');
+        setTimeout(() => {
+          document.getElementById('detailModal').classList.add('hidden');
+        }, 300);
+      };
+
+      /* =========================================
+         8. CALENDAR WIDGET
+         WordPress: Use tribe_get_events() for real data
+         ========================================= */
+      const calGrid = document.getElementById('mini-calendar-grid');
+      if (calGrid) {
+        // Empty cells for offset
+        for (let i = 0; i < 3; i++) {
+          calGrid.innerHTML += `<span></span>`;
+        }
+
+        // Days of month
+        for (let i = 1; i <= 31; i++) {
+          let cls = 'mini-day';
+          const hasEvent = [9, 16, 23].includes(i);
+          if (hasEvent) cls += ' has-events';
+
+          calGrid.innerHTML += `
+          <div class="${cls}">
+            ${i}
+            ${hasEvent ? '<span class="mini-day-dot"></span>' : ''}
+          </div>
+        `;
+        }
+      }
+
+      /* =========================================
+         9. EVENTS LIST WIDGET
+         WordPress: Use WP_Query with post_type=event
+         ========================================= */
+      const eventsList = document.getElementById('mini-events-list');
+      if (eventsList) {
+        eventsList.innerHTML = `
+        <div class="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <div class="h-10 w-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+            16<br>DEZ
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-xs text-slate-900 truncate">Festival Miscelanea</div>
+            <div class="text-[10px] text-slate-500">Zona Portuária • Confirmado</div>
+          </div>
+        </div>
+        <div class="flex gap-3 items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <div class="h-10 w-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+            23<br>DEZ
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-xs text-slate-900 truncate">Cena::Encontro</div>
+            <div class="text-[10px] text-slate-500">Centro • Público</div>
+          </div>
+        </div>
+      `;
+      }
+
+      /* =========================================
+         10. LOAD MORE FUNCTIONALITY
+         WordPress: Use AJAX with WP REST API
+         ========================================= */
+      const loadMoreBtn = document.getElementById('load-more-btn');
+      const chatScroller = document.getElementById('chat-scroller');
+
+      if (loadMoreBtn && chatScroller) {
+        loadMoreBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+
+          const textSpan = loadMoreBtn.querySelector('.load-more-text');
+          textSpan.textContent = 'Carregando...';
+          loadMoreBtn.style.opacity = '0.5';
+          loadMoreBtn.style.pointerEvents = 'none';
+
+          // Simulate loading - WordPress: Replace with AJAX call
+          setTimeout(() => {
+            const newMsgs = [
+              { name: 'Lucas', time: '1h atrás', msg: 'Preciso do relatório mensal.', avatar: 'L', color: 'bg-green' },
+              { name: 'Ana', time: '2h atrás', msg: 'Reunião confirmada.', avatar: 'A', color: 'bg-blue' }
+            ];
+
+            newMsgs.forEach(m => {
+              const card = document.createElement('div');
+              card.className = 'msg-card';
+              card.innerHTML = `
+              <div class="msg-header">
+                <div class="msg-avatar ${m.color}">${m.avatar}</div>
+                <div class="msg-info">
+                  <span class="msg-name">${m.name}</span>
+                  <span class="msg-time">${m.time}</span>
+                </div>
+              </div>
+              <div class="msg-preview">${m.msg}</div>
+            `;
+              chatScroller.insertBefore(card, loadMoreBtn);
+            });
+
+            // Reset button
+            textSpan.textContent = '+ Carregar Mais';
+            loadMoreBtn.style.opacity = '1';
+            loadMoreBtn.style.pointerEvents = 'auto';
+
+            // Scroll to show new content
+            chatScroller.scrollBy({ left: 100, behavior: 'smooth' });
+          }, 800);
+        });
+      }
+
+      /* =========================================
+         11. NOTIFICATION LOAD MORE
+         CRITICAL: Always show "Load more" as last item
+         WordPress: AJAX pagination for notifications
+         ========================================= */
+      const loadMoreNotif = document.getElementById('load-more-notif');
+      if (loadMoreNotif) {
+        loadMoreNotif.addEventListener('click', (e) => {
+          e.stopPropagation();
+
+          loadMoreNotif.textContent = 'Carregando...';
+          loadMoreNotif.style.opacity = '0.6';
+
+          // WordPress: AJAX call to load more notifications
+          setTimeout(() => {
+            const notifList = document.getElementById('notif-list');
+
+            // Add new notifications before the load more button
+            const newNotifs = [
+              {
+                icon: 'bg-purple',
+                initial: 'C',
+                title: 'Novo Contrato',
+                desc: 'Contrato enviado para assinatura.',
+                time: '3h atrás'
+              }
+            ];
+
+            newNotifs.forEach(n => {
+              const item = document.createElement('div');
+              item.className = 'notif-item';
+              item.innerHTML = `
+              <div class="notif-icon ${n.icon}">${n.initial}</div>
+              <div class="notif-content">
+                <span class="notif-title">${n.title}</span>
+                <span class="notif-desc">${n.desc}</span>
+                <span class="notif-time">${n.time}</span>
+              </div>
+            `;
+              notifList.appendChild(item);
+            });
+
+            // Reset button
+            loadMoreNotif.textContent = 'Carregar mais notificações';
+            loadMoreNotif.style.opacity = '1';
+          }, 600);
+        });
+      }
+
+      // Initial render
+      render(suppliers);
+    });
+  </script>
+
+
+
+
+
+  </body>
+
+</html>

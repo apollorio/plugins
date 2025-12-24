@@ -1,0 +1,114 @@
+<ruleset name="Apollo Plugins - Complete Standards">
+<description>WordPress + Extra + VIP-Go + PHPCompatibility for Apollo Ecosystem</description>
+<file>./apollo-core</file>
+<file>./apollo-events-manager</file>
+<file>./apollo-social</file>
+<exclude-pattern>*/vendor/*</exclude-pattern>
+<exclude-pattern>*/dev-vendor/*</exclude-pattern>
+<exclude-pattern>*/node_modules/*</exclude-pattern>
+<exclude-pattern>*/tests/*</exclude-pattern>
+<exclude-pattern>*/docs/*</exclude-pattern>
+<exclude-pattern>*/assets/*</exclude-pattern>
+<arg value="ps"/>
+<arg name="colors"/>
+<arg name="extensions" value="php"/>
+<arg name="parallel" value="12"/>
+<arg name="basepath" value="."/>
+<rule ref="WordPress"/>
+<rule ref="WordPress-Extra"/>
+<rule ref="WordPress-VIP-Go"/>
+<config name="testVersion" value="8.1-"/>
+<rule ref="PHPCompatibilityWP">
+<include-pattern>*.php</include-pattern>
+</rule>
+<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+<properties>
+<property name="prefixes" type="array">
+<element value="apollo"/>
+<element value="APOLLO"/>
+</property>
+</properties>
+</rule>
+<rule ref="WordPress.WP.I18n">
+<properties>
+<property name="text_domain" type="array">
+<element value="apollo-core"/>
+<element value="apollo-events-manager"/>
+<element value="apollo-social"/>
+</property>
+</properties>
+</rule>
+<rule ref="Generic.Arrays.DisallowShortArraySyntax">
+<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+</rule>
+<rule ref="Universal.Arrays.DisallowShortArraySyntax">
+<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+</rule>
+<rule ref="WordPress.PHP.YodaConditions"/>
+<rule ref="WordPress.Files.FileName">
+<properties>
+<property name="strict_class_file_names" value="false"/>
+</properties>
+<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+</rule>
+<rule ref="WordPress.NamingConventions.ValidVariableName">
+<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+<exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+</rule>
+<rule ref="WordPress.NamingConventions.ValidFunctionName">
+<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+</rule>
+<rule ref="WordPress.NamingConventions.ValidHookName">
+<properties>
+<property name="additionalWordDelimiters" value="-/."/>
+</properties>
+</rule>
+<rule ref="WordPress.Arrays.MultipleStatementAlignment">
+<properties>
+<property name="maxColumn" value="120"/>
+<property name="ignoreNewlines" value="true"/>
+</properties>
+</rule>
+<rule ref="Squiz.Commenting.FileComment">
+<exclude name="Squiz.Commenting.FileComment.Missing"/>
+</rule>
+<rule ref="Squiz.Commenting.ClassComment">
+<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+</rule>
+<rule ref="Squiz.Commenting.FunctionComment">
+<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+</rule>
+<rule ref="WordPressVIPMinimum.VIP.RestrictedFunctions">
+<properties>
+<property name="allow_user_meta" value="true"/>
+<property name="allow_term_meta" value="true"/>
+</properties>
+</rule>
+<rule ref="WordPress.WP.AlternativeFunctions">
+<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+<exclude name="WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents"/>
+</rule>
+<rule ref="WordPress.DB.SlowDBQuery">
+<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_key"/>
+<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_tax_query"/>
+</rule>
+<rule ref="WordPress.DB.DirectDatabaseQuery">
+<properties>
+<property name="customCacheGetFunctions" type="array">
+<element value="wp_cache_get"/>
+<element value="apollo_cache_get"/>
+</property>
+</properties>
+</rule>
+<rule ref="WordPress.WP.PostsPerPage">
+<properties>
+<property name="posts_per_page" value="100"/>
+</properties>
+</rule>
+<rule ref="WordPressVIPMinimum.VIP.SessionFunctionsUsage">
+<exclude name="WordPressVIPMinimum.VIP.SessionFunctionsUsage.session_session_start"/>
+</rule>
+<rule ref="WordPress.Security"/>
+</ruleset>

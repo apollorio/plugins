@@ -1,0 +1,120 @@
+#!/bin/bash
+#
+# Apollo Core - Pre-commit Hook
+# Prevents commits that touch files outside apollo-core/
+#
+# Installation:
+#   chmod +x .githooks/pre-commit
+#   git config core.hooksPath .githooks
+#
+
+echo "🔍 Apollo Core Pre-commit Check..."
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Check if any staged files are outside apollo-core/
+INVALID_FILES=""
+for FILE in $STAGED_FILES; do
+    # Allow only files in wp-content/plugins/apollo-core/
+    if [[ ! $FILE =~ ^(wp-content/plugins/)?apollo-core/ ]]; then
+        INVALID_FILES="$INVALID_FILES\n  - $FILE"
+    fi
+done
+
+# If invalid files found, block commit
+if [ -n "$INVALID_FILES" ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED!"
+    echo ""
+    echo "⚠️  You are trying to commit files OUTSIDE apollo-core/:"
+    echo -e "$INVALID_FILES"
+    echo ""
+    echo "🚨 RULE: Only edit files under apollo-core/"
+    echo ""
+    echo "Forbidden:"
+    echo "  ❌ /wp-admin/**"
+    echo "  ❌ /wp-includes/**"
+    echo "  ❌ /wp-content/themes/**"
+    echo "  ❌ /wp-content/plugins/OUTDATED-*/**"
+    echo "  ❌ Any WordPress core files"
+    echo ""
+    echo "Allowed:"
+    echo "  ✅ apollo-core/**"
+    echo ""
+    echo "To commit anyway (NOT RECOMMENDED):"
+    echo "  git commit --no-verify -m \"your message\""
+    echo ""
+    exit 1
+fi
+
+# Check for common mistakes
+echo "✅ All files are in apollo-core/"
+
+# Check for debug code
+echo "🔍 Checking for debug code..."
+DEBUG_PATTERNS="var_dump\(|print_r\(|console\.log\(|die\(|exit\(\"debug"
+
+if git diff --cached | grep -E "$DEBUG_PATTERNS" > /dev/null; then
+    echo ""
+    echo "⚠️  WARNING: Debug code detected!"
+    echo ""
+    echo "Found patterns: var_dump, print_r, console.log, die, exit"
+    echo ""
+    echo "Please review your changes before committing."
+    echo ""
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Commit cancelled."
+        exit 1
+    fi
+fi
+
+# Check for hardcoded credentials
+echo "🔍 Checking for hardcoded credentials..."
+CRED_PATTERNS="password|api_key|secret_key|access_token"
+
+if git diff --cached | grep -iE "$CRED_PATTERNS.*=.*['\"]" > /dev/null; then
+    echo ""
+    echo "⚠️  WARNING: Possible hardcoded credentials detected!"
+    echo ""
+    echo "Found patterns that might contain sensitive data."
+    echo ""
+    echo "Please review your changes before committing."
+    echo ""
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Commit cancelled."
+        exit 1
+    fi
+fi
+
+# Check PHP syntax
+echo "🔍 Checking PHP syntax..."
+PHP_FILES=$(echo "$STAGED_FILES" | grep "\.php$")
+
+if [ -n "$PHP_FILES" ]; then
+    for FILE in $PHP_FILES; do
+        if [ -f "$FILE" ]; then
+            php -l "$FILE" > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo ""
+                echo "❌ PHP SYNTAX ERROR in: $FILE"
+                echo ""
+                php -l "$FILE"
+                echo ""
+                exit 1
+            fi
+        fi
+    done
+    echo "✅ PHP syntax check passed"
+fi
+
+echo ""
+echo "✅ Pre-commit checks passed!"
+echo ""
+
+exit 0
+

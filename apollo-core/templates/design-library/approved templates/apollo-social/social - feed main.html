@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full antialiased">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Apollo :: Feed Social</title>
+
+  <!-- Apollo Design System -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/icon.js" defer></script>
+
+  <style>
+    /* ============================================
+       APOLLO::RIO SOCIAL FEED - REFACTORED
+       Pure CSS with ap-* prefix
+       ============================================ */
+
+    /* === CSS VARIABLES === */
+    :root {
+      --ap-font: "Urbanist", system-ui, sans-serif;
+      --ap-bg-main: #ffffff;
+      --ap-bg-card: #ffffff;
+      --ap-bg-muted: #f8fafc;
+      --ap-text-primary: #0f172a;
+      --ap-text-secondary: #64748b;
+      --ap-text-muted: #94a3b8;
+      --ap-border: #e2e8f0;
+      --ap-border-hover: #cbd5e1;
+      --ap-radius: 20px;
+      --ap-shadow: 0 8px 28px rgba(15, 23, 42, 0.04);
+      --ap-shadow-hover: 0 14px 40px rgba(15, 23, 42, 0.06);
+      --ap-transition: all 0.18s ease;
+    }
+
+    body.dark-mode {
+      --ap-bg-main: #131517;
+      --ap-bg-card: #020617;
+      --ap-bg-muted: #1e293b;
+      --ap-text-primary: #f8fafc;
+      --ap-text-secondary: #94a3b8;
+      --ap-text-muted: #64748b;
+      --ap-border: #1f2937;
+      --ap-border-hover: #374151;
+      --ap-shadow: 0 10px 32px rgba(0, 0, 0, 0.6);
+      --ap-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    /* === BASE RESET === */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--ap-font);
+      background: var(--ap-bg-main);
+      color: var(--ap-text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* === SCROLLBAR === */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* === SOCIAL POST CARD === */
+    .ap-social-post {
+      position: relative;
+      margin: 10px auto 30px;
+      max-width: 650px;
+    }
+
+    @media (max-width: 990px) {
+      .ap-social-post {
+        width: 93%;
+        max-width: 470px;
+        margin: 10px auto 30px;
+      }
+    }
+
+    .ap-social-card {
+      background: var(--ap-bg-card);
+      padding: 25px 20px 15px;
+      border-radius: 30px;
+      position: relative;
+      box-shadow: var(--ap-shadow);
+      transition: var(--ap-transition);
+      border: 1px solid var(--ap-border);
+    }
+
+    .ap-social-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--ap-shadow-hover);
+    }
+
+    /* === AVATAR === */
+    .ap-social-avatar {
+      width: 55px;
+      height: 55px;
+      position: absolute;
+      top: 5px;
+      right: 25px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 3px solid var(--ap-bg-card);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* === USER INFO === */
+    .ap-social-username {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ap-text-primary);
+    }
+
+    .ap-social-second {
+      font-size: 11px;
+      color: var(--ap-text-muted);
+      font-weight: 500;
+    }
+
+    /* === BADGES === */
+    .ap-social-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      margin-left: 4px;
+      border-radius: 12px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    .ap-social-badge.orange {
+      background: #f97316;
+    }
+
+    .ap-social-badge.blue {
+      background: #3b82f6;
+    }
+
+    .ap-social-badge.green {
+      background: #10b981;
+    }
+
+    .ap-social-badge.purple {
+      background: #8b5cf6;
+    }
+
+    .ap-social-badge.pink {
+      background: #ec4899;
+    }
+
+    .ap-social-badge.red {
+      background: #ef4444;
+    }
+
+    .ap-social-badge.yellow {
+      background: #eab308;
+      color: #000;
+    }
+
+    /* === CONTENT === */
+    .ap-social-content {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ap-text-secondary);
+      margin: 20px 0;
+      padding-right: 60px;
+    }
+
+    /* === MEDIA === */
+    .ap-media-wrapper {
+      margin: 15px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--ap-border);
+    }
+
+    .ap-media-wrapper iframe {
+      width: 100%;
+      border: none;
+    }
+
+    .ap-soundcloud-player {
+      height: 165px;
+    }
+
+    .ap-spotify-player {
+      height: 352px;
+    }
+
+    .ap-youtube-player {
+      height: 280px;
+    }
+
+    /* === EVENT BANNER === */
+    .ap-event-banner {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 20px;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+      color: white;
+      margin: 15px 0;
+      border: 1px solid var(--ap-border);
+      position: relative;
+    }
+
+    .ap-event-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+      border-radius: 20px;
+    }
+
+    .ap-event-banner>div {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ap-event-title {
+      font-size: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .ap-event-date {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    /* === POST ACTIONS === */
+    .ap-post-actions {
+      display: flex;
+      gap: 20px;
+      padding-top: 15px;
+      border-top: 1px solid var(--ap-border);
+    }
+
+    .ap-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--ap-text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: var(--ap-transition);
+      font-weight: 500;
+    }
+
+    .ap-action-btn:hover {
+      color: var(--ap-text-primary);
+    }
+
+    .ap-action-btn.liked {
+      color: #ec4899;
+    }
+
+    /* === FILTER TABS === */
+    .menutag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--ap-border);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ap-text-secondary);
+      background: var(--ap-bg-card);
+      cursor: pointer;
+      transition: var(--ap-transition);
+      white-space: nowrap;
+    }
+
+    .menutag:hover {
+      border-color: var(--ap-border-hover);
+    }
+
+    .menutag[data-active="true"] {
+      background: var(--ap-text-primary);
+      color: var(--ap-bg-main);
+      border-color: var(--ap-text-primary);
+    }
+
+    /* === COMPOSE BOX === */
+    .ap-compose-box {
+      background: var(--ap-bg-card);
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--ap-border);
+      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .ap-compose-input {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 999px;
+      border: 1px solid var(--ap-border);
+      background: var(--ap-bg-muted);
+      font-size: 13px;
+      color: var(--ap-text-secondary);
+      transition: var(--ap-transition);
+    }
+
+    .ap-compose-input:hover {
+      background: var(--ap-bg-card);
+      border-color: var(--ap-border-hover);
+    }
+
+    /* === LOADING === */
+    .ap-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      color: var(--ap-text-muted);
+      font-size: 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    /* === UTILITIES === */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+
+
+  <!-- STYLE THAT WILL BE IMPORT FROM UNI.css CDN OF APOLLO !! BUT TILL THE END LETS CARRY UNI.CSS HERE AND TRY KEEP THIS STYLE ALWAYS MORE FULLED THAN THE ONE IT FOLLOWS WITH CODE -->
+  <style>
+    /**
+ * Apollo::Rio Social Feed
+ * Main Stylesheet
+ * @version 2.0.0
+ */
+
+    /* ============================================
+   CSS VARIABLES - DESIGN TOKENS
+   ============================================ */
+    :root {
+      /* Colors - Light Mode */
+      --ap-bg-main: #ffffff;
+      --ap-bg-card: #ffffff;
+      --ap-bg-muted: #f8fafc;
+      --ap-text-primary: #0f172a;
+      --ap-text-secondary: #64748b;
+      --ap-text-muted: #94a3b8;
+      --ap-border: #e2e8f0;
+      --ap-border-hover: #cbd5e1;
+
+      /* Brand Colors */
+      --ap-orange: #f97316;
+      --ap-blue: #3b82f6;
+      --ap-green: #10b981;
+      --ap-purple: #8b5cf6;
+      --ap-pink: #ec4899;
+      --ap-red: #ef4444;
+      --ap-yellow: #eab308;
+
+      /* Typography */
+      --ap-font: "Urbanist", system-ui, -apple-system, sans-serif;
+      --ap-font-size-xs: 10px;
+      --ap-font-size-sm: 12px;
+      --ap-font-size-base: 14px;
+      --ap-font-size-lg: 16px;
+      --ap-font-size-xl: 20px;
+
+      /* Spacing */
+      --ap-spacing-xs: 4px;
+      --ap-spacing-sm: 8px;
+      --ap-spacing-md: 16px;
+      --ap-spacing-lg: 24px;
+      --ap-spacing-xl: 32px;
+
+      /* Border Radius */
+      --ap-radius-sm: 8px;
+      --ap-radius-md: 12px;
+      --ap-radius-lg: 20px;
+      --ap-radius-xl: 30px;
+      --ap-radius-full: 9999px;
+
+      /* Shadows */
+      --ap-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --ap-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --ap-shadow-lg: 0 8px 28px rgba(15, 23, 42, 0.04);
+      --ap-shadow-xl: 0 14px 40px rgba(15, 23, 42, 0.06);
+
+      /* Transitions */
+      --ap-transition-fast: 0.15s ease;
+      --ap-transition-base: 0.2s ease;
+      --ap-transition-slow: 0.3s ease;
+    }
+
+    /* Dark Mode Variables */
+    body.dark-mode {
+      --ap-bg-main: #FFF;
+      --ap-bg-card: #020617;
+      --ap-bg-muted: #1e293b;
+      --ap-text-primary: #f8fafc;
+      --ap-text-secondary: #94a3b8;
+      --ap-text-muted: #64748b;
+      --ap-border: #1f2937;
+      --ap-border-hover: #374151;
+      --ap-shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.6);
+      --ap-shadow-xl: 0 14px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    /* ============================================
+   BASE RESET
+   ============================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--ap-font);
+      background: var(--ap-bg-main);
+      color: var(--ap-text-secondary);
+      font-size: var(--ap-font-size-base);
+      line-height: 1.5;
+      min-height: 100vh;
+      transition: background-color var(--ap-transition-slow),
+        color var(--ap-transition-slow);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      isolation: isolate !important;
+    }
+
+    /* Left gradient - Gray/Dark */
+    body::before {
+      content: '';
+      position: fixed;
+      /*or absolute */
+      top: 0;
+      left: -10%;
+      width: 60%;
+      height: 100%;
+      background: radial-gradient(ellipse at center,
+          rgba(50, 50, 50, 0.15) 0%,
+          rgba(80, 80, 80, 0.08) 25%,
+          rgba(120, 120, 120, 0.03) 50%,
+          transparent 70%);
+      isolation: isolate;
+      filter: blur(80px);
+    }
+
+    /* Right gradient - Orange */
+    body::after {
+      content: '';
+      position: fixed;
+      /*or absolute */
+      bottom: -10%;
+      right: -10%;
+      width: 60%;
+      height: 80%;
+      background: radial-gradient(ellipse at center,
+          rgba(255, 107, 53, 0.35) 0%,
+          rgba(255, 127, 73, 0.25) 20%,
+          rgba(255, 147, 93, 0.15) 40%,
+          rgba(255, 167, 113, 0.08) 60%,
+          transparent 80%);
+      isolation: isolate;
+      filter: blur(100px);
+    }
+
+    /* Grain texture overlay */
+    .aprio-fx-grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.5;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+
+    /* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(210, 210, 210, 0.35);
+      border-radius: var(--ap-radius-full);
+      transition: background var(--ap-transition-fast);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(210, 210, 210, 0.60);
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* ============================================
+   SOCIAL POST CARD
+   ============================================ */
+    .ap-social-post {
+      position: relative;
+      margin: 10px auto 30px;
+      max-width: 650px;
+      width: 100%;
+    }
+
+    @media (max-width: 990px) {
+      .ap-social-post {
+        width: 93%;
+        max-width: 470px;
+        margin: 10px auto 30px;
+      }
+    }
+
+    .ap-social-card {
+      background: var(--ap-bg-card);
+      padding: 25px 20px 15px;
+      border-radius: var(--ap-radius-xl);
+      position: relative;
+      box-shadow: var(--ap-shadow-lg);
+      border: 1px solid var(--ap-border);
+      transition: transform var(--ap-transition-base),
+        box-shadow var(--ap-transition-base),
+        border-color var(--ap-transition-base);
+    }
+
+    .ap-social-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--ap-shadow-xl);
+      border-color: var(--ap-border-hover);
+    }
+
+    /* ============================================
+   AVATAR
+   ============================================ */
+    .ap-social-avatar {
+      width: 55px;
+      height: 55px;
+      position: absolute;
+      top: 5px;
+      right: 25px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-color: var(--ap-bg-muted);
+      border: 3px solid var(--ap-bg-card);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: transform var(--ap-transition-base);
+    }
+
+    .ap-social-card:hover .ap-social-avatar {
+      transform: scale(1.05);
+    }
+
+    /* ============================================
+   USER INFO
+   ============================================ */
+    .ap-social-username {
+      font-size: var(--ap-font-size-base);
+      font-weight: 700;
+      color: var(--ap-text-primary);
+      transition: color var(--ap-transition-fast);
+    }
+
+    .ap-social-second {
+      font-size: 11px;
+      color: var(--ap-text-muted);
+      font-weight: 500;
+      margin-top: var(--ap-spacing-xs);
+    }
+
+    /* ============================================
+   BADGES
+   ============================================ */
+    .ap-social-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      margin-left: 4px;
+      border-radius: var(--ap-radius-md);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      transition: transform var(--ap-transition-fast);
+    }
+
+    .ap-social-badge:hover {
+      transform: scale(1.05);
+    }
+
+    .ap-social-badge.orange {
+      background: var(--ap-orange);
+    }
+
+    .ap-social-badge.blue {
+      background: var(--ap-blue);
+    }
+
+    .ap-social-badge.green {
+      background: var(--ap-green);
+    }
+
+    .ap-social-badge.purple {
+      background: var(--ap-purple);
+    }
+
+    .ap-social-badge.pink {
+      background: var(--ap-pink);
+    }
+
+    .ap-social-badge.red {
+      background: var(--ap-red);
+    }
+
+    .ap-social-badge.yellow {
+      background: var(--ap-yellow);
+      color: #000000;
+    }
+
+    /* ============================================
+   CONTENT
+   ============================================ */
+    .ap-social-content {
+      font-size: var(--ap-font-size-base);
+      line-height: 1.6;
+      color: var(--ap-text-secondary);
+      margin: 20px 0;
+      padding-right: 60px;
+    }
+
+    .ap-social-content a {
+      color: var(--ap-orange);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .ap-social-content a:hover {
+      text-decoration: underline;
+    }
+
+    /* ============================================
+   MEDIA EMBEDS
+   ============================================ */
+    .ap-media-wrapper {
+      margin: var(--ap-spacing-md) 0;
+      border-radius: var(--ap-radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--ap-border);
+      background: var(--ap-bg-muted);
+    }
+
+    .ap-media-wrapper iframe {
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    .ap-soundcloud-player {
+      height: 165px;
+    }
+
+    .ap-spotify-player {
+      height: 352px;
+    }
+
+    .ap-youtube-player {
+      height: 280px;
+    }
+
+    /* ============================================
+   EVENT BANNER
+   ============================================ */
+    .ap-event-banner {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      background-color: var(--ap-bg-muted);
+      border-radius: var(--ap-radius-lg);
+      display: flex;
+      align-items: flex-end;
+      padding: var(--ap-spacing-lg);
+      color: #ffffff;
+      margin: var(--ap-spacing-md) 0;
+      border: 1px solid var(--ap-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ap-event-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .ap-event-banner>div {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ap-event-title {
+      font-size: 18px;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      margin-bottom: var(--ap-spacing-xs);
+    }
+
+    .ap-event-date {
+      font-size: var(--ap-font-size-sm);
+      opacity: 0.95;
+    }
+
+    /* ============================================
+   POST ACTIONS
+   ============================================ */
+    .ap-post-actions {
+      display: flex;
+      gap: var(--ap-spacing-lg);
+      padding-top: var(--ap-spacing-md);
+      border-top: 1px solid var(--ap-border);
+      margin-top: var(--ap-spacing-sm);
+    }
+
+    .ap-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ap-text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color var(--ap-transition-fast),
+        transform var(--ap-transition-fast);
+    }
+
+    .ap-action-btn:hover {
+      color: var(--ap-text-primary);
+      transform: translateY(-1px);
+    }
+
+    .ap-action-btn:active {
+      transform: translateY(0);
+    }
+
+    .ap-action-btn.liked {
+      color: var(--ap-pink);
+    }
+
+    .ap-action-btn i {
+      font-size: 18px;
+      transition: transform var(--ap-transition-base);
+    }
+
+    /* ============================================
+   FILTER TABS
+   ============================================ */
+    .menutag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--ap-radius-full);
+      border: 1px solid var(--ap-border);
+      font-size: var(--ap-font-size-sm);
+      font-weight: 600;
+      color: var(--ap-text-secondary);
+      background: var(--ap-bg-card);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--ap-transition-fast);
+      user-select: none;
+    }
+
+    .menutag:hover {
+      border-color: var(--ap-border-hover);
+      transform: translateY(-1px);
+    }
+
+    .menutag:active {
+      transform: translateY(0);
+    }
+
+    .menutag[data-active="true"] {
+      background: var(--ap-text-primary);
+      color: var(--ap-bg-main);
+      border-color: var(--ap-text-primary);
+    }
+
+    .menutag i {
+      font-size: 14px;
+    }
+
+    /* ============================================
+   COMPOSE BOX
+   ============================================ */
+    .ap-compose-box {
+      background: var(--ap-bg-card);
+      padding: var(--ap-spacing-lg);
+      border-radius: var(--ap-radius-lg);
+      border: 1px solid var(--ap-border);
+      margin-bottom: var(--ap-spacing-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--ap-shadow-md);
+    }
+
+    .ap-compose-input {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: var(--ap-radius-full);
+      border: 1px solid var(--ap-border);
+      background: var(--ap-bg-muted);
+      font-size: 13px;
+      color: var(--ap-text-secondary);
+      font-family: var(--ap-font);
+      transition: all var(--ap-transition-fast);
+      cursor: text;
+    }
+
+    .ap-compose-input:hover {
+      background: var(--ap-bg-card);
+      border-color: var(--ap-border-hover);
+    }
+
+    .ap-compose-input:focus {
+      outline: none;
+      border-color: var(--ap-orange);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    }
+
+    /* ============================================
+   LOADING INDICATOR
+   ============================================ */
+    .ap-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--ap-spacing-sm);
+      padding: var(--ap-spacing-lg);
+      color: var(--ap-text-muted);
+      font-size: var(--ap-font-size-sm);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+   UTILITIES
+   ============================================ */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-orange {
+      color: var(--ap-orange);
+    }
+
+    .text-blue {
+      color: var(--ap-blue);
+    }
+
+    .text-green {
+      color: var(--ap-green);
+    }
+
+    .text-purple {
+      color: var(--ap-purple);
+    }
+
+    .text-pink {
+      color: var(--ap-pink);
+    }
+
+    /* ============================================
+   RESPONSIVE
+   ============================================ */
+    @media (max-width: 768px) {
+      .ap-compose-box {
+        position: static;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+
+      .ap-social-content {
+        padding-right: var(--ap-spacing-md);
+      }
+
+      .ap-social-avatar {
+        width: 45px;
+        height: 45px;
+        right: var(--ap-spacing-md);
+      }
+    }
+
+    /* ============================================
+   ANIMATIONS
+   ============================================ */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feed-item {
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* ============================================
+   DARK MODE TRANSITIONS
+   ============================================ */
+    body.dark-mode * {
+      transition: background-color var(--ap-transition-slow),
+        color var(--ap-transition-slow),
+        border-color var(--ap-transition-slow);
+    }
+  </style>
+  <!-- END OF CDN SOON IMPORTED BY LOADING base.js of assets.apollo.rio.... -->
+</head>
+
+<body>
+  <div class="min-h-screen flex justify-center px-4 py-6 md:px-6 lg:px-8">
+    <div class="w-full max-w-2xl">
+
+      <!-- COMPOSE BOX -->
+      <section class="ap-compose-box">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Valle&backgroundColor=e5e7eb"
+              style="width: 100%; height: 100%;">
+          </div>
+          <button class="ap-compose-input" style="width: 100%; text-align: left; cursor: pointer;">
+            No que você está pensando, Valle?
+          </button>
+        </div>
+
+        <!-- FILTER TABS -->
+        <div style="display: flex; gap: 8px; overflow-x: auto;" class="no-scrollbar" id="feed-tabs">
+          <button class="menutag" data-target="all" data-active="true">
+            <i class="ri-apps-line"></i> Tudo
+          </button>
+          <button class="menutag" data-target="events">
+            <i class="ri-calendar-event-line"></i> Eventos
+          </button>
+          <button class="menutag" data-target="community">
+            <i class="ri-discuss-line"></i> Comunidades
+          </button>
+          <button class="menutag" data-target="market">
+            <i class="ri-ticket-line"></i> Classificados
+          </button>
+        </div>
+      </section>
+
+      <!-- FEED CONTAINER -->
+      <div id="feed-container" style="display: flex; flex-direction: column; gap: 0;">
+
+        <!-- POST 1: SOUNDCLOUD -->
+        <article class="ap-social-post feed-item" data-type="music">
+          <div class="ap-social-avatar"
+            style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=DiegoBass');"></div>
+          <div class="ap-social-card">
+            <div style="margin-bottom: 15px;">
+              <p>
+                <span class="ap-social-username">Diego Bass</span>
+                <span class="ap-social-badge orange">Producer</span>
+                <span class="ap-social-badge green">DJ</span>
+              </p>
+              <p class="ap-social-second" style="margin-top: 4px;">
+                <span>Núcleo Music</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>@diegobass</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>18min</span>
+              </p>
+            </div>
+            <p class="ap-social-content">
+              Acabei de subir o set que toquei na Fosfobox sábado! Techno carioca puro com aquele grave que faz o chão
+              tremer. Dá play e já entra no clima do fds cultural. #TechnoRJ
+            </p>
+            <div class="ap-media-wrapper ap-soundcloud-player">
+              <iframe
+                src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/diegobass/diego-bass-live-fosfobox-2025&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+                allowfullscreen></iframe>
+            </div>
+            <div class="ap-post-actions">
+              <button class="ap-action-btn like-btn">
+                <i class="ri-heart-3-line"></i> <span>89</span>
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-chat-3-line"></i> 12
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-bookmark-line"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- POST 2: YOUTUBE VIDEO -->
+        <article class="ap-social-post feed-item" data-type="video">
+          <div class="ap-social-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+          <div class="ap-social-card">
+            <div style="margin-bottom: 15px;">
+              <p>
+                <span class="ap-social-username">Luna VJ</span>
+                <span class="ap-social-badge purple">Artist</span>
+                <span class="ap-social-badge pink">Videomaker</span>
+              </p>
+              <p class="ap-social-second" style="margin-top: 4px;">
+                <span>Núcleo Art</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>@lunavj</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>2h</span>
+              </p>
+            </div>
+            <p class="ap-social-content">
+              Visuals que fiz pro after na Gamboa ontem. Deixei no background enquanto trabalha, estuda ou só curte o
+              rolê. Arte viva do Rio em loop infinito.
+            </p>
+            <div class="ap-media-wrapper ap-youtube-player">
+              <iframe
+                src="https://www.youtube.com/embed/0zM6y2T6H0M?autoplay=0&mute=0&controls=1&loop=1&playlist=0zM6y2T6H0M"
+                allow="autoplay; fullscreen" allowfullscreen></iframe>
+            </div>
+            <div class="ap-post-actions">
+              <button class="ap-action-btn like-btn">
+                <i class="ri-heart-3-line"></i> <span>312</span>
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-chat-3-line"></i> 47
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-bookmark-line"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- POST 3: SPOTIFY PLAYLIST -->
+        <article class="ap-social-post feed-item" data-type="music">
+          <div class="ap-social-avatar"
+            style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=CuradorRJ');"></div>
+          <div class="ap-social-card">
+            <div style="margin-bottom: 15px;">
+              <p>
+                <span class="ap-social-username">Curador RJ</span>
+                <span class="ap-social-badge green">Curator</span>
+                <span class="ap-social-badge yellow">Music Lover</span>
+              </p>
+              <p class="ap-social-second" style="margin-top: 4px;">
+                <span>Núcleo Music</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>@curadorrj</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>4h</span>
+              </p>
+            </div>
+            <p class="ap-social-content">
+              Playlist oficial do rolê cultural carioca dessa semana. Do funk ao techno passando pelo samba de raiz
+              modernizado. É só dar play e deixar o Rio tocar na sua alma. #SomDoRio
+            </p>
+            <div class="ap-media-wrapper ap-spotify-player">
+              <iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0"
+                frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
+            </div>
+            <div class="ap-post-actions">
+              <button class="ap-action-btn like-btn">
+                <i class="ri-heart-3-line"></i> <span>567</span>
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-chat-3-line"></i> 89
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-bookmark-line"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- POST 4: EVENT -->
+        <article class="ap-social-post feed-item" data-type="events">
+          <div class="ap-social-avatar" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);"></div>
+          <div class="ap-social-card">
+            <div style="margin-bottom: 15px;">
+              <p>
+                <span class="ap-social-username">Apollo Events</span>
+                <span class="ap-social-badge orange">Organizer</span>
+                <span class="ap-social-badge blue">Host</span>
+              </p>
+              <p class="ap-social-second" style="margin-top: 4px;">
+                <span>Núcleo Culture</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>@apolloevents</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>6h</span>
+              </p>
+            </div>
+            <p class="ap-social-content">
+              Amanhã tem! Exposição + DJ Set + Performance ao vivo no Arcos da Lapa. Quem for, marca aqui embaixo que eu
+              coloco na lista cultural.
+            </p>
+            <div class="ap-event-banner"
+              style="background-image: url('https://images.unsplash.com/photo-1540039155730-7e10f3e08b9a?w=1200&q=80');">
+              <div>
+                <div class="ap-event-title">NOITE CULTURAL #37 — Arcos da Lapa</div>
+                <div class="ap-event-date">Sábado, 13 Dez • 22h–06h • Entrada FREE até 00h</div>
+              </div>
+            </div>
+            <div class="ap-post-actions">
+              <button class="ap-action-btn like-btn">
+                <i class="ri-heart-3-line"></i> <span>1234</span>
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-chat-3-line"></i> 234
+              </button>
+              <button class="ap-action-btn" style="color: #f97316; font-weight: 600;">
+                Vou! (892)
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- POST 5: BASIC TEXT -->
+        <article class="ap-social-post feed-item" data-type="all">
+          <div class="ap-social-avatar"
+            style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=RafaelValle');"></div>
+          <div class="ap-social-card">
+            <div style="margin-bottom: 15px;">
+              <p>
+                <span class="ap-social-username">Rafael Valle</span>
+                <span class="ap-social-badge orange">Apollo</span>
+                <span class="ap-social-badge purple">DJ</span>
+                <span class="ap-social-badge green">Designer</span>
+              </p>
+              <p class="ap-social-second" style="margin-top: 4px;">
+                <span>Núcleo Music</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>@rafaelvalle</span>
+                <span style="margin: 0 4px;">•</span>
+                <span>12h</span>
+              </p>
+            </div>
+            <p class="ap-social-content">
+              Write down 3 key tasks you want to accomplish today before checking your phone. Start your day with
+              intention, not distraction. 📝✨
+            </p>
+            <div
+              style="height: 200px; background: url('https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&q=80'); background-size: cover; background-position: center; border-radius: 20px; border: 1px solid var(--ap-border);">
+            </div>
+            <div class="ap-post-actions">
+              <button class="ap-action-btn like-btn">
+                <i class="ri-heart-3-line"></i> <span>45</span>
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-chat-3-line"></i> 28
+              </button>
+              <button class="ap-action-btn">
+                <i class="ri-bookmark-line"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- LOADING INDICATOR -->
+      <div id="loading-indicator" class="ap-loading">
+        <i class="ri-loader-4-line animate-spin"></i>
+        Carregando mais caos carioca...
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script type="module">
+    // === FILTER TABS ===
+    const tabs = document.querySelectorAll('#feed-tabs button');
+    const feedItems = document.querySelectorAll('.feed-item');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.setAttribute('data-active', 'false'));
+        tab.setAttribute('data-active', 'true');
+
+        const target = tab.getAttribute('data-target');
+
+        feedItems.forEach(item => {
+          const type = item.getAttribute('data-type');
+          if (target === 'all' || type === target) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // === LIKE BUTTON ===
+    document.querySelectorAll('.like-btn').forEach((btn, index) => {
+      const icon = btn.querySelector('i');
+      const countSpan = btn.querySelector('span');
+      let count = parseInt(countSpan.textContent);
+      let isLiked = false;
+
+      btn.addEventListener('click', () => {
+        isLiked = !isLiked;
+
+        if (isLiked) {
+          icon.classList.replace('ri-heart-3-line', 'ri-heart-3-fill');
+          btn.classList.add('liked');
+          count++;
+
+          // Animation
+          icon.style.transform = 'scale(1.3)';
+          setTimeout(() => {
+            icon.style.transform = 'scale(1)';
+          }, 200);
+        } else {
+          icon.classList.replace('ri-heart-3-fill', 'ri-heart-3-line');
+          btn.classList.remove('liked');
+          count--;
+        }
+
+        countSpan.textContent = count;
+      });
+    });
+
+    // === DARK MODE TOGGLE (DEMO) ===
+    let darkMode = false;
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'd' && e.ctrlKey) {
+        e.preventDefault();
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+      }
+    });
+
+    // === INFINITE SCROLL ===
+    const feedContainer = document.getElementById('feed-container');
+    const loading = document.getElementById('loading-indicator');
+    let isLoading = false;
+
+    window.addEventListener('scroll', () => {
+      if (isLoading) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        isLoading = true;
+        loading.style.display = 'flex';
+
+        setTimeout(() => {
+          // Clone random posts
+          const posts = Array.from(feedItems);
+          for (let i = 0; i < 2; i++) {
+            const randomPost = posts[Math.floor(Math.random() * posts.length)];
+            const clone = randomPost.cloneNode(true);
+            feedContainer.appendChild(clone);
+          }
+
+          loading.style.display = 'none';
+          isLoading = false;
+        }, 1500);
+      }
+    });
+
+    console.log('🚀 Apollo::Rio Social Feed - REFACTORED');
+    console.log('💡 Press Ctrl+D to toggle dark mode');
+
+
+
+
+    class ApolloSocialFeed {
+      constructor() {
+        this.feedContainer = document.getElementById('feed-container');
+        this.loadingIndicator = document.getElementById('loading-indicator');
+        this.tabs = document.querySelectorAll('#feed-tabs button');
+        this.feedItems = document.querySelectorAll('.feed-item');
+        this.isLoading = false;
+        this.currentFilter = 'all';
+
+        this.init();
+      }
+
+      /**
+       * Initialize all features
+       */
+      init() {
+        this.setupFilterTabs();
+        this.setupLikeButtons();
+        this.setupInfiniteScroll();
+        this.setupDarkMode();
+        this.loadSavedState();
+
+        console.log('🚀 Apollo Social Feed initialized');
+      }
+
+      /**
+       * Setup filter tabs functionality
+       */
+      setupFilterTabs() {
+        this.tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            this.handleTabClick(tab);
+          });
+        });
+      }
+
+      /**
+       * Handle tab click event
+       */
+      handleTabClick(clickedTab) {
+        // Update active states
+        this.tabs.forEach(t => t.setAttribute('data-active', 'false'));
+        clickedTab.setAttribute('data-active', 'true');
+
+        // Get filter target
+        this.currentFilter = clickedTab.getAttribute('data-target');
+
+        // Save to localStorage
+        localStorage.setItem('apolloFeedFilter', this.currentFilter);
+
+        // Filter feed
+        this.filterFeed();
+      }
+
+      /**
+       * Filter feed items based on current filter
+       */
+      filterFeed() {
+        this.feedItems.forEach(item => {
+          const itemType = item.getAttribute('data-type');
+
+          if (this.currentFilter === 'all' || itemType === this.currentFilter) {
+            item.classList.remove('hidden');
+            this.animateIn(item);
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      }
+
+      /**
+       * Animate element in
+       */
+      animateIn(element) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(10px)';
+
+        setTimeout(() => {
+          element.style.transition = 'opacity 0.3s, transform 0.3s';
+          element.style.opacity = '1';
+          element.style.transform = 'translateY(0)';
+        }, 10);
+      }
+
+      /**
+       * Setup like buttons functionality
+       */
+      setupLikeButtons() {
+        document.querySelectorAll('.like-btn').forEach((btn, index) => {
+          const icon = btn.querySelector('i');
+          const countSpan = btn.querySelector('span');
+          const likeKey = `apolloLike_${index}`;
+
+          // Load saved state
+          const savedState = localStorage.getItem(likeKey);
+          if (savedState === 'true') {
+            this.setLiked(btn, icon, true);
+          }
+
+          // Add click handler
+          btn.addEventListener('click', () => {
+            this.handleLikeClick(btn, icon, countSpan, likeKey);
+          });
+        });
+      }
+
+      /**
+       * Handle like button click
+       */
+      handleLikeClick(btn, icon, countSpan, likeKey) {
+        const isLiked = icon.classList.contains('ri-heart-3-fill');
+        let count = parseInt(countSpan.textContent);
+
+        if (isLiked) {
+          // Unlike
+          this.setLiked(btn, icon, false);
+          count--;
+          localStorage.setItem(likeKey, 'false');
+        } else {
+          // Like
+          this.setLiked(btn, icon, true);
+          count++;
+          localStorage.setItem(likeKey, 'true');
+          this.animateLike(icon);
+        }
+
+        countSpan.textContent = count;
+      }
+
+      /**
+       * Set liked state
+       */
+      setLiked(btn, icon, isLiked) {
+        if (isLiked) {
+          icon.classList.replace('ri-heart-3-line', 'ri-heart-3-fill');
+          btn.classList.add('liked');
+        } else {
+          icon.classList.replace('ri-heart-3-fill', 'ri-heart-3-line');
+          btn.classList.remove('liked');
+        }
+      }
+
+      /**
+       * Animate like button
+       */
+      animateLike(icon) {
+        icon.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+          icon.style.transform = 'scale(1)';
+        }, 200);
+      }
+
+      /**
+       * Setup infinite scroll
+       */
+      setupInfiniteScroll() {
+        window.addEventListener('scroll', () => {
+          this.checkInfiniteScroll();
+        });
+      }
+
+      /**
+       * Check if should load more posts
+       */
+      checkInfiniteScroll() {
+        if (this.isLoading) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+        if (scrollTop + clientHeight >= scrollHeight - 200) {
+          this.loadMorePosts();
+        }
+      }
+
+      /**
+       * Load more posts
+       */
+      loadMorePosts() {
+        this.isLoading = true;
+        this.loadingIndicator.style.display = 'flex';
+
+        // Simulate API call
+        setTimeout(() => {
+          this.appendNewPosts();
+          this.loadingIndicator.style.display = 'none';
+          this.isLoading = false;
+        }, 1500);
+      }
+
+      /**
+       * Append new posts to feed
+       */
+      appendNewPosts() {
+        const posts = Array.from(this.feedItems);
+        const numPostsToAdd = 2;
+
+        for (let i = 0; i < numPostsToAdd; i++) {
+          const randomIndex = Math.floor(Math.random() * posts.length);
+          const clone = posts[randomIndex].cloneNode(true);
+
+          // Re-setup like button for cloned post
+          const likeBtn = clone.querySelector('.like-btn');
+          if (likeBtn) {
+            const icon = likeBtn.querySelector('i');
+            const countSpan = likeBtn.querySelector('span');
+
+            likeBtn.addEventListener('click', () => {
+              this.handleLikeClick(likeBtn, icon, countSpan, `apolloLike_${Date.now()}`);
+            });
+          }
+
+          this.feedContainer.appendChild(clone);
+          this.animateIn(clone);
+        }
+
+        // Update feedItems
+        this.feedItems = document.querySelectorAll('.feed-item');
+        this.filterFeed();
+      }
+
+      /**
+       * Setup dark mode toggle
+       */
+      setupDarkMode() {
+        // Check saved preference
+        const isDark = localStorage.getItem('apolloDarkMode') === 'true';
+        if (isDark) {
+          document.body.classList.add('dark-mode');
+        }
+
+        // Keyboard shortcut: Ctrl+D
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            this.toggleDarkMode();
+          }
+        });
+
+        // Button click (if exists)
+        const darkModeBtn = document.getElementById('dark-mode-toggle');
+        if (darkModeBtn) {
+          darkModeBtn.addEventListener('click', () => {
+            this.toggleDarkMode();
+          });
+        }
+      }
+
+      /**
+       * Toggle dark mode
+       */
+      toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('apolloDarkMode', isDark);
+
+        // Animate transition
+        document.body.style.transition = 'background-color 0.3s, color 0.3s';
+
+        console.log(`🌓 Dark mode: ${isDark ? 'ON' : 'OFF'}`);
+      }
+
+      /**
+       * Load saved state from localStorage
+       */
+      loadSavedState() {
+        const savedFilter = localStorage.getItem('apolloFeedFilter');
+
+        if (savedFilter && savedFilter !== 'all') {
+          const tab = Array.from(this.tabs).find(t => {
+            return t.getAttribute('data-target') === savedFilter;
+          });
+
+          if (tab) {
+            this.handleTabClick(tab);
+          }
+        }
+      }
+
+      /**
+       * Destroy instance and cleanup
+       */
+      destroy() {
+        // Remove event listeners
+        this.tabs.forEach(tab => {
+          tab.removeEventListener('click', this.handleTabClick);
+        });
+
+        window.removeEventListener('scroll', this.checkInfiniteScroll);
+
+        console.log('🗑️ Apollo Social Feed destroyed');
+      }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        window.apolloFeed = new ApolloSocialFeed();
+      });
+    } else {
+      window.apolloFeed = new ApolloSocialFeed();
+    }
+
+    // Export for module usage
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = ApolloSocialFeed;
+    }
+  </script>
+</body>
+
+</html>

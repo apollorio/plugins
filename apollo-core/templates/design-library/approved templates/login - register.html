@@ -1,0 +1,1178 @@
+<!--
+================================================================================
+APOLLO AUTH - Login & Registration Terminal
+================================================================================
+FINAL APPROVED TEMPLATE - Ready for PHP Conversion
+
+Security States:
+- normal: Default orange/amber theme
+- warning: Yellow pulsing when 1 attempt left
+- danger: RED SIREN - page goes red, text corrupts, timestamp glitches
+- success: GREEN success animation, then redirect
+
+Quiz Stages:
+1. Pattern Recognition: ♪ → ♫ → ♪♪ → ♫♫ → ? (answer: ♫♫♫)
+2. Simon Game: 4 levels of color memory (restart on error)
+3. Ethics Quiz: Respect for all music genres
+4. Reaction Test: Capture 4 sound icons before they disappear
+
+Updated Fields (as per user request):
+- "Nome social & Sobrenome" instead of "Nome completo"
+- Instagram with fixed @ prefix
+- CPF / Passport selector with conditional fields
+- Passport warning about signing limitations
+- "E-mail" instead of "E-mail principal"
+- "Crie sua chave de acesso"
+- Terms link to apollo.rio.br/politica with _blank
+- Status messages updated
+
+PHP Conversion Notes:
+- Split into template parts (header, login-form, register-form, footer, etc.)
+- JavaScript in separate file, loaded via wp_enqueue_script
+- CSS in separate file, loaded via wp_enqueue_style
+- Configuration via wp_localize_script
+- Quiz questions/answers can be stored in WordPress options
+
+IMPLEMENTATION COMPLETE:
+- apollo-social/templates/auth/login-register.php (main template)
+- apollo-social/templates/auth/css/auth-styles.css
+- apollo-social/templates/auth/js/auth-scripts.js
+- apollo-social/templates/auth/parts/header.php
+- apollo-social/templates/auth/parts/footer.php
+- apollo-social/templates/auth/parts/login-form.php
+- apollo-social/templates/auth/parts/register-form.php
+- apollo-social/templates/auth/parts/lockout-overlay.php
+- apollo-social/templates/auth/parts/aptitude-quiz.php
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Apollo::Rio - Terminal de Acesso</title>
+    <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+    <script src="https://assets.apollo.rio.br/base.js"></script>
+    <script src="https://assets.apollo.rio.br/icon.js" defer></script>
+
+    <style>
+        /* ========================================
+           CSS VARIABLES - DESIGN TOKENS
+           ======================================== */
+        :root {
+            --font-main: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+            --bg-dark: #020617;
+            --glass-bg: rgba(15, 23, 42, 0.9);
+            --glass-border: rgba(248, 250, 252, 0.06);
+            --color-normal: #ffffff;
+            --color-accent: #fb923c;
+            --color-warning: #facc15;
+            --color-danger: #ef4444;
+            --color-success: #22c55e;
+            --current-color: var(--color-accent);
+            --simon-red: #ef4444;
+            --simon-blue: #3b82f6;
+            --simon-green: #22c55e;
+            --simon-yellow: #eab308;
+        }
+
+        /* ========================================
+           BASE RESET
+           ======================================== */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background-color: #000;
+            color: #f9fafb;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+        }
+
+        /* ========================================
+           SECURITY STATE: NORMAL (Default)
+           ======================================== */
+        body[data-state="normal"] {
+            --current-color: var(--color-accent);
+        }
+
+        /* ========================================
+           SECURITY STATE: WARNING
+           Yellow pulsing, 1 attempt left
+           ======================================== */
+        body[data-state="warning"] {
+            --current-color: var(--color-warning);
+        }
+
+        body[data-state="warning"] .terminal-wrapper {
+            animation: warningPulse 1.5s infinite alternate;
+            border-color: var(--color-warning) !important;
+        }
+
+        @keyframes warningPulse {
+            0% {
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(250, 204, 21, 0.2);
+            }
+
+            100% {
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 60px rgba(250, 204, 21, 0.5);
+            }
+        }
+
+        /* ========================================
+           SECURITY STATE: DANGER (RED SIREN)
+           Full red page, text corruption, glitching
+           ======================================== */
+        body[data-state="danger"] {
+            --current-color: var(--color-danger);
+            filter: saturate(1.2) hue-rotate(-20deg);
+            animation: dangerPulse 0.5s infinite alternate;
+        }
+
+        @keyframes dangerPulse {
+            0% {
+                filter: saturate(1.2) hue-rotate(-20deg) brightness(0.9);
+            }
+
+            100% {
+                filter: saturate(1.5) hue-rotate(-10deg) brightness(1.1);
+            }
+        }
+
+        body[data-state="danger"] .bg-layer {
+            background:
+                radial-gradient(circle at 0 0, rgba(239, 68, 68, 0.5), transparent 55%),
+                radial-gradient(circle at 100% 0, rgba(185, 28, 28, 0.5), transparent 60%),
+                radial-gradient(circle at 50% 120%, #450a0a 30%, #000000 100%) !important;
+            animation: redBackgroundPulse 1s infinite alternate;
+        }
+
+        @keyframes redBackgroundPulse {
+            0% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        body[data-state="danger"] .terminal-wrapper {
+            animation: sirenPulse 0.3s infinite alternate;
+            border-color: var(--color-danger) !important;
+            box-shadow:
+                0 0 30px rgba(239, 68, 68, 0.6),
+                0 0 60px rgba(239, 68, 68, 0.4),
+                inset 0 0 20px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        @keyframes sirenPulse {
+            0% {
+                box-shadow: 0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 0 50px rgba(239, 68, 68, 0.9), 0 0 100px rgba(239, 68, 68, 0.7);
+            }
+        }
+
+        body[data-state="danger"] .scan-line {
+            background: linear-gradient(90deg, transparent, var(--color-danger), transparent) !important;
+            animation: scan 0.8s linear infinite !important;
+        }
+
+        .danger-flash {
+            position: fixed;
+            inset: 0;
+            background: rgba(239, 68, 68, 0.15);
+            pointer-events: none;
+            z-index: 100;
+            animation: flashRed 0.5s infinite;
+        }
+
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                opacity: 0.1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ========================================
+           SECURITY STATE: SUCCESS (GREEN)
+           Green success, then redirect
+           ======================================== */
+        body[data-state="success"] {
+            --current-color: var(--color-success);
+            filter: saturate(1.1) hue-rotate(80deg);
+            animation: successPulse 1s ease-out;
+        }
+
+        @keyframes successPulse {
+            0% {
+                filter: saturate(1) hue-rotate(0deg);
+            }
+
+            50% {
+                filter: saturate(1.3) hue-rotate(80deg) brightness(1.2);
+            }
+
+            100% {
+                filter: saturate(1.1) hue-rotate(80deg);
+            }
+        }
+
+        body[data-state="success"] .bg-layer {
+            background:
+                radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.5), transparent 55%),
+                radial-gradient(circle at 100% 0, rgba(22, 163, 74, 0.4), transparent 60%),
+                radial-gradient(circle at 50% 120%, #052e16 30%, #000000 100%) !important;
+        }
+
+        body[data-state="success"] .terminal-wrapper {
+            border-color: var(--color-success) !important;
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.5), 0 0 80px rgba(34, 197, 94, 0.3) !important;
+        }
+
+        /* ========================================
+           BACKGROUND LAYERS
+           ======================================== */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            background:
+                radial-gradient(circle at 0 0, rgba(251, 146, 60, 0.20), transparent 55%),
+                radial-gradient(circle at 100% 0, rgba(245, 158, 11, 0.2), transparent 60%),
+                radial-gradient(circle at 50% 120%, #020617 30%, #000000 100%);
+            transition: background 0.8s ease;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background-image:
+                linear-gradient(rgba(249, 250, 251, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(249, 250, 251, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: .5;
+            pointer-events: none;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: .06;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ========================================
+           TERMINAL WRAPPER
+           ======================================== */
+        .terminal-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            transition: all 0.4s ease;
+        }
+
+        @media (min-width: 768px) {
+            .terminal-wrapper {
+                width: 420px;
+                height: 86vh;
+                max-height: 840px;
+                border-radius: 24px;
+                border: 1px solid var(--glass-border);
+                background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(15, 23, 42, 0.9);
+                overflow: hidden;
+                backdrop-filter: blur(26px);
+            }
+        }
+
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px 18px;
+            scrollbar-width: none;
+        }
+
+        .scroll-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+        header {
+            padding: 16px 20px 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            background: radial-gradient(circle at 0 0, rgba(251, 146, 60, 0.16), transparent 65%);
+            position: relative;
+            z-index: 10;
+            transition: background 0.4s ease;
+        }
+
+        body[data-state="danger"] header {
+            background: radial-gradient(circle at 0 0, rgba(239, 68, 68, 0.3), transparent 65%);
+        }
+
+        body[data-state="success"] header {
+            background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.3), transparent 65%);
+        }
+
+        .logo-mark {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            background:
+                radial-gradient(circle at 30% 0, #fed7aa, transparent 55%),
+                radial-gradient(circle at 80% 120%, #7c2d12, #111827);
+            border: 1px solid rgba(248, 250, 252, 0.45);
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 0 18px rgba(251, 146, 60, 0.75);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.9);
+        }
+
+        body[data-state="danger"] .logo-icon {
+            background: radial-gradient(circle at 30% 0, #fca5a5, transparent 55%),
+                radial-gradient(circle at 80% 120%, #7f1d1d, #111827);
+            box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 0 18px rgba(239, 68, 68, 0.75);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .logo-text .brand {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .logo-text .sub {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            color: rgba(248, 250, 252, 0.6);
+        }
+
+        .coordinates {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: rgba(248, 250, 252, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .coordinates.glitching {
+            animation: glitchText 0.1s infinite;
+        }
+
+        @keyframes glitchText {
+            0% {
+                transform: translate(0);
+            }
+
+            25% {
+                transform: translate(-2px, 1px);
+            }
+
+            50% {
+                transform: translate(2px, -1px);
+            }
+
+            75% {
+                transform: translate(-1px, -1px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        /* ========================================
+           SCAN LINE
+           ======================================== */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+            opacity: .7;
+            animation: scan 3.4s linear infinite;
+            pointer-events: none;
+            z-index: 40;
+            transition: background 0.4s ease;
+        }
+
+        @keyframes scan {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+
+            18% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(780px);
+                opacity: 0;
+            }
+        }
+
+        /* ========================================
+           FORM STYLES
+           ======================================== */
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .flavor-text {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: rgba(248, 250, 252, 0.55);
+            text-transform: uppercase;
+            letter-spacing: .16em;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            opacity: .85;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: rgba(148, 163, 184, 0.95);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix {
+            position: absolute;
+            left: 10px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--current-color);
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.84);
+            color: #e5e7eb;
+            padding: 10px 10px 10px 30px;
+            font-size: 13px;
+            transition: all .25s ease;
+        }
+
+        input::placeholder {
+            color: rgba(148, 163, 184, 0.7);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--current-color);
+            box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.45), 0 0 18px rgba(251, 146, 60, 0.55);
+            background: rgba(15, 23, 42, 0.96);
+        }
+
+        body[data-state="danger"] input {
+            border-color: rgba(239, 68, 68, 0.8) !important;
+            color: #fca5a5 !important;
+        }
+
+        /* ========================================
+           BUTTONS
+           ======================================== */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(251, 146, 60, 0.16), rgba(248, 250, 252, 0.02));
+            border: 1px solid rgba(251, 146, 60, 0.8);
+            color: #fed7aa;
+            padding: 13px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.32), transparent 60%);
+            opacity: 0;
+            transition: opacity .25s;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #f97316, #fbbf24);
+            color: #111827;
+            box-shadow: 0 0 24px rgba(251, 146, 60, 0.85);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        body[data-state="danger"] .btn-primary {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.3), rgba(248, 250, 252, 0.02)) !important;
+            border-color: rgba(239, 68, 68, 0.8) !important;
+            color: #fca5a5 !important;
+        }
+
+        .btn-text {
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 11px;
+            color: rgba(148, 163, 184, 0.9);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .btn-text:hover {
+            color: #e5e7eb;
+        }
+
+        /* ========================================
+           TOGGLE SWITCHES
+           ======================================== */
+        .custom-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: rgba(148, 163, 184, 0.9);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-track {
+            width: 38px;
+            height: 20px;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.8);
+            position: relative;
+            transition: .25s;
+            flex-shrink: 0;
+        }
+
+        .toggle-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.55);
+            transition: .25s;
+        }
+
+        .custom-toggle.active .toggle-track {
+            background: rgba(251, 146, 60, 0.9);
+            border-color: rgba(253, 186, 116, 1);
+        }
+
+        .custom-toggle.active .toggle-thumb {
+            transform: translateX(16px);
+            background: #0b1120;
+        }
+
+        /* ========================================
+           QUIZ CHIPS
+           ======================================== */
+        .quiz-chip {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            padding: 6px 10px;
+            font-size: 11px;
+            color: rgba(249, 250, 251, 0.9);
+            background: rgba(15, 23, 42, 0.8);
+            cursor: pointer;
+            transition: .2s;
+            display: inline-block;
+        }
+
+        .quiz-chip:hover,
+        .quiz-chip.selected {
+            background: rgba(251, 146, 60, 0.3);
+            border-color: var(--color-accent);
+            color: #fed7aa;
+        }
+
+        /* ========================================
+           SIMON GAME
+           ======================================== */
+        .simon-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 200px;
+            margin: 0 auto;
+        }
+
+        .simon-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            opacity: 0.6;
+        }
+
+        .simon-btn.active,
+        .simon-btn:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        .simon-btn.flash {
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
+        }
+
+        .simon-red {
+            background: var(--simon-red);
+            color: var(--simon-red);
+        }
+
+        .simon-blue {
+            background: var(--simon-blue);
+            color: var(--simon-blue);
+        }
+
+        .simon-green {
+            background: var(--simon-green);
+            color: var(--simon-green);
+        }
+
+        .simon-yellow {
+            background: var(--simon-yellow);
+            color: var(--simon-yellow);
+        }
+
+        /* ========================================
+           PATTERN QUIZ
+           ======================================== */
+        .pattern-sequence {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .pattern-item {
+            padding: 10px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            border-radius: 8px;
+            color: var(--color-accent);
+        }
+
+        .pattern-question {
+            color: var(--color-warning);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pattern-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        .pattern-option {
+            padding: 14px;
+            font-size: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #e5e7eb;
+        }
+
+        .pattern-option:hover {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: var(--color-accent);
+        }
+
+        .pattern-option.selected {
+            background: rgba(251, 146, 60, 0.3);
+            border-color: var(--color-accent);
+        }
+
+        .pattern-option.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: var(--color-success);
+        }
+
+        .pattern-option.wrong {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: var(--color-danger);
+        }
+
+        /* ========================================
+           REACTION TEST
+           ======================================== */
+        .reaction-arena {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            border-radius: 16px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .reaction-target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--color-accent);
+            background: rgba(251, 146, 60, 0.2);
+            border: 2px solid var(--color-accent);
+            border-radius: 50%;
+            cursor: pointer;
+            animation: targetPulse 0.5s infinite alternate;
+            transition: all 0.15s ease;
+        }
+
+        @keyframes targetPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(251, 146, 60, 0.5);
+            }
+
+            100% {
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(251, 146, 60, 0.8);
+            }
+        }
+
+        .reaction-target.captured {
+            animation: captured 0.3s ease-out forwards;
+        }
+
+        @keyframes captured {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        .capture-counter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--color-accent);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        /* ========================================
+           LOCKOUT OVERLAY
+           ======================================== */
+        .lockout-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 80;
+        }
+
+        body[data-state="danger"] .lockout-overlay {
+            display: flex;
+        }
+
+        /* ========================================
+           APTITUDE OVERLAY
+           ======================================== */
+        .aptitude-overlay {
+            position: absolute;
+            inset: 0;
+            background: #020617;
+            z-index: 70;
+            display: none;
+            flex-direction: column;
+        }
+
+        .aptitude-overlay.active {
+            display: flex;
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+        footer {
+            padding: 8px 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            text-align: center;
+            color: rgba(148, 163, 184, 0.8);
+            border-top: 1px solid rgba(148, 163, 184, 0.35);
+            background: radial-gradient(circle at 100% 0, rgba(251, 146, 60, 0.12), transparent 55%);
+            transition: all 0.4s ease;
+        }
+
+        body[data-state="danger"] footer {
+            background: radial-gradient(circle at 100% 0, rgba(239, 68, 68, 0.2), transparent 55%);
+        }
+
+        /* ========================================
+           UTILITIES
+           ======================================== */
+        .hidden {
+            display: none !important;
+        }
+
+        .shake {
+            animation: shake .5s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        .small-note {
+            font-size: 10px;
+            color: rgba(148, 163, 184, 0.8);
+            margin-top: 6px;
+        }
+
+        /* Text Corruption Effect */
+        .corrupted {
+            animation: textCorrupt 0.1s infinite;
+        }
+
+        @keyframes textCorrupt {
+            0% {
+                text-shadow: -2px 0 red, 2px 0 cyan;
+            }
+
+            25% {
+                text-shadow: 2px 0 red, -2px 0 cyan;
+            }
+
+            50% {
+                text-shadow: -1px 0 red, 1px 0 cyan;
+            }
+
+            75% {
+                text-shadow: 1px 0 red, -1px 0 cyan;
+            }
+
+            100% {
+                text-shadow: -2px 0 red, 2px 0 cyan;
+            }
+        }
+    </style>
+</head>
+
+<body data-state="normal">
+
+    <!-- Background Layers -->
+    <div class="bg-layer"></div>
+    <div class="grid-overlay"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Terminal Container -->
+    <div class="terminal-wrapper" data-tooltip="Terminal de Autenticação Apollo">
+
+        <!-- Scan Line Effect -->
+        <div class="scan-line"></div>
+
+        <!-- Header -->
+        <header data-tooltip="Cabeçalho Apollo">
+            <div class="logo-mark">
+                <div class="logo-icon" data-tooltip="Ícone Apollo"></div>
+                <div class="logo-text">
+                    <span class="brand">Apollo::Rio</span>
+                    <span class="sub">Terminal de Acesso</span>
+                </div>
+            </div>
+            <div class="coordinates" data-tooltip="Coordenadas e timestamp">
+                <span>-22.9068° S, 43.1729° W</span>
+                <span id="timestamp">2025-11-29 00:00:00 UTC</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="scroll-area">
+
+            <!-- Login Section -->
+            <section id="login-section">
+                <div class="flavor-text">
+                    <span>> Versão BETA LAB, caso de bug, relate <a href="https://apollo.rio.br/bug/" target="_blank"
+                            style="color: var(--color-accent);">aqui</a>.</span>
+                </div>
+                <div class="flavor-text" style="margin-bottom: 16px;">
+                    <span>> 'Sua Plataforma Digital da cultura carioca.'</span>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="log">Identificação</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">></span>
+                            <input type="text" id="log" name="log" placeholder="e-mail ou usuário" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pwd">Chave de Acesso</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">></span>
+                            <input type="password" id="pwd" name="pwd" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="custom-toggle">
+                            <div class="toggle-track">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                            <span>Manter sessão</span>
+                        </div>
+                        <button type="button" class="btn-text">Esqueci a chave</button>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <span>ACESSAR TERMINAL</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="font-size: 12px; color: rgba(148,163,184,0.9);">
+                        Não possui acesso?
+                        <button type="button" class="btn-text" id="switch-to-register">Solicitar registro</button>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Register Section (Hidden by default) -->
+            <section id="register-section" class="hidden">
+                <!-- Registration form content here - see register-form.php -->
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>Apollo::Rio Node • Rio de Janeiro • v1.0.0</p>
+            <p>© 2025 Apollo::Rio • Todos os direitos reservados</p>
+        </footer>
+
+        <!-- Lockout Overlay -->
+        <div class="lockout-overlay">
+            <div style="margin-bottom: 24px;">
+                <i class="ri-alarm-warning-fill" style="font-size: 64px; color: var(--color-danger);"></i>
+            </div>
+            <h2 style="color: var(--color-danger); margin-bottom: 12px;">ACESSO BLOQUEADO</h2>
+            <p style="color: rgba(148,163,184,0.9); margin-bottom: 20px; font-size: 13px;">
+                Múltiplas tentativas de acesso detectadas.<br>
+                Sistema temporariamente bloqueado por segurança.
+            </p>
+            <div
+                style="font-family: var(--font-mono); font-size: 32px; color: var(--color-danger); margin-bottom: 12px;">
+                <span id="lockout-timer">1:00</span>
+            </div>
+            <p style="font-family: var(--font-mono); font-size: 11px; color: rgba(148,163,184,0.7);">
+                Aguarde o timer zerar para tentar novamente.
+            </p>
+        </div>
+
+        <!-- Aptitude Quiz Overlay -->
+        <div class="aptitude-overlay" id="aptitude-overlay">
+            <header>
+                <div class="logo-mark">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">
+                        <span class="brand">APTIDÃO</span>
+                        <span class="sub">Teste de Admissão</span>
+                    </div>
+                </div>
+                <div class="coordinates">
+                    <span id="test-progress">TESTE 1 DE 4</span>
+                </div>
+            </header>
+            <div class="scroll-area" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <div id="test-content" style="text-align: center; padding: 20px;">
+                    <!-- Dynamic quiz content loaded here -->
+                </div>
+                <div style="padding: 0 22px 20px; flex-shrink: 0;">
+                    <button type="button" id="test-btn" class="btn-primary" disabled>
+                        <span id="test-btn-text">CONFIRMAR</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </button>
+                </div>
+            </div>
+            <footer>
+                <p>Este teste avalia sua compatibilidade com a comunidade Apollo.</p>
+                <p>Responda com atenção. Erros reiniciam a pergunta atual.</p>
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+        // ========================================================================
+        // APOLLO AUTH SCRIPTS
+        // See apollo-social/templates/auth/js/auth-scripts.js for full implementation
+        // ========================================================================
+
+        // This is a reference HTML file. The complete implementation is in the PHP templates.
+        // See: apollo-social/templates/auth/login-register.php
+    </script>
+
+</body>
+
+</html>

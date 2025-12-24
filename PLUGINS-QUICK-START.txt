@@ -1,0 +1,100 @@
+================================================================================
+  APOLLO PLUGINS - UNIFIED CODE QUALITY QUICK START
+================================================================================
+
+APPLIES TO ALL PLUGINS:
+- apollo-core
+- apollo-email-newsletter
+- apollo-email-templates
+- apollo-events-manager
+- apollo-rio
+- apollo-social
+
+FIRST TIME SETUP (1 minute)
+────────────────────────────────────────────────────────────────────────────────
+cd wp-content/plugins
+composer install
+
+NOW YOU CAN:
+────────────────────────────────────────────────────────────────────────────────
+composer run lint          Check all plugins for violations
+composer run fix           Auto-fix safe issues across all plugins
+
+SCAN SPECIFIC PLUGIN:
+────────────────────────────────────────────────────────────────────────────────
+./vendor/bin/phpcs --standard=phpcs.xml.dist apollo-social
+./vendor/bin/phpcs --standard=phpcs.xml.dist apollo-core
+./vendor/bin/phpcs --standard=phpcs.xml.dist apollo-events-manager
+
+CURRENT BASELINE
+────────────────────────────────────────────────────────────────────────────────
+Total Plugins:           6
+Total Files:             465
+Auto-Fixed Violations:   3,343 ✅
+Remaining Violations:    2,143 errors (to fix)
+Compliance Rate:         61% (after auto-fixes)
+Target:                  95%
+
+WHAT'S ENABLED
+────────────────────────────────────────────────────────────────────────────────
+✓ Output Escaping (prevent XSS)
+✓ SQL Injection Prevention (prepared statements)
+✓ Input Validation (sanitization)
+✓ Text Domain Checking (i18n)
+✓ Variable Analysis (undefined/unused)
+✓ Modern PHP Syntax (no array() syntax)
+
+KEY FILES
+────────────────────────────────────────────────────────────────────────────────
+composer.json              Unified PHPCS dependencies
+phpcs.xml.dist             PHPCS configuration for all plugins
+ALL-PLUGINS-STATUS.md      Detailed status report
+PLUGINS-QUICK-START.txt    This file
+
+INDIVIDUAL PLUGIN DOCS
+────────────────────────────────────────────────────────────────────────────────
+apollo-social/README-CODE-QUALITY.md          Detailed setup & usage
+apollo-social/PHPCS-FIX-GUIDE.md              Solutions for every violation
+apollo-social/PHPCS-BASELINE.md               Violation analysis
+
+TEAM WORKFLOW
+────────────────────────────────────────────────────────────────────────────────
+1. Run: composer run lint
+2. See: 2,143 remaining violations
+3. Read: apollo-social/PHPCS-FIX-GUIDE.md
+4. Fix: Issues by category
+5. Verify: composer run lint
+
+COMMON FIXES
+────────────────────────────────────────────────────────────────────────────────
+
+❌ UNESCAPED OUTPUT
+echo $variable;
+✅ echo esc_html($variable);
+
+❌ UNPREPARED SQL
+$wpdb->get_results("SELECT * FROM $table WHERE id = $id");
+✅ $wpdb->get_results($wpdb->prepare(
+   "SELECT * FROM %i WHERE id = %d", $table, $id
+));
+
+❌ NON-SANITIZED INPUT
+$_POST['name']
+✅ sanitize_text_field($_POST['name'])
+
+SUPPORT
+────────────────────────────────────────────────────────────────────────────────
+Read:  apollo-social/PHPCS-FIX-GUIDE.md (pattern-based solutions)
+Ask:   In code review (security decisions matter!)
+Check: Similar patterns in other files in same plugin
+
+REMEMBER
+────────────────────────────────────────────────────────────────────────────────
+- All 6 Apollo plugins use same standards
+- Fixes in one plugin can be applied to others
+- Security violations must be fixed before release
+- Code quality issues can be fixed incrementally
+
+STATUS: ✅ READY FOR DEVELOPMENT
+
+================================================================================

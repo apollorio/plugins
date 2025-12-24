@@ -1,0 +1,51 @@
+﻿<?xml version="1.0"?>
+<ruleset name="Apollo - Pass 3: WordPress-VIP-Go">
+	<description>WordPress-VIP-Go Standards (includes Extra and WordPress)</description>
+	
+	<file>./apollo-core</file>
+	<file>./apollo-events-manager</file>
+	<file>./apollo-social</file>
+	
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="12"/>
+	<arg name="basepath" value="."/>
+	
+	<rule ref="WordPress-VIP-Go"/>
+	
+	<!-- VIP-Go customizations for standard hosting -->
+	<rule ref="WordPress.VIP.RestrictedFunctions">
+		<properties>
+			<property name="allow_user_meta" value="true"/>
+			<property name="allow_term_meta" value="true"/>
+		</properties>
+	</rule>
+	
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents"/>
+	</rule>
+	
+	<rule ref="WordPress.VIP.SessionFunctionsUsage">
+		<exclude name="WordPress.VIP.SessionFunctionsUsage.session_session_start"/>
+	</rule>
+	
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_meta_key"/>
+		<exclude name="WordPress.DB.SlowDBQuery.slow_db_query_tax_query"/>
+	</rule>
+	
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<properties>
+			<property name="customCacheGetFunctions" type="array">
+				<element value="wp_cache_get"/>
+				<element value="apollo_cache_get"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

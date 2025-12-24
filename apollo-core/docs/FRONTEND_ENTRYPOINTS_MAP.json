@@ -1,0 +1,411 @@
+{
+    "phase": "Phase 2 - Shared UI Partials Created + Entry Points Mapped",
+    "description": "Extracted shared UI components and mapped all frontend entrypoints to corresponding approved HTML templates",
+    "last_updated": "2025-01-03",
+    "shared_partials": {
+        "bottom-bar.php": "Fixed bottom bar with exactly 2 buttons (primary action + share)",
+        "hero-section.php": "Hero media area with overlay gradients and content",
+        "event-card.php": "Event card with date cutout, image, tags, and content",
+        "assets.php": "CDN asset loading (uni.css, base.js, RemixIcon)",
+        "header-nav.php": "Blurred header with navigation and user menu"
+    },
+    "approved_templates_mapping": {
+        "eventos - eventos - listing.html": "Events listing page with filters, search, and event card grid",
+        "eventos - evento - single.html": "Single event page with hero, details, and bottom bar",
+        "social - feed main.html": "Social feed main page",
+        "social - groups - listing.html": "Groups listing page",
+        "social - groups - single.html": "Single group page",
+        "social - anuncios.html": "Classifieds/announcements page",
+        "login - register.html": "Authentication pages (login/register)",
+        "forms.html": "Generic form pages"
+    },
+    "plugins": {
+        "apollo-events-manager": {
+            "shortcodes": [
+                {
+                    "name": "events",
+                    "handler": "apollo_events_shortcode_handler",
+                    "file": "apollo-events-manager.php:584",
+                    "approved_template": "eventos - eventos - listing.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "event-card.php",
+                        "header-nav.php"
+                    ]
+                },
+                {
+                    "name": "apollo_events",
+                    "handler": "apollo_events_shortcode_handler",
+                    "file": "apollo-events-manager.php:588",
+                    "approved_template": "eventos - eventos - listing.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "event-card.php",
+                        "header-nav.php"
+                    ]
+                },
+                {
+                    "name": "apollo_event",
+                    "handler": "apollo_event_shortcode",
+                    "file": "apollo-events-manager.php:676",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "name": "apollo_event_user_overview",
+                    "handler": "apollo_event_user_overview_shortcode",
+                    "file": "apollo-events-manager.php:677",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "name": "apollo_dj_profile",
+                    "handler": "apollo_dj_profile_shortcode",
+                    "file": "apollo-events-manager.php:680",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "name": "apollo_user_dashboard",
+                    "handler": "apollo_user_dashboard_shortcode",
+                    "file": "apollo-events-manager.php:681",
+                    "approved_template": "social - feed main.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "name": "apollo_cena_rio",
+                    "handler": "apollo_cena_rio_shortcode",
+                    "file": "apollo-events-manager.php:682",
+                    "approved_template": "social - cena-rio - agenda.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "name": "apollo_event_submit",
+                    "handler": "render_submit_form",
+                    "file": "apollo-events-manager.php:685",
+                    "approved_template": "forms.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php"
+                    ]
+                },
+                {
+                    "name": "submit_event_form",
+                    "handler": "render_submit_form",
+                    "file": "apollo-events-manager.php:691",
+                    "approved_template": "forms.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php"
+                    ]
+                },
+                {
+                    "name": "apollo_eventos",
+                    "handler": "render_submit_form",
+                    "file": "apollo-events-manager.php:693",
+                    "approved_template": "forms.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php"
+                    ]
+                }
+            ],
+            "templates": [
+                {
+                    "file": "templates/event-card.php",
+                    "type": "component",
+                    "approved_template": "eventos - eventos - listing.html (event card component)",
+                    "shared_partials": [
+                        "event-card.php"
+                    ]
+                },
+                {
+                    "file": "templates/portal-discover.php",
+                    "type": "page",
+                    "approved_template": "eventos - eventos - listing.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "event-card.php"
+                    ]
+                },
+                {
+                    "file": "templates/single-event-standalone.php",
+                    "type": "single-post",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/single-event_listing.php",
+                    "type": "single-post",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/single-event_dj.php",
+                    "type": "single-post",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/single-event_local.php",
+                    "type": "single-post",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/page-event-dashboard.php",
+                    "type": "page",
+                    "approved_template": "social - feed main.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/shortcode-cena-rio.php",
+                    "type": "shortcode-template",
+                    "approved_template": "social - cena-rio - agenda.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/shortcode-dj-profile.php",
+                    "type": "shortcode-template",
+                    "approved_template": "eventos - evento - single.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/shortcode-user-dashboard.php",
+                    "type": "shortcode-template",
+                    "approved_template": "social - feed main.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ],
+            "template_filters": [
+                {
+                    "filter": "template_include",
+                    "handler": "canvas_template",
+                    "priority": 99,
+                    "file": "apollo-events-manager.php:668",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ]
+        },
+        "apollo-social": {
+            "shortcodes": [],
+            "templates": [
+                {
+                    "file": "templates/user-page-view.php",
+                    "type": "page",
+                    "approved_template": "social - feed main.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/canvas-layout.php",
+                    "type": "layout",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/layout-base.php",
+                    "type": "layout",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ],
+            "template_filters": [
+                {
+                    "filter": "template_include",
+                    "handler": "intercept",
+                    "class": "Apollo_User_Page_Template_Loader",
+                    "file": "user-pages/class-user-page-template-loader.php:41",
+                    "approved_template": "social - feed main.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "filter": "template_include",
+                    "handler": "maybeUseTemplate",
+                    "class": "CenaRioModule",
+                    "file": "src/CenaRio/CenaRioModule.php:46",
+                    "approved_template": "social - cena-rio - agenda.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "filter": "template_include",
+                    "handler": "template_include",
+                    "class": "Apollo_Builder_Frontend",
+                    "file": "src/Builder/class-apollo-builder-frontend.php:31",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ]
+        },
+        "apollo-core": {
+            "shortcodes": [],
+            "templates": [
+                {
+                    "file": "templates/canvas.php",
+                    "type": "page",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/cena-rio-calendar.php",
+                    "type": "component",
+                    "approved_template": "social - cena-rio - agenda.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "hero-section.php"
+                    ]
+                },
+                {
+                    "file": "templates/cena-rio-moderation.php",
+                    "type": "component",
+                    "approved_template": "forms.html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php"
+                    ]
+                }
+            ],
+            "template_filters": []
+        },
+        "apollo-rio": {
+            "shortcodes": [
+                {
+                    "name": "apollo_builder",
+                    "handler": "render_builder",
+                    "class": "PageBuilder",
+                    "file": "src/Modules/Builder/PageBuilder.php:23",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ],
+            "templates": [
+                {
+                    "file": "templates/pagx_app.php",
+                    "type": "page",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/pagx_site.php",
+                    "type": "page",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                },
+                {
+                    "file": "templates/pagx_appclean.php",
+                    "type": "page",
+                    "approved_template": "social - layout - official (aside navbar botton-responsive-bar).html",
+                    "shared_partials": [
+                        "assets.php",
+                        "header-nav.php",
+                        "bottom-bar.php"
+                    ]
+                }
+            ],
+            "template_filters": []
+        }
+    },
+    "next_steps": [
+        "Create ViewModels for data transformation",
+        "Migrate golden page (highest-traffic template) first",
+        "Batch rollout remaining templates",
+        "Add tooltips and final polish"
+    ]
+}

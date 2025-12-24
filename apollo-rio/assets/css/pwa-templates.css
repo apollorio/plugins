@@ -1,0 +1,49 @@
+/* Apollo PWA templates: full-viewport app shell */
+:root {
+	--apollo-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+	:root {
+		--apollo-viewport-height: 100dvh;
+	}
+}
+
+html.apollo-html,
+body.apollo-body {
+	width: 100%;
+	height: 100%;
+	min-height: var(--apollo-viewport-height);
+	margin: 0;
+	padding: 0;
+}
+
+body.apollo-pwa-template,
+body.pagx-app,
+body.pagx-appclean,
+body.pagx-site {
+	min-height: var(--apollo-viewport-height);
+	overflow-x: hidden;
+}
+
+#apollo-wrapper {
+	min-height: var(--apollo-viewport-height);
+	display: flex;
+	flex-direction: column;
+	padding-top: env(safe-area-inset-top);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+#apollo-content,
+.apollo-content-wrapper {
+	flex: 1 0 auto;
+	width: 100%;
+}
+
+#apollo-main {
+	width: 100%;
+}
+
+.apollo-content-wrapper {
+	min-height: var(--apollo-viewport-height);
+}

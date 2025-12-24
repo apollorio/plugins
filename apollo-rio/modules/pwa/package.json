@@ -1,0 +1,72 @@
+{
+  "name": "pwa-wp",
+  "title": "PWA",
+  "description": "Feature plugin to add Progressive Web Apps (PWA) to WordPress Core",
+  "author": "PWA Plugin Contributors",
+  "license": "GPL-2.0-or-later",
+  "keywords": [
+    "pwa",
+    "progressive web app",
+    "service worker",
+    "web app manifest",
+    "https"
+  ],
+  "homepage": "https://github.com/GoogleChromeLabs/pwa-wp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GoogleChromeLabs/pwa-wp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GoogleChromeLabs/pwa-wp/issues"
+  },
+  "private": true,
+  "devDependencies": {
+    "@wordpress/env": "10.7.0",
+    "@wordpress/eslint-plugin": "21.0.0",
+    "@wordpress/scripts": "29.0.0",
+    "eslint": "8.57.1",
+    "eslint-plugin-eslint-comments": "3.2.0",
+    "eslint-plugin-import": "2.30.0",
+    "eslint-plugin-jsdoc": "50.2.3",
+    "grunt": "1.6.1",
+    "grunt-contrib-clean": "2.0.1",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-shell": "4.0.0",
+    "grunt-wp-deploy": "2.1.2",
+    "husky": "^9.1.6",
+    "lint-staged": "15.2.10",
+    "npm-run-all": "4.1.5",
+    "prettier": "3.3.3",
+    "workbox-cli": "7.3.0"
+  },
+  "scripts": {
+    "build": "grunt build; grunt create-build-zip",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses --production",
+    "deploy": "grunt deploy",
+    "lint": "npm-run-all --parallel lint:*",
+    "lint:js": "wp-scripts lint-js",
+    "lint:js:fix": "npm run lint:js -- --fix",
+    "lint:js:report": "npm run lint:js -- --output-file lint-js-report.json --format json .",
+    "lint:php": "vendor/bin/phpcs",
+    "lint:php:fix": "./bin/phpcbf.sh",
+    "lint:pkg-json": "wp-scripts lint-pkg-json --ignorePath .gitignore",
+    "lint:staged": "lint-staged",
+    "test": "npm-run-all --parallel test:*",
+    "test:php": "wp-env run tests-cli --env-cwd=/var/www/html/wp-content/plugins/pwa/ env WORDPRESS_TABLE_PREFIX=wptests_ vendor/bin/phpunit",
+    "test:php:xdebug": "wp-env run tests-cli --env-cwd=/var/www/html/wp-content/plugins/pwa/ env WORDPRESS_TABLE_PREFIX=wptests_ PHP_IDE_CONFIG=serverName=localhost vendor/bin/phpunit",
+    "prepare": "husky",
+    "env:clean": "wp-env clean all",
+    "env:destroy": "wp-env destroy",
+    "env:start": "wp-env start --xdebug",
+    "env:stop": "wp-env stop",
+    "env:wp": "wp-env run cli wp",
+    "wp-env": "wp-env"
+  },
+  "npmpackagejsonlint": {
+    "extends": "@wordpress/npm-package-json-lint-config",
+    "rules": {
+      "require-version": "off"
+    }
+  }
+}

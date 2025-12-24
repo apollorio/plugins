@@ -1,0 +1,527 @@
+<?php
+/**
+ * Template: User Profile Page View
+ * PHASE 5: Migrated to ViewModel Architecture
+ * Matches approved design: social - feed main.html
+ * Uses ViewModel data transformation and shared partials
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Get user ID from query var
+$user_id = get_query_var( 'apollo_user_id' );
+if ( ! $user_id ) {
+	wp_die( 'Usuário não encontrado' );
+}
+
+$user = get_userdata( $user_id );
+if ( ! $user ) {
+	wp_die( 'Usuário não encontrado' );
+}
+
+// Create ViewModel for user profile
+$viewModel     = Apollo_ViewModel_Factory::create_from_data( $user, 'user_profile' );
+$template_data = $viewModel->get_user_profile_data();
+
+// Load shared partials
+$template_loader = new Apollo_Template_Loader();
+$template_loader->load_partial( 'assets' );
+$template_loader->load_partial( 'header-nav' );
+
+// Get header (maintain WordPress theme integration)
+get_header();
+?>
+
+<div class="apollo-user-profile-page">
+	<div class="profile-container">
+		<!-- Cover Image -->
+		<?php if ( $template_data['cover']['url'] ) : ?>
+			<div class="profile-cover">
+				<img src="<?php echo esc_url( $template_data['cover']['url'] ); ?>"
+					alt="<?php echo esc_attr( $template_data['cover']['alt'] ); ?>"
+					class="cover-image">
+				<div class="cover-overlay"></div>
+			</div>
+		<?php endif; ?>
+
+		<!-- Profile Header -->
+		<div class="profile-header">
+			<div class="profile-avatar-section">
+				<?php if ( $template_data['avatar']['url'] ) : ?>
+					<img src="<?php echo esc_url( $template_data['avatar']['url'] ); ?>"
+						alt="<?php echo esc_attr( $template_data['avatar']['alt'] ); ?>"
+						class="profile-avatar">
+				<?php else : ?>
+					<div class="profile-avatar placeholder">
+						<i class="ri-user-line"></i>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $template_data['verified'] ) : ?>
+					<div class="verified-badge">
+						<i class="ri-verified-badge-fill"></i>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<div class="profile-info">
+				<h1 class="profile-name"><?php echo esc_html( $template_data['name'] ); ?></h1>
+				<?php if ( $template_data['tagline'] ) : ?>
+					<p class="profile-tagline"><?php echo esc_html( $template_data['tagline'] ); ?></p>
+				<?php endif; ?>
+
+				<div class="profile-stats">
+					<div class="stat-item">
+						<span class="stat-number"><?php echo esc_html( $template_data['stats']['posts'] ); ?></span>
+						<span class="stat-label">Posts</span>
+					</div>
+					<div class="stat-item">
+						<span class="stat-number"><?php echo esc_html( $template_data['stats']['followers'] ); ?></span>
+						<span class="stat-label">Seguidores</span>
+					</div>
+					<div class="stat-item">
+						<span class="stat-number"><?php echo esc_html( $template_data['stats']['following'] ); ?></span>
+						<span class="stat-label">Seguindo</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="profile-actions">
+				<?php if ( $template_data['can_follow'] ) : ?>
+					<button class="follow-button <?php echo $template_data['is_following'] ? 'following' : ''; ?>">
+						<i class="ri-<?php echo $template_data['is_following'] ? 'user-follow' : 'user-add'; ?>-line"></i>
+						<?php echo esc_html( $template_data['is_following'] ? 'Seguindo' : 'Seguir' ); ?>
+					</button>
+				<?php endif; ?>
+
+				<?php if ( $template_data['can_message'] ) : ?>
+					<button class="message-button">
+						<i class="ri-message-3-line"></i>
+						Mensagem
+					</button>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<!-- Profile Content -->
+		<div class="profile-content">
+			<!-- Bio Section -->
+			<?php if ( $template_data['bio'] ) : ?>
+				<section class="profile-section">
+					<h2 class="section-title">Sobre</h2>
+					<div class="bio-content">
+						<?php echo wp_kses_post( $template_data['bio'] ); ?>
+					</div>
+				</section>
+			<?php endif; ?>
+
+			<!-- Location & Website -->
+			<?php if ( $template_data['location'] || $template_data['website'] ) : ?>
+				<section class="profile-section">
+					<div class="profile-meta">
+						<?php if ( $template_data['location'] ) : ?>
+							<div class="meta-item">
+								<i class="ri-map-pin-2-line"></i>
+								<span><?php echo esc_html( $template_data['location'] ); ?></span>
+							</div>
+						<?php endif; ?>
+
+						<?php if ( $template_data['website'] ) : ?>
+							<div class="meta-item">
+								<i class="ri-link"></i>
+								<a href="<?php echo esc_url( $template_data['website'] ); ?>" target="_blank" rel="noopener">
+									<?php echo esc_html( $template_data['website_display'] ); ?>
+								</a>
+							</div>
+						<?php endif; ?>
+					</div>
+				</section>
+			<?php endif; ?>
+
+			<!-- Custom Layout Content -->
+			<?php if ( ! empty( $template_data['layout'] ) ) : ?>
+				<section class="profile-section">
+					<div class="custom-layout">
+						<?php foreach ( $template_data['layout'] as $layout_item ) : ?>
+							<div class="layout-item layout-<?php echo esc_attr( $layout_item['type'] ); ?>">
+								<?php if ( $layout_item['type'] === 'text' ) : ?>
+									<div class="text-content">
+										<?php echo wp_kses_post( $layout_item['content'] ); ?>
+									</div>
+								<?php elseif ( $layout_item['type'] === 'image' ) : ?>
+									<img src="<?php echo esc_url( $layout_item['url'] ); ?>"
+										alt="<?php echo esc_attr( $layout_item['alt'] ); ?>"
+										class="layout-image">
+								<?php elseif ( $layout_item['type'] === 'gallery' ) : ?>
+									<div class="layout-gallery">
+										<?php foreach ( $layout_item['images'] as $image ) : ?>
+											<img src="<?php echo esc_url( $image['url'] ); ?>"
+												alt="<?php echo esc_attr( $image['alt'] ); ?>"
+												class="gallery-image">
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</section>
+			<?php endif; ?>
+
+			<!-- Recent Posts -->
+			<?php if ( ! empty( $template_data['recent_posts'] ) ) : ?>
+				<section class="profile-section">
+					<h2 class="section-title">Posts Recentes</h2>
+					<div class="posts-list">
+						<?php foreach ( $template_data['recent_posts'] as $post ) : ?>
+							<div class="post-item">
+								<div class="post-header">
+									<span class="post-date"><?php echo esc_html( $post['date'] ); ?></span>
+									<span class="post-type"><?php echo esc_html( $post['type'] ); ?></span>
+								</div>
+								<div class="post-content">
+									<?php echo wp_kses_post( $post['content'] ); ?>
+								</div>
+								<?php if ( ! empty( $post['media'] ) ) : ?>
+									<div class="post-media">
+										<?php foreach ( $post['media'] as $media ) : ?>
+											<img src="<?php echo esc_url( $media['url'] ); ?>"
+												alt="<?php echo esc_attr( $media['alt'] ); ?>"
+												class="post-image">
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				</section>
+			<?php endif; ?>
+		</div>
+	</div>
+</div>
+
+<style>
+	/* Profile page layout */
+	.apollo-user-profile-page {
+		min-height: 100vh;
+		background: var(--bg-surface, #f5f5f5);
+	}
+
+	.profile-container {
+		max-width: 800px;
+		margin: 0 auto;
+		background: var(--bg-main, #fff);
+	}
+
+	/* Cover section */
+	.profile-cover {
+		position: relative;
+		height: 200px;
+		overflow: hidden;
+	}
+
+	.cover-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.cover-overlay {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 100px;
+		background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+	}
+
+	/* Profile header */
+	.profile-header {
+		padding: 2rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		position: relative;
+		margin-top: -50px;
+	}
+
+	.profile-avatar-section {
+		position: relative;
+		margin-bottom: 1rem;
+	}
+
+	.profile-avatar {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		border: 4px solid var(--bg-main, #fff);
+		object-fit: cover;
+	}
+
+	.profile-avatar.placeholder {
+		background: var(--bg-surface, #f5f5f5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 2rem;
+		color: var(--text-secondary, #666);
+	}
+
+	.verified-badge {
+		position: absolute;
+		bottom: 5px;
+		right: 5px;
+		background: var(--primary, #007bff);
+		color: white;
+		border-radius: 50%;
+		width: 24px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.75rem;
+	}
+
+	.profile-name {
+		font-size: 1.75rem;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		color: var(--text-primary, #333);
+	}
+
+	.profile-tagline {
+		color: var(--text-secondary, #666);
+		margin-bottom: 1rem;
+		font-size: 1rem;
+	}
+
+	.profile-stats {
+		display: flex;
+		gap: 2rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.stat-item {
+		text-align: center;
+	}
+
+	.stat-number {
+		display: block;
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--primary, #007bff);
+	}
+
+	.stat-label {
+		font-size: 0.875rem;
+		color: var(--text-secondary, #666);
+	}
+
+	.profile-actions {
+		display: flex;
+		gap: 1rem;
+	}
+
+	.follow-button, .message-button {
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--radius-main, 12px);
+		border: none;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.follow-button {
+		background: var(--primary, #007bff);
+		color: white;
+	}
+
+	.follow-button.following {
+		background: var(--success, #28a745);
+	}
+
+	.follow-button:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+	}
+
+	.message-button {
+		background: var(--bg-surface, #f5f5f5);
+		color: var(--text-primary, #333);
+	}
+
+	.message-button:hover {
+		background: var(--bg-surface-hover, #e9ecef);
+	}
+
+	/* Profile content */
+	.profile-content {
+		padding: 2rem;
+	}
+
+	.profile-section {
+		margin-bottom: 2rem;
+	}
+
+	.section-title {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-bottom: 1rem;
+		color: var(--text-primary, #333);
+	}
+
+	.bio-content {
+		line-height: 1.6;
+		color: var(--text-primary, #333);
+	}
+
+	.profile-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.meta-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: var(--text-secondary, #666);
+	}
+
+	.meta-item a {
+		color: var(--primary, #007bff);
+		text-decoration: none;
+	}
+
+	.meta-item a:hover {
+		text-decoration: underline;
+	}
+
+	/* Custom layout */
+	.custom-layout {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.layout-item {
+		border-radius: var(--radius-main, 12px);
+		overflow: hidden;
+	}
+
+	.text-content {
+		padding: 1.5rem;
+		background: var(--bg-surface, #f5f5f5);
+		line-height: 1.6;
+	}
+
+	.layout-image {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	.layout-gallery {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 0.5rem;
+	}
+
+	.gallery-image {
+		width: 100%;
+		height: 150px;
+		object-fit: cover;
+		border-radius: var(--radius-main, 12px);
+	}
+
+	/* Posts list */
+	.posts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.post-item {
+		padding: 1.5rem;
+		background: var(--bg-surface, #f5f5f5);
+		border-radius: var(--radius-main, 12px);
+	}
+
+	.post-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary, #666);
+	}
+
+	.post-content {
+		line-height: 1.6;
+		margin-bottom: 1rem;
+	}
+
+	.post-media {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 0.5rem;
+	}
+
+	.post-image {
+		width: 100%;
+		height: 200px;
+		object-fit: cover;
+		border-radius: var(--radius-main, 12px);
+	}
+
+	/* Mobile responsive adjustments */
+	@media (max-width: 768px) {
+		.profile-header {
+			padding: 1.5rem;
+			margin-top: -30px;
+		}
+
+		.profile-avatar {
+			width: 80px;
+			height: 80px;
+		}
+
+		.profile-name {
+			font-size: 1.5rem;
+		}
+
+		.profile-stats {
+			gap: 1.5rem;
+		}
+
+		.profile-actions {
+			flex-direction: column;
+			width: 100%;
+		}
+
+		.follow-button, .message-button {
+			justify-content: center;
+		}
+
+		.profile-content {
+			padding: 1.5rem;
+		}
+
+		.layout-gallery {
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		}
+
+		.gallery-image {
+			height: 120px;
+		}
+	}
+</style>
+
+<?php
+get_footer();
+?>

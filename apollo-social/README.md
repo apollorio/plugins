@@ -1,67 +1,301 @@
-# Apollo Social - Suppliers Module
+# Apollo Social Core v2.0.0
 
-## Overview
-The Apollo Social Suppliers Module is designed to manage supplier information within the Apollo ecosystem. This module provides a RESTful API for interacting with supplier data, allowing for the addition, retrieval, and management of suppliers through a user-friendly interface.
+Plugin principal do sistema Apollo que fornece funcionalidades sociais e de Canvas Mode para o WordPress.
 
-## Directory Structure
-The project is organized as follows:
+---
+
+## 🚀 Features
+
+### Canvas Mode
+- **Theme-Independent Rendering**: Removes ALL theme assets
+- **Isolated Experience**: Only Apollo assets load
+- **Automatic Activation**: Activates on specific Apollo routes
+
+### Sistema de Grupos
+- **Comunidades**: Comunidades e núcleos com gestão de membros
+- **Moderation**: Sistema de moderação (approve/reject)
+- **Group Policies**: Políticas de acesso configuráveis
+
+### Sistema de Eventos
+- **Integration**: Criação e gestão de eventos integrados
+- **REST API**: Endpoints para integração com aplicativos móveis
+
+### Sistema de Documentos
+- **Document Management**: Gestão completa de documentos
+- **Digital Signatures**: Integração com GOV.BR (stub)
+
+### Analytics
+- **Plausible Integration**: Tracking de engajamento respeitando privacidade
+- **Custom Events**: Eventos customizados para grupos, eventos, anúncios
+- **Dashboard**: Dashboard compartilhado opcional
+
+### PWA
+- **Progressive Web App**: Funcionalidades de PWA
+- **Service Worker**: Suporte offline
+
+### User Pages
+- **Customizable Profiles**: Páginas personalizáveis `/id/{userID}`
+- **Auto-creation**: Criação automática ao registrar
+- **Drag-and-Drop Editor**: Editor com widgets
+
+---
+
+## 📦 Installation
+
+1. Upload to `/wp-content/plugins/apollo-social/`
+2. Activate plugin through WordPress admin
+3. Configure features in WP Admin → Apollo
+
+---
+
+## 🔧 Requirements
+
+- WordPress: 5.0+
+- PHP: 7.4+
+- Rewrite rules habilitadas
+
+---
+
+## 🎨 Canvas Mode
+
+O Canvas Mode é um sistema de renderização que:
+- Remove todos os assets do tema ativo
+- Carrega apenas assets essenciais do plugin
+- Fornece interface limpa e focada
+- Ativa automaticamente em rotas específicas do Apollo
+
+### Rotas que Ativam Canvas Mode:
+- `/a/*` - Páginas gerais do Apollo
+- `/comunidade/*` - Páginas de comunidades
+- `/nucleo/*` - Páginas de núcleos
+- `/season/*` - Páginas de temporadas
+- `/membership` - Página de associação
+- `/uniao/*` - Páginas da união
+- `/anuncio/*` - Páginas de anúncios
+- `/feed/` - Feed social
+- `/chat/` - Chat
+- `/id/{userID}` - Perfis de usuário
+- `/eco/` e `/ecoa/` - Diretório de usuários
+
+---
+
+## 📊 Analytics
+
+### Configuração do Plausible
+
+1. **Acesse o painel administrativo**: WP Admin → Apollo → Analytics
+2. **Configure suas credenciais**:
+   - **Domain**: Seu domínio no Plausible (ex: `meusite.com`)
+   - **API Key**: Chave da API do Plausible (opcional, para dashboard)
+   - **Site ID**: ID do site no Plausible (opcional, para dashboard)
+3. **Ative o tracking**: Marque "Ativar Analytics" e salve
+
+### Eventos Customizados
+
+O sistema rastreia automaticamente:
+
+#### Grupos e Comunidades
+- `group_view` - Visualização de página de grupo
+- `group_join` - Usuário se junta a um grupo
+- `group_leave` - Usuário deixa um grupo
+- `invite_sent` - Convite para grupo enviado
+
+#### Eventos
+- `event_view` - Visualização de evento
+- `event_create` - Criação de novo evento
+- `event_filter_applied` - Filtro aplicado na listagem
+- `event_share` - Compartilhamento de evento
+
+#### Anúncios
+- `ad_view` - Visualização de anúncio
+- `ad_create` - Criação de novo anúncio
+- `ad_contact` - Contato através de anúncio
+
+#### Navegação
+- `page_view` - Visualização de página (automático)
+- `membership_view` - Visualização da página de associação
+
+### Tracking Manual
+
+```php
+// No PHP (server-side)
+apollo_track_event('custom_event', [
+    'page' => get_the_title(),
+    'user_type' => 'premium'
+]);
+
+// No JavaScript (client-side)
+apolloAnalytics.track('custom_event', {
+    page: document.title,
+    section: 'header'
+});
+```
+
+### Configurações de Privacidade
+
+O sistema respeita:
+- **GDPR/LGPD**: Sem cookies, dados anônimos
+- **Do Not Track**: Respeita header DNT do navegador
+- **IP Anonymization**: IPs são anonimizados por padrão
+- **Opt-out**: Usuários podem desativar via configuração do navegador
+
+---
+
+## 🏗️ Architecture
+
+### Estrutura de Arquivos
 
 ```
-apollo-social
-├── src
-│   ├── Domain
-│   │   └── Suppliers
-│   │       ├── Supplier.php
-│   │       ├── SupplierRepository.php
-│   │       └── SupplierService.php
-│   ├── Infrastructure
-│   │   ├── Persistence
-│   │   │   └── WPPostSupplierRepository.php
-│   │   └── Routing
-│   │       └── SuppliersRouteHandler.php
-│   └── Presentation
-│       └── Controllers
-│           └── SuppliersController.php
-├── templates
-│   └── cena-rio
-│       ├── suppliers-list.php
-│       ├── supplier-single.php
-│       ├── supplier-add.php
-│       └── partials
-│           ├── supplier-card.php
-│           └── supplier-modal.php
-├── assets
-│   ├── css
-│   │   └── cena-rio-suppliers.css
-│   └── js
-│       └── cena-rio-suppliers.js
-└── README.md
+apollo-social/
+├── src/
+│   ├── Core/              # Classes principais
+│   ├── Infrastructure/    # Serviços e providers
+│   ├── Domain/            # Entidades de domínio
+│   ├── Application/       # Casos de uso
+│   ├── Modules/           # Módulos funcionais
+│   │   ├── Builder/       # Page builder (SiteOrigin optional)
+│   │   ├── Documents/     # Sistema de documentos
+│   │   ├── UserPages/     # Páginas de usuário
+│   │   └── Signatures/    # Assinaturas digitais
+│   └── Plugin.php         # Classe principal
+├── config/                # Arquivos de configuração
+│   ├── analytics.php      # Configuração de analytics
+│   ├── canvas.php         # Configuração de canvas mode
+│   ├── routes.php         # Rotas do sistema
+│   └── ui.php             # Configuração de UI
+├── assets/                # CSS, JS, imagens
+├── templates/             # Templates do WordPress
+└── public/               # Assets públicos
 ```
 
-## Features
-- **Supplier Management**: Add, update, and delete suppliers through a RESTful API.
-- **User Interface**: A clean and responsive design for listing suppliers, viewing details, and adding new suppliers.
-- **Data Persistence**: Utilizes WordPress custom post types for storing supplier data.
-- **AJAX Support**: Dynamic interactions for adding suppliers without page reloads.
+### Service Providers
 
-## Setup Instructions
-1. **Installation**: Clone the repository into your WordPress plugins directory.
-2. **Activation**: Activate the Apollo Social plugin through the WordPress admin panel.
-3. **Configuration**: Ensure that the necessary WordPress custom post types are registered for suppliers.
+O plugin usa o padrão Service Provider para organização:
 
-## Usage
-- **List Suppliers**: Access the suppliers list at `/fornece/`.
-- **Add Supplier**: Use the form at `/fornece/add/` to add a new supplier.
-- **View Supplier**: Access individual supplier details at `/fornece/{id}`.
+```php
+// Registrar novo provider
+$providers = [
+    new CoreServiceProvider(),
+    new AnalyticsServiceProvider(),
+    new YourCustomProvider(),
+];
+```
 
-## Development Guidelines
-- Follow the PSR-4 autoloading standard for PHP classes.
-- Ensure all new code adheres to WordPress coding standards.
-- Use Yoda conditions for comparisons and snake_case for variable and function names.
-- Document all functions and classes with comprehensive PHPDoc comments.
+---
 
-## Contributing
-Contributions are welcome! Please submit a pull request with a clear description of your changes.
+## 🔧 Hooks Disponíveis
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+### Canvas Mode
+```php
+do_action('apollo_canvas_init');
+do_action('apollo_canvas_head');
+do_action('apollo_canvas_footer');
+```
+
+### Analytics
+```php
+do_action('apollo_analytics_init');
+apply_filters('apollo_analytics_events', $events);
+apply_filters('apollo_analytics_config', $config);
+```
+
+### Groups
+```php
+do_action('apollo_group_created', $group_id);
+do_action('apollo_group_joined', $group_id, $user_id);
+do_action('apollo_group_left', $group_id, $user_id);
+```
+
+---
+
+## 📚 Rotas Implementadas
+
+### Canvas Routes
+- `/feed/` - Feed Social Apollo
+- `/chat/` - Lista de Conversas
+- `/chat/{userID}` - Chat com Usuário Específico
+- `/id/{userID}` - Perfil de Usuário por ID
+- `/eco/` e `/ecoa/` - Diretório de Usuários
+- `/comunidade/` - Diretório de comunidades
+- `/nucleo/` - Diretório de núcleos
+- `/season/` - Diretório de seasons
+
+### User Pages
+- `/id/{userID}` - Perfil público personalizável
+- Auto-criação ao registrar usuário
+- Editor drag-and-drop com widgets
+
+---
+
+## 🔒 Security
+
+- Sanitização de inputs (`sanitize_text_field`, `esc_html`, `esc_url`)
+- Escape de outputs (`esc_html`, `esc_url`, `wp_kses_post`)
+- Nonces em endpoints AJAX
+- Capability checks
+- Validação de tipos e permissões
+- Proteção contra directory traversal
+
+---
+
+## 🐛 Debug
+
+### Enable Debug Mode
+```php
+// wp-config.php
+define('APOLLO_DEBUG', true);
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+```
+
+### Logging
+```php
+if (APOLLO_DEBUG) {
+    error_log('✅ Success');
+    error_log('❌ Error: ' . $error_message);
+}
+```
+
+---
+
+## 📝 Status de Funcionalidades
+
+### ✅ Implementado
+- Canvas Mode completo
+- Sistema de grupos (básico)
+- User Pages (`/id/{userID}`)
+- Analytics (Plausible)
+- PWA support
+- REST API endpoints
+
+### ⚠️ Parcialmente Implementado
+- Sistema de grupos (interface admin incompleta)
+- Chat (módulo existe mas não funcional)
+- Documentos (gestão básica)
+
+### ❌ Não Implementado
+- Feed social completo (posts sociais)
+- Sistema de notificações
+- Mensagens diretas funcionais
+
+**Nota:** O sistema está focado em EVENTOS e perfis de usuário, não em rede social tradicional.
+
+---
+
+## 📚 Documentation
+
+- **Canvas Builder:** Ver `CANVAS-BUILDER-README.md`
+- **Status Rede Social:** Ver `STATUS-REDE-SOCIAL.md`
+- **Main README:** Ver `../README.md`
+
+---
+
+## 📝 License
+
+GPL v2 or later
+
+---
+
+**Version:** 2.0.0  
+**Last Updated:** 2025-01-15  
+**Status:** ✅ Production Ready

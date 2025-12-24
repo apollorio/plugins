@@ -1,0 +1,1639 @@
+<html lang="pt-BR">
+
+<head>
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css" data-apollo-uni="">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classificado::rio - Apollo Marketplace</title>
+
+  <!-- UNI.CSS Global Design System -->
+  <link rel="stylesheet" href="https://assets.apollo.rio.br/uni.css">
+  <script src="https://assets.apollo.rio.br/base.js" defer=""></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://assets.apollo.rio.br/npm/tailwindcss@3.4.1/tailwind.min.js"></script>
+
+  <!-- RemixIcon -->
+  <script src="https://assets.apollo.rio.br/icon.js" defer></script>
+
+  <!-- Sidebar Navigation Styles -->
+  <style>
+    .aprio-sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.1rem;
+      border-radius: 10px;
+      border-left: 2px solid transparent;
+      font-size: 13px;
+      color: #64748b;
+      text-decoration: none;
+      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .aprio-sidebar-nav a i {
+      font-size: 18px;
+    }
+
+    .aprio-sidebar-nav a:hover {
+      background-color: #f8fafc;
+      color: #0f172a;
+      border-left-color: #e5e7eb;
+    }
+
+    .aprio-sidebar-nav a[aria-current="page"] {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      border-left-color: #0f172a;
+      font-weight: 600;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <style>
+    *,
+    ::before,
+    ::after {
+      --tw-border-spacing-x: 0;
+      --tw-border-spacing-y: 0;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-rotate: 0;
+      --tw-skew-x: 0;
+      --tw-skew-y: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-pan-x: ;
+      --tw-pan-y: ;
+      --tw-pinch-zoom: ;
+      --tw-scroll-snap-strictness: proximity;
+      --tw-gradient-from-position: ;
+      --tw-gradient-via-position: ;
+      --tw-gradient-to-position: ;
+      --tw-ordinal: ;
+      --tw-slashed-zero: ;
+      --tw-numeric-figure: ;
+      --tw-numeric-spacing: ;
+      --tw-numeric-fraction: ;
+      --tw-ring-inset: ;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-colored: 0 0 #0000;
+      --tw-blur: ;
+      --tw-brightness: ;
+      --tw-contrast: ;
+      --tw-grayscale: ;
+      --tw-hue-rotate: ;
+      --tw-invert: ;
+      --tw-saturate: ;
+      --tw-sepia: ;
+      --tw-drop-shadow: ;
+      --tw-backdrop-blur: ;
+      --tw-backdrop-brightness: ;
+      --tw-backdrop-contrast: ;
+      --tw-backdrop-grayscale: ;
+      --tw-backdrop-hue-rotate: ;
+      --tw-backdrop-invert: ;
+      --tw-backdrop-opacity: ;
+      --tw-backdrop-saturate: ;
+      --tw-backdrop-sepia: ;
+      --tw-contain-size: ;
+      --tw-contain-layout: ;
+      --tw-contain-paint: ;
+      --tw-contain-style:
+    }
+
+    ::backdrop {
+      --tw-border-spacing-x: 0;
+      --tw-border-spacing-y: 0;
+      --tw-translate-x: 0;
+      --tw-translate-y: 0;
+      --tw-rotate: 0;
+      --tw-skew-x: 0;
+      --tw-skew-y: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-pan-x: ;
+      --tw-pan-y: ;
+      --tw-pinch-zoom: ;
+      --tw-scroll-snap-strictness: proximity;
+      --tw-gradient-from-position: ;
+      --tw-gradient-via-position: ;
+      --tw-gradient-to-position: ;
+      --tw-ordinal: ;
+      --tw-slashed-zero: ;
+      --tw-numeric-figure: ;
+      --tw-numeric-spacing: ;
+      --tw-numeric-fraction: ;
+      --tw-ring-inset: ;
+      --tw-ring-offset-width: 0px;
+      --tw-ring-offset-color: #fff;
+      --tw-ring-color: rgb(59 130 246 / 0.5);
+      --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-ring-shadow: 0 0 #0000;
+      --tw-shadow: 0 0 #0000;
+      --tw-shadow-colored: 0 0 #0000;
+      --tw-blur: ;
+      --tw-brightness: ;
+      --tw-contrast: ;
+      --tw-grayscale: ;
+      --tw-hue-rotate: ;
+      --tw-invert: ;
+      --tw-saturate: ;
+      --tw-sepia: ;
+      --tw-drop-shadow: ;
+      --tw-backdrop-blur: ;
+      --tw-backdrop-brightness: ;
+      --tw-backdrop-contrast: ;
+      --tw-backdrop-grayscale: ;
+      --tw-backdrop-hue-rotate: ;
+      --tw-backdrop-invert: ;
+      --tw-backdrop-opacity: ;
+      --tw-backdrop-saturate: ;
+      --tw-backdrop-sepia: ;
+      --tw-contain-size: ;
+      --tw-contain-layout: ;
+      --tw-contain-paint: ;
+      --tw-contain-style:
+    }
+
+    /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
+    *,
+    ::after,
+    ::before {
+      box-sizing: border-box;
+      border-width: 0;
+      border-style: solid;
+      border-color: #e5e7eb
+    }
+
+    ::after,
+    ::before {
+      --tw-content: ''
+    }
+
+    :host,
+    html {
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+      -moz-tab-size: 4;
+      tab-size: 4;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      font-feature-settings: normal;
+      font-variation-settings: normal;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    body {
+      margin: 0;
+      line-height: inherit
+    }
+
+    hr {
+      height: 0;
+      color: inherit;
+      border-top-width: 1px
+    }
+
+    abbr:where([title]) {
+      -webkit-text-decoration: underline dotted;
+      text-decoration: underline dotted
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-size: inherit;
+      font-weight: inherit
+    }
+
+    a {
+      color: inherit;
+      text-decoration: inherit
+    }
+
+    b,
+    strong {
+      font-weight: bolder
+    }
+
+    code,
+    kbd,
+    pre,
+    samp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-feature-settings: normal;
+      font-variation-settings: normal;
+      font-size: 1em
+    }
+
+    small {
+      font-size: 80%
+    }
+
+    sub,
+    sup {
+      font-size: 75%;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline
+    }
+
+    sub {
+      bottom: -.25em
+    }
+
+    sup {
+      top: -.5em
+    }
+
+    table {
+      text-indent: 0;
+      border-color: inherit;
+      border-collapse: collapse
+    }
+
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+      font-family: inherit;
+      font-feature-settings: inherit;
+      font-variation-settings: inherit;
+      font-size: 100%;
+      font-weight: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      color: inherit;
+      margin: 0;
+      padding: 0
+    }
+
+    button,
+    select {
+      text-transform: none
+    }
+
+    button,
+    input:where([type=button]),
+    input:where([type=reset]),
+    input:where([type=submit]) {
+      -webkit-appearance: button;
+      background-color: transparent;
+      background-image: none
+    }
+
+    :-moz-focusring {
+      outline: auto
+    }
+
+    :-moz-ui-invalid {
+      box-shadow: none
+    }
+
+    progress {
+      vertical-align: baseline
+    }
+
+    ::-webkit-inner-spin-button,
+    ::-webkit-outer-spin-button {
+      height: auto
+    }
+
+    [type=search] {
+      -webkit-appearance: textfield;
+      outline-offset: -2px
+    }
+
+    ::-webkit-search-decoration {
+      -webkit-appearance: none
+    }
+
+    ::-webkit-file-upload-button {
+      -webkit-appearance: button;
+      font: inherit
+    }
+
+    summary {
+      display: list-item
+    }
+
+    blockquote,
+    dd,
+    dl,
+    figure,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    hr,
+    p,
+    pre {
+      margin: 0
+    }
+
+    fieldset {
+      margin: 0;
+      padding: 0
+    }
+
+    legend {
+      padding: 0
+    }
+
+    menu,
+    ol,
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0
+    }
+
+    dialog {
+      padding: 0
+    }
+
+    textarea {
+      resize: vertical
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      opacity: 1;
+      color: #9ca3af
+    }
+
+    [role=button],
+    button {
+      cursor: pointer
+    }
+
+    :disabled {
+      cursor: default
+    }
+
+    audio,
+    canvas,
+    embed,
+    iframe,
+    img,
+    object,
+    svg,
+    video {
+      display: block;
+      vertical-align: middle
+    }
+
+    img,
+    video {
+      max-width: 100%;
+      height: auto
+    }
+
+    [hidden]:where(:not([hidden=until-found])) {
+      display: none
+    }
+
+    .relative {
+      position: relative
+    }
+
+    .mb-0 {
+      margin-bottom: 0px
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem
+    }
+
+    .ml-auto {
+      margin-left: auto
+    }
+
+    .mt-2 {
+      margin-top: 0.5rem
+    }
+
+    .mt-3 {
+      margin-top: 0.75rem
+    }
+
+    .mt-4 {
+      margin-top: 1rem
+    }
+
+    .flex {
+      display: flex
+    }
+
+    .hidden {
+      display: none
+    }
+
+    .h-16 {
+      height: 4rem
+    }
+
+    .h-8 {
+      height: 2rem
+    }
+
+    .h-9 {
+      height: 2.25rem
+    }
+
+    .min-h-screen {
+      min-height: 100vh
+    }
+
+    .w-64 {
+      width: 16rem
+    }
+
+    .w-8 {
+      width: 2rem
+    }
+
+    .w-9 {
+      width: 2.25rem
+    }
+
+    .w-full {
+      width: 100%
+    }
+
+    .min-w-0 {
+      min-width: 0px
+    }
+
+    .flex-1 {
+      flex: 1 1 0%
+    }
+
+    .flex-col {
+      flex-direction: column
+    }
+
+    .items-center {
+      align-items: center
+    }
+
+    .justify-center {
+      justify-content: center
+    }
+
+    .gap-0 {
+      gap: 0px
+    }
+
+    .gap-2 {
+      gap: 0.5rem
+    }
+
+    .gap-3 {
+      gap: 0.75rem
+    }
+
+    .overflow-hidden {
+      overflow: hidden
+    }
+
+    .overflow-y-auto {
+      overflow-y: auto
+    }
+
+    .rounded-full {
+      border-radius: 9999px
+    }
+
+    .rounded-lg {
+      border-radius: 0.5rem
+    }
+
+    .rounded-md {
+      border-radius: 0.375rem
+    }
+
+    .rounded-xl {
+      border-radius: 0.75rem
+    }
+
+    .border-b {
+      border-bottom-width: 1px
+    }
+
+    .border-r {
+      border-right-width: 1px
+    }
+
+    .border-t {
+      border-top-width: 1px
+    }
+
+    .border-slate-100 {
+      --tw-border-opacity: 1;
+      border-color: rgb(241 245 249 / var(--tw-border-opacity, 1))
+    }
+
+    .border-slate-200 {
+      --tw-border-opacity: 1;
+      border-color: rgb(226 232 240 / var(--tw-border-opacity, 1))
+    }
+
+    .bg-orange-100 {
+      --tw-bg-opacity: 1;
+      background-color: rgb(255 237 213 / var(--tw-bg-opacity, 1))
+    }
+
+    .bg-slate-50 {
+      --tw-bg-opacity: 1;
+      background-color: rgb(248 250 252 / var(--tw-bg-opacity, 1))
+    }
+
+    .bg-white\/95 {
+      background-color: rgb(255 255 255 / 0.95)
+    }
+
+    .bg-gradient-to-br {
+      background-image: linear-gradient(to bottom right, var(--tw-gradient-stops))
+    }
+
+    .from-orange-400 {
+      --tw-gradient-from: #fb923c var(--tw-gradient-from-position);
+      --tw-gradient-to: rgb(251 146 60 / 0) var(--tw-gradient-to-position);
+      --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to)
+    }
+
+    .to-orange-600 {
+      --tw-gradient-to: #ea580c var(--tw-gradient-to-position)
+    }
+
+    .p-0 {
+      padding: 0px
+    }
+
+    .p-2 {
+      padding: 0.5rem
+    }
+
+    .px-1 {
+      padding-left: 0.25rem;
+      padding-right: 0.25rem
+    }
+
+    .px-2 {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem
+    }
+
+    .px-3 {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem
+    }
+
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem
+    }
+
+    .px-6 {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem
+    }
+
+    .pb-2 {
+      padding-bottom: 0.5rem
+    }
+
+    .pt-4 {
+      padding-top: 1rem
+    }
+
+    .text-left {
+      text-align: left
+    }
+
+    .text-\[12px\] {
+      font-size: 12px
+    }
+
+    .text-\[13px\] {
+      font-size: 13px
+    }
+
+    .text-\[14px\] {
+      font-size: 14px
+    }
+
+    .text-\[15px\] {
+      font-size: 15px
+    }
+
+    .text-\[18px\] {
+      font-size: 18px
+    }
+
+    .text-\[22px\] {
+      font-size: 22px
+    }
+
+    .text-\[9\.5px\] {
+      font-size: 9.5px
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+      line-height: 1.25rem
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+      line-height: 1rem
+    }
+
+    .font-bold {
+      font-weight: 700
+    }
+
+    .font-extrabold {
+      font-weight: 800
+    }
+
+    .uppercase {
+      text-transform: uppercase
+    }
+
+    .leading-tight {
+      line-height: 1.25
+    }
+
+    .tracking-\[0\.18em\] {
+      letter-spacing: 0.18em
+    }
+
+    .tracking-wider {
+      letter-spacing: 0.05em
+    }
+
+    .text-orange-600 {
+      --tw-text-opacity: 1;
+      color: rgb(234 88 12 / var(--tw-text-opacity, 1))
+    }
+
+    .text-red-600 {
+      --tw-text-opacity: 1;
+      color: rgb(220 38 38 / var(--tw-text-opacity, 1))
+    }
+
+    .text-slate-200 {
+      --tw-text-opacity: 1;
+      color: rgb(226 232 240 / var(--tw-text-opacity, 1))
+    }
+
+    .text-slate-400 {
+      --tw-text-opacity: 1;
+      color: rgb(148 163 184 / var(--tw-text-opacity, 1))
+    }
+
+    .text-slate-500 {
+      --tw-text-opacity: 1;
+      color: rgb(100 116 139 / var(--tw-text-opacity, 1))
+    }
+
+    .text-slate-600 {
+      --tw-text-opacity: 1;
+      color: rgb(71 85 105 / var(--tw-text-opacity, 1))
+    }
+
+    .text-slate-900 {
+      --tw-text-opacity: 1;
+      color: rgb(15 23 42 / var(--tw-text-opacity, 1))
+    }
+
+    .text-white {
+      --tw-text-opacity: 1;
+      color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+    }
+
+    .shadow-md {
+      --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+      box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+    }
+
+    .shadow-orange-500\/60 {
+      --tw-shadow-color: rgb(249 115 22 / 0.6);
+      --tw-shadow: var(--tw-shadow-colored)
+    }
+
+    .backdrop-blur-xl {
+      --tw-backdrop-blur: blur(24px);
+      -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+      backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)
+    }
+
+    .hover\:bg-red-100:hover {
+      --tw-bg-opacity: 1;
+      background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1))
+    }
+
+    .hover\:bg-slate-100:hover {
+      --tw-bg-opacity: 1;
+      background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1))
+    }
+
+    .hover\:text-slate-300:hover {
+      --tw-text-opacity: 1;
+      color: rgb(203 213 225 / var(--tw-text-opacity, 1))
+    }
+
+    @media (min-width: 768px) {
+      .md\:flex {
+        display: flex
+      }
+
+      .md\:flex-col {
+        flex-direction: column
+      }
+    }
+  </style>
+  <script src="https://assets.apollo.rio.br/icon.js" defer=""></script>
+  <script src="https://assets.apollo.rio.br/dark-mode.js" defer=""></script>
+  <script src="https://assets.apollo.rio.br/clock.js" defer=""></script>
+  <style>
+    i[class] {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+    }
+  </style>
+  <style>
+    .ri-slack-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/slack-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/slack-s.svg);
+    }
+  </style>
+  <style>
+    .ri-building-3-line {
+      mask-image: url(https://assets.apollo.rio.br/i/building-3-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/building-3-v.svg);
+    }
+  </style>
+  <style>
+    .ri-calendar-event-line {
+      mask-image: url(https://assets.apollo.rio.br/i/calendar-event-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/calendar-event-v.svg);
+    }
+  </style>
+  <style>
+    .ri-user-community-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/user-community-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/user-community-s.svg);
+    }
+  </style>
+  <style>
+    .ri-team-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/team-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/team-s.svg);
+    }
+  </style>
+  <style>
+    .ri-megaphone-line {
+      mask-image: url(https://assets.apollo.rio.br/i/megaphone-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/megaphone-v.svg);
+    }
+  </style>
+  <style>
+    .ri-file-text-line {
+      mask-image: url(https://assets.apollo.rio.br/i/file-text-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/file-text-v.svg);
+    }
+  </style>
+  <style>
+    .ri-user-smile-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/user-smile-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/user-smile-s.svg);
+    }
+  </style>
+  <style>
+    .ri-calendar-line {
+      mask-image: url(https://assets.apollo.rio.br/i/calendar-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/calendar-v.svg);
+    }
+  </style>
+  <style>
+    .ri-bar-chart-grouped-line {
+      mask-image: url(https://assets.apollo.rio.br/i/bar-chart-grouped-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/bar-chart-grouped-v.svg);
+    }
+  </style>
+  <style>
+    .ri-settings-6-line {
+      mask-image: url(https://assets.apollo.rio.br/i/settings-6-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/settings-6-v.svg);
+    }
+  </style>
+  <style>
+    .ri-logout-box-r-line {
+      mask-image: url(https://assets.apollo.rio.br/i/logout-box-r-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/logout-box-r-v.svg);
+    }
+  </style>
+  <style>
+    .ri-price-tag-3-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/price-tag-3-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/price-tag-3-s.svg);
+    }
+  </style>
+  <style>
+    .ri-shield-check-line {
+      mask-image: url(https://assets.apollo.rio.br/i/shield-check-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/shield-check-v.svg);
+    }
+  </style>
+  <style>
+    .ri-external-link-line {
+      mask-image: url(https://assets.apollo.rio.br/i/external-link-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/external-link-v.svg);
+    }
+  </style>
+  <style>
+    .ri-search-line {
+      mask-image: url(https://assets.apollo.rio.br/i/search-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/search-v.svg);
+    }
+  </style>
+  <style>
+    .ri-apps-line {
+      mask-image: url(https://assets.apollo.rio.br/i/apps-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/apps-v.svg);
+    }
+  </style>
+  <style>
+    .ri-ticket-2-line {
+      mask-image: url(https://assets.apollo.rio.br/i/ticket-2-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/ticket-2-v.svg);
+    }
+  </style>
+  <style>
+    .ri-home-heart-line {
+      mask-image: url(https://assets.apollo.rio.br/i/home-heart-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/home-heart-v.svg);
+    }
+  </style>
+  <style>
+    .ri-sound-module-line {
+      mask-image: url(https://assets.apollo.rio.br/i/sound-module-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/sound-module-v.svg);
+    }
+  </style>
+  <style>
+    .ri-service-line {
+      mask-image: url(https://assets.apollo.rio.br/i/service-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/service-v.svg);
+    }
+  </style>
+  <style>
+    .ri-grid-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/grid-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/grid-s.svg);
+    }
+  </style>
+  <style>
+    .ri-ticket-2-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/ticket-2-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/ticket-2-s.svg);
+    }
+  </style>
+  <style>
+    .ri-ticket-line {
+      mask-image: url(https://assets.apollo.rio.br/i/ticket-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/ticket-v.svg);
+    }
+  </style>
+  <style>
+    .ri-user-search-line {
+      mask-image: url(https://assets.apollo.rio.br/i/user-search-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/user-search-v.svg);
+    }
+  </style>
+  <style>
+    .ri-chat-3-line {
+      mask-image: url(https://assets.apollo.rio.br/i/chat-3-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/chat-3-v.svg);
+    }
+  </style>
+  <style>
+    .ri-home-heart-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/home-heart-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/home-heart-s.svg);
+    }
+  </style>
+  <style>
+    .ri-door-open-line {
+      mask-image: url(https://assets.apollo.rio.br/i/door-open-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/door-open-v.svg);
+    }
+  </style>
+  <style>
+    .ri-sound-module-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/sound-module-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/sound-module-s.svg);
+    }
+  </style>
+  <style>
+    .ri-box-3-line {
+      mask-image: url(https://assets.apollo.rio.br/i/box-3-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/box-3-v.svg);
+    }
+  </style>
+  <style>
+    .ri-camera-lens-fill {
+      mask-image: url(https://assets.apollo.rio.br/i/camera-lens-s.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/camera-lens-s.svg);
+    }
+  </style>
+  <style>
+    .ri-camera-line {
+      mask-image: url(https://assets.apollo.rio.br/i/camera-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/camera-v.svg);
+    }
+  </style>
+  <style>
+    .ri-refresh-line {
+      mask-image: url(https://assets.apollo.rio.br/i/refresh-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/refresh-v.svg);
+    }
+  </style>
+  <style>
+    .ri-add-circle-line {
+      mask-image: url(https://assets.apollo.rio.br/i/add-circle-v.svg);
+      -webkit-mask-image: url(https://assets.apollo.rio.br/i/add-circle-v.svg);
+    }
+  </style>
+</head>
+
+<body class="ap-classifieds-body min-h-screen">
+  <div class="min-h-screen flex">
+
+    <!-- SIDEBAR DESKTOP: APOLLO SOCIAL -->
+
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-h-screen">
+      <div class="ap-classifieds">
+        <!-- ====================================================================
+         [HEADER] Classifieds Header with Brand & Safety Warning
+         ==================================================================== -->
+        <header class="ap-classifieds-header">
+          <div class="ap-classifieds-brand">
+            <div class="ap-brand-icon">
+              <i class="ri-price-tag-3-fill"></i>
+            </div>
+            <div class="ap-brand-text">
+              <h1 class="ap-brand-title">Classificado<span class="ap-brand-accent">::</span>rio</h1>
+              <p class="ap-brand-subtitle">Marketplace da Comunidade Apollo</p>
+            </div>
+          </div>
+
+          <!-- Safety Warning Banner -->
+          <div class="ap-safety-banner">
+            <div class="ap-safety-icon">
+              <i class="ri-shield-check-line"></i>
+            </div>
+            <div class="ap-safety-text">
+              Apollo::rio facilita conexões e pontes, mas <mark>não vendemos</mark> e
+              <mark>nem nos responsabilizamos</mark> por negociações e contato
+              <mark>de nenhuma transação iniciada aqui</mark>!
+            </div>
+            <a href="https://dicas.apollo.rio.br" target="_blank" class="ap-safety-link"
+              data-ap-tooltip="Dicas de segurança">
+              <i class="ri-external-link-line"></i> Dicas de Segurança
+            </a>
+          </div>
+        </header>
+
+        <!-- ====================================================================
+         [FILTERS] Search & Category Filters
+         ==================================================================== -->
+        <div class="ap-classifieds-filters">
+          <!-- Search Bar -->
+          <div class="ap-classifieds-search">
+            <div class="ap-search-form ap-search-lg">
+              <i class="ri-search-line"></i>
+              <input type="text" id="advertSearch" class="ap-search-input"
+                placeholder="Buscar ingressos, quartos, equipamentos...">
+            </div>
+          </div>
+
+          <!-- Category Tabs -->
+          <div class="ap-filter-tabs ap-filter-tabs-pills">
+            <button class="ap-tab-pill active" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
+              <i class="ri-apps-line"></i> Todos
+            </button>
+            <button class="ap-tab-pill" data-filter="tickets" data-ap-tooltip="Ingressos para eventos">
+              <i class="ri-ticket-2-line"></i> Ingressos
+            </button>
+            <button class="ap-tab-pill" data-filter="bedroom" data-ap-tooltip="Quartos e repúblicas">
+              <i class="ri-home-heart-line"></i> Quartos
+            </button>
+            <button class="ap-tab-pill" data-filter="equipment" data-ap-tooltip="Equipamentos de som e luz">
+              <i class="ri-sound-module-line"></i> Equipamentos
+            </button>
+            <button class="ap-tab-pill" data-filter="services" data-ap-tooltip="Serviços profissionais">
+              <i class="ri-service-line"></i> Serviços
+            </button>
+          </div>
+
+          <!-- Sort & View Options -->
+          <div class="ap-classifieds-options">
+            <select class="ap-select-mini" id="advertSort">
+              <option value="recent">Mais Recentes</option>
+              <option value="price-low">Menor Preço</option>
+              <option value="price-high">Maior Preço</option>
+              <option value="popular">Mais Vistos</option>
+            </select>
+            <div class="ap-view-toggle">
+              <button class="ap-btn-icon-sm active" data-view="grid" data-ap-tooltip="Visualização em grade">
+                <i class="ri-grid-fill"></i>
+              </button>
+              <button class="ap-btn-icon-sm" data-view="list" data-ap-tooltip="Visualização em lista">
+                <i class="ri-list-check"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+         [GRID] Adverts Grid
+         ==================================================================== -->
+        <main class="ap-adverts-grid" id="advertsGrid">
+
+          <!-- @LOOP: ADVERTS START -->
+          <!-- @PHP: foreach($adverts_query->posts as $advert) -->
+
+          <!-- Advert Card 1: Ticket -->
+          <a href="#" class="ap-advert-card" data-category="tickets" data-price="150">
+            <div class="ap-advert-body">
+              <!-- Top: Author & Event Info -->
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <!-- @PHP: echo get_avatar($advert->post_author, 40) -->
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                    <span>JP</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <!-- @PHP: echo esc_html(get_the_author_meta('display_name', $advert->post_author)) -->
+                    <span class="ap-advert-author-name">João Paulo</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <!-- @PHP: echo esc_html($event->post_title) -->
+                    <span class="ap-advert-event-title">BLOCO DO CAOS</span>
+                    <!-- @PHP: echo esc_html(date('d/m', strtotime($event_date))) . ' @ ' . $venue_name -->
+                    <span class="ap-advert-event-meta">15/02 @ Circo Voador</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image -->
+              <div class="ap-advert-image">
+                <!-- @PHP: echo get_the_post_thumbnail($advert->ID, 'medium') -->
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" alt="Evento">
+                <span class="ap-advert-category-badge">
+                  <i class="ri-ticket-2-fill"></i> Ingresso
+                </span>
+              </div>
+            </div>
+
+            <!-- Price & Quantity Info -->
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-ticket-line"></i>
+                <span><b>2x</b> ingressos</span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">150</span>
+                <span class="ap-price-unit">/unid</span>
+              </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- Advert Card 2: Bedroom -->
+          <a href="#" class="ap-advert-card" data-category="bedroom" data-price="1200">
+            <div class="ap-advert-body">
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #ec4899, #f472b6);">
+                    <span>ML</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <span class="ap-advert-author-name">Maria Luiza</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <span class="ap-advert-event-title">República Lapa</span>
+                    <span class="ap-advert-event-meta">Centro, Rio de Janeiro</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-advert-image">
+                <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600" alt="Quarto">
+                <span class="ap-advert-category-badge ap-badge-bedroom">
+                  <i class="ri-home-heart-fill"></i> Quarto
+                </span>
+              </div>
+            </div>
+
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-door-open-line"></i>
+                <span><b>1</b> quarto disponível</span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">1.200</span>
+                <span class="ap-price-unit">/mês</span>
+              </div>
+            </div>
+
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do anunciante">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- Advert Card 3: Equipment -->
+          <a href="#" class="ap-advert-card" data-category="equipment" data-price="350">
+            <div class="ap-advert-body">
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #22c55e, #4ade80);">
+                    <span>DJ</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <span class="ap-advert-author-name">DJ Thunder</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <span class="ap-advert-event-title">Pioneer DDJ-400</span>
+                    <span class="ap-advert-event-meta">Seminovo, 1 ano de uso</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-advert-image">
+                <img src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600" alt="Equipamento DJ">
+                <span class="ap-advert-category-badge ap-badge-equipment">
+                  <i class="ri-sound-module-fill"></i> Equipamento
+                </span>
+              </div>
+            </div>
+
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-box-3-line"></i>
+                <span>Venda ou <b>Aluguel</b></span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">350</span>
+                <span class="ap-price-unit">/dia</span>
+              </div>
+            </div>
+
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- Advert Card 4: Service -->
+          <a href="#" class="ap-advert-card" data-category="services" data-price="500">
+            <div class="ap-advert-body">
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #f97316, #fb923c);">
+                    <span>FS</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <span class="ap-advert-author-name">Felipe Studio</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <span class="ap-advert-event-title">Fotografia de Eventos</span>
+                    <span class="ap-advert-event-meta">Profissional, 5 anos exp.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-advert-image">
+                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600" alt="Fotografia">
+                <span class="ap-advert-category-badge ap-badge-service">
+                  <i class="ri-camera-lens-fill"></i> Serviço
+                </span>
+              </div>
+            </div>
+
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-camera-line"></i>
+                <span>Cobertura <b>completa</b></span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">500</span>
+                <span class="ap-price-unit">/evento</span>
+              </div>
+            </div>
+
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver portfólio">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Solicitar orçamento">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- Advert Card 5: Another Ticket -->
+          <a href="#" class="ap-advert-card" data-category="tickets" data-price="80">
+            <div class="ap-advert-body">
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">
+                    <span>AC</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <span class="ap-advert-author-name">Ana Clara</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <span class="ap-advert-event-title">WARUNG TOUR</span>
+                    <span class="ap-advert-event-meta">22/02 @ Via Parque</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-advert-image">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600" alt="Evento">
+                <span class="ap-advert-category-badge">
+                  <i class="ri-ticket-2-fill"></i> Ingresso
+                </span>
+              </div>
+            </div>
+
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-ticket-line"></i>
+                <span><b>1x</b> ingresso (meia)</span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">80</span>
+                <span class="ap-price-unit">/unid</span>
+              </div>
+            </div>
+
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- Advert Card 6: Bedroom -->
+          <a href="#" class="ap-advert-card" data-category="bedroom" data-price="900">
+            <div class="ap-advert-body">
+              <div class="ap-advert-top">
+                <div class="ap-advert-author">
+                  <div class="ap-avatar ap-avatar-sm" style="background: linear-gradient(135deg, #a855f7, #c084fc);">
+                    <span>RS</span>
+                  </div>
+                  <div class="ap-advert-author-info">
+                    <span class="ap-advert-label">Anúncio de</span>
+                    <span class="ap-advert-author-name">Rafael Santos</span>
+                  </div>
+                </div>
+                <div class="ap-advert-event">
+                  <div class="ap-advert-event-info">
+                    <span class="ap-advert-event-title">Quarto Botafogo</span>
+                    <span class="ap-advert-event-meta">Perto do metrô, mobiliado</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-advert-image">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600" alt="Quarto">
+                <span class="ap-advert-category-badge ap-badge-bedroom">
+                  <i class="ri-home-heart-fill"></i> Quarto
+                </span>
+              </div>
+            </div>
+
+            <div class="ap-advert-info">
+              <div class="ap-advert-quantity">
+                <i class="ri-door-open-line"></i>
+                <span><b>Suite</b> individual</span>
+              </div>
+              <div class="ap-advert-price">
+                <span class="ap-price-currency">R$</span>
+                <span class="ap-price-value">900</span>
+                <span class="ap-price-unit">/mês</span>
+              </div>
+            </div>
+
+            <div class="ap-advert-footer">
+              <button class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do anunciante">
+                <i class="ri-user-search-line"></i> Investigar
+              </button>
+              <button class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa">
+                <i class="ri-chat-3-line"></i> Chat
+              </button>
+            </div>
+          </a>
+
+          <!-- @LOOP: ADVERTS END -->
+        </main>
+
+        <!-- ====================================================================
+         [FOOTER] Load More & Create Advert
+         ==================================================================== -->
+        <footer class="ap-classifieds-footer">
+          <button class="ap-btn ap-btn-outline" id="loadMore">
+            <i class="ri-refresh-line"></i> Carregar Mais
+          </button>
+          <a href="/criar-anuncio" class="ap-btn ap-btn-primary">
+            <i class="ri-add-circle-line"></i> Criar Anúncio
+          </a>
+        </footer>
+      </div>
+
+      <!-- ====================================================================
+       [SCRIPTS] Classifieds JavaScript
+       ==================================================================== -->
+      <script>
+        /**
+         * APOLLO CLASSIFIEDS - JavaScript Controller
+         * Handles currency conversion, filtering, search, and interactions
+         */
+        (function () {
+          'use strict';
+
+          // ========================================
+          // CURRENCY CONVERTER (USD/BRL)
+          // ========================================
+          const currency = {
+            rate: 5.80, // Default fallback rate
+            lastUpdate: null,
+
+            async fetchRate() {
+              try {
+                // Try multiple APIs for redundancy
+                const apis = [
+                  'https://api.exchangerate.host/latest?base=USD&symbols=BRL',
+                  'https://api.frankfurter.app/latest?from=USD&to=BRL'
+                ];
+
+                for (const url of apis) {
+                  try {
+                    const res = await fetch(url, { cache: 'no-store' });
+                    const data = await res.json();
+
+                    if (data.rates?.BRL) {
+                      this.rate = data.rates.BRL;
+                      this.lastUpdate = new Date();
+                      return this.rate;
+                    }
+                  } catch (e) { continue; }
+                }
+              } catch (e) {
+                console.warn('[Currency] Using fallback rate:', this.rate);
+              }
+              return this.rate;
+            },
+
+            usdToBrl(usd) {
+              return (usd * this.rate).toFixed(2);
+            },
+
+            brlToUsd(brl) {
+              return (brl / this.rate).toFixed(2);
+            },
+
+            updateDisplay() {
+              const usdEl = document.getElementById('usdValue');
+              const brlEl = document.getElementById('brlValue');
+              const updateEl = document.getElementById('currencyUpdate');
+
+              if (usdEl) usdEl.textContent = '1.00';
+              if (brlEl) brlEl.textContent = this.rate.toFixed(2);
+
+              if (updateEl && this.lastUpdate) {
+                const mins = Math.floor((Date.now() - this.lastUpdate) / 60000);
+                updateEl.innerHTML = `<i class="ri-time-line"></i> Atualizado ${mins < 1 ? 'agora' : `há ${mins}min`}`;
+              }
+            }
+          };
+
+          // Currency Widget Interactions
+          const currencyToggle = document.getElementById('currencyToggle');
+          const currencyPanel = document.getElementById('currencyPanel');
+          const currencyClose = document.getElementById('currencyClose');
+          const currencySwap = document.getElementById('currencySwap');
+          const inputUSD = document.getElementById('inputUSD');
+          const inputBRL = document.getElementById('inputBRL');
+
+          currencyToggle?.addEventListener('click', () => {
+            currencyPanel?.classList.toggle('open');
+          });
+
+          currencyClose?.addEventListener('click', () => {
+            currencyPanel?.classList.remove('open');
+          });
+
+          inputUSD?.addEventListener('input', () => {
+            const usd = parseFloat(inputUSD.value) || 0;
+            inputBRL.value = currency.usdToBrl(usd);
+          });
+
+          inputBRL?.addEventListener('input', () => {
+            const brl = parseFloat(inputBRL.value) || 0;
+            inputUSD.value = currency.brlToUsd(brl);
+          });
+
+          currencySwap?.addEventListener('click', () => {
+            const tempUSD = inputUSD.value;
+            inputUSD.value = inputBRL.value;
+            inputBRL.value = tempUSD;
+          });
+
+          // ========================================
+          // FILTER & SEARCH
+          // ========================================
+          const filterPills = document.querySelectorAll('.ap-tab-pill');
+          const advertCards = document.querySelectorAll('.ap-advert-card');
+          const searchInput = document.getElementById('advertSearch');
+          const sortSelect = document.getElementById('advertSort');
+
+          let currentFilter = 'all';
+          let currentSearch = '';
+
+          function filterAdverts() {
+            advertCards.forEach(card => {
+              const category = card.dataset.category;
+              const text = card.textContent.toLowerCase();
+
+              const matchesFilter = currentFilter === 'all' || category === currentFilter;
+              const matchesSearch = !currentSearch || text.includes(currentSearch.toLowerCase());
+
+              card.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
+            });
+
+            updateVisibleCount();
+          }
+
+          function updateVisibleCount() {
+            const visible = document.querySelectorAll('.ap-advert-card[style=""], .ap-advert-card:not([style])').length;
+            // Could update a counter element here
+          }
+
+          filterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+              filterPills.forEach(p => p.classList.remove('active'));
+              pill.classList.add('active');
+              currentFilter = pill.dataset.filter;
+              filterAdverts();
+            });
+          });
+
+          searchInput?.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            filterAdverts();
+          });
+
+          sortSelect?.addEventListener('change', () => {
+            const grid = document.getElementById('advertsGrid');
+            const cards = [...grid.querySelectorAll('.ap-advert-card')];
+
+            cards.sort((a, b) => {
+              const priceA = parseInt(a.dataset.price) || 0;
+              const priceB = parseInt(b.dataset.price) || 0;
+
+              switch (sortSelect.value) {
+                case 'price-low': return priceA - priceB;
+                case 'price-high': return priceB - priceA;
+                case 'recent': return 0; // Keep original order
+                default: return 0;
+              }
+            });
+
+            cards.forEach(card => grid.appendChild(card));
+          });
+
+          // ========================================
+          // VIEW TOGGLE (Grid/List)
+          // ========================================
+          const viewButtons = document.querySelectorAll('[data-view]');
+          const advertsGrid = document.getElementById('advertsGrid');
+
+          viewButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+              viewButtons.forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+
+              const view = btn.dataset.view;
+              advertsGrid?.classList.toggle('ap-adverts-list', view === 'list');
+            });
+          });
+
+          // ========================================
+          // INITIALIZATION
+          // ========================================
+          document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch current exchange rate
+            await currency.fetchRate();
+            currency.updateDisplay();
+
+            // Update rate every 5 minutes
+            setInterval(async () => {
+              await currency.fetchRate();
+              currency.updateDisplay();
+            }, 300000);
+
+            // Initialize tooltips if apolloTooltips exists
+            if (window.apolloStats) {
+              apolloStats.animateMiniStats(document);
+            }
+
+            console.log('[Apollo Classifieds] Initialized');
+          });
+
+        })();
+      </script>
+    </div><!-- END MAIN CONTENT -->
+  </div><!-- END FLEX CONTAINER -->
+
+
+</body>
+
+</html>
