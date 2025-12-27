@@ -85,4 +85,4 @@ class SuppliersController {
 		return new WP_REST_Response( $supplier, 200 );
 	}
 }
-?>
+

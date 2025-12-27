@@ -110,7 +110,7 @@
 		async loadConversations() {
 			try {
 				const response = await this.apiRequest('GET', '/chat/conversations');
-				
+
 				if (response.success || Array.isArray(response)) {
 					this.conversations = response.data || response;
 					this.renderConversations();
@@ -202,7 +202,7 @@
 				}
 
 				const response = await this.apiRequest('GET', url);
-				
+
 				if (response.success || Array.isArray(response)) {
 					this.messages = response.data || response;
 					this.renderMessages();
@@ -531,6 +531,100 @@
 			// TODO: Use Apollo toast notification system
 			console.error(message);
 			alert(message);
+		},
+
+		/**
+		 * Open classified conversation with security modal
+		 */
+		openClassifiedConversation(classifiedId, sellerId) {
+			// Check if user is logged in
+			if (!this.currentUser || this.currentUser.id === 0) {
+				// Redirect to login with return URL
+				const currentUrl = encodeURIComponent(window.location.href);
+				window.location.href = `/login?redirect_to=${currentUrl}`;
+				return;
+			}
+
+			// Show security modal
+			this.showClassifiedSecurityModal(classifiedId, sellerId);
+		},
+
+		/**
+		 * Show security modal for classified conversations
+		 */
+		showClassifiedSecurityModal(classifiedId, sellerId) {
+			const modal = document.createElement('div');
+			modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+			modal.innerHTML = `
+				<div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+					<div class="text-center mb-6">
+						<div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+							<i class="ri-shield-check-line text-2xl text-orange-600"></i>
+						</div>
+						<h3 class="text-lg font-semibold text-gray-900 mb-2">Dicas de Segurança</h3>
+						<p class="text-sm text-gray-600 mb-4">Antes de iniciar a conversa, lembre-se:</p>
+					</div>
+					<ul class="text-sm text-gray-700 space-y-2 mb-6">
+						<li class="flex items-start gap-2">
+							<i class="ri-check-line text-green-600 mt-0.5 flex-shrink-0"></i>
+							<span>Não envie dinheiro antecipadamente</span>
+						</li>
+						<li class="flex items-start gap-2">
+							<i class="ri-check-line text-green-600 mt-0.5 flex-shrink-0"></i>
+							<span>Prefira encontros em locais públicos</span>
+						</li>
+						<li class="flex items-start gap-2">
+							<i class="ri-check-line text-green-600 mt-0.5 flex-shrink-0"></i>
+							<span>Verifique a reputação do vendedor</span>
+						</li>
+						<li class="flex items-start gap-2">
+							<i class="ri-check-line text-green-600 mt-0.5 flex-shrink-0"></i>
+							<span>Desconfie de preços muito baixos</span>
+						</li>
+					</ul>
+					<div class="flex gap-3">
+						<button class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors" onclick="this.closest('.fixed').remove()">
+							Cancelar
+						</button>
+						<a href="/suporte/seguranca" target="_blank" class="px-4 py-2 text-orange-600 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors text-center">
+							Leia mais
+						</a>
+						<button class="flex-1 px-4 py-2 text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors" onclick="ApolloChat.confirmClassifiedChat(${classifiedId}, ${sellerId}); this.closest('.fixed').remove()">
+							Entendi, continuar
+						</button>
+					</div>
+				</div>
+			`;
+			document.body.appendChild(modal);
+		},
+
+		/**
+		 * Confirm and start classified conversation
+		 */
+		async confirmClassifiedChat(classifiedId, sellerId) {
+			try {
+				const response = await this.apiRequest('POST', '/chat/context-thread', {
+					context: 'classified',
+					entity_type: 'ad',
+					entity_id: parseInt(classifiedId, 10),
+					seller_id: parseInt(sellerId, 10),
+				});
+
+				if (response.success && response.conversation_id) {
+					// Open chat UI
+					if (response.open_url) {
+						window.location.href = response.open_url;
+					} else {
+						// Fallback: select conversation if chat UI is loaded
+						this.selectConversation(response.conversation_id);
+					}
+				} else {
+					throw new Error(response.error || 'Erro ao iniciar conversa');
+				}
+			} catch (error) {
+				console.error('Failed to start classified conversation:', error);
+				this.showError('Erro ao iniciar conversa. Tente novamente.');
+			}
 		},
 	};
 

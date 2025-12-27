@@ -12,6 +12,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Enqueue chat assets for classified conversations
+wp_enqueue_script( 'apollo-chat', APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/chat.js', array( 'jquery' ), APOLLO_SOCIAL_VERSION, true );
+wp_enqueue_style( 'apollo-chat', APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/chat.css', array(), APOLLO_SOCIAL_VERSION );
+
+// Localize chat config
+wp_localize_script( 'apollo-chat', 'apolloChatConfig', array(
+	'restUrl' => rest_url( 'apollo-social/v1' ),
+	'nonce'   => wp_create_nonce( 'wp_rest' ),
+) );
+
+// Localize current user
+wp_localize_script( 'apollo-chat', 'apolloChatUser', array(
+	'id'    => get_current_user_id(),
+	'name'  => wp_get_current_user()->display_name ?: 'Usuário',
+	'avatar' => get_avatar_url( get_current_user_id(), array( 'size' => 32 ) ) ?: '',
+) );
+
 global $post;
 
 // Get classified data
@@ -314,10 +331,10 @@ get_header();
 	</h2>
 
 	<div style="display: flex; flex-direction: column; gap: 8px;">
-	
+
 	<?php if ( is_user_logged_in() && get_current_user_id() !== $author_id ) : ?>
 	<!-- Apollo Chat Integration -->
-	<button class="ap-btn ap-btn-primary" 
+	<button class="ap-btn ap-btn-primary"
 		style="justify-content: center; padding: 14px;"
 		data-ap-tooltip="Iniciar conversa no Apollo Chat"
 		data-apollo-chat-classified="<?php echo esc_attr( $classified_id ); ?>"
@@ -327,7 +344,7 @@ get_header();
 		Chat com Vendedor
 	</button>
 	<?php endif; ?>
-	
+
 	<?php
 	if ( $contact_whatsapp ) :
 		$whatsapp_number_raw = preg_replace( '/\D/', '', $contact_whatsapp );

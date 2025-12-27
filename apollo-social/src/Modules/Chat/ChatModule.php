@@ -158,7 +158,7 @@ class ChatModule {
 	 * Register REST API endpoints
 	 */
 	public static function register_endpoints(): void {
-		$namespace = 'apollo/v1';
+		$namespace = 'apollo-social/v1';
 
 		// Get conversations for current user.
 		register_rest_route(
@@ -211,6 +211,17 @@ class ChatModule {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( self::class, 'rest_poll_messages' ),
+				'permission_callback' => array( self::class, 'check_user_logged_in' ),
+			)
+		);
+
+		// Start or get context-specific conversation (e.g., classifieds).
+		register_rest_route(
+			$namespace,
+			'/chat/context-thread',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'rest_get_or_create_context_conversation' ),
 				'permission_callback' => array( self::class, 'check_user_logged_in' ),
 			)
 		);
@@ -348,6 +359,73 @@ class ChatModule {
 		$messages = self::get_new_messages_for_user( $user_id, $since );
 
 		return new \WP_REST_Response( $messages, 200 );
+	}
+
+	/**
+	 * REST: Get or create context-specific conversation (e.g., classifieds)
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function rest_get_or_create_context_conversation( \WP_REST_Request $request ): \WP_REST_Response {
+		$buyer_id    = get_current_user_id();
+		$context     = sanitize_key( $request->get_param( 'context' ) );
+		$entity_type = sanitize_key( $request->get_param( 'entity_type' ) );
+		$entity_id   = (int) $request->get_param( 'entity_id' );
+		$seller_id   = (int) $request->get_param( 'seller_id' );
+
+		// Validation
+		if ( ! $context || ! $entity_type || ! $entity_id || ! $seller_id ) {
+			return new \WP_REST_Response( array( 'error' => 'Parâmetros obrigatórios ausentes' ), 400 );
+		}
+
+		if ( $buyer_id === $seller_id ) {
+			return new \WP_REST_Response( array( 'error' => 'Não é possível conversar consigo mesmo' ), 400 );
+		}
+
+		// Validate entity exists (for classifieds, check if post exists and is published)
+		if ('classified' === $context && 'ad' === $entity_type) {
+			$post = get_post( $entity_id );
+			if ( ! $post || 'publish' !== $post->post_status ) {
+				return new \WP_REST_Response( array( 'error' => 'Anúncio não encontrado ou não publicado' ), 404 );
+			}
+			// Verify seller is the post author
+			if ( (int) $post->post_author !== $seller_id ) {
+				return new \WP_REST_Response( array( 'error' => 'Vendedor inválido para este anúncio' ), 400 );
+			}
+		}
+
+		// Find existing conversation
+		$existing = self::find_context_conversation( $context, $entity_type, $entity_id, $buyer_id, $seller_id );
+		if ( $existing ) {
+			return new \WP_REST_Response( array(
+				'success'         => true,
+				'conversation_id' => (int) $existing['id'],
+				'open_url'        => self::get_chat_open_url( (int) $existing['id'] ),
+				'metadata'        => self::get_conversation_metadata( $existing ),
+			), 200 );
+		}
+
+		// Create new conversation
+		$conversation_id = self::create_context_conversation( $context, $entity_type, $entity_id, $buyer_id, $seller_id );
+		if ( ! $conversation_id ) {
+			return new \WP_REST_Response( array( 'error' => 'Erro ao criar conversa' ), 500 );
+		}
+
+		$conversation = self::get_conversation_by_id( $conversation_id );
+
+		// Send initial message
+		$initial_message = self::get_initial_message( $context, $entity_type, $entity_id );
+		if ( $initial_message ) {
+			self::insert_message( $conversation_id, $buyer_id, $initial_message, 'text' );
+		}
+
+		return new \WP_REST_Response( array(
+			'success'         => true,
+			'conversation_id' => (int) $conversation_id,
+			'open_url'        => self::get_chat_open_url( (int) $conversation_id ),
+			'metadata'        => self::get_conversation_metadata( $conversation ),
+		), 201 );
 	}
 
 	// =========================================================================
@@ -501,17 +579,17 @@ class ChatModule {
 
 		$sql = $wpdb->prepare(
 			"SELECT c.*, p.last_read_at, p.role,
-				(SELECT COUNT(*) FROM {$table_msg} m 
-				 WHERE m.conversation_id = c.id 
+				(SELECT COUNT(*) FROM {$table_msg} m
+				 WHERE m.conversation_id = c.id
 				 AND m.created_at > IFNULL(p.last_read_at, '1970-01-01')) as unread_count,
-				(SELECT m2.content FROM {$table_msg} m2 
-				 WHERE m2.conversation_id = c.id 
+				(SELECT m2.content FROM {$table_msg} m2
+				 WHERE m2.conversation_id = c.id
 				 ORDER BY m2.created_at DESC LIMIT 1) as last_message,
-				(SELECT m3.sender_id FROM {$table_msg} m3 
-				 WHERE m3.conversation_id = c.id 
+				(SELECT m3.sender_id FROM {$table_msg} m3
+				 WHERE m3.conversation_id = c.id
 				 ORDER BY m3.created_at DESC LIMIT 1) as last_sender_id,
-				(SELECT m4.created_at FROM {$table_msg} m4 
-				 WHERE m4.conversation_id = c.id 
+				(SELECT m4.created_at FROM {$table_msg} m4
+				 WHERE m4.conversation_id = c.id
 				 ORDER BY m4.created_at DESC LIMIT 1) as last_message_at
 			FROM {$table_conv} c
 			INNER JOIN {$table_part} p ON c.id = p.conversation_id
@@ -553,9 +631,9 @@ class ChatModule {
 		}
 
 		$sql = $wpdb->prepare(
-			"SELECT * FROM {$table} 
+			"SELECT * FROM {$table}
 			WHERE conversation_id = %d {$where_before}
-			ORDER BY created_at DESC 
+			ORDER BY created_at DESC
 			LIMIT %d",
 			$conversation_id,
 			$limit
@@ -599,7 +677,7 @@ class ChatModule {
 			FROM {$table_msg} m
 			INNER JOIN {$table_part} p ON m.conversation_id = p.conversation_id
 			LEFT JOIN {$wpdb->prefix}" . self::TABLE_CONVERSATIONS . " c ON m.conversation_id = c.id
-			WHERE p.user_id = %d 
+			WHERE p.user_id = %d
 			AND m.sender_id != %d
 			{$since_clause}
 			ORDER BY m.created_at ASC
@@ -1015,7 +1093,7 @@ class ChatModule {
 		$sql = $wpdb->prepare(
 			"SELECT COUNT(m.id) FROM {$table_msg} m
 			INNER JOIN {$table_part} p ON m.conversation_id = p.conversation_id
-			WHERE p.user_id = %d 
+			WHERE p.user_id = %d
 			AND m.sender_id != %d
 			AND m.created_at > IFNULL(p.last_read_at, '1970-01-01')",
 			$user_id,
@@ -1023,5 +1101,126 @@ class ChatModule {
 		);
 
 		return (int) $wpdb->get_var( $sql );
+	}
+
+	/**
+	 * Find existing context-specific conversation
+	 *
+	 * @param string $context     Context (e.g., 'classified').
+	 * @param string $entity_type Entity type (e.g., 'ad').
+	 * @param int    $entity_id   Entity ID.
+	 * @param int    $buyer_id    Buyer user ID.
+	 * @param int    $seller_id   Seller user ID.
+	 * @return array|null
+	 */
+	public static function find_context_conversation( string $context, string $entity_type, int $entity_id, int $buyer_id, int $seller_id ): ?array {
+		global $wpdb;
+
+		$table_conv = $wpdb->prefix . self::TABLE_CONVERSATIONS;
+		$table_part = $wpdb->prefix . self::TABLE_PARTICIPANTS;
+
+		$sql = $wpdb->prepare(
+			"SELECT c.id FROM {$table_conv} c
+			INNER JOIN {$table_part} p1 ON c.id = p1.conversation_id AND p1.user_id = %d
+			INNER JOIN {$table_part} p2 ON c.id = p2.conversation_id AND p2.user_id = %d
+			WHERE c.context_type = %s AND c.context_id = %d
+			LIMIT 1",
+			$buyer_id,
+			$seller_id,
+			$context,
+			$entity_id
+		);
+
+		$existing_id = $wpdb->get_var( $sql );
+
+		if ( $existing_id ) {
+			return self::get_conversation_by_id( (int) $existing_id );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Create context-specific conversation
+	 *
+	 * @param string $context     Context.
+	 * @param string $entity_type Entity type.
+	 * @param int    $entity_id   Entity ID.
+	 * @param int    $buyer_id    Buyer user ID.
+	 * @param int    $seller_id   Seller user ID.
+	 * @return int|null Conversation ID.
+	 */
+	public static function create_context_conversation( string $context, string $entity_type, int $entity_id, int $buyer_id, int $seller_id ): ?int {
+		$post = get_post( $entity_id );
+		$title = $post ? esc_html( $post->post_title ) : "Conversa sobre {$entity_type} #{$entity_id}";
+
+		$conversation_id = self::create_conversation( $context, $title, $context, $entity_id );
+
+		if ( ! $conversation_id ) {
+			return null;
+		}
+
+		self::add_participant( $conversation_id, $buyer_id, 'member' );
+		self::add_participant( $conversation_id, $seller_id, 'owner' );
+
+		return $conversation_id;
+	}
+
+	/**
+	 * Get initial message for context
+	 *
+	 * @param string $context     Context.
+	 * @param string $entity_type Entity type.
+	 * @param int    $entity_id   Entity ID.
+	 * @return string|null
+	 */
+	public static function get_initial_message( string $context, string $entity_type, int $entity_id ): ?string {
+		if ( 'classified' === $context && 'ad' === $entity_type ) {
+			$post = get_post( $entity_id );
+			if ( $post ) {
+				return sprintf(
+					'Olá! Tenho interesse no anúncio "%s". Ainda está disponível?',
+					esc_html( $post->post_title )
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get chat open URL for conversation
+	 *
+	 * @param int $conversation_id Conversation ID.
+	 * @return string
+	 */
+	public static function get_chat_open_url( int $conversation_id ): string {
+		return home_url( '/chat/?conversation=' . $conversation_id );
+	}
+
+	/**
+	 * Get conversation metadata for frontend
+	 *
+	 * @param array $conversation Conversation data.
+	 * @return array
+	 */
+	public static function get_conversation_metadata( array $conversation ): array {
+		$metadata = array(
+			'id'    => $conversation['id'],
+			'title' => $conversation['title'],
+			'type'  => $conversation['type'],
+		);
+
+		if ( 'classified' === $conversation['context_type'] && $conversation['context_id'] ) {
+			$post = get_post( $conversation['context_id'] );
+			if ( $post ) {
+				$metadata['ad_title'] = esc_html( $post->post_title );
+				$metadata['ad_url']   = get_permalink( $post );
+				$metadata['ad_price'] = get_post_meta( $post->ID, '_classified_price', true );
+				$metadata['ad_image'] = get_the_post_thumbnail_url( $post->ID, 'thumbnail' );
+			}
+		}
+
+		return $metadata;
 	}
 }
