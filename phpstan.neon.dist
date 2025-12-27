@@ -21,6 +21,12 @@ parameters:
     # Bootstrap para constantes globais WP
     bootstrapFiles:
         - phpstan-bootstrap.php
+        - wp-cli-stubs.php
+        - phpunit-stubs.php
+
+    stubFiles:
+        - stubs/wp-cli.php
+        - stubs/apollo-stubs.php
 
     # Excluir diretórios - MARQUE COMO OPCIONAL com (?)
     excludePaths:
@@ -59,5 +65,3 @@ parameters:
 
     # Configurações saudáveis
     reportUnmatchedIgnoredErrors: true
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
