@@ -16,6 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 wp_enqueue_script( 'apollo-chat', APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/chat.js', array( 'jquery' ), APOLLO_SOCIAL_VERSION, true );
 wp_enqueue_style( 'apollo-chat', APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/chat.css', array(), APOLLO_SOCIAL_VERSION );
 
+// Enqueue classified contact JS
+wp_enqueue_script( 'apollo-classified-contact', APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/classified-contact.js', array( 'jquery' ), APOLLO_SOCIAL_VERSION, true );
+
 // Localize chat config
 wp_localize_script( 'apollo-chat', 'apolloChatConfig', array(
 	'restUrl' => rest_url( 'apollo-social/v1' ),
@@ -27,6 +30,14 @@ wp_localize_script( 'apollo-chat', 'apolloChatUser', array(
 	'id'    => get_current_user_id(),
 	'name'  => wp_get_current_user()->display_name ?: 'Usuário',
 	'avatar' => get_avatar_url( get_current_user_id(), array( 'size' => 32 ) ) ?: '',
+) );
+
+// Localize classified contact
+wp_localize_script( 'apollo-classified-contact', 'apolloClassifiedContact', array(
+	'restUrl' => rest_url( 'apollo-social/v1' ),
+	'nonce'   => wp_create_nonce( 'wp_rest' ),
+	'loginUrl' => wp_login_url( get_permalink() ),
+	'isLoggedIn' => is_user_logged_in(),
 ) );
 
 global $post;
@@ -44,98 +55,75 @@ $author_since    = $author ? date( 'M Y', strtotime( $author->user_registered ) 
 
 // Meta data.
 $price            = get_post_meta( $classified_id, '_classified_price', true );
-$condition        = get_post_meta( $classified_id, '_classified_condition', true );
-$category_raw     = get_post_meta( $classified_id, '_classified_category', true );
-$category         = ! empty( $category_raw ) ? $category_raw : 'other';
-$location         = get_post_meta( $classified_id, '_classified_location', true );
-$contact_phone    = get_post_meta( $classified_id, '_classified_phone', true );
-$contact_whatsapp = get_post_meta( $classified_id, '_classified_whatsapp', true );
+$currency         = get_post_meta( $classified_id, '_classified_currency', true ) ?: 'BRL';
+$location         = get_post_meta( $classified_id, '_classified_location_text', true );
+$contact_pref     = get_post_meta( $classified_id, '_classified_contact_pref', true );
 $views_count      = (int) get_post_meta( $classified_id, '_classified_views', true );
-$event_title      = get_post_meta( $classified_id, '_classified_event_title', true );
-$event_date       = get_post_meta( $classified_id, '_classified_event_date', true );
-$event_venue      = get_post_meta( $classified_id, '_classified_event_venue', true );
-$quantity_raw     = get_post_meta( $classified_id, '_classified_quantity', true );
-$quantity         = ! empty( $quantity_raw ) ? $quantity_raw : '1';
+
+// Domain and intent taxonomies
+$domain_terms     = wp_get_post_terms( $classified_id, 'classified_domain', array( 'fields' => 'slugs' ) );
+$intent_terms     = wp_get_post_terms( $classified_id, 'classified_intent', array( 'fields' => 'slugs' ) );
+$domain           = ! empty( $domain_terms ) ? $domain_terms[0] : 'ingressos';
+$intent           = ! empty( $intent_terms ) ? $intent_terms[0] : 'ofereco';
+
+// Domain-specific meta
+if ( $domain === 'ingressos' ) {
+	$event_date   = get_post_meta( $classified_id, '_classified_event_date', true );
+	$event_title  = get_post_meta( $classified_id, '_classified_event_title', true );
+} elseif ( $domain === 'acomodacao' ) {
+	$start_date   = get_post_meta( $classified_id, '_classified_start_date', true );
+	$end_date     = get_post_meta( $classified_id, '_classified_end_date', true );
+	$capacity     = get_post_meta( $classified_id, '_classified_capacity', true );
+}
+
+// Gallery
+$gallery_ids      = get_post_meta( $classified_id, '_classified_gallery', true );
+$gallery          = is_array( $gallery_ids ) ? $gallery_ids : array();
 
 // Increment view count
 update_post_meta( $classified_id, '_classified_views', $views_count + 1 );
 
 // Images
 $featured_image = get_the_post_thumbnail_url( $classified_id, 'large' );
-$gallery        = get_post_meta( $classified_id, '_classified_gallery', true );
-if ( ! is_array( $gallery ) ) {
-	$gallery = array();
-}
 
 // Format price.
 $price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
+$currency_symbol = $currency === 'BRL' ? 'R$' : $currency;
 
-// Condition labels.
-$condition_labels = array(
-	'new'       => array(
-		'label' => 'Novo',
-		'color' => '#22c55e',
-	),
-	'like_new'  => array(
-		'label' => 'Seminovo',
-		'color' => '#3b82f6',
-	),
-	'used'      => array(
-		'label' => 'Usado',
-		'color' => '#f97316',
-	),
-	'for_parts' => array(
-		'label' => 'Para peças',
-		'color' => '#ef4444',
-	),
-);
-$condition_config = $condition_labels[ $condition ] ?? array(
-	'label' => 'Não especificado',
-	'color' => '#6b7280',
-);
-
-// Categories configuration.
-$categories = array(
-	'tickets'   => array(
-		'label' => 'Ingresso',
+// Domain and intent labels
+$domain_labels = array(
+	'ingressos'   => array(
+		'label' => 'Ingressos',
 		'icon'  => 'ri-ticket-2-fill',
-		'badge' => '',
-		'unit'  => '/unid',
+		'badge' => 'ap-badge-tickets',
+		'unit'  => '',
 	),
-	'bedroom'   => array(
-		'label' => 'Quarto',
+	'acomodacao'  => array(
+		'label' => 'Acomodação',
 		'icon'  => 'ri-home-heart-fill',
-		'badge' => 'ap-badge-bedroom',
-		'unit'  => '/mês',
-	),
-	'equipment' => array(
-		'label' => 'Equipamento',
-		'icon'  => 'ri-sound-module-fill',
-		'badge' => 'ap-badge-equipment',
-		'unit'  => '/dia',
-	),
-	'services'  => array(
-		'label' => 'Serviço',
-		'icon'  => 'ri-briefcase-fill',
-		'badge' => 'ap-badge-service',
-		'unit'  => '/evento',
+		'badge' => 'ap-badge-accommodation',
+		'unit'  => '/noite',
 	),
 );
-$cat_config = $categories[ $category ] ?? array(
+$domain_config = $domain_labels[ $domain ] ?? array(
 	'label' => 'Outro',
 	'icon'  => 'ri-price-tag-fill',
 	'badge' => '',
 	'unit'  => '',
 );
 
-// Avatar gradient colors by category.
-$avatar_colors   = array(
-	'tickets'   => '#6366f1, #8b5cf6',
-	'bedroom'   => '#ec4899, #f472b6',
-	'equipment' => '#22c55e, #4ade80',
-	'services'  => '#3b82f6, #60a5fa',
+$intent_labels = array(
+	'ofereco' => 'Ofereço',
+	'procuro' => 'Procuro',
 );
-$avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
+$intent_label = $intent_labels[ $intent ] ?? 'Ofereço';
+
+// Avatar gradient colors by domain.
+$avatar_colors   = array(
+	'ingressos'   => '#6366f1, #8b5cf6',
+	'acomodacao'  => '#ec4899, #f472b6',
+);
+$avatar_gradient = $avatar_colors[ $domain ] ?? '#f97316, #fb923c';
 
 // STRICT MODE: base.js handles all core assets - just ensure it's loaded
 if ( function_exists( 'apollo_ensure_base_assets' ) ) {
@@ -196,8 +184,8 @@ get_header();
 			data-ap-tooltip="Imagem principal do anúncio">
 
 		<!-- Category Badge -->
-		<span class="ap-advert-category-badge <?php echo esc_attr( $cat_config['badge'] ); ?>" style="position: absolute; top: 12px; left: 12px;">
-		<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>"></i> <?php echo esc_html( $cat_config['label'] ); ?>
+		<span class="ap-advert-category-badge <?php echo esc_attr( $domain_config['badge'] ); ?>" style="position: absolute; top: 12px; left: 12px;">
+		<i class="<?php echo esc_attr( $domain_config['icon'] ); ?>"></i> <?php echo esc_html( $domain_config['label'] ); ?>
 		</span>
 
 		<?php if ( ! empty( $gallery ) && count( $gallery ) > 0 ) : ?>
@@ -209,7 +197,7 @@ get_header();
 	</div>
 	<?php else : ?>
 	<div style="aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; background: var((--bg-main)-muted);">
-		<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size: 64px; color: var(--ap-text-muted);"></i>
+		<i class="<?php echo esc_attr( $domain_config['icon'] ); ?>" style="font-size: 64px; color: var(--ap-text-muted);"></i>
 	</div>
 	<?php endif; ?>
 
@@ -234,16 +222,16 @@ get_header();
 	<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
 		<div style="flex: 1; min-width: 0;">
 		<div class="ap-advert-price" style="margin-bottom: 8px;">
-			<span class="ap-price-currency">R$</span>
+			<span class="ap-price-currency"><?php echo esc_html( $currency_symbol ); ?></span>
 			<span class="ap-price-value" style="font-size: 32px;"><?php echo esc_html( $price_display ); ?></span>
-			<span class="ap-price-unit"><?php echo esc_html( $cat_config['unit'] ); ?></span>
+			<span class="ap-price-unit"><?php echo esc_html( $domain_config['unit'] ); ?></span>
 		</div>
 		<h1 style="font-size: 18px; font-weight: 700; color: var(--ap-text-primary); margin: 0;"><?php echo esc_html( $title ); ?></h1>
 		</div>
 
-		<span class="ap-badge" style="background: <?php echo esc_attr( $condition_config['color'] ); ?>20; color: <?php echo esc_attr( $condition_config['color'] ); ?>; border: none;"
-			data-ap-tooltip="Condição do item">
-		<?php echo esc_html( $condition_config['label'] ); ?>
+		<span class="ap-badge" style="background: var(--ap-orange-500); color: white; border: none;"
+			data-ap-tooltip="<?php echo esc_attr( $intent_label ); ?>">
+		<?php echo esc_html( $intent_label ); ?>
 		</span>
 	</div>
 
@@ -270,14 +258,29 @@ get_header();
 		<?php endif; ?>
 	</div>
 
-	<?php if ( $category === 'tickets' && $event_title ) : ?>
+	<?php if ( $domain === 'ingressos' && $event_title ) : ?>
 	<!-- Event Info for Tickets -->
 	<div style="margin-top: 16px; padding: 12px; background: var((--bg-main)-muted); border-radius: var(--ap-radius-lg);">
 		<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
 		<i class="ri-calendar-event-fill" style="color: var(--ap-orange-500);"></i>
 		<div>
 			<strong><?php echo esc_html( $event_title ); ?></strong>
-			<span style="color: var(--ap-text-muted);"> — <?php echo esc_html( $event_date . ' @ ' . $event_venue ); ?></span>
+			<?php if ( $event_date ) : ?>
+			<span style="color: var(--ap-text-muted);"> — <?php echo esc_html( date( 'd/m/Y', strtotime( $event_date ) ) ); ?></span>
+			<?php endif; ?>
+		</div>
+		</div>
+	</div>
+	<?php elseif ( $domain === 'acomodacao' && ( $start_date || $end_date ) ) : ?>
+	<!-- Period Info for Accommodation -->
+	<div style="margin-top: 16px; padding: 12px; background: var((--bg-main)-muted); border-radius: var(--ap-radius-lg);">
+		<div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+		<i class="ri-calendar-check-fill" style="color: var(--ap-orange-500);"></i>
+		<div>
+			<strong>Período Disponível</strong>
+			<?php if ( $start_date && $end_date ) : ?>
+			<span style="color: var(--ap-text-muted);"> — <?php echo esc_html( date( 'd/m', strtotime( $start_date ) ) . ' - ' . date( 'd/m', strtotime( $end_date ) ) ); ?></span>
+			<?php endif; ?>
 		</div>
 		</div>
 	</div>
@@ -324,6 +327,33 @@ get_header();
 	</div>
 	</div>
 
+	<!-- Safety Modal -->
+	<div id="apollo-safety-modal" class="ap-modal" style="display: none;">
+	<div class="ap-modal-overlay" onclick="document.getElementById('apollo-safety-modal').style.display='none';"></div>
+	<div class="ap-modal-content">
+		<div class="ap-modal-header">
+		<h3>Dicas de Segurança</h3>
+		<button class="ap-modal-close" onclick="document.getElementById('apollo-safety-modal').style.display='none';">&times;</button>
+		</div>
+		<div class="ap-modal-body">
+		<ul style="list-style: none; padding: 0;">
+			<li style="margin-bottom: 12px;"><i class="ri-shield-check-line" style="color: var(--ap-orange-500); margin-right: 8px;"></i> Prefira encontros em locais públicos e movimentados.</li>
+			<li style="margin-bottom: 12px;"><i class="ri-shield-check-line" style="color: var(--ap-orange-500); margin-right: 8px;"></i> Verifique o produto ou serviço antes de efetuar qualquer pagamento.</li>
+			<li style="margin-bottom: 12px;"><i class="ri-shield-check-line" style="color: var(--ap-orange-500); margin-right: 8px;"></i> Desconfie de preços muito abaixo do mercado ou ofertas "urgentes".</li>
+			<li style="margin-bottom: 12px;"><i class="ri-shield-check-line" style="color: var(--ap-orange-500); margin-right: 8px;"></i> O Apollo Social não processa pagamentos - todas as transações são entre usuários.</li>
+			<li><i class="ri-shield-check-line" style="color: var(--ap-orange-500); margin-right: 8px;"></i> Guarde comprovantes e comunique-se sempre pelo chat interno.</li>
+		</ul>
+		<p style="margin-top: 16px; font-size: 14px; color: var(--ap-text-muted);">
+		<a href="https://dicas.apollo.rio.br" target="_blank" rel="noopener">Leia mais dicas de segurança</a>
+		</p>
+		</div>
+		<div class="ap-modal-footer">
+		<button class="ap-btn ap-btn-outline" onclick="document.getElementById('apollo-safety-modal').style.display='none';">Cancelar</button>
+		<button class="ap-btn ap-btn-primary" id="apollo-safety-confirm">Entendi, continuar</button>
+		</div>
+	</div>
+	</div>
+
 	<!-- Contact Actions -->
 	<div class="ap-card" style="margin-bottom: 16px;">
 	<h2 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ap-text-muted); margin: 0 0 12px 0;">
@@ -334,53 +364,27 @@ get_header();
 
 	<?php if ( is_user_logged_in() && get_current_user_id() !== $author_id ) : ?>
 	<!-- Apollo Chat Integration -->
-	<button class="ap-btn ap-btn-primary"
+	<button class="ap-btn ap-btn-primary ap-classified-contact-btn"
 		style="justify-content: center; padding: 14px;"
 		data-ap-tooltip="Iniciar conversa no Apollo Chat"
-		data-apollo-chat-classified="<?php echo esc_attr( $classified_id ); ?>"
-		data-apollo-chat-user="<?php echo esc_attr( $author_id ); ?>"
-		onclick="ApolloChat.openClassifiedConversation(<?php echo esc_attr( $classified_id ); ?>, <?php echo esc_attr( $author_id ); ?>);">
+		data-ad-id="<?php echo esc_attr( $classified_id ); ?>"
+		data-seller-id="<?php echo esc_attr( $author_id ); ?>"
+		data-context="classified"
+		data-whatsapp="">
 		<i class="ri-chat-1-line" style="font-size: 20px;"></i>
-		Chat com Vendedor
+		Falar no Chat
 	</button>
 	<?php endif; ?>
 
-	<?php
-	if ( $contact_whatsapp ) :
-		$whatsapp_number_raw = preg_replace( '/\D/', '', $contact_whatsapp );
-		$safe_title          = wp_strip_all_tags( $title );
-		$whatsapp_message    = 'Olá! Vi seu anúncio "' . $safe_title . '" no Apollo e gostaria de mais informações.';
-		$wa_url              = 'https://wa.me/55' . $whatsapp_number_raw . '?text=' . rawurlencode( $whatsapp_message );
-		?>
-		<a href="<?php echo esc_url( $wa_url ); ?>"
-			target="_blank" rel="noopener noreferrer"
-			class="ap-btn"
-			style="background: #25D366; color: white; justify-content: center; padding: 14px;"
-			data-ap-tooltip="<?php echo esc_attr( 'Enviar mensagem via WhatsApp' ); ?>">
-			<i class="ri-whatsapp-line" style="font-size: 20px;"></i>
-			<?php echo esc_html( 'Chamar no WhatsApp' ); ?>
-		</a>
-		<?php endif; ?>
-
-		<?php if ( $contact_phone ) : ?>
-		<a href="tel:+55<?php echo esc_attr( preg_replace( '/\D/', '', $contact_phone ) ); ?>"
-			class="ap-btn ap-btn-outline"
-			style="justify-content: center; padding: 14px;"
-			data-ap-tooltip="Ligar para o anunciante">
-			<i class="ri-phone-line" style="font-size: 20px;"></i>
-			<?php echo esc_html( $contact_phone ); ?>
-		</a>
-		<?php endif; ?>
-
-		<?php if ( ! $contact_whatsapp && ! $contact_phone && ! is_user_logged_in() ) : ?>
-		<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"
-			class="ap-btn ap-btn-primary"
-			style="justify-content: center; padding: 14px;"
-			data-ap-tooltip="Faça login para enviar mensagem">
-			<i class="ri-mail-send-line" style="font-size: 20px;"></i>
-			Faça Login para Contatar
-		</a>
-		<?php endif; ?>
+	<?php if ( ! is_user_logged_in() ) : ?>
+	<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"
+		class="ap-btn ap-btn-primary"
+		style="justify-content: center; padding: 14px;"
+		data-ap-tooltip="Faça login para enviar mensagem">
+		<i class="ri-mail-send-line" style="font-size: 20px;"></i>
+		Faça Login para Contatar
+	</a>
+	<?php endif; ?>
 	</div>
 	</div>
 
@@ -407,11 +411,11 @@ get_header();
 		'post_status'    => 'publish',
 		'posts_per_page' => 4,
 		'post__not_in'   => array( $classified_id ),
-		'meta_query'     => array(
+		'tax_query'      => array(
 			array(
-				'key'     => '_classified_category',
-				'value'   => $category,
-				'compare' => '=',
+				'taxonomy' => 'classified_domain',
+				'field'    => 'slug',
+				'terms'    => $domain,
 			),
 		),
 	);
@@ -427,18 +431,25 @@ get_header();
 		<?php
 		while ( $related->have_posts() ) :
 			$related->the_post();
-			$rel_price = get_post_meta( get_the_ID(), '_classified_price', true );
-			$rel_thumb = get_the_post_thumbnail_url( get_the_ID(), 'medium' );
+			$rel_id = get_the_ID();
+			$rel_price = get_post_meta( $rel_id, '_classified_price', true );
+			$rel_thumb = get_the_post_thumbnail_url( $rel_id, 'medium' );
+			$rel_domain_terms = wp_get_post_terms( $rel_id, 'classified_domain', array( 'fields' => 'slugs' ) );
+			$rel_domain = ! empty( $rel_domain_terms ) ? $rel_domain_terms[0] : 'ingressos';
+			$rel_domain_config = $domain_labels[ $rel_domain ] ?? array( 'icon' => 'ri-price-tag-fill' );
 			?>
 		<a href="<?php the_permalink(); ?>" class="ap-card" style="padding: 0; overflow: hidden; text-decoration: none;">
-		<div style="aspect-ratio: 4/3; background: var((--bg-main)-muted);">
+		<div style="aspect-ratio: 4/3; background: var((--bg-main)-muted); position: relative;">
 			<?php if ( $rel_thumb ) : ?>
 			<img src="<?php echo esc_url( $rel_thumb ); ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
 			<?php endif; ?>
+			<span class="ap-advert-category-badge" style="position: absolute; top: 8px; left: 8px; font-size: 12px;">
+			<i class="<?php echo esc_attr( $rel_domain_config['icon'] ); ?>"></i>
+			</span>
 		</div>
 		<div style="padding: 10px;">
 			<span style="font-size: 14px; font-weight: 700; color: var(--ap-orange-500);">
-			R$ <?php echo esc_html( $rel_price ? number_format( (float) $rel_price, 0, ',', '.' ) : '—' ); ?>
+			<?php echo esc_html( $currency_symbol ); ?> <?php echo esc_html( $rel_price ? number_format( (float) $rel_price, 0, ',', '.' ) : '—' ); ?>
 			</span>
 			<h3 style="font-size: 12px; color: var(--ap-text-primary); margin: 4px 0 0; line-height: 1.3;">
 			<?php the_title(); ?>
@@ -469,6 +480,44 @@ get_header();
 		<?php get_template_part( 'partials/social-bottom-bar' ); ?>
 
 	</div>
+	</div>
+
+	<!-- ====================================================================
+		[SAFETY MODAL] Anti-Scam Guardrail
+		==================================================================== -->
+	<div id="apollo-safety-modal" class="ap-modal" style="display: none;">
+		<div class="ap-modal-overlay" onclick="document.getElementById('apollo-safety-modal').style.display='none';"></div>
+		<div class="ap-modal-content ap-modal-sm">
+			<div class="ap-modal-header">
+				<h3><i class="ri-shield-check-line"></i> Dicas de Segurança</h3>
+				<button class="ap-modal-close" onclick="document.getElementById('apollo-safety-modal').style.display='none';">
+					<i class="ri-close-line"></i>
+				</button>
+			</div>
+			<div class="ap-modal-body">
+				<p>Antes de iniciar uma conversa, lembre-se:</p>
+				<ul class="ap-safety-tips">
+					<li><i class="ri-check-line"></i> Nunca envie dinheiro antecipadamente</li>
+					<li><i class="ri-check-line"></i> Verifique a reputação do vendedor</li>
+					<li><i class="ri-check-line"></i> Prefira encontros em locais públicos</li>
+					<li><i class="ri-check-line"></i> Use o chat interno para negociações</li>
+					<li><i class="ri-check-line"></i> A Apollo Social não processa pagamentos</li>
+				</ul>
+				<p>
+					<a href="https://dicas.apollo.rio.br" target="_blank" class="ap-link">
+						<i class="ri-external-link-line"></i> Leia mais sobre segurança
+					</a>
+				</p>
+			</div>
+			<div class="ap-modal-footer">
+				<button class="ap-btn ap-btn-outline" onclick="document.getElementById('apollo-safety-modal').style.display='none';">
+					Cancelar
+				</button>
+				<button id="apollo-safety-confirm" class="ap-btn ap-btn-primary">
+					Entendi, continuar
+				</button>
+			</div>
+		</div>
 	</div>
 
 <?php get_footer(); ?>

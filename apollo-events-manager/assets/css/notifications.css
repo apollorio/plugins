@@ -1,0 +1,626 @@
+/**
+ * Apollo Events Manager - Notifications Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+
+:root {
+    --apollo-notify-primary: #7c3aed;
+    --apollo-notify-primary-hover: #6d28d9;
+    --apollo-notify-success: #10b981;
+    --apollo-notify-warning: #f59e0b;
+    --apollo-notify-danger: #ef4444;
+    --apollo-notify-bg: #ffffff;
+    --apollo-notify-text: #1f2937;
+    --apollo-notify-text-muted: #6b7280;
+    --apollo-notify-border: #e5e7eb;
+    --apollo-notify-radius: 8px;
+    --apollo-notify-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Notify Button Wrapper
+   ========================================================================== */
+
+.apollo-notify-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.apollo-notify-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--apollo-notify-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--apollo-notify-radius);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.apollo-notify-btn:hover {
+    background: var(--apollo-notify-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--apollo-notify-shadow);
+}
+
+.apollo-notify-btn:active {
+    transform: translateY(0);
+}
+
+.apollo-notify-btn i {
+    font-size: 1rem;
+}
+
+.apollo-notify-btn.is-subscribed {
+    background: var(--apollo-notify-success);
+}
+
+.apollo-notify-btn.is-subscribed:hover {
+    background: #059669;
+}
+
+.apollo-notify-btn.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.apollo-notify-btn.is-loading i {
+    animation: apollo-notify-spin 1s linear infinite;
+}
+
+@keyframes apollo-notify-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   Email Form (For Guests)
+   ========================================================================== */
+
+.apollo-notify-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.apollo-notify-form input[type="email"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--apollo-notify-border);
+    border-radius: var(--apollo-notify-radius);
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apollo-notify-form input[type="email"]:focus {
+    outline: none;
+    border-color: var(--apollo-notify-primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.apollo-notify-form .apollo-notify-btn {
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Notification Preferences
+   ========================================================================== */
+
+.apollo-notification-preferences {
+    max-width: 600px;
+    padding: 1.5rem;
+    background: var(--apollo-notify-bg);
+    border-radius: var(--apollo-notify-radius);
+    box-shadow: var(--apollo-notify-shadow);
+}
+
+.apollo-notification-preferences h3 {
+    margin: 0 0 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--apollo-notify-border);
+    font-size: 1.25rem;
+    color: var(--apollo-notify-text);
+}
+
+.apollo-preferences-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.apollo-pref-group {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--apollo-notify-border);
+}
+
+.apollo-pref-group:last-of-type {
+    border-bottom: none;
+}
+
+.apollo-pref-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    color: var(--apollo-notify-text);
+}
+
+.apollo-pref-group input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--apollo-notify-primary);
+    cursor: pointer;
+}
+
+.apollo-pref-group select {
+    margin-left: auto;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--apollo-notify-border);
+    border-radius: var(--apollo-notify-radius);
+    font-size: 0.875rem;
+    background: #fff;
+    cursor: pointer;
+}
+
+.apollo-pref-group select:focus {
+    outline: none;
+    border-color: var(--apollo-notify-primary);
+}
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+
+.apollo-toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.apollo-toast {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--apollo-notify-bg);
+    border-radius: var(--apollo-notify-radius);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    animation: apollo-toast-in 0.3s ease;
+    max-width: 360px;
+}
+
+.apollo-toast.is-exiting {
+    animation: apollo-toast-out 0.3s ease forwards;
+}
+
+@keyframes apollo-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes apollo-toast-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.apollo-toast__icon {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1rem;
+}
+
+.apollo-toast--success .apollo-toast__icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--apollo-notify-success);
+}
+
+.apollo-toast--error .apollo-toast__icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--apollo-notify-danger);
+}
+
+.apollo-toast--info .apollo-toast__icon {
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--apollo-notify-primary);
+}
+
+.apollo-toast__message {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--apollo-notify-text);
+}
+
+.apollo-toast__close {
+    flex-shrink: 0;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--apollo-notify-text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.apollo-toast__close:hover {
+    color: var(--apollo-notify-text);
+}
+
+/* ==========================================================================
+   Notification Badge
+   ========================================================================== */
+
+.apollo-notification-badge {
+    position: relative;
+    display: inline-block;
+}
+
+.apollo-notification-badge__count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: var(--apollo-notify-danger);
+    color: #fff;
+    border-radius: 9px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+}
+
+.apollo-notification-badge__count:empty {
+    display: none;
+}
+
+/* ==========================================================================
+   Notification Center
+   ========================================================================== */
+
+.apollo-notification-center {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    background: var(--apollo-notify-bg);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.apollo-notification-center.is-open {
+    transform: translateX(0);
+}
+
+.apollo-notification-center__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--apollo-notify-border);
+}
+
+.apollo-notification-center__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--apollo-notify-text);
+}
+
+.apollo-notification-center__close {
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--apollo-notify-text-muted);
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+
+.apollo-notification-center__body {
+    height: calc(100% - 72px);
+    overflow-y: auto;
+}
+
+.apollo-notification-center__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--apollo-notify-text-muted);
+}
+
+.apollo-notification-center__empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* ==========================================================================
+   Notification Item
+   ========================================================================== */
+
+.apollo-notification-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--apollo-notify-border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.apollo-notification-item:hover {
+    background: #f9fafb;
+}
+
+.apollo-notification-item.is-unread {
+    background: rgba(124, 58, 237, 0.03);
+}
+
+.apollo-notification-item.is-unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--apollo-notify-primary);
+}
+
+.apollo-notification-item__icon {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--apollo-notify-primary);
+    border-radius: 50%;
+    font-size: 1rem;
+}
+
+.apollo-notification-item__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.apollo-notification-item__title {
+    margin: 0 0 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--apollo-notify-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apollo-notification-item__message {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--apollo-notify-text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.apollo-notification-item__time {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--apollo-notify-text-muted);
+}
+
+/* ==========================================================================
+   Subscription Card
+   ========================================================================== */
+
+.apollo-subscription-card {
+    padding: 1.5rem;
+    background: var(--apollo-notify-bg);
+    border: 1px solid var(--apollo-notify-border);
+    border-radius: var(--apollo-notify-radius);
+}
+
+.apollo-subscription-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.apollo-subscription-card__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--apollo-notify-primary);
+    border-radius: 50%;
+    font-size: 1.25rem;
+}
+
+.apollo-subscription-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--apollo-notify-text);
+}
+
+.apollo-subscription-card__description {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    color: var(--apollo-notify-text-muted);
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   Email Preview
+   ========================================================================== */
+
+.apollo-email-preview {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background: #f5f5f5;
+    border-radius: var(--apollo-notify-radius);
+}
+
+.apollo-email-preview__container {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.apollo-email-preview__header {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    padding: 30px;
+    text-align: center;
+}
+
+.apollo-email-preview__header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.apollo-email-preview__body {
+    padding: 30px;
+}
+
+.apollo-email-preview__footer {
+    background: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* ==========================================================================
+   Admin Styles
+   ========================================================================== */
+
+.apollo-notifications-admin {
+    max-width: 800px;
+}
+
+.apollo-notifications-admin .form-table th {
+    width: 200px;
+}
+
+.apollo-notifications-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.apollo-notifications-stat {
+    padding: 1.25rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.apollo-notifications-stat__value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #7c3aed;
+}
+
+.apollo-notifications-stat__label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .apollo-notify-form {
+        flex-direction: column;
+    }
+
+    .apollo-notify-form input[type="email"] {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .apollo-notify-form .apollo-notify-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .apollo-notification-center {
+        max-width: 100%;
+    }
+
+    .apollo-toast-container {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .apollo-toast {
+        max-width: none;
+    }
+
+    .apollo-notification-preferences {
+        padding: 1rem;
+    }
+
+    .apollo-pref-group label {
+        flex-wrap: wrap;
+    }
+
+    .apollo-pref-group select {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+}

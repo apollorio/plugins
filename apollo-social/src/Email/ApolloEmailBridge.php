@@ -56,9 +56,10 @@ class ApolloEmailBridge {
 		// Admin menu for email settings
 		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
 
-		// AJAX handlers
-		add_action( 'wp_ajax_apollo_send_test_email', array( $this, 'ajaxSendTestEmail' ) );
-		add_action( 'wp_ajax_apollo_save_email_template', array( $this, 'ajaxSaveTemplate' ) );
+		// AJAX handlers - DELEGATED TO APOLLO-CORE to avoid duplicity
+		// apollo-core/includes/class-apollo-email-integration.php handles:
+		// - wp_ajax_apollo_send_test_email
+		// - wp_ajax_apollo_save_email_template
 	}
 
 	/**

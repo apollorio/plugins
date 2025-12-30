@@ -143,9 +143,26 @@ function apollo_ajax_load_event_modal()
 
 /**
  * Register toggle interest AJAX handlers
+ * DEPRECATED: Use Interest_Module's apollo_toggle_interest action instead
+ * This handler is kept for backward compatibility only
  */
-add_action('wp_ajax_apollo_toggle_event_interest', 'apollo_ajax_toggle_event_interest');
-add_action('wp_ajax_nopriv_apollo_toggle_event_interest', 'apollo_ajax_toggle_event_interest');
+add_action('wp_ajax_apollo_toggle_event_interest', 'apollo_ajax_toggle_event_interest_compat');
+add_action('wp_ajax_nopriv_apollo_toggle_event_interest', 'apollo_ajax_toggle_event_interest_compat');
+
+function apollo_ajax_toggle_event_interest_compat() {
+    if (class_exists('Interest_Module')) {
+        global $apollo_events_bootloader;
+        if (isset($apollo_events_bootloader) && method_exists($apollo_events_bootloader, 'get_module')) {
+            $module = $apollo_events_bootloader->get_module('interest');
+            if ($module && method_exists($module, 'ajax_toggle_interest')) {
+                $_POST['event_id'] = isset($_POST['event_id']) ? absint($_POST['event_id']) : 0;
+                $module->ajax_toggle_interest();
+                return;
+            }
+        }
+    }
+    apollo_ajax_toggle_event_interest();
+}
 
 /**
  * AJAX Handler: Toggle user interest in an event
@@ -187,17 +204,14 @@ function apollo_ajax_toggle_event_interest()
         $is_interested = in_array($user_id, $interested_users, true);
 
         if ($is_interested) {
-            // Remove user from interested list
             $interested_users = array_diff($interested_users, [$user_id]);
             $action = 'removed';
         } else {
-            // Add user to interested list
             $interested_users[] = $user_id;
             $action = 'added';
         }
 
-        // Update post meta
-        update_post_meta($event_id, '_apollo_interested_user_ids', array_values($interested_users));
+        update_post_meta($event_id, '_event_interested_users', array_values($interested_users));
 
         // Build user data with avatars
         $users_data = [];

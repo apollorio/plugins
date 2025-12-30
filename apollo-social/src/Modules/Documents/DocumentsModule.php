@@ -29,6 +29,9 @@ declare(strict_types=1);
 
 namespace Apollo\Modules\Documents;
 
+use Apollo\Infrastructure\FeatureFlags;
+use Apollo\Infrastructure\Http\Apollo_Router;
+
 use Apollo\Modules\Signatures\AuditLog;
 
 /**
@@ -47,6 +50,11 @@ class DocumentsModule {
 	 */
 	public static function init(): void {
 		if ( self::$initialized ) {
+			return;
+		}
+
+		// Respect feature flag to avoid registering when disabled.
+		if ( FeatureFlags::isDisabled( 'documents' ) ) {
 			return;
 		}
 
@@ -87,7 +95,11 @@ class DocumentsModule {
 	/**
 	 * Activate module (create tables)
 	 */
-	public static function activate(): void {
+	public static function activate( bool $with_flush = true ): void {
+		if ( FeatureFlags::isDisabled( 'documents' ) ) {
+			return;
+		}
+
 		// Create document libraries tables
 		$libraries = new DocumentLibraries();
 		$libraries->createTables();
@@ -100,8 +112,14 @@ class DocumentsModule {
 		$audit = new AuditLog();
 		$audit->createTables();
 
-		// Flush rewrite rules
-		flush_rewrite_rules();
+		// Flush rewrite rules (only on activation, not on runtime upgrades)
+		if ( $with_flush ) {
+			if ( class_exists( Apollo_Router::class ) ) {
+				Apollo_Router::flush();
+			} else {
+				flush_rewrite_rules();
+			}
+		}
 
 		// Set version
 		update_option( 'apollo_documents_version', self::VERSION );
@@ -115,7 +133,8 @@ class DocumentsModule {
 		$current_version = get_option( 'apollo_documents_version', '0.0.0' );
 
 		if ( version_compare( $current_version, self::VERSION, '<' ) ) {
-			self::activate();
+			// Run migrations without runtime flush to avoid frontend impact.
+			self::activate( false );
 		}
 	}
 
@@ -123,6 +142,10 @@ class DocumentsModule {
 	 * Register REST endpoints
 	 */
 	public static function registerEndpoints(): void {
+		if ( FeatureFlags::isDisabled( 'documents' ) ) {
+			return;
+		}
+
 		$endpoints = new SignatureEndpoints();
 		$endpoints->registerRoutes();
 	}

@@ -405,6 +405,30 @@ if ( file_exists( $cross_integration ) ) {
 	require_once $cross_integration;
 }
 
+// Apollo Analytics - Self-hosted tracking system (no external dependencies).
+$apollo_analytics = APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-analytics.php';
+if ( file_exists( $apollo_analytics ) ) {
+	require_once $apollo_analytics;
+}
+
+// Apollo User Stats Widget - Frontend stats display.
+$user_stats_widget = APOLLO_CORE_PLUGIN_DIR . 'includes/class-user-stats-widget.php';
+if ( file_exists( $user_stats_widget ) ) {
+	require_once $user_stats_widget;
+}
+
+// Apollo Interesse Ranking - Taxonomy scoring based on user interests.
+$interesse_ranking = APOLLO_CORE_PLUGIN_DIR . 'includes/class-interesse-ranking.php';
+if ( file_exists( $interesse_ranking ) ) {
+	require_once $interesse_ranking;
+}
+
+// Apollo User Dashboard Interesse - Private user dashboard with top sounds.
+$user_dashboard = APOLLO_CORE_PLUGIN_DIR . 'includes/class-user-dashboard-interesse.php';
+if ( file_exists( $user_dashboard ) ) {
+	require_once $user_dashboard;
+}
+
 // Initialize mod and modules systems.
 add_action(
 	'plugins_loaded',
@@ -457,6 +481,31 @@ if ( file_exists( $smoke_tests ) ) {
 $main_class_file = APOLLO_CORE_PLUGIN_DIR . 'includes/class-apollo-core.php';
 if ( file_exists( $main_class_file ) ) {
 	require_once $main_class_file;
+}
+
+/**
+ * Track an event with Apollo Analytics (self-hosted, no external dependencies).
+ *
+ * @param array $event_data The event data to track (should contain 'type', 'user_id', 'post_id', 'data').
+ * @return void
+ */
+function apollo_track_event( $event_data ) {
+	// Use Apollo Analytics class for tracking
+	if ( class_exists( '\\Apollo_Core\\Analytics' ) ) {
+		$event_type = $event_data['type'] ?? 'custom_event';
+		$user_id    = $event_data['user_id'] ?? get_current_user_id();
+		$post_id    = $event_data['post_id'] ?? 0;
+		$extra_data = $event_data['data'] ?? $event_data;
+
+		\Apollo_Core\Analytics::track_event( $event_type, $user_id, $post_id, $extra_data );
+	}
+
+	// Also add inline script for client-side tracking
+	wp_add_inline_script( 'apollo-analytics-tracker', "
+		if ( typeof window.apolloTrack === 'function' ) {
+			window.apolloTrack('custom_event', " . wp_json_encode( $event_data ) . ");
+		}
+	" );
 }
 
 // Mark core as bootstrapped for child plugins dependency check.

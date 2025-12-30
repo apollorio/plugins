@@ -209,6 +209,7 @@ class Plugin {
 			new \Apollo\Modules\Shortcodes\ShortcodeServiceProvider(),
 			new \Apollo\Modules\Pwa\PwaServiceProvider(),
 			new \Apollo\Infrastructure\Providers\AnalyticsServiceProvider(),
+			new \Apollo\Modules\Classifieds\ClassifiedsServiceProvider(),
 		);
 
 		// Load Events Manager Integration (read-only access to event_dj and event_local CPTs).

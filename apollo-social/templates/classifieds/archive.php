@@ -15,11 +15,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Query classifieds.
 $current_page = get_query_var( 'paged' ) ? absint( get_query_var( 'paged' ) ) : 1;
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
-$category_filter = isset( $_GET['cat'] ) ? sanitize_text_field( wp_unslash( $_GET['cat'] ) ) : '';
+$domain_filter = isset( $_GET['domain'] ) ? sanitize_text_field( wp_unslash( $_GET['domain'] ) ) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$intent_filter = isset( $_GET['intent'] ) ? sanitize_text_field( wp_unslash( $_GET['intent'] ) ) : '';
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
 $search_query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
 $sort_by = isset( $_GET['sort'] ) ? sanitize_text_field( wp_unslash( $_GET['sort'] ) ) : 'recent';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( wp_unslash( $_GET['date_from'] ) ) : '';
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public archive filters, no data modification.
+$date_to = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET['date_to'] ) ) : '';
 
 $args = array(
 	'post_type'      => 'apollo_classified',
@@ -30,19 +36,63 @@ $args = array(
 	'order'          => 'DESC',
 );
 
-// Apply filters.
-$meta_query = array();
+// Apply taxonomy filters.
+$tax_query = array();
 
-if ( $category_filter ) {
-	$meta_query[] = array(
-		'key'     => '_classified_category',
-		'value'   => $category_filter,
-		'compare' => '=',
+if ( $domain_filter && in_array( $domain_filter, array( 'ingressos', 'acomodacao' ), true ) ) {
+	$tax_query[] = array(
+		'taxonomy' => 'classified_domain',
+		'field'    => 'slug',
+		'terms'    => $domain_filter,
 	);
 }
 
+if ( $intent_filter && in_array( $intent_filter, array( 'ofereco', 'procuro' ), true ) ) {
+	$tax_query[] = array(
+		'taxonomy' => 'classified_intent',
+		'field'    => 'slug',
+		'terms'    => $intent_filter,
+	);
+}
+
+if ( ! empty( $tax_query ) ) {
+	$args['tax_query'] = $tax_query;
+}
+
+// Apply meta filters for dates.
+$meta_query = array();
+
+if ( $date_from || $date_to ) {
+	if ( $domain_filter === 'ingressos' ) {
+		$date_meta_key = '_classified_event_date';
+	} elseif ( $domain_filter === 'acomodacao' ) {
+		$date_meta_key = '_classified_start_date';
+	} else {
+		// If no domain, skip date filter
+		$date_from = '';
+		$date_to = '';
+	}
+
+	if ( $date_from ) {
+		$meta_query[] = array(
+			'key'     => $date_meta_key,
+			'value'   => $date_from,
+			'compare' => '>=',
+			'type'    => 'NUMERIC',
+		);
+	}
+
+	if ( $date_to ) {
+		$meta_query[] = array(
+			'key'     => $date_meta_key,
+			'value'   => $date_to,
+			'compare' => '<=',
+			'type'    => 'NUMERIC',
+		);
+	}
+}
+
 if ( ! empty( $meta_query ) ) {
-    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for category filtering.
 	$args['meta_query'] = $meta_query;
 }
 
@@ -65,27 +115,29 @@ if ( $sort_by === 'price-low' ) {
 
 $classifieds = new WP_Query( $args );
 
-// Categories configuration.
-$categories = array(
-	'tickets'   => array(
+// Domains configuration.
+$domains = array(
+	'ingressos'   => array(
 		'label' => 'Ingressos',
 		'icon'  => 'ri-ticket-2-line',
-		'badge' => '',
+		'badge' => 'ap-badge-tickets',
 	),
-	'bedroom'   => array(
-		'label' => 'Quartos',
+	'acomodacao'  => array(
+		'label' => 'Acomodação',
 		'icon'  => 'ri-home-heart-line',
-		'badge' => 'ap-badge-bedroom',
+		'badge' => 'ap-badge-accommodation',
 	),
-	'equipment' => array(
-		'label' => 'Equipamentos',
-		'icon'  => 'ri-sound-module-line',
-		'badge' => 'ap-badge-equipment',
+);
+
+// Intents configuration.
+$intents = array(
+	'ofereco' => array(
+		'label' => 'Ofereço',
+		'icon'  => 'ri-add-circle-line',
 	),
-	'services'  => array(
-		'label' => 'Serviços',
-		'icon'  => 'ri-service-line',
-		'badge' => 'ap-badge-service',
+	'procuro' => array(
+		'label' => 'Procuro',
+		'icon'  => 'ri-search-line',
 	),
 );
 
@@ -93,6 +145,17 @@ $categories = array(
 if ( function_exists( 'apollo_ensure_base_assets' ) ) {
 	apollo_ensure_base_assets();
 }
+
+// Enqueue classified contact JS
+wp_enqueue_script( 'apollo-classified-contact', APOLLO_SOCIAL_PLUGIN_URL . 'assets/js/classified-contact.js', array( 'jquery' ), APOLLO_SOCIAL_VERSION, true );
+
+// Localize classified contact
+wp_localize_script( 'apollo-classified-contact', 'apolloClassifiedContact', array(
+	'restUrl' => rest_url( 'apollo-social/v1' ),
+	'nonce'   => wp_create_nonce( 'wp_rest' ),
+	'loginUrl' => wp_login_url( get_permalink() ),
+	'isLoggedIn' => is_user_logged_in(),
+) );
 
 get_header();
 ?>
@@ -196,25 +259,58 @@ get_header();
 						value="<?php echo esc_attr( $search_query ); ?>"
 						placeholder="Buscar ingressos, quartos, equipamentos..."
 						data-ap-tooltip="Digite para buscar anúncios">
-				<?php if ( $category_filter ) : ?>
-				<input type="hidden" name="cat" value="<?php echo esc_attr( $category_filter ); ?>">
+				<?php if ( $domain_filter ) : ?>
+				<input type="hidden" name="domain" value="<?php echo esc_attr( $domain_filter ); ?>">
+				<?php endif; ?>
+				<?php if ( $intent_filter ) : ?>
+				<input type="hidden" name="intent" value="<?php echo esc_attr( $intent_filter ); ?>">
+				<?php endif; ?>
+				<?php if ( $date_from ) : ?>
+				<input type="hidden" name="date_from" value="<?php echo esc_attr( $date_from ); ?>">
+				<?php endif; ?>
+				<?php if ( $date_to ) : ?>
+				<input type="hidden" name="date_to" value="<?php echo esc_attr( $date_to ); ?>">
 				<?php endif; ?>
 				</form>
 			</div>
 
-			<!-- Category Tabs -->
+			<!-- Domain Tabs -->
 			<div class="ap-filter-tabs ap-filter-tabs-pills">
-				<a href="<?php echo esc_url( remove_query_arg( array( 'cat', 'sort' ) ) ); ?>" class="ap-tab-pill <?php echo ! $category_filter ? 'active' : ''; ?>" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
+				<a href="<?php echo esc_url( remove_query_arg( array( 'domain', 'intent', 'date_from', 'date_to', 'sort' ) ) ); ?>" class="ap-tab-pill <?php echo ! $domain_filter ? 'active' : ''; ?>" data-filter="all" data-ap-tooltip="Mostrar todos os anúncios">
 				<i class="ri-apps-line"></i> Todos
 				</a>
 
-				<?php foreach ( $categories as $category_slug => $category_data ) : ?>
-				<a href="<?php echo esc_url( add_query_arg( 'cat', $category_slug ) ); ?>" class="ap-tab-pill <?php echo $category_filter === $category_slug ? 'active' : ''; ?>" data-filter="<?php echo esc_attr( $category_slug ); ?>" data-ap-tooltip="Filtrar por <?php echo esc_attr( $category_data['label'] ); ?>">
-					<i class="<?php echo esc_attr( $category_data['icon'] ); ?>"></i>
-					<?php echo esc_html( $category_data['label'] ); ?>
+				<?php foreach ( $domains as $domain_slug => $domain_data ) : ?>
+				<a href="<?php echo esc_url( add_query_arg( 'domain', $domain_slug, remove_query_arg( array( 'intent', 'date_from', 'date_to' ) ) ) ); ?>" class="ap-tab-pill <?php echo $domain_filter === $domain_slug ? 'active' : ''; ?>" data-filter="<?php echo esc_attr( $domain_slug ); ?>" data-ap-tooltip="Filtrar por <?php echo esc_attr( $domain_data['label'] ); ?>">
+					<i class="<?php echo esc_attr( $domain_data['icon'] ); ?>"></i>
+					<?php echo esc_html( $domain_data['label'] ); ?>
 				</a>
 				<?php endforeach; ?>
 			</div>
+
+			<!-- Intent Filters -->
+			<div class="ap-filter-tabs ap-filter-tabs-secondary">
+				<?php foreach ( $intents as $intent_slug => $intent_data ) : ?>
+				<a href="<?php echo esc_url( add_query_arg( 'intent', $intent_slug ) ); ?>" class="ap-tab-secondary <?php echo $intent_filter === $intent_slug ? 'active' : ''; ?>" data-intent="<?php echo esc_attr( $intent_slug ); ?>" data-ap-tooltip="<?php echo esc_attr( $intent_data['label'] ); ?>">
+					<i class="<?php echo esc_attr( $intent_data['icon'] ); ?>"></i>
+					<?php echo esc_html( $intent_data['label'] ); ?>
+				</a>
+				<?php endforeach; ?>
+			</div>
+
+			<!-- Date Filters (conditional) -->
+			<?php if ( $domain_filter ) : ?>
+			<div class="ap-date-filters">
+				<div class="ap-date-input-group">
+					<label for="date_from">De:</label>
+					<input type="date" name="date_from" id="date_from" value="<?php echo esc_attr( $date_from ); ?>" onchange="this.form.submit()">
+				</div>
+				<div class="ap-date-input-group">
+					<label for="date_to">Até:</label>
+					<input type="date" name="date_to" id="date_to" value="<?php echo esc_attr( $date_to ); ?>" onchange="this.form.submit()">
+				</div>
+			</div>
+			<?php endif; ?>
 
 			<!-- Sort & View Options -->
 			<div class="ap-classifieds-options">
@@ -250,54 +346,57 @@ get_header();
 			$author_initials = strtoupper( substr( $author_name, 0, 2 ) );
 
 			$price        = get_post_meta( $classified_id, '_classified_price', true );
-			$category_raw = get_post_meta( $classified_id, '_classified_category', true );
-			$category     = ! empty( $category_raw ) ? $category_raw : 'other';
-			$location     = get_post_meta( $classified_id, '_classified_location', true );
-			$event_title  = get_post_meta( $classified_id, '_classified_event_title', true );
-			$event_date   = get_post_meta( $classified_id, '_classified_event_date', true );
-			$event_venue  = get_post_meta( $classified_id, '_classified_event_venue', true );
-			$quantity_raw = get_post_meta( $classified_id, '_classified_quantity', true );
-			$quantity     = ! empty( $quantity_raw ) ? $quantity_raw : '1';
+			$currency     = get_post_meta( $classified_id, '_classified_currency', true ) ?: 'BRL';
+			$location     = get_post_meta( $classified_id, '_classified_location_text', true );
+
+			// Domain and intent taxonomies
+			$domain_terms = wp_get_post_terms( $classified_id, 'classified_domain', array( 'fields' => 'slugs' ) );
+			$intent_terms = wp_get_post_terms( $classified_id, 'classified_intent', array( 'fields' => 'slugs' ) );
+			$domain       = ! empty( $domain_terms ) ? $domain_terms[0] : 'ingressos';
+			$intent       = ! empty( $intent_terms ) ? $intent_terms[0] : 'ofereco';
+
+			// Domain-specific meta
+			if ( $domain === 'ingressos' ) {
+				$event_date  = get_post_meta( $classified_id, '_classified_event_date', true );
+				$event_title = get_post_meta( $classified_id, '_classified_event_title', true );
+			} elseif ( $domain === 'acomodacao' ) {
+				$start_date = get_post_meta( $classified_id, '_classified_start_date', true );
+				$end_date   = get_post_meta( $classified_id, '_classified_end_date', true );
+				$capacity   = get_post_meta( $classified_id, '_classified_capacity', true );
+			}
 
 			$price_display = $price ? number_format( (float) $price, 0, ',', '.' ) : '—';
 			$thumb         = get_the_post_thumbnail_url( $classified_id, 'medium' );
 
-			// Category config.
-			$cat_config = $categories[ $category ] ?? array(
+			// Domain config.
+			$domain_config = $domains[ $domain ] ?? array(
 				'label' => 'Outro',
 				'icon'  => 'ri-price-tag-line',
 				'badge' => '',
 			);
 
-			// Price unit based on category.
+			// Intent config.
+			$intent_config = $intents[ $intent ] ?? array(
+				'label' => 'Ofereço',
+				'icon'  => 'ri-add-circle-line',
+			);
+
+			// Price unit based on domain.
 			$price_units = array(
-				'tickets'   => '/unid',
-				'bedroom'   => '/mês',
-				'equipment' => '/dia',
-				'services'  => '/evento',
+				'ingressos'   => '',
+				'acomodacao'  => '/mês',
 			);
-			$price_unit  = $price_units[ $category ] ?? '';
+			$price_unit  = $price_units[ $domain ] ?? '';
 
-			// Quantity labels.
-			$quantity_icons = array(
-				'tickets'   => 'ri-ticket-line',
-				'bedroom'   => 'ri-door-open-line',
-				'equipment' => 'ri-box-3-line',
-				'services'  => 'ri-briefcase-line',
-			);
-			$quantity_icon  = $quantity_icons[ $category ] ?? 'ri-price-tag-line';
-
-			// Avatar gradient colors by category.
+			// Avatar gradient colors by domain.
 			$avatar_colors   = array(
-				'tickets'   => '#6366f1, #8b5cf6',
-				'bedroom'   => '#ec4899, #f472b6',
-				'equipment' => '#22c55e, #4ade80',
-				'services'  => '#3b82f6, #60a5fa',
+				'ingressos'   => '#6366f1, #8b5cf6',
+				'acomodacao'  => '#ec4899, #f472b6',
 			);
-			$avatar_gradient = $avatar_colors[ $category ] ?? '#f97316, #fb923c';
+			$avatar_gradient = $avatar_colors[ $domain ] ?? '#f97316, #fb923c';
 			?>
 
-		<a href="<?php the_permalink(); ?>" class="ap-advert-card" data-category="<?php echo esc_attr( $category ); ?>" data-price="<?php echo esc_attr( $price ); ?>">
+		<a href="<?php the_permalink(); ?>" class="ap-advert-card" data-domain="<?php echo esc_attr( $domain ); ?>" data-intent="<?php echo esc_attr( $intent ); ?>" data-price="<?php echo esc_attr( $price ); ?>">
 		<div class="ap-advert-body">
 			<div class="ap-advert-top">
 			<div class="ap-advert-author">
@@ -311,9 +410,12 @@ get_header();
 			</div>
 			<div class="ap-advert-event">
 				<div class="ap-advert-event-info">
-				<?php if ( $category === 'tickets' && $event_title ) : ?>
+				<?php if ( $domain === 'ingressos' && $event_title ) : ?>
 				<span class="ap-advert-event-title"><?php echo esc_html( $event_title ); ?></span>
-				<span class="ap-advert-event-meta"><?php echo esc_html( $event_date . ' @ ' . $event_venue ); ?></span>
+				<span class="ap-advert-event-meta"><?php echo esc_html( $event_date ? date( 'd/m/Y', strtotime( $event_date ) ) : '' ); ?></span>
+				<?php elseif ( $domain === 'acomodacao' ) : ?>
+				<span class="ap-advert-event-title"><?php the_title(); ?></span>
+				<span class="ap-advert-event-meta"><?php echo esc_html( $start_date && $end_date ? date( 'd/m', strtotime( $start_date ) ) . ' - ' . date( 'd/m', strtotime( $end_date ) ) : 'Período disponível' ); ?></span>
 				<?php else : ?>
 				<span class="ap-advert-event-title"><?php the_title(); ?></span>
 				<span class="ap-advert-event-meta"><?php echo esc_html( ! empty( $location ) ? $location : 'Rio de Janeiro' ); ?></span>
@@ -327,19 +429,22 @@ get_header();
 			<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>">
 			<?php else : ?>
 			<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var((--bg-main)-muted);">
-				<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>" style="font-size:48px;color:var(--ap-text-muted);"></i>
+				<i class="<?php echo esc_attr( $domain_config['icon'] ); ?>" style="font-size:48px;color:var(--ap-text-muted);"></i>
 			</div>
 			<?php endif; ?>
-			<span class="ap-advert-category-badge <?php echo esc_attr( $cat_config['badge'] ); ?>">
-				<i class="<?php echo esc_attr( $cat_config['icon'] ); ?>"></i> <?php echo esc_html( $cat_config['label'] ); ?>
+			<span class="ap-advert-category-badge <?php echo esc_attr( $domain_config['badge'] ); ?>">
+				<i class="<?php echo esc_attr( $domain_config['icon'] ); ?>"></i> <?php echo esc_html( $domain_config['label'] ); ?>
+			</span>
+			<span class="ap-advert-intent-badge">
+				<i class="<?php echo esc_attr( $intent_config['icon'] ); ?>"></i> <?php echo esc_html( $intent_config['label'] ); ?>
 			</span>
 			</div>
 		</div>
 
 		<div class="ap-advert-info">
-			<div class="ap-advert-quantity">
-			<i class="<?php echo esc_attr( $quantity_icon ); ?>"></i>
-			<span><b><?php echo esc_html( $quantity ); ?>x</b> <?php echo esc_html( $cat_config['label'] ); ?></span>
+			<div class="ap-advert-location">
+			<i class="ri-map-pin-line"></i>
+			<span><?php echo esc_html( ! empty( $location ) ? $location : 'Rio de Janeiro' ); ?></span>
 			</div>
 			<div class="ap-advert-price">
 			<span class="ap-price-currency">R$</span>
@@ -352,8 +457,8 @@ get_header();
 			<button type="button" class="ap-advert-btn ap-advert-btn-secondary" data-ap-tooltip="Ver perfil do vendedor" onclick="event.preventDefault(); window.location='<?php echo esc_url( home_url( '/id/' . ( $author ? $author->user_login : '' ) ) ); ?>'">
 			<i class="ri-user-search-line"></i> Investigar
 			</button>
-			<button type="button" class="ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Iniciar conversa" onclick="event.preventDefault(); apolloChat.open(<?php echo esc_attr( $author_id ); ?>);">
-			<i class="ri-chat-3-line"></i> Chat
+			<button type="button" class="ap-classified-contact-btn ap-advert-btn ap-advert-btn-primary" data-ap-tooltip="Falar no chat" data-ad-id="<?php echo esc_attr( $classified_id ); ?>" data-seller-id="<?php echo esc_attr( $author_id ); ?>" data-context="classified">
+			<i class="ri-chat-3-line"></i> Falar no chat
 			</button>
 		</div>
 		</a>
@@ -416,6 +521,44 @@ get_header();
 		<?php get_template_part( 'partials/social-bottom-bar' ); ?>
 
 	</div>
+	</div>
+
+	<!-- ====================================================================
+		[SAFETY MODAL] Anti-Scam Guardrail
+		==================================================================== -->
+	<div id="apollo-safety-modal" class="ap-modal" style="display: none;">
+		<div class="ap-modal-overlay" onclick="document.getElementById('apollo-safety-modal').style.display='none';"></div>
+		<div class="ap-modal-content ap-modal-sm">
+			<div class="ap-modal-header">
+				<h3><i class="ri-shield-check-line"></i> Dicas de Segurança</h3>
+				<button class="ap-modal-close" onclick="document.getElementById('apollo-safety-modal').style.display='none';">
+					<i class="ri-close-line"></i>
+				</button>
+			</div>
+			<div class="ap-modal-body">
+				<p>Antes de iniciar uma conversa, lembre-se:</p>
+				<ul class="ap-safety-tips">
+					<li><i class="ri-check-line"></i> Nunca envie dinheiro antecipadamente</li>
+					<li><i class="ri-check-line"></i> Verifique a reputação do vendedor</li>
+					<li><i class="ri-check-line"></i> Prefira encontros em locais públicos</li>
+					<li><i class="ri-check-line"></i> Use o chat interno para negociações</li>
+					<li><i class="ri-check-line"></i> A Apollo Social não processa pagamentos</li>
+				</ul>
+				<p>
+					<a href="https://dicas.apollo.rio.br" target="_blank" class="ap-link">
+						<i class="ri-external-link-line"></i> Leia mais sobre segurança
+					</a>
+				</p>
+			</div>
+			<div class="ap-modal-footer">
+				<button class="ap-btn ap-btn-outline" onclick="document.getElementById('apollo-safety-modal').style.display='none';">
+					Cancelar
+				</button>
+				<button id="apollo-safety-confirm" class="ap-btn ap-btn-primary">
+					Entendi, continuar
+				</button>
+			</div>
+		</div>
 	</div>
 
 <?php get_footer(); ?>

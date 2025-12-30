@@ -581,6 +581,22 @@ if (file_exists($meta_helpers_file)) {
     apollo_log_missing_file($meta_helpers_file);
 }
 
+// =========================================================================
+// MODULAR SYSTEM - Apollo Events Manager v2.0+
+// Carrega o sistema modular para permitir feature flags e addons internos
+// =========================================================================
+$modular_loader_file = plugin_dir_path(__FILE__) . 'includes/core/loader.php';
+if (file_exists($modular_loader_file)) {
+    require_once $modular_loader_file;
+    // Inicializar sistema modular após plugins_loaded para permitir extensões
+    add_action('plugins_loaded', 'apollo_em_init_modular_system', 15);
+} else {
+    // Sistema modular não é obrigatório - plugin funciona sem ele
+    if (defined('WP_DEBUG') && WP_DEBUG && defined('APOLLO_DEBUG') && APOLLO_DEBUG) {
+        apollo_log_missing_file($modular_loader_file);
+    }
+}
+
 add_action(
     'init',
     static function () {

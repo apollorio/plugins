@@ -11,6 +11,10 @@
 namespace Apollo\Infrastructure\Http;
 
 use Apollo\Infrastructure\Http\Controllers\GroupsController;
+use Apollo\Infrastructure\Http\Controllers\NucleosController;
+use Apollo\Infrastructure\Http\Controllers\BolhaController;
+use Apollo\Infrastructure\Http\Controllers\EventsController;
+use Apollo\Infrastructure\Http\Controllers\GuestListController;
 use Apollo\Infrastructure\Http\Controllers\MembershipsController;
 use Apollo\Infrastructure\Http\Controllers\ClassifiedsController;
 use Apollo\Infrastructure\Http\Controllers\UsersController;
@@ -82,6 +86,59 @@ class RestRoutes {
 		);
 
 		// =====================================================================
+		// Núcleos routes (Private producer groups - invite only)
+		// =====================================================================
+		register_rest_route(
+			'apollo/v1',
+			'nucleos',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new NucleosController(), 'index' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'nucleos',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new NucleosController(), 'create' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'nucleos/(?P<id>\d+)/join',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new NucleosController(), 'join' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'nucleos/(?P<id>\d+)/invite',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new NucleosController(), 'invite' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'nucleos/(?P<id>\d+)/aprovar-join',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new NucleosController(), 'approveJoin' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		// =====================================================================
 		// Membro routes (Portuguese naming - primary routes)
 		// =====================================================================
 		register_rest_route(
@@ -123,6 +180,255 @@ class RestRoutes {
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( new MembershipsController(), 'toggleBadges' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		// =====================================================================
+		// Bolha routes (Friend Circles - Social connections)
+		// =====================================================================
+		register_rest_route(
+			'apollo/v1',
+			'bolha/pedir',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new BolhaController(), 'pedir' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/aceitar',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new BolhaController(), 'aceitar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/rejeitar',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new BolhaController(), 'rejeitar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/remover',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new BolhaController(), 'remover' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/listar',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new BolhaController(), 'listar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/pedidos',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new BolhaController(), 'pedidos' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/status/(?P<id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new BolhaController(), 'status' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'bolha/cancelar',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new BolhaController(), 'cancelar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		// =====================================================================
+		// Eventos routes (Events - event_listing CPT)
+		// =====================================================================
+		register_rest_route(
+			'apollo/v1',
+			'eventos',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new EventsController(), 'index' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/(?P<id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new EventsController(), 'show' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new EventsController(), 'create' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/(?P<id>\d+)',
+			array(
+				'methods'             => 'PUT',
+				'callback'            => array( new EventsController(), 'update' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/(?P<id>\d+)',
+			array(
+				'methods'             => 'DELETE',
+				'callback'            => array( new EventsController(), 'delete' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/proximos',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new EventsController(), 'proximos' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/passados',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new EventsController(), 'passados' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/(?P<id>\d+)/confirmar',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new EventsController(), 'confirmar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'eventos/(?P<id>\d+)/convidados',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new EventsController(), 'convidados' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		// =====================================================================
+		// Lista routes (Guest List management)
+		// =====================================================================
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new GuestListController(), 'index' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)/add',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GuestListController(), 'add' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)/checkin',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GuestListController(), 'checkin' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)/(?P<guest_id>\d+)',
+			array(
+				'methods'             => 'DELETE',
+				'callback'            => array( new GuestListController(), 'remove' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)/stats',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new GuestListController(), 'stats' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/(?P<event_id>\d+)/alocar',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new GuestListController(), 'alocar' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'lista/minhas',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new GuestListController(), 'minhas' ),
 				'permission_callback' => array( $this, 'requireLoggedIn' ),
 			)
 		);

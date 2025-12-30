@@ -381,6 +381,54 @@ class GroupsRepository {
 	}
 
 	/**
+	 * Get member role in a group
+	 *
+	 * @return string|null Role ('owner', 'admin', 'moderator', 'member', 'pending') or null if not a member
+	 */
+	public function getMemberRole( int $group_id, int $user_id ): ?string {
+		global $wpdb;
+
+		$members_table = $wpdb->prefix . 'apollo_group_members';
+
+		$role = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT role FROM {$members_table} WHERE group_id = %d AND user_id = %d",
+				$group_id,
+				$user_id
+			)
+		);
+
+		return $role ?: null;
+	}
+
+	/**
+	 * Update member role in a group
+	 */
+	public function updateMemberRole( int $group_id, int $user_id, string $new_role ): bool {
+		global $wpdb;
+
+		$members_table = $wpdb->prefix . 'apollo_group_members';
+
+		// Also update status to 'active' if changing from 'pending'
+		$result = $wpdb->update(
+			$members_table,
+			array(
+				'role'      => $new_role,
+				'status'    => 'active',
+				'joined_at' => current_time( 'mysql' ),
+			),
+			array(
+				'group_id' => $group_id,
+				'user_id'  => $user_id,
+			),
+			array( '%s', '%s', '%s' ),
+			array( '%d', '%d' )
+		);
+
+		return $result !== false;
+	}
+
+	/**
 	 * Map database row to GroupEntity
 	 */
 	private function mapToEntity( array $row ): GroupEntity {

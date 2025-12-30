@@ -34,6 +34,15 @@ class DocumentsRoutes {
 	}
 
 	/**
+	 * Require authenticated user with edit capability for write operations.
+	 */
+	private function requireEditorCapability(): void {
+		if ( ! is_user_logged_in() || ! current_user_can( 'edit_posts' ) ) {
+			wp_die( __( 'Permissão insuficiente.', 'apollo-social' ), 403 );
+		}
+	}
+
+	/**
 	 * Register query vars
 	 */
 	public function registerQueryVars( $vars ) {
@@ -134,6 +143,7 @@ class DocumentsRoutes {
 
 		// Se POST, criar documento
 		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+			$this->requireEditorCapability();
 			$title   = sanitize_text_field( $_POST['title'] ?? 'Novo Documento' );
 			$content = wp_kses_post( $_POST['content'] ?? '' );
 
@@ -177,6 +187,7 @@ class DocumentsRoutes {
 
 		// Se POST, atualizar documento
 		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+			$this->requireEditorCapability();
 			$content = wp_kses_post( $_POST['content'] ?? '' );
 			$title   = sanitize_text_field( $_POST['title'] ?? $document['title'] );
 
@@ -215,6 +226,7 @@ class DocumentsRoutes {
 
 		// Se POST, criar planilha
 		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+			$this->requireEditorCapability();
 			$title   = sanitize_text_field( $_POST['title'] ?? 'Nova Planilha' );
 			$content = wp_kses_post( $_POST['content'] ?? '' );
 
@@ -258,6 +270,7 @@ class DocumentsRoutes {
 
 		// Se POST, atualizar planilha
 		if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+			$this->requireEditorCapability();
 			$content = wp_kses_post( $_POST['content'] ?? '' );
 			$title   = sanitize_text_field( $_POST['title'] ?? $document['title'] );
 

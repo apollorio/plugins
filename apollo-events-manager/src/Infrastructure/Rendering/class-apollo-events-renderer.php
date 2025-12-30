@@ -16,11 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Apollo_Events_Renderer {
 
-	/**
-	 * Initialize renderer
-	 */
 	public static function init() {
-		add_shortcode( 'apollo_events', array( __CLASS__, 'render_events' ) );
+		if ( ! shortcode_exists( 'apollo_events' ) ) {
+			add_shortcode( 'apollo_events', array( __CLASS__, 'render_events' ) );
+		}
 	}
 
 	/**

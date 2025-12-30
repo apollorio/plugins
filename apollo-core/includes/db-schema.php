@@ -66,6 +66,194 @@ function create_db_tables(): void {
 		KEY created_at_idx (created_at)
 	) $charset_collate;";
 	dbDelta( $sql_audit_log );
+
+	// =========================================================================.
+	// APOLLO ADVANCED ANALYTICS TABLES.
+	// =========================================================================.
+
+	// Page views table - tracks all page views with detailed metrics.
+	$table_pageviews = $wpdb->prefix . 'apollo_analytics_pageviews';
+	$sql_pageviews   = "CREATE TABLE $table_pageviews (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		session_id varchar(64) NOT NULL,
+		user_id bigint(20) unsigned DEFAULT 0,
+		page_url varchar(2048) NOT NULL,
+		page_title varchar(500) DEFAULT NULL,
+		page_type varchar(50) DEFAULT 'page',
+		post_id bigint(20) unsigned DEFAULT NULL,
+		referrer varchar(2048) DEFAULT NULL,
+		user_agent varchar(500) DEFAULT NULL,
+		device_type enum('desktop','tablet','mobile') DEFAULT 'desktop',
+		browser varchar(50) DEFAULT NULL,
+		os varchar(50) DEFAULT NULL,
+		screen_width int(5) unsigned DEFAULT NULL,
+		screen_height int(5) unsigned DEFAULT NULL,
+		viewport_width int(5) unsigned DEFAULT NULL,
+		viewport_height int(5) unsigned DEFAULT NULL,
+		country_code varchar(2) DEFAULT NULL,
+		region varchar(100) DEFAULT NULL,
+		city varchar(100) DEFAULT NULL,
+		ip_hash varchar(64) DEFAULT NULL,
+		created_at datetime DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY session_idx (session_id),
+		KEY user_idx (user_id),
+		KEY page_type_idx (page_type),
+		KEY post_id_idx (post_id),
+		KEY created_at_idx (created_at),
+		KEY device_idx (device_type)
+	) $charset_collate;";
+	dbDelta( $sql_pageviews );
+
+	// User interactions table - clicks, scrolls, form interactions.
+	$table_interactions = $wpdb->prefix . 'apollo_analytics_interactions';
+	$sql_interactions   = "CREATE TABLE $table_interactions (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		session_id varchar(64) NOT NULL,
+		pageview_id bigint(20) unsigned DEFAULT NULL,
+		user_id bigint(20) unsigned DEFAULT 0,
+		interaction_type enum('click','scroll','hover','form_focus','form_submit','video_play','video_pause','download','outbound_link','custom') NOT NULL,
+		element_tag varchar(50) DEFAULT NULL,
+		element_id varchar(100) DEFAULT NULL,
+		element_class varchar(255) DEFAULT NULL,
+		element_text varchar(500) DEFAULT NULL,
+		element_href varchar(2048) DEFAULT NULL,
+		position_x int(10) DEFAULT NULL,
+		position_y int(10) DEFAULT NULL,
+		scroll_depth int(3) unsigned DEFAULT NULL,
+		scroll_direction enum('up','down') DEFAULT NULL,
+		viewport_percent int(3) unsigned DEFAULT NULL,
+		time_on_page int(10) unsigned DEFAULT 0,
+		extra_data longtext,
+		created_at datetime DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY session_idx (session_id),
+		KEY pageview_idx (pageview_id),
+		KEY user_idx (user_id),
+		KEY interaction_type_idx (interaction_type),
+		KEY created_at_idx (created_at)
+	) $charset_collate;";
+	dbDelta( $sql_interactions );
+
+	// Session table - aggregated session data.
+	$table_sessions = $wpdb->prefix . 'apollo_analytics_sessions';
+	$sql_sessions   = "CREATE TABLE $table_sessions (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		session_id varchar(64) NOT NULL,
+		user_id bigint(20) unsigned DEFAULT 0,
+		first_pageview_id bigint(20) unsigned DEFAULT NULL,
+		landing_page varchar(2048) DEFAULT NULL,
+		exit_page varchar(2048) DEFAULT NULL,
+		referrer varchar(2048) DEFAULT NULL,
+		utm_source varchar(255) DEFAULT NULL,
+		utm_medium varchar(255) DEFAULT NULL,
+		utm_campaign varchar(255) DEFAULT NULL,
+		utm_term varchar(255) DEFAULT NULL,
+		utm_content varchar(255) DEFAULT NULL,
+		device_type enum('desktop','tablet','mobile') DEFAULT 'desktop',
+		browser varchar(50) DEFAULT NULL,
+		os varchar(50) DEFAULT NULL,
+		country_code varchar(2) DEFAULT NULL,
+		pageviews_count int(10) unsigned DEFAULT 1,
+		interactions_count int(10) unsigned DEFAULT 0,
+		max_scroll_depth int(3) unsigned DEFAULT 0,
+		total_time_seconds int(10) unsigned DEFAULT 0,
+		is_bounce tinyint(1) DEFAULT 0,
+		ip_hash varchar(64) DEFAULT NULL,
+		started_at datetime DEFAULT CURRENT_TIMESTAMP,
+		ended_at datetime DEFAULT NULL,
+		PRIMARY KEY (id),
+		UNIQUE KEY session_id_unique (session_id),
+		KEY user_idx (user_id),
+		KEY started_at_idx (started_at),
+		KEY device_idx (device_type),
+		KEY is_bounce_idx (is_bounce)
+	) $charset_collate;";
+	dbDelta( $sql_sessions );
+
+	// User stats summary table - per-user aggregated statistics.
+	$table_user_stats = $wpdb->prefix . 'apollo_analytics_user_stats';
+	$sql_user_stats   = "CREATE TABLE $table_user_stats (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) unsigned NOT NULL,
+		stat_date date NOT NULL,
+		profile_views int(10) unsigned DEFAULT 0,
+		event_views int(10) unsigned DEFAULT 0,
+		post_views int(10) unsigned DEFAULT 0,
+		total_clicks int(10) unsigned DEFAULT 0,
+		total_scrolls int(10) unsigned DEFAULT 0,
+		avg_time_on_content int(10) unsigned DEFAULT 0,
+		unique_visitors int(10) unsigned DEFAULT 0,
+		returning_visitors int(10) unsigned DEFAULT 0,
+		social_shares int(10) unsigned DEFAULT 0,
+		comments_received int(10) unsigned DEFAULT 0,
+		likes_received int(10) unsigned DEFAULT 0,
+		followers_gained int(10) unsigned DEFAULT 0,
+		PRIMARY KEY (id),
+		UNIQUE KEY user_date_unique (user_id, stat_date),
+		KEY user_idx (user_id),
+		KEY stat_date_idx (stat_date)
+	) $charset_collate;";
+	dbDelta( $sql_user_stats );
+
+	// Content stats table - per-content aggregated statistics.
+	$table_content_stats = $wpdb->prefix . 'apollo_analytics_content_stats';
+	$sql_content_stats   = "CREATE TABLE $table_content_stats (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		post_id bigint(20) unsigned NOT NULL,
+		post_type varchar(50) NOT NULL,
+		author_id bigint(20) unsigned NOT NULL,
+		stat_date date NOT NULL,
+		views int(10) unsigned DEFAULT 0,
+		unique_views int(10) unsigned DEFAULT 0,
+		avg_time_seconds int(10) unsigned DEFAULT 0,
+		avg_scroll_depth int(3) unsigned DEFAULT 0,
+		clicks int(10) unsigned DEFAULT 0,
+		shares int(10) unsigned DEFAULT 0,
+		comments int(10) unsigned DEFAULT 0,
+		likes int(10) unsigned DEFAULT 0,
+		bounce_rate decimal(5,2) DEFAULT 0.00,
+		PRIMARY KEY (id),
+		UNIQUE KEY post_date_unique (post_id, stat_date),
+		KEY post_id_idx (post_id),
+		KEY author_idx (author_id),
+		KEY post_type_idx (post_type),
+		KEY stat_date_idx (stat_date)
+	) $charset_collate;";
+	dbDelta( $sql_content_stats );
+
+	// Heatmap data table - aggregated click/scroll positions.
+	$table_heatmap = $wpdb->prefix . 'apollo_analytics_heatmap';
+	$sql_heatmap   = "CREATE TABLE $table_heatmap (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		page_url_hash varchar(64) NOT NULL,
+		page_url varchar(2048) NOT NULL,
+		position_x_percent decimal(5,2) NOT NULL,
+		position_y_percent decimal(5,2) NOT NULL,
+		interaction_type enum('click','scroll_stop','hover') DEFAULT 'click',
+		count int(10) unsigned DEFAULT 1,
+		device_type enum('desktop','tablet','mobile') DEFAULT 'desktop',
+		stat_date date NOT NULL,
+		PRIMARY KEY (id),
+		KEY page_hash_idx (page_url_hash),
+		KEY stat_date_idx (stat_date),
+		KEY device_idx (device_type)
+	) $charset_collate;";
+	dbDelta( $sql_heatmap );
+
+	// User stats visibility settings.
+	$table_stats_settings = $wpdb->prefix . 'apollo_analytics_settings';
+	$sql_stats_settings   = "CREATE TABLE $table_stats_settings (
+		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) unsigned NOT NULL,
+		setting_key varchar(100) NOT NULL,
+		setting_value longtext,
+		updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY user_setting_unique (user_id, setting_key),
+		KEY user_idx (user_id)
+	) $charset_collate;";
+	dbDelta( $sql_stats_settings );
 }
 
 /**

@@ -1,0 +1,454 @@
+/**
+ * Import/Export Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.apollo-import-export {
+    max-width: 1200px;
+}
+
+.apollo-ie-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+}
+
+@media (max-width: 782px) {
+    .apollo-ie-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.apollo-ie-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+}
+
+.apollo-ie-card--full {
+    grid-column: 1 / -1;
+}
+
+.apollo-ie-card__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #c3c4c7;
+    background: #f6f7f7;
+}
+
+.apollo-ie-card__header .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #2271b1;
+}
+
+.apollo-ie-card__header h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.apollo-ie-card__body {
+    padding: 20px;
+}
+
+.apollo-ie-card__body > p:first-child {
+    margin-top: 0;
+}
+
+/* ==========================================================================
+   Dropzone
+   ========================================================================== */
+
+.apollo-ie-dropzone {
+    border: 2px dashed #c3c4c7;
+    border-radius: 4px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f9f9f9;
+}
+
+.apollo-ie-dropzone:hover,
+.apollo-ie-dropzone.dragover {
+    border-color: #2271b1;
+    background: #f0f6fc;
+}
+
+.apollo-ie-dropzone__content .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #c3c4c7;
+    margin-bottom: 10px;
+    transition: color 0.2s ease;
+}
+
+.apollo-ie-dropzone:hover .dashicons,
+.apollo-ie-dropzone.dragover .dashicons {
+    color: #2271b1;
+}
+
+.apollo-ie-dropzone__content p {
+    margin: 0 0 5px;
+    font-size: 14px;
+    color: #50575e;
+}
+
+.apollo-ie-dropzone__content span {
+    font-size: 12px;
+    color: #787c82;
+}
+
+.apollo-ie-dropzone.has-file {
+    border-color: #00a32a;
+    background: #edfaef;
+}
+
+.apollo-ie-dropzone.has-file .dashicons {
+    color: #00a32a;
+}
+
+/* ==========================================================================
+   Options
+   ========================================================================== */
+
+.apollo-ie-options {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dcdcde;
+}
+
+.apollo-ie-options .form-table th {
+    padding: 10px 10px 10px 0;
+    width: 150px;
+}
+
+.apollo-ie-options .form-table td {
+    padding: 10px 0;
+}
+
+/* ==========================================================================
+   Preview
+   ========================================================================== */
+
+.apollo-ie-preview {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f0f0f1;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow: auto;
+}
+
+.apollo-ie-preview h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+}
+
+.apollo-ie-preview table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+.apollo-ie-preview th,
+.apollo-ie-preview td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #dcdcde;
+    background: #fff;
+}
+
+.apollo-ie-preview th {
+    background: #f6f7f7;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Progress
+   ========================================================================== */
+
+.apollo-ie-progress {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.apollo-ie-progress__bar {
+    width: 100%;
+    height: 20px;
+    background: #dcdcde;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.apollo-ie-progress__fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2271b1, #135e96);
+    border-radius: 10px;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.apollo-ie-progress__text {
+    text-align: center;
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: #50575e;
+}
+
+.apollo-ie-progress--complete .apollo-ie-progress__fill {
+    background: linear-gradient(90deg, #00a32a, #007017);
+}
+
+.apollo-ie-progress--error .apollo-ie-progress__fill {
+    background: linear-gradient(90deg, #d63638, #b32d2e);
+}
+
+/* ==========================================================================
+   Results
+   ========================================================================== */
+
+.apollo-ie-results {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.apollo-ie-results--success {
+    background: #edfaef;
+    border: 1px solid #00a32a;
+}
+
+.apollo-ie-results--error {
+    background: #fcf0f1;
+    border: 1px solid #d63638;
+}
+
+.apollo-ie-results__stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 10px;
+}
+
+.apollo-ie-results__stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-ie-results__stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.apollo-ie-results__stat-label {
+    font-size: 12px;
+    color: #50575e;
+}
+
+.apollo-ie-results__stat--imported .apollo-ie-results__stat-value {
+    color: #00a32a;
+}
+
+.apollo-ie-results__stat--skipped .apollo-ie-results__stat-value {
+    color: #dba617;
+}
+
+.apollo-ie-results__stat--errors .apollo-ie-results__stat-value {
+    color: #d63638;
+}
+
+/* ==========================================================================
+   Form Tables
+   ========================================================================== */
+
+.apollo-ie-card .form-table {
+    margin: 0;
+}
+
+.apollo-ie-card .form-table th {
+    padding: 15px 10px 15px 0;
+    vertical-align: middle;
+}
+
+.apollo-ie-card .form-table td {
+    padding: 15px 0;
+    vertical-align: middle;
+}
+
+.apollo-ie-card .form-table select,
+.apollo-ie-card .form-table input[type="date"] {
+    width: 200px;
+    max-width: 100%;
+}
+
+/* ==========================================================================
+   Submit Button
+   ========================================================================== */
+
+.apollo-ie-card .submit {
+    margin: 0;
+    padding-top: 15px;
+    border-top: 1px solid #dcdcde;
+}
+
+.apollo-ie-card .button .dashicons {
+    margin-right: 5px;
+    vertical-align: middle;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+    margin-top: -2px;
+}
+
+/* ==========================================================================
+   Feeds Table
+   ========================================================================== */
+
+.apollo-ie-card .widefat {
+    margin: 0;
+}
+
+.apollo-ie-card .widefat code {
+    padding: 3px 6px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.apollo-copy-url {
+    white-space: nowrap;
+}
+
+.apollo-copy-url.copied {
+    background: #00a32a;
+    border-color: #00a32a;
+    color: #fff;
+}
+
+/* ==========================================================================
+   Field Mapping
+   ========================================================================== */
+
+.apollo-ie-mapping {
+    margin-top: 20px;
+}
+
+.apollo-ie-mapping__row {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.apollo-ie-mapping__arrow {
+    text-align: center;
+    color: #787c82;
+}
+
+.apollo-ie-mapping__source {
+    font-weight: 500;
+    color: #1d2327;
+}
+
+.apollo-ie-mapping__target select {
+    width: 100%;
+}
+
+/* ==========================================================================
+   Loading State
+   ========================================================================== */
+
+.apollo-ie-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.apollo-ie-loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apollo-ie-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #dcdcde;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: apollo-ie-spin 0.8s linear infinite;
+}
+
+@keyframes apollo-ie-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 600px) {
+    .apollo-ie-card .form-table th,
+    .apollo-ie-card .form-table td {
+        display: block;
+        padding: 5px 0;
+    }
+
+    .apollo-ie-card .form-table th {
+        padding-top: 15px;
+    }
+
+    .apollo-ie-card .form-table select,
+    .apollo-ie-card .form-table input[type="date"] {
+        width: 100%;
+    }
+
+    .apollo-ie-results__stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .apollo-ie-mapping__row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .apollo-ie-mapping__arrow {
+        display: none;
+    }
+}

@@ -1,10 +1,13 @@
 <?php
 
 /**
- * FASE 2: Likes Endpoint
+ * FASE 2: WOW Reactions Endpoint (unified likes/reactions)
+ *
+ * In Apollo, LIKE = WOW. This is the unified reaction system.
+ * Endpoint: /apollo/v1/wow
  *
  * @package Apollo_Social
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Apollo\API\Endpoints;
@@ -42,7 +45,7 @@ class LikesEndpoint {
 							return sanitize_text_field( wp_unslash( $param ) );
 						},
 						'validate_callback' => function ( $param ) {
-							$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+							$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad', 'apollo_classified' );
 
 							return in_array( $param, $allowed_types, true );
 						},
@@ -77,7 +80,7 @@ class LikesEndpoint {
 															return sanitize_text_field( wp_unslash( $param ) );
 														},
 														'validate_callback' => function ( $param ) {
-															$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad' );
+															$allowed_types = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_ad', 'apollo_classified' );
 
 															return in_array( $param, $allowed_types, true );
 														},
@@ -260,7 +263,11 @@ class LikesEndpoint {
 	private function updateLikeCountMeta( $content_type, $content_id ) {
 		$like_count = $this->getLikeCount( $content_type, $content_id );
 
-		if ( $content_type === 'apollo_social_post' || $content_type === 'event_listing' || $content_type === 'post' ) {
+		// Update meta cache for all supported post types
+		$post_types_with_meta = array( 'apollo_social_post', 'event_listing', 'post', 'apollo_classified' );
+		if ( in_array( $content_type, $post_types_with_meta, true ) ) {
+			update_post_meta( $content_id, '_apollo_wow_count', $like_count );
+			// Keep legacy meta for backwards compatibility
 			update_post_meta( $content_id, '_apollo_like_count', $like_count );
 		}
 	}

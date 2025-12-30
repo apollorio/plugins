@@ -1,0 +1,425 @@
+/**
+ * Apollo Events Blocks - Editor Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Block Placeholders
+   ========================================================================== */
+
+.apollo-block-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: #f0f0f1;
+    border: 2px dashed #c3c4c7;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.apollo-block-placeholder__icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #2271b1;
+    margin-bottom: 16px;
+}
+
+.apollo-block-placeholder__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #1e1e1e;
+}
+
+.apollo-block-placeholder__description {
+    font-size: 13px;
+    color: #757575;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Editor Preview Cards
+   ========================================================================== */
+
+.wp-block-apollo-events-event-list,
+.wp-block-apollo-events-dj-grid,
+.wp-block-apollo-events-local-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.wp-block-apollo-events-event-list.columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.wp-block-apollo-events-event-list.columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.wp-block-apollo-events-event-list.columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.wp-block-apollo-events-dj-grid.columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.wp-block-apollo-events-dj-grid.columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.wp-block-apollo-events-local-grid.columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.wp-block-apollo-events-local-grid.columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* ==========================================================================
+   Preview Event Card
+   ========================================================================== */
+
+.apollo-editor-event-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.apollo-editor-event-card__image {
+    height: 120px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apollo-editor-event-card__image .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.apollo-editor-event-card__content {
+    padding: 12px;
+}
+
+.apollo-editor-event-card__title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: #1e1e1e;
+}
+
+.apollo-editor-event-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #757575;
+    margin-bottom: 4px;
+}
+
+.apollo-editor-event-card__meta .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: #2271b1;
+}
+
+/* ==========================================================================
+   Countdown Preview
+   ========================================================================== */
+
+.apollo-editor-countdown {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 4px;
+    padding: 24px;
+    text-align: center;
+    color: #fff;
+}
+
+.apollo-editor-countdown__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 16px;
+}
+
+.apollo-editor-countdown__timer {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.apollo-editor-countdown__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.apollo-editor-countdown__value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.apollo-editor-countdown__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+/* ==========================================================================
+   Calendar Preview
+   ========================================================================== */
+
+.apollo-editor-calendar {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 16px;
+}
+
+.apollo-editor-calendar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.apollo-editor-calendar__nav {
+    background: #f0f0f1;
+    border: 1px solid #ddd;
+    padding: 4px 12px;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.apollo-editor-calendar__month {
+    font-weight: 600;
+}
+
+.apollo-editor-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.apollo-editor-calendar__day-header {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #757575;
+    padding: 4px;
+}
+
+.apollo-editor-calendar__day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    background: #f9f9f9;
+    border-radius: 2px;
+}
+
+.apollo-editor-calendar__day--today {
+    background: #2271b1;
+    color: #fff;
+}
+
+.apollo-editor-calendar__day--event {
+    background: #fef3c7;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Search Preview
+   ========================================================================== */
+
+.apollo-editor-search {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 16px;
+}
+
+.apollo-editor-search__input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.apollo-editor-search__filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.apollo-editor-search__filter {
+    flex: 1;
+}
+
+.apollo-editor-search__filter label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #757575;
+    margin-bottom: 4px;
+}
+
+.apollo-editor-search__filter select,
+.apollo-editor-search__filter input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.apollo-editor-search__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.apollo-editor-search__button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* ==========================================================================
+   DJ Card Preview
+   ========================================================================== */
+
+.apollo-editor-dj-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.apollo-editor-dj-card__image {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apollo-editor-dj-card__image .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.apollo-editor-dj-card__name {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+}
+
+.apollo-editor-dj-card__genre {
+    font-size: 11px;
+    color: #757575;
+    margin: 0 0 8px;
+}
+
+/* ==========================================================================
+   Local Card Preview
+   ========================================================================== */
+
+.apollo-editor-local-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.apollo-editor-local-card__image {
+    height: 100px;
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apollo-editor-local-card__image .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.apollo-editor-local-card__content {
+    padding: 12px;
+}
+
+.apollo-editor-local-card__name {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+.apollo-editor-local-card__address {
+    font-size: 11px;
+    color: #757575;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Inspector Controls
+   ========================================================================== */
+
+.apollo-inspector-section {
+    margin-bottom: 16px;
+}
+
+.apollo-inspector-section__title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #757575;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   Block Icons
+   ========================================================================== */
+
+.apollo-block-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.apollo-block-icon svg {
+    width: 20px;
+    height: 20px;
+}

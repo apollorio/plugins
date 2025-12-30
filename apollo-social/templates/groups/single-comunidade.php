@@ -748,18 +748,19 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 
-	// Like post
+	// WOW reaction (like post)
 	document.querySelectorAll('[data-action="like-post"]').forEach(btn => {
 		btn.addEventListener('click', async function() {
 			const postId = this.dataset.postId;
+			const contentType = this.dataset.contentType || 'apollo_social_post';
 			try {
-				const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/post/like' ) ); ?>', {
+				const response = await fetch('<?php echo esc_url( rest_url( 'apollo/v1/wow' ) ); ?>', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 						'X-WP-Nonce': '<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>'
 					},
-					body: JSON.stringify({ post_id: postId })
+					body: JSON.stringify({ content_type: contentType, content_id: parseInt(postId) })
 				});
 				const data = await response.json();
 				if (data.success) {
@@ -770,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					} else {
 						icon.className = 'ri-heart-3-line text-sm';
 					}
-					if (count) count.textContent = ' ' + data.count;
+					if (count) count.textContent = ' ' + (data.like_count || 0);
 				}
 			} catch (e) {
 				console.error(e);

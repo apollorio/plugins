@@ -1,0 +1,391 @@
+/**
+ * Apollo Events Manager - Duplicate Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Duplicate Box Metabox
+   ========================================================================== */
+.apollo-duplicate-box {
+    padding: 10px 0;
+}
+
+.apollo-duplicate-box .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.apollo-duplicate-box .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.apollo-duplicate-box hr {
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+.apollo-duplicate-box h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Recurring Form
+   ========================================================================== */
+.apollo-recurring-form p {
+    margin: 0 0 10px;
+}
+
+.apollo-recurring-form label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.apollo-recurring-form select {
+    width: 100%;
+}
+
+.apollo-recurring-form .button-primary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+}
+
+.apollo-recurring-form .button-primary .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* ==========================================================================
+   Progress Indicator
+   ========================================================================== */
+.apollo-recurring-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f6fc;
+    border-radius: 4px;
+}
+
+.apollo-recurring-progress .spinner {
+    float: none;
+    margin: 0;
+}
+
+.apollo-recurring-progress .progress-text {
+    font-size: 12px;
+    color: #1e3a5f;
+}
+
+/* ==========================================================================
+   Row Actions
+   ========================================================================== */
+.row-actions .duplicate a {
+    color: #2271b1;
+}
+
+.row-actions .duplicate a:hover {
+    color: #135e96;
+}
+
+.row-actions .quick_duplicate a {
+    color: #00a32a;
+}
+
+.row-actions .quick_duplicate a:hover {
+    color: #007017;
+}
+
+/* ==========================================================================
+   Quick Duplicate Animation
+   ========================================================================== */
+.apollo-quick-duplicate.is-loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.apollo-quick-duplicate.is-loading::after {
+    content: '...';
+    animation: loadingDots 1s infinite;
+}
+
+@keyframes loadingDots {
+    0%, 20% {
+        content: '.';
+    }
+    40% {
+        content: '..';
+    }
+    60%, 100% {
+        content: '...';
+    }
+}
+
+/* ==========================================================================
+   Bulk Action Notice
+   ========================================================================== */
+.notice.apollo-duplicate-notice {
+    border-left-color: #00a32a;
+}
+
+.notice.apollo-duplicate-notice .dashicons {
+    color: #00a32a;
+    margin-right: 5px;
+}
+
+/* ==========================================================================
+   Tools Page Grid
+   ========================================================================== */
+.apollo-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.apollo-tool-card {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.apollo-tool-card h2 {
+    margin: 0 0 10px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.apollo-tool-card p {
+    margin: 0 0 15px;
+    color: #646970;
+}
+
+.apollo-tool-card select,
+.apollo-tool-card input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* ==========================================================================
+   Created Events List
+   ========================================================================== */
+.apollo-created-events {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f0f6fc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.apollo-created-events h5 {
+    margin: 0 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.apollo-created-events ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.apollo-created-events li {
+    padding: 5px 0;
+    border-bottom: 1px solid #dcdcde;
+    font-size: 12px;
+}
+
+.apollo-created-events li:last-child {
+    border-bottom: none;
+}
+
+.apollo-created-events a {
+    text-decoration: none;
+}
+
+.apollo-created-events a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Success Animation
+   ========================================================================== */
+@keyframes duplicateSuccess {
+    0% {
+        background-color: #fff;
+    }
+    50% {
+        background-color: #d1fae5;
+    }
+    100% {
+        background-color: #fff;
+    }
+}
+
+.apollo-duplicate-success {
+    animation: duplicateSuccess 1s ease;
+}
+
+/* ==========================================================================
+   Template Card
+   ========================================================================== */
+.apollo-template-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.apollo-template-card__icon {
+    width: 40px;
+    height: 40px;
+    background: #2271b1;
+    color: #fff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.apollo-template-card__info {
+    flex: 1;
+}
+
+.apollo-template-card__name {
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+.apollo-template-card__meta {
+    font-size: 12px;
+    color: #646970;
+}
+
+.apollo-template-card__actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ==========================================================================
+   Calendar Date Picker
+   ========================================================================== */
+.apollo-date-range {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.apollo-date-range label {
+    flex: 1;
+}
+
+.apollo-date-range input {
+    width: 100%;
+}
+
+/* ==========================================================================
+   Confirmation Modal
+   ========================================================================== */
+.apollo-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.apollo-confirm-modal.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.apollo-confirm-modal__content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+}
+
+.apollo-confirm-modal.is-visible .apollo-confirm-modal__content {
+    transform: scale(1);
+}
+
+.apollo-confirm-modal__icon {
+    font-size: 48px;
+    color: #d63638;
+    margin-bottom: 15px;
+}
+
+.apollo-confirm-modal__title {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.apollo-confirm-modal__text {
+    margin: 0 0 20px;
+    color: #646970;
+}
+
+.apollo-confirm-modal__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 782px) {
+    .apollo-tools-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .apollo-date-range {
+        flex-direction: column;
+    }
+
+    .apollo-template-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .apollo-template-card__actions {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -182,6 +182,17 @@ class Assets {
 		);
 		self::$registered_handles['css'][] = 'apollo-vendor-datatables';
 
+		// Apollo Analytics - Self-hosted tracking (no external dependencies).
+		// Note: Previously used Snowplow - now uses custom analytics-tracker.js
+		wp_register_script(
+			'apollo-analytics-tracker',
+			$base_url . 'js/analytics-tracker.js',
+			array(),
+			self::get_version( 'js/analytics-tracker.js' ),
+			true
+		);
+		self::$registered_handles['js'][] = 'apollo-analytics-tracker';
+
 		// =========================================================================.
 		// CORE ASSETS (Apollo Design System).
 		// =========================================================================.
@@ -338,6 +349,24 @@ class Assets {
 				'baseUrl'  => self::get_assets_url(),
 				'imgUrl'   => self::get_assets_url() . 'img/',
 				'isApollo' => true,
+			)
+		);
+
+		// Apollo Analytics - Self-hosted tracking (replaces Snowplow).
+		wp_enqueue_script( 'apollo-analytics-tracker' );
+		wp_localize_script(
+			'apollo-analytics-tracker',
+			'apolloAnalyticsConfig',
+			array(
+				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+				'nonce'         => wp_create_nonce( 'apollo_analytics_nonce' ),
+				'enabled'       => get_option( 'apollo_analytics_enabled', true ),
+				'trackScroll'   => get_option( 'apollo_track_scroll_depth', true ),
+				'trackClicks'   => get_option( 'apollo_track_click_events', true ),
+				'trackMouse'    => get_option( 'apollo_track_mouse_movement', true ),
+				'trackHeatmap'  => get_option( 'apollo_track_heatmap', true ),
+				'userId'        => get_current_user_id(),
+				'isDebug'       => defined( 'WP_DEBUG' ) && WP_DEBUG,
 			)
 		);
 

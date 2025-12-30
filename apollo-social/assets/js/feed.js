@@ -1,12 +1,23 @@
 /**
  * FASE 2: Feed JavaScript
  * Handles likes, comments, sharing, and infinite scroll
+ *
+ * Dependencies: jQuery (optional graceful degradation)
+ * Global objects: window.apolloFeedData (optional)
  */
 (function($) {
     'use strict';
 
+    // Defensive check: ensure jQuery is available
+    if (typeof $ === 'undefined') {
+        console.warn('Apollo Feed: jQuery not available, skipping initialization');
+        return;
+    }
+
     const FeedManager = {
         restUrl: window.apolloFeedData?.restUrl || '/wp-json/apollo/v1',
+        ajaxUrl: window.apolloFeedData?.ajaxUrl || '/wp-admin/admin-ajax.php',
+        nonce: window.apolloFeedData?.nonce || '',
         currentPage: 1,
         loading: false,
 
@@ -37,14 +48,14 @@
                 $btn.prop('disabled', true);
 
                 $.ajax({
-                    url: FeedManager.restUrl + '/like',
+                    url: FeedManager.restUrl + '/wow',
                     method: 'POST',
                     data: {
                         content_type: contentType,
                         content_id: contentId,
                     },
                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader('X-WP-Nonce', window.apolloFeedData?.nonce || '');
+                        xhr.setRequestHeader('X-WP-Nonce', FeedManager.nonce);
                     },
                     success: function(response) {
                         if (response.success) {
@@ -65,7 +76,7 @@
 
                             // Animation
                             if (window.Motion && window.Motion.animate) {
-                                window.Motion.animate($icon[0], 
+                                window.Motion.animate($icon[0],
                                     { scale: [1, 1.4, 1], rotate: [0, -20, 20, 0] },
                                     { duration: 0.6, easing: 'ease-in-out' }
                                 );
@@ -91,9 +102,9 @@
                 const $btn = $(this);
                 const $card = $btn.closest('.apollo-feed-card');
                 const $section = $card.find('.apollo-comments-section');
-                
+
                 $section.toggleClass('hidden');
-                
+
                 // Load comments if not loaded
                 if (!$section.hasClass('loaded')) {
                     FeedManager.loadComments($card);
@@ -111,7 +122,7 @@
                 if (!comment.trim()) return;
 
                 $.ajax({
-                    url: window.apolloFeedData?.ajaxUrl || '/wp-admin/admin-ajax.php',
+                    url: FeedManager.ajaxUrl,
                     method: 'POST',
                     data: {
                         action: 'apollo_submit_comment',
@@ -123,10 +134,10 @@
                         if (response.success) {
                             // Add comment to list
                             $card.find('.apollo-comments-list').append(response.data.html);
-                            
+
                             // Update count
                             $card.find('.apollo-comment-count').text(response.data.comment_count);
-                            
+
                             // Clear form
                             $form.find('input[name="comment"]').val('');
                         } else {
@@ -180,22 +191,22 @@
 
             const shareOptions = `
                 <div class="apollo-share-dropdown absolute bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-50" style="min-width: 200px;">
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" 
-                       target="_blank" 
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"
+                       target="_blank"
                        class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded text-sm">
                         <i class="ri-facebook-fill text-blue-600"></i> Facebook
                     </a>
-                    <a href="https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}" 
-                       target="_blank" 
+                    <a href="https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}"
+                       target="_blank"
                        class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded text-sm">
                         <i class="ri-twitter-x-fill"></i> Twitter/X
                     </a>
-                    <a href="https://wa.me/?text=${encodedText}%20${encodedUrl}" 
-                       target="_blank" 
+                    <a href="https://wa.me/?text=${encodedText}%20${encodedUrl}"
+                       target="_blank"
                        class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded text-sm">
                         <i class="ri-whatsapp-fill text-green-600"></i> WhatsApp
                     </a>
-                    <button onclick="navigator.clipboard.writeText('${permalink}'); alert('Link copiado!');" 
+                    <button onclick="navigator.clipboard.writeText('${permalink}'); alert('Link copiado!');"
                             class="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded text-sm text-left">
                         <i class="ri-file-copy-line"></i> Copiar link
                     </button>
@@ -237,13 +248,13 @@
                         content_type: contentType,
                     },
                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader('X-WP-Nonce', window.apolloFeedData?.nonce || '');
+                        xhr.setRequestHeader('X-WP-Nonce', FeedManager.nonce);
                     },
                     success: function(response) {
                         if (response.success) {
                             const favorited = response.favorited;
                             const $icon = $btn.find('i');
-                            
+
                             // Update icon
                             if (favorited) {
                                 $icon.removeClass('ri-star-line').addClass('ri-star-fill');
@@ -257,7 +268,7 @@
 
                             // Animation
                             if (window.Motion && window.Motion.animate) {
-                                window.Motion.animate($icon[0], 
+                                window.Motion.animate($icon[0],
                                     { scale: [1, 1.3, 1], rotate: [0, -15, 15, 0] },
                                     { duration: 0.5, easing: 'ease-in-out' }
                                 );
@@ -280,10 +291,10 @@
         bindLoadMore: function() {
             $('#apollo-feed-load-more').on('click', function() {
                 if (FeedManager.loading) return;
-                
+
                 FeedManager.loading = true;
                 FeedManager.currentPage++;
-                
+
                 const $btn = $(this);
                 $btn.prop('disabled', true).text('Carregando...');
 
@@ -296,7 +307,7 @@
                         per_page: 20,
                     },
                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader('X-WP-Nonce', window.apolloFeedData?.nonce || '');
+                        xhr.setRequestHeader('X-WP-Nonce', FeedManager.nonce);
                     },
                     success: function(response) {
                         if (response.success && response.data.posts.length > 0) {
@@ -324,7 +335,7 @@
          */
         appendPosts: function(posts) {
             const $feedContainer = $('[data-tab-panel="feed-all"]');
-            
+
             posts.forEach(function(post) {
                 const postHtml = FeedManager.renderPost(post);
                 $feedContainer.append(postHtml);

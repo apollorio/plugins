@@ -33,10 +33,12 @@ function apollo_record_event_view($event_id, $user_id = null)
     $current_views = $current_views ? absint($current_views) : 0;
     update_post_meta($event_id, '_apollo_event_views_total', $current_views + 1);
 
-    // Optionally track per-user views (for future use)
-    if ($user_id > 0) {
-        // Could store in user meta or separate table for detailed tracking
-        // For now, just increment total
+    // Track in Apollo Core Advanced Analytics if available.
+    if (class_exists('\Apollo_Core\Analytics')) {
+        \Apollo_Core\Analytics::track_event('event_view', $user_id, $event_id, array(
+            'event_title' => get_the_title($event_id),
+            'event_date'  => get_post_meta($event_id, '_event_start_date', true),
+        ));
     }
 }
 
@@ -177,9 +179,9 @@ function apollo_get_global_event_stats()
     global $wpdb;
     $total_views = $wpdb->get_var(
         $wpdb->prepare(
-            "SELECT SUM(meta_value) FROM {$wpdb->postmeta} 
+            "SELECT SUM(meta_value) FROM {$wpdb->postmeta}
          WHERE meta_key = %s AND post_id IN (
-             SELECT ID FROM {$wpdb->posts} 
+             SELECT ID FROM {$wpdb->posts}
              WHERE post_type = %s AND post_status = 'publish'
          )",
             '_apollo_event_views_total',
@@ -244,11 +246,11 @@ function apollo_get_global_event_stats()
     global $wpdb;
     $location_counts = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT meta_value as location, COUNT(*) as count 
+            "SELECT meta_value as location, COUNT(*) as count
          FROM {$wpdb->postmeta} pm
          INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-         WHERE pm.meta_key = %s 
-         AND p.post_type = %s 
+         WHERE pm.meta_key = %s
+         AND p.post_type = %s
          AND p.post_status = 'publish'
          AND pm.meta_value != ''
          GROUP BY meta_value

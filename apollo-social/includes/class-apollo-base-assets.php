@@ -23,7 +23,7 @@ class Apollo_Base_Assets {
 	/**
 	 * CDN base URL
 	 */
-	const CDN_URL = 'https://assets.apollo.rio.br/';
+	const CDN_URL = 'https://cdn.apollo.rio.br/';
 
 	/**
 	 * Flag to track if assets are already loaded
@@ -54,8 +54,8 @@ class Apollo_Base_Assets {
 		if ( self::$loaded ) {
 			return;
 		}
-		echo '<link rel="preconnect" href="https://assets.apollo.rio.br" crossorigin>' . "\n";
-		echo '<link rel="dns-prefetch" href="https://assets.apollo.rio.br">' . "\n";
+		echo '<link rel="preconnect" href="https://cdn.apollo.rio.br" crossorigin>' . "\n";
+		echo '<link rel="dns-prefetch" href="https://cdn.apollo.rio.br">' . "\n";
 	}
 
 	/**

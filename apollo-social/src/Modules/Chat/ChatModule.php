@@ -23,6 +23,9 @@ declare(strict_types=1);
 
 namespace Apollo\Modules\Chat;
 
+use Apollo\Infrastructure\FeatureFlags;
+use Apollo\Infrastructure\Http\Apollo_Router;
+
 /**
  * Chat Module Initializer
  */
@@ -48,6 +51,11 @@ class ChatModule {
 	 */
 	public static function init(): void {
 		if ( self::$initialized ) {
+			return;
+		}
+
+		// Respect feature flag to avoid registering routes/endpoints when disabled.
+		if ( FeatureFlags::isDisabled( 'chat' ) ) {
 			return;
 		}
 
@@ -79,9 +87,22 @@ class ChatModule {
 	/**
 	 * Activate module (create tables)
 	 */
-	public static function activate(): void {
+	public static function activate( bool $with_flush = true ): void {
+		// Skip activation work if feature is disabled.
+		if ( FeatureFlags::isDisabled( 'chat' ) ) {
+			return;
+		}
+
 		self::create_tables();
-		flush_rewrite_rules();
+
+		if ( $with_flush ) {
+			if ( class_exists( Apollo_Router::class ) ) {
+				Apollo_Router::flush();
+			} else {
+				flush_rewrite_rules();
+			}
+		}
+
 		update_option( 'apollo_chat_version', self::VERSION );
 	}
 
@@ -92,7 +113,8 @@ class ChatModule {
 		$current_version = get_option( 'apollo_chat_version', '0.0.0' );
 
 		if ( version_compare( $current_version, self::VERSION, '<' ) ) {
-			self::activate();
+			// Run migrations without runtime flush to avoid frontend impact.
+			self::activate( false );
 		}
 	}
 
@@ -158,6 +180,10 @@ class ChatModule {
 	 * Register REST API endpoints
 	 */
 	public static function register_endpoints(): void {
+		if ( FeatureFlags::isDisabled( 'chat' ) ) {
+			return;
+		}
+
 		$namespace = 'apollo-social/v1';
 
 		// Get conversations for current user.

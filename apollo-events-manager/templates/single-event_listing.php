@@ -42,128 +42,130 @@ add_action(
  * HELPERS
  * ------------------------------------------------------------------------
  */
-function apollo_safe_text( $value ) {
-	if ( is_array( $value ) || is_object( $value ) ) {
-		return '';
-	}
-	return wp_kses_post( (string) $value );
-}
-
-function apollo_safe_url( $url ) {
-	$url = (string) $url;
-	if ( $url === '' ) {
-		return '';
-	}
-	return esc_url( $url );
-}
-
-/**
- * Extract YouTube ID from url
- */
-function apollo_youtube_id_from_url( $url ) {
-	$url = trim( (string) $url );
-	if ( $url === '' ) {
-		return '';
-	}
-
-	if ( preg_match( '~^[a-zA-Z0-9_-]{10,15}$~', $url ) ) {
-		return $url;
-	}
-
-	$patterns = array(
-		'~youtube\.com/watch\?v=([^&]+)~',
-		'~youtu\.be/([^?&/]+)~',
-		'~youtube\.com/embed/([^?&/]+)~',
-		'~youtube\.com/shorts/([^?&/]+)~',
-	);
-	foreach ( $patterns as $p ) {
-		if ( preg_match( $p, $url, $m ) ) {
-			return $m[1];
+if ( ! function_exists( 'apollo_safe_text' ) ) {
+	function apollo_safe_text( $value ) {
+		if ( is_array( $value ) || is_object( $value ) ) {
+			return '';
 		}
+		return wp_kses_post( (string) $value );
 	}
-	return '';
 }
 
-function apollo_build_youtube_embed_url( $youtube_url_or_id ) {
-	$vid = apollo_youtube_id_from_url( $youtube_url_or_id );
-	if ( $vid === '' ) {
+if ( ! function_exists( 'apollo_safe_url' ) ) {
+	function apollo_safe_url( $url ) {
+		$url = (string) $url;
+		if ( $url === '' ) {
+			return '';
+		}
+		return esc_url( $url );
+	}
+}
+
+if ( ! function_exists( 'apollo_youtube_id_from_url' ) ) {
+	function apollo_youtube_id_from_url( $url ) {
+		$url = trim( (string) $url );
+		if ( $url === '' ) {
+			return '';
+		}
+
+		if ( preg_match( '~^[a-zA-Z0-9_-]{10,15}$~', $url ) ) {
+			return $url;
+		}
+
+		$patterns = array(
+			'~youtube\.com/watch\?v=([^&]+)~',
+			'~youtu\.be/([^?&/]+)~',
+			'~youtube\.com/embed/([^?&/]+)~',
+			'~youtube\.com/shorts/([^?&/]+)~',
+		);
+		foreach ( $patterns as $p ) {
+			if ( preg_match( $p, $url, $m ) ) {
+				return $m[1];
+			}
+		}
 		return '';
 	}
-
-	$params = array(
-		'autoplay'       => '1',
-		'mute'           => '1',
-		'controls'       => '0',
-		'loop'           => '1',
-		'playlist'       => $vid,
-		'playsinline'    => '1',
-		'modestbranding' => '1',
-		'rel'            => '0',
-		'fs'             => '0',
-		'disablekb'      => '1',
-		'iv_load_policy' => '3',
-		'origin'         => home_url(),
-	);
-	return 'https://www.youtube-nocookie.com/embed/' . rawurlencode( $vid ) . '?' . http_build_query( $params, '', '&', PHP_QUERY_RFC3986 );
 }
 
-/**
- * Coordinates resolver
- */
-function apollo_event_get_coords( $event_id ) {
-	$event_id = (int) $event_id;
-
-	$candidates = array(
-		array( '_event_lat', '_event_lng' ),
-		array( '_event_location_lat', '_event_location_lng' ),
-		array( 'event_lat', 'event_lng' ),
-		array( 'lat', 'lng' ),
-	);
-
-	$lat = null;
-	$lng = null;
-
-	foreach ( $candidates as $pair ) {
-		$la = get_post_meta( $event_id, $pair[0], true );
-		$ln = get_post_meta( $event_id, $pair[1], true );
-		if ( $la !== '' && $ln !== '' ) {
-			$lat = (float) $la;
-			$lng = (float) $ln;
-			break;
+if ( ! function_exists( 'apollo_build_youtube_embed_url' ) ) {
+	function apollo_build_youtube_embed_url( $youtube_url_or_id ) {
+		$vid = apollo_youtube_id_from_url( $youtube_url_or_id );
+		if ( $vid === '' ) {
+			return '';
 		}
+
+		$params = array(
+			'autoplay'       => '1',
+			'mute'           => '1',
+			'controls'       => '0',
+			'loop'           => '1',
+			'playlist'       => $vid,
+			'playsinline'    => '1',
+			'modestbranding' => '1',
+			'rel'            => '0',
+			'fs'             => '0',
+			'disablekb'      => '1',
+			'iv_load_policy' => '3',
+			'origin'         => home_url(),
+		);
+		return 'https://www.youtube-nocookie.com/embed/' . rawurlencode( $vid ) . '?' . http_build_query( $params, '', '&', PHP_QUERY_RFC3986 );
 	}
+}
 
-	// Venue fallback
-	if ( $lat === null || $lng === null ) {
-		$venue_id = (int) get_post_meta( $event_id, '_event_venue_id', true );
-		if ( ! $venue_id ) {
-			$venue_id = (int) get_post_meta( $event_id, '_event_local_id', true );
-		}
-		if ( $venue_id ) {
-			$la = get_post_meta( $venue_id, '_venue_lat', true );
-			$ln = get_post_meta( $venue_id, '_venue_lng', true );
+if ( ! function_exists( 'apollo_event_get_coords' ) ) {
+	function apollo_event_get_coords( $event_id ) {
+		$event_id = (int) $event_id;
+
+		$candidates = array(
+			array( '_event_lat', '_event_lng' ),
+			array( '_event_location_lat', '_event_location_lng' ),
+			array( 'event_lat', 'event_lng' ),
+			array( 'lat', 'lng' ),
+		);
+
+		$lat = null;
+		$lng = null;
+
+		foreach ( $candidates as $pair ) {
+			$la = get_post_meta( $event_id, $pair[0], true );
+			$ln = get_post_meta( $event_id, $pair[1], true );
 			if ( $la !== '' && $ln !== '' ) {
 				$lat = (float) $la;
 				$lng = (float) $ln;
+				break;
 			}
 		}
-	}
 
-	$coords = array(
-		'lat' => $lat,
-		'lng' => $lng,
-	);
+		if ( $lat === null || $lng === null ) {
+			$venue_id = (int) get_post_meta( $event_id, '_event_venue_id', true );
+			if ( ! $venue_id ) {
+				$venue_id = (int) get_post_meta( $event_id, '_event_local_id', true );
+			}
+			if ( $venue_id ) {
+				$la = get_post_meta( $venue_id, '_venue_lat', true );
+				$ln = get_post_meta( $venue_id, '_venue_lng', true );
+				if ( $la !== '' && $ln !== '' ) {
+					$lat = (float) $la;
+					$lng = (float) $ln;
+				}
+			}
+		}
 
-	$coords = apply_filters( 'apollo_event_map_coords', $coords, $event_id );
-
-	if ( ! isset( $coords['lat'], $coords['lng'] ) ) {
 		$coords = array(
-			'lat' => null,
-			'lng' => null,
+			'lat' => $lat,
+			'lng' => $lng,
 		);
-	}
 
-	return $coords;
+		$coords = apply_filters( 'apollo_event_map_coords', $coords, $event_id );
+
+		if ( ! isset( $coords['lat'], $coords['lng'] ) ) {
+			$coords = array(
+				'lat' => null,
+				'lng' => null,
+			);
+		}
+
+		return $coords;
 }
 
 /**

@@ -94,6 +94,9 @@ require_once __DIR__ . '/src/Helpers/BadgesHelper.php';
 require_once __DIR__ . '/includes/docs-helpers.php';
 require_once __DIR__ . '/includes/docs-signature-helpers.php';
 
+// Load Analytics Bridge (integrates with Apollo Core Analytics).
+require_once __DIR__ . '/includes/class-apollo-social-analytics-bridge.php';
+
 // Load Apollo Base Assets (base.js from CDN with local fallback - ALL PAGES).
 require_once __DIR__ . '/includes/class-apollo-base-assets.php';
 
@@ -127,6 +130,47 @@ spl_autoload_register(
 add_action(
 	'plugins_loaded',
 	function () {
+		// =================================================================
+		// FASE 0: Load Infrastructure First (FeatureFlags, Logger, Router)
+		// =================================================================
+
+		// Initialize Feature Flags (controls which modules are enabled).
+		if ( class_exists( '\Apollo\Infrastructure\FeatureFlags' ) ) {
+			\Apollo\Infrastructure\FeatureFlags::init();
+		}
+
+		// Initialize Apollo Logger (observability).
+		if ( class_exists( '\Apollo\Infrastructure\ApolloLogger' ) ) {
+			\Apollo\Infrastructure\ApolloLogger::init();
+		}
+
+		// Initialize Apollo Router (centralized rewrite rules).
+		if ( class_exists( '\Apollo\Infrastructure\Http\Apollo_Router' ) ) {
+			\Apollo\Infrastructure\Http\Apollo_Router::init();
+		}
+
+		// Initialize Endpoint Guard (blocks disabled module endpoints).
+		if ( class_exists( '\Apollo\Infrastructure\Security\EndpointGuard' ) ) {
+			\Apollo\Infrastructure\Security\EndpointGuard::init();
+		}
+
+		// =================================================================
+		// Schema Upgrade Check (version-gated, idempotent)
+		// =================================================================
+		if ( class_exists( '\Apollo\Schema' ) ) {
+			$schema = new \Apollo\Schema();
+			if ( $schema->needsUpgrade() ) {
+				$result = $schema->upgrade();
+				if ( is_wp_error( $result ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'Apollo Schema upgrade error: ' . $result->get_error_message() );
+				}
+			}
+		}
+
+		// =================================================================
+		// Core Plugin Bootstrap
+		// =================================================================
+
 		// Constructor automatically calls bootstrap().
 		// phpcs:ignore Generic.CodeAnalysis.UnusedVariable
             // phpcs:ignore Generic.CodeAnalysis.UnusedVariable -- Plugin instance required for bootstrap.
@@ -138,9 +182,9 @@ add_action(
 			require_once $shadcn_loader;
 		}
 
-		// Load user-pages module.
+		// Load user-pages module (only if feature enabled).
 		$user_pages_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/user-pages-loader.php';
-		if ( file_exists( $user_pages_loader ) ) {
+		if ( file_exists( $user_pages_loader ) && \Apollo\Infrastructure\FeatureFlags::isEnabled( 'user_pages' ) ) {
 			require_once $user_pages_loader;
 		}
 
@@ -241,18 +285,23 @@ add_action(
 			require_once $luckysheet_helpers;
 		}
 		// Initialize Documents Module (Libraries, Signatures, Audit).
-		if ( class_exists( '\Apollo\Modules\Documents\DocumentsModule' ) ) {
+		// FASE 0: Controlled by FeatureFlags.
+		if ( class_exists( '\Apollo\Modules\Documents\DocumentsModule' ) && \Apollo\Infrastructure\FeatureFlags::isEnabled( 'documents' ) ) {
 			\Apollo\Modules\Documents\DocumentsModule::init();
 		}
 
 		// Initialize Suppliers Module (Cena-Rio • Fornecedores).
-		if ( class_exists( '\Apollo\Modules\Suppliers\SuppliersModule' ) ) {
+		// FASE 0: Controlled by FeatureFlags.
+		if ( class_exists( '\Apollo\Modules\Suppliers\SuppliersModule' ) && \Apollo\Infrastructure\FeatureFlags::isEnabled( 'classifieds' ) ) {
 			\Apollo\Modules\Suppliers\SuppliersModule::init();
 		}
 
 		// Initialize Chat Module (Mensagens instantâneas).
-		if ( class_exists( '\Apollo\Modules\Chat\ChatModule' ) ) {
+		// FASE 0: DISABLED BY DEFAULT - incomplete module.
+		if ( class_exists( '\Apollo\Modules\Chat\ChatModule' ) && \Apollo\Infrastructure\FeatureFlags::isEnabled( 'chat' ) ) {
 			\Apollo\Modules\Chat\ChatModule::init();
+		} elseif ( class_exists( '\Apollo\Infrastructure\ApolloLogger' ) ) {
+			\Apollo\Infrastructure\ApolloLogger::debug( 'chat_module_disabled', array( 'reason' => 'feature_flag_off' ), 'feature' );
 		}
 
 		// Register with Apollo Core Integration Bridge when ready.
@@ -308,14 +357,23 @@ register_activation_hook(
 		update_option( $activation_key, time() );
 
 		try {
-			// Create database tables (idempotent - uses dbDelta).
-			$schema = new \Apollo\Infrastructure\Database\Schema();
-			$schema->install();
-			$schema->updateGroupsTable();
+			// Create database tables via unified Schema facade (idempotent).
+			$schema = new \Apollo\Schema();
+			$result = $schema->install();
+			if ( is_wp_error( $result ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Apollo Schema install error: ' . $result->get_error_message() );
+			}
+
+			// Create Apollo Logger table.
+			if ( class_exists( '\Apollo\Infrastructure\ApolloLogger' ) ) {
+				\Apollo\Infrastructure\ApolloLogger::createTable();
+			}
 
 			// Create default groups (idempotent - checks existence).
-			$default_groups = new \Apollo\Domain\Groups\DefaultGroups();
-			$default_groups->createDefaults();
+			if ( class_exists( '\Apollo\Domain\Groups\DefaultGroups' ) ) {
+				$default_groups = new \Apollo\Domain\Groups\DefaultGroups();
+				$default_groups->createDefaults();
+			}
 
 			// Register routes.
 			$routes = new \Apollo\Infrastructure\Http\Routes();
@@ -338,9 +396,13 @@ register_activation_hook(
 				}
 			}
 
-			// Flush rewrite rules (only once per version).
-			flush_rewrite_rules( false );
-			// false = soft flush (faster).
+			// Flush rewrite rules via centralized Apollo Router.
+			if ( class_exists( '\Apollo\Infrastructure\Http\Apollo_Router' ) ) {
+				\Apollo\Infrastructure\Http\Apollo_Router::onActivation();
+			} else {
+				// Fallback: direct flush (only once per version).
+				flush_rewrite_rules( false );
+			}
 
 			// Mark activation complete.
 			update_option( 'apollo_social_activated_version', APOLLO_SOCIAL_VERSION );
@@ -364,7 +426,12 @@ register_activation_hook(
 register_deactivation_hook(
 	__FILE__,
 	function () {
-		flush_rewrite_rules();
+		// Use centralized router for deactivation flush.
+		if ( class_exists( '\Apollo\Infrastructure\Http\Apollo_Router' ) ) {
+			\Apollo\Infrastructure\Http\Apollo_Router::onDeactivation();
+		} else {
+			flush_rewrite_rules();
+		}
 	}
 );
 

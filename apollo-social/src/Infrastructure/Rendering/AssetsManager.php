@@ -581,6 +581,11 @@ class AssetsManager {
 
         // Auto-track page views with additional context
         document.addEventListener('DOMContentLoaded', function() {
+            // Defensive check: only track if analytics is available
+            if (typeof window.apolloAnalytics === 'undefined' || !window.apolloAnalytics.trackGroupView) {
+                return;
+            }
+
             var path = window.location.pathname;
             var apolloRoutes = ['/a/', '/comunidade/', '/nucleo/', '/season/', '/membro/', '/membership', '/uniao/', '/anuncio/'];
 
