@@ -508,6 +508,35 @@ function apollo_track_event( $event_data ) {
 	" );
 }
 
+// ========================================
+// ULTRA-PRO WORDPRESS STRUCTURE INTEGRATION
+// ========================================
+
+/**
+ * Initialize Ultra-Pro modules after core bootstrap.
+ */
+add_action( 'plugins_loaded', function() {
+	// Performance Module
+	if ( class_exists( '\Apollo_Core\Performance\PerformanceModule' ) ) {
+		\Apollo_Core\Performance\PerformanceModule::getInstance()->init();
+	}
+
+	// SEO Module
+	if ( class_exists( '\Apollo_Core\SEO\SEOModule' ) ) {
+		\Apollo_Core\SEO\SEOModule::getInstance()->init();
+	}
+
+	// Maintenance Module
+	if ( class_exists( '\Apollo_Core\Maintenance\MaintenanceModule' ) ) {
+		\Apollo_Core\Maintenance\MaintenanceModule::getInstance()->init();
+	}
+
+	// Bridge Loader (connects all plugins)
+	if ( class_exists( '\Apollo_Core\Bridge\BridgeLoader' ) ) {
+		\Apollo_Core\Bridge\BridgeLoader::getInstance()->init();
+	}
+}, 5 );
+
 // Mark core as bootstrapped for child plugins dependency check.
 if ( ! defined( 'APOLLO_CORE_BOOTSTRAPPED' ) ) {
 	define( 'APOLLO_CORE_BOOTSTRAPPED', true );
