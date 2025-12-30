@@ -2,30 +2,17 @@
 
 namespace Apollo\Infrastructure\Database;
 
-/**
- * Apollo Database Schema
- *
- * Creates and manages database tables for Apollo Social plugin.
- *
- * @deprecated 2.2.0 Use \Apollo\Schema instead as the single entry point.
- *                   This class is kept for backward compatibility only.
- * @see        \Apollo\Schema
- */
+use Apollo\Infrastructure\Database\SocialSchema;
+use Apollo\Infrastructure\Database\EventsSchema;
+use Apollo\Infrastructure\Database\AdvertsSchema;
+
 class Schema {
 
-	private string $version = '1.0.0';
+	private string $version = '2.3.0';
 
-	/**
-	 * P0-3: Install all Apollo tables with migration safety
-	 *
-	 * @deprecated 2.2.0 Use \Apollo\Schema::install() instead.
-	 */
-	 */
 	public function install(): void {
-		// Check if already installed at current version
 		$current_version = $this->getSchemaVersion();
 		if ( version_compare( $current_version, $this->version, '>=' ) ) {
-			// Already at or above target version, skip
 			return;
 		}
 
@@ -37,11 +24,15 @@ class Schema {
 		$this->createSignatureRequestsTable();
 		$this->createOnboardingProgressTable();
 		$this->createLikesTable();
-		// FASE 2: Tabela de curtidas
 		$this->createDocumentsTable();
-		// P0-9: Tabela de documentos
+		$this->createNotificationsTable();
+		$this->createBlockListTable();
+		$this->createFollowersTable();
 
-		// P0-3: Update schema version after successful installation
+		SocialSchema::install();
+		EventsSchema::install();
+		AdvertsSchema::install();
+
 		$this->updateSchemaVersion();
 	}
 
@@ -457,6 +448,72 @@ class Schema {
 		dbDelta( $sql );
 	}
 
+	private function createNotificationsTable(): void {
+		global $wpdb;
+		$t=$wpdb->prefix.'apollo_notifications';$c=$wpdb->get_charset_collate();
+		$sql="CREATE TABLE {$t} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			type varchar(50) NOT NULL,
+			title varchar(255) NOT NULL,
+			content text,
+			link varchar(500) DEFAULT NULL,
+			actor_id bigint(20) unsigned DEFAULT NULL,
+			object_type varchar(50) DEFAULT NULL,
+			object_id bigint(20) unsigned DEFAULT NULL,
+			icon varchar(50) DEFAULT NULL,
+			image varchar(500) DEFAULT NULL,
+			priority enum('low','normal','high') NOT NULL DEFAULT 'normal',
+			meta longtext,
+			is_read tinyint(1) NOT NULL DEFAULT 0,
+			read_at datetime DEFAULT NULL,
+			is_deleted tinyint(1) NOT NULL DEFAULT 0,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY user_idx (user_id),
+			KEY type_idx (type),
+			KEY actor_idx (actor_id),
+			KEY object_idx (object_type,object_id),
+			KEY read_idx (is_read),
+			KEY created_idx (created_at)
+		) {$c};";
+		require_once ABSPATH.'wp-admin/includes/upgrade.php';
+		dbDelta($sql);
+	}
+
+	private function createBlockListTable(): void {
+		global $wpdb;
+		$t=$wpdb->prefix.'apollo_block_list';$c=$wpdb->get_charset_collate();
+		$sql="CREATE TABLE {$t} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			blocked_id bigint(20) unsigned NOT NULL,
+			reason text,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY user_blocked_uk (user_id,blocked_id),
+			KEY blocked_idx (blocked_id)
+		) {$c};";
+		require_once ABSPATH.'wp-admin/includes/upgrade.php';
+		dbDelta($sql);
+	}
+
+	private function createFollowersTable(): void {
+		global $wpdb;
+		$t=$wpdb->prefix.'apollo_followers';$c=$wpdb->get_charset_collate();
+		$sql="CREATE TABLE {$t} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL,
+			follower_id bigint(20) unsigned NOT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY user_follower_uk (user_id,follower_id),
+			KEY follower_idx (follower_id)
+		) {$c};";
+		require_once ABSPATH.'wp-admin/includes/upgrade.php';
+		dbDelta($sql);
+	}
+
 	/**
 	 * Get current schema version
 	 */
@@ -501,6 +558,10 @@ class Schema {
 	public function uninstall(): void {
 		global $wpdb;
 
+		SocialSchema::uninstall();
+		EventsSchema::uninstall();
+		AdvertsSchema::uninstall();
+
 		$tables = [
 			$wpdb->prefix . 'apollo_workflow_log',
 			$wpdb->prefix . 'apollo_mod_queue',
@@ -513,6 +574,9 @@ class Schema {
 			$wpdb->prefix . 'apollo_likes',
 			$wpdb->prefix . 'apollo_documents',
 			$wpdb->prefix . 'apollo_ads',
+			$wpdb->prefix . 'apollo_notifications',
+			$wpdb->prefix . 'apollo_block_list',
+			$wpdb->prefix . 'apollo_followers',
 		];
 
 		foreach ( $tables as $table ) {

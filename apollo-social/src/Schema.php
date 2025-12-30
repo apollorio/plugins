@@ -18,6 +18,8 @@ use Apollo\Modules\Documents\DocumentsSchema;
 use Apollo\Modules\Chat\ChatSchema;
 use Apollo\Modules\Likes\LikesSchema;
 use Apollo\Infrastructure\Database\CoreSchema;
+use Apollo\Infrastructure\Database\SocialSchema;
+use Apollo\Infrastructure\Database\ExtendedSchema;
 use WP_Error;
 
 /**
@@ -29,7 +31,7 @@ final class Schema {
 	public const VERSION_OPTION = 'apollo_schema_version';
 
 	/** @var string Current schema version */
-	public const CURRENT_VERSION = '2.2.0';
+	public const CURRENT_VERSION = '2.3.0';
 
 	/** @var array<string, SchemaModuleInterface> Registered module schemas */
 	private array $modules = array();
@@ -59,6 +61,16 @@ final class Schema {
 			if ( class_exists( CoreSchema::class ) ) {
 				$core = new CoreSchema();
 				$core->install();
+			}
+
+			// Social tables.
+			if ( class_exists( SocialSchema::class ) ) {
+				SocialSchema::install();
+			}
+
+			// Extended tables (v2.3.0+).
+			if ( class_exists( ExtendedSchema::class ) ) {
+				ExtendedSchema::install();
 			}
 
 			// Module tables.
@@ -106,6 +118,16 @@ final class Schema {
 			if ( class_exists( CoreSchema::class ) ) {
 				$core = new CoreSchema();
 				$core->upgrade( $stored, self::CURRENT_VERSION );
+			}
+
+			// Social upgrades.
+			if ( class_exists( SocialSchema::class ) ) {
+				SocialSchema::install();
+			}
+
+			// Extended upgrades.
+			if ( class_exists( ExtendedSchema::class ) ) {
+				ExtendedSchema::install();
 			}
 
 			// Module upgrades.

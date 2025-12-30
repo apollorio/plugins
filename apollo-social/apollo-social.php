@@ -304,6 +304,20 @@ add_action(
 			\Apollo\Infrastructure\ApolloLogger::debug( 'chat_module_disabled', array( 'reason' => 'feature_flag_off' ), 'feature' );
 		}
 
+		// =================================================================
+		// APOLLO SOCIAL NETWORK MODULES (Premium Features)
+		// =================================================================
+
+		// Initialize Social Service Provider (AJAX, REST API, Shortcodes, Cron).
+		if ( class_exists( '\Apollo\Providers\SocialServiceProvider' ) ) {
+			\Apollo\Providers\SocialServiceProvider::boot();
+		}
+
+		// Initialize Admin Menus (Dashboard, Members, Groups, Moderation, etc).
+		if ( is_admin() && class_exists( '\Apollo\Admin\AdminMenus' ) ) {
+			\Apollo\Admin\AdminMenus::register();
+		}
+
 		// Register with Apollo Core Integration Bridge when ready.
 		add_action(
 			'apollo_core_ready',
