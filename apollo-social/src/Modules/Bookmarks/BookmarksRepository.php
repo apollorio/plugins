@@ -5,7 +5,7 @@ namespace Apollo\Modules\Bookmarks;
 final class BookmarksRepository {
 	private const TABLE='apollo_bookmarks';
 	private const COLLECTIONS='apollo_bookmark_collections';
-	
+
 	public static function add(int $userId, string $objectType, int $objectId, int $collectionId=0): int|false {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;

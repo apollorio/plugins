@@ -8,7 +8,7 @@ final class ActivityCommentsRepository {
 	public static function create(int $activityId, int $userId, string $content, ?int $parentId=null): ?int {
 		global $wpdb;
 		$content=wp_kses_post($content);
-		if(empty(trim($content))){return null;}
+		if(empty(\trim($content))){return null;}
 		$r=$wpdb->insert($wpdb->prefix.self::TABLE,[
 			'activity_id'=>$activityId,
 			'user_id'=>$userId,

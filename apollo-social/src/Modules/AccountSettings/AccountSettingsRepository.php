@@ -159,7 +159,7 @@ final class AccountSettingsRepository {
 		$result=[];
 		foreach($sessions as $token=>$data){
 			$result[]=[
-				'token_hash'=>substr(md5($token),0,8),
+				'token_hash'=>\substr(md5($token),0,8),
 				'login'=>$data['login']??0,
 				'expiration'=>$data['expiration']??0,
 				'ip'=>$data['ip']??'',
@@ -173,7 +173,7 @@ final class AccountSettingsRepository {
 		$sessions=get_user_meta($userId,'session_tokens',true);
 		if(!is_array($sessions)){return false;}
 		foreach($sessions as $token=>$data){
-			if(substr(md5($token),0,8)===$tokenHash){
+			if(\substr(md5($token),0,8)===$tokenHash){
 				unset($sessions[$token]);
 				update_user_meta($userId,'session_tokens',$sessions);
 				return true;
@@ -187,7 +187,7 @@ final class AccountSettingsRepository {
 		if(!is_array($sessions)){return 0;}
 		$count=0;
 		foreach($sessions as $token=>$data){
-			if($exceptCurrent&&substr(md5($token),0,8)===$exceptCurrent){continue;}
+			if($exceptCurrent&&\substr(md5($token),0,8)===$exceptCurrent){continue;}
 			unset($sessions[$token]);
 			$count++;
 		}

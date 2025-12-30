@@ -51,7 +51,7 @@ final class ActivityFeedRepository {
 		$t=$wpdb->prefix.self::TABLE;
 		$areFriends=self::areFriends($viewerId,$profileId);
 		$privacy=$viewerId===$profileId?['public','friends','private']:($areFriends?['public','friends']:['public']);
-		$in=implode("','",array_map('esc_sql',$privacy));
+		$in=\implode("','",array_map('esc_sql',$privacy));
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT a.*,u.display_name FROM {$t} a
 			JOIN {$wpdb->users} u ON a.user_id=u.ID

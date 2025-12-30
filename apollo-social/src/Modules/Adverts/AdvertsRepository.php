@@ -90,7 +90,7 @@ final class AdvertsRepository {
 				'newest'=>'created_at DESC','oldest'=>'created_at ASC',default=>'created_at DESC'
 			};
 		}
-		$w=implode(' AND ',$where);$params[]=$limit;$params[]=$offset;
+		$w=\implode(' AND ',$where);$params[]=$limit;$params[]=$offset;
 		return $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE {$w} ORDER BY featured DESC,{$order} LIMIT %d OFFSET %d",...$params),ARRAY_A)??[];
 	}
 
@@ -101,7 +101,7 @@ final class AdvertsRepository {
 		if(!empty($filters['category_id'])){$where[]='category_id=%d';$params[]=$filters['category_id'];}
 		if(!empty($filters['city'])){$where[]='city=%s';$params[]=$filters['city'];}
 		if(isset($filters['user_id'])){$where[]='user_id=%d';$params[]=$filters['user_id'];}
-		$w=implode(' AND ',$where);
+		$w=\implode(' AND ',$where);
 		return (int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$t} WHERE {$w}",...$params));
 	}
 

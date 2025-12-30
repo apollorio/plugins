@@ -1137,5 +1137,3 @@ final class SocialSchema {
 		dbDelta($sql);
 	}
 }
-	}
-}

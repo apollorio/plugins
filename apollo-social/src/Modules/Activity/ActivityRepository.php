@@ -57,7 +57,7 @@ final class ActivityRepository {
 		if($a['type']){$where[]='type=%s';$params[]=$a['type'];}
 		if($a['privacy']){$where[]='privacy=%s';$params[]=$a['privacy'];}
 		if($a['parent_id']!==null){$where[]='parent_id=%d';$params[]=(int)$a['parent_id'];}
-		$w=implode(' AND ',$where);
+		$w=\implode(' AND ',$where);
 		$params[]=$a['limit'];$params[]=$a['offset'];
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT a.*,u.display_name,u.user_email FROM {$wpdb->prefix}".self::TABLE." a
@@ -74,7 +74,7 @@ final class ActivityRepository {
 		if($viewerId>0)$privacy[]='members';
 		if($isFriend||$isSelf)$privacy[]='friends';
 		if($isSelf)$privacy[]='private';
-		$in="'".implode("','",$privacy)."'";
+		$in="'".\implode("','",$privacy)."'";
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT a.*,u.display_name FROM {$wpdb->prefix}".self::TABLE." a
 			 LEFT JOIN {$wpdb->users} u ON u.ID=a.user_id

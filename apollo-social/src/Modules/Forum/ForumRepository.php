@@ -42,7 +42,7 @@ final class ForumRepository {
 			$like='%'.$wpdb->esc_like($a['search']).'%';
 			$params=array_merge($params,[$like,$like]);
 		}
-		$w=implode(' AND ',$where);
+		$w=\implode(' AND ',$where);
 		$params[]=$a['limit'];$params[]=$a['offset'];
 		$rows=$wpdb->get_results($wpdb->prepare(
 			"SELECT t.*,u.display_name as author_name FROM {$wpdb->prefix}".self::TOPICS." t

@@ -4,7 +4,7 @@ namespace Apollo\Modules\Profile;
 
 final class ProfileViewsRepository {
 	private const TABLE='apollo_profile_views';
-	
+
 	public static function record(int $profileUserId, int $viewerId, string $ip=''): bool {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;

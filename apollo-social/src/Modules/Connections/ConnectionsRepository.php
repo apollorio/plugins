@@ -145,4 +145,15 @@ final class ConnectionsRepository {
 	public static function getBubble(int $userId): array {
 		return self::getCloseFriends($userId);
 	}
+
+	public static function removeAllConnections(int $userId): bool {
+		global $wpdb;
+		$wpdb->delete($wpdb->prefix.self::CLOSE,['user_id'=>$userId]);
+		$wpdb->delete($wpdb->prefix.self::CLOSE,['friend_id'=>$userId]);
+		$wpdb->query($wpdb->prepare(
+			"DELETE FROM {$wpdb->prefix}".self::TABLE." WHERE user_id=%d OR friend_id=%d",
+			$userId,$userId
+		));
+		return true;
+	}
 }

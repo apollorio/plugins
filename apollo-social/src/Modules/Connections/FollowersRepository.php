@@ -118,7 +118,7 @@ final class FollowersRepository {
 		$t=$wpdb->prefix.self::TABLE;
 		$following=self::getFollowingIds($userId);
 		$following[]=$userId;
-		$in=implode(',',array_map('intval',$following));
+		$in=\implode(',',array_map('intval',$following));
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT f.user_id,COUNT(*) as mutual_count,u.display_name FROM {$t} f JOIN {$wpdb->users} u ON f.user_id=u.ID WHERE f.follower_id IN ({$in}) AND f.user_id NOT IN ({$in}) GROUP BY f.user_id ORDER BY mutual_count DESC LIMIT %d",
 			$limit

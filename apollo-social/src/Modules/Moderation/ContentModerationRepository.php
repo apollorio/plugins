@@ -6,7 +6,7 @@ final class ContentModerationRepository {
 	private const T_QUEUE='apollo_moderation_queue';
 	private const T_ACTIONS='apollo_moderation_actions';
 	private const T_RULES='apollo_moderation_rules';
-	
+
 	public static function addToQueue(string $contentType, int $contentId, int $authorId, string $content, string $reason='auto'): int|false {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_QUEUE;
@@ -19,7 +19,7 @@ final class ContentModerationRepository {
 			'content_type'=>$contentType,
 			'content_id'=>$contentId,
 			'author_id'=>$authorId,
-			'content_preview'=>mb_substr(strip_tags($content),0,500),
+			'content_preview'=>mb_substr(\strip_tags($content),0,500),
 			'reason'=>$reason,
 			'status'=>'pending',
 			'created_at'=>gmdate('Y-m-d H:i:s')

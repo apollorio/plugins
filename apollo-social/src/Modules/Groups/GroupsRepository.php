@@ -56,9 +56,9 @@ final class GroupsRepository {
 		}
 		if($a['status']){$where[]="status=%s";$params[]=$a['status'];}
 		if($a['type_id']){$where[]="type_id=%d";$params[]=(int)$a['type_id'];}
-		$w=implode(' AND ',$where);
+		$w=\implode(' AND ',$where);
 		$ob=in_array($a['orderby'],['name','created_at','id'])?$a['orderby']:'name';
-		$o=strtoupper($a['order'])==='DESC'?'DESC':'ASC';
+		$o=\strtoupper($a['order'])==='DESC'?'DESC':'ASC';
 		$params[]=$a['limit'];$params[]=$a['offset'];
 		$rows=$wpdb->get_results($wpdb->prepare(
 			"SELECT * FROM {$wpdb->prefix}".self::TABLE." WHERE {$w} ORDER BY {$ob} {$o} LIMIT %d OFFSET %d",...$params

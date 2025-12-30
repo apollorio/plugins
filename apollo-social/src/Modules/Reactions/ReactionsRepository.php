@@ -5,7 +5,7 @@ namespace Apollo\Modules\Reactions;
 final class ReactionsRepository {
 	private const TABLE='apollo_reactions';
 	private const TYPES=['like','love','haha','wow','sad','angry','care'];
-	
+
 	public static function react(int $userId, string $objectType, int $objectId, string $reactionType): bool {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;
@@ -112,7 +112,7 @@ final class ReactionsRepository {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;
 		if(empty($objectIds))return[];
-		$placeholders=implode(',',array_fill(0,count($objectIds),'%d'));
+		$placeholders=\implode(',',\array_fill(0,\count($objectIds),'%d'));
 		$results=$wpdb->get_results($wpdb->prepare(
 			"SELECT object_id,reaction_type FROM {$t} WHERE user_id=%d AND object_type=%s AND object_id IN({$placeholders})",
 			array_merge([$userId,$objectType],$objectIds)
@@ -128,7 +128,7 @@ final class ReactionsRepository {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;
 		if(empty($objectIds))return[];
-		$placeholders=implode(',',array_fill(0,count($objectIds),'%d'));
+		$placeholders=\implode(',',\array_fill(0,\count($objectIds),'%d'));
 		$results=$wpdb->get_results($wpdb->prepare(
 			"SELECT object_id,reaction_type,COUNT(*) as count FROM {$t} WHERE object_type=%s AND object_id IN({$placeholders}) GROUP BY object_id,reaction_type",
 			array_merge([$objectType],$objectIds)

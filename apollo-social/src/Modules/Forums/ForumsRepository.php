@@ -52,7 +52,7 @@ final class ForumsRepository {
 		$args=[];
 		if($parentId>=0){$where[]='f.parent_id=%d';$args[]=$parentId;}
 		if($groupId>0){$where[]='f.group_id=%d';$args[]=$groupId;}
-		$whereStr=implode(' AND ',$where);
+		$whereStr=\implode(' AND ',$where);
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT f.*,
 			(SELECT COUNT(*) FROM {$top} WHERE forum_id=f.id) as topic_count,

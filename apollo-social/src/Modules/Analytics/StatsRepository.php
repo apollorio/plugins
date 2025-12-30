@@ -9,7 +9,7 @@ final class StatsRepository {
 	private const T_CONNECTIONS='apollo_connections';
 	private const T_GROUPS='apollo_groups';
 	private const T_GROUP_MEMBERS='apollo_group_members';
-	
+
 	public static function getSiteStats(): array {
 		global $wpdb;
 		$today=gmdate('Y-m-d');
@@ -73,7 +73,7 @@ final class StatsRepository {
 		global $wpdb;
 		return match($metric){
 			'points'=>$wpdb->get_results($wpdb->prepare(
-				"SELECT u.ID,u.display_name,p.points FROM {$wpdb->users} u 
+				"SELECT u.ID,u.display_name,p.points FROM {$wpdb->users} u
 				JOIN {$wpdb->prefix}".self::T_POINTS." p ON u.ID=p.user_id
 				ORDER BY p.points DESC LIMIT %d",$limit),ARRAY_A)??[],
 			'connections'=>$wpdb->get_results($wpdb->prepare(

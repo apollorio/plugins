@@ -45,7 +45,7 @@ final class ProfileFieldsRepository {
 		global $wpdb;
 		$fields=$wpdb->get_col($wpdb->prepare("SELECT id FROM {$wpdb->prefix}".self::FIELDS." WHERE group_id=%d",$id));
 		if($fields){
-			$in=implode(',',$fields);
+			$in=\implode(',',$fields);
 			$wpdb->query("DELETE FROM {$wpdb->prefix}".self::VALUES." WHERE field_id IN ({$in})");
 			$wpdb->delete($wpdb->prefix.self::FIELDS,['group_id'=>$id]);
 		}

@@ -88,7 +88,7 @@ final class ProfileFields {
             'tel' => preg_replace('/[^0-9+\-\s()]/', '', $value),
             'date' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) ? $value : '',
             'number' => (int) $value,
-            'tags' => is_array($value) ? array_map('sanitize_text_field', $value) : explode(',', sanitize_text_field($value)),
+            'tags' => is_array($value) ? array_map('sanitize_text_field', $value) : \explode(',', sanitize_text_field($value)),
             default => sanitize_text_field($value),
         };
     }
@@ -103,7 +103,7 @@ final class ProfileFields {
         $class = $attrs['class'] ?? 'apollo-input';
         $html = match($config['type']) {
             'textarea' => sprintf('<textarea id="%s" name="%s" class="%s" rows="3">%s</textarea>', $id, $name, $class, esc_textarea($value)),
-            'tags' => sprintf('<input type="text" id="%s" name="%s" class="%s" value="%s" data-type="tags">', $id, $name, $class, esc_attr(is_array($value) ? implode(', ', $value) : $value)),
+            'tags' => sprintf('<input type="text" id="%s" name="%s" class="%s" value="%s" data-type="tags">', $id, $name, $class, esc_attr(is_array($value) ? \implode(', ', $value) : $value)),
             default => sprintf('<input type="%s" id="%s" name="%s" class="%s" value="%s">', $config['type'], $id, $name, $class, esc_attr($value)),
         };
         return sprintf('<div class="apollo-field"><label for="%s">%s</label>%s</div>', $id, esc_html($config['label']), $html);

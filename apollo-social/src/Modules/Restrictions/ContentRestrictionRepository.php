@@ -54,7 +54,7 @@ final class ContentRestrictionRepository {
 		if(!empty($restriction['memberships'])){
 			$hasMembership=false;
 			foreach($restriction['memberships'] as $membershipId){
-				if(function_exists('swpm_is_member_of')&&swpm_is_member_of($userId,$membershipId)){
+				if(\function_exists('swpm_is_member_of')&&\swpm_is_member_of($userId,$membershipId)){
 					$hasMembership=true;break;
 				}
 			}

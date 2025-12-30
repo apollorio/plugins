@@ -4,7 +4,7 @@ namespace Apollo\Modules\MyData;
 
 final class UserExportRepository {
 	private const T_EXPORTS='apollo_data_exports';
-	
+
 	public static function requestExport(int $userId, array $dataTypes=[]): int|false {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_EXPORTS;

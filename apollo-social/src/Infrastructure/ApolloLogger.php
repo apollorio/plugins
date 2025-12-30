@@ -120,7 +120,7 @@ class ApolloLogger {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$log_message = sprintf(
 				'[Apollo %s] [%s] %s: %s %s',
-				strtoupper( $level ),
+				\strtoupper( $level ),
 				$category,
 				$event,
 				$message,
@@ -258,9 +258,9 @@ class ApolloLogger {
 		$orderby = in_array( $args['orderby'], array( 'id', 'level', 'category', 'event', 'created_at' ), true )
 			? $args['orderby']
 			: 'created_at';
-		$order   = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
+		$order   = \strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
 
-		$sql = "SELECT * FROM {$table_name} WHERE " . implode( ' AND ', $where );
+		$sql = "SELECT * FROM {$table_name} WHERE " . \implode( ' AND ', $where );
 		$sql .= " ORDER BY {$orderby} {$order}";
 		$sql .= $wpdb->prepare( ' LIMIT %d OFFSET %d', $args['limit'], $args['offset'] );
 
@@ -336,8 +336,8 @@ class ApolloLogger {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
 				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 				// Handle comma-separated IPs (X-Forwarded-For)
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = trim( explode( ',', $ip )[0] );
+				if ( \strpos( $ip, ',' ) !== false ) {
+					$ip = \trim( \explode( ',', $ip )[0] );
 				}
 				return $ip;
 			}

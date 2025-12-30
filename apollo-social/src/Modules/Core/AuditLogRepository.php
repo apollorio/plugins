@@ -4,7 +4,7 @@ namespace Apollo\Modules\Core;
 
 final class AuditLogRepository {
 	private const TABLE='apollo_audit_logs';
-	
+
 	public static function log(string $action, int $userId=0, string $objectType='', int $objectId=0, array $data=[], string $ip=''): int|false {
 		global $wpdb;
 		$t=$wpdb->prefix.self::TABLE;
@@ -15,7 +15,7 @@ final class AuditLogRepository {
 			'object_id'=>$objectId,
 			'data'=>json_encode($data),
 			'ip_address'=>$ip?:($_SERVER['REMOTE_ADDR']??''),
-			'user_agent'=>substr($_SERVER['HTTP_USER_AGENT']??'',0,500),
+			'user_agent'=>\substr($_SERVER['HTTP_USER_AGENT']??'',0,500),
 			'created_at'=>gmdate('Y-m-d H:i:s')
 		],['%d','%s','%s','%d','%s','%s','%s','%s']);
 		return $wpdb->insert_id?:false;
@@ -130,7 +130,7 @@ final class AuditLogRepository {
 			$where[]='created_at<=%s';
 			$args[]=$filters['date_to'];
 		}
-		$whereStr=implode(' AND ',$where);
+		$whereStr=\implode(' AND ',$where);
 		$args[]=$limit;
 		$args[]=$offset;
 		return $wpdb->get_results($wpdb->prepare(

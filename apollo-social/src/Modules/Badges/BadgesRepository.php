@@ -60,7 +60,7 @@ final class BadgesRepository {
 		if($result){
 			$badge=self::get($badgeId);
 			if($badge&&$badge['points_value']>0){
-				\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',$badge['points_value'],'badge_awarded','Earned badge: '.$badge['name']);
+				\Apollo\Modules\Gamification\PointsRepository::add($userId,(int)$badge['points_value'],'badge_awarded','default',null,null,'Earned badge: '.$badge['name']);
 			}
 			do_action('apollo_badge_awarded',$userId,$badgeId);
 		}

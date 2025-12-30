@@ -6,7 +6,7 @@ final class MyAdvertsRepository {
 	private const T_ADVERTS='apollo_adverts';
 	private const T_FAVORITES='apollo_advert_favorites';
 	private const T_VIEWS='apollo_advert_views';
-	
+
 	public static function getUserAdverts(int $userId, string $status='', int $limit=20, int $offset=0): array {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_ADVERTS;

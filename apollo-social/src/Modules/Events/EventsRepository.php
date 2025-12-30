@@ -114,7 +114,7 @@ final class EventsRepository {
 		if(!empty($filters['start_after'])){$where[]='start_date>=%s';$params[]=$filters['start_after'];}
 		if(!empty($filters['start_before'])){$where[]='start_date<=%s';$params[]=$filters['start_before'];}
 		if(isset($filters['is_free'])&&$filters['is_free']){$where[]='(price=0 OR price IS NULL)';}
-		$w=implode(' AND ',$where);$params[]=$limit;$params[]=$offset;
+		$w=\implode(' AND ',$where);$params[]=$limit;$params[]=$offset;
 		return $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE {$w} ORDER BY start_date ASC LIMIT %d OFFSET %d",...$params),ARRAY_A)??[];
 	}
 

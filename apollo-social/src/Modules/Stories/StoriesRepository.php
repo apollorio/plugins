@@ -6,7 +6,7 @@ final class StoriesRepository {
 	private const T_STORIES='apollo_stories';
 	private const T_VIEWS='apollo_story_views';
 	private const T_REPLIES='apollo_story_replies';
-	
+
 	public static function create(int $userId, string $mediaUrl, string $mediaType='image', array $data=[]): int|false {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_STORIES;
@@ -71,7 +71,7 @@ final class StoriesRepository {
 		$followingIds=$wpdb->get_col($wpdb->prepare("SELECT following_id FROM {$f} WHERE follower_id=%d",$userId));
 		$allIds=array_unique(array_merge($friendIds,$followingIds,[$userId]));
 		if(empty($allIds))return [];
-		$placeholders=implode(',',array_fill(0,count($allIds),'%d'));
+		$placeholders=\implode(',',\array_fill(0,\count($allIds),'%d'));
 		$users=$wpdb->get_results($wpdb->prepare(
 			"SELECT DISTINCT s.user_id,u.display_name,
 			(SELECT COUNT(*) FROM {$t} WHERE user_id=s.user_id AND expires_at>NOW() AND is_deleted=0) as story_count,

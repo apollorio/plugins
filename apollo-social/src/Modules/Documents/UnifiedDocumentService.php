@@ -640,8 +640,8 @@ class UnifiedDocumentService {
 		foreach ( $headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
 				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = trim( explode( ',', $ip )[0] );
+				if ( \strpos( $ip, ',' ) !== false ) {
+					$ip = \trim( \explode( ',', $ip )[0] );
 				}
 				return $ip;
 			}

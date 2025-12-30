@@ -25,6 +25,9 @@ class FeatureFlags {
 	/** @var string Option key for storing flags */
 	private const OPTION_KEY = 'apollo_feature_flags';
 
+	/** @var bool Whether init() has been called */
+	private static bool $initialized = false;
+
 	/** @var array Default feature states */
 	private const DEFAULTS = array(
 		// Core features (enabled by default)
@@ -49,12 +52,65 @@ class FeatureFlags {
 	private static ?array $cache = null;
 
 	/**
+	 * Initialize Feature Flags (must be called early in bootstrap).
+	 *
+	 * This is a "fail-closed" guard: if init() is not called,
+	 * isInitialized() returns false and modules should not load.
+	 *
+	 * @return void
+	 */
+	public static function init(): void {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		// Pre-load cache to avoid DB hits during request.
+		self::getFlags();
+
+		self::$initialized = true;
+
+		// Log initialization in debug mode.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$disabled = self::getDisabledFeatures();
+			if ( ! empty( $disabled ) ) {
+				error_log( 'Apollo FeatureFlags: Disabled features: ' . \implode( ', ', $disabled ) );
+			}
+		}
+	}
+
+	/**
+	 * Check if FeatureFlags has been initialized.
+	 *
+	 * Fail-closed rule: if not initialized, modules must not run.
+	 *
+	 * @return bool
+	 */
+	public static function isInitialized(): bool {
+		return self::$initialized;
+	}
+
+	/**
 	 * Check if a feature is enabled
+	 *
+	 * Fail-closed: if not initialized, returns false.
 	 *
 	 * @param string $feature Feature key.
 	 * @return bool
 	 */
 	public static function isEnabled( string $feature ): bool {
+		// Fail-closed: if not initialized, block all features.
+		if ( ! self::$initialized ) {
+			// Allow during activation hook (before init is called).
+			if ( ! doing_action( 'activate_' ) && ! did_action( 'plugins_loaded' ) ) {
+				return self::DEFAULTS[ $feature ] ?? false;
+			}
+			// Log warning if init() was skipped after plugins_loaded.
+			if ( did_action( 'plugins_loaded' ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( "Apollo FeatureFlags: Not initialized. Feature '{$feature}' blocked (fail-closed)." );
+			}
+			return false;
+		}
+
 		$flags = self::getFlags();
 
 		// Check if feature exists

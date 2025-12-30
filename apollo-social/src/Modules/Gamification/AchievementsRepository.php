@@ -42,7 +42,7 @@ final class AchievementsRepository {
 	public static function getAll(bool $activeOnly=true,bool $includeSecret=false): array {
 		global $wpdb;
 		$w=[];if($activeOnly)$w[]='is_active=1';if(!$includeSecret)$w[]='is_secret=0';
-		$where=$w?'WHERE '.implode(' AND ',$w):'';
+		$where=$w?'WHERE '.\implode(' AND ',$w):'';
 		$rows=$wpdb->get_results("SELECT * FROM {$wpdb->prefix}".self::TABLE." {$where} ORDER BY type,name",ARRAY_A)?:[];
 		foreach($rows as &$r)$r['trigger_conditions']=json_decode($r['trigger_conditions']??'',true);
 		return $rows;

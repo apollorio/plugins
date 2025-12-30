@@ -55,7 +55,7 @@ class CenaRioModule {
 		self::registerRole();
 		self::registerPostTypes();
 		self::ensurePageExists();
-		flush_rewrite_rules();
+		// NOTE: flush_rewrite_rules removed. Delegated to Apollo_Router::onActivation().
 	}
 
 	/**

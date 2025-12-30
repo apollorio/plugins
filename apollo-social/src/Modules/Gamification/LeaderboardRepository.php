@@ -14,12 +14,12 @@ final class LeaderboardRepository {
 			"SELECT p.user_id,SUM(p.points) as total_points,u.display_name,um.meta_value as avatar,
 			(SELECT COUNT(*) FROM {$wpdb->prefix}apollo_user_achievements WHERE user_id=p.user_id) as badges,
 			(SELECT name FROM {$wpdb->prefix}apollo_ranks r WHERE r.min_points<=SUM(p.points) ORDER BY r.min_points DESC LIMIT 1) as rank_name
-			FROM {$t} p 
-			JOIN {$wpdb->users} u ON p.user_id=u.ID 
+			FROM {$t} p
+			JOIN {$wpdb->users} u ON p.user_id=u.ID
 			LEFT JOIN {$wpdb->usermeta} um ON p.user_id=um.user_id AND um.meta_key='apollo_avatar'
 			{$dateFilter}
-			GROUP BY p.user_id 
-			ORDER BY total_points DESC 
+			GROUP BY p.user_id
+			ORDER BY total_points DESC
 			LIMIT %d",
 			$limit
 		),ARRAY_A)??[];
@@ -31,11 +31,11 @@ final class LeaderboardRepository {
 		$dateFilter=self::getPeriodFilter($period,'p.');
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT p.user_id,SUM(p.points) as total_points,u.display_name
-			FROM {$t} p 
-			JOIN {$wpdb->users} u ON p.user_id=u.ID 
+			FROM {$t} p
+			JOIN {$wpdb->users} u ON p.user_id=u.ID
 			WHERE p.category=%s {$dateFilter}
-			GROUP BY p.user_id 
-			ORDER BY total_points DESC 
+			GROUP BY p.user_id
+			ORDER BY total_points DESC
 			LIMIT %d",
 			$category,$limit
 		),ARRAY_A)??[];

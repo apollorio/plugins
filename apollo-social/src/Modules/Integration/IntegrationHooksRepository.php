@@ -16,8 +16,8 @@ final class IntegrationHooksRepository {
 	}
 
 	public static function onUserRegister(int $userId): void {
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',10,'user_register','User registered');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'user_register',[]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,10,'user_register','default',null,null,'User registered');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'user_register',1);
 	}
 
 	public static function onUserLogin(string $userLogin,\WP_User $user): void {
@@ -25,13 +25,13 @@ final class IntegrationHooksRepository {
 		$lastLogin=get_user_meta($user->ID,'apollo_last_login',true);
 		$today=current_time('Y-m-d');
 		if($lastLogin!==$today){
-			\Apollo\Modules\Gamification\PointsRepository::add($user->ID,'default',2,'daily_login','Daily login bonus');
-			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($user->ID,'daily_login',[]);
+			\Apollo\Modules\Gamification\PointsRepository::add($user->ID,2,'daily_login','default',null,null,'Daily login bonus');
+			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($user->ID,'daily_login',1);
 		}
 		update_user_meta($user->ID,'apollo_last_login',$today);
 		$streak=(int)get_user_meta($user->ID,'apollo_login_streak',true);
 		$lastDate=get_user_meta($user->ID,'apollo_login_streak_date',true);
-		$yesterday=date('Y-m-d',strtotime('-1 day'));
+		$yesterday=\date('Y-m-d',\strtotime('-1 day'));
 		if($lastDate===$yesterday){
 			$streak++;
 		}elseif($lastDate!==$today){
@@ -39,14 +39,14 @@ final class IntegrationHooksRepository {
 		}
 		update_user_meta($user->ID,'apollo_login_streak',$streak);
 		update_user_meta($user->ID,'apollo_login_streak_date',$today);
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($user->ID,'login_streak',['streak'=>$streak]);
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($user->ID,'login_streak',$streak,['streak'=>$streak]);
 	}
 
 	public static function onProfileUpdate(int $userId,?\WP_User $oldUser=null): void {
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'profile_update',[]);
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'profile_update',1);
 		$completeness=\Apollo\Modules\Profiles\ProfileFieldsRepository::calculateCompleteness($userId);
 		if($completeness>=100){
-			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'profile_complete',['completeness'=>$completeness]);
+			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'profile_complete',1,['completeness'=>$completeness]);
 		}
 	}
 
@@ -60,8 +60,8 @@ final class IntegrationHooksRepository {
 		$comment=get_comment($commentId);
 		if(!$comment||!$comment->user_id)return;
 		$userId=(int)$comment->user_id;
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',3,'comment_post','Posted a comment');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'comment_post',['comment_id'=>$commentId]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,3,'comment_post','default',$commentId,'comment','Posted a comment');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'comment_post',1,['comment_id'=>$commentId]);
 	}
 
 	public static function onPostStatusChange(string $newStatus,string $oldStatus,$post): void {
@@ -69,8 +69,8 @@ final class IntegrationHooksRepository {
 		$userId=(int)$post->post_author;
 		if($newStatus==='publish'&&$oldStatus!=='publish'){
 			$points=$post->post_type==='post'?15:10;
-			\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',$points,'post_publish','Published content');
-			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'post_publish',['post_id'=>$post->ID,'post_type'=>$post->post_type]);
+			\Apollo\Modules\Gamification\PointsRepository::add($userId,$points,'post_publish','default',$post->ID,'post','Published content');
+			\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'post_publish',1,['post_id'=>$post->ID,'post_type'=>$post->post_type]);
 		}
 	}
 
@@ -78,8 +78,8 @@ final class IntegrationHooksRepository {
 		$attachment=get_post($attachmentId);
 		if(!$attachment||!$attachment->post_author)return;
 		$userId=(int)$attachment->post_author;
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',5,'media_upload','Uploaded media');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'media_upload',['attachment_id'=>$attachmentId]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,5,'media_upload','default',$attachmentId,'attachment','Uploaded media');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'media_upload',1,['attachment_id'=>$attachmentId]);
 	}
 
 	public static function trackOnlineUsers(): void {
@@ -97,20 +97,20 @@ final class IntegrationHooksRepository {
 	}
 
 	public static function onFriendAccepted(int $userId,int $friendId): void {
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',5,'friend_accepted','Made a new friend');
-		\Apollo\Modules\Gamification\PointsRepository::add($friendId,'default',5,'friend_accepted','Made a new friend');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'friend_accepted',['friend_id'=>$friendId]);
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($friendId,'friend_accepted',['friend_id'=>$userId]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,5,'friend_accepted','default',$friendId,'user','Made a new friend');
+		\Apollo\Modules\Gamification\PointsRepository::add($friendId,5,'friend_accepted','default',$userId,'user','Made a new friend');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'friend_accepted',1,['friend_id'=>$friendId]);
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($friendId,'friend_accepted',1,['friend_id'=>$userId]);
 	}
 
 	public static function onGroupJoined(int $userId,int $groupId): void {
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',8,'group_joined','Joined a group');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'group_joined',['group_id'=>$groupId]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,8,'group_joined','default',$groupId,'group','Joined a group');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'group_joined',1,['group_id'=>$groupId]);
 	}
 
 	public static function onActivityPosted(int $userId,int $activityId): void {
-		\Apollo\Modules\Gamification\PointsRepository::add($userId,'default',3,'activity_posted','Posted activity update');
-		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'activity_posted',['activity_id'=>$activityId]);
+		\Apollo\Modules\Gamification\PointsRepository::add($userId,3,'activity_posted','default',$activityId,'activity','Posted activity update');
+		\Apollo\Modules\Gamification\AchievementsRepository::processTrigger($userId,'activity_posted',1,['activity_id'=>$activityId]);
 	}
 
 	public static function onAchievementUnlocked(int $userId,int $achievementId): void {

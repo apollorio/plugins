@@ -11,7 +11,7 @@ final class MessagingRepository {
 		global $wpdb;
 		if(count($participantIds)<2)return 0;
 		sort($participantIds);
-		$hash=md5(implode('-',$participantIds));
+		$hash=md5(\implode('-',$participantIds));
 		$existing=$wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}".self::THREADS." WHERE participants_hash=%s",$hash));
 		if($existing)return(int)$existing;
 		$wpdb->insert($wpdb->prefix.self::THREADS,[

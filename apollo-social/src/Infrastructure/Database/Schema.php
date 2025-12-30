@@ -605,7 +605,7 @@ class Schema {
 
 		$tables = [
 			'workflow_log'        => $wpdb->prefix . 'apollo_workflow_log',
-			'mod    => $wpdb->prefix . 'apollo_mod_quemod
+			'mod_queue'           => $wpdb->prefix . 'apollo_mod_queue',
 			'analytics'           => $wpdb->prefix . 'apollo_analytics',
 			'signature_requests'  => $wpdb->prefix . 'apollo_signature_requests',
 			'onboarding_progress' => $wpdb->prefix . 'apollo_onboarding_progress',
@@ -644,8 +644,8 @@ class Schema {
 		);
 
 		// Moderation queue statistics
-		$stats['pending_modpdb->get_var(
-			"SELECT COUNT(*) FROM {$wpdb->prefix}apollo_modWHERE status = 'pending'"
+		$stats['pending_mod'] = $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}apollo_mod_queue WHERE status = 'pending'"
 		);
 
 		// Analytics statistics

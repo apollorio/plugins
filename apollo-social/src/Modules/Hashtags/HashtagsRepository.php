@@ -5,11 +5,11 @@ namespace Apollo\Modules\Hashtags;
 final class HashtagsRepository {
 	private const T_HASHTAGS='apollo_hashtags';
 	private const T_USAGE='apollo_hashtag_usage';
-	
+
 	public static function findOrCreate(string $tag): int {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_HASHTAGS;
-		$tag=strtolower(trim(str_replace('#','',$tag)));
+		$tag=\strtolower(\trim(\str_replace('#','',$tag)));
 		$slug=sanitize_title($tag);
 		$existing=$wpdb->get_var($wpdb->prepare("SELECT id FROM {$t} WHERE slug=%s",$slug));
 		if($existing)return (int)$existing;
@@ -132,7 +132,7 @@ final class HashtagsRepository {
 	public static function search(string $query, int $limit=10): array {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_HASHTAGS;
-		$q=$wpdb->esc_like(str_replace('#','',$query)).'%';
+		$q=$wpdb->esc_like(\str_replace('#','',$query)).'%';
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT * FROM {$t} WHERE name LIKE %s OR slug LIKE %s ORDER BY use_count DESC LIMIT %d",
 			$q,$q,$limit

@@ -11,7 +11,7 @@ final class MentionsRepository {
 		if(empty($matches[1])){return [];}
 		$usernames=array_unique($matches[1]);
 		global $wpdb;
-		$placeholders=implode(',',array_fill(0,count($usernames),'%s'));
+		$placeholders=\implode(',',array_fill(0,count($usernames),'%s'));
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT ID,user_login,display_name FROM {$wpdb->users} WHERE user_login IN ({$placeholders})",
 			...$usernames

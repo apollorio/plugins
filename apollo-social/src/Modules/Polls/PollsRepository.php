@@ -6,7 +6,7 @@ final class PollsRepository {
 	private const T_POLLS='apollo_polls';
 	private const T_OPTIONS='apollo_poll_options';
 	private const T_VOTES='apollo_poll_votes';
-	
+
 	public static function create(int $userId, string $question, array $options, array $settings=[]): int|false {
 		global $wpdb;
 		$p=$wpdb->prefix.self::T_POLLS;

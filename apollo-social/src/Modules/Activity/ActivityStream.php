@@ -91,7 +91,7 @@ final class ActivityStream {
             $user_id, $limit
         ));
         if (empty($activity_ids)) return [];
-        $ids = implode(',', array_map('intval', $activity_ids));
+        $ids = \implode(',', array_map('intval', $activity_ids));
         $rows = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}apollo_activity WHERE id IN ({$ids}) ORDER BY created_at DESC", ARRAY_A);
         return array_map([$this, 'formatActivity'], $rows);
     }
@@ -99,7 +99,7 @@ final class ActivityStream {
         global $wpdb;
         $bubble = get_user_meta($user_id, '_apollo_bubble', true) ?: [];
         if (empty($bubble)) return [];
-        $ids = implode(',', array_map('intval', $bubble));
+        $ids = \implode(',', array_map('intval', $bubble));
         $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}apollo_activity WHERE user_id IN ({$ids}) ORDER BY created_at DESC LIMIT %d",
             $limit

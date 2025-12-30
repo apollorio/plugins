@@ -117,7 +117,7 @@ class SuppliersModule {
 		self::register_taxonomies();
 		self::seed_taxonomy_terms();
 		self::register_routes();
-		flush_rewrite_rules();
+		// NOTE: flush_rewrite_rules removed. Delegated to Apollo_Router::onActivation().
 
 		update_option( 'apollo_suppliers_version', self::VERSION );
 	}

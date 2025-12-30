@@ -328,7 +328,7 @@ class DocumentsRepository {
 
 		ApolloLogger::logDocument( 'pdf_attached', $post_id, array(
 			'attachment_id' => $attachment_id,
-			'pdf_hash'      => substr( $pdf_hash, 0, 16 ) . '...',
+			'pdf_hash'      => \substr( $pdf_hash, 0, 16 ) . '...',
 		) );
 
 		return self::getDocument( $post_id );
@@ -706,7 +706,7 @@ class DocumentsRepository {
 	 * @return string SHA-256 hash.
 	 */
 	private static function generateDocHash( string $title, string $content, int $author_id ): string {
-		$data = implode( '|', array( $title, $content, $author_id, time() ) );
+		$data = \implode( '|', array( $title, $content, $author_id, time() ) );
 		return hash( 'sha256', $data );
 	}
 
@@ -721,8 +721,8 @@ class DocumentsRepository {
 		foreach ( $headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
 				$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = trim( explode( ',', $ip )[0] );
+				if ( \strpos( $ip, ',' ) !== false ) {
+					$ip = \trim( \explode( ',', $ip )[0] );
 				}
 				return $ip;
 			}

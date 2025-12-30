@@ -6,14 +6,14 @@ final class ReferralRepository {
 	private const T_REFERRALS='apollo_referrals';
 	private const T_REWARDS='apollo_referral_rewards';
 	private const T_SETTINGS='apollo_referral_settings';
-	
+
 	public static function generateCode(int $userId): string {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_REFERRALS;
 		$existing=$wpdb->get_var($wpdb->prepare("SELECT referral_code FROM {$t} WHERE referrer_id=%d LIMIT 1",$userId));
 		if($existing)return $existing;
 		do{
-			$code=strtoupper(substr(md5((string)$userId.time().wp_rand()),0,8));
+			$code=\strtoupper(\substr(\md5((string)$userId.time().wp_rand()),0,8));
 			$codeExists=$wpdb->get_var($wpdb->prepare("SELECT id FROM {$t} WHERE referral_code=%s",$code));
 		}while($codeExists);
 		update_user_meta($userId,'apollo_referral_code',$code);

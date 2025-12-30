@@ -42,6 +42,6 @@ class UserPagesServiceProvider {
 	public static function activate(): void {
 		UserPageRegistrar::registerPostType();
 		UserPageRegistrar::registerRewriteRules();
-		flush_rewrite_rules( false );
+		// NOTE: flush_rewrite_rules removed. Delegated to Apollo_Router::onActivation().
 	}
 }

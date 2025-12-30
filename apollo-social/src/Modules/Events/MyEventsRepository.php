@@ -6,7 +6,7 @@ final class MyEventsRepository {
 	private const T_EVENTS='apollo_events';
 	private const T_ATTENDEES='apollo_event_attendees';
 	private const T_INTERESTED='apollo_event_interested';
-	
+
 	public static function getCreatedEvents(int $userId, string $timeframe='upcoming', int $limit=20, int $offset=0): array {
 		global $wpdb;
 		$t=$wpdb->prefix.self::T_EVENTS;

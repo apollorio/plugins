@@ -95,7 +95,7 @@ class AssetsManager {
 		);
 
 		foreach ( $apollo_routes as $route ) {
-			if ( strpos( $request_uri, $route ) !== false ) {
+			if ( \strpos( $request_uri, $route ) !== false ) {
 				return true;
 			}
 		}
@@ -181,7 +181,7 @@ class AssetsManager {
 			}
 
 			// Check if handle starts with apollo-
-			if ( strpos( $handle, 'apollo-' ) === 0 ) {
+			if ( \strpos( $handle, 'apollo-' ) === 0 ) {
 				$keep = true;
 			}
 
@@ -189,7 +189,7 @@ class AssetsManager {
 			if ( isset( $wp_styles->registered[ $handle ] ) && is_object( $wp_styles->registered[ $handle ] ) ) {
 				$src = $wp_styles->registered[ $handle ]->src ?? '';
 				foreach ( $allowed_patterns as $pattern ) {
-					if ( strpos( $src, $pattern ) !== false ) {
+					if ( \strpos( $src, $pattern ) !== false ) {
 						$keep = true;
 
 						break;
@@ -243,7 +243,7 @@ class AssetsManager {
 			}
 
 			// Check if handle starts with apollo-
-			if ( strpos( $handle, 'apollo-' ) === 0 ) {
+			if ( \strpos( $handle, 'apollo-' ) === 0 ) {
 				$keep = true;
 			}
 
@@ -251,7 +251,7 @@ class AssetsManager {
 			if ( isset( $wp_scripts->registered[ $handle ] ) && is_object( $wp_scripts->registered[ $handle ] ) ) {
 				$src = $wp_scripts->registered[ $handle ]->src ?? '';
 				foreach ( $allowed_patterns as $pattern ) {
-					if ( strpos( $src, $pattern ) !== false ) {
+					if ( \strpos( $src, $pattern ) !== false ) {
 						$keep = true;
 
 						break;

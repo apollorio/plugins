@@ -6,7 +6,7 @@ final class TwoFactorRepository {
 	private const T_SESSIONS='apollo_2fa_sessions';
 	private const T_BACKUP_CODES='apollo_2fa_backup_codes';
 	private const T_TRUSTED='apollo_2fa_trusted_devices';
-	
+
 	public static function enable(int $userId, string $method='totp'): array {
 		$secret=self::generateSecret();
 		update_user_meta($userId,'apollo_2fa_secret',$secret);
@@ -105,7 +105,7 @@ final class TwoFactorRepository {
 
 	private static function base32Decode(string $b32): string {
 		$lut=['A'=>0,'B'=>1,'C'=>2,'D'=>3,'E'=>4,'F'=>5,'G'=>6,'H'=>7,'I'=>8,'J'=>9,'K'=>10,'L'=>11,'M'=>12,'N'=>13,'O'=>14,'P'=>15,'Q'=>16,'R'=>17,'S'=>18,'T'=>19,'U'=>20,'V'=>21,'W'=>22,'X'=>23,'Y'=>24,'Z'=>25,'2'=>26,'3'=>27,'4'=>28,'5'=>29,'6'=>30,'7'=>31];
-		$b32=strtoupper($b32);
+		$b32=\strtoupper($b32);
 		$l=strlen($b32);
 		$n=0;$j=0;$binary='';
 		for($i=0;$i<$l;$i++){
@@ -126,7 +126,7 @@ final class TwoFactorRepository {
 		$wpdb->delete($t,['user_id'=>$userId],['%d']);
 		$codes=[];
 		for($i=0;$i<$count;$i++){
-			$code=strtoupper(wp_generate_password(8,false));
+			$code=\strtoupper(wp_generate_password(8,false));
 			$hash=wp_hash_password($code);
 			$wpdb->insert($t,[
 				'user_id'=>$userId,

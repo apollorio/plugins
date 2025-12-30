@@ -160,7 +160,7 @@ final class InvitationsRepository {
 	}
 
 	private static function generateCode(): string {
-		return bin2hex(random_bytes(16));
+		return bin2hex(\random_bytes(16));
 	}
 
 	private static function sendInvitationEmail(string $email, ?string $name, int $inviterId, string $code, ?int $groupId): void {

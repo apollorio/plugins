@@ -39,10 +39,10 @@ final class MembersDirectoryRepository {
 			$joins[]="LEFT JOIN {$wpdb->prefix}apollo_spammer_list sl ON sl.user_id=u.ID";
 			$where[]="sl.user_id IS NULL";
 		}
-		$j=implode(' ',$joins);
-		$w=implode(' AND ',$where);
+		$j=\implode(' ',$joins);
+		$w=\implode(' AND ',$where);
 		$ob=in_array($a['orderby'],['display_name','user_registered','ID'])?$a['orderby']:'display_name';
-		$o=strtoupper($a['order'])==='DESC'?'DESC':'ASC';
+		$o=\strtoupper($a['order'])==='DESC'?'DESC':'ASC';
 		$params[]=$a['limit'];$params[]=$a['offset'];
 		return $wpdb->get_results($wpdb->prepare(
 			"SELECT DISTINCT u.ID,u.display_name,u.user_login,u.user_email,u.user_registered FROM {$wpdb->users} u {$j} WHERE {$w} ORDER BY u.{$ob} {$o} LIMIT %d OFFSET %d",
@@ -93,7 +93,7 @@ final class MembersDirectoryRepository {
 	public static function getWithProfiles(array $userIds): array {
 		if(empty($userIds))return [];
 		global $wpdb;
-		$in=implode(',',array_map('intval',$userIds));
+		$in=\implode(',',array_map('intval',$userIds));
 		$users=$wpdb->get_results("SELECT * FROM {$wpdb->users} WHERE ID IN ({$in})",ARRAY_A)?:[];
 		foreach($users as &$u){
 			$u['avatar_url']=get_avatar_url($u['ID'],['size'=>150]);

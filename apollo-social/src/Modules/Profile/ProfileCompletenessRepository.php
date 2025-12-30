@@ -64,7 +64,7 @@ final class ProfileCompletenessRepository {
 	}
 
 	private static function getFieldValue(int $userId, string $field, string $source): mixed {
-		$parts=explode(':',$source);
+		$parts=\explode(':',$source);
 		$type=$parts[0]??'';
 		$key=$parts[1]??$field;
 		return match($type){

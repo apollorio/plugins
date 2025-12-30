@@ -12,7 +12,7 @@ final class OnlineUsersRepository {
 		return $wpdb->replace($wpdb->prefix.self::TABLE,[
 			'user_id'=>$userId,
 			'last_activity'=>current_time('mysql'),
-			'current_page'=>$currentPage?sanitize_text_field(substr($currentPage,0,500)):null,
+			'current_page'=>$currentPage?sanitize_text_field(\substr($currentPage,0,500)):null,
 			'ip_address'=>self::getClientIP()
 		])!==false;
 	}
@@ -21,8 +21,8 @@ final class OnlineUsersRepository {
 		$keys=['HTTP_CF_CONNECTING_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','REMOTE_ADDR'];
 		foreach($keys as $k){
 			if(!empty($_SERVER[$k])){
-				$ip=explode(',',$_SERVER[$k])[0];
-				if(filter_var(trim($ip),FILTER_VALIDATE_IP))return trim($ip);
+				$ip=\explode(',',$_SERVER[$k])[0];
+				if(\filter_var(\trim($ip),FILTER_VALIDATE_IP))return \trim($ip);
 			}
 		}
 		return '';

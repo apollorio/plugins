@@ -113,7 +113,7 @@ final class BlockListRepository {
 		$parts=$wpdb->prefix.'apollo_message_participants';
 		$threads=$wpdb->get_col($wpdb->prepare("SELECT DISTINCT thread_id FROM {$parts} WHERE user_id=%d",$userId));
 		if($threads){
-			$in=implode(',',array_map('intval',$threads));
+			$in=\implode(',',array_map('intval',$threads));
 			$wpdb->query($wpdb->prepare(
 				"UPDATE {$parts} SET is_deleted=1 WHERE user_id=%d AND thread_id IN (SELECT thread_id FROM {$parts} WHERE user_id=%d AND thread_id IN ({$in}))",
 				$userId,$blockedId
