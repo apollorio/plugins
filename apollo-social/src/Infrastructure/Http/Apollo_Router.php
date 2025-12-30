@@ -37,7 +37,7 @@ class Apollo_Router {
 	private const VERSION_OPTION = 'apollo_rewrite_version';
 
 	/** @var string Current rewrite rules version */
-	private const RULES_VERSION = '2.1.0';
+	private const RULES_VERSION = '2.2.0';
 
 	/** @var array Registered routes */
 	private static array $routes = array();
@@ -71,9 +71,6 @@ class Apollo_Router {
 
 		// Register all routes early
 		add_action( 'init', array( __CLASS__, 'registerRoutes' ), 5 );
-
-		// Check if flush is needed (version-based)
-		add_action( 'init', array( __CLASS__, 'maybeFlush' ), 999 );
 
 		// Add query vars
 		add_filter( 'query_vars', array( __CLASS__, 'addQueryVars' ) );
@@ -365,6 +362,11 @@ class Apollo_Router {
 	 * Handle route matching
 	 */
 	public static function handleRoutes(): void {
+		// Never intercept WordPress feeds (RSS, Atom, etc).
+		if ( is_feed() ) {
+			return;
+		}
+
 		$action = get_query_var( 'apollo_action' );
 
 		if ( empty( $action ) ) {

@@ -20,6 +20,9 @@ use WP_Error;
  */
 class LikesSchema implements SchemaModuleInterface {
 
+	/** @var string Schema version */
+	private const VERSION = '2.2.0';
+
 	/** @var string Likes table */
 	private const TABLE_LIKES = 'apollo_likes';
 
@@ -46,6 +49,15 @@ class LikesSchema implements SchemaModuleInterface {
 	 */
 	public function upgrade( string $fromVersion, string $toVersion ) {
 		return $this->install();
+	}
+
+	/**
+	 * Get module schema version.
+	 *
+	 * @return string
+	 */
+	public function version(): string {
+		return self::VERSION;
 	}
 
 	/**

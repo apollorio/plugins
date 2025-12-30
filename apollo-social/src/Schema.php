@@ -20,6 +20,7 @@ use Apollo\Modules\Likes\LikesSchema;
 use Apollo\Infrastructure\Database\CoreSchema;
 use Apollo\Infrastructure\Database\SocialSchema;
 use Apollo\Infrastructure\Database\ExtendedSchema;
+use Apollo\Infrastructure\Database\Migrations;
 use WP_Error;
 
 /**
@@ -114,7 +115,15 @@ final class Schema {
 		$this->loadModules();
 
 		try {
-			// Core upgrades first.
+			// Run incremental migrations first (handles non-destructive column/data changes)
+			if ( ! Migrations::runPending() ) {
+				return new WP_Error(
+					'apollo_migrations_failed',
+					'One or more migrations failed. Check error logs.',
+				);
+			}
+
+			// Core upgrades
 			if ( class_exists( CoreSchema::class ) ) {
 				$core = new CoreSchema();
 				$core->upgrade( $stored, self::CURRENT_VERSION );

@@ -36,6 +36,13 @@ interface SchemaModuleInterface {
 	public function upgrade( string $fromVersion, string $toVersion );
 
 	/**
+	 * Get module schema version.
+	 *
+	 * @return string Module schema version.
+	 */
+	public function version(): string;
+
+	/**
 	 * Get module table status.
 	 *
 	 * @return array<string, bool> Table existence map.

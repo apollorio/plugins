@@ -1,16 +1,25 @@
 <?php
 
 /**
- * REST API SMOKE TEST – PASSED
- * Routes: /apollo/v1/comunas, /comunas/{id}, /membro, /anuncios, /id/{id}, /favs
- * Legacy aliases: /uniao (deprecated)
- * Affects: apollo-social.php, RestRoutes.php, GroupsController.php, MembershipsController.php
- * Verified: 2025-12-06 – no conflicts, secure callbacks, unique namespace
+ * REST API Routes Registration
+ *
+ * Public contract:
+ *   - /apollo/v1/comunas   = Public communities (type=comuna)
+ *   - /apollo/v1/nucleos   = Private producer groups (type=nucleo)
+ *   - /apollo/v1/groups    = DEPRECATED (legacy proxy, disabled by default)
+ *
+ * Internal:
+ *   - Database table: wp_apollo_groups (with type column)
+ *   - Service: GroupsRepository, GroupsModule
+ *
+ * @package Apollo\Infrastructure\Http
+ * @since 2.3.0
  */
 
 namespace Apollo\Infrastructure\Http;
 
-use Apollo\Infrastructure\Http\Controllers\GroupsController;
+use Apollo\Infrastructure\FeatureFlags;
+use Apollo\Infrastructure\Http\Controllers\ComunasController;
 use Apollo\Infrastructure\Http\Controllers\NucleosController;
 use Apollo\Infrastructure\Http\Controllers\BolhaController;
 use Apollo\Infrastructure\Http\Controllers\EventsController;
@@ -34,13 +43,58 @@ class RestRoutes {
 	 * Register all REST API routes
 	 */
 	public function registerRoutes(): void {
-		// Comunas routes (Groups in Portuguese)
+
+		// =====================================================================
+		// Feature flag guard: groups_api must be enabled
+		// =====================================================================
+		if ( ! FeatureFlags::isEnabled( 'groups_api' ) ) {
+			// Register stub route returning 503 Service Unavailable
+			register_rest_route(
+				'apollo/v1',
+				'comunas',
+				array(
+					'methods'             => 'GET',
+					'callback'            => function() {
+						return new \WP_REST_Response(
+							array( 'error' => 'Groups API is currently disabled.' ),
+							503
+						);
+					},
+					'permission_callback' => '__return_true',
+				)
+			);
+			return; // Don't register other routes
+		}
+
+		// =====================================================================
+		// Comunas routes (Public Communities)
+		// =====================================================================
 		register_rest_route(
 			'apollo/v1',
 			'comunas',
 			array(
 				'methods'             => 'GET',
-				'callback'            => array( new GroupsController(), 'index' ),
+				'callback'            => array( new ComunasController(), 'index' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'comunas/(?P<id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new ComunasController(), 'show' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'comunas/(?P<id>\d+)/members',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( new ComunasController(), 'members' ),
 				'permission_callback' => '__return_true',
 			)
 		);
@@ -50,7 +104,7 @@ class RestRoutes {
 			'/comunas',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'create' ),
+				'callback'            => array( new ComunasController(), 'create' ),
 				'permission_callback' => array( $this, 'requireLoggedIn' ),
 			)
 		);
@@ -60,7 +114,17 @@ class RestRoutes {
 			'comunas/(?P<id>\d+)/join',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'join' ),
+				'callback'            => array( new ComunasController(), 'join' ),
+				'permission_callback' => array( $this, 'requireLoggedIn' ),
+			)
+		);
+
+		register_rest_route(
+			'apollo/v1',
+			'comunas/(?P<id>\d+)/leave',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( new ComunasController(), 'leave' ),
 				'permission_callback' => array( $this, 'requireLoggedIn' ),
 			)
 		);
@@ -70,17 +134,7 @@ class RestRoutes {
 			'comunas/(?P<id>\d+)/invite',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'invite' ),
-				'permission_callback' => array( $this, 'requireLoggedIn' ),
-			)
-		);
-
-		register_rest_route(
-			'apollo/v1',
-			'comunas/(?P<id>\d+)/aprovar-invite',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( new GroupsController(), 'approveInvite' ),
+				'callback'            => array( new ComunasController(), 'invite' ),
 				'permission_callback' => array( $this, 'requireLoggedIn' ),
 			)
 		);

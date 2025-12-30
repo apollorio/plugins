@@ -581,20 +581,18 @@ add_action(
         // Check if the slug is correct (should be 'evento', not 'events')
         $current_slug = $post_type_obj->rewrite['slug'];
         if ($current_slug !== 'evento') {
-            // Conflict detected! Force flush rewrite rules
+            // Conflict detected! Log warning but do NOT flush at runtime.
+            // Runtime flush causes performance issues and 404 race conditions.
+            // Instead, set a flag for admin notice.
             if (defined('APOLLO_DEBUG') && APOLLO_DEBUG) {
-                error_log('⚠️ Apollo: Rewrite conflict detected! Current slug: ' . $current_slug . ', expected: evento. Flushing rules...');
+                error_log('⚠️ Apollo: Rewrite conflict detected! Current slug: ' . $current_slug . ', expected: evento. Go to Settings > Permalinks and save to fix.');
             }
 
-            // Delete the transient to allow re-registration
-            delete_transient('apollo_rewrite_rules_last_flush');
+            // Set admin notice flag instead of runtime flush
+            update_option('apollo_rewrite_conflict_detected', true);
 
-            // Flush rules
-            flush_rewrite_rules(false);
-
-            if (defined('APOLLO_DEBUG') && APOLLO_DEBUG) {
-                error_log('✅ Apollo: Rewrite rules flushed to fix conflict');
-            }
+            // NOTE: flush_rewrite_rules removed from runtime context.
+            // User should go to Settings > Permalinks and click Save to fix.
         }
     },
     999

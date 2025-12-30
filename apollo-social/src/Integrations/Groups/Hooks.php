@@ -3,36 +3,47 @@
 namespace Apollo\Integrations\Groups;
 
 /**
- * Groups plugin hooks (stub)
+ * Groups plugin integration hooks
  *
- * Handles integration with Itthinx Groups plugin.
- * TODO: Implement hooks for Groups plugin integration.
+ * Placeholder for Itthinx Groups plugin integration.
+ * This integration is NOT active - feature flag 'groups' is disabled.
+ *
+ * @since 2.3.0
+ * @status STUB - Not implemented, guarded by FeatureFlags::isEnabled('groups')
  */
 class Hooks {
 
 	/**
 	 * Register integration hooks
-	 * TODO: implement hooks registration
+	 *
+	 * @return void
 	 */
-	public function register() {
-		// TODO: register hooks for Groups plugin integration
-		// add_action('itthinx_groups_user_added_to_group', [$this, 'syncUserAdded']);
-		// add_action('itthinx_groups_user_removed_from_group', [$this, 'syncUserRemoved']);
+	public function register(): void {
+		// Not implemented - placeholder for Itthinx Groups integration
+		// Potential hooks:
+		// - itthinx_groups_user_added_to_group
+		// - itthinx_groups_user_removed_from_group
 	}
 
 	/**
 	 * Sync user added to group
-	 * TODO: implement user addition sync
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $group_id Group ID.
+	 * @return void
 	 */
-	public function syncUserAdded( $user_id, $group_id ) {
-		// TODO: sync user addition with Apollo groups
+	public function syncUserAdded( int $user_id, int $group_id ): void {
+		// Not implemented
 	}
 
 	/**
 	 * Sync user removed from group
-	 * TODO: implement user removal sync
+	 *
+	 * @param int $user_id  User ID.
+	 * @param int $group_id Group ID.
+	 * @return void
 	 */
-	public function syncUserRemoved( $user_id, $group_id ) {
-		// TODO: sync user removal with Apollo groups
+	public function syncUserRemoved( int $user_id, int $group_id ): void {
+		// Not implemented
 	}
 }

@@ -1,16 +1,22 @@
 <?php
 
 /**
- * P0-7: Groups REST API Endpoint
+ * P0-7: Groups REST API Endpoint (DEPRECATED)
  *
- * Handles creation of groups (comunidade/nucleo).
+ * This endpoint is deprecated. Use:
+ *   - POST /apollo/v1/comunas for public communities
+ *   - POST /apollo/v1/nucleos for private producer groups
+ *
+ * This endpoint remains for backward compatibility but adds deprecation headers.
  *
  * @package Apollo_Social
- * @version 2.0.0
+ * @version 2.3.0
+ * @deprecated Use /comunas or /nucleos endpoints instead
  */
 
 namespace Apollo\API\Endpoints;
 
+use Apollo\Infrastructure\FeatureFlags;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -26,6 +32,11 @@ class GroupsEndpoint {
 	 * Register REST routes
 	 */
 	public function register(): void {
+		// Only register if legacy API is explicitly enabled
+		if ( ! FeatureFlags::isEnabled( 'groups_api_legacy' ) ) {
+			return;
+		}
+
 		add_action( 'rest_api_init', array( $this, 'registerRoutes' ) );
 	}
 
@@ -33,7 +44,7 @@ class GroupsEndpoint {
 	 * Register routes
 	 */
 	public function registerRoutes(): void {
-		// Create group
+		// Create group (DEPRECATED)
 		register_rest_route(
 			'apollo/v1',
 			'/groups',
@@ -100,7 +111,36 @@ class GroupsEndpoint {
 	}
 
 	/**
-	 * P0-7: Create group
+	 * Add deprecation headers to response
+	 *
+	 * @param WP_REST_Response $response Response object.
+	 * @param string           $type     Group type (comunidade|nucleo).
+	 * @return WP_REST_Response
+	 */
+	private function addDeprecationHeaders( WP_REST_Response $response, string $type ): WP_REST_Response {
+		$successor = $type === 'nucleo' ? '/apollo/v1/nucleos' : '/apollo/v1/comunas';
+
+		$response->header( 'Deprecation', 'true' );
+		$response->header( 'Sunset', gmdate( 'c', strtotime( '+6 months' ) ) );
+		$response->header( 'Link', '<' . $successor . '>; rel="successor-version"' );
+
+		// Log deprecation warning
+		_doing_it_wrong(
+			'POST /apollo/v1/groups',
+			sprintf(
+				'This endpoint is deprecated. Use POST %s instead.',
+				$successor
+			),
+			'2.3.0'
+		);
+
+		return $response;
+	}
+
+	/**
+	 * Create group (DEPRECATED)
+	 *
+	 * @deprecated Use POST /comunas or POST /nucleos instead
 	 */
 	public function createGroup( WP_REST_Request $request ): WP_REST_Response {
 		global $wpdb;
@@ -111,13 +151,14 @@ class GroupsEndpoint {
 		$visibility  = $request->get_param( 'visibility' ) ?: 'public';
 
 		if ( empty( $title ) ) {
-			return new WP_REST_Response(
+			$response = new WP_REST_Response(
 				array(
 					'success' => false,
 					'message' => __( 'Group title is required.', 'apollo-social' ),
 				),
 				400
 			);
+			return $this->addDeprecationHeaders( $response, $type ?? 'comunidade' );
 		}
 
 		// Generate slug
@@ -137,6 +178,9 @@ class GroupsEndpoint {
 			++$counter;
 		}
 
+		// Map 'comunidade' to 'comuna' for consistency
+		$db_type = $type === 'comunidade' ? 'comuna' : $type;
+
 		// Insert group
 		$result = $wpdb->insert(
 			$table_name,
@@ -144,10 +188,9 @@ class GroupsEndpoint {
 				'title'       => $title,
 				'slug'        => $slug,
 				'description' => $description,
-				'type'        => $type,
+				'type'        => $db_type,
 				'status'      => 'pending_review',
-				// P0-7: Require mod
-												'visibility' => $visibility,
+				'visibility'  => $visibility,
 				'creator_id'  => get_current_user_id(),
 				'created_at'  => current_time( 'mysql' ),
 			),
@@ -155,13 +198,14 @@ class GroupsEndpoint {
 		);
 
 		if ( $result === false ) {
-			return new WP_REST_Response(
+			$response = new WP_REST_Response(
 				array(
 					'success' => false,
 					'message' => __( 'Error creating group.', 'apollo-social' ),
 				),
 				500
 			);
+			return $this->addDeprecationHeaders( $response, $type );
 		}
 
 		$group_id = $wpdb->insert_id;
@@ -195,18 +239,23 @@ class GroupsEndpoint {
 			array( '%d', '%s', '%s', '%d', '%s', '%s' )
 		);
 
-		return new WP_REST_Response(
+		$response = new WP_REST_Response(
 			array(
 				'success' => true,
 				'data'    => array(
 					'id'     => $group_id,
 					'title'  => $title,
 					'slug'   => $slug,
+					'type'   => $db_type,
 					'status' => 'pending_review',
 				),
 				'message' => __( 'Group created successfully. It will be reviewed before publication.', 'apollo-social' ),
+				'_deprecated' => true,
+				'_successor' => $type === 'nucleo' ? '/apollo/v1/nucleos' : '/apollo/v1/comunas',
 			),
 			201
 		);
+
+		return $this->addDeprecationHeaders( $response, $type );
 	}
 }

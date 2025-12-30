@@ -25,6 +25,9 @@ use WP_Error;
  */
 class ChatSchema implements SchemaModuleInterface {
 
+	/** @var string Schema version */
+	private const VERSION = '2.2.0';
+
 	/** @var string Conversations table */
 	private const TABLE_CONVERSATIONS = 'apollo_chat_conversations';
 
@@ -60,6 +63,15 @@ class ChatSchema implements SchemaModuleInterface {
 	public function upgrade( string $fromVersion, string $toVersion ) {
 		// Re-run install to ensure tables exist.
 		return $this->install();
+	}
+
+	/**
+	 * Get module schema version.
+	 *
+	 * @return string
+	 */
+	public function version(): string {
+		return self::VERSION;
 	}
 
 	/**

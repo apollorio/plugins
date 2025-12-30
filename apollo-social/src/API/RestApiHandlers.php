@@ -15,8 +15,8 @@ final class RestApiHandlers {
 		register_rest_route($ns,'/members/online',['methods'=>'GET','callback'=>[self::class,'getOnlineMembers'],'permission_callback'=>'is_user_logged_in']);
 		register_rest_route($ns,'/activity',['methods'=>'GET','callback'=>[self::class,'getActivity'],'permission_callback'=>'__return_true']);
 		register_rest_route($ns,'/activity',['methods'=>'POST','callback'=>[self::class,'postActivity'],'permission_callback'=>'is_user_logged_in']);
-		register_rest_route($ns,'/groups',['methods'=>'GET','callback'=>[self::class,'getGroups'],'permission_callback'=>'__return_true']);
-		register_rest_route($ns,'/groups/(?P<id>\d+)',['methods'=>'GET','callback'=>[self::class,'getGroup'],'permission_callback'=>'__return_true']);
+		// NOTE: /groups endpoints removed - use /comunas and /nucleos via GroupsModule
+		// See: src/Modules/Groups/GroupsModule.php::registerEndpoints()
 		register_rest_route($ns,'/leaderboard',['methods'=>'GET','callback'=>[self::class,'getLeaderboard'],'permission_callback'=>'__return_true']);
 		register_rest_route($ns,'/competitions',['methods'=>'GET','callback'=>[self::class,'getCompetitions'],'permission_callback'=>'__return_true']);
 		register_rest_route($ns,'/map/pins',['methods'=>'GET','callback'=>[self::class,'getMapPins'],'permission_callback'=>'__return_true']);
@@ -59,13 +59,21 @@ final class RestApiHandlers {
 		return new\WP_REST_Response(['id'=>$id],201);
 	}
 
+	/**
+	 * @deprecated Use /apollo/v1/comunas or /apollo/v1/nucleos instead
+	 */
 	public static function getGroups(\WP_REST_Request $req): \WP_REST_Response {
+		_doing_it_wrong(__METHOD__, 'Use /apollo/v1/comunas or /apollo/v1/nucleos instead.', '2.3.0');
 		$args=['search'=>$req->get_param('search')?:'','status'=>'public','limit'=>min(100,(int)($req->get_param('limit')?:20)),'offset'=>(int)($req->get_param('offset')?:0)];
 		$groups=\Apollo\Modules\Groups\GroupsRepository::search($args);
 		return new\WP_REST_Response(['groups'=>$groups],200);
 	}
 
+	/**
+	 * @deprecated Use /apollo/v1/comunas/{id} or /apollo/v1/nucleos/{id} instead
+	 */
 	public static function getGroup(\WP_REST_Request $req): \WP_REST_Response {
+		_doing_it_wrong(__METHOD__, 'Use /apollo/v1/comunas/{id} or /apollo/v1/nucleos/{id} instead.', '2.3.0');
 		$id=(int)$req->get_param('id');
 		$group=\Apollo\Modules\Groups\GroupsRepository::get($id);
 		if(!$group)return new\WP_REST_Response(['error'=>'Group not found'],404);

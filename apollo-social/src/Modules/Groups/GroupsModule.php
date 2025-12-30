@@ -19,6 +19,9 @@ final class GroupsModule {
         return self::$instance;
     }
     public function init(): void {
+        if (!\Apollo\Infrastructure\FeatureFlags::isEnabled('groups_api')) {
+            return;
+        }
         add_action('rest_api_init', [$this, 'registerEndpoints']);
         add_shortcode('apollo_groups_directory', [$this, 'renderDirectory']);
         add_shortcode('apollo_my_groups', [$this, 'renderMyGroups']);
@@ -222,15 +225,300 @@ final class GroupsModule {
         $groups = $this->getUserGroups(get_current_user_id());
         return '<div id="apollo-my-groups" data-groups="' . esc_attr(wp_json_encode($groups)) . '"></div>';
     }
+
+    /**
+     * Handle Comuna creation with business rule validation
+     *
+     * @param \WP_REST_Request $request REST request
+     * @return \WP_REST_Response
+     */
+    private function handleCreateComuna(\WP_REST_Request $request): \WP_REST_Response {
+        $data = \Apollo\Modules\Groups\GroupsBusinessRules::sanitizeGroupData(
+            array_merge($request->get_json_params(), ['group_type' => self::TYPE_COMUNA])
+        );
+
+        // Validate business rules
+        $can_create = \Apollo\Modules\Groups\GroupsBusinessRules::canCreate(self::TYPE_COMUNA, get_current_user_id());
+        if (\is_wp_error($can_create)) {
+            return new \WP_REST_Response($can_create->get_error_data(), 403);
+        }
+
+        $group_id = $this->create($data);
+        if (!$group_id) {
+            return new \WP_REST_Response(['error' => 'Failed to create group'], 500);
+        }
+
+        return new \WP_REST_Response(['id' => $group_id, 'type' => self::TYPE_COMUNA], 201);
+    }
+
+    /**
+     * Handle Nucleo creation with business rule validation
+     *
+     * @param \WP_REST_Request $request REST request
+     * @return \WP_REST_Response
+     */
+    private function handleCreateNucleo(\WP_REST_Request $request): \WP_REST_Response {
+        $data = \Apollo\Modules\Groups\GroupsBusinessRules::sanitizeGroupData(
+            array_merge($request->get_json_params(), ['group_type' => self::TYPE_NUCLEO])
+        );
+
+        // Validate business rules
+        $can_create = \Apollo\Modules\Groups\GroupsBusinessRules::canCreate(self::TYPE_NUCLEO, get_current_user_id());
+        if (\is_wp_error($can_create)) {
+            return new \WP_REST_Response($can_create->get_error_data(), 403);
+        }
+
+        $group_id = $this->create($data);
+        if (!$group_id) {
+            return new \WP_REST_Response(['error' => 'Failed to create nucleo'], 500);
+        }
+
+        return new \WP_REST_Response(['id' => $group_id, 'type' => self::TYPE_NUCLEO], 201);
+    }
+
+    /**
+     * Handle join request with rate limiting and business rules
+     *
+     * @param \WP_REST_Request $request REST request
+     * @param int             $group_id Group ID
+     * @return \WP_REST_Response
+     */
+    private function handleJoin(\WP_REST_Request $request, int $group_id): \WP_REST_Response {
+        $user_id = get_current_user_id();
+        $security = '\Apollo\Api\RestSecurity';
+
+        // Rate limit: max 10 joins per hour per user
+        $rate_check = $security::rateLimitByUserGroup($user_id, 'join', $group_id, 10);
+        if (\is_wp_error($rate_check)) {
+            return new \WP_REST_Response($rate_check->get_error_data(), 429);
+        }
+
+        $success = $this->addMember($group_id, $user_id);
+        if (!$success) {
+            return new \WP_REST_Response(['error' => 'Failed to join group'], 500);
+        }
+
+        return new \WP_REST_Response(['success' => true], 200);
+    }
+
+    /**
+     * Handle Nucleo join with approval workflow
+     *
+     * @param \WP_REST_Request $request REST request
+     * @param int             $group_id Group ID
+     * @return \WP_REST_Response
+     */
+    private function handleJoinNucleo(\WP_REST_Request $request, int $group_id): \WP_REST_Response {
+        global $wpdb;
+        $user_id = get_current_user_id();
+        $security = '\Apollo\Api\RestSecurity';
+
+        // Rate limit
+        $rate_check = $security::rateLimitByUserGroup($user_id, 'join_nucleo', $group_id, 5);
+        if (\is_wp_error($rate_check)) {
+            return new \WP_REST_Response($rate_check->get_error_data(), 429);
+        }
+
+        $group = $this->get($group_id);
+        if (!$group) {
+            return new \WP_REST_Response(['error' => 'Group not found'], 404);
+        }
+
+        // Nucleos require approval
+        if (\Apollo\Modules\Groups\GroupsBusinessRules::joinRequiresApproval($group)) {
+            // Add as pending member
+            $result = $wpdb->insert(
+                $wpdb->prefix . 'apollo_group_members',
+                ['group_id' => $group_id, 'user_id' => $user_id, 'role' => 'pending', 'date_joined' => current_time('mysql', true)],
+                ['%d', '%d', '%s', '%s']
+            );
+
+            if (!$result) {
+                return new \WP_REST_Response(['error' => 'Failed to request join'], 500);
+            }
+
+            do_action('apollo_nucleo_join_requested', $group_id, $user_id);
+            return new \WP_REST_Response(['success' => true, 'status' => 'pending_approval'], 202);
+        }
+
+        // Direct join
+        $success = $this->addMember($group_id, $user_id);
+        if (!$success) {
+            return new \WP_REST_Response(['error' => 'Failed to join'], 500);
+        }
+
+        return new \WP_REST_Response(['success' => true, 'status' => 'joined'], 200);
+    }
+
+    /**
+     * Handle leave request
+     *
+     * @param \WP_REST_Request $request REST request
+     * @param int             $group_id Group ID
+     * @return \WP_REST_Response
+     */
+    private function handleLeave(\WP_REST_Request $request, int $group_id): \WP_REST_Response {
+        $user_id = get_current_user_id();
+        $success = $this->removeMember($group_id, $user_id);
+
+        if (!$success) {
+            return new \WP_REST_Response(['error' => 'Failed to leave group'], 500);
+        }
+
+        return new \WP_REST_Response(['success' => true], 200);
+    }
+
+    /**
+     * Handle invite request with validation and rate limiting
+     *
+     * @param \WP_REST_Request $request REST request
+     * @param int             $group_id Group ID
+     * @return \WP_REST_Response
+     */
+    private function handleInvite(\WP_REST_Request $request, int $group_id): \WP_REST_Response {
+        $user_id = get_current_user_id();
+        $security = '\Apollo\Api\RestSecurity';
+
+        // Validate invite data
+        $data = $security::validateInviteData(['group_id' => $group_id] + $request->get_json_params());
+        if (\is_wp_error($data)) {
+            return new \WP_REST_Response($data->get_error_data(), 400);
+        }
+
+        // Check if user can invite
+        $can_invite = \Apollo\Modules\Groups\GroupsBusinessRules::canInvite($group_id, $user_id);
+        if (\is_wp_error($can_invite)) {
+            return new \WP_REST_Response($can_invite->get_error_data(), 403);
+        }
+
+        // Rate limit: max 20 invites per hour
+        $rate_check = $security::rateLimitByUserGroup($user_id, 'invite', $group_id, 20);
+        if (\is_wp_error($rate_check)) {
+            return new \WP_REST_Response($rate_check->get_error_data(), 429);
+        }
+
+        $success = $this->invite($group_id, $user_id, $data['user_id']);
+        if (!$success) {
+            return new \WP_REST_Response(['error' => 'Failed to send invite'], 500);
+        }
+
+        return new \WP_REST_Response(['success' => true], 200);
+    }
+
+    /**
+     * Handle Nucleo invite (stricter permissions)
+     *
+     * @param \WP_REST_Request $request REST request
+     * @param int             $group_id Group ID
+     * @return \WP_REST_Response
+     */
+    private function handleInviteNucleo(\WP_REST_Request $request, int $group_id): \WP_REST_Response {
+        return $this->handleInvite($request, $group_id);  // Same logic for now
+    }
+
     public function registerEndpoints(): void {
-        register_rest_route('apollo/v1', '/groups', ['methods' => 'GET', 'callback' => fn($r) => new \WP_REST_Response($this->getDirectory($r->get_param('type') ?: '', (int)($r->get_param('limit') ?: 20), (int)($r->get_param('offset') ?: 0), $r->get_param('search') ?: ''), 200), 'permission_callback' => '__return_true']);
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)', ['methods' => 'GET', 'callback' => fn($r) => new \WP_REST_Response($this->get((int) $r->get_param('id')), 200), 'permission_callback' => '__return_true']);
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/members', ['methods' => 'GET', 'callback' => fn($r) => new \WP_REST_Response($this->getMembers((int) $r->get_param('id')), 200), 'permission_callback' => '__return_true']);
-        register_rest_route('apollo/v1', '/groups/create', ['methods' => 'POST', 'callback' => fn($r) => new \WP_REST_Response(['id' => $this->create($r->get_json_params())], 200), 'permission_callback' => 'is_user_logged_in']);
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/join', ['methods' => 'POST', 'callback' => fn($r) => new \WP_REST_Response(['success' => $this->addMember((int) $r->get_param('id'), get_current_user_id())], 200), 'permission_callback' => 'is_user_logged_in']);
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/leave', ['methods' => 'POST', 'callback' => fn($r) => new \WP_REST_Response(['success' => $this->removeMember((int) $r->get_param('id'), get_current_user_id())], 200), 'permission_callback' => 'is_user_logged_in']);
-        register_rest_route('apollo/v1', '/groups/my', ['methods' => 'GET', 'callback' => fn() => new \WP_REST_Response($this->getUserGroups(get_current_user_id()), 200), 'permission_callback' => 'is_user_logged_in']);
-        register_rest_route('apollo/v1', '/groups/(?P<id>\d+)/invite', ['methods' => 'POST', 'callback' => fn($r) => new \WP_REST_Response(['success' => $this->invite((int) $r->get_param('id'), get_current_user_id(), (int) $r->get_param('user_id'))], 200), 'permission_callback' => 'is_user_logged_in']);
+        // Use security handler for proper nonce/cap verification
+        $security = '\Apollo\Api\RestSecurity';
+
+        // Comunas (public communities)
+        register_rest_route('apollo/v1', '/comunas', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->getDirectory(self::TYPE_COMUNA, (int)($r->get_param('limit') ?: 20), (int)($r->get_param('offset') ?: 0), $r->get_param('search') ?: ''), 200),
+            'permission_callback' => '__return_true'  // Read-only, public list OK
+        ]);
+        register_rest_route('apollo/v1', '/comunas/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->get((int) $r->get_param('id')), 200),
+            'permission_callback' => '__return_true'
+        ]);
+        register_rest_route('apollo/v1', '/comunas/(?P<id>\d+)/members', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->getMembers((int) $r->get_param('id')), 200),
+            'permission_callback' => fn($r) => $security::canViewMembers($r, (int) $r->get_param('id'))
+        ]);
+        register_rest_route('apollo/v1', '/comunas/create', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleCreateComuna($r),
+            'permission_callback' => fn($r) => $security::verify($r, 'read')  // Subscribers can create
+        ]);
+        register_rest_route('apollo/v1', '/comunas/(?P<id>\d+)/join', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleJoin($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/comunas/(?P<id>\d+)/leave', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleLeave($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/comunas/my', [
+            'methods' => 'GET',
+            'callback' => fn() => new \WP_REST_Response($this->getUserGroups(get_current_user_id(), self::TYPE_COMUNA), 200),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/comunas/(?P<id>\d+)/invite', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleInvite($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+
+        // Nucleos (private/industry teams)
+        register_rest_route('apollo/v1', '/nucleos', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->getDirectory(self::TYPE_NUCLEO, (int)($r->get_param('limit') ?: 20), (int)($r->get_param('offset') ?: 0), $r->get_param('search') ?: ''), 200),
+            'permission_callback' => fn($r) => $security::verify($r)  // Auth required for nucleo listing
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->get((int) $r->get_param('id')), 200),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/(?P<id>\d+)/members', [
+            'methods' => 'GET',
+            'callback' => fn($r) => new \WP_REST_Response($this->getMembers((int) $r->get_param('id')), 200),
+            'permission_callback' => fn($r) => $security::canViewMembers($r, (int) $r->get_param('id'))
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/create', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleCreateNucleo($r),
+            'permission_callback' => fn($r) => $security::verify($r, 'apollo_create_nucleo')  // Specific cap
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/(?P<id>\d+)/join', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleJoinNucleo($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/(?P<id>\d+)/leave', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleLeave($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/my', [
+            'methods' => 'GET',
+            'callback' => fn() => new \WP_REST_Response($this->getUserGroups(get_current_user_id(), self::TYPE_NUCLEO), 200),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+        register_rest_route('apollo/v1', '/nucleos/(?P<id>\d+)/invite', [
+            'methods' => 'POST',
+            'callback' => fn($r) => $this->handleInviteNucleo($r, (int) $r->get_param('id')),
+            'permission_callback' => fn($r) => $security::verify($r)
+        ]);
+
+        // Legacy /groups proxy (deprecated)
+        if (\Apollo\Infrastructure\FeatureFlags::isEnabled('groups_api_legacy')) {
+            $proxy_callback = function($r) {
+                $response = new \WP_REST_Response($this->getDirectory(self::TYPE_COMUNA, (int)($r->get_param('limit') ?: 20), (int)($r->get_param('offset') ?: 0), $r->get_param('search') ?: ''), 200);
+                $response->header('Deprecation', 'true');
+                $response->header('Sunset', date('c', strtotime('+6 months')));
+                $response->header('Link', '</apollo/v1/comunas>; rel="successor-version"');
+                return $response;
+            };
+            register_rest_route('apollo/v1', '/groups', [
+                'methods' => 'GET',
+                'callback' => $proxy_callback,
+                'permission_callback' => '__return_true'
+            ]);
+        }
     }
     public static function getRoles(): array { return self::$roles; }
 }

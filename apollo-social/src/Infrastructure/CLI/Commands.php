@@ -1208,4 +1208,255 @@ class Commands {
 			\WP_CLI::log( "{$ad['id']}\t{$title}\t{$price}\t{$author}" );
 		}
 	}
+
+	/**
+	 * Show schema installation status
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp apollo schema:status
+	 *
+	 * @when after_wp_load
+	 */
+	public function schema_status( $args, $assoc_args ): void {
+		if ( ! class_exists( '\Apollo\Schema' ) ) {
+			\WP_CLI::error( 'Apollo Schema class not found.' );
+			return;
+		}
+
+		try {
+			$schema = new \Apollo\Schema();
+			$status = $schema->getStatus();
+
+			\WP_CLI::log( '' );
+			\WP_CLI::log( '╔═══════════════════════════════════════════════════════════════╗' );
+			\WP_CLI::log( '║             APOLLO SCHEMA STATUS                              ║' );
+			\WP_CLI::log( '╚═══════════════════════════════════════════════════════════════╝' );
+			\WP_CLI::log( '' );
+
+			$current = $status['version_current'] ?? '0.0.0';
+			$stored  = $status['version_stored'] ?? '0.0.0';
+			$needs   = $status['needs_upgrade'] ?? false;
+
+			\WP_CLI::log( "Stored Version:  {$stored}" );
+			\WP_CLI::log( "Current Version: {$current}" );
+			\WP_CLI::log( "Needs Upgrade:   " . ( $needs ? 'YES' : 'NO' ) );
+			\WP_CLI::log( '' );
+
+			$modules = $status['modules'] ?? array();
+			if ( ! empty( $modules ) ) {
+				\WP_CLI::log( '📦 Module Tables:' );
+				\WP_CLI::log( '' );
+
+				foreach ( $modules as $name => $module_status ) {
+					$tables    = $module_status['tables'] ?? array();
+					$installed = $module_status['installed'] ?? false;
+
+					$status_icon = $installed ? '✅' : '❌';
+					\WP_CLI::log( "{$status_icon} {$name}" );
+
+					if ( ! empty( $tables ) ) {
+						foreach ( $tables as $table ) {
+							\WP_CLI::log( "   └─ {$table}" );
+						}
+					}
+					\WP_CLI::log( '' );
+				}
+			}
+
+			\WP_CLI::success( 'Schema status retrieved successfully.' );
+
+		} catch ( \Throwable $e ) {
+			\WP_CLI::error( 'Error: ' . $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Upgrade schema to latest version
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 *     : Show what would be upgraded without making changes
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp apollo schema:upgrade
+	 *     wp apollo schema:upgrade --dry-run
+	 *
+	 * @when after_wp_load
+	 */
+	public function schema_upgrade( $args, $assoc_args ): void {
+		if ( ! class_exists( '\Apollo\Schema' ) ) {
+			\WP_CLI::error( 'Apollo Schema class not found.' );
+			return;
+		}
+
+		$dry_run = isset( $assoc_args['dry-run'] );
+
+		try {
+			$schema = new \Apollo\Schema();
+
+			if ( ! $schema->needsUpgrade() ) {
+				\WP_CLI::log( 'No upgrades needed (schema at version ' . $schema->getStoredVersion() . ')' );
+				return;
+			}
+
+			\WP_CLI::log( 'Current version: ' . $schema->getStoredVersion() );
+			\WP_CLI::log( 'Target version:  ' . \Apollo\Schema::CURRENT_VERSION );
+			\WP_CLI::log( '' );
+
+			if ( $dry_run ) {
+				\WP_CLI::log( '🧪 DRY-RUN MODE (no changes made)' );
+				\WP_CLI::log( 'Pending upgrades will be executed in actual run.' );
+				return;
+			}
+
+			\WP_CLI::log( 'Running schema upgrade...' );
+
+			$result = $schema->upgrade();
+
+			if ( is_wp_error( $result ) ) {
+				\WP_CLI::error( 'Upgrade failed: ' . $result->get_error_message() );
+				return;
+			}
+
+			\WP_CLI::success( 'Schema upgraded to version ' . \Apollo\Schema::CURRENT_VERSION );
+
+		} catch ( \Throwable $e ) {
+			\WP_CLI::error( 'Error: ' . $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Reconcile group types and membership data
+	 *
+	 * Ensures all groups have explicit type and members have valid roles.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 *     : Show what would be reconciled without making changes
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp apollo groups:reconcile
+	 *     wp apollo groups:reconcile --dry-run
+	 *
+	 * @when after_wp_load
+	 */
+	public function groups_reconcile( $args, $assoc_args ): void {
+		global $wpdb;
+
+		$dry_run = isset( $assoc_args['dry-run'] );
+		$table   = $wpdb->prefix . 'apollo_groups';
+		$members = $wpdb->prefix . 'apollo_group_members';
+
+		try {
+			\WP_CLI::log( '' );
+			\WP_CLI::log( '╔═══════════════════════════════════════════════════════════════╗' );
+			\WP_CLI::log( '║             GROUP RECONCILIATION UTILITY                      ║' );
+			\WP_CLI::log( '╚═══════════════════════════════════════════════════════════════╝' );
+			\WP_CLI::log( '' );
+
+			if ( $dry_run ) {
+				\WP_CLI::log( '🧪 DRY-RUN MODE (no changes will be made)' );
+				\WP_CLI::log( '' );
+			}
+
+			// Check if group_type column exists
+			$column_exists = $wpdb->get_var(
+				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_NAME = '{$table}' AND COLUMN_NAME = 'group_type'"
+			);
+
+			if ( ! $column_exists ) {
+				\WP_CLI::warning( 'group_type column does not exist. Run schema:upgrade first.' );
+				return;
+			}
+
+			// 1. Fix NULL/empty group_type values
+			$null_count = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$table} WHERE group_type IS NULL OR group_type = ''"
+			);
+
+			if ( $null_count > 0 ) {
+				\WP_CLI::log( "📌 Found {$null_count} groups with NULL/empty type" );
+
+				if ( ! $dry_run ) {
+					$wpdb->query(
+						"UPDATE {$table} SET group_type = 'comuna'
+						WHERE group_type IS NULL OR group_type = ''"
+					);
+					\WP_CLI::log( "   ✅ Fixed: {$wpdb->rows_affected} groups set to 'comuna'" );
+				} else {
+					\WP_CLI::log( "   [DRY-RUN] Would fix {$null_count} groups to 'comuna'" );
+				}
+				\WP_CLI::log( '' );
+			}
+
+			// 2. Validate group types
+			$invalid = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$table}
+				WHERE group_type NOT IN ('comuna', 'nucleo', 'season')"
+			);
+
+			if ( $invalid > 0 ) {
+				\WP_CLI::log( "⚠️  Found {$invalid} groups with invalid type" );
+
+				if ( ! $dry_run ) {
+					$wpdb->query(
+						"UPDATE {$table} SET group_type = 'comuna'
+						WHERE group_type NOT IN ('comuna', 'nucleo', 'season')"
+					);
+					\WP_CLI::log( "   ✅ Fixed: {$wpdb->rows_affected} groups corrected" );
+				} else {
+					\WP_CLI::log( "   [DRY-RUN] Would fix {$invalid} groups" );
+				}
+				\WP_CLI::log( '' );
+			}
+
+			// 3. Validate membership roles
+			$invalid_roles = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$members}
+				WHERE role NOT IN ('owner', 'admin', 'moderator', 'member', 'pending')"
+			);
+
+			if ( $invalid_roles > 0 ) {
+				\WP_CLI::log( "⚠️  Found {$invalid_roles} members with invalid role" );
+
+				if ( ! $dry_run ) {
+					$wpdb->query(
+						"UPDATE {$members} SET role = 'member'
+						WHERE role NOT IN ('owner', 'admin', 'moderator', 'member', 'pending')"
+					);
+					\WP_CLI::log( "   ✅ Fixed: {$wpdb->rows_affected} members set to 'member'" );
+				} else {
+					\WP_CLI::log( "   [DRY-RUN] Would fix {$invalid_roles} members" );
+				}
+				\WP_CLI::log( '' );
+			}
+
+			// Summary
+			$total = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+			$by_type = $wpdb->get_results(
+				"SELECT group_type, COUNT(*) as count FROM {$table} GROUP BY group_type"
+			);
+
+			\WP_CLI::log( "📊 Group Distribution ({$total} total):" );
+			foreach ( $by_type as $row ) {
+				\WP_CLI::log( "   • {$row->group_type}: {$row->count}" );
+			}
+			\WP_CLI::log( '' );
+
+			if ( $dry_run ) {
+				\WP_CLI::log( '🧪 DRY-RUN COMPLETE - Run again without --dry-run to apply' );
+			} else {
+				\WP_CLI::success( 'Group reconciliation completed successfully.' );
+			}
+
+		} catch ( \Throwable $e ) {
+			\WP_CLI::error( 'Error: ' . $e->getMessage() );
+		}
+	}
 }

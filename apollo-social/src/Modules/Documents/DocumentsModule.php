@@ -172,6 +172,15 @@ class DocumentsModule {
 	 */
 	public static function registerRoutes(): void {
 		// Add rewrite rules for document routes
+		// Preferred /apollo/* routes (avoid collisions)
+		add_rewrite_rule( '^apollo/doc/new/?$', 'index.php?apollo_doc=new', 'top' );
+		add_rewrite_rule( '^apollo/doc/([a-zA-Z0-9]+)/?$', 'index.php?apollo_doc=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/pla/new/?$', 'index.php?apollo_pla=new', 'top' );
+		add_rewrite_rule( '^apollo/pla/([a-zA-Z0-9]+)/?$', 'index.php?apollo_pla=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/sign/([a-zA-Z0-9-]+)/?$', 'index.php?apollo_sign=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/verificar/([A-Z0-9-]+)/?$', 'index.php?apollo_verify=$matches[1]', 'top' );
+
+		// Legacy routes kept for compatibility (to be sunset)
 		add_rewrite_rule( '^doc/new/?$', 'index.php?apollo_doc=new', 'top' );
 		add_rewrite_rule( '^doc/([a-zA-Z0-9]+)/?$', 'index.php?apollo_doc=$matches[1]', 'top' );
 		add_rewrite_rule( '^pla/new/?$', 'index.php?apollo_pla=new', 'top' );

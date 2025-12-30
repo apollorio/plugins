@@ -1070,10 +1070,12 @@ class Native_SEO {
 			update_option( self::SETTINGS_OPTION, $new_settings );
 			$settings = $new_settings;
 
-			// Flush rewrite rules for sitemap.
-			flush_rewrite_rules();
+			// Flag para flush de rewrite rules - será executado via admin notice + ação.
+			// NOTE: flush_rewrite_rules() removido de contexto de save. Use Settings > Permalinks > Save.
+			set_transient( 'apollo_seo_needs_flush', true, HOUR_IN_SECONDS );
 
 			echo '<div class="notice notice-success"><p>' . esc_html__( 'Settings saved.', 'apollo-core' ) . '</p></div>';
+			echo '<div class="notice notice-info"><p>' . esc_html__( 'For sitemap URL changes, visit Settings > Permalinks and click Save.', 'apollo-core' ) . '</p></div>';
 		}
 		?>
 		<div class="wrap">

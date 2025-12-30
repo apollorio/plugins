@@ -372,6 +372,15 @@ class DocumentsSchema implements SchemaModuleInterface {
 	}
 
 	/**
+	 * Get module schema version.
+	 *
+	 * @return string
+	 */
+	public function version(): string {
+		return self::CURRENT_VERSION;
+	}
+
+	/**
 	 * Get module table status.
 	 *
 	 * @return array<string, bool> Table existence map.

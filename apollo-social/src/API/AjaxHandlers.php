@@ -1,103 +1,203 @@
 <?php
+/**
+ * AJAX Handlers - Legacy support with REST-aligned security
+ *
+ * These handlers provide backward compatibility for AJAX requests.
+ * Prefer REST API (/apollo/v1/*) for new code.
+ *
+ * All handlers require:
+ * - Nonce verification (apollo_nonce)
+ * - User authentication
+ * - Capability checks where needed
+ * - Rate limiting for sensitive operations
+ *
+ * @package Apollo\Api
+ * @deprecated 2.2.0 Use REST API instead
+ */
+
 declare(strict_types=1);
+
 namespace Apollo\Api;
 
 final class AjaxHandlers {
 
 	public static function register(): void {
-		$actions=[
-			'apollo_send_friend_request'=>[self::class,'sendFriendRequest'],
-			'apollo_accept_friend'=>[self::class,'acceptFriend'],
-			'apollo_reject_friend'=>[self::class,'rejectFriend'],
-			'apollo_remove_friend'=>[self::class,'removeFriend'],
-			'apollo_block_user'=>[self::class,'blockUser'],
-			'apollo_add_close_friend'=>[self::class,'addCloseFriend'],
-			'apollo_remove_close_friend'=>[self::class,'removeCloseFriend'],
-			'apollo_post_activity'=>[self::class,'postActivity'],
-			'apollo_delete_activity'=>[self::class,'deleteActivity'],
-			'apollo_toggle_favorite'=>[self::class,'toggleFavorite'],
-			'apollo_dismiss_notice'=>[self::class,'dismissNotice'],
-			'apollo_mark_mentions_read'=>[self::class,'markMentionsRead'],
-			'apollo_update_settings'=>[self::class,'updateSettings'],
-			'apollo_join_group'=>[self::class,'joinGroup'],
-			'apollo_leave_group'=>[self::class,'leaveGroup'],
-			'apollo_join_competition'=>[self::class,'joinCompetition'],
-			'apollo_search_members'=>[self::class,'searchMembers'],
-			'apollo_get_online_users'=>[self::class,'getOnlineUsers'],
-			'apollo_mark_interested'=>[self::class,'markInterested'],
-			'apollo_forum_new_topic'=>[self::class,'newForumTopic'],
-			'apollo_forum_reply'=>[self::class,'forumReply'],
-			'apollo_save_profile_field'=>[self::class,'saveProfileField']
-		];
-		foreach($actions as $action=>$callback){
-			add_action("wp_ajax_{$action}",$callback);
+		$actions = array(
+			'apollo_send_friend_request'   => array( self::class, 'sendFriendRequest' ),
+			'apollo_accept_friend'         => array( self::class, 'acceptFriend' ),
+			'apollo_reject_friend'         => array( self::class, 'rejectFriend' ),
+			'apollo_remove_friend'         => array( self::class, 'removeFriend' ),
+			'apollo_block_user'            => array( self::class, 'blockUser' ),
+			'apollo_add_close_friend'      => array( self::class, 'addCloseFriend' ),
+			'apollo_remove_close_friend'   => array( self::class, 'removeCloseFriend' ),
+			'apollo_post_activity'         => array( self::class, 'postActivity' ),
+			'apollo_delete_activity'       => array( self::class, 'deleteActivity' ),
+			'apollo_toggle_favorite'       => array( self::class, 'toggleFavorite' ),
+			'apollo_dismiss_notice'        => array( self::class, 'dismissNotice' ),
+			'apollo_mark_mentions_read'    => array( self::class, 'markMentionsRead' ),
+			'apollo_update_settings'       => array( self::class, 'updateSettings' ),
+			'apollo_join_group'            => array( self::class, 'joinGroup' ),
+			'apollo_leave_group'           => array( self::class, 'leaveGroup' ),
+			'apollo_join_competition'      => array( self::class, 'joinCompetition' ),
+			'apollo_search_members'        => array( self::class, 'searchMembers' ),
+			'apollo_get_online_users'      => array( self::class, 'getOnlineUsers' ),
+			'apollo_mark_interested'       => array( self::class, 'markInterested' ),
+			'apollo_forum_new_topic'       => array( self::class, 'newForumTopic' ),
+			'apollo_forum_reply'           => array( self::class, 'forumReply' ),
+			'apollo_save_profile_field'    => array( self::class, 'saveProfileField' ),
+		);
+		foreach ( $actions as $action => $callback ) {
+			add_action( "wp_ajax_{$action}", $callback );
 		}
 	}
 
+	/**
+	 * Verify AJAX request: nonce + auth
+	 *
+	 * @return int User ID
+	 * @throws \Exception
+	 */
 	private static function verify(): int {
-		if(!check_ajax_referer('apollo_nonce','nonce',false)){
-			wp_send_json_error(['message'=>'Invalid nonce'],403);
+		// Check nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'apollo_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ), 403 );
+			exit;
 		}
-		$userId=get_current_user_id();
-		if(!$userId){
-			wp_send_json_error(['message'=>'Not authenticated'],401);
+
+		// Check auth
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			wp_send_json_error( array( 'message' => 'Not authenticated' ), 401 );
+			exit;
 		}
-		return $userId;
+
+		return $user_id;
+	}
+
+	/**
+	 * Rate limit check (legacy: simple transient-based)
+	 *
+	 * @param int    $user_id User ID
+	 * @param string $action Action name
+	 * @param int    $limit Limit per hour
+	 * @return bool True if allowed
+	 */
+	private static function checkRateLimit( int $user_id, string $action, int $limit = 20 ): bool {
+		$key = "apollo_ajax_rate_{$action}_{$user_id}";
+		$count = (int) get_transient( $key );
+
+		if ( $count >= $limit ) {
+			return false;
+		}
+
+		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+		return true;
 	}
 
 	public static function sendFriendRequest(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		if($friendId<=0){wp_send_json_error(['message'=>'Invalid user'],400);}
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::sendRequest($userId,$friendId);
-		$result?wp_send_json_success(['message'=>'Request sent']):wp_send_json_error(['message'=>'Failed to send request'],500);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		if ( ! self::checkRateLimit( $user_id, 'friend_request', 20 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests' ), 429 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::sendRequest( $user_id, $friend_id );
+		$result ? wp_send_json_success( array( 'message' => 'Request sent' ) ) : wp_send_json_error( array( 'message' => 'Failed to send request' ), 500 );
 	}
 
 	public static function acceptFriend(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::acceptRequest($friendId,$userId);
-		$result?wp_send_json_success(['message'=>'Friend added']):wp_send_json_error(['message'=>'Failed'],500);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::acceptRequest( $friend_id, $user_id );
+		$result ? wp_send_json_success( array( 'message' => 'Friend added' ) ) : wp_send_json_error( array( 'message' => 'Failed' ), 500 );
 	}
 
 	public static function rejectFriend(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::rejectRequest($friendId,$userId);
-		$result?wp_send_json_success(['message'=>'Request rejected']):wp_send_json_error(['message'=>'Failed'],500);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::rejectRequest( $friend_id, $user_id );
+		$result ? wp_send_json_success( array( 'message' => 'Request rejected' ) ) : wp_send_json_error( array( 'message' => 'Failed' ), 500 );
 	}
 
 	public static function removeFriend(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::removeFriend($userId,$friendId);
-		$result?wp_send_json_success(['message'=>'Friend removed']):wp_send_json_error(['message'=>'Failed'],500);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::removeFriend( $user_id, $friend_id );
+		$result ? wp_send_json_success( array( 'message' => 'Friend removed' ) ) : wp_send_json_error( array( 'message' => 'Failed' ), 500 );
 	}
 
 	public static function blockUser(): void {
-		$userId=self::verify();
-		$targetId=(int)($_POST['user_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::blockUser($userId,$targetId);
-		$result?wp_send_json_success(['message'=>'User blocked']):wp_send_json_error(['message'=>'Failed'],500);
+		$user_id = self::verify();
+		$target_id = (int) ( $_POST['user_id'] ?? 0 );
+
+		if ( $target_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::blockUser( $user_id, $target_id );
+		$result ? wp_send_json_success( array( 'message' => 'User blocked' ) ) : wp_send_json_error( array( 'message' => 'Failed' ), 500 );
 	}
 
 	public static function addCloseFriend(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::addCloseFriend($userId,$friendId);
-		$result?wp_send_json_success(['message'=>'Added to close friends']):wp_send_json_error(['message'=>'Maximum 10 close friends allowed'],400);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		if ( ! self::checkRateLimit( $user_id, 'close_friend', 5 ) ) {
+			wp_send_json_error( array( 'message' => 'Too many requests' ), 429 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::addCloseFriend( $user_id, $friend_id );
+		$result ? wp_send_json_success( array( 'message' => 'Added to close friends' ) ) : wp_send_json_error( array( 'message' => 'Maximum 10 close friends allowed' ), 400 );
 	}
 
 	public static function removeCloseFriend(): void {
-		$userId=self::verify();
-		$friendId=(int)($_POST['friend_id']??0);
-		$result=\Apollo\Modules\Connections\ConnectionsRepository::removeCloseFriend($userId,$friendId);
-		$result?wp_send_json_success(['message'=>'Removed from close friends']):wp_send_json_error(['message'=>'Failed'],500);
+		$user_id = self::verify();
+		$friend_id = (int) ( $_POST['friend_id'] ?? 0 );
+
+		if ( $friend_id <= 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid user' ), 400 );
+			return;
+		}
+
+		$result = \Apollo\Modules\Connections\ConnectionsRepository::removeCloseFriend( $user_id, $friend_id );
+		$result ? wp_send_json_success( array( 'message' => 'Removed from close friends' ) ) : wp_send_json_error( array( 'message' => 'Failed' ), 500 );
 	}
 
 	public static function postActivity(): void {
-		$userId=self::verify();
-		$content=sanitize_textarea_field($_POST['content']??'');
+		$user_id = self::verify();
+		$content = sanitize_textarea_field( wp_unslash( $_POST['content'] ?? '' ) );
 		if(empty($content)){wp_send_json_error(['message'=>'Content required'],400);}
 		$activityId=\Apollo\Modules\Activity\ActivityRepository::create([
 			'user_id'=>$userId,'action'=>'status_update','component'=>'activity','type'=>'status',

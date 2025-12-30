@@ -56,17 +56,20 @@ class DocumentsRoutes {
 	 * Register custom routes
 	 */
 	public function registerRoutes() {
+		// Preferred /apollo/* routes (collision-safe)
 		// Documentos
-		add_rewrite_rule( '^doc/new/?$', 'index.php?apollo_route=doc_new', 'top' );
-		add_rewrite_rule( '^doc/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=doc_edit&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/doc/new/?$', 'index.php?apollo_route=doc_new', 'top' );
+		add_rewrite_rule( '^apollo/doc/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=doc_edit&file_id=$matches[1]', 'top' );
 
 		// Planilhas
-		add_rewrite_rule( '^pla/new/?$', 'index.php?apollo_route=pla_new', 'top' );
-		add_rewrite_rule( '^pla/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=pla_edit&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/pla/new/?$', 'index.php?apollo_route=pla_new', 'top' );
+		add_rewrite_rule( '^apollo/pla/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=pla_edit&file_id=$matches[1]', 'top' );
 
 		// Assinaturas
-		add_rewrite_rule( '^sign/?$', 'index.php?apollo_route=sign_list', 'top' );
-		add_rewrite_rule( '^sign/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=sign_document&signature_token=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/sign/?$', 'index.php?apollo_route=sign_list', 'top' );
+		add_rewrite_rule( '^apollo/sign/([a-zA-Z0-9-]+)/?$', 'index.php?apollo_route=sign_detail&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/sign/([a-zA-Z0-9-]+)/download/?$', 'index.php?apollo_route=sign_download&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^apollo/sign/([a-zA-Z0-9-]+)/verify/?$', 'index.php?apollo_route=sign_verify&file_id=$matches[1]', 'top' );
 
 		// Registrar query vars
 		add_rewrite_tag( '%apollo_route%', '([^&]+)' );
@@ -75,6 +78,15 @@ class DocumentsRoutes {
 
 		// Flush rewrite rules (apenas em desenvolvimento)
 		// flush_rewrite_rules();
+		// Legacy routes kept for compatibility
+		add_rewrite_rule( '^doc/new/?$', 'index.php?apollo_route=doc_new', 'top' );
+		add_rewrite_rule( '^doc/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=doc_edit&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^pla/new/?$', 'index.php?apollo_route=pla_new', 'top' );
+		add_rewrite_rule( '^pla/([a-zA-Z0-9]+)/?$', 'index.php?apollo_route=pla_edit&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^sign/?$', 'index.php?apollo_route=sign_list', 'top' );
+		add_rewrite_rule( '^sign/([a-zA-Z0-9-]+)/?$', 'index.php?apollo_route=sign_detail&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^sign/([a-zA-Z0-9-]+)/download/?$', 'index.php?apollo_route=sign_download&file_id=$matches[1]', 'top' );
+		add_rewrite_rule( '^sign/([a-zA-Z0-9-]+)/verify/?$', 'index.php?apollo_route=sign_verify&file_id=$matches[1]', 'top' );
 	}
 
 	/**

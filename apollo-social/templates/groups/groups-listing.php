@@ -510,8 +510,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelectorAll('[data-action="join-group"]').forEach(btn => {
 		btn.addEventListener('click', async function() {
 			const groupId = this.dataset.groupId;
+			const groupType = this.dataset.groupType || 'comuna'; // 'comuna' or 'nucleo'
+			const endpoint = groupType === 'nucleo'
+				? '<?php echo esc_url( rest_url( 'apollo/v1/nucleos' ) ); ?>/' + groupId + '/join'
+				: '<?php echo esc_url( rest_url( 'apollo/v1/comunas' ) ); ?>/' + groupId + '/join';
 			try {
-				const response = await fetch('<?php echo esc_url( rest_url( 'apollo-social/v1/groups/join' ) ); ?>', {
+				const response = await fetch(endpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',

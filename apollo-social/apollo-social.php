@@ -212,6 +212,11 @@ add_action(
 			if ( file_exists( $pdf_metabox ) ) {
 				require_once $pdf_metabox;
 			}
+
+			// Load Diagnostics Admin Page (schema, feature flags, routes).
+			if ( class_exists( '\Apollo\Admin\DiagnosticsAdmin' ) ) {
+				\Apollo\Admin\DiagnosticsAdmin::init();
+			}
 		}//end if
 
 		// Load Documents PKI Integration (hooks for certificate signing).

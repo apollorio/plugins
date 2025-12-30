@@ -38,11 +38,13 @@ class FeatureFlags {
 		'builder'        => true,
 		'feed'           => true,
 		'reactions'      => true,
+		'groups_api'     => true,  // Comunas/Nucleos API
 
 		// Features disabled until ready (stubs)
 		'chat'           => false,  // ChatModule - tables exist but UI incomplete
 		'notifications'  => false,  // NotificationsModule - not implemented
 		'groups'         => false,  // GroupsServiceProvider - stub
+		'groups_api_legacy' => false,  // Legacy /groups API proxy
 		'govbr'          => false,  // GOV.BR OAuth - not implemented
 		'analytics'      => true,   // Analytics - optional, graceful degradation
 		'pwa'            => false,  // PWA - incomplete

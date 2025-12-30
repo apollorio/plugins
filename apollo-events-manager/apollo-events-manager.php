@@ -1046,7 +1046,9 @@ class Apollo_Events_Manager_Plugin
                 if (defined('APOLLO_PATH')) {
                     apollo_update_post_meta($page_id, '_wp_page_template', 'pagx_appclean');
                 }
-                flush_rewrite_rules(false);
+                // NOTE: flush_rewrite_rules removed from runtime context.
+                // Rewrite rules should only be flushed on plugin activation.
+                // If 404 occurs, go to Settings > Permalinks and save.
                 error_log('✅ Apollo: Auto-created /eventos/ page (ID: ' . $page_id . ')');
             }
         }
