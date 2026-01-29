@@ -1,0 +1,857 @@
+/**
+ * Apollo Admin Base CSS
+ * Unified design system for all Apollo plugins in wp-admin
+ *
+ * @package Apollo_Core
+ */
+
+/* ==========================================================================
+	1. CSS VARIABLES - DESIGN TOKENS
+	========================================================================== */
+:root {
+    /* Font Family */
+    --ap-font-primary: "Roboto", Roboto, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+    /* Font Sizes */
+    --ap-text-xs: 10px;
+    --ap-text-sm: 12px;
+    --ap-text-base: 14px;
+    --ap-text-md: 16px;
+    --ap-text-lg: 18px;
+    --ap-text-xl: 20px;
+    --ap-text-2xl: 24px;
+    --ap-text-3xl: 30px;
+
+    /* Border Radius */
+    --ap-radius-sm: 6px;
+    --ap-radius-md: 10px;
+    --ap-radius-lg: 12px;
+    --ap-radius-xl: 16px;
+    --ap-radius-2xl: 20px;
+    --ap-radius-full: 999px;
+
+    /* Transitions */
+    --ap-transition-fast: all 0.15s ease;
+    --ap-transition-base: all 0.25s ease;
+    --ap-transition-slow: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* Shadows */
+    --ap-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+    --ap-shadow-md: 0 8px 28px rgba(15, 23, 42, 0.06);
+    --ap-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.1);
+    --ap-shadow-xl: 0 20px 50px rgba(15, 23, 42, 0.12);
+
+    /* Z-Index Scale */
+    --ap-z-dropdown: 100;
+    --ap-z-sticky: 200;
+    --ap-z-fixed: 300;
+    --ap-z-modal-backdrop: 400;
+    --ap-z-modal: 500;
+    --ap-z-popover: 600;
+    --ap-z-tooltip: 700;
+
+    /* Light Mode Colors */
+    --ap-bg-main: #ffffff;
+    --ap-bg-surface: #f8fafc;
+    --ap-bg-muted: #f1f5f9;
+    --ap-bg-card: #ffffff;
+    --ap-bg-translucent: rgba(255, 255, 255, 0.9);
+
+    --ap-text-primary: #0f172a;
+    --ap-text-secondary: rgba(15, 23, 42, 0.75);
+    --ap-text-muted: #64748b;
+    --ap-text-disabled: #94a3b8;
+
+    --ap-border-light: #e2e8f0;
+    --ap-border-default: #cbd5e1;
+    --ap-border-dark: #94a3b8;
+
+    /* Brand Colors - Orange Scale */
+    --ap-orange-50: #fff6f0;
+    --ap-orange-100: #ffe1cc;
+    --ap-orange-200: #ffc299;
+    --ap-orange-300: #ffa066;
+    --ap-orange-400: #ff8640;
+    --ap-orange-500: #ff6925;
+    --ap-orange-600: #e55a1e;
+    --ap-orange-700: #c7491a;
+    --ap-orange-800: #9e3713;
+    --ap-orange-900: #70250d;
+
+    /* Status Colors */
+    --ap-color-success: #10b981;
+    --ap-color-success-bg: rgba(16, 185, 129, 0.1);
+    --ap-color-warning: #eab308;
+    --ap-color-warning-bg: rgba(234, 179, 8, 0.1);
+    --ap-color-error: #ef4444;
+    --ap-color-error-bg: rgba(239, 68, 68, 0.1);
+    --ap-color-info: #3b82f6;
+    --ap-color-info-bg: rgba(59, 130, 246, 0.1);
+
+    /* Accent */
+    --ap-color-primary: var(--ap-orange-500);
+    --ap-color-primary-hover: var(--ap-orange-600);
+
+    /* Glass Effect */
+    --ap-glass-bg: rgba(255, 255, 255, 0.15);
+    --ap-glass-border-1: rgba(230, 230, 230, 0.4);
+    --ap-glass-border-2: rgba(230, 230, 230, 0.1);
+    --ap-glass-blur: 12px;
+}
+
+/* ==========================================================================
+	2. DARK MODE PALETTE
+	========================================================================== */
+body.dark-mode,
+html.dark body,
+[data-theme="dark"] {
+    --ap-bg-main: #0f172a;
+    --ap-bg-surface: #1e293b;
+    --ap-bg-muted: #334155;
+    --ap-bg-card: #1e293b;
+    --ap-bg-translucent: rgba(15, 23, 42, 0.9);
+
+    --ap-text-primary: #f8fafc;
+    --ap-text-secondary: rgba(248, 250, 252, 0.75);
+    --ap-text-muted: #94a3b8;
+    --ap-text-disabled: #64748b;
+
+    --ap-border-light: #334155;
+    --ap-border-default: #475569;
+    --ap-border-dark: #64748b;
+
+    --ap-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --ap-shadow-md: 0 8px 28px rgba(0, 0, 0, 0.3);
+    --ap-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
+
+    --ap-glass-bg: rgba(0, 0, 0, 0.2);
+    --ap-glass-border-1: rgba(60, 60, 60, 0.4);
+    --ap-glass-border-2: rgba(100, 100, 100, 0.1);
+}
+
+/* ==========================================================================
+	3. APOLLO ADMIN WRAPPER
+	========================================================================== */
+.apollo-admin-wrap,
+.apollo-control-panel,
+.apollo-cabin-wrap {
+    font-family: var(--ap-font-primary);
+    font-size: var(--ap-text-base);
+    line-height: 1.5;
+    color: var(--ap-text-secondary);
+}
+
+.apollo-admin-wrap h1,
+.apollo-admin-wrap h2,
+.apollo-admin-wrap h3,
+.apollo-control-panel h1,
+.apollo-control-panel h2,
+.apollo-control-panel h3 {
+    font-family: var(--ap-font-primary);
+    font-weight: 700;
+    color: var(--ap-text-primary);
+}
+
+.apollo-admin-wrap h1,
+.apollo-control-panel h1 {
+    font-size: var(--ap-text-2xl);
+    margin-bottom: 16px;
+}
+
+.apollo-admin-wrap h2,
+.apollo-control-panel h2 {
+    font-size: var(--ap-text-xl);
+    margin-bottom: 12px;
+}
+
+.apollo-admin-wrap h3,
+.apollo-control-panel h3 {
+    font-size: var(--ap-text-lg);
+    margin-bottom: 10px;
+}
+
+/* ==========================================================================
+	4. TAB NAVIGATION
+	========================================================================== */
+.apollo-control-panel .nav-tab-wrapper {
+    border-bottom: 2px solid var(--ap-border-light);
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-bottom: 0;
+}
+
+.apollo-control-panel .nav-tab {
+    font-family: var(--ap-font-primary);
+    font-size: var(--ap-text-sm);
+    font-weight: 600;
+    padding: 12px 20px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--ap-text-muted);
+    margin-bottom: -2px;
+    transition: var(--ap-transition-fast);
+    border-radius: var(--ap-radius-sm) var(--ap-radius-sm) 0 0;
+}
+
+.apollo-control-panel .nav-tab:hover {
+    color: var(--ap-color-primary);
+    background: var(--ap-orange-50);
+}
+
+.apollo-control-panel .nav-tab-active,
+.apollo-control-panel .nav-tab-active:hover {
+    color: var(--ap-color-primary);
+    background: var(--ap-bg-card);
+    border-bottom-color: var(--ap-color-primary);
+}
+
+/* ==========================================================================
+	5. TAB CONTENT CARDS
+	========================================================================== */
+.apollo-tab-content {
+    background: var(--ap-bg-card);
+    padding: 24px;
+    border: 1px solid var(--ap-border-light);
+    border-radius: var(--ap-radius-lg);
+    box-shadow: var(--ap-shadow-sm);
+}
+
+.apollo-tab-content h2 {
+    margin-top: 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ap-border-light);
+    margin-bottom: 16px;
+}
+
+.apollo-tab-content .description {
+    color: var(--ap-text-muted);
+    margin-bottom: 24px;
+    font-size: var(--ap-text-sm);
+}
+
+/* ==========================================================================
+	6. FORM TABLES - IMPROVED
+	========================================================================== */
+.apollo-tab-content .form-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 16px;
+}
+
+.apollo-tab-content .form-table th {
+    width: 220px;
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: var(--ap-text-sm);
+    color: var(--ap-text-primary);
+    background: var(--ap-bg-surface);
+    border-bottom: 1px solid var(--ap-border-light);
+    vertical-align: middle;
+}
+
+.apollo-tab-content .form-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--ap-border-light);
+    vertical-align: middle;
+}
+
+.apollo-tab-content .form-table tr:first-child th,
+.apollo-tab-content .form-table tr:first-child td {
+    border-top: 1px solid var(--ap-border-light);
+}
+
+.apollo-tab-content .form-table tr:first-child th {
+    border-radius: var(--ap-radius-md) 0 0 0;
+}
+
+.apollo-tab-content .form-table tr:last-child th {
+    border-radius: 0 0 0 var(--ap-radius-md);
+}
+
+.apollo-tab-content .form-table tr:hover td,
+.apollo-tab-content .form-table tr:hover th {
+    background: var(--ap-bg-muted);
+}
+
+/* ==========================================================================
+	7. CHECKBOXES & TOGGLES
+	========================================================================== */
+
+/* Global Apollo checkbox override - force orange accent */
+.apollo-control-panel input[type="checkbox"],
+.apollo-tab-content input[type="checkbox"],
+.wrap.apollo-control-panel input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    accent-color: #f97316 !important;
+    vertical-align: middle;
+}
+
+/* Checked state - ensure orange border and checkmark */
+.apollo-control-panel input[type="checkbox"]:checked,
+.apollo-tab-content input[type="checkbox"]:checked {
+    background-color: #fff !important;
+    border-color: #f97316 !important;
+}
+
+.apollo-control-panel input[type="checkbox"]:checked::before,
+.apollo-tab-content input[type="checkbox"]:checked::before {
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23f97316' d='M14.83 4.89l1.34 1.34-9.17 9.17-4.17-4.17 1.34-1.34 2.83 2.83z'/%3E%3C/svg%3E") !important;
+}
+
+/* Focus state - orange outline */
+.apollo-control-panel input[type="checkbox"]:focus,
+.apollo-tab-content input[type="checkbox"]:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 1px #f97316 !important;
+    outline: none !important;
+}
+
+/* ... (Keep your label and fieldset styles exactly as they were) ... */
+.apollo-tab-content label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: var(--ap-text-sm);
+    color: var(--ap-text-secondary);
+}
+
+.apollo-tab-content label:hover {
+    color: var(--ap-text-primary);
+}
+
+.apollo-tab-content fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.apollo-tab-content fieldset legend.screen-reader-text {
+    position: absolute;
+    left: -9999px;
+}
+
+
+/* ==========================================================================
+   CORRECTED TOGGLE SWITCH STYLE
+   ========================================================================== */
+
+.apollo-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    vertical-align: middle;
+    /* Aligns better with text */
+}
+
+/* CRITICAL FIX: The Input must be hidden strictly */
+.apollo-toggle-switch input {
+    opacity: 0 !important;
+    /* OVERRIDES global .apollo-tab-content input */
+    width: 0 !important;
+    /* OVERRIDES global width */
+    height: 0 !important;
+    /* OVERRIDES global height */
+    margin: 0 !important;
+    /* Removes global margin */
+    position: absolute;
+    /* Removes it from document flow */
+    z-index: -1;
+}
+
+.apollo-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--ap-border-default, #ccc);
+    /* Added fallback color */
+    /* Changed to 0.4s for a smoother, premium feel */
+    transition: background-color 0.4s;
+    border-radius: 34px;
+    /* Use a high number or your --ap-radius-full */
+}
+
+.apollo-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    /* Added cubic-bezier for a "snappy" mechanical feel */
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    border-radius: 50%;
+    /* VISUAL IMPROVEMENT: Adds depth so it pops off the screen */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.apollo-toggle-switch input:checked+.apollo-toggle-slider {
+    background-color: var(--ap-color-primary);
+}
+
+.apollo-toggle-switch input:checked+.apollo-toggle-slider:before {
+    /* 48px width - 20px knob - 3px left - 3px right gap = 22px move */
+    transform: translateX(22px);
+}
+
+/* ==========================================================================
+	8. SELECT DROPDOWNS
+	========================================================================== */
+.apollo-tab-content select,
+.apollo-tab-content .regular-text {
+    font-family: var(--ap-font-primary);
+    font-size: var(--ap-text-sm);
+    padding: 10px 14px;
+    border: 1px solid var(--ap-border-default);
+    border-radius: var(--ap-radius-md);
+    background: var(--ap-bg-card);
+    color: var(--ap-text-primary);
+    transition: var(--ap-transition-fast);
+    min-width: 220px;
+}
+
+.apollo-tab-content select:hover,
+.apollo-tab-content .regular-text:hover {
+    border-color: var(--ap-color-primary);
+}
+
+.apollo-tab-content select:focus,
+.apollo-tab-content .regular-text:focus {
+    border-color: var(--ap-color-primary);
+    box-shadow: 0 0 0 3px var(--ap-orange-100);
+    outline: none;
+}
+
+/* ==========================================================================
+	9. BUTTONS
+	========================================================================== */
+.apollo-tab-content .button,
+.apollo-control-panel .button {
+    font-family: var(--ap-font-primary);
+    font-size: var(--ap-text-sm);
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: var(--ap-radius-md);
+    transition: var(--ap-transition-fast);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--ap-border-default);
+    background: var(--ap-bg-card);
+    color: var(--ap-text-primary);
+}
+
+.apollo-tab-content .button:hover,
+.apollo-control-panel .button:hover {
+    background: var(--ap-bg-surface);
+    border-color: var(--ap-color-primary);
+    color: var(--ap-color-primary);
+}
+
+.apollo-tab-content .button-primary,
+.apollo-control-panel .button-primary {
+    background: var(--ap-color-primary) !important;
+    border-color: var(--ap-color-primary) !important;
+    color: #ffffff !important;
+}
+
+.apollo-tab-content .button-primary:hover,
+.apollo-control-panel .button-primary:hover {
+    background: var(--ap-color-primary-hover) !important;
+    border-color: var(--ap-color-primary-hover) !important;
+}
+
+.apollo-tab-content .button-danger {
+    background: var(--ap-color-error);
+    border-color: var(--ap-color-error);
+    color: #ffffff;
+}
+
+.apollo-tab-content .button-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+/* ==========================================================================
+	10. DATA TABLES
+	========================================================================== */
+.apollo-tab-content .wp-list-table {
+    border: 1px solid var(--ap-border-light);
+    border-radius: var(--ap-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--ap-shadow-sm);
+}
+
+.apollo-tab-content .wp-list-table thead th {
+    background: var(--ap-bg-surface);
+    font-weight: 600;
+    font-size: var(--ap-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ap-text-muted);
+    padding: 14px 16px;
+    border-bottom: 2px solid var(--ap-border-light);
+}
+
+.apollo-tab-content .wp-list-table tbody td {
+    padding: 14px 16px;
+    font-size: var(--ap-text-sm);
+    border-bottom: 1px solid var(--ap-border-light);
+}
+
+.apollo-tab-content .wp-list-table tbody tr:hover {
+    background: var(--ap-bg-muted);
+}
+
+/* ==========================================================================
+	11. STATUS BADGES
+	========================================================================== */
+.apollo-status-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--ap-color-success-bg);
+    color: var(--ap-color-success);
+    font-size: var(--ap-text-xs);
+    font-weight: 600;
+    border-radius: var(--ap-radius-full);
+}
+
+.apollo-status-active::before {
+    content: "●";
+    font-size: 8px;
+}
+
+.apollo-status-suspended {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--ap-color-error-bg);
+    color: var(--ap-color-error);
+    font-size: var(--ap-text-xs);
+    font-weight: 600;
+    border-radius: var(--ap-radius-full);
+}
+
+.apollo-status-suspended::before {
+    content: "●";
+    font-size: 8px;
+}
+
+.apollo-status-pending {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--ap-color-warning-bg);
+    color: var(--ap-color-warning);
+    font-size: var(--ap-text-xs);
+    font-weight: 600;
+    border-radius: var(--ap-radius-full);
+}
+
+/* ==========================================================================
+	12. CARDS & SECTIONS
+	========================================================================== */
+.apollo-card {
+    background: var(--ap-bg-card);
+    border: 1px solid var(--ap-border-light);
+    border-radius: var(--ap-radius-lg);
+    padding: 20px;
+    box-shadow: var(--ap-shadow-sm);
+    margin-bottom: 20px;
+}
+
+.apollo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--ap-border-light);
+    margin-bottom: 16px;
+}
+
+.apollo-card-title {
+    font-size: var(--ap-text-lg);
+    font-weight: 700;
+    color: var(--ap-text-primary);
+    margin: 0;
+}
+
+/* ==========================================================================
+	13. FORM SECTIONS (For Page Access, etc.)
+	========================================================================== */
+.apollo-form-section {
+    margin-bottom: 32px;
+}
+
+.apollo-form-section-title {
+    font-size: var(--ap-text-md);
+    font-weight: 600;
+    color: var(--ap-text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--ap-border-light);
+}
+
+.apollo-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.apollo-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--ap-bg-surface);
+    border-radius: var(--ap-radius-sm);
+    transition: var(--ap-transition-fast);
+}
+
+.apollo-checkbox-item:hover {
+    background: var(--ap-bg-muted);
+}
+
+/* ==========================================================================
+	14. NOTIFICATIONS / ALERTS
+	========================================================================== */
+.apollo-notice {
+    padding: 16px 20px;
+    border-radius: var(--ap-radius-md);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.apollo-notice-success {
+    background: var(--ap-color-success-bg);
+    border-left: 4px solid var(--ap-color-success);
+    color: var(--ap-color-success);
+}
+
+.apollo-notice-warning {
+    background: var(--ap-color-warning-bg);
+    border-left: 4px solid var(--ap-color-warning);
+    color: #92400e;
+}
+
+.apollo-notice-error {
+    background: var(--ap-color-error-bg);
+    border-left: 4px solid var(--ap-color-error);
+    color: var(--ap-color-error);
+}
+
+.apollo-notice-info {
+    background: var(--ap-color-info-bg);
+    border-left: 4px solid var(--ap-color-info);
+    color: var(--ap-color-info);
+}
+
+/* ==========================================================================
+	15. EMAIL TEMPLATE PREVIEW
+	========================================================================== */
+.apollo-email-preview {
+    background: var(--ap-bg-surface);
+    border: 1px solid var(--ap-border-light);
+    border-radius: var(--ap-radius-lg);
+    padding: 24px;
+    margin-top: 16px;
+}
+
+.apollo-email-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--ap-border-light);
+}
+
+.apollo-email-preview-body {
+    font-size: var(--ap-text-sm);
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+	16. RESPONSIVE ADJUSTMENTS
+	========================================================================== */
+@media (max-width: 782px) {
+    .apollo-control-panel .nav-tab-wrapper {
+        flex-direction: column;
+    }
+
+    .apollo-control-panel .nav-tab {
+        width: 100%;
+        text-align: left;
+        border-radius: var(--ap-radius-sm);
+        border-bottom: none;
+        margin-bottom: 4px;
+    }
+
+    .apollo-control-panel .nav-tab-active {
+        border-left: 3px solid var(--ap-color-primary);
+        border-bottom: none;
+    }
+
+    .apollo-tab-content .form-table th {
+        width: 100%;
+        display: block;
+        padding-bottom: 8px;
+    }
+
+    .apollo-tab-content .form-table td {
+        width: 100%;
+        display: block;
+        padding-top: 8px;
+    }
+
+    .apollo-checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+	17. UTILITY CLASSES
+	========================================================================== */
+.ap-text-primary {
+    color: var(--ap-text-primary) !important;
+}
+
+.ap-text-secondary {
+    color: var(--ap-text-secondary) !important;
+}
+
+.ap-text-muted {
+    color: var(--ap-text-muted) !important;
+}
+
+.ap-text-xs {
+    font-size: var(--ap-text-xs) !important;
+}
+
+.ap-text-sm {
+    font-size: var(--ap-text-sm) !important;
+}
+
+.ap-text-base {
+    font-size: var(--ap-text-base) !important;
+}
+
+.ap-text-md {
+    font-size: var(--ap-text-md) !important;
+}
+
+.ap-text-lg {
+    font-size: var(--ap-text-lg) !important;
+}
+
+.ap-text-xl {
+    font-size: var(--ap-text-xl) !important;
+}
+
+.ap-font-normal {
+    font-weight: 400 !important;
+}
+
+.ap-font-medium {
+    font-weight: 500 !important;
+}
+
+.ap-font-semibold {
+    font-weight: 600 !important;
+}
+
+.ap-font-bold {
+    font-weight: 700 !important;
+}
+
+.ap-mt-0 {
+    margin-top: 0 !important;
+}
+
+.ap-mt-1 {
+    margin-top: 8px !important;
+}
+
+.ap-mt-2 {
+    margin-top: 16px !important;
+}
+
+.ap-mt-3 {
+    margin-top: 24px !important;
+}
+
+.ap-mt-4 {
+    margin-top: 32px !important;
+}
+
+.ap-mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.ap-mb-1 {
+    margin-bottom: 8px !important;
+}
+
+.ap-mb-2 {
+    margin-bottom: 16px !important;
+}
+
+.ap-mb-3 {
+    margin-bottom: 24px !important;
+}
+
+.ap-mb-4 {
+    margin-bottom: 32px !important;
+}
+
+.ap-hidden {
+    display: none !important;
+}
+
+.ap-flex {
+    display: flex !important;
+}
+
+.ap-items-center {
+    align-items: center !important;
+}
+
+.ap-justify-between {
+    justify-content: space-between !important;
+}
+
+.ap-gap-1 {
+    gap: 8px !important;
+}
+
+.ap-gap-2 {
+    gap: 16px !important;
+}
+
+.ap-gap-3 {
+    gap: 24px !important;
+}

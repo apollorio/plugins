@@ -1,0 +1,628 @@
+/**
+ * Apollo Events Manager - Tickets Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+:root {
+    --apollo-ticket-primary: #7c3aed;
+    --apollo-ticket-success: #10b981;
+    --apollo-ticket-warning: #f59e0b;
+    --apollo-ticket-danger: #ef4444;
+    --apollo-ticket-bg: #f8f9fa;
+    --apollo-ticket-border: #e5e7eb;
+}
+
+/* ==========================================================================
+   Ticket Button
+   ========================================================================== */
+.apollo-ticket-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.apollo-ticket-btn i {
+    font-size: 1.1em;
+}
+
+/* Primary Style */
+.apollo-ticket-btn--primary {
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+}
+
+.apollo-ticket-btn--primary:hover {
+    background: #6d28d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+/* Secondary Style */
+.apollo-ticket-btn--secondary {
+    background: transparent;
+    color: var(--apollo-ticket-primary);
+    border: 2px solid var(--apollo-ticket-primary);
+}
+
+.apollo-ticket-btn--secondary:hover {
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+}
+
+/* Gradient Style */
+.apollo-ticket-btn--gradient {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    color: #fff;
+}
+
+.apollo-ticket-btn--gradient:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5);
+}
+
+/* Size Variants */
+.apollo-ticket-btn--small {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+}
+
+.apollo-ticket-btn--large {
+    padding: 16px 32px;
+    font-size: 1.125rem;
+}
+
+.apollo-ticket-btn--full {
+    width: 100%;
+}
+
+/* Disabled State */
+.apollo-ticket-btn--disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.apollo-ticket-btn--disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   Ticket Price
+   ========================================================================== */
+.apollo-ticket-price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.apollo-ticket-price__label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.apollo-ticket-price__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* ==========================================================================
+   Ticket Types
+   ========================================================================== */
+.apollo-ticket-types {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.apollo-ticket-types--cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Single Ticket Type */
+.apollo-ticket-type {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid var(--apollo-ticket-border);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.apollo-ticket-type:hover {
+    border-color: var(--apollo-ticket-primary);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+.apollo-ticket-type--sold_out {
+    opacity: 0.7;
+}
+
+.apollo-ticket-type__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.apollo-ticket-type__name {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.apollo-ticket-type__badge {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 20px;
+}
+
+.apollo-ticket-type__badge--sold-out {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.apollo-ticket-type__badge--last-units {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.apollo-ticket-type__description {
+    margin: 0 0 16px;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.apollo-ticket-type__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--apollo-ticket-border);
+}
+
+.apollo-ticket-type__price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.apollo-ticket-type__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.apollo-ticket-type__btn:hover {
+    background: #6d28d9;
+}
+
+/* ==========================================================================
+   Ticket Card (Visual Ticket)
+   ========================================================================== */
+.apollo-ticket-card {
+    display: flex;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.apollo-ticket-card__stub {
+    width: 80px;
+    background: linear-gradient(135deg, var(--apollo-ticket-primary) 0%, #a855f7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.apollo-ticket-card__stub::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.apollo-ticket-card__stub-inner {
+    color: #fff;
+    font-size: 2rem;
+    transform: rotate(-90deg);
+}
+
+.apollo-ticket-card__body {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.apollo-ticket-card__event {
+    margin-bottom: 12px;
+}
+
+.apollo-ticket-card__title {
+    margin: 0 0 4px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.apollo-ticket-card__date {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.apollo-ticket-card__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.apollo-ticket-card__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--apollo-ticket-primary);
+}
+
+.apollo-ticket-card__status {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 20px;
+}
+
+.apollo-ticket-card__status--sold-out {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.apollo-ticket-card__buy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.apollo-ticket-card__buy:hover {
+    background: #6d28d9;
+    gap: 10px;
+}
+
+.apollo-ticket-card__perforation {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 8px,
+        var(--apollo-ticket-bg) 8px,
+        var(--apollo-ticket-bg) 16px
+    );
+}
+
+/* Sold out state */
+.apollo-ticket-card--sold_out {
+    opacity: 0.7;
+}
+
+.apollo-ticket-card--sold_out .apollo-ticket-card__stub {
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+}
+
+/* ==========================================================================
+   Ticket Status Badge
+   ========================================================================== */
+.apollo-ticket-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 20px;
+}
+
+.apollo-ticket-status--available {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.apollo-ticket-status--last_units {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.apollo-ticket-status--sold_out {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.apollo-ticket-status--free {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.apollo-ticket-status--coming {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+/* ==========================================================================
+   Buy Button / Form
+   ========================================================================== */
+.apollo-buy-form {
+    display: inline-block;
+}
+
+.apollo-buy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--apollo-ticket-primary) 0%, #a855f7 100%);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apollo-buy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.apollo-buy-btn__price {
+    padding-left: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 400;
+}
+
+/* ==========================================================================
+   Animation: Pulse for Last Units
+   ========================================================================== */
+@keyframes ticketPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.apollo-ticket-type--last_units,
+.apollo-ticket-card--last_units {
+    animation: ticketPulse 2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+    .apollo-ticket-types--cards {
+        grid-template-columns: 1fr;
+    }
+
+    .apollo-ticket-card {
+        flex-direction: column;
+    }
+
+    .apollo-ticket-card__stub {
+        width: 100%;
+        height: 50px;
+    }
+
+    .apollo-ticket-card__stub::after {
+        right: 50%;
+        top: auto;
+        bottom: -8px;
+        transform: translateX(50%);
+    }
+
+    .apollo-ticket-card__stub-inner {
+        transform: none;
+        font-size: 1.5rem;
+    }
+
+    .apollo-ticket-card__perforation {
+        display: none;
+    }
+
+    .apollo-ticket-type__footer {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .apollo-ticket-type__btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --apollo-ticket-bg: #1e1e1e;
+        --apollo-ticket-border: #333;
+    }
+
+    .apollo-ticket-type,
+    .apollo-ticket-card {
+        background: #252525;
+    }
+
+    .apollo-ticket-type__name,
+    .apollo-ticket-card__title,
+    .apollo-ticket-price__value,
+    .apollo-ticket-type__price {
+        color: #fff;
+    }
+
+    .apollo-ticket-type__description,
+    .apollo-ticket-card__date,
+    .apollo-ticket-price__label {
+        color: #aaa;
+    }
+
+    .apollo-ticket-card__stub::after {
+        background: #1e1e1e;
+    }
+}
+
+/* ==========================================================================
+   Featured Ticket Highlight
+   ========================================================================== */
+.apollo-ticket-type--featured {
+    border: 2px solid var(--apollo-ticket-primary);
+    position: relative;
+}
+
+.apollo-ticket-type--featured::before {
+    content: 'Popular';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    padding: 4px 12px;
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   Quantity Selector
+   ========================================================================== */
+.apollo-ticket-quantity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-ticket-quantity__btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--apollo-ticket-bg);
+    border: 1px solid var(--apollo-ticket-border);
+    border-radius: 6px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.apollo-ticket-quantity__btn:hover {
+    background: var(--apollo-ticket-primary);
+    color: #fff;
+    border-color: var(--apollo-ticket-primary);
+}
+
+.apollo-ticket-quantity__input {
+    width: 50px;
+    text-align: center;
+    padding: 6px;
+    border: 1px solid var(--apollo-ticket-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Ticket Loading State
+   ========================================================================== */
+.apollo-ticket-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.apollo-ticket-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.apollo-ticket-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid var(--apollo-ticket-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

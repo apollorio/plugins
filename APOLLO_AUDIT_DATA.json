@@ -1,0 +1,496 @@
+{
+  "audit_metadata": {
+    "generated_date": "2026-01-22",
+    "scope": ["apollo-core", "apollo-events-manager", "apollo-social"],
+    "status": "complete",
+    "version": "1.0"
+  },
+  "plugins": {
+    "apollo-core": {
+      "path": "wp-content/plugins/apollo-core",
+      "cpts": [
+        {
+          "slug": "event_listing",
+          "label": "Eventos",
+          "public": true,
+          "rewrite": "evento",
+          "supports": ["title", "editor", "author", "thumbnail", "comments", "custom-fields"],
+          "icon": "dashicons-calendar",
+          "taxonomies": ["event_listing_category", "event_listing_type", "event_sounds", "event_season"],
+          "file": "modules/events/bootstrap.php:91"
+        }
+      ],
+      "taxonomies": [],
+      "rest_routes": [
+        {
+          "namespace": "apollo/v1",
+          "route": "/eventos",
+          "methods": ["GET", "POST"],
+          "file": "modules/events/bootstrap.php:162"
+        },
+        {
+          "namespace": "apollo/v1",
+          "route": "/social/feed",
+          "methods": ["GET"],
+          "file": "modules/social/bootstrap.php:176"
+        }
+      ],
+      "shortcodes": [
+        {
+          "tag": "apollo_newsletter",
+          "callback": "Apollo_Native_Newsletter::render_subscription_form()",
+          "file": "includes/class-apollo-native-newsletter.php:53"
+        },
+        {
+          "tag": "apollo_home_hero",
+          "callback": "Apollo_Home_Widgets_Loader::shortcode_hero()",
+          "file": "includes/widgets/class-apollo-home-widgets-loader.php:107"
+        }
+      ],
+      "admin_menus": [
+        {
+          "type": "menu",
+          "title": "Apollo Cabin",
+          "slug": "apollo-cabin",
+          "position": 5,
+          "icon": "dashicons-apollo",
+          "file": "admin/admin-apollo-cabin.php"
+        }
+      ],
+      "options": [
+        {
+          "name": "apollo_core_mod_enabled",
+          "type": "boolean",
+          "purpose": "Moderation enabled"
+        },
+        {
+          "name": "apollo_db_version",
+          "type": "string",
+          "default": "0.0.0",
+          "purpose": "Database schema version"
+        }
+      ],
+      "tables": [
+        {
+          "name": "wp_apollo_activity_log",
+          "file": "includes/class-apollo-activation-controller.php:213",
+          "columns": ["id", "user_id", "action", "object_type", "object_id", "meta_data", "timestamp"],
+          "purpose": "Activity logging"
+        },
+        {
+          "name": "wp_apollo_relationships",
+          "file": "includes/class-apollo-activation-controller.php:232",
+          "purpose": "Relationship tracking"
+        }
+      ],
+      "hooks": [
+        {
+          "hook": "apollo_activated",
+          "type": "action",
+          "file": "includes/class-apollo-activation-controller.php:83",
+          "purpose": "Plugin activated"
+        },
+        {
+          "hook": "apollo_ajax_actions",
+          "type": "filter",
+          "file": "includes/class-apollo-ajax-handler.php:159",
+          "purpose": "Filter available AJAX actions"
+        }
+      ]
+    },
+    "apollo-events-manager": {
+      "path": "wp-content/plugins/apollo-events-manager",
+      "cpts": [
+        {
+          "slug": "event_listing",
+          "label": "Eventos",
+          "public": true,
+          "rewrite": "evento",
+          "file": "includes/post-types.php:95"
+        },
+        {
+          "slug": "event_dj",
+          "label": "DJs",
+          "public": true,
+          "rewrite": "dj",
+          "file": "includes/post-types.php:139"
+        },
+        {
+          "slug": "event_local",
+          "label": "Locais",
+          "public": true,
+          "rewrite": "local",
+          "file": "includes/post-types.php:183"
+        },
+        {
+          "slug": "apollo_event_stat",
+          "label": "Event Stats",
+          "public": false,
+          "file": "includes/class-event-stat-cpt.php:57"
+        }
+      ],
+      "taxonomies": [
+        {
+          "slug": "event_listing_category",
+          "label": "Categorias",
+          "hierarchical": true,
+          "cpts": ["event_listing"],
+          "file": "includes/post-types.php:215"
+        },
+        {
+          "slug": "event_listing_type",
+          "label": "Tipos",
+          "hierarchical": true,
+          "cpts": ["event_listing"],
+          "file": "includes/post-types.php:250"
+        },
+        {
+          "slug": "event_sounds",
+          "label": "Estilos Musicais",
+          "hierarchical": false,
+          "cpts": ["event_dj", "event_listing"],
+          "file": "includes/post-types.php:283"
+        },
+        {
+          "slug": "event_season",
+          "label": "Temporadas",
+          "hierarchical": false,
+          "cpts": ["event_listing"],
+          "file": "includes/post-types.php:318"
+        }
+      ],
+      "rest_routes": [
+        {
+          "namespace": "apollo-events/v1",
+          "route": "/events/stats",
+          "file": "includes/admin-dashboard.php:181"
+        },
+        {
+          "namespace": "apollo-events/v1",
+          "route": "/events/bookmarks",
+          "file": "includes/admin-dashboard.php:191"
+        }
+      ],
+      "shortcodes": [
+        {
+          "tag": "apollo_events_grid",
+          "callback": "apollo_events_grid_shortcode()",
+          "file": "includes/helpers/event-card-helper.php:422"
+        },
+        {
+          "tag": "apollo_dj_grid",
+          "callback": "Speakers_Module::render_dj_grid()",
+          "file": "includes/modules/speakers/class-speakers-module.php:114"
+        }
+      ],
+      "options": [
+        {
+          "name": "apollo_aprio_version",
+          "type": "string",
+          "purpose": "Plugin version"
+        },
+        {
+          "name": "apollo_events_per_page",
+          "type": "integer",
+          "default": 12
+        }
+      ],
+      "tables": [
+        {
+          "name": "wp_apollo_event_bookmarks",
+          "file": "includes/class-bookmarks.php:70",
+          "purpose": "Event bookmarks"
+        }
+      ],
+      "modules": [
+        {
+          "name": "Calendar_Module",
+          "namespace": "Apollo\\Events\\Modules",
+          "file": "includes/modules/calendar/class-calendar-module.php"
+        },
+        {
+          "name": "Interest_Module",
+          "namespace": "Apollo\\Events\\Modules",
+          "file": "includes/modules/interest/class-interest-module.php"
+        },
+        {
+          "name": "Reviews_Module",
+          "namespace": "Apollo\\Events\\Modules",
+          "file": "includes/modules/reviews/class-reviews-module.php"
+        },
+        {
+          "name": "Speakers_Module",
+          "namespace": "Apollo\\Events\\Modules",
+          "file": "includes/modules/speakers/class-speakers-module.php"
+        },
+        {
+          "name": "Tracking_Module",
+          "namespace": "Apollo\\Events\\Modules",
+          "file": "includes/modules/tracking/class-tracking-module.php"
+        }
+      ]
+    },
+    "apollo-social": {
+      "path": "wp-content/plugins/apollo-social",
+      "cpts": [
+        {
+          "slug": "apollo_social_post",
+          "label": "Social Posts",
+          "public": true,
+          "rewrite": "post-social",
+          "file": "src/Infrastructure/PostTypes/SocialPostType.php:83"
+        },
+        {
+          "slug": "user_page",
+          "label": "User Pages",
+          "public": true,
+          "rewrite": "user-page",
+          "file": "src/Modules/UserPages/UserPageRegistrar.php:54"
+        },
+        {
+          "slug": "apollo_classified",
+          "label": "Anúncios",
+          "public": true,
+          "rewrite": "anuncio",
+          "file": "src/Modules/Classifieds/ClassifiedsModule.php:137"
+        },
+        {
+          "slug": "apollo_supplier",
+          "label": "Fornecedores",
+          "public": false,
+          "file": "src/Modules/Suppliers/SuppliersModule.php:171"
+        },
+        {
+          "slug": "apollo_document",
+          "label": "Documentos",
+          "public": false,
+          "file": "src/Ajax/DocumentSaveHandler.php:155"
+        },
+        {
+          "slug": "cena_document",
+          "label": "Documentos Cena Rio",
+          "public": false,
+          "file": "src/CenaRio/CenaRioModule.php:88"
+        },
+        {
+          "slug": "cena_event_plan",
+          "label": "Eventos Planejamento",
+          "public": false,
+          "file": "src/CenaRio/CenaRioModule.php:115"
+        },
+        {
+          "slug": "apollo_home_section",
+          "label": "Home Sections",
+          "public": false,
+          "file": "src/Builder/class-apollo-home-cpt.php:96"
+        }
+      ],
+      "taxonomies": [
+        {
+          "slug": "social_category",
+          "label": "Social Categories",
+          "hierarchical": true,
+          "cpts": ["apollo_social_post"],
+          "file": "src/Infrastructure/PostTypes/SocialPostType.php:106"
+        },
+        {
+          "slug": "classified_domain",
+          "label": "Domínios de Anúncios",
+          "hierarchical": true,
+          "cpts": ["apollo_classified"],
+          "file": "src/Modules/Classifieds/ClassifiedsModule.php:170"
+        },
+        {
+          "slug": "supplier_category",
+          "hierarchical": true,
+          "cpts": ["apollo_supplier"],
+          "file": "src/Modules/Suppliers/SuppliersModule.php:185"
+        }
+      ],
+      "rest_routes": [
+        {
+          "namespace": "apollo-social/v2",
+          "route": "/feed",
+          "methods": ["GET"],
+          "file": "src/RestAPI/class-feed-controller.php:51"
+        },
+        {
+          "namespace": "apollo-social/v2",
+          "route": "/profile",
+          "methods": ["GET"],
+          "file": "src/RestAPI/class-profile-controller.php:51"
+        },
+        {
+          "namespace": "apollo-social/v2",
+          "route": "/classifieds",
+          "methods": ["GET", "POST"],
+          "file": "src/RestAPI/class-classifieds-controller.php:59"
+        }
+      ],
+      "shortcodes": [
+        {
+          "tag": "apollo_members_directory",
+          "file": "src/Providers/SocialServiceProvider.php:30"
+        },
+        {
+          "tag": "apollo_activity_feed",
+          "file": "src/Providers/SocialServiceProvider.php:31"
+        },
+        {
+          "tag": "apollo_classifieds",
+          "file": "src/Shortcodes/SocialShortcodes.php:75"
+        }
+      ],
+      "modules": [
+        {
+          "name": "UserPages",
+          "path": "src/Modules/UserPages"
+        },
+        {
+          "name": "Classifieds",
+          "path": "src/Modules/Classifieds"
+        },
+        {
+          "name": "Suppliers",
+          "path": "src/Modules/Suppliers"
+        },
+        {
+          "name": "Verification",
+          "path": "src/Modules/Verification"
+        },
+        {
+          "name": "Groups",
+          "path": "src/Modules/Groups"
+        },
+        {
+          "name": "Documents",
+          "path": "src/Modules/Documents"
+        },
+        {
+          "name": "Signatures",
+          "path": "src/Modules/Signatures"
+        },
+        {
+          "name": "CenaRio",
+          "path": "src/CenaRio"
+        }
+      ]
+    }
+  },
+  "global_meta_keys": {
+    "post_meta": [
+      {
+        "key": "_event_start_date",
+        "type": "post_meta",
+        "plugin": "apollo-events-manager",
+        "purpose": "Event start date"
+      },
+      {
+        "key": "_event_dj_ids",
+        "type": "post_meta",
+        "plugin": "apollo-events-manager",
+        "purpose": "Event DJ IDs array (new)"
+      }
+    ],
+    "user_meta": [
+      {
+        "key": "_apollo_instagram_id",
+        "type": "user_meta",
+        "plugin": "apollo-core",
+        "purpose": "Instagram ID"
+      },
+      {
+        "key": "apollo_user_page_id",
+        "type": "user_meta",
+        "plugin": "apollo-social",
+        "purpose": "User page post ID"
+      }
+    ]
+  },
+  "global_options": [
+    {
+      "name": "apollo_core_mod_enabled",
+      "type": "boolean",
+      "plugin": "apollo-core"
+    },
+    {
+      "name": "apollo_events_per_page",
+      "type": "integer",
+      "plugin": "apollo-events-manager",
+      "default": 12
+    }
+  ],
+  "global_hooks": {
+    "actions": [
+      {
+        "hook": "apollo_activated",
+        "type": "action",
+        "plugin": "apollo-core",
+        "priority": 10
+      },
+      {
+        "hook": "apollo_user_interested",
+        "type": "action",
+        "plugin": "apollo-events-manager"
+      },
+      {
+        "hook": "apollo_user_verified",
+        "type": "action",
+        "plugin": "apollo-social"
+      }
+    ],
+    "filters": [
+      {
+        "hook": "apollo_ajax_actions",
+        "type": "filter",
+        "plugin": "apollo-core"
+      },
+      {
+        "hook": "apollo_events_placeholder_defaults",
+        "type": "filter",
+        "plugin": "apollo-events-manager"
+      }
+    ]
+  },
+  "risks_and_conflicts": [
+    {
+      "type": "collision",
+      "element": "event_season",
+      "description": "Both taxonomy (apollo-events-manager) and group type (apollo-social)",
+      "severity": "medium",
+      "recommendation": "Clarify and document distinction"
+    },
+    {
+      "type": "collision",
+      "element": "event_listing CPT",
+      "description": "Registered by both apollo-core and apollo-events-manager",
+      "severity": "high",
+      "recommendation": "Single plugin should be responsible"
+    },
+    {
+      "type": "legacy_code",
+      "element": "Meta keys",
+      "description": "_event_djs (legacy) vs _event_dj_ids (new)",
+      "severity": "medium",
+      "recommendation": "Complete migration to new keys"
+    },
+    {
+      "type": "namespace_inconsistency",
+      "element": "REST API",
+      "description": "Different namespaces: apollo/v1, apollo-events/v1, apollo-social/v2",
+      "severity": "low",
+      "recommendation": "Standardize to apollo/v2"
+    }
+  ],
+  "statistics": {
+    "total_cpts": 13,
+    "total_taxonomies": 13,
+    "total_rest_routes": 50,
+    "total_shortcodes": 40,
+    "total_custom_tables": 25,
+    "total_meta_keys": 100,
+    "total_hooks": 150,
+    "total_admin_pages": 30,
+    "total_options": 15
+  }
+}

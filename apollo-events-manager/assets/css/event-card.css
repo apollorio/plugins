@@ -1,0 +1,395 @@
+/**
+ * Apollo Event Card - Canonical CDN CSS
+ * ============================================
+ * Path: apollo-events-manager/assets/css/event-card.css
+ *
+ * SINGLE SOURCE OF TRUTH for .a-eve-* event card styles.
+ * All other files must NOT redefine these selectors.
+ *
+ * Mobile-first responsive event card component
+ * Integrates with Apollo CDN design tokens (--ap-*)
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.5.1
+ * @updated 2026-01-05
+ */
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================================================= */
+
+:root {
+    --apollo-orange: var(--ap-orange, #f97316);
+    --apollo-orange-hover: var(--ap-orange-600, #ea580c);
+    --apollo-black: var(--ap-text, #0f172a);
+    --apollo-gray: var(--ap-text-muted, #64748b);
+    --apollo-light: var(--ap-bg-muted, #f8fafc);
+    --apollo-border: var(--ap-border, #e2e8f0);
+    --white: #fff;
+    --radius: var(--ap-radius-md, 0.5rem);
+    --radius-lg: var(--ap-radius-lg, 0.75rem);
+    --cubic: cubic-bezier(0.16, 1, 0.3, 1);
+    --card-shadow: var(--ap-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+    --card-shadow-hover: var(--ap-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+}
+
+/* =============================================================================
+   EVENTS GRID - Mobile First
+   ============================================================================= */
+
+.apollo-events-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    row-gap: clamp(32px, 6vw, 48px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    .apollo-events-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        row-gap: 64px;
+    }
+}
+
+/* =============================================================================
+   EVENT CARD - Base Structure
+   ============================================================================= */
+
+.a-eve-card {
+    display: block;
+    position: relative;
+    width: 100%;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+    overflow: visible !important;
+    background: transparent;
+    box-sizing: border-box;
+    height: auto !important;
+}
+
+.a-eve-card:hover {
+    transform: translateY(-5px);
+}
+
+.a-eve-content {
+    overflow: visible !important;
+    height: auto !important;
+    padding: clamp(0.8em, 2vw, 1.25em) clamp(0.2rem, 0.5vw, 0.5rem);
+    width: 100%;
+}
+
+/* =============================================================================
+   DATE BADGE - Top Left Corner Cutout
+   ============================================================================= */
+
+.a-eve-date {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    width: clamp(46px, 8vw, 60px);
+    height: clamp(42px, 7vw, 54px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 1;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.a-eve-date-day {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: 700;
+    color: var(--apollo-black);
+    display: block;
+}
+
+.a-eve-date-month {
+    font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--apollo-gray);
+}
+
+/* =============================================================================
+   MEDIA CONTAINER - Berlin Brutalism Corner Cutout
+   ============================================================================= */
+
+.a-eve-media {
+    aspect-ratio: 4/5 !important;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.4s ease;
+    background: #e0e0e0;
+    --r: 12px;
+    --s: 12px;
+    --x: clamp(36px, 6vw, 48px);
+    --y: clamp(32px, 5.5vw, 42px);
+    --_m: /calc(2 * var(--r)) calc(2 * var(--r)) radial-gradient(#000 70%, #0000 72%);
+    --_g: conic-gradient(at var(--r) var(--r), #000 75%, #0000 0);
+    --_d: (var(--s) + var(--r));
+    mask: calc(var(--_d) + var(--x)) 0 var(--_m),
+        0 calc(var(--_d) + var(--y)) var(--_m),
+        radial-gradient(var(--s) at 0 0, #0000 99%, #000 calc(100% + 1px)) calc(var(--r) + var(--x)) calc(var(--r) + var(--y)),
+        var(--_g) calc(var(--_d) + var(--x)) 0,
+        var(--_g) 0 calc(var(--_d) + var(--y));
+    mask-repeat: no-repeat;
+    -webkit-mask: calc(var(--_d) + var(--x)) 0 var(--_m),
+        0 calc(var(--_d) + var(--y)) var(--_m),
+        radial-gradient(var(--s) at 0 0, #0000 99%, #000 calc(100% + 1px)) calc(var(--r) + var(--x)) calc(var(--r) + var(--y)),
+        var(--_g) calc(var(--_d) + var(--x)) 0,
+        var(--_g) 0 calc(var(--_d) + var(--y));
+    -webkit-mask-repeat: no-repeat;
+}
+
+.a-eve-card:hover .a-eve-media {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.a-eve-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+    display: block;
+}
+
+.a-eve-card:hover .a-eve-media img {
+    transform: scale(1.05);
+}
+
+/* =============================================================================
+   GENRE TAGS - Bottom Right Glass Effect
+   ============================================================================= */
+
+.a-eve-tags {
+    position: absolute;
+    bottom: clamp(6px, 1.5vw, 10px);
+    right: clamp(6px, 1.5vw, 10px);
+    display: flex;
+    gap: clamp(4px, 1vw, 8px);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.a-eve-tag {
+    padding: clamp(2px, 0.5vw, 4px) clamp(6px, 1.2vw, 10px);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(30deg, rgba(255, 255, 255, 0.1) -49%, rgba(255, 255, 255, 0.35) 160%);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: clamp(0.55rem, 1vw, 0.65rem);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =============================================================================
+   CONTENT SECTION - Title & Meta
+   ============================================================================= */
+
+.a-eve-title {
+    font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+    font-weight: 700;
+    color: var(--apollo-black);
+    line-height: 1.3;
+    margin-bottom: clamp(0.3rem, 0.8vw, 0.5rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.a-eve-meta {
+    color: var(--apollo-gray);
+    font-size: clamp(0.7rem, 1.3vw, 0.85rem);
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    margin-bottom: clamp(0.2rem, 0.5vw, 0.4rem);
+}
+
+.a-eve-meta i {
+    font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.a-eve-meta span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =============================================================================
+   APOLLO PARTNER BADGE - Orange Circle
+   ============================================================================= */
+
+.a-eve-card.apollo .a-eve-media::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: clamp(20px, 3vw, 26px);
+    height: clamp(20px, 3vw, 26px);
+    background: var(--apollo-orange);
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+}
+
+.a-eve-card.apollo .a-eve-media::after {
+    content: 'A';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: clamp(20px, 3vw, 26px);
+    height: clamp(20px, 3vw, 26px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(10px, 1.5vw, 13px);
+    font-weight: 800;
+    color: #fff;
+    z-index: 6;
+}
+
+/* =============================================================================
+   COUPON INDICATOR - Has Coupon Class
+   ============================================================================= */
+
+.a-eve-card.coup-apollo .a-eve-media::before,
+.a-eve-card[data-coupon] .a-eve-media::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: clamp(20px, 3vw, 26px);
+    height: clamp(20px, 3vw, 26px);
+    background: linear-gradient(135deg, var(--apollo-orange) 0%, var(--apollo-orange-hover) 100%);
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+    animation: pulse-coupon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-coupon {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.a-eve-card.coup-apollo .a-eve-media::after,
+.a-eve-card[data-coupon] .a-eve-media::after {
+    content: '%';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: clamp(20px, 3vw, 26px);
+    height: clamp(20px, 3vw, 26px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(9px, 1.3vw, 11px);
+    font-weight: 800;
+    color: #fff;
+    z-index: 6;
+}
+
+/* =============================================================================
+   REVEAL ANIMATION
+   ============================================================================= */
+
+.a-eve-card.reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s var(--cubic);
+}
+
+.a-eve-card.reveal-up.in-view,
+.a-eve-card.reveal-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.a-eve-card.delay-100 { transition-delay: 0.1s; }
+.a-eve-card.delay-200 { transition-delay: 0.2s; }
+.a-eve-card.delay-300 { transition-delay: 0.3s; }
+
+/* =============================================================================
+   DARK MODE SUPPORT
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    .a-eve-date-day { color: var(--ap-text-light, #f8fafc); }
+    .a-eve-title { color: var(--ap-text-light, #f8fafc); }
+    .a-eve-media { border-color: var(--ap-border-dark, rgba(255, 255, 255, 0.1)); }
+    .a-eve-meta { color: var(--ap-text-muted, #94a3b8); }
+}
+
+body.dark-mode .a-eve-date-day,
+.dark-mode .a-eve-date-day,
+.dark .a-eve-date-day,
+[data-theme="dark"] .a-eve-date-day {
+    color: var(--ap-text-light, #f8fafc);
+}
+
+body.dark-mode .a-eve-date-month,
+.dark-mode .a-eve-date-month,
+.dark .a-eve-date-month,
+[data-theme="dark"] .a-eve-date-month {
+    color: var(--ap-text-muted, #94a3b8);
+}
+
+body.dark-mode .a-eve-title,
+.dark-mode .a-eve-title,
+.dark .a-eve-title,
+[data-theme="dark"] .a-eve-title {
+    color: var(--ap-text-light, #f8fafc);
+}
+
+body.dark-mode .a-eve-meta,
+.dark-mode .a-eve-meta,
+.dark .a-eve-meta,
+[data-theme="dark"] .a-eve-meta {
+    color: var(--ap-text-muted, #94a3b8);
+}
+
+body.dark-mode .a-eve-media,
+.dark-mode .a-eve-media,
+.dark .a-eve-media,
+[data-theme="dark"] .a-eve-media {
+    border-color: var(--ap-border-dark, rgba(255, 255, 255, 0.1));
+    background: var(--ap-bg-dark, #1e293b);
+}
+
+/* =============================================================================
+   LOADING SKELETON STATE
+   ============================================================================= */
+
+.a-eve-card.loading .a-eve-media {
+    background: linear-gradient(90deg, var(--apollo-border) 25%, var(--apollo-light) 50%, var(--apollo-border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* =============================================================================
+   END OF FILE
+   ============================================================================= */

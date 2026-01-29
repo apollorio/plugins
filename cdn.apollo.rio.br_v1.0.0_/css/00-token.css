@@ -1,0 +1,235 @@
+/* =====================================================================
+   00-token.css — Apollo Tokens
+   ===================================================================== */
+@layer tokens {
+:root {
+    
+/* 1) WHITE SCALE */
+    --white-1:              #ffffff;
+    --white-2:              #fcfbf7;
+    --white-3:              #f7f6f3;
+    --white-4:              #f3f2ef;
+    --white-5:              #f0efec;
+    --white-6:              #ecebea;
+    --white-7:              #e8e7e5;
+    --white-8:              #e4e3e1;
+    --white-9:              #e0dfdd;
+    --white-10:             #dcdbd9;
+        
+/* 2) GRAY SCALE */
+    --gray-1:               #f8f8f8;
+    --gray-2:               #f2f2f2;
+    --gray-3:               #ececec;
+    --gray-4:               #e6e6e6;
+    --gray-5:               #dfdfdf;
+    --gray-6:               #d8d8d8;
+    --gray-7:               #cfcfcf;
+    --gray-8:               #bfbfbf;
+    --gray-9:               #9e9e9e;
+    --gray-10:              #6e6e6e;
+        
+/* 3) BLACK SCALE */
+    --black-1:              #121214;
+    --black-2:              #0f0f11;
+    --black-3:              #0c0c0d;
+    --black-4:              #0a0a0a;
+    --black-5:              #090909;
+    --black-6:              #070707;
+    --black-7:              #060606;
+    --black-8:              #050505;
+    --black-9:              #030303;
+    --black-10:             #000000;
+        
+/* 4) BRAND — ORANGE */
+    --orange-1:             #ffe0b2;
+    --orange-2:             #ffcc80;
+    --orange-3:             #ffb74d;
+    --orange-4:             #ffa726;
+    --orange-5:             #ff9800;
+    --orange-6:             #fb8c00;
+    --orange-7:             #f57c00;
+    --orange-8:             #ef6c00;
+    --orange-9:             #e65100;
+    --orange-10:            #d84315;
+        
+/* 5) ACCENTS & STATUS */
+    --accent-yellow:        #d7ff00;
+    --accent-violet:        #6002ee;
+    --success:              #77e000;
+    --warning:              #ffb300;
+    --danger:               #e53935;
+        
+/* 6) SEMANTIC TOKENS (LIGHT) */
+    --bg:                   var(--white-1);
+    --surface:              var(--white-3);
+    --surface-hover:        var(--white-4);
+    --card:                 rgba(0,0,0,0.039);
+    --card-hover:           rgba(0,0,0,0.071);
+        
+    --txt-main:             rgba(19,21,23,0.85);
+    --txt-hover:            rgba(19,21,23,0.95);
+    --txt-muted:            rgba(19,21,23,0.48);
+    --txt-rgb:              19, 21, 23;
+        
+    --border:               rgba(0,0,0,0.153);
+    --border-hover:         rgba(0,0,0,0.216);
+    --border-light:         var(--gray-4);
+    --border-lighter:       var(--gray-3);
+        
+    --primary:              var(--orange-5);
+    --secondary:            var(--orange-10);
+    --accent:               var(--accent-yellow);
+        
+    --link:                 var(--primary);
+    --focus-ring:           0 0 0 4px rgba(255,152,0,0.2);
+    --focus-ring:           0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent);
+        
+    --glass:                rgba(19,21,23,0.08);
+    --shadow:               0 4px 20px rgba(0,0,0,0.06);
+    --shadow-hover:         0 8px 30px rgba(0,0,0,0.09);
+        
+    --scroll-track:         var(--gray-2);
+    --scroll-thumb:         var(--gray-6);
+        
+    --hero-overlay:         linear-gradient(to top, var(--bg), rgba(255,255,255,0.1));
+        
+/* 7) SYSTEM */
+    --radius-xs:            6px;
+    --radius-sm:            10px;
+    --radius:               18px;
+    --radius-lg:            28px;
+        
+    --space-1:              4px;
+    --space-2:              8px;
+    --space-3:              16px;
+    --space-4:              24px;
+    --space-5:              32px;
+    --space-6:              48px;
+        
+    --font-main:            400 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-heading:         700 18px/1.25 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        
+    --ease-default:         cubic-bezier(0.16,1,0.3,1);
+    --ease-smooth:          cubic-bezier(0.25,1,0.5,1);
+    --ease-snappy:          cubic-bezier(0.2,0.9,0.3,1);
+        
+    --transition-ui:        0.25s var(--ease-default);
+    --transition-fast:      0.15s var(--ease-snappy);
+    --transition-slow:      0.6s var(--ease-default);
+        
+    --z-ui:                 10;
+    --z-popover:            100;
+    --z-modal:              1000;
+}
+
+html.dark-mode {
+    
+/* WHITE SCALE */ 
+        --white-1:          #0b0b0d; 
+        --white-2:          #121214;
+        --white-3:          #161618; 
+        --white-4:          #1a1a1c; 
+        --white-5:          #1e1e20; 
+        --white-6:          #232325; 
+        --white-7:          #2a2a2c; 
+        --white-8:          #313133; 
+        --white-9:          #38383a; 
+        --white-10:         #403f41; 
+        
+/* GRAY / NEUTRAL */ 
+        --gray-1:           #171717; 
+        --gray-2:           #1f1f1f; 
+        --gray-3:           #262626; 
+        --gray-4:           #2d2d2d; 
+        --gray-5:           #343434; 
+        --gray-6:           #3b3b3b; 
+        --gray-7:           #444444; 
+        --gray-8:           #505050; 
+        --gray-9:           #6e6e6e; 
+        --gray-10:          #9e9e9e; 
+        
+/* BLACK SCALE */ 
+        --black-1:          #0b0b0d; 
+        --black-2:          #0d0d0f; 
+        --black-3:          #0f0f11; 
+        --black-4:          #111113; 
+        --black-5:          #131315;
+        --black-6:          #151517; 
+        --black-7:          #171719; 
+        --black-8:          #19191b; 
+        --black-9:          #1b1b1d; 
+        --black-10:         #000000; 
+        
+/* BRAND - ORANGE */ 
+        --orange-1:         #ffe0b2; 
+        --orange-2:         #ffcc80; 
+        --orange-3:         #ffb74d; 
+        --orange-4:         #ffa726; 
+        --orange-5:         #ff9800; 
+        --orange-6:         #fb8c00; 
+        --orange-7:         #f57c00; 
+        --orange-8:         #ef6c00; 
+        --orange-9:         #e65100; 
+        --orange-10:        #d84315; 
+        
+/* ACCENTS & STATUS */ 
+        --accent-yellow:    #d7ff00; 
+        --accent-violet:    #6002ee; 
+        --success:          #77e000; 
+        --warning:          #ffb300; 
+        --danger:           #ef5350; 
+        
+/* SEMANTIC MAPPINGS */ 
+        --bg:               var(--black-10); 
+        --surface:          var(--white-4); 
+        --surface-hover:    var(--white-6); 
+        --card:             rgba(255,255,255,0.035); 
+        --card-hover:       rgba(255,255,255,0.062); 
+        --txt-main:         rgba(232,234,236,0.85); 
+        --txt-hover:        rgba(232,234,236,0.95); 
+        --txt-muted:        rgba(232,234,236,0.48); 
+        --txt-rgb:          232, 234, 236; 
+        --border:           rgba(255,255,255,0.176); 
+        --border-hover:     rgba(255,255,255,0.225); 
+        --border-light:     var(--gray-4); 
+        --border-lighter:   var(--gray-3); 
+        --primary:          var(--orange-5); 
+        --secondary:        var(--orange-1); 
+        --accent:           var(--accent-violet); 
+        --link:             var(--primary); 
+        --focus-ring:       0 0 0 4px color-mix(in srgb, var(--primary) 24%, transparent); 
+        --glass:            rgba(232,234,236,0.04); 
+        --shadow:           0 4px 20px rgba(0,0,0,0.3); 
+        --shadow-hover:     0 8px 30px rgba(0,0,0,0.5); 
+        --scroll-track:     #1e1e1e; --scroll-thumb: #3a3a3c; 
+        --hero-overlay:     linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.1) 100%); 
+        
+/* SYSTEM TOKENS */ 
+        --radius-xs:        6px; 
+        --radius-sm:        10px; 
+        --radius:           18px; 
+        --radius-lg:        28px; 
+        
+        --space-1:          4px; 
+        --space-2:          8px; 
+        --space-3:          16px; 
+        --space-4:          24px; 
+        --space-5:          32px; 
+        --space-6:          48px; 
+        
+        --font-main:        400 14px/1.5 system-ui, -apple-system, sans-serif; 
+        --font-heading:     700 18px/1.25 system-ui, -apple-system, sans-serif; 
+        
+        --ease-default:     cubic-bezier(0.16, 1, 0.3, 1); 
+        --ease-smooth:      cubic-bezier(0.25, 1, 0.5, 1); 
+        --ease-snappy:      cubic-bezier(0.2, 0.9, 0.3, 1); 
+        
+        --transition-ui:    0.25s var(--ease-default); 
+        --transition-fast:  0.15s var(--ease-snappy); 
+        --transition-slow:  0.6s var(--ease-default); 
+        
+        --z-ui:             10; 
+        --z-popover:        100; 
+        --z-modal:          1000;
+  } 
+}

@@ -1,0 +1,37 @@
+includes:
+    - vendor/phpstan/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+        - includes
+    excludePaths:
+        - vendor
+        - node_modules
+        - tests
+
+    # WordPress-specific settings
+    bootstrapFiles:
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+
+    # Ignore patterns for gradual adoption
+    ignoreErrors:
+        # Ignore undefined function errors for WordPress functions until stubs are loaded
+        - '#Function [a-z_]+ not found#'
+
+        # Legacy code patterns to be fixed later
+        - '#Parameter .+ of function [a-z_]+ expects .+, .+ given#'
+
+        # Dynamic property access in WordPress context
+        - '#Access to an undefined property#'
+
+    # Type coverage tracking
+    reportUnmatchedIgnoredErrors: false
+
+    # Parallel processing
+    parallel:
+        maximumNumberOfProcesses: 4
+
+    # Memory limit for large codebase
+    tmpDir: %currentWorkingDirectory%/.phpstan-cache

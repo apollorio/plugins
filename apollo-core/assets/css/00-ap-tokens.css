@@ -1,0 +1,288 @@
+/**
+ * Apollo Design System - Core Tokens
+ * ===================================
+ * Definitive design tokens for the Apollo ecosystem.
+ * All tokens use the --ap-* prefix for consistency.
+ *
+ * CDN Path: https://assets.apollo.rio.br/styles/00-tokens.css
+ *
+ * @layer tokens
+ */
+
+@layer tokens {
+  :root {
+    /* ============================================================
+       COLOR PALETTE
+       ============================================================ */
+
+    /* Primary Colors - Apollo Orange */
+    --ap-orange: #f97316;
+    --ap-orange-50: #fff7ed;
+    --ap-orange-100: #ffedd5;
+    --ap-orange-200: #fed7aa;
+    --ap-orange-300: #fdba74;
+    --ap-orange-400: #fb923c;
+    --ap-orange-500: #f97316;
+    --ap-orange-600: #ea580c;
+    --ap-orange-700: #c2410c;
+    --ap-orange-800: #9a3412;
+    --ap-orange-900: #7c2d12;
+
+    /* Primary Alias */
+    --ap-primary: var(--ap-orange);
+    --ap-primary-hover: var(--ap-orange-600);
+    --ap-primary-muted: var(--ap-orange-100);
+
+    /* Accent Colors */
+    --ap-red: #dc2626;
+    --ap-red-muted: #fef2f2;
+    --ap-green: #10b981;
+    --ap-green-muted: #f0fdf4;
+    --ap-yellow: #f59e0b;
+    --ap-yellow-muted: #fffbeb;
+    --ap-blue: #3b82f6;
+    --ap-blue-muted: #eff6ff;
+
+    /* Grayscale */
+    --ap-white: #ffffff;
+    --ap-black: #000000;
+    --ap-gray-50: #f8fafc;
+    --ap-gray-100: #f1f5f9;
+    --ap-gray-200: #e2e8f0;
+    --ap-gray-300: #cbd5e1;
+    --ap-gray-400: #94a3b8;
+    --ap-gray-500: #64748b;
+    --ap-gray-600: #475569;
+    --ap-gray-700: #334155;
+    --ap-gray-800: #1e293b;
+    --ap-gray-900: #0f172a;
+    --ap-gray-950: #020617;
+
+    /* ============================================================
+       SEMANTIC COLORS
+       ============================================================ */
+
+    /* Light Mode Backgrounds */
+    --ap-bg: var(--ap-white);
+    --ap-bg-muted: var(--ap-gray-50);
+    --ap-bg-subtle: var(--ap-gray-100);
+    --ap-bg-translucent: rgba(255, 255, 255, 0.68);
+
+    /* Light Mode Text */
+    --ap-text: var(--ap-gray-900);
+    --ap-text-muted: var(--ap-gray-500);
+    --ap-text-subtle: var(--ap-gray-400);
+    --ap-text-dark: var(--ap-gray-950);
+
+    /* Light Mode Borders */
+    --ap-border: var(--ap-gray-200);
+    --ap-border-light: rgba(0, 0, 0, 0.08);
+    --ap-border-focus: var(--ap-primary);
+
+    /* Dark Mode Backgrounds */
+    --ap-bg-dark: #131517;
+    --ap-bg-dark-muted: #1a1c1e;
+    --ap-bg-dark-subtle: #222426;
+    --ap-bg-dark-translucent: rgba(19, 21, 23, 0.68);
+
+    /* Dark Mode Text */
+    --ap-text-light: var(--ap-gray-50);
+    --ap-text-light-muted: rgba(255, 255, 255, 0.7);
+    --ap-text-light-subtle: rgba(255, 255, 255, 0.5);
+
+    /* Dark Mode Borders */
+    --ap-border-dark: #333537;
+    --ap-border-dark-light: rgba(255, 255, 255, 0.1);
+
+    /* ============================================================
+       TYPOGRAPHY
+       ============================================================ */
+
+    --ap-font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    --ap-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    --ap-font-display: 'Urbanist', var(--ap-font-sans);
+
+    --ap-text-xs: 0.75rem;
+    --ap-text-sm: 0.875rem;
+    --ap-text-base: 1rem;
+    --ap-text-lg: 1.125rem;
+    --ap-text-xl: 1.25rem;
+    --ap-text-2xl: 1.5rem;
+    --ap-text-3xl: 1.875rem;
+    --ap-text-4xl: 2.25rem;
+
+    --ap-leading-tight: 1.25;
+    --ap-leading-normal: 1.5;
+    --ap-leading-relaxed: 1.625;
+
+    --ap-tracking-tight: -0.025em;
+    --ap-tracking-normal: 0;
+    --ap-tracking-wide: 0.025em;
+
+    /* ============================================================
+       SPACING
+       ============================================================ */
+
+    --ap-space-0: 0;
+    --ap-space-1: 0.25rem;
+    --ap-space-2: 0.5rem;
+    --ap-space-3: 0.75rem;
+    --ap-space-4: 1rem;
+    --ap-space-5: 1.25rem;
+    --ap-space-6: 1.5rem;
+    --ap-space-8: 2rem;
+    --ap-space-10: 2.5rem;
+    --ap-space-12: 3rem;
+    --ap-space-16: 4rem;
+    --ap-space-20: 5rem;
+    --ap-space-24: 6rem;
+
+    /* ============================================================
+       BORDER RADIUS
+       ============================================================ */
+
+    --ap-radius-none: 0;
+    --ap-radius-sm: 0.25rem;
+    --ap-radius-md: 0.5rem;
+    --ap-radius-lg: 0.75rem;
+    --ap-radius-xl: 1rem;
+    --ap-radius-2xl: 1.5rem;
+    --ap-radius-3xl: 2rem;
+    --ap-radius-full: 9999px;
+
+    /* ============================================================
+       SHADOWS
+       ============================================================ */
+
+    --ap-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --ap-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --ap-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --ap-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --ap-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    --ap-shadow-dark: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --ap-shadow-dark-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
+
+    /* ============================================================
+       TRANSITIONS
+       ============================================================ */
+
+    --ap-transition: all 0.2s ease;
+    --ap-transition-fast: all 0.1s ease;
+    --ap-transition-slow: all 0.3s ease;
+    --ap-transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    /* ============================================================
+       Z-INDEX SCALE
+       ============================================================ */
+
+    --ap-z-0: 0;
+    --ap-z-10: 10;
+    --ap-z-20: 20;
+    --ap-z-30: 30;
+    --ap-z-40: 40;
+    --ap-z-50: 50;
+    --ap-z-modal: 100;
+    --ap-z-overlay: 200;
+    --ap-z-toast: 300;
+
+    /* ============================================================
+       LEGACY COMPATIBILITY ALIASES
+       ============================================================ */
+
+    /* Old orange token alias */
+    --apollo-orange: var(--ap-orange);
+  }
+
+  /* ============================================================
+     DARK MODE TOKEN OVERRIDES
+     ============================================================ */
+
+  body.dark-mode,
+  .dark-mode,
+  [data-theme="dark"] {
+    --ap-bg: var(--ap-bg-dark);
+    --ap-bg-muted: var(--ap-bg-dark-muted);
+    --ap-bg-subtle: var(--ap-bg-dark-subtle);
+    --ap-bg-translucent: var(--ap-bg-dark-translucent);
+
+    --ap-text: var(--ap-text-light);
+    --ap-text-muted: var(--ap-text-light-muted);
+    --ap-text-subtle: var(--ap-text-light-subtle);
+
+    --ap-border: var(--ap-border-dark);
+    --ap-border-light: var(--ap-border-dark-light);
+
+    --ap-shadow-md: var(--ap-shadow-dark);
+    --ap-shadow-lg: var(--ap-shadow-dark-lg);
+  }
+}
+
+/* ============================================================
+   APOLLO STANDARD BUTTON COMPONENTS
+   ============================================================ */
+
+/* Apollo Orange Button - Standard accent button for all Apollo plugins */
+.ap-btn-orange,
+.ap-btn-accent,
+.apollo-btn-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ff8d7f, #ffb690);
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--ap-radius-lg, 0.75rem);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
+}
+
+.ap-btn-orange:hover,
+.ap-btn-accent:hover,
+.apollo-btn-orange:hover {
+  box-shadow: 0 12px 30px rgba(249, 115, 22, 0.4);
+  transform: scale(1.03) translateY(-2px);
+  filter: brightness(1.15);
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.ap-btn-orange:active,
+.ap-btn-accent:active,
+.apollo-btn-orange:active {
+  transform: scale(0.98);
+}
+
+.ap-btn-orange:disabled,
+.ap-btn-accent:disabled,
+.apollo-btn-orange:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* Small variant */
+.ap-btn-orange.ap-btn-sm,
+.ap-btn-accent.ap-btn-sm {
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+}
+
+/* Large variant */
+.ap-btn-orange.ap-btn-lg,
+.ap-btn-accent.ap-btn-lg {
+  padding: 16px 32px;
+  font-size: 1.125rem;
+}
+
+/* Full width */
+.ap-btn-orange.ap-btn-block,
+.ap-btn-accent.ap-btn-block {
+  width: 100%;
+}

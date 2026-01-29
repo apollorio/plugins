@@ -1,0 +1,1094 @@
+AUDIT 24 01 2026 APOLLO RIO - EVENTS CORE
+
+
+REQUEST #01 ) 
+
+STRICT MODE IN THIS AUDIT REGISTERING INVENTORY-events.md must have:
+
+a) Realizando uma análise preliminar de plugin
+
+b) Deve-se fornecer um checklist de inventário completo e detalhado com considerações específicas para o plugin, incluindo os resultados de uma análise rigorosa listando T-O-D-O-S (all): os nomes de CPTs, taxonomias, chaves meta, shortcodes, endpoints REST encontrados. 
+
+MINIMUM REQUIREMENTS TO BE SHOWN ON NEW FILE 'INVENTORY-events.md' made by requeste question above of 'REQUEST #01' ) S
+
+#01.b.X. Identificação: nome do plugin, versão, author, rua de arquivos (main php).
+
+#01.b.X.  CPTs (Custom Post Types): slug, label, supports, rewrite slug, capability_type, has_archive, arquivo/linha.
+
+#01.b.X. Taxonomias: slug, hierarchical, rewrite slug, ligado a quais CPTs.
+
+#01.b.X. Meta keys / postmeta usadas: nome da meta_key, exemplos de valores, contagem no DB, arquivo/linha onde é salva/ lida.
+
+#01.b.X. Custom DB tables: nome, esquema (cols), onde são criadas, utlizadas, índices.
+
+#01.b.X. Shortcodes: lista de shortcodes e arquivos que os registram + comportamento esperado.
+
+#01.b.X. REST API endpoints & controllers: rota, methods (GET/POST), permission_callback, controller class/file.
+
+#01.b.X. AJAX actions (wp_ajax / nopriv): ação, file, verificação de nonce/permissão.
+
+#01.b.X. Options / Settings: opções salvas em wp_options (prefix, keys), páginas de admin.
+
+#01.b.X. Assets: scripts/styles enfileirados (handle, deps, versão, in_footer), front vs admin.
+
+#01.b.X. Hooks (filters/actions): hooks públicos que o plugin aplica/expõe.
+
+#01.b.X. Templates/frontend overrides: templates próprios e pontos de override por theme.
+
+#01.b.X. Capabilities & roles: capabilities custom adicionadas, mapping roles -> capabilities.
+
+#01.b.X. Security / sanitization: uso de nonces, current_user_can checks, $wpdb->prepare, esc_* / sanitize_*.
+
+#01.b.X. Uninstall/cleanup: existe uninstall.php? remove dados? opções?
+
+#01.b.X. Performance: queries SQL diretas, WP_Query com no indexed meta_query, transients, cron jobs.
+
+#01.b.X. Dependências: outros plugins (ex: Apollo Core), WP version, PHP version, libs externas.
+
+#01.b.X. I18n: textdomain, load_plugin_textdomain usage, strings traduzíveis.
+
+#01.b.X. GDPR / Privacy: endpoints que expõem dados pessoais, export/delete hooks.
+
+#01.b.X. Tests / CI / composer / phpcs: presença de tests, composer.json, build scripts.
+
+
+
+
+
+
+
+
+---------------------------------------------
+
+REQUEST #02 ) 
+
+STRICT MODE Procurar por slugs de CPT/taxonomy que conflitem com pages/terms: compare rewrite['slug'] com post_name e term_slug.
+
+
+
+Extra from REQUEST #02 ) 
+
+SELECT post_name FROM wp_posts WHERE post_name IN (SELECT DISTINCT slug_from_plugin) — rápido feito via script PHP.
+
+
+
+
+
+
+
+
+---------------------------------------------
+
+REQUEST #03 ) 
+
+STRICT MODE Procurar/Check de segurança & qualidade (prioritários):
+
+a) Verifique todos os handlers AJAX e REST: exigem nonce e capability checks? (check_ajax_referer, current_user_can).
+
+b) Busque $wpdb->query sem $wpdb->prepare → risco SQLi.
+
+c) Meta queries com meta_query sem índices → checar performance em scale.
+
+d) Uploads/files: verificar validação de MIME e escapatória de paths.
+
+e) Emails (mail): evitar envio em loops e rate limit.
+
+f) Cron jobs: confirmar que não geram queries pesadas em cada run.
+
+g) Verificar uninstall.php e se plugin limpa tabelas/opções quando pedido.
+
+
+
+
+---------------------------------------------
+
+REQUEST #04 ) 
+STRICT MODE RUN THIS PRIORITY 0 BEFORE ALL )
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------
+
+REQUEST #04 ) 
+
+STRICT MODE RUN THIS PRIORITY 0 BEFORE ALL:
+
+a) Ative em staging e rode o inventory.php acima (ou use WP-CLI) para gerar JSON.
+
+b) Rode os SQLs para listar meta_keys mais usados (identificar hot meta_keys).
+
+c) Audit rápido nas 10 AJAX & 10 REST endpoints mais usados: verificar nonce + current_user_can.
+
+d) Conferir existência do plugin core (apollo-core) antes de qualquer alteração.
+
+e) Verificar uninstall.php e planejar rotina de migração/backup para custom tables.
+
+f) Documentar endpoints que expõem dados pessoais e mapear para GDPR/privacy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4) Export / template do inventário (CSV/colunas recomendadas)
+
+Sugestão de colunas (cada linha = 1 item):
+
+item_type (CPT|taxonomy|meta_key|shortcode|rest|ajax|table|option)
+
+name
+
+slug
+
+file_location (path:line)
+
+usage_count (DB count se aplicável)
+
+exposes_api (yes/no)
+
+permission_required (capability or none)
+
+sanitization (yes/no/where)
+
+notes (conflicts, duplicates, action needed)
+Use CSV ou JSON.
+
+5) Considerações específicas para Apollo Events (o zip que você anexou)
+
+Fiz um scan rápido do pacote e já identifiquei pontos relevantes — foco nas integrações com Apollo Core:
+
+Dependências e integração:
+
+O plugin referencia Apollo_Core\Apollo_Identifiers — ou seja: depende de um core externo para definir constants/IDs (CPT slugs, TAX constants). Confirme que o apollo-core (ou plugin correspondente) está ativo antes de ativar o events plugin.
+
+CPTs & Taxonomies (onde olhar):
+
+Arquivo: includes/post-types.php — registra CPTs e taxonomias principais.
+
+Slugs observados (rewrite): evento, local, dj, tipo-evento, categoria-evento, temporada, som, tag-evento.
+
+Shortcodes:
+
+Encontrados ~85 shortcodes (ex: events, apollo_events, apollo_event, apollo_event_submit, apollo_calendar, apollo_event_gallery, etc.). Local: includes/shortcodes/.
+
+Audit: cada shortcode -> checar sanitização de atributos e output escaping (esc_html, wp_kses).
+
+AJAX:
+
+~65 ações wp_ajax_* / nopriv_ encontradas. Arquivos: includes/ajax/ + includes/ajax-handlers.php.
+
+Prioridade: confirmar nonce checks em cada handler nopriv_ (public) e rate-limitar endpoints abertos.
+
+REST:
+
+Rotas REST encontradas: apollo-events/v1, apollo/v1, outros aprio modules. Verificar permission_callback e se endpoints expõem dados sensíveis.
+
+Arquivos: modules/rest-api/ e src/RestAPI/.
+
+Custom DB tables:
+
+Detectei referências a tabelas custom: apollo_analytics, apollo_event_bookmarks, apollo_event_stats_daily, aprio_rest_api_keys, aprio_dj_api_keys, apollo_likes, apollo_venue_technotes, etc.
+
+Conferir esquema, índices, e se uninstall remove ou preserva dados.
+
+Meta keys úteis (exemplos):
+
+_event_address, _event_start_date, _event_local, _event_dj_ids, _venue_lat, _venue_lng, _favorites_count, _event_views, etc.
+
+Confirme se estão indexadas caso usadas em meta_query frequente.
+
+Sanitization & Security helpers:
+
+Existe includes/sanitization.php e includes/security-audit.php — bom sinal, mas valide coverage (todos handlers usam).
+
+Assets / admin UI:
+
+Muitos assets: assets/css/*, assets/js/*, admin metaboxes etc — checar enqueues para evitar carregar no front quando não necessário.
+
+Short note on uninstall/cleanup:
+
+Procure uninstall.php ou hooks de register_uninstall_hook. Se não remover tabelas opcionais, documentar e oferecer comando de cleanup.
+
+Performance:
+
+Muitos shortcodes + REST + AJAX + custom tables → teste em staging com 100k postmeta ou 10k events para medir queries pesadas, especialmente analytics and stats cron jobs (src/Services/EventsCronJobs.php).
+
+6) Passos recomendados imediatos (prioridade)
+
+Ative em staging e rode o inventory.php acima (ou use WP-CLI) para gerar JSON.
+
+Rode os SQLs para listar meta_keys mais usados (identificar hot meta_keys).
+
+Audit rápido nas 10 AJAX & 10 REST endpoints mais usados: verificar nonce + current_user_can.
+
+Conferir existência do plugin core (apollo-core) antes de qualquer alteração.
+
+Verificar uninstall.php e planejar rotina de migração/backup para custom tables.
+
+Documentar endpoints que expõem dados pessoais e mapear para GDPR/privacy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+======================================================================== BELOW SHORT FAST POOR QUALITY CHECKING EASY TO MAP AND SUPPORT OPUS&COPILOT VS CODE:
+.
+
+Escaneando arquivos de plugin para padrões e informações
+Sempre exibir os detalhes
+
+import zipfile, re, json, os, io
+p="/mnt/data/apollo-events-manager.zip"
+patterns = {
+    "register_post_type": re.compile(r"register_post_type\(\s*['\"]([^'\"]+)['\"]", re.I),
+    "register_taxonomy": re.compile(r"register_taxonomy\(\s*['\"]([^'\"]+)['\"]", re.I),
+    "add_shortcode": re.compile(r"add_shortcode\(\s*['\"]([^'\"]+)['\"]", re.I),
+    "rest_route": re.compile(r"register_rest_route\(\s*['\"]([^'\"]+)['\"]", re.I),
+    "wp_ajax": re.compile(r"wp_ajax_(\w+)", re.I),
+    "add_action_rest": re.compile(r"add_action\(\s*['\"]rest_api_init['\"]", re.I),
+    "meta_key": re.compile(r"meta_[a-zA-Z0-9_]*\(|meta_key\s*=>\s*['\"]([^'\"]+)['\"]|meta\[['\"]([^'\"]+)['\"]\]", re.I),
+    "post_meta_update": re.compile(r"update_post_meta\(\s*\$post_id\s*,\s*['\"]([^'\"]+)['\"]", re.I),
+    "get_post_meta": re.compile(r"get_post_meta\(\s*\$post_id\s*,\s*['\"]([^'\"]+)['\"]", re.I),
+    "taxonomy_meta": re.compile(r"term_meta|add_term_meta|get_term_meta|update_term_meta", re.I),
+    "custom_table": re.compile(r"\$wpdb->(prefix\.)?([a-zA-Z0-9_]+)", re.I),
+}
+results = {k:set() for k in patterns}
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.endswith('.php') or name.endswith('.js') or name.endswith('.json'):
+            try:
+                data = z.read(name).decode('utf-8', errors='ignore')
+            except:
+                continue
+            for k,pat in patterns.items():
+                for m in pat.finditer(data):
+                    # capture groups
+                    g = m.groups()
+                    if g:
+                        for gg in g:
+                            if gg:
+                                results[k].add(gg)
+                    else:
+                        results[k].add(m.group(0))
+# summarize counts
+{ k: len(v) for k,v in results.items() }
+
+{'register_post_type': 1,
+ 'register_taxonomy': 0,
+ 'add_shortcode': 85,
+ 'rest_route': 3,
+ 'wp_ajax': 65,
+ 'add_action_rest': 2,
+ 'meta_key': 36,
+ 'post_meta_update': 30,
+ 'get_post_meta': 25,
+ 'taxonomy_meta': 0,
+ 'custom_table': 25}
+Identificando CPTs registrados
+Encontramos uma ocorrência de register_post_type. Agora, preciso identificar de qual CPT se trata. Vou imprimir os nomes encontrados para garantir que estamos capturando a informação correta e conseguir dar um passo a mais na análise.
+
+Imprimindo nomes de tipos de post registrados
+Sempre exibir os detalhes
+
+for k in results:
+    print(k, sorted(list(results[k]))[:50])
+
+register_post_type ['apollo_event_stat']
+register_taxonomy []
+add_shortcode ['apollo_bookmarks', 'apollo_buy_button', 'apollo_calendar', 'apollo_calendar_week', 'apollo_cena_rio', 'apollo_community_photos', 'apollo_dj_card', 'apollo_dj_grid', 'apollo_dj_profile', 'apollo_dj_slider', 'apollo_event', 'apollo_event_calendar', 'apollo_event_card', 'apollo_event_djs', 'apollo_event_gallery', 'apollo_event_qr', 'apollo_event_reviews', 'apollo_event_single', 'apollo_event_stats', 'apollo_event_submit', 'apollo_event_user_overview', 'apollo_eventos', 'apollo_events', 'apollo_events_compact', 'apollo_events_grid', 'apollo_events_list', 'apollo_events_slider', 'apollo_events_table', 'apollo_featured_events', 'apollo_filter_bar', 'apollo_filter_sidebar', 'apollo_interest_button', 'apollo_interest_count', 'apollo_interested_users', 'apollo_login', 'apollo_mini_calendar', 'apollo_notification_preferences', 'apollo_notify_button', 'apollo_photo_grid', 'apollo_photo_masonry', 'apollo_photo_slider', 'apollo_photo_upload', 'apollo_popular_events', 'apollo_public_event_form', 'apollo_qr_card', 'apollo_qr_download', 'apollo_rating_display', 'apollo_rating_summary', 'apollo_register', 'apollo_review_form']
+rest_route ['apollo-events/v1', 'apollo/v1', 'aprio']
+wp_ajax ['apollo_add_new_dj', 'apollo_add_new_local', 'apollo_calendar_navigate', 'apollo_create_canvas_page', 'apollo_create_recurring', 'apollo_dismiss_shortcode_docs', 'apollo_download_qr', 'apollo_filter_events', 'apollo_generate_qr', 'apollo_get_event_modal', 'apollo_get_event_single_html', 'apollo_get_event_stats', 'apollo_get_interest_count', 'apollo_helpful_review', 'apollo_import_events', 'apollo_import_preview', 'apollo_load_event_modal', 'apollo_load_event_single', 'apollo_mod_approve_event', 'apollo_mod_reject_event', 'apollo_quick_duplicate', 'apollo_record_click_out', 'apollo_save_profile', 'apollo_submit_event_comment', 'apollo_submit_review', 'apollo_subscribe_notifications', 'apollo_toggle_bookmark', 'apollo_toggle_event_interest', 'apollo_toggle_favorite', 'apollo_toggle_interest', 'apollo_track_event', 'apollo_track_event_view', 'apollo_track_share', 'apollo_unsubscribe_notifications', 'apollo_upload_event_photo', 'change_brighness_color', 'filter_events', 'load_event_single', 'nopriv_', 'nopriv_apollo_calendar_navigate', 'nopriv_apollo_filter_events', 'nopriv_apollo_get_event_modal', 'nopriv_apollo_get_event_single_html', 'nopriv_apollo_get_event_stats', 'nopriv_apollo_get_interest_count', 'nopriv_apollo_helpful_review', 'nopriv_apollo_load_event_modal', 'nopriv_apollo_load_event_single', 'nopriv_apollo_record_click_out', 'nopriv_apollo_submit_review']
+add_action_rest ["add_action( 'rest_api_init'", "add_action('rest_api_init'"]
+meta_key ['_about', '_approve_profile_status', '_aprio_meeting_request_mode', '_city', '_classified_season_id', '_company_name', '_compatibilidade_profile', '_country', '_dj_banner', '_dj_image', '_dj_media_kit_url', '_dj_mix_url', '_dj_rider_url', '_dj_set_url', '_event_season_id', '_experience', '_interests', '_local_address', '_local_city', '_local_facebook', '_local_instagram', '_local_latitude', '_local_longitude', '_local_state', '_local_website', '_message_notification', '_organization_city', '_organization_country', '_organization_description', '_organization_name', '_organization_website', '_profession', '_profile_photo', '_skills', 'first_name', 'last_name']
+post_meta_update ['_3_imagens_promo', '_apollo_frontend_submission', '_apollo_submission_date', '_cupom_ario', '_event_banner', '_event_country', '_event_dj_ids', '_event_dj_slots', '_event_end_date', '_event_end_time', '_event_gestao', '_event_lat', '_event_lng', '_event_local_ids', '_event_location', '_event_start_date', '_event_start_time', '_event_ticket_price', '_event_ticket_url', '_event_timetable', '_event_video_url', '_favorites_count', '_imagem_final', '_local_lat', '_local_latitude', '_local_lng', '_local_longitude', '_tickets_ext', '_venue_lat', '_venue_lng']
+get_post_meta ['<?php echo esc_html($keys[', '_event_address', '_event_city', '_event_dj_ids', '_event_djs', '_event_lat', '_event_lng', '_event_local', '_event_local_id', '_event_local_ids', '_event_location', '_event_start_date', '_event_timetable', '_event_venue_id', '_event_views', '_favorites_count', '_local_address', '_local_city', '_local_latitude', '_local_longitude', '_timetable', '_venue_address', '_venue_city', '_venue_lat', '_venue_lng']
+taxonomy_meta []
+custom_table ['_escape', 'charset', 'collate', 'delete', 'esc_like', 'get_charset_collate', 'get_col', 'get_results', 'get_row', 'get_var', 'has_cap', 'hide_errors', 'insert', 'insert_id', 'last_error', 'options', 'postmeta', 'posts', 'prefix', 'prepare', 'query', 'replace', 'update', 'usermeta', 'users']
+Buscando mais detalhes sobre CPTs e taxonomias
+Precisamos de mais detalhes: listar CPTs, taxonomias e chaves meta. Encontramos register_post_type com o nome 'apollo_event_stat', mas o CPT de eventos pode ser diferente, talvez criado por uma nova classe. Vou buscar as ocorrências de register_post_type para entender o contexto.
+
+Buscando ocorrências de "register_post_type"
+Sempre exibir os detalhes
+
+import zipfile,re
+p="/mnt/data/apollo-events-manager.zip"
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.endswith('.php'):
+            data = z.read(name).decode('utf-8', errors='ignore')
+            if 'register_post_type' in data:
+                print("FILE:", name)
+                for m in re.finditer(r"register_post_type\([^;]{0,400}\);", data, re.I|re.S):
+                    print(m.group(0))
+                    print("---")
+
+FILE: apollo-events-manager/apollo-events-manager.php
+FILE: apollo-events-manager/force-event-listing.php
+FILE: apollo-events-manager/force-match.php
+FILE: apollo-events-manager/includes/cena/class-event-cena-cpt.php
+register_post_type( self::POST_TYPE, $args );
+---
+FILE: apollo-events-manager/includes/class-event-stat-cpt.php
+register_post_type('apollo_event_stat', $args);
+---
+FILE: apollo-events-manager/includes/post-types.php
+register_post_type( ID::CPT_EVENT_LISTING, $event_args );
+---
+register_post_type( ID::CPT_EVENT_DJ, $dj_args );
+---
+register_post_type( ID::CPT_EVENT_LOCAL, $local_args );
+---
+FILE: apollo-events-manager/tests/force-register.php
+FILE: apollo-events-manager/tests/register-cpts-manual.php
+Verificando os CPTs registrados em post-types.php
+Parece que múltiplos CPTs estão sendo registrados através de constantes. Vou abrir o arquivo includes/post-types.php para conferir os slugs dos CPTs registrados. Isso deve me dar uma visão melhor de como os tipos de post estão estruturados no código.
+
+Lendo conteúdo do arquivo post-types.php
+Sempre exibir os detalhes
+
+import zipfile, re
+p="/mnt/data/apollo-events-manager.zip"
+def read(name):
+    with zipfile.ZipFile(p) as z:
+        return z.read(name).decode('utf-8', errors='ignore')
+print(read('apollo-events-manager/includes/post-types.php')[:8000])
+
+<?php
+
+// phpcs:ignoreFile
+/**
+ * Register Custom Post Types and Taxonomies
+ * Apollo Events Manager - Independent CPT Registration
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+namespace Apollo\Events;
+
+// Prevent direct access
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+use Apollo_Core\Apollo_Identifiers as ID;
+
+/**
+ * Apollo Post Types Class
+ * Handles registration of all custom post types and taxonomies
+ */
+class Apollo_Post_Types
+{
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        add_action('init', [ $this, 'register_post_types' ], 0);
+        add_action('init', [ $this, 'register_taxonomies' ], 0);
+        add_action('init', [ $this, 'setup_meta_relationships' ], 10);
+        add_action('init', [ $this, 'register_meta_fields' ], 10);
+    }
+
+    /**
+     * Register Custom Post Types
+     */
+    public function register_post_types()
+    {
+
+        // ============================================
+        // EVENT LISTING CPT
+        // ============================================
+        $event_labels = [
+            'name'                  => __('Eventos', 'apollo-events-manager'),
+            'singular_name'         => __('Evento', 'apollo-events-manager'),
+            'add_new'               => __('Adicionar Novo', 'apollo-events-manager'),
+            'add_new_item'          => __('Adicionar Novo Evento', 'apollo-events-manager'),
+            'edit_item'             => __('Editar Evento', 'apollo-events-manager'),
+            'new_item'              => __('Novo Evento', 'apollo-events-manager'),
+            'view_item'             => __('Ver Evento', 'apollo-events-manager'),
+            'view_items'            => __('Ver Eventos', 'apollo-events-manager'),
+            'search_items'          => __('Buscar Eventos', 'apollo-events-manager'),
+            'not_found'             => __('Nenhum evento encontrado', 'apollo-events-manager'),
+            'not_found_in_trash'    => __('Nenhum evento na lixeira', 'apollo-events-manager'),
+            'all_items'             => __('Todos os Eventos', 'apollo-events-manager'),
+            'archives'              => __('Arquivo de Eventos', 'apollo-events-manager'),
+            'attributes'            => __('Atributos do Evento', 'apollo-events-manager'),
+            'insert_into_item'      => __('Inserir no evento', 'apollo-events-manager'),
+            'uploaded_to_this_item' => __('Enviado para este evento', 'apollo-events-manager'),
+        ];
+
+        $event_args = [
+            'labels'             => $event_labels,
+            'description'        => __('Eventos do Apollo::Rio', 'apollo-events-manager'),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => false,
+            'query_var'          => true,
+            'rewrite'            => [
+                'slug'       => 'evento',
+                'with_front' => false,
+                'feeds'      => true,
+                'pages'      => true,
+            ],
+            'capability_type'       => 'post',
+            'map_meta_cap'          => true,
+            'has_archive'           => 'eventos',
+            'hierarchical'          => false,
+            'menu_position'         => 6,
+            'menu_icon'             => 'dashicons-analytics',
+            'supports'              => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'excerpt', 'author', 'revisions' ],
+            'show_in_rest'          => true,
+            'rest_base'             => 'events',
+            'rest_controller_class' => 'WP_REST_Posts_Controller',
+        ];
+
+        // Only register if not already registered (prevents conflicts with Apollo Core fallback)
+        if ( ! post_type_exists( ID::CPT_EVENT_LISTING ) ) {
+            register_post_type( ID::CPT_EVENT_LISTING, $event_args );
+        }
+
+        // ============================================
+        // EVENT DJ CPT
+        // ============================================
+        $dj_labels = [
+            'name'               => __('DJs', 'apollo-events-manager'),
+            'singular_name'      => __('DJ', 'apollo-events-manager'),
+            'add_new'            => __('Adicionar Novo', 'apollo-events-manager'),
+            'add_new_item'       => __('Adicionar Novo DJ', 'apollo-events-manager'),
+            'edit_item'          => __('Editar DJ', 'apollo-events-manager'),
+            'new_item'           => __('Novo DJ', 'apollo-events-manager'),
+            'view_item'          => __('Ver DJ', 'apollo-events-manager'),
+            'search_items'       => __('Buscar DJs', 'apollo-events-manager'),
+            'not_found'          => __('Nenhum DJ encontrado', 'apollo-events-manager'),
+            'not_found_in_trash' => __('Nenhum DJ na lixeira', 'apollo-events-manager'),
+            'all_items'          => __('Todos os DJs', 'apollo-events-manager'),
+        ];
+
+        $dj_args = [
+            'labels'             => $dj_labels,
+            'description'        => __('DJs do Apollo::Rio', 'apollo-events-manager'),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => [
+                'slug'       => 'dj',
+                'with_front' => false,
+            ],
+            'capability_type' => 'post',
+            'has_archive'     => true,
+            'hierarchical'    => false,
+            'menu_position'   => 6,
+            'menu_icon'       => 'dashicons-admin-users',
+            'supports'        => [ 'title', 'editor', 'thumbnail', 'custom-fields' ],
+            'show_in_rest'    => true,
+            'rest_base'       => 'djs',
+        ];
+
+        // Only register if not already registered (prevents conflicts with Apollo Core fallback)
+        if ( ! post_type_exists( ID::CPT_EVENT_DJ ) ) {
+            register_post_type( ID::CPT_EVENT_DJ, $dj_args );
+        }
+
+        // ============================================
+        // EVENT LOCAL CPT
+        // ============================================
+        $local_labels = [
+            'name'               => __('Locais', 'apollo-events-manager'),
+            'singular_name'      => __('Local', 'apollo-events-manager'),
+            'add_new'            => __('Adicionar Novo', 'apollo-events-manager'),
+            'add_new_item'       => __('Adicionar Novo Local', 'apollo-events-manager'),
+            'edit_item'          => __('Editar Local', 'apollo-events-manager'),
+            'new_item'           => __('Novo Local', 'apollo-events-manager'),
+            'view_item'          => __('Ver Local', 'apollo-events-manager'),
+            'search_items'       => __('Buscar Locais', 'apollo-events-manager'),
+            'not_found'          => __('Nenhum local encontrado', 'apollo-events-manager'),
+            'not_found_in_trash' => __('Nenhum local na lixeira', 'apollo-events-manager'),
+            'all_items'          => __('Todos os Locais', 'apollo-events-manager'),
+        ];
+
+        $local_args = [
+            'labels'             => $local_labels,
+            'description'        => __('Locais de eventos do Apollo::Rio', 'apollo-events-manager'),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => [
+                'slug'       => 'local',
+                'with_front' => false,
+            ],
+            'capability_type' => 'post',
+            'has_archive'     => true,
+            'hierarchical'    => false,
+            'menu_position'   => 7,
+            'menu_icon'       => 'dashicons-location',
+            'supports'        => [ 'title', 'editor', 'thumbnail', 'custom-fields' ],
+            'show_i
+Buscando por constantes ID::CPT
+Vou procurar pelas constantes ID::CPT no código. Isso deve ajudar a identificar rapidamente onde os CPTs estão sendo definidos e registrados, facilitando a análise e garantindo que eu não perca nenhum detalhe essencial sobre como os tipos de post estão estruturados.
+
+Buscando constantes ID::CPT
+Sempre exibir os detalhes
+
+data = read('apollo-events-manager/includes/post-types.php')
+import re
+consts = re.findall(r"ID::([A-Z0-9_]+)", data)
+set(consts)
+
+{'CPT_EVENT_DJ',
+ 'CPT_EVENT_LISTING',
+ 'CPT_EVENT_LOCAL',
+ 'TAX_EVENT_CATEGORY',
+ 'TAX_EVENT_SEASON',
+ 'TAX_EVENT_SOUNDS',
+ 'TAX_EVENT_TAG',
+ 'TAX_EVENT_TYPE'}
+Verificando onde as constantes são definidas
+Ótimo, já encontramos os CPTs: event_listing, event_dj, event_local. O slug 'local' foi definido para o CPT local, mas e o evento listado? Vou procurar para ver onde a classe ID define essas constantes e encontrar a resposta para o slug do "event_listing".
+
+Buscando definição de constantes de ID
+Sempre exibir os detalhes
+
+print(read('apollo-events-manager/includes/class-ids.php')[:4000])
+
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+Cell In[7], line 1
+----> 1 print(read('apollo-events-manager/includes/class-ids.php')[:4000])
+
+Cell In[5], line 5, in read(name)
+      3 def read(name):
+      4     with zipfile.ZipFile(p) as z:
+----> 5         return z.read(name).decode('utf-8', errors='ignore')
+
+File /usr/lib/python3.11/zipfile.py:1516, in ZipFile.read(self, name, pwd)
+   1514 def read(self, name, pwd=None):
+   1515     """Return file bytes for name."""
+-> 1516     with self.open(name, "r", pwd) as fp:
+   1517         return fp.read()
+
+File /usr/lib/python3.11/zipfile.py:1553, in ZipFile.open(self, name, mode, pwd, force_zip64)
+   1550     zinfo._compresslevel = self.compresslevel
+   1551 else:
+   1552     # Get info object for name
+-> 1553     zinfo = self.getinfo(name)
+   1555 if mode == 'w':
+   1556     return self._open_to_write(zinfo, force_zip64=force_zip64)
+
+File /usr/lib/python3.11/zipfile.py:1482, in ZipFile.getinfo(self, name)
+   1480 info = self.NameToInfo.get(name)
+   1481 if info is None:
+-> 1482     raise KeyError(
+   1483         'There is no item named %r in the archive' % name)
+   1485 return info
+
+KeyError: "There is no item named 'apollo-events-manager/includes/class-ids.php' in the archive"
+Verificando arquivos em "includes"
+Agora, vou listar os arquivos na pasta "includes". Isso deve me ajudar a encontrar os que estão relacionados às definições que preciso, como a criação de CPTs ou outras funções. Vamos dar uma olhada nos detalhes que podemos acessar lá.
+
+Listando arquivos em includes
+Sempre exibir os detalhes
+
+import zipfile, os
+p="/mnt/data/apollo-events-manager.zip"
+with zipfile.ZipFile(p) as z:
+    files = [f for f in z.namelist() if f.startswith('apollo-events-manager/includes/')]
+len(files), files[:200]
+
+(114,
+ ['apollo-events-manager/includes/',
+  'apollo-events-manager/includes/accessibility-audit.php',
+  'apollo-events-manager/includes/admin-apollo-hub.php',
+  'apollo-events-manager/includes/admin-dashboard.php',
+  'apollo-events-manager/includes/admin-metaboxes.php',
+  'apollo-events-manager/includes/admin-metakeys-page.php',
+  'apollo-events-manager/includes/admin-settings.php',
+  'apollo-events-manager/includes/admin-shortcodes-page.php',
+  'apollo-events-manager/includes/admin-statistics-menu.php',
+  'apollo-events-manager/includes/ajax/',
+  'apollo-events-manager/includes/ajax/class-event-modal-ajax.php',
+  'apollo-events-manager/includes/ajax-favorites.php',
+  'apollo-events-manager/includes/ajax-handlers.php',
+  'apollo-events-manager/includes/ajax-statistics.php',
+  'apollo-events-manager/includes/api-documentation.php',
+  'apollo-events-manager/includes/backup-migration.php',
+  'apollo-events-manager/includes/cache.php',
+  'apollo-events-manager/includes/cena/',
+  'apollo-events-manager/includes/cena/class-event-cena-cpt.php',
+  'apollo-events-manager/includes/cena/class-event-cena-status.php',
+  'apollo-events-manager/includes/class-apollo-events-analytics.php',
+  'apollo-events-manager/includes/class-apollo-events-core-integration.php',
+  'apollo-events-manager/includes/class-apollo-events-placeholders.php',
+  'apollo-events-manager/includes/class-bookmarks.php',
+  'apollo-events-manager/includes/class-context-menu.php',
+  'apollo-events-manager/includes/class-event-single-enhanced-loader.php',
+  'apollo-events-manager/includes/class-event-stat-cpt.php',
+  'apollo-events-manager/includes/class-event-statistics.php',
+  'apollo-events-manager/includes/class-events-email-integration.php',
+  'apollo-events-manager/includes/class-local-connection.php',
+  'apollo-events-manager/includes/class-rest-api.php',
+  'apollo-events-manager/includes/compat/',
+  'apollo-events-manager/includes/compat/wp-event-manager-helpers.php',
+  'apollo-events-manager/includes/config.php',
+  'apollo-events-manager/includes/core/',
+  'apollo-events-manager/includes/core/class-abstract-module.php',
+  'apollo-events-manager/includes/core/class-assets-manager.php',
+  'apollo-events-manager/includes/core/class-bootloader.php',
+  'apollo-events-manager/includes/core/class-health-check.php',
+  'apollo-events-manager/includes/core/class-module-interface.php',
+  'apollo-events-manager/includes/core/class-module-registry.php',
+  'apollo-events-manager/includes/core/class-modules-admin.php',
+  'apollo-events-manager/includes/core/loader.php',
+  'apollo-events-manager/includes/dashboard-widgets.php',
+  'apollo-events-manager/includes/dashboards.php',
+  'apollo-events-manager/includes/data-migration.php',
+  'apollo-events-manager/includes/event-helpers.php',
+  'apollo-events-manager/includes/helpers/',
+  'apollo-events-manager/includes/helpers/event-card-helper.php',
+  'apollo-events-manager/includes/helpers/event-data-helper.php',
+  'apollo-events-manager/includes/helpers/geocoding-helper.php',
+  'apollo-events-manager/includes/integration-tests.php',
+  'apollo-events-manager/includes/meta-helpers.php',
+  'apollo-events-manager/includes/migrate-to-strict-mode.php',
+  'apollo-events-manager/includes/migration-validator.php',
+  'apollo-events-manager/includes/migrations.php',
+  'apollo-events-manager/includes/modules/',
+  'apollo-events-manager/includes/modules/blocks/',
+  'apollo-events-manager/includes/modules/blocks/class-blocks-module.php',
+  'apollo-events-manager/includes/modules/calendar/',
+  'apollo-events-manager/includes/modules/calendar/class-calendar-module.php',
+  'apollo-events-manager/includes/modules/core-events/',
+  'apollo-events-manager/includes/modules/core-events/class-core-events-module.php',
+  'apollo-events-manager/includes/modules/duplicate/',
+  'apollo-events-manager/includes/modules/duplicate/class-duplicate-module.php',
+  'apollo-events-manager/includes/modules/filter-bar/',
+  'apollo-events-manager/includes/modules/filter-bar/class-filter-bar-module.php',
+  'apollo-events-manager/includes/modules/import-export/',
+  'apollo-events-manager/includes/modules/import-export/class-import-export-module.php',
+  'apollo-events-manager/includes/modules/interest/',
+  'apollo-events-manager/includes/modules/interest/class-interest-module.php',
+  'apollo-events-manager/includes/modules/lists/',
+  'apollo-events-manager/includes/modules/lists/class-lists-module.php',
+  'apollo-events-manager/includes/modules/notifications/',
+  'apollo-events-manager/includes/modules/notifications/class-notifications-module.php',
+  'apollo-events-manager/includes/modules/photos/',
+  'apollo-events-manager/includes/modules/photos/class-photos-module.php',
+  'apollo-events-manager/includes/modules/qrcode/',
+  'apollo-events-manager/includes/modules/qrcode/class-qrcode-module.php',
+  'apollo-events-manager/includes/modules/rest-api/',
+  'apollo-events-manager/includes/modules/rest-api/class-rest-api-module.php',
+  'apollo-events-manager/includes/modules/reviews/',
+  'apollo-events-manager/includes/modules/reviews/class-reviews-module.php',
+  'apollo-events-manager/includes/modules/seo/',
+  'apollo-events-manager/includes/modules/seo/class-seo-module.php',
+  'apollo-events-manager/includes/modules/share/',
+  'apollo-events-manager/includes/modules/share/class-share-module.php',
+  'apollo-events-manager/includes/modules/speakers/',
+  'apollo-events-manager/includes/modules/speakers/class-speakers-module.php',
+  'apollo-events-manager/includes/modules/tickets/',
+  'apollo-events-manager/includes/modules/tickets/class-tickets-module.php',
+  'apollo-events-manager/includes/modules/tracking/',
+  'apollo-events-manager/includes/modules/tracking/class-tracking-module.php',
+  'apollo-events-manager/includes/motion-loader.php',
+  'apollo-events-manager/includes/page-eventos-loader.php',
+  'apollo-events-manager/includes/performance-optimizer.php',
+  'apollo-events-manager/includes/performance-tests.php',
+  'apollo-events-manager/includes/post-types.php',
+  'apollo-events-manager/includes/public-event-form.php',
+  'apollo-events-manager/includes/release-preparation.php',
+  'apollo-events-manager/includes/role-badges.php',
+  'apollo-events-manager/includes/sanitization.php',
+  'apollo-events-manager/includes/save-date-cleaner.php',
+  'apollo-events-manager/includes/security-audit.php',
+  'apollo-events-manager/includes/shortcode-documentation.php',
+  'apollo-events-manager/includes/shortcodes/',
+  'apollo-events-manager/includes/shortcodes/class-apollo-events-shortcodes.php',
+  'apollo-events-manager/includes/shortcodes-auth.php',
+  'apollo-events-manager/includes/shortcodes-my-apollo.php',
+  'apollo-events-manager/includes/shortcodes-submit.php',
+  'apollo-events-manager/includes/test-seasons-taxonomy.php',
+  'apollo-events-manager/includes/tracking-footer.php',
+  'apollo-events-manager/includes/widgets/',
+  'apollo-events-manager/includes/widgets/class-apollo-events-widgets.php'])
+Procurando por "class-ids" ou "ID::"
+Agora, vou tentar abrir o arquivo "class-ids.php", que pode ter um nome diferente. A ideia é procurar por expressões como "class-ids" ou "ID::", que podem aparecer no código. Vou verificar para encontrar as informações necessárias sobre os CPTs ou suas definições.
+
+Buscando referências a "class-ids" ou "ID::"
+Sempre exibir os detalhes
+
+import re, zipfile
+p="/mnt/data/apollo-events-manager.zip"
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.startswith('apollo-events-manager/includes/') and name.endswith('.php'):
+            data = z.read(name).decode('utf-8', errors='ignore')
+            if 'class IDs' in data.lower() or 'class ids' in data.lower() or re.search(r"class\s+ID", data):
+                print(name)
+                print(data[:800])
+
+Procurando por ocorrências de "class ID"
+Vou fazer uma busca para encontrar todas as ocorrências de "class ID" no código. Isso pode me ajudar a identificar onde as classes estão definidas ou relacionadas aos IDs. Isso é importante para entender melhor como os elementos estão estruturados e acessá-los corretamente.
+
+Buscando ocorrências de "class ID"
+Sempre exibir os detalhes
+
+import re, zipfile
+p="/mnt/data/apollo-events-manager.zip"
+found=[]
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.startswith('apollo-events-manager/') and name.endswith('.php'):
+            data = z.read(name).decode('utf-8', errors='ignore')
+            if 'class ' in data and 'ID' in data:
+                if re.search(r"class\s+ID\b", data):
+                    found.append(name)
+found[:50], len(found)
+
+([], 0)
+Procurando por ocorrências de constantes CPT
+Estou pensando que as constantes podem estar definidas em "includes/constants.php". Vou procurar por ocorrências dessas constantes CPT no arquivo, verificando se consigo encontrar os valores ou identificadores desejados para avançar na análise. Isso vai me ajudar a entender a estrutura do código.
+
+Buscando ocorrências de constantes CPT
+Sempre exibir os detalhes
+
+import zipfile, re
+p="/mnt/data/apollo-events-manager.zip"
+with zipfile.ZipFile(p) as z:
+    allnames = z.namelist()
+    for name in allnames:
+        if name.endswith('.php'):
+            d = z.read(name).decode('utf-8', errors='ignore')
+            if 'CPT_EVENT_LISTING' in d or 'CPT_EVENT_LOCAL' in d:
+                print("FOUND in", name)
+                print(d[:400])
+
+FOUND in apollo-events-manager/includes/post-types.php
+<?php
+
+// phpcs:ignoreFile
+/**
+ * Register Custom Post Types and Taxonomies
+ * Apollo Events Manager - Independent CPT Registration
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ * @since 2.0.0
+ */
+
+namespace Apollo\Events;
+
+// Prevent direct access
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+use Apollo_Core\Apollo_Identifiers as ID;
+
+/**
+ * Apollo Post Types Class
+ * Handles registration of
+Procurando por constantes em Apollo_Identifiers
+Parece que as constantes vêm da classe Apollo_Core\Apollo_Identifiers, provavelmente localizada em um plugin separado chamado "apollo-core". Vou verificar se estão em outro arquivo dentro dos inclui deste plugin. Vou procurar por "Apollo_Identifiers" para confirmar e entender melhor onde essas constantes são definidas.
+
+Buscando referências a Apollo_Identifiers
+Sempre exibir os detalhes
+
+import zipfile, re
+p="/mnt/data/apollo-events-manager.zip"
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.endswith('.php'):
+            d = z.read(name).decode('utf-8', errors='ignore')
+            if 'Apollo_Identifiers' in d or 'Apollo_Core' in d:
+                print(name)
+
+apollo-events-manager/apollo-events-manager.php
+apollo-events-manager/includes/class-apollo-events-analytics.php
+apollo-events-manager/includes/class-apollo-events-core-integration.php
+apollo-events-manager/includes/class-event-statistics.php
+apollo-events-manager/includes/modules/notifications/class-notifications-module.php
+apollo-events-manager/includes/modules/tracking/class-tracking-module.php
+apollo-events-manager/includes/post-types.php
+apollo-events-manager/includes/public-event-form.php
+apollo-events-manager/includes/tracking-footer.php
+apollo-events-manager/modules/rest-api/includes/aprio-rest-matchmaking-create-meetings.php
+apollo-events-manager/modules/rest-api/includes/aprio-rest-matchmaking-user-messages.php
+apollo-events-manager/src/RestAPI/class-events-controller.php
+apollo-events-manager/src/RestAPI/class-rest-api-loader.php
+apollo-events-manager/src/Schema/EventsSchemaModule.php
+apollo-events-manager/src/Services/EventsCronJobs.php
+Considerações sobre dependências e inventário de dados
+O plugin depende do Apollo_Core para as constantes, então precisamos garantir que o core esteja presente ao integrar. Também é importante considerar os pontos de integração, APIs e hooks oferecidos. Como recomendação, podemos exportar o inventário (CPTs, taxonomias, meta keys, shortcodes, etc.) em CSV, com código PHP ou WP-CLI para gerar isso.
+
+Auditoria e recomendação de inventário para plugin
+Sempre exibir os detalhes
+
+data = read('apollo-events-manager/includes/post-types.php')
+import re
+taxes = re.findall(r"'rewrite'\s*=>\s*\[\s*'slug'\s*=>\s*'([^']+)'", data)
+print("rewrite slugs:", set(taxes))
+# find register_taxonomy patterns
+for m in re.finditer(r"register_taxonomy\(\s*['\"]([^'\"]+)['\"]\s*,\s*\$?([^,]+)", data):
+    print("tax reg:", m.groups())
+# find TAX constants referenced
+consts = re.findall(r"ID::(TAX_[A-Z0-9_]+)", data)
+set(consts)
+
+rewrite slugs: {'dj', 'tipo-evento', 'temporada', 'evento', 'local', 'categoria-evento', 'tag-evento', 'som'}
+{'TAX_EVENT_CATEGORY',
+ 'TAX_EVENT_SEASON',
+ 'TAX_EVENT_SOUNDS',
+ 'TAX_EVENT_TAG',
+ 'TAX_EVENT_TYPE'}
+Extraindo slugs e shortcodes únicos
+Os slugs de taxonomia são: 'categoria-evento', 'temporada', 'som', 'tag-evento', e 'tipo-evento'. Agora, vamos listar os shortcodes. Já encontramos 85 com add_shortcode, mas a lista estava truncada. Vou tentar extrair completamente e garantir que os shortcodes únicos sejam capturados sem omissões.
+
+Extraindo shortcodes únicos
+Sempre exibir os detalhes
+
+# gather add_shortcode names with file locations
+import zipfile, re
+p="/mnt/data/apollo-events-manager.zip"
+shortcodes = {}
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.endswith('.php'):
+            data = z.read(name).decode('utf-8', errors='ignore')
+            for m in re.finditer(r"add_shortcode\(\s*['\"]([^'\"]+)['\"]\s*,", data):
+                shortcodes.setdefault(m.group(1), set()).add(name)
+len(shortcodes), list(shortcodes.keys())[:40]
+
+(85,
+ ['events',
+  'apollo_events',
+  'apollo_event',
+  'apollo_event_user_overview',
+  'apollo_dj_profile',
+  'apollo_user_dashboard',
+  'apollo_cena_rio',
+  'apollo_event_submit',
+  'submit_event_form',
+  'apollo_eventos',
+  'apollo_events_grid',
+  'apollo_bookmarks',
+  'apollo_calendar',
+  'apollo_calendar_week',
+  'apollo_mini_calendar',
+  'apollo_event_single',
+  'apollo_filter_bar',
+  'apollo_filter_sidebar',
+  'apollo_interest_button',
+  'apollo_interest_count',
+  'apollo_user_interests',
+  'apollo_interested_users',
+  'apollo_events_list',
+  'apollo_events_table',
+  'apollo_events_slider',
+  'apollo_events_compact',
+  'apollo_featured_events',
+  'apollo_notify_button',
+  'apollo_notification_preferences',
+  'apollo_event_gallery',
+  'apollo_photo_slider',
+  'apollo_photo_grid',
+  'apollo_photo_masonry',
+  'apollo_community_photos',
+  'apollo_photo_upload',
+  'apollo_event_qr',
+  'apollo_qr_download',
+  'apollo_qr_card',
+  'apollo_event_reviews',
+  'apollo_review_form'])
+Listando shortcodes, ações AJAX, e rotas REST
+Podemos afirmar que há 85 shortcodes e apresentar alguns exemplos. Também vou verificar a quantidade de ações AJAX e das rotas REST, e apresentar essas contagens. Além disso, vou listar as principais chaves meta com base nas informações que coletarmos.
+
+Contando e listando chaves meta principais
+Sempre exibir os detalhes
+
+# meta keys frequency by scanning postmeta-like usage
+meta_keys=set()
+with zipfile.ZipFile(p) as z:
+    for name in z.namelist():
+        if name.endswith('.php'):
+            data = z.read(name).decode('utf-8', errors='ignore')
+            for m in re.finditer(r"['_\"](_?[a-zA-Z0-9_]+)['\"]", data):
+                # crude
+                tok = m.group(1)
+                if tok.startswith('_') or 'venue' in tok or 'event' in tok or 'ticket' in tok or 'profile' in tok:
+                    meta_keys.add(tok)
+list(sorted(meta_keys))[:80], len(meta_keys)
+
+(['_',
+  '_3_imagens_promo',
+  '__',
+  '__return_empty_array',
+  '__return_empty_string',
+  '__return_false',
+  '__return_true',
+  '_about',
+  '_action',
+  '_actions',
+  '_address',
+  '_admin_bar_bump_cb',
+  '_ajax_nonce',
+  '_all',
+  '_apollo_',
+  '_apollo_bookmark_',
+  '_apollo_bookmark_count',
+  '_apollo_canvas_page',
+  '_apollo_cena_status',
+  '_apollo_email_subscriptions',
+  '_apollo_event_stats',
+  '_apollo_event_stats_migrated',
+  '_apollo_event_subscriptions',
+  '_apollo_event_views_total',
+  '_apollo_events_attended',
+  '_apollo_favorite_events',
+  '_apollo_favorited_users',
+  '_apollo_frontend_submission',
+  '_apollo_location',
+  '_apollo_membership',
+  '_apollo_mod_approved',
+  '_apollo_mod_approved_by',
+  '_apollo_mod_approved_date',
+  '_apollo_mod_rejected',
+  '_apollo_mod_rejected_by',
+  '_apollo_mod_rejected_date',
+  '_apollo_notification_prefs',
+  '_apollo_nucleo_todos',
+  '_apollo_personal_todos',
+  '_apollo_public_submission',
+  '_apollo_reminders',
+  '_apollo_reminders_sent_',
+  '_apollo_require_capability',
+  '_apollo_roles',
+  '_apollo_seo_canonical',
+  '_apollo_seo_description',
+  '_apollo_seo_keywords',
+  '_apollo_seo_nofollow',
+  '_apollo_seo_noindex',
+  '_apollo_seo_title',
+  '_apollo_shortcode',
+  '_apollo_submission_date',
+  '_apollo_tagline',
+  '_apollo_user_id',
+  '_approve_profile_status',
+  '_aprio_attachment_source',
+  '_aprio_meeting_request_mode',
+  '_artists',
+  '_author',
+  '_available_for_meeting',
+  '_avatar',
+  '_avatars',
+  '_average',
+  '_badge',
+  '_banner',
+  '_bar',
+  '_bio',
+  '_blank',
+  '_body',
+  '_box',
+  '_breakdown',
+  '_btn',
+  '_buttons',
+  '_buy',
+  '_cancelled',
+  '_canvas_mode',
+  '_category',
+  '_charts',
+  '_circle',
+  '_city'],
+ 985)
+Refinando a busca por get_post_meta
+A abordagem anterior encontrou muitos tokens, mas havia muitos falsos positivos. Agora, o melhor é buscar explicitamente pelas ocorrências de get_post_meta que já capturamos antes, que foram 25 correspondências únicas. Vou imprimir esses resultados específicos.
+
+Imprimindo ocorrências de get_post_meta
+Sempre exibir os detalhes
+
+for k in sorted(results['get_post_meta'])[:120]:
+    print(k)
+
+<?php echo esc_html($keys[
+_event_address
+_event_city
+_event_dj_ids
+_event_djs
+_event_lat
+_event_lng
+_event_local
+_event_local_id
+_event_local_ids
+_event_location
+_event_start_date
+_event_timetable
+_event_venue_id
+_event_views
+_favorites_count
+_local_address
+_local_city
+_local_latitude
+_local_longitude
+_timetable
+_venue_address
+_venue_city
+_venue_lat
+_venue_lng
+Criando inventário e verificações para o plugin Apollo Events
+Primeiro, vou criar um checklist conciso de auditoria (em formato de lista), seguido por detalhes para o plugin Apollo Events:
+
+Dependência no Apollo_Core.
+
+Itens escaneados (CPTs: 4, taxonomias: 5, shortcodes: 85, AJAX: 65, REST routes: 3, muitos meta keys – vou listar os principais).
+
+Em seguida, sugiro comandos e snippets PHP para gerar o inventário, além de consultas SQL para verificar slugs duplicados e checar post types e termos. Também vou incluir instruções para verificar capacidades e funções de usuário no plugin e testar a desinstalação.
+
+Resumo do inventário e verificação para o Apollo Events
+Tabelas Personalizadas: Presentes, mencionar nomes.
+
+Segurança: Verificar uso de nonces e sanitização (arquivos sanitization.php e security-audit.php).
+

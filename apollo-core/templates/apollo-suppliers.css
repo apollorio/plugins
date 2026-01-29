@@ -1,0 +1,73 @@
+/**
+ * Apollo Suppliers Catalog CSS
+ * File: assets/css/apollo-suppliers.css
+ */
+
+:root {
+  --ap-font-primary: "Roboto", Roboto, system-ui, -apple-system, sans-serif;
+  --ap-bg-main: #ffffff;
+  --ap-bg-surface: #f8fafc;
+  --ap-text-primary: rgba(19, 21, 23, 0.65);
+  --ap-text-secondary: rgba(15, 23, 42, 0.88);
+  --ap-text-muted: rgba(19, 21, 23, 0.4);
+  --ap-orange-500: #FF6925;
+  --ap-orange-600: #E55A1E;
+  --ap-glass-border: rgba(226, 232, 240, 0.8);
+}
+
+.ap-layout { display: flex; padding-top: 35px; }
+.ap-main-content { flex: 1; min-width: 0; padding-left: 1rem; padding-right: 1rem; }
+
+.ap-breadcrumb { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; padding-bottom: 1.5rem; }
+.ap-breadcrumb-inner { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #64748b; }
+.ap-breadcrumb-active { font-weight: 500; color: #0f172a; }
+
+.ap-content-wrapper { display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 6rem; }
+
+.ap-search-bar { background: white; border-radius: 24px; padding: 1rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; margin-bottom: 1.5rem; }
+.ap-search-input-wrapper { position: relative; margin-bottom: 1rem; }
+.ap-search-icon { position: absolute; left: 1rem; top: 0.75rem; color: #94a3b8; font-size: 1.25rem; }
+.ap-search-input { width: 100%; padding-left: 2.5rem; padding-right: 1rem; padding-top: 0.75rem; padding-bottom: 0.75rem; background: #f8fafc; border: none; border-radius: 12px; font-size: 0.875rem; color: #1e293b; font-weight: 500; }
+.ap-search-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(255, 105, 37, 0.2); }
+
+.ap-filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ap-filter-chip { padding: 8px 16px; background: rgba(0,0,0,0.04); border-radius: 99px; font-size: 11px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.ap-filter-chip:hover { background: rgba(0,0,0,0.08); color: #334155; }
+.ap-filter-chip.ap-active { background: #0f172a; color: white; }
+
+.ap-results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+.ap-results-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+.ap-results-count { font-size: 10px; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; color: #64748b; font-weight: 700; }
+
+.ap-suppliers-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+.ap-supplier-card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 16px; transition: all 0.3s; cursor: pointer; display: flex; align-items: flex-start; gap: 1rem; }
+.ap-supplier-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px -5px rgba(0,0,0,0.08); }
+
+.ap-supplier-logo-wrapper { height: 4rem; width: 4rem; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9; overflow: hidden; flex-shrink: 0; position: relative; }
+.ap-supplier-logo { width: 100%; height: 100%; object-fit: cover; }
+.ap-verified-badge { position: absolute; bottom: 0; right: 0; height: 1rem; width: 1rem; background: #22c55e; border-radius: 4px 0 0 0; display: flex; align-items: center; justify-content: center; }
+.ap-verified-badge i { color: white; font-size: 10px; }
+
+.ap-supplier-info { flex: 1; min-width: 0; }
+.ap-supplier-name { font-weight: 700; color: #0f172a; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-supplier-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem; }
+.ap-supplier-category { color: #f97316; font-weight: 500; text-transform: uppercase; }
+.ap-supplier-rating { display: flex; align-items: center; gap: 0.25rem; }
+.ap-star { color: #fbbf24; }
+.ap-rating-value { font-weight: 700; color: #1e293b; }
+.ap-supplier-tags { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.ap-tag { font-size: 10px; background: #f8fafc; padding: 0.125rem 0.5rem; border-radius: 6px; color: #64748b; text-transform: uppercase; border: 1px solid #f1f5f9; font-weight: 600; }
+
+.ap-supplier-arrow { height: 2rem; width: 2rem; border-radius: 50%; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; transition: all 0.2s; }
+.ap-supplier-card:hover .ap-supplier-arrow { background: #fed7aa; color: #f97316; }
+
+.ap-no-results { text-align: center; padding: 3rem 1rem; color: #94a3b8; font-size: 0.875rem; }
+
+@media (min-width: 1280px) {
+  .ap-suppliers-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .ap-content-wrapper { padding-bottom: 5rem; }
+}

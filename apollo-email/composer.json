@@ -1,0 +1,39 @@
+{
+  "name": "apollo/email",
+  "description": "Unified email service for Apollo platform",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=8.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "squizlabs/php_codesniffer": "^3.7",
+    "phpstan/phpstan": "^1.10",
+    "wp-coding-standards/wpcs": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ApolloEmail\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ApolloEmail\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "cs": "phpcs --standard=WordPress src/",
+    "cs-fix": "phpcbf --standard=WordPress src/",
+    "stan": "phpstan analyze src/ --level=8"
+  },
+  "conflict": {
+    "apollo/social": "<4.0.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  }
+}

@@ -1,0 +1,672 @@
+/**
+ * Apollo Events Blocks - Frontend Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+
+:root {
+    --apollo-primary: #6366f1;
+    --apollo-primary-dark: #4f46e5;
+    --apollo-text: #1f2937;
+    --apollo-text-light: #6b7280;
+    --apollo-border: #e5e7eb;
+    --apollo-bg: #f9fafb;
+    --apollo-white: #ffffff;
+    --apollo-radius: 8px;
+    --apollo-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --apollo-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Base Blocks
+   ========================================================================== */
+
+.apollo-block {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--apollo-text);
+}
+
+.apollo-block * {
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Grid System
+   ========================================================================== */
+
+.apollo-columns-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.apollo-columns-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.apollo-columns-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .apollo-columns-4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .apollo-columns-3,
+    .apollo-columns-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .apollo-columns-2,
+    .apollo-columns-3,
+    .apollo-columns-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Event List Block
+   ========================================================================== */
+
+.apollo-event-list {
+    margin: 24px 0;
+}
+
+.apollo-event-list--list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.apollo-event-list--list .apollo-event-card {
+    display: flex;
+    flex-direction: row;
+}
+
+.apollo-event-list--list .apollo-event-card__image {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Event Card
+   ========================================================================== */
+
+.apollo-event-card {
+    background: var(--apollo-white);
+    border-radius: var(--apollo-radius);
+    overflow: hidden;
+    box-shadow: var(--apollo-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.apollo-event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--apollo-shadow-lg);
+}
+
+.apollo-event-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.apollo-event-card__image {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+}
+
+.apollo-event-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.apollo-event-card:hover .apollo-event-card__image img {
+    transform: scale(1.05);
+}
+
+.apollo-event-card__content {
+    padding: 16px;
+    flex: 1;
+}
+
+.apollo-event-card__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+    line-height: 1.4;
+    color: var(--apollo-text);
+}
+
+.apollo-event-card__date,
+.apollo-event-card__local,
+.apollo-event-card__djs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--apollo-text-light);
+    margin: 0 0 8px;
+}
+
+.apollo-event-card__date .dashicons,
+.apollo-event-card__local .dashicons,
+.apollo-event-card__djs .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--apollo-primary);
+}
+
+.apollo-event-card__button {
+    display: block;
+    padding: 12px 16px;
+    background: var(--apollo-primary);
+    color: var(--apollo-white);
+    text-align: center;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.apollo-event-card__button:hover {
+    background: var(--apollo-primary-dark);
+    color: var(--apollo-white);
+}
+
+/* ==========================================================================
+   Countdown Block
+   ========================================================================== */
+
+.apollo-countdown {
+    text-align: center;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--apollo-primary), var(--apollo-primary-dark));
+    border-radius: var(--apollo-radius);
+    color: var(--apollo-white);
+}
+
+.apollo-countdown__title {
+    font-size: 1.5rem;
+    margin: 0 0 24px;
+}
+
+.apollo-countdown__title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.apollo-countdown__title a:hover {
+    text-decoration: underline;
+}
+
+.apollo-countdown__timer {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.apollo-countdown__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.apollo-countdown__value {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.apollo-countdown__label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* Countdown Style Variants */
+.apollo-countdown--minimal {
+    background: var(--apollo-white);
+    color: var(--apollo-text);
+    border: 1px solid var(--apollo-border);
+}
+
+.apollo-countdown--minimal .apollo-countdown__value {
+    color: var(--apollo-primary);
+}
+
+.apollo-countdown--dark {
+    background: #1f2937;
+}
+
+.apollo-countdown--gradient {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+@media (max-width: 480px) {
+    .apollo-countdown__value {
+        font-size: 2rem;
+    }
+
+    .apollo-countdown__unit {
+        min-width: 60px;
+    }
+}
+
+/* ==========================================================================
+   Calendar Block
+   ========================================================================== */
+
+.apollo-calendar {
+    background: var(--apollo-white);
+    border-radius: var(--apollo-radius);
+    box-shadow: var(--apollo-shadow);
+    padding: 24px;
+}
+
+.apollo-calendar__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.apollo-calendar__nav-btn {
+    background: var(--apollo-bg);
+    border: 1px solid var(--apollo-border);
+    padding: 8px 16px;
+    border-radius: var(--apollo-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.apollo-calendar__nav-btn:hover {
+    background: var(--apollo-primary);
+    color: var(--apollo-white);
+    border-color: var(--apollo-primary);
+}
+
+.apollo-calendar__month {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.apollo-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.apollo-calendar__day-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--apollo-text-light);
+    padding: 8px;
+}
+
+.apollo-calendar__day {
+    min-height: 80px;
+    padding: 8px;
+    background: var(--apollo-bg);
+    border-radius: 4px;
+    position: relative;
+}
+
+.apollo-calendar__day--empty {
+    background: transparent;
+}
+
+.apollo-calendar__day--today {
+    background: var(--apollo-primary);
+}
+
+.apollo-calendar__day--today .apollo-calendar__day-number {
+    color: var(--apollo-white);
+}
+
+.apollo-calendar__day--has-events {
+    background: #fef3c7;
+}
+
+.apollo-calendar__day-number {
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.apollo-calendar__events {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.apollo-calendar__event {
+    display: block;
+    font-size: 0.6875rem;
+    padding: 2px 4px;
+    background: var(--apollo-primary);
+    color: var(--apollo-white);
+    border-radius: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.apollo-calendar__event:hover {
+    background: var(--apollo-primary-dark);
+}
+
+.apollo-calendar__more {
+    font-size: 0.625rem;
+    color: var(--apollo-text-light);
+    margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+    .apollo-calendar__day {
+        min-height: 60px;
+        padding: 4px;
+    }
+
+    .apollo-calendar__event {
+        display: none;
+    }
+
+    .apollo-calendar__day--has-events::after {
+        content: '';
+        display: block;
+        width: 6px;
+        height: 6px;
+        background: var(--apollo-primary);
+        border-radius: 50%;
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* ==========================================================================
+   DJ Grid Block
+   ========================================================================== */
+
+.apollo-dj-grid {
+    margin: 24px 0;
+}
+
+.apollo-dj-card {
+    background: var(--apollo-white);
+    border-radius: var(--apollo-radius);
+    overflow: hidden;
+    box-shadow: var(--apollo-shadow);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apollo-dj-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--apollo-shadow-lg);
+}
+
+.apollo-dj-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    padding-bottom: 16px;
+}
+
+.apollo-dj-card__image {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.apollo-dj-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.apollo-dj-card:hover .apollo-dj-card__image img {
+    transform: scale(1.05);
+}
+
+.apollo-dj-card__image--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--apollo-bg);
+}
+
+.apollo-dj-card__image--placeholder .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--apollo-border);
+}
+
+.apollo-dj-card__name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 12px 16px 4px;
+}
+
+.apollo-dj-card__genre {
+    font-size: 0.875rem;
+    color: var(--apollo-text-light);
+    margin: 0 16px;
+}
+
+/* ==========================================================================
+   Local Grid Block
+   ========================================================================== */
+
+.apollo-local-grid {
+    margin: 24px 0;
+}
+
+.apollo-local-card {
+    background: var(--apollo-white);
+    border-radius: var(--apollo-radius);
+    overflow: hidden;
+    box-shadow: var(--apollo-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apollo-local-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--apollo-shadow-lg);
+}
+
+.apollo-local-card__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.apollo-local-card__image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+}
+
+.apollo-local-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.apollo-local-card:hover .apollo-local-card__image img {
+    transform: scale(1.05);
+}
+
+.apollo-local-card__content {
+    padding: 16px;
+}
+
+.apollo-local-card__name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.apollo-local-card__address {
+    font-size: 0.875rem;
+    color: var(--apollo-text-light);
+    margin: 0;
+}
+
+/* ==========================================================================
+   Search Block
+   ========================================================================== */
+
+.apollo-search {
+    background: var(--apollo-white);
+    padding: 24px;
+    border-radius: var(--apollo-radius);
+    box-shadow: var(--apollo-shadow);
+}
+
+.apollo-search__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.apollo-search__row {
+    display: flex;
+}
+
+.apollo-search__input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 1px solid var(--apollo-border);
+    border-radius: var(--apollo-radius);
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.apollo-search__input:focus {
+    border-color: var(--apollo-primary);
+}
+
+.apollo-search__filters {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.apollo-search__filter {
+    flex: 1;
+    min-width: 150px;
+}
+
+.apollo-search__filter label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--apollo-text-light);
+    margin-bottom: 4px;
+}
+
+.apollo-search__date,
+.apollo-search__select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    border: 1px solid var(--apollo-border);
+    border-radius: var(--apollo-radius);
+    background: var(--apollo-white);
+    outline: none;
+}
+
+.apollo-search__date:focus,
+.apollo-search__select:focus {
+    border-color: var(--apollo-primary);
+}
+
+.apollo-search__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--apollo-primary);
+    color: var(--apollo-white);
+    border: none;
+    border-radius: var(--apollo-radius);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.apollo-search__submit:hover {
+    background: var(--apollo-primary-dark);
+}
+
+.apollo-search__submit .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 768px) {
+    .apollo-search__filters {
+        flex-direction: column;
+    }
+
+    .apollo-search__filter {
+        min-width: auto;
+    }
+}
+
+/* ==========================================================================
+   No Results Messages
+   ========================================================================== */
+
+.apollo-no-events,
+.apollo-no-event,
+.apollo-no-djs,
+.apollo-no-locals,
+.apollo-no-date {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--apollo-bg);
+    border-radius: var(--apollo-radius);
+    color: var(--apollo-text-light);
+    font-size: 1rem;
+}

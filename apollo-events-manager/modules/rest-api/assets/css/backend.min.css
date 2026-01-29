@@ -1,0 +1,559 @@
+.aprio-admin-container .aprio-admin-left-sidebar {
+	display: inline-block;
+	width: 25%
+}
+
+.aprio-admin-container .aprio-admin-right-container {
+	display: inline-block;
+	width: 68%;
+	vertical-align: top;
+	background: #fff;
+	margin-top: 12px
+}
+
+.aprio-admin-container .aprio-admin-right-container.aprio-dark-mode .postbox {
+	background: #151a30
+}
+
+.aprio-admin-container ul.aprio-admin-left-menu {
+	background: #fff;
+	border-left: 1px solid #e3e3e3;
+	border-right: 1px solid #e3e3e3
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item:first-child {
+	border-top: 1px solid #e3e3e3
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item {
+	width: 100%;
+	display: flex;
+	margin: 0;
+	border-bottom: 1px solid #e3e3e3
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab {
+	border: 0;
+	transition: .2s all ease-in-out;
+	position: relative;
+	margin: 0;
+	padding: 12px 5px 12px 45px;
+	width: 100%;
+	background-color: #fff;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab:hover {
+	background-color: #f9f9f9;
+	color: #00a5fa;
+	border-left: 5px solid
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab:hover:before {
+	color: #00a5fa
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active {
+	position: relative
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:focus,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:focus:active,
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:hover {
+	background-color: #f9f9f9;
+	color: #00a5fa;
+	border-left: 5px solid
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item a.nav-tab-active:after {
+	content: "";
+	position: absolute;
+	right: 15px;
+	top: 38%;
+	border: solid #00a5fa;
+	border-width: 0 2px 2px 0;
+	display: inline-block;
+	padding: 3px;
+	transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg)
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox h3 {
+	padding: 18px 20px;
+	font-weight: 500;
+	font-size: 1.6em;
+	margin: 0;
+	letter-spacing: 1px;
+	color: #666;
+	background: #f5f5f5
+}
+
+.aprio-api-message.updated {
+	margin: 0;
+}
+
+.update_app_branding_message {
+	position: absolute;
+	bottom: 30px;
+	left: 100px;
+	transition: all 300ms ease;
+}
+
+.aprio-app-branding-mode.aprio-dark-mode .update_app_branding_message {
+	color: white;
+}
+
+.update_app_branding_message i.aprio-icon-checkmark {
+	color: #77dd37;
+}
+
+.update_app_branding_message i.aprio-icon-cross {
+	color: #FC4C20;
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox {
+	margin: 0;
+	border: none;
+	box-shadow: none
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item .nav-tab:before {
+	font-family: wp-event-manager;
+	position: absolute;
+	font-weight: 400;
+	left: 26px;
+	transform: translate(-50%, -50%);
+	top: 50%;
+	padding: 0 5px;
+	transition: .3s all ease-in-out;
+	color: #a2acba
+}
+
+.aprio-admin-container .aprio-admin-left-sidebar ul.aprio-admin-left-menu li.aprio-admin-left-menu-item .nav-tab.nav-tab-active:before {
+	color: #00a5fa
+}
+
+.aprio-admin-container .aprio-admin-right-container-holder {
+	padding-top: 0 !important;
+	border: 1px solid #ccc;
+	overflow: auto
+}
+
+@media only screen and (max-width:768px) {
+
+	.aprio-admin-container .aprio-admin-left-sidebar,
+	.aprio-admin-container .aprio-admin-right-container {
+		display: block;
+		width: 100%
+	}
+}
+
+.aprio-admin-container .aprio-backend-theme-button,
+.aprio-admin-container a.aprio-backend-theme-button,
+.aprio-admin-container button.aprio-backend-theme-button,
+.aprio-admin-container input.aprio-backend-theme-button {
+	background: #00a5fb;
+	color: #fff;
+	border: none;
+	border-radius: 3px;
+	padding: 5px 15px;
+	text-transform: uppercase;
+	font-weight: 600;
+	line-height: 30px;
+	display: inline-block;
+	font-size: 14px;
+	transition: .3s all ease-in-out
+}
+
+.aprio-admin-container a.aprio-backend-theme-button:hover,
+.aprio-admin-container input.aprio-backend-theme-button:active,
+.aprio-admin-container input.aprio-backend-theme-button:hover {
+	background: #008cd4;
+	color: #fff;
+	border: none
+}
+
+.aprio-admin-container input.aprio-backend-theme-button:focus {
+	border: none;
+	background: #008cd4;
+	box-shadow: none;
+	outline: 0
+}
+
+.aprio-admin-container .aprio-backend-theme-button.aprio-revoke-button,
+.aprio-admin-container a.aprio-backend-theme-button.aprio-revoke-button {
+	background: #e54646;
+	transition: all .2s ease
+}
+
+.aprio-admin-container .aprio-backend-theme-button.aprio-revoke-button:hover,
+.aprio-admin-container a.aprio-backend-theme-button.aprio-revoke-button:hover {
+	background: #e51e1e
+}
+
+.aprio-admin-container .aprio-admin-tab-title a.aprio-backend-theme-button {
+	line-height: 16px;
+	font-size: 12px;
+	border-radius: 3px;
+	padding: 7px 10px
+}
+
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table {
+	width: 100%;
+	margin-top: 0
+}
+
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr:first-child td,
+.aprio-admin-container .aprio-admin-right-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr:first-child th {
+	padding-top: 10px
+}
+
+.aprio-admin-container .aprio-admin-right-container-holder p.submit {
+	padding: 15px 20px;
+	margin: 0;
+	background: #f5f5f5
+}
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body {
+	padding: 20px
+}
+
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body {
+	padding: 20px
+}
+
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body table.form-table tbody tr:first-child td,
+.aprio-admin-container .aprio-api-access.aprio-admin-right-container .aprio-admin-right-container-holder .aprio-admin-body table.form-table tbody tr:first-child th {
+	padding-top: 0
+}
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body h2:first-child {
+	margin-top: 0
+}
+
+.aprio-admin-container .aprio-admin-body input.button.action,
+.aprio-admin-container .aprio-admin-body p.search-box input.button {
+	line-height: 16px;
+	font-size: 12px;
+	border-radius: 3px;
+	padding: 7px 10px;
+	background: #00a5fb;
+	color: #fff;
+	border: none
+}
+
+.aprio-admin-container .aprio-admin-body input.button.action:hover,
+.aprio-admin-container .aprio-admin-body p.search-box input.button:hover {
+	background: #008cd4;
+	color: #fff;
+	border: none
+}
+
+.aprio-admin-container .aprio-admin-bottom-content input[type=color],
+.aprio-admin-container .aprio-admin-bottom-content input[type=date],
+.aprio-admin-container .aprio-admin-bottom-content input[type=datetime-local],
+.aprio-admin-container .aprio-admin-bottom-content input[type=datetime],
+.aprio-admin-container .aprio-admin-bottom-content input[type=email],
+.aprio-admin-container .aprio-admin-bottom-content input[type=month],
+.aprio-admin-container .aprio-admin-bottom-content input[type=number],
+.aprio-admin-container .aprio-admin-bottom-content input[type=password],
+.aprio-admin-container .aprio-admin-bottom-content input[type=search],
+.aprio-admin-container .aprio-admin-bottom-content input[type=tel],
+.aprio-admin-container .aprio-admin-bottom-content input[type=text],
+.aprio-admin-container .aprio-admin-bottom-content input[type=time],
+.aprio-admin-container .aprio-admin-bottom-content input[type=url],
+.aprio-admin-container .aprio-admin-bottom-content input[type=week],
+.aprio-admin-container .aprio-admin-bottom-content select,
+.aprio-admin-container .aprio-admin-bottom-content textarea {
+	box-shadow: 0 0 0 transparent;
+	border: 1px solid #ccc;
+	background-color: #fff;
+	color: #555
+}
+
+.aprio-admin-container .aprio-app-branding-mode .button label {
+	display: none
+}
+
+.aprio-admin-container .app-branding-mode .button svg {
+	max-width: 25px;
+	width: 100%;
+	display: block
+}
+
+.aprio-admin-container .app-branding-mode .button {
+	padding: 10px;
+	height: 50px
+}
+
+.aprio-admin-container .app-branding-mode {
+	display: flex;
+	padding: 15px 20px;
+	justify-content: flex-end
+}
+
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button {
+	background: #00a5fa;
+	border: 2px solid #00a5fa;
+	border-radius: 3px 0 0 3px
+}
+
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button svg {
+	fill: #fff
+}
+
+.aprio-admin-container .aprio-light-mode .aprio-dark-mode.button {
+	border: 2px solid #00a5fa;
+	border-radius: 0 3px 3px 0;
+	background: #fff
+}
+
+.aprio-admin-container .aprio-light-mode .aprio-dark-mode.button svg {
+	fill: #00a5fa
+}
+
+.aprio-admin-container .aprio-dark-mode .aprio-light-mode.button {
+	background: 0 0;
+	border: 2px solid #00a5fa;
+	border-radius: 3px 0 0 3px
+}
+
+.aprio-admin-container .aprio-dark-mode .aprio-light-mode.button svg {
+	fill: #00a5fa
+}
+
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button {
+	border: 2px solid #00a5fa;
+	border-radius: 0 3px 3px 0;
+	background: #00a5fa
+}
+
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button svg {
+	fill: #fff
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th {
+	background: #eee;
+	padding-left: 20px;
+	border: 1px solid #ccc;
+	text-align: center;
+	border-left: none
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
+	border-right: none
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead {
+	width: 100%
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table thead tr th:last-child {
+	border-right: none
+}
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr {
+	background: #f1f1f1
+}
+
+.aprio-admin-container .aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr+tr {
+	background: #fff
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td {
+	text-align: center;
+	border-right: 1px solid #ccc;
+	position: relative
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table span.wp-color-result-text {
+	display: none
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table .wp-picker-container .iris-picker {
+	position: absolute;
+	z-index: 2
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody td:last-child .wp-picker-container .iris-picker {
+	right: 0
+}
+
+.aprio-admin-container .aprio-color-pallet-wrapper {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: center
+}
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet {
+	width: 80%;
+	height: 30px;
+	padding: 10px;
+	text-align: center
+}
+
+.aprio-admin-container .aprio-app-branding .aprio-light-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr:first-child {
+	background: #f1f1f1
+}
+
+.aprio-admin-container .aprio-color-pallet-wrapper div {
+	font-size: 14px;
+	line-height: 28px;
+	font-weight: 500;
+	color: #888;
+	padding: 5px;
+	width: 20%
+}
+
+.aprio-admin-container .aprio-admin-bottom-content table.form-table p {
+	padding-bottom: 10px
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody .aprio-color-pellet-code {
+	padding: 10px;
+	font-size: 14px;
+	line-height: 28px;
+	font-weight: 600
+}
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet span {
+	opacity: 0;
+	transition: .2s all ease
+}
+
+.aprio-admin-container .aprio-color-pallet-wrapper .aprio-color-pallet:hover span {
+	display: block;
+	opacity: 1
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode h3.aprio-admin-tab-title {
+	background: #202745;
+	color: #fff
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table thead tr th {
+	background: #202745;
+	color: #fff;
+	border-color: #151a30
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td {
+	border-color: #151a30
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-app-branding .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr td:last-child {
+	border: none
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr+tr {
+	background: #202745;
+	color: #fff
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-color-pallet-wrapper div {
+	color: #fff
+}
+
+.aprio-admin-container .aprio-api-access .aprio-admin-right-container-holder p.submit,
+.aprio-admin-container .aprio-app-branding .aprio-admin-right-container-holder p.submit {
+	display: none
+}
+
+.aprio-admin-container .aprio-admin-right-container-holder.aprio-admin-body .aprio-admin-top-title-section .aprio-admin-bottom-content p.submit,
+.aprio-admin-container .aprio-app-branding .aprio-admin-right-container-holder .aprio-admin-top-title-section p.submit {
+	display: block
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-right-container-holder p.submit {
+	background: #151a30
+}
+
+.aprio-admin-container .aprio-app-branding-mode.aprio-dark-mode .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content .settings-panel table.form-table tbody tr {
+	background: #151a30;
+	color: #fff
+}
+
+.aprio-admin-container .aprio-admin-top-title-section.postbox .aprio-admin-bottom-content table.form-table tbody tr td:first-child {
+	border-left: none
+}
+
+.aprio-admin-container .aprio-dark-mode .aprio-dark-mode.button img,
+.aprio-admin-container .aprio-light-mode .aprio-light-mode.button img {
+	-webkit-filter: brightness(0) invert(1);
+	filter: brightness(0) invert(1)
+}
+
+.aprio-admin-container .aprio-api-access .aprio-admin-right-container-holder .aprio-admin-bottom-content .settings-panel p.submit {
+	display: block
+}
+
+.aprio-admin-container .aprio-admin-bottom-content .aprio-admin-body .form-field .file_url {
+	text-align: left;
+	display: flex;
+	width: 100%
+}
+
+.aprio-no-api-wrap {
+	height: 100vh;
+	max-height: 400px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	max-width: 400px;
+	margin: 0 auto
+}
+
+.aprio-no-api-wrap h2.aprio-rest-api-BlankState-message {
+	line-height: 1.42;
+	color: #ccc;
+	letter-spacing: .2px;
+	text-align: center
+}
+
+.aprio-no-api-wrap a.aprio-rest-api-BlankState-cta {
+	padding: 12px 40px;
+	margin: 10px 0
+}
+
+.aprio-no-api-wrap .aprio-no-api-icon span {
+	font-size: 150px;
+	line-height: 150px;
+	height: 150px;
+	width: 150px;
+	color: #dcdcdc
+}
+
+.loader {
+	border: 5px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 5px solid #3498db;
+	width: 20px;
+	height: 20px;
+	-webkit-animation: spin 2s linear infinite;
+	animation: spin 2s linear infinite
+}
+
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg)
+	}
+
+	100% {
+		-webkit-transform: rotate(360deg)
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg)
+	}
+
+	100% {
+		transform: rotate(360deg)
+	}
+}

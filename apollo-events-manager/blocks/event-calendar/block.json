@@ -1,0 +1,80 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/event-calendar",
+    "version": "2.0.0",
+    "title": "Event Calendar",
+    "category": "apollo-events",
+    "icon": "calendar-alt",
+    "description": "Display events in a calendar view with monthly navigation.",
+    "keywords": [ "events", "calendar", "schedule", "apollo", "monthly" ],
+    "textdomain": "apollo-events-manager",
+    "attributes": {
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "type": {
+            "type": "string",
+            "default": ""
+        },
+        "sounds": {
+            "type": "string",
+            "default": ""
+        },
+        "season": {
+            "type": "string",
+            "default": ""
+        },
+        "showNavigation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showWeekdays": {
+            "type": "boolean",
+            "default": true
+        },
+        "showEventCount": {
+            "type": "boolean",
+            "default": true
+        },
+        "showEventList": {
+            "type": "boolean",
+            "default": true
+        },
+        "initialMonth": {
+            "type": "string",
+            "default": ""
+        },
+        "initialYear": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": [ "wide", "full" ],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "showNavigation": true,
+            "showEventList": true
+        }
+    }
+}

@@ -1,0 +1,103 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/events-grid",
+    "version": "2.0.0",
+    "title": "Events Grid",
+    "category": "apollo-events",
+    "icon": "calendar-alt",
+    "description": "Display a grid of events with customizable layout and filters.",
+    "keywords": [ "events", "grid", "listing", "apollo", "calendar" ],
+    "textdomain": "apollo-events-manager",
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid"
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        },
+        "limit": {
+            "type": "number",
+            "default": 6
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "type": {
+            "type": "string",
+            "default": ""
+        },
+        "sounds": {
+            "type": "string",
+            "default": ""
+        },
+        "season": {
+            "type": "string",
+            "default": ""
+        },
+        "orderby": {
+            "type": "string",
+            "default": "event_date"
+        },
+        "order": {
+            "type": "string",
+            "default": "asc"
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLocation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showExcerpt": {
+            "type": "boolean",
+            "default": false
+        },
+        "showPagination": {
+            "type": "boolean",
+            "default": false
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": [ "wide", "full" ],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "editorStyle": "file:./build/index.css",
+    "style": "file:./build/style-index.css",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "layout": "grid",
+            "columns": 3,
+            "limit": 3
+        }
+    }
+}

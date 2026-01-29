@@ -1,0 +1,76 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/event-single",
+    "version": "2.0.0",
+    "title": "Event Single",
+    "category": "apollo-events",
+    "icon": "calendar",
+    "description": "Display a single event with full details.",
+    "keywords": [ "event", "single", "detail", "apollo" ],
+    "textdomain": "apollo-events-manager",
+    "attributes": {
+        "eventId": {
+            "type": "number",
+            "default": 0
+        },
+        "showBanner": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLocation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showMap": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDJs": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTimetable": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTickets": {
+            "type": "boolean",
+            "default": true
+        },
+        "showShare": {
+            "type": "boolean",
+            "default": true
+        },
+        "layout": {
+            "type": "string",
+            "default": "full"
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": [ "wide", "full" ],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "eventId": 0,
+            "layout": "full"
+        }
+    }
+}

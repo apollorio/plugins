@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite para Evento | Apollo::Rio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+            padding: 20px;
+        }
+        .notification-detail {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--ap-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .notification-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--ap-gray-200);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-back {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .notification-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        .notification-title {
+            flex: 1;
+        }
+        .notification-title h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .notification-title p {
+            font-size: 13px;
+            color: var(--ap-gray-700);
+        }
+        .notification-body {
+            padding: 30px;
+        }
+        .event-card {
+            background: linear-gradient(135deg, var(--ap-orange-500), #ff5722);
+            padding: 30px;
+            border-radius: 12px;
+            color: var(--ap-white);
+            margin-bottom: 25px;
+        }
+        .event-card h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+        .event-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .event-info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .message-section {
+            background: var(--ap-gray-100);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .message-section p {
+            line-height: 1.6;
+            color: var(--ap-gray-700);
+        }
+        .sender-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .sender-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .sender-name {
+            font-weight: 600;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            padding: 0 30px 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+        }
+        .btn-secondary {
+            background: var(--ap-gray-200);
+            color: var(--ap-gray-700);
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-detail">
+        <div class="notification-header">
+            <button class="btn-back" onclick="window.history.back()">←</button>
+            <div class="notification-icon">🎉</div>
+            <div class="notification-title">
+                <h1>Convite para Evento</h1>
+                <p>Recebido há 2 horas</p>
+            </div>
+        </div>
+
+        <div class="notification-body">
+            <div class="sender-info">
+                <img src="https://via.placeholder.com/50/9C27B0/FFFFFF?text=MC" alt="Maria Clara" class="sender-avatar">
+                <div>
+                    <div class="sender-name">Maria Clara</div>
+                    <div style="font-size: 13px; color: var(--ap-gray-700);">convidou você</div>
+                </div>
+            </div>
+
+            <div class="event-card">
+                <h2>🌅 Sunset Sessions Vol. 15</h2>
+                <div class="event-info">
+                    <div class="event-info-item">
+                        <span>📅</span>
+                        <span>Sábado, 1 de Fevereiro de 2026</span>
+                    </div>
+                    <div class="event-info-item">
+                        <span>🕐</span>
+                        <span>22:30 - 06:00</span>
+                    </div>
+                    <div class="event-info-item">
+                        <span>📍</span>
+                        <span>Mirante do Pasmado, Urca - Rio de Janeiro</span>
+                    </div>
+                    <div class="event-info-item">
+                        <span>🎵</span>
+                        <span>House • Techno • Progressive</span>
+                    </div>
+                    <div class="event-info-item">
+                        <span>👥</span>
+                        <span>127 confirmados • 340 interessados</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-section">
+                <p><strong>Maria Clara escreveu:</strong></p>
+                <p>"Oi! Vai ter um evento incrível no Mirante do Pasmado no sábado. A lineup está sensacional e a vista é de tirar o fôlego! Vamos juntos? Tenho certeza que você vai adorar! 🎶✨"</p>
+            </div>
+
+            <div style="padding: 20px 0;">
+                <h3 style="margin-bottom: 15px; font-size: 16px;">Line-up Confirmado</h3>
+                <div style="display: grid; gap: 10px;">
+                    <div style="padding: 12px; background: var(--ap-gray-100); border-radius: 6px;">
+                        🎧 <strong>DJ Marky</strong> - Main Stage (23:00 - 01:00)
+                    </div>
+                    <div style="padding: 12px; background: var(--ap-gray-100); border-radius: 6px;">
+                        🎧 <strong>Anna</strong> - Techno Room (01:00 - 03:00)
+                    </div>
+                    <div style="padding: 12px; background: var(--ap-gray-100); border-radius: 6px;">
+                        🎧 <strong>Gui Boratto</strong> - Progressive Stage (03:00 - 05:00)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="confirmAttendance()">✓ Confirmar Presença</button>
+            <button class="btn btn-secondary" onclick="declineInvite()">✕ Recusar</button>
+        </div>
+    </div>
+
+    <script>
+        function confirmAttendance() {
+            alert('Presença confirmada! Você receberá os detalhes por email.');
+            setTimeout(() => window.history.back(), 1000);
+        }
+
+        function declineInvite() {
+            if (confirm('Tem certeza que deseja recusar este convite?')) {
+                alert('Convite recusado.');
+                setTimeout(() => window.history.back(), 1000);
+            }
+        }
+    </script>
+</body>
+</html>

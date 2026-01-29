@@ -1,0 +1,11 @@
+{
+    "phpcs.enable": true,
+    "phpcs.standard": "${workspaceFolder}/phpcs.xml",
+    "phpcs.ignorePatterns": [
+        "*/node_modules/*",
+        "*/vendor/*",
+        "*/tests/*"
+    ],
+    "php.validate.enable": true,
+    "php.validate.run": "onSave"
+}

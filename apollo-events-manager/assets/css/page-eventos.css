@@ -1,0 +1,521 @@
+/**
+ * Apollo Eventos Page - Events Listing Styles
+ * ============================================
+ * Path: apollo-events-manager/assets/css/page-eventos.css
+ *
+ * Mobile-first responsive events listing page.
+ * Uses Apollo CDN design tokens.
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ */
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================================= */
+
+:root {
+    --ap-eventos-bg: #fff;
+    --ap-eventos-surface: #f8fafc;
+    --ap-eventos-text: rgba(19, 21, 23, .85);
+    --ap-eventos-text-secondary: rgba(19, 21, 23, .7);
+    --ap-eventos-text-muted: rgba(19, 21, 23, .5);
+    --ap-eventos-border: #e0e2e4;
+    --ap-eventos-accent: #FF6925;
+    --ap-eventos-radius: 14px;
+    --ap-eventos-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body.dark-mode,
+.dark,
+[data-theme="dark"] {
+    --ap-eventos-bg: #131517;
+    --ap-eventos-surface: #1a1c1e;
+    --ap-eventos-text: #fdfdfdfa;
+    --ap-eventos-text-secondary: rgba(255, 255, 255, .7);
+    --ap-eventos-text-muted: rgba(255, 255, 255, .5);
+    --ap-eventos-border: #333537;
+}
+
+/* =============================================================================
+   PAGE CONTAINER
+   ============================================================================= */
+
+.apollo-eventos-page {
+    min-height: 100vh;
+    background: var(--ap-eventos-bg);
+    font-family: Urbanist, system-ui, -apple-system, sans-serif;
+}
+
+.eventos-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 100px 20px 50px;
+}
+
+@media (min-width: 768px) {
+    .eventos-container {
+        padding: 120px 40px 60px;
+    }
+}
+
+/* =============================================================================
+   HERO SECTION
+   ============================================================================= */
+
+.eventos-hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.eventos-title {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-weight: 800;
+    color: var(--ap-eventos-text);
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.eventos-title mark {
+    background-color: rgba(253, 92, 2, 0.1);
+    color: #fd5c02;
+    font-weight: inherit;
+    padding: 0 0.1em;
+}
+
+.eventos-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    color: var(--ap-eventos-text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* =============================================================================
+   FILTERS SECTION
+   ============================================================================= */
+
+.eventos-filters {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* Filter Tags */
+.filter-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-tag {
+    height: 44px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    font-weight: 600;
+    padding: 12px 20px;
+    background: transparent;
+    border-radius: var(--ap-eventos-radius);
+    border: 1px solid var(--ap-eventos-border);
+    color: var(--ap-eventos-text-secondary);
+    cursor: pointer;
+    transition: var(--ap-eventos-transition);
+    position: relative;
+    isolation: isolate;
+}
+
+.filter-tag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--ap-eventos-radius);
+    background: transparent;
+    z-index: -1;
+    transition: background 0.3s ease;
+}
+
+.filter-tag:hover,
+.filter-tag.active {
+    color: var(--ap-eventos-bg);
+    border-color: var(--ap-eventos-text);
+}
+
+.filter-tag:hover::before,
+.filter-tag.active::before {
+    background: var(--ap-eventos-text);
+}
+
+/* Filter Controls */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    flex-direction: column;
+}
+
+@media (min-width: 480px) {
+    .filter-controls {
+        flex-direction: row;
+    }
+}
+
+/* Search Box */
+.filter-search {
+    height: 48px;
+    border-radius: var(--ap-eventos-radius);
+    background-color: transparent;
+    border: 1px solid var(--ap-eventos-border);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    gap: 10px;
+    transition: var(--ap-eventos-transition);
+    flex: 1;
+}
+
+.filter-search:focus-within {
+    border-color: var(--ap-eventos-text);
+}
+
+.filter-search i {
+    font-size: 1.2rem;
+    color: var(--ap-eventos-text-muted);
+}
+
+.filter-search input {
+    background: none;
+    border: none;
+    height: 100%;
+    color: var(--ap-eventos-text);
+    font-size: 0.95rem;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+}
+
+.filter-search input::placeholder {
+    color: var(--ap-eventos-text-muted);
+    font-size: 0.85rem;
+}
+
+/* Date Picker */
+.filter-date-picker {
+    height: 48px;
+    border-radius: var(--ap-eventos-radius);
+    background-color: transparent;
+    border: 1px solid var(--ap-eventos-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    gap: 10px;
+    flex-shrink: 0;
+    min-width: 140px;
+}
+
+.date-arrow {
+    background: none;
+    border: none;
+    color: var(--ap-eventos-text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--ap-eventos-transition);
+    line-height: 1;
+}
+
+.date-arrow:hover {
+    color: var(--ap-eventos-text);
+}
+
+.date-display {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ap-eventos-text-secondary);
+    white-space: nowrap;
+}
+
+/* =============================================================================
+   EVENTS GRID SECTION
+   ============================================================================= */
+
+.eventos-grid-section {
+    min-height: 400px;
+}
+
+/* Pagination */
+.eventos-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 50px;
+    flex-wrap: wrap;
+}
+
+.eventos-pagination a,
+.eventos-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 15px;
+    border-radius: var(--ap-eventos-radius);
+    border: 1px solid var(--ap-eventos-border);
+    color: var(--ap-eventos-text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: var(--ap-eventos-transition);
+}
+
+.eventos-pagination a:hover {
+    border-color: var(--ap-eventos-text);
+    color: var(--ap-eventos-text);
+}
+
+.eventos-pagination .current {
+    background: var(--ap-eventos-text);
+    color: var(--ap-eventos-bg);
+    border-color: var(--ap-eventos-text);
+}
+
+/* Empty State */
+.eventos-empty {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.eventos-empty i {
+    font-size: 4rem;
+    color: var(--ap-eventos-text-muted);
+    margin-bottom: 20px;
+}
+
+.eventos-empty h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ap-eventos-text);
+    margin-bottom: 10px;
+}
+
+.eventos-empty p {
+    color: var(--ap-eventos-text-secondary);
+    margin-bottom: 30px;
+}
+
+.btn-reset-filters {
+    padding: 14px 28px;
+    background: var(--ap-eventos-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--ap-eventos-radius);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--ap-eventos-transition);
+    font-family: inherit;
+}
+
+.btn-reset-filters:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 105, 37, 0.3);
+}
+
+/* =============================================================================
+   EVENT MODAL - Fullscreen Popup
+   ============================================================================= */
+
+.apollo-event-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: var(--ap-eventos-bg);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.apollo-event-modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+}
+
+.apollo-event-modal .modal-content {
+    min-height: 100vh;
+    animation: modalSlideUp 0.4s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Close Button */
+.modal-close {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--ap-eventos-bg);
+    border: 1px solid var(--ap-eventos-border);
+    border-radius: var(--ap-eventos-radius);
+    color: var(--ap-eventos-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--ap-eventos-transition);
+    font-family: inherit;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close i {
+    font-size: 1.2rem;
+}
+
+.modal-close:hover {
+    background: var(--ap-eventos-text);
+    color: var(--ap-eventos-bg);
+    border-color: var(--ap-eventos-text);
+}
+
+/* Modal Open in New Page Button */
+.modal-open-page {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100000;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ap-eventos-bg);
+    border: 1px solid var(--ap-eventos-border);
+    border-radius: 50%;
+    color: var(--ap-eventos-text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--ap-eventos-transition);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.modal-open-page:hover {
+    color: var(--ap-eventos-text);
+    border-color: var(--ap-eventos-text);
+}
+
+/* Modal Loader */
+.modal-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--ap-eventos-border);
+    border-top-color: var(--ap-eventos-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+   MODAL CONTENT - Single Event Embedded
+   ============================================================================= */
+
+.modal-content .apollo-event-single-page {
+    padding-top: 0;
+}
+
+.modal-content .mobile-container {
+    padding-top: 80px;
+}
+
+/* Hide bottom bar in modal - use modal controls instead */
+.modal-content .event-bottom-bar {
+    display: none;
+}
+
+/* =============================================================================
+   BODY SCROLL LOCK
+   ============================================================================= */
+
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+/* =============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    .eventos-hero {
+        margin-bottom: 30px;
+    }
+
+    .filter-tags {
+        gap: 8px;
+    }
+
+    .filter-tag {
+        padding: 10px 16px;
+        font-size: 0.8rem;
+    }
+
+    .modal-close {
+        top: 15px;
+        left: 15px;
+        padding: 10px 16px;
+    }
+
+    .modal-close span {
+        display: none;
+    }
+
+    .modal-open-page {
+        top: 15px;
+        right: 15px;
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* =============================================================================
+   CARD CLICK OVERRIDE FOR MODAL
+   ============================================================================= */
+
+.apollo-eventos-page .a-eve-card {
+    cursor: pointer;
+}
+
+/* Prevent default link behavior when modal system is active */
+.apollo-eventos-page[data-modal-enabled="true"] .a-eve-card {
+    pointer-events: auto;
+}

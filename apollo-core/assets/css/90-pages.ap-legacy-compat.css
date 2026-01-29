@@ -1,0 +1,141 @@
+/**
+ * Apollo Design Tokens Override
+ * ==============================
+ * This file maps legacy CSS variables to Apollo Design System tokens.
+ * It ensures backward compatibility while templates are migrated.
+ *
+ * CDN Path: https://assets.apollo.rio.br/styles/90-pages.ap-legacy-compat.css
+ *
+ * @layer overrides
+ */
+
+@layer overrides {
+  :root {
+    /* ============================================================
+       LEGACY VARIABLE MAPPINGS
+       Maps old variable names to Apollo Design System tokens
+       ============================================================ */
+
+    /* Background Tokens */
+    --bg-main: var(--ap-bg, #ffffff);
+    --bg-surface: var(--ap-bg-muted, #f5f5f5);
+    --bg-main-translucent: var(--ap-bg-translucent, rgba(255, 255, 255, 0.68));
+    --bg-calendar: var(--ap-bg-muted, #f8fafc);
+    --background: var(--ap-bg, #ffffff);
+    --foreground: var(--ap-text, #131517);
+
+    /* Text Tokens */
+    --text-main: var(--ap-text-muted, rgba(19, 21, 23, 0.7));
+    --text-primary: var(--ap-text, rgba(19, 21, 23, 0.9));
+    --text-secondary: var(--ap-text-muted, rgba(19, 21, 23, 0.7));
+
+    /* Border Tokens */
+    --border-color: var(--ap-border, #e0e2e4);
+    --border-color-2: var(--ap-border-light, rgba(224, 226, 228, 0.33));
+    --fly-border: var(--ap-border, rgba(148, 163, 184, 0.32));
+    --card-border-light: var(--ap-border-light, rgba(0, 0, 0, 0.13));
+
+    /* Shadow Tokens */
+    --fly-shadow: var(--ap-shadow-lg, 0 20px 50px rgba(15, 23, 42, 0.05));
+    --card-shadow-light: var(--ap-shadow-sm, rgba(0, 0, 0, 0.05));
+
+    /* Color Tokens */
+    --accent-color: var(--ap-orange, #f97316);
+    --vermelho: var(--ap-red, #fe786d);
+    --laranja: var(--ap-orange, #FFA17F);
+    --primary: var(--ap-primary, #f97316);
+    --secondary: var(--ap-secondary, #64748b);
+
+    /* Status Tokens */
+    --success-color: var(--ap-green, #10b981);
+    --error-color: var(--ap-red, #dc2626);
+    --warning-color: var(--ap-yellow, #f59e0b);
+
+    /* Typography Tokens */
+    --fly-muted: var(--ap-text-muted, #6b7280);
+    --fly-strong: var(--ap-text-dark, #020617);
+    --muted-calendar: var(--ap-text-muted, #64748b);
+
+    /* Radius Tokens */
+    --radius-main: var(--ap-radius-lg, 12px);
+    --radius-sec: var(--ap-radius-xl, 20px);
+
+    /* Transition Tokens */
+    --transition-main: var(--ap-transition, all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1));
+
+    /* Font Tokens */
+    --font-primary: var(--ap-font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif);
+  }
+
+  /* ============================================================
+     DARK MODE OVERRIDES
+     ============================================================ */
+  body.dark-mode,
+  .dark-mode {
+    --bg-main: var(--ap-bg-dark, #131517);
+    --bg-surface: var(--ap-bg-dark-muted, #1a1c1e);
+    --bg-main-translucent: var(--ap-bg-dark-translucent, rgba(19, 21, 23, 0.68));
+    --background: var(--ap-bg-dark, #131517);
+    --foreground: var(--ap-text-light, #ffffff);
+
+    --text-main: var(--ap-text-light-muted, rgba(255, 255, 255, 0.7));
+    --text-primary: var(--ap-text-light, rgba(253, 253, 253, 0.98));
+    --text-secondary: var(--ap-text-light-muted, rgba(255, 255, 255, 0.7));
+
+    --border-color: var(--ap-border-dark, #333537);
+    --border-color-2: var(--ap-border-dark-light, rgba(224, 226, 228, 0.04));
+    --fly-border: var(--ap-border-dark, rgba(148, 163, 184, 0.2));
+    --card-border-light: var(--ap-border-dark-light, rgba(255, 255, 255, 0.1));
+
+    --card-shadow-light: var(--ap-shadow-dark, rgba(0, 0, 0, 0.2));
+    --fly-shadow: var(--ap-shadow-dark-lg, 0 20px 50px rgba(0, 0, 0, 0.3));
+  }
+
+  /* ============================================================
+     COMPONENT CLASS ALIASES
+     Maps common patterns to Apollo component classes
+     ============================================================ */
+
+  /* Card Components */
+  .dj-page,
+  .event-card,
+  .topbar,
+  .modal-content,
+  .filter-panel,
+  [class*="card"] {
+    background: var(--ap-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: var(--ap-radius-lg);
+    box-shadow: var(--ap-shadow-md);
+  }
+
+  /* Button Base */
+  .btn-primary,
+  .btn-secondary,
+  .btn-accent,
+  [class*="button"],
+  [class*="btn"] {
+    border-radius: var(--ap-radius-md);
+    transition: var(--ap-transition);
+    font-family: var(--ap-font-sans);
+  }
+
+  /* Status Colors */
+  .alert-success,
+  .status-approved,
+  .badge-success {
+    --status-color: var(--ap-green);
+  }
+
+  .alert-error,
+  .status-rejected,
+  .badge-error {
+    --status-color: var(--ap-red);
+  }
+
+  .alert-warning,
+  .status-pending,
+  .badge-warning {
+    --status-color: var(--ap-yellow);
+  }
+}

@@ -1,0 +1,724 @@
+/**
+ * Apollo Events Manager - Reviews Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+:root {
+    --apollo-star-color: #ffc107;
+    --apollo-star-empty: #ddd;
+    --apollo-review-bg: #f8f9fa;
+    --apollo-review-border: #e9ecef;
+    --apollo-review-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   Stars Component
+   ========================================================================== */
+.apollo-stars {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--apollo-star-color);
+    font-size: 1rem;
+}
+
+.apollo-stars i {
+    transition: transform 0.2s ease;
+}
+
+.apollo-stars i.far {
+    color: var(--apollo-star-empty);
+}
+
+/* ==========================================================================
+   Rating Display
+   ========================================================================== */
+.apollo-rating-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-rating-display__value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.apollo-rating-display__count {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Size Variants */
+.apollo-rating-display--small .apollo-stars {
+    font-size: 0.8rem;
+}
+
+.apollo-rating-display--small .apollo-rating-display__value {
+    font-size: 0.9rem;
+}
+
+.apollo-rating-display--large .apollo-stars {
+    font-size: 1.3rem;
+}
+
+.apollo-rating-display--large .apollo-rating-display__value {
+    font-size: 1.4rem;
+}
+
+/* ==========================================================================
+   Rating Summary
+   ========================================================================== */
+.apollo-rating-summary {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    padding: 20px;
+    background: var(--apollo-review-bg);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.apollo-rating-summary__overview {
+    text-align: center;
+    padding: 16px 24px;
+    border-right: 1px solid var(--apollo-review-border);
+}
+
+.apollo-rating-summary__average {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-rating-summary__number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.apollo-rating-summary__stars {
+    font-size: 1.2rem;
+}
+
+.apollo-rating-summary__total {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.apollo-rating-summary__breakdown {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.apollo-rating-summary__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.apollo-rating-summary__bar-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 36px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.apollo-rating-summary__bar-label i {
+    color: var(--apollo-star-color);
+    font-size: 0.75rem;
+}
+
+.apollo-rating-summary__bar-track {
+    flex: 1;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.apollo-rating-summary__bar-fill {
+    height: 100%;
+    background: var(--apollo-star-color);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.apollo-rating-summary__bar-count {
+    width: 32px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+@media (max-width: 600px) {
+    .apollo-rating-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .apollo-rating-summary__overview {
+        border-right: none;
+        border-bottom: 1px solid var(--apollo-review-border);
+        padding-bottom: 16px;
+    }
+}
+
+/* ==========================================================================
+   Reviews Container
+   ========================================================================== */
+.apollo-reviews {
+    margin: 24px 0;
+}
+
+.apollo-reviews__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--apollo-review-border);
+}
+
+.apollo-reviews__title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.apollo-reviews__count {
+    font-weight: 400;
+    color: #666;
+}
+
+.apollo-reviews__sort-select {
+    padding: 8px 12px;
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+    cursor: pointer;
+}
+
+.apollo-reviews__already-reviewed {
+    padding: 16px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-radius: 8px;
+    color: #155724;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-reviews__already-reviewed i {
+    font-size: 1.2rem;
+}
+
+.apollo-reviews__empty {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--apollo-review-bg);
+    border-radius: 12px;
+    color: #666;
+}
+
+.apollo-reviews__empty i {
+    font-size: 3rem;
+    color: var(--apollo-star-empty);
+    margin-bottom: 16px;
+}
+
+.apollo-reviews__empty p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   Reviews List
+   ========================================================================== */
+.apollo-reviews__list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ==========================================================================
+   Single Review
+   ========================================================================== */
+.apollo-review {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 12px;
+    box-shadow: var(--apollo-review-shadow);
+    transition: box-shadow 0.3s ease;
+}
+
+.apollo-review:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.apollo-review__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.apollo-review__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.apollo-review__avatar img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.apollo-review__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.apollo-review__name {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.apollo-review__date {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.apollo-review__rating {
+    flex-shrink: 0;
+}
+
+.apollo-review__content {
+    margin-bottom: 16px;
+    color: #444;
+    line-height: 1.6;
+}
+
+.apollo-review__content p:last-child {
+    margin-bottom: 0;
+}
+
+.apollo-review__footer {
+    display: flex;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--apollo-review-border);
+}
+
+.apollo-review__helpful {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.apollo-review__helpful:hover {
+    background: var(--apollo-review-bg);
+    border-color: #999;
+    color: #333;
+}
+
+.apollo-review__helpful.is-marked {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    color: #1976d2;
+}
+
+.apollo-review__helpful i {
+    font-size: 0.9rem;
+}
+
+.apollo-review__helpful-count {
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Review Form
+   ========================================================================== */
+.apollo-review-form {
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.apollo-review-form__title {
+    margin: 0 0 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apollo-review-form__title i {
+    color: var(--apollo-star-color);
+}
+
+.apollo-review-form__rating {
+    margin-bottom: 20px;
+}
+
+.apollo-review-form__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.apollo-review-form__optional {
+    font-weight: 400;
+    color: #888;
+    font-size: 0.9em;
+}
+
+.apollo-review-form__stars {
+    display: flex;
+    gap: 8px;
+}
+
+.apollo-review-form__star {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--apollo-star-empty);
+    transition: all 0.2s ease;
+}
+
+.apollo-review-form__star:hover,
+.apollo-review-form__star.is-hovered {
+    color: var(--apollo-star-color);
+    transform: scale(1.15);
+}
+
+.apollo-review-form__star.is-selected {
+    color: var(--apollo-star-color);
+}
+
+.apollo-review-form__star.is-selected i {
+    font-weight: 900;
+}
+
+.apollo-review-form__star.is-selected::before {
+    content: '\f005';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+
+.apollo-review-form__field {
+    margin-bottom: 20px;
+}
+
+.apollo-review-form__textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apollo-review-form__textarea:focus {
+    outline: none;
+    border-color: var(--apollo-star-color);
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.15);
+}
+
+.apollo-review-form__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: var(--apollo-star-color);
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apollo-review-form__submit:hover {
+    background: #ffb300;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.apollo-review-form__submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.apollo-review-form__submit.is-loading {
+    pointer-events: none;
+}
+
+.apollo-review-form__submit.is-loading i {
+    animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   User Reviews
+   ========================================================================== */
+.apollo-user-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.apollo-user-review {
+    padding: 16px;
+    background: #fff;
+    border: 1px solid var(--apollo-review-border);
+    border-radius: 12px;
+    box-shadow: var(--apollo-review-shadow);
+}
+
+.apollo-user-review__event {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.apollo-user-review__image img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.apollo-user-review__info {
+    flex: 1;
+}
+
+.apollo-user-review__title {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+    margin-bottom: 4px;
+    transition: color 0.2s ease;
+}
+
+.apollo-user-review__title:hover {
+    color: var(--apollo-star-color);
+}
+
+.apollo-user-review__content {
+    padding-top: 12px;
+    border-top: 1px solid var(--apollo-review-border);
+    color: #555;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   Login Required Message
+   ========================================================================== */
+.apollo-login-required {
+    padding: 20px;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.apollo-login-required i {
+    margin-right: 8px;
+}
+
+/* ==========================================================================
+   Form States
+   ========================================================================== */
+.apollo-review-form__message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.apollo-review-form__message.is-visible {
+    display: block;
+}
+
+.apollo-review-form__message--success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.apollo-review-form__message--error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes starPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.apollo-review-form__star.is-animating {
+    animation: starPop 0.3s ease;
+}
+
+/* Fade in animation for new reviews */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.apollo-review.is-new {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --apollo-review-bg: #1e1e1e;
+        --apollo-review-border: #333;
+    }
+
+    .apollo-review,
+    .apollo-review-form,
+    .apollo-user-review {
+        background: #252525;
+    }
+
+    .apollo-review__name,
+    .apollo-review-form__title,
+    .apollo-rating-summary__number,
+    .apollo-reviews__title,
+    .apollo-user-review__title {
+        color: #fff;
+    }
+
+    .apollo-review__content,
+    .apollo-review__date,
+    .apollo-rating-display__count,
+    .apollo-rating-summary__total {
+        color: #aaa;
+    }
+
+    .apollo-review-form__textarea {
+        background: #1e1e1e;
+        color: #fff;
+        border-color: #444;
+    }
+
+    .apollo-reviews__sort-select {
+        background: #333;
+        color: #fff;
+        border-color: #444;
+    }
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+    .apollo-reviews__header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .apollo-reviews__sort-select {
+        width: 100%;
+    }
+
+    .apollo-review__header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .apollo-review-form__stars {
+        justify-content: center;
+    }
+
+    .apollo-review-form__star {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .apollo-review-form {
+        padding: 16px;
+    }
+
+    .apollo-review {
+        padding: 16px;
+    }
+
+    .apollo-rating-summary__number {
+        font-size: 2.5rem;
+    }
+}

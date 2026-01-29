@@ -1,0 +1,122 @@
+{
+  "plugin": "apollo-rio",
+  "audit_date": "2026-01-04",
+  "files_audited": 10,
+  "compliant": [
+    "templates/plano/editor.php",
+    "templates/pagx_site.php",
+    "templates/pagx_appclean.php",
+    "templates/pagx_app.php",
+    "templates/pagx_apolloapp.php",
+    "templates/partials/footer.php",
+    "templates/partials/footer-minimal.php"
+  ],
+  "issues": [
+    {
+      "file": "templates/pwa-redirector.php",
+      "problems": [
+        "INLINE STYLE BLOCK (line ~173-232): Contains <style> tags with hardcoded CSS including hardcoded colors (#000, #fff, rgba values)",
+        "HARDCODED COLORS: Uses #000 (background), #fff (text/borders), rgba(255,255,255,0.1) instead of --ap-* CSS variables",
+        "SECOND INLINE STYLE BLOCK (line ~294-303): Contains .sr-only class definition in separate <style> tag",
+        "NOTE: Correctly uses CDN base.js from assets.apollo.rio.br - this is compliant",
+        "RECOMMENDATION: Move inline styles to external CSS file or use Apollo utility classes"
+      ],
+      "severity": "medium",
+      "details": {
+        "inline_style_count": 2,
+        "hardcoded_colors": ["#000", "#000000", "#fff", "rgba(255,255,255,0.1)"],
+        "positive": ["Uses CDN base.js correctly", "No legacy CSS file enqueues", "Proper preconnect to CDN"]
+      }
+    },
+    {
+      "file": "templates/partials/header.php",
+      "problems": [
+        "LEGACY ASSET FUNCTION: Calls apollo_ensure_base_assets() which may enqueue legacy CSS files like uni.css",
+        "MIXED CSS APPROACH: Uses Tailwind utility classes (bg-slate-50, text-slate-400, etc.) alongside Apollo classes",
+        "HARDCODED GRADIENT: Uses 'bg-gradient-to-br from-orange-400 to-orange-600' - should use --ap-* color tokens",
+        "HARDCODED SHADOW COLOR: 'shadow-orange-500/60' uses hardcoded color",
+        "HARDCODED THEME COLOR: meta name='theme-color' content='#FFFFFF' - should use CSS variable or token",
+        "NOTE: Correctly uses RemixIcon (ri-*) classes - this is compliant"
+      ],
+      "severity": "medium",
+      "details": {
+        "inline_style_count": 0,
+        "hardcoded_colors": ["#FFFFFF (meta theme-color)", "orange-400", "orange-500", "orange-600"],
+        "legacy_function_calls": ["apollo_ensure_base_assets()"],
+        "positive": ["Uses RemixIcon classes (ri-*)", "Uses apollo-* wrapper classes", "No inline <style> tags"]
+      }
+    },
+    {
+      "file": "templates/partials/header-minimal.php",
+      "problems": [
+        "HARDCODED THEME COLOR: meta name='theme-color' content='#FFFFF' (also appears to be typo, should be #FFFFFF)",
+        "NO ASSET LOADING: Does not call wp_enqueue_script('apollo-cdn-loader') or apollo_ensure_base_assets()",
+        "INLINE SVG: Uses inline SVG for back button instead of RemixIcon or Apollo icon classes"
+      ],
+      "severity": "low",
+      "details": {
+        "inline_style_count": 0,
+        "hardcoded_colors": ["#FFFFF (typo in meta theme-color)"],
+        "positive": ["Uses apollo-* CSS classes throughout", "No inline <style> tags", "Clean semantic structure"]
+      }
+    }
+  ],
+  "summary": {
+    "total_files": 9,
+    "fully_compliant": 6,
+    "with_issues": 3,
+    "high_severity": 0,
+    "medium_severity": 2,
+    "low_severity": 1
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "action": "REFACTOR pwa-redirector.php: Extract inline styles to a dedicated CSS file loaded from CDN or use Apollo utility classes",
+      "affected_file": "templates/pwa-redirector.php"
+    },
+    {
+      "priority": 2,
+      "action": "AUDIT apollo_ensure_base_assets(): Verify this function loads from CDN and not legacy local CSS files",
+      "affected_file": "templates/partials/header.php"
+    },
+    {
+      "priority": 3,
+      "action": "REPLACE hardcoded Tailwind colors with Apollo design tokens (--ap-color-*)",
+      "affected_files": ["templates/partials/header.php"]
+    },
+    {
+      "priority": 4,
+      "action": "FIX typo in header-minimal.php: Change #FFFFF to #FFFFFF or use CSS variable",
+      "affected_file": "templates/partials/header-minimal.php"
+    },
+    {
+      "priority": 5,
+      "action": "REPLACE inline SVG in header-minimal.php with RemixIcon class: ri-arrow-left-line",
+      "affected_file": "templates/partials/header-minimal.php"
+    }
+  ],
+  "compliance_checklist": {
+    "no_inline_style_tags": {
+      "pass": ["plano/editor.php", "pagx_site.php", "pagx_appclean.php", "pagx_app.php", "partials/footer.php", "partials/footer-minimal.php", "partials/header.php", "partials/header-minimal.php"],
+      "fail": ["pwa-redirector.php"]
+    },
+    "uses_apollo_css_classes": {
+      "pass": ["plano/editor.php", "pagx_site.php", "pagx_appclean.php", "pagx_app.php", "partials/footer.php", "partials/footer-minimal.php", "partials/header.php", "partials/header-minimal.php"],
+      "fail": []
+    },
+    "no_legacy_css_enqueue": {
+      "pass": ["plano/editor.php", "pagx_site.php", "pagx_appclean.php", "pagx_app.php", "partials/footer.php", "partials/footer-minimal.php", "partials/header-minimal.php", "pwa-redirector.php"],
+      "needs_verification": ["partials/header.php (apollo_ensure_base_assets)"]
+    },
+    "uses_css_variables": {
+      "pass": ["plano/editor.php", "pagx_site.php", "pagx_appclean.php", "pagx_app.php", "partials/footer.php", "partials/footer-minimal.php"],
+      "fail": ["pwa-redirector.php", "partials/header.php", "partials/header-minimal.php"]
+    },
+    "proper_icon_usage": {
+      "pass": ["partials/header.php (uses ri-* RemixIcon)"],
+      "fail": ["partials/header-minimal.php (inline SVG)"],
+      "not_applicable": ["plano/editor.php", "pagx_site.php", "pagx_appclean.php", "pagx_app.php", "partials/footer.php", "partials/footer-minimal.php", "pwa-redirector.php"]
+    }
+  }
+}

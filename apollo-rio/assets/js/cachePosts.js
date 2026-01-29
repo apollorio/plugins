@@ -1,0 +1,1 @@
+const CACHE_NAME_POSTS="apollo-rio-posts-cache";self.addEventListener("fetch",e=>{e.request.url.includes("/wp-json/wp/v2/posts")&&e.respondWith(caches.open(CACHE_NAME_POSTS).then(c=>fetch(e.request).then(r=>(c.put(e.request,r.clone()),r)).catch(()=>c.match(e.request))))});

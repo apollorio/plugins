@@ -1,0 +1,438 @@
+/**
+ * Apollo Events Manager - Admin Hub Styles
+ * =========================================
+ * Uses Apollo Design System tokens (--ap-*)
+ * CDN: https://assets.apollo.rio.br/uni.css
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ * @updated 2026-01-04
+ */
+
+/* =============================================================================
+   WRAPPER
+   ============================================================================= */
+
+.apollo-hub-wrap {
+	max-width: 1400px;
+	margin: var(--ap-space-5, 20px) var(--ap-space-5, 20px) 0 0;
+	font-family: var(--ap-font-sans, system-ui, -apple-system, sans-serif);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-hub-wrap h1 {
+	display: flex;
+	align-items: center;
+	gap: var(--ap-space-3, 10px);
+	font-size: var(--ap-text-2xl, 1.5rem);
+	font-weight: 600;
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-hub-wrap h1 .dashicons {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: var(--ap-orange, #f97316);
+}
+
+/* =============================================================================
+   TABS
+   ============================================================================= */
+
+.apollo-hub-tabs {
+	margin-bottom: 0;
+	border-bottom: 1px solid var(--ap-border, #e2e8f0);
+}
+
+.apollo-hub-tabs .nav-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--ap-space-2, 6px);
+	padding: var(--ap-space-2, 8px) var(--ap-space-4, 16px);
+	font-size: var(--ap-text-sm, 0.875rem);
+	transition: var(--ap-transition);
+}
+
+.apollo-hub-tabs .nav-tab .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.apollo-hub-tabs .nav-tab-active {
+	background: var(--ap-bg, #ffffff);
+	border-bottom-color: var(--ap-bg, #ffffff);
+}
+
+/* =============================================================================
+   CONTENT
+   ============================================================================= */
+
+.apollo-hub-content {
+	background: var(--ap-bg, #ffffff);
+	border: 1px solid var(--ap-border, #e2e8f0);
+	border-top: none;
+	padding: var(--ap-space-5, 20px);
+	border-radius: 0 0 var(--ap-radius-md, 0.5rem) var(--ap-radius-md, 0.5rem);
+}
+
+.apollo-hub-section h2 {
+	font-size: var(--ap-text-xl, 1.25rem);
+	font-weight: 600;
+	margin: 0 0 var(--ap-space-3, 10px);
+	padding-bottom: var(--ap-space-3, 10px);
+	border-bottom: 2px solid var(--ap-orange, #f97316);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-hub-section h3 {
+	font-size: var(--ap-text-base, 1rem);
+	font-weight: 600;
+	margin: var(--ap-space-6, 25px) 0 var(--ap-space-3, 10px);
+	color: var(--ap-text, #0f172a);
+}
+
+/* =============================================================================
+   INTRO CARDS
+   ============================================================================= */
+
+.apollo-intro-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: var(--ap-space-5, 20px);
+	margin: var(--ap-space-5, 20px) 0;
+}
+
+.apollo-intro-card {
+	background: var(--ap-bg-muted, #f8fafc);
+	border: 1px solid var(--ap-border, #e2e8f0);
+	border-radius: var(--ap-radius-md, 0.5rem);
+	padding: var(--ap-space-5, 20px);
+	transition: var(--ap-transition);
+}
+
+.apollo-intro-card:hover {
+	box-shadow: var(--ap-shadow-md);
+}
+
+.apollo-intro-card h3 {
+	display: flex;
+	align-items: center;
+	gap: var(--ap-space-2, 8px);
+	margin: 0 0 var(--ap-space-3, 10px);
+	font-size: var(--ap-text-base, 1rem);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-intro-card h3 .dashicons {
+	color: var(--ap-orange, #f97316);
+}
+
+.apollo-intro-card p {
+	margin: 0 0 var(--ap-space-4, 15px);
+	color: var(--ap-text-muted, #64748b);
+}
+
+.apollo-intro-card ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.apollo-intro-card ul li {
+	margin-bottom: var(--ap-space-2, 5px);
+	color: var(--ap-text-muted, #64748b);
+}
+
+.apollo-intro-card code {
+	background: var(--ap-bg, #ffffff);
+	padding: 2px var(--ap-space-2, 6px);
+	border-radius: var(--ap-radius-sm, 0.25rem);
+	font-size: var(--ap-text-xs, 0.75rem);
+	font-family: var(--ap-font-mono);
+}
+
+/* =============================================================================
+   STEPS
+   ============================================================================= */
+
+.apollo-steps {
+	background: var(--ap-bg-muted, #f8fafc);
+	border: 1px solid var(--ap-border, #e2e8f0);
+	border-radius: var(--ap-radius-md, 0.5rem);
+	padding: var(--ap-space-5, 20px) var(--ap-space-5, 20px) var(--ap-space-5, 20px) var(--ap-space-10, 40px);
+	margin: var(--ap-space-5, 20px) 0;
+}
+
+.apollo-steps li {
+	margin-bottom: var(--ap-space-4, 15px);
+	padding-left: var(--ap-space-3, 10px);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-steps li:last-child {
+	margin-bottom: 0;
+}
+
+/* =============================================================================
+   NOTICES
+   ============================================================================= */
+
+.apollo-notice {
+	padding: var(--ap-space-4, 15px) var(--ap-space-5, 20px);
+	border-radius: var(--ap-radius-md, 0.5rem);
+	margin: var(--ap-space-5, 20px) 0;
+}
+
+.apollo-notice h4 {
+	margin: 0 0 var(--ap-space-2, 8px);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-notice p {
+	margin: 0;
+}
+
+.apollo-notice-info {
+	background: var(--ap-blue-muted, #eff6ff);
+	border-left: 4px solid var(--ap-blue, #3b82f6);
+}
+
+.apollo-notice-warning {
+	background: var(--ap-yellow-muted, #fffbeb);
+	border-left: 4px solid var(--ap-yellow, #f59e0b);
+}
+
+.apollo-notice-success {
+	background: var(--ap-green-muted, #f0fdf4);
+	border-left: 4px solid var(--ap-green, #10b981);
+}
+
+.apollo-notice-error {
+	background: var(--ap-red-muted, #fef2f2);
+	border-left: 4px solid var(--ap-red, #dc2626);
+}
+
+/* =============================================================================
+   TABLES
+   ============================================================================= */
+
+.apollo-shortcode-table {
+	margin-top: var(--ap-space-3, 10px);
+}
+
+.apollo-shortcode-table code {
+	background: var(--ap-bg-subtle, #f1f5f9);
+	padding: var(--ap-space-1, 4px) var(--ap-space-2, 8px);
+	border-radius: var(--ap-radius-sm, 0.25rem);
+	font-size: var(--ap-text-xs, 0.75rem);
+	font-family: var(--ap-font-mono);
+	white-space: nowrap;
+}
+
+.apollo-shortcode-table td {
+	vertical-align: middle;
+}
+
+.apollo-shortcode-category,
+.apollo-placeholder-category,
+.apollo-metakeys-category {
+	margin-bottom: var(--ap-space-8, 30px);
+}
+
+/* =============================================================================
+   COPY BUTTON
+   ============================================================================= */
+.apollo-copy-btn {
+	padding: var(--ap-space-1, 4px) var(--ap-space-2, 8px) !important;
+	min-height: 28px !important;
+	background: var(--ap-orange, #f97316) !important;
+	color: var(--ap-white, #ffffff) !important;
+	border-color: var(--ap-orange, #f97316) !important;
+	transition: var(--ap-transition);
+}
+
+.apollo-copy-btn:hover {
+	background: var(--ap-orange-600, #ea580c) !important;
+}
+
+.apollo-copy-btn .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	line-height: 1;
+}
+
+/* =============================================================================
+   FORMS
+   ============================================================================= */
+
+.apollo-form-card {
+	background: var(--ap-bg-muted, #f8fafc);
+	border: 1px solid var(--ap-border, #e2e8f0);
+	border-radius: var(--ap-radius-md, 0.5rem);
+	padding: var(--ap-space-5, 20px);
+	margin-bottom: var(--ap-space-5, 20px);
+	transition: var(--ap-transition);
+}
+
+.apollo-form-card:hover {
+	box-shadow: var(--ap-shadow-sm);
+}
+
+.apollo-form-card h3 {
+	margin: 0 0 var(--ap-space-3, 10px);
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-form-card > p {
+	margin: 0 0 var(--ap-space-4, 15px);
+	color: var(--ap-text-muted, #64748b);
+}
+
+.apollo-form-details {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: var(--ap-space-4, 15px);
+	margin-bottom: var(--ap-space-4, 15px);
+}
+
+.apollo-form-detail {
+	display: flex;
+	align-items: center;
+	gap: var(--ap-space-3, 10px);
+	flex-wrap: wrap;
+}
+
+.apollo-form-detail strong {
+	color: var(--ap-text, #0f172a);
+}
+
+.apollo-form-detail code {
+	background: var(--ap-bg, #ffffff);
+	padding: var(--ap-space-1, 4px) var(--ap-space-2, 8px);
+	border-radius: var(--ap-radius-sm, 0.25rem);
+	font-family: var(--ap-font-mono);
+}
+
+.apollo-form-fields {
+	margin-top: var(--ap-space-4, 15px);
+}
+
+.apollo-form-fields summary {
+	cursor: pointer;
+	color: var(--ap-orange, #f97316);
+	font-weight: 500;
+	transition: var(--ap-transition);
+}
+
+.apollo-form-fields summary:hover {
+	color: var(--ap-orange-600, #ea580c);
+}
+
+.apollo-form-fields[open] summary {
+	margin-bottom: var(--ap-space-3, 10px);
+}
+
+.apollo-form-fields table {
+	margin-top: var(--ap-space-3, 10px);
+}
+
+/* =============================================================================
+   ROLES MATRIX
+   ============================================================================= */
+
+.apollo-roles-matrix {
+	overflow-x: auto;
+	margin: var(--ap-space-5, 20px) 0;
+}
+
+.apollo-roles-table th,
+.apollo-roles-table td {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.apollo-roles-table th:first-child,
+.apollo-roles-table td:first-child {
+	text-align: left;
+}
+
+.apollo-roles-table .cap-yes {
+	background: var(--ap-green-muted, #f0fdf4);
+	color: var(--ap-green, #10b981);
+}
+
+.apollo-roles-table .cap-no {
+	background: var(--ap-red-muted, #fef2f2);
+	color: var(--ap-red, #dc2626);
+}
+
+/* =============================================================================
+   SETTINGS
+   ============================================================================= */
+
+.apollo-hub-section .form-table th {
+	width: 200px;
+}
+
+.apollo-hub-section .form-table td fieldset label {
+	display: block;
+	margin-bottom: var(--ap-space-2, 8px);
+}
+
+/* =============================================================================
+   DARK MODE SUPPORT
+   ============================================================================= */
+
+body.dark-mode .apollo-hub-wrap,
+.dark-mode .apollo-hub-wrap {
+	color: var(--ap-text-light, #f8fafc);
+}
+
+body.dark-mode .apollo-hub-content,
+body.dark-mode .apollo-intro-card,
+body.dark-mode .apollo-steps,
+body.dark-mode .apollo-form-card,
+.dark-mode .apollo-hub-content,
+.dark-mode .apollo-intro-card,
+.dark-mode .apollo-steps,
+.dark-mode .apollo-form-card {
+	background: var(--ap-bg-dark, #131517);
+	border-color: var(--ap-border-dark, #333537);
+}
+
+body.dark-mode .apollo-hub-section h2,
+body.dark-mode .apollo-hub-section h3,
+body.dark-mode .apollo-intro-card h3,
+body.dark-mode .apollo-form-card h3,
+.dark-mode .apollo-hub-section h2,
+.dark-mode .apollo-hub-section h3,
+.dark-mode .apollo-intro-card h3,
+.dark-mode .apollo-form-card h3 {
+	color: var(--ap-text-light, #f8fafc);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media screen and (max-width: 782px) {
+	.apollo-hub-tabs .nav-tab {
+		padding: var(--ap-space-2, 8px) var(--ap-space-3, 12px);
+		font-size: var(--ap-text-xs, 0.75rem);
+	}
+
+	.apollo-hub-tabs .nav-tab span:not(.dashicons) {
+		display: none;
+	}
+
+	.apollo-intro-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.apollo-form-details {
+		grid-template-columns: 1fr;
+	}
+}

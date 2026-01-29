@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversa com Maria Clara | Apollo::Rio</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-orange-600: #ff5722;
+            --ap-blue-500: #4a90e2;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-gray-900: #212121;
+            --ap-white: #ffffff;
+            --ap-success: #4caf50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: var(--ap-gray-900);
+        }
+
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--ap-white);
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--ap-gray-200);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--ap-white);
+        }
+
+        .btn-back {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--ap-gray-700);
+        }
+
+        .chat-header-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .chat-header-info {
+            flex: 1;
+        }
+
+        .chat-header-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .chat-header-status {
+            font-size: 13px;
+            color: var(--ap-gray-700);
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--ap-success);
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafafa;
+        }
+
+        .date-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--ap-gray-700);
+            font-size: 13px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            max-width: 65%;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: var(--ap-white);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        .message.sent .message-bubble {
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+        }
+
+        .message-text {
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--ap-gray-700);
+            margin-top: 4px;
+            padding: 0 8px;
+        }
+
+        .message.sent .message-time {
+            text-align: right;
+            color: rgba(0,0,0,0.4);
+        }
+
+        .message-image {
+            margin-top: 8px;
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 10px 16px;
+            background: var(--ap-white);
+            border-radius: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--ap-gray-700);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        .chat-input-container {
+            padding: 15px 20px;
+            border-top: 1px solid var(--ap-gray-200);
+            background: var(--ap-white);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-attach {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--ap-gray-700);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid var(--ap-gray-200);
+            border-radius: 24px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 120px;
+        }
+
+        .chat-input:focus {
+            border-color: var(--ap-orange-500);
+        }
+
+        .btn-send {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+
+        .btn-send:hover {
+            background: var(--ap-orange-600);
+        }
+
+        .btn-send:disabled {
+            background: var(--ap-gray-200);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <button class="btn-back" onclick="window.history.back()">←</button>
+            <img src="https://via.placeholder.com/50/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="chat-header-avatar">
+            <div class="chat-header-info">
+                <div class="chat-header-name">Maria Clara</div>
+                <div class="chat-header-status">
+                    <span class="online-dot"></span>
+                    Online agora
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages" id="messagesArea">
+
+            <!-- Yesterday -->
+            <div class="date-divider">Ontem - 26 Jan</div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Oi! Vi seu perfil e adorei seus gostos musicais 🎵</div>
+                    </div>
+                    <div class="message-time">19:45</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Oi Maria! Muito obrigado! Vi que você também curte muito 😊</div>
+                    </div>
+                    <div class="message-time">19:48</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Sim! Você costuma ir em eventos de música eletrônica?</div>
+                    </div>
+                    <div class="message-time">19:50</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Sempre que posso! Adoro a cena do Rio</div>
+                    </div>
+                    <div class="message-time">19:52</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Eu também! Tem um evento muito bom amanhã, olha só:</div>
+                    </div>
+                    <div class="message-time">19:53</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Sunset Sessions no Mirante</div>
+                        <img src="https://via.placeholder.com/400x250/FF6B35/FFFFFF?text=SUNSET+SESSIONS" alt="Evento" class="message-image">
+                    </div>
+                    <div class="message-time">19:54</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Nossa, parece incrível! Vou olhar aqui</div>
+                    </div>
+                    <div class="message-time">19:56</div>
+                </div>
+            </div>
+
+            <!-- Today -->
+            <div class="date-divider">Hoje - 27 Jan</div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Bom dia! 🌞</div>
+                    </div>
+                    <div class="message-time">09:15</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Bom dia Maria! Como vai?</div>
+                    </div>
+                    <div class="message-time">10:22</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Tudo ótimo! E você?</div>
+                    </div>
+                    <div class="message-time">14:28</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Também! Olha, acabei de confirmar presença no evento 🎉</div>
+                    </div>
+                    <div class="message-time">14:29</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Sério?! Que legal!</div>
+                    </div>
+                    <div class="message-time">14:30</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Vamos juntos então? 😊</div>
+                    </div>
+                    <div class="message-time">14:30</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Fechado! Que horas você quer encontrar?</div>
+                    </div>
+                    <div class="message-time">14:31</div>
+                </div>
+            </div>
+
+            <div class="message received">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Podemos ir umas 22h? O evento começa às 22:30</div>
+                    </div>
+                    <div class="message-time">14:32</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <div class="message-text">Perfeito! Onde a gente se encontra?</div>
+                    </div>
+                    <div class="message-time">14:33</div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                <div class="typing-dots">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <button class="btn-attach" title="Anexar arquivo">📎</button>
+                <textarea class="chat-input" id="messageInput" placeholder="Digite sua mensagem..." rows="1"></textarea>
+                <button class="btn-send" id="btnSend" disabled>➤</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const btnSend = document.getElementById('btnSend');
+        const messagesArea = document.getElementById('messagesArea');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+
+            // Enable/disable send button
+            btnSend.disabled = !this.value.trim();
+        });
+
+        // Send message
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            const messageHTML = `
+                <div class="message sent">
+                    <img src="https://via.placeholder.com/32/4A90E2/FFFFFF?text=EU" alt="Você" class="message-avatar">
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">${escapeHtml(text)}</div>
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                </div>
+            `;
+
+            messagesArea.insertAdjacentHTML('beforeend', messageHTML);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            btnSend.disabled = true;
+
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // Show typing indicator after 1 second
+            setTimeout(() => {
+                typingIndicator.style.display = 'flex';
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, 1000);
+
+            // Simulate response after 3 seconds
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                const responses = [
+                    'Show! 👍',
+                    'Perfeito!',
+                    'Combinado então! 😊',
+                    'Vou confirmar aqui e te aviso'
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+                const responseHTML = `
+                    <div class="message received">
+                        <img src="https://via.placeholder.com/32/FF6B35/FFFFFF?text=MC" alt="Maria Clara" class="message-avatar">
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <div class="message-text">${randomResponse}</div>
+                            </div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    </div>
+                `;
+                messagesArea.insertAdjacentHTML('beforeend', responseHTML);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, 3000);
+        }
+
+        // HTML escape function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listeners
+        btnSend.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-scroll to bottom on load
+        window.addEventListener('load', () => {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        });
+    </script>
+
+</body>
+</html>

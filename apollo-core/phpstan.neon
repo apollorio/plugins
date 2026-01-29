@@ -1,0 +1,19 @@
+includes:
+    - vendor/phpstan/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+        - includes
+    excludePaths:
+        - vendor
+        - node_modules
+        - tests
+
+    ignoreErrors:
+        - '#Function [a-z_]+ not found#'
+        - '#Access to an undefined property#'
+
+    reportUnmatchedIgnoredErrors: false
+    tmpDir: %currentWorkingDirectory%/.phpstan-cache

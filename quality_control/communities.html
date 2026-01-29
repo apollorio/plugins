@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidades | Apollo::Rio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+            padding: 20px;
+        }
+        .page-header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+        }
+        .page-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .communities-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .community-card {
+            background: var(--ap-white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .community-cover {
+            height: 150px;
+            background: linear-gradient(135deg, var(--ap-orange-500), #ff5722);
+        }
+        .community-content {
+            padding: 20px;
+        }
+        .community-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--ap-white);
+            margin-top: -40px;
+            margin-bottom: 15px;
+            background: var(--ap-white);
+        }
+        .community-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .community-desc {
+            color: var(--ap-gray-700);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .community-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: var(--ap-gray-700);
+            margin-bottom: 15px;
+        }
+        .btn-join {
+            width: 100%;
+            padding: 12px;
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1 class="page-title">Comunidades</h1>
+        <p style="color: var(--ap-gray-700);">Encontre e conecte-se com pessoas que compartilham seus interesses</p>
+    </div>
+
+    <div class="communities-grid">
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #FF6B35, #FF5722);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/FF6B35/FFFFFF?text=TH" class="community-avatar">
+                <h2 class="community-name">Tech House Lovers RJ</h2>
+                <p class="community-desc">Comunidade para amantes de tech house no Rio de Janeiro. Compartilhe sets, eventos e playlists!</p>
+                <div class="community-stats">
+                    <span>👥 2.4K membros</span>
+                    <span>📝 1.2K posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/9C27B0/FFFFFF?text=TC" class="community-avatar">
+                <h2 class="community-name">Techno Carioca</h2>
+                <p class="community-desc">A maior comunidade de techno do Rio! Discussões sobre a cena, eventos underground e cultura eletrônica.</p>
+                <div class="community-stats">
+                    <span>👥 3.8K membros</span>
+                    <span>📝 2.5K posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #4A90E2, #357ABD);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/4A90E2/FFFFFF?text=DH" class="community-avatar">
+                <h2 class="community-name">Deep House Brasil</h2>
+                <p class="community-desc">Para os apreciadores do deep house mais refinado. Música, eventos e cultura.</p>
+                <div class="community-stats">
+                    <span>👥 1.9K membros</span>
+                    <span>📝 890 posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #4CAF50, #388E3C);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/4CAF50/FFFFFF?text=DJ" class="community-avatar">
+                <h2 class="community-name">DJs do Rio</h2>
+                <p class="community-desc">Rede de DJs profissionais e amadores do Rio. Troca de experiências, equipamentos e oportunidades.</p>
+                <div class="community-stats">
+                    <span>👥 1.5K membros</span>
+                    <span>📝 678 posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #FF9800, #F57C00);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/FF9800/FFFFFF?text=PM" class="community-avatar">
+                <h2 class="community-name">Produtores Musicais BR</h2>
+                <p class="community-desc">Comunidade para produtores de música eletrônica. Dicas, tutoriais e feedback de produções.</p>
+                <div class="community-stats">
+                    <span>👥 2.1K membros</span>
+                    <span>📝 1.4K posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+
+        <div class="community-card">
+            <div class="community-cover" style="background: linear-gradient(135deg, #E91E63, #C2185B);"></div>
+            <div class="community-content">
+                <img src="https://via.placeholder.com/80/E91E63/FFFFFF?text=PS" class="community-avatar">
+                <h2 class="community-name">Progressive Sounds</h2>
+                <p class="community-desc">Dedicada ao progressive house e trance. Músicas, festivais e a cultura progressiva.</p>
+                <div class="community-stats">
+                    <span>👥 1.7K membros</span>
+                    <span>📝 945 posts</span>
+                </div>
+                <button class="btn-join">Participar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

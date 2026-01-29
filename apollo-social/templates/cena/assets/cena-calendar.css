@@ -1,0 +1,1515 @@
+/**
+ * APOLLO CENA CALENDAR - ULTRA MODERN UI
+ *
+ * Senior-grade Clean Minimalist Design
+ * Rio Culture Industry Calendar
+ * Maximum viewport utilization
+ *
+ * @package Apollo_Social
+ * @since 2.1.0
+ */
+
+/* ========================================
+   APOLLO NAVBAR COMPATIBILITY
+   ======================================== */
+
+.ap-header {
+    background: #0f172a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+}
+
+.ap-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.ap-flex { display: flex; }
+.ap-flex-between { justify-content: space-between; }
+.ap-flex-center-v { align-items: center; }
+.ap-flex-wrap { flex-wrap: wrap; }
+.ap-gap-2 { gap: 0.5rem; }
+.ap-gap-3 { gap: 0.75rem; }
+
+.ap-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 150ms ease;
+    cursor: pointer;
+    border: none;
+}
+
+.ap-btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+}
+
+.ap-btn-outline {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ap-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.ap-btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 13px;
+}
+
+.ap-text-xs {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.ap-text-sm {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.ap-text-bold {
+    font-weight: 600;
+}
+
+.ap-text-uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hover-darker:hover {
+    filter: brightness(0.6);
+    transform: scale(1.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* ========================================
+   DESIGN TOKENS
+   ======================================== */
+
+:root {
+    /* Core Colors - Luxury Palette */
+    --cena-bg: #ffffff;
+    --cena-bg-subtle: #fafafa;
+    --cena-bg-hover: #fafafa;
+    --cena-bg-elevated: #ffffff;
+
+    /* Text */
+    --cena-text: #1a1a1a;
+    --cena-text-secondary: #475569;
+    --cena-text-tertiary: #64748b;
+    --cena-text-muted: #94a3b8;
+
+    /* Borders */
+    --cena-border: rgba(0, 0, 0, 0.06);
+    --cena-border-strong: rgba(0, 0, 0, 0.08);
+
+    /* Status Colors - Refined */
+    --cena-confirmado: #10b981;
+    --cena-previsto: #f97316;
+    --cena-adiado: #a855f7;
+    --cena-cancelado: #ef4444;
+
+    /* Accent */
+    --cena-accent: #1a1a1a;
+    --cena-accent-hover: #333333;
+
+    /* Shadows - Subtle Luxury */
+    --cena-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --cena-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --cena-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+    --cena-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --cena-shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+    /* Glass Effect */
+    --cena-glass-bg: rgba(255, 255, 255, 0.85);
+    --cena-glass-border: rgba(255, 255, 255, 0.9);
+
+    /* Transitions */
+    --cena-transition-fast: 150ms ease;
+    --cena-transition-normal: 200ms ease;
+    --cena-transition-smooth: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Radius */
+    --cena-radius-sm: 8px;
+    --cena-radius-md: 12px;
+    --cena-radius-lg: 16px;
+    --cena-radius-xl: 20px;
+    --cena-radius-2xl: 24px;
+
+    /* Legacy compatibility */
+    --cena-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   RESET & BASE - FORCE FULL VIEWPORT
+   ======================================== */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Disable text selection on UI elements */
+button,
+.cena-nav-btn,
+.cena-filter-pill,
+.cena-status-option,
+.cena-day,
+.cena-map-btn {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+}
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+}
+
+/* Force all images to be responsive */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Force text to break and prevent overflow */
+p, span, div, a, li, td, th, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+body.apollo-cena-page,
+body#error.apollo-cena-page,
+body[id].apollo-cena-page {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    min-height: 100vh !important;
+    background: var(--cena-bg) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--cena-text);
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden !important;
+}
+
+/* Override any external #error styles */
+#error {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 100% !important;
+    background: var(--cena-bg) !important;
+}
+
+/* ========================================
+   MAIN LAYOUT - FORCE FULL VIEWPORT
+   ======================================== */
+
+.cena-app {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-top: 15px !important; /* Compensate for navbar */
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: var(--cena-bg);
+    overflow-x: hidden !important;
+}
+
+/* Ensure all child containers respect max-width */
+.cena-topbar,
+.cena-main,
+.cena-sidebar,
+.cena-content,
+.cena-events-area,
+.cena-events-grid,
+.cena-event-card,
+.cena-modal {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   TOP BAR - COMPACT CONTROLS
+   ======================================== */
+
+/* Blur background layer - independent from content */
+.cena-topbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: -1;
+    pointer-events: none;
+}
+
+.cena-topbar {
+    background: transparent !important;
+    overflow: visible !important;
+    border-bottom: none;
+    padding: 0 24px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    position: relative;
+}
+
+.cena-month-nav {
+    display: flex;
+	min-width:40vw;
+    align-items: center;
+    gap: 4px;
+    background: var(--cena-bg-subtle);
+    border-radius: var(--cena-radius-md);
+    padding: 0px;
+}
+
+.cena-month-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: var(--cena-radius-md);
+    background: none;
+    color: var(--cena-text-tertiary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--cena-transition-normal);
+}
+
+.cena-month-btn:hover {
+    background: var(--cena-bg-subtle);
+    border-color: var(--cena-border-strong);
+    color: var(--cena-text);
+    transform: translateY(-1px);
+    box-shadow: var(--cena-shadow-xs);
+}
+
+.cena-month-btn:active {
+    transform: translateY(0);
+}
+
+.cena-current-month {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--cena-text);
+    letter-spacing: -0.02em;
+    max-width:  calc(100% - 50px);;
+    text-align: center;
+    padding: 0 6px;
+	opacity: .4;
+    text-transform: uppercase;
+}
+
+
+.cena-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cena-quick-stats {
+    display: flex;
+    gap: 16px;
+    padding-right: 16px;
+    border-right: none;
+}
+
+.cena-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--cena-text-muted);
+}
+
+.cena-stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.cena-stat-dot.confirmado { background: var(--cena-confirmado); }
+.cena-stat-dot.previsto { background: var(--cena-previsto); }
+.cena-stat-dot.adiado { background: var(--cena-adiado); }
+
+.cena-stat-value {
+    font-weight: 600;
+    color: var(--cena-text);
+}
+
+.cena-add-btn {
+    height: 36px;
+    padding: 0 6px;
+    border: none;
+    border-radius: var(--cena-radius-sm);
+    background: none;
+    color: rgba(36, 36, 36,.55);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-add-btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+	border-radius: 18px;
+}
+
+.cena-add-btn:hover {
+    background: rgba(36, 36, 36,.095);
+    transform: translateY(-1px);
+    box-shadow: var(--cena-shadow-md);
+}
+
+/* ========================================
+   MAIN CONTENT - SPLIT VIEW
+   ======================================== */
+
+.cena-main {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile first: single column */
+    height: auto; /* Mobile: auto height */
+    min-height: calc(100vh - 115px); /* 55px navbar + 60px topbar */
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Left Sidebar - Calendar + Upcoming */
+.cena-sidebar {
+    background: var(--cena-bg);
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Mini Calendar */
+.cena-calendar-mini {
+    padding: 20px;
+    border-bottom: none;
+}
+
+.cena-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.cena-weekday {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--cena-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 6px 0;
+}
+
+.cena-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.cena-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--cena-text);
+    border-radius: var(--cena-radius-sm);
+    cursor: pointer;
+    position: relative;
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-day:hover {
+    background: var(--cena-bg-subtle);
+    transform: scale(1.02);
+}
+
+.cena-day.empty {
+    color: transparent;
+    cursor: default;
+}
+
+.cena-day.other-month {
+    color: var(--cena-text-muted);
+    opacity: 0.5;
+}
+
+.cena-day.today {
+    background: var(--cena-previsto);
+    color: white;
+    font-weight: 600;
+}
+
+.cena-day.selected {
+    background: var(--cena-accent);
+    color: white;
+    box-shadow: var(--cena-shadow-sm);
+}
+
+.cena-day.has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--cena-confirmado);
+}
+
+.cena-day.today.has-events::after,
+.cena-day.selected.has-events::after {
+    background: white;
+}
+
+/* Upcoming Events - Sidebar */
+.cena-upcoming {
+    flex: 1;
+    overflow-y: visible;
+    padding: 0 20px 20px 0;
+}
+
+.cena-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cena-text-muted);
+    margin-bottom: 16px;
+	margin-left:25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cena-upcoming-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cena-upcoming-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--cena-bg-subtle);
+    border-radius: var(--cena-radius-sm);
+    cursor: pointer;
+    transition: all 150ms var(--cena-ease);
+    border: 1px solid transparent;
+}
+
+.cena-upcoming-item:hover {
+    background: var(--cena-bg);
+    border-color: var(--cena-border-strong);
+    transform: translateX(4px);
+}
+
+.cena-upcoming-date {
+    min-width: 44px;
+    text-align: center;
+}
+
+.cena-upcoming-day {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cena-text);
+    line-height: 1;
+}
+
+.cena-upcoming-month {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--cena-text-muted);
+    text-transform: uppercase;
+}
+
+.cena-upcoming-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cena-upcoming-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cena-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.cena-upcoming-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--cena-text-muted);
+}
+
+.cena-upcoming-status {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cena-upcoming-status.confirmado { background: var(--cena-confirmado); }
+.cena-upcoming-status.previsto { background: var(--cena-previsto); }
+.cena-upcoming-status.adiado { background: var(--cena-adiado); }
+.cena-upcoming-status.cancelado { background: var(--cena-cancelado); }
+
+/* ========================================
+   CONTENT AREA - MAP + EVENTS
+   ======================================== */
+
+.cena-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--cena-bg);
+    max-width: 100%;
+    padding-right: 0;
+}
+
+/* Map Container */
+.cena-map-container {
+    height: 30%;
+    margin: 25px 10px 10px 10px;
+    min-height: 200px;
+    position: relative;
+    border: 1px solid var(--cena-border);
+    border-radius: 20px;
+    corner-shape: squircle;
+}
+
+/* Grid Overlay on Map */
+.cena-map-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 600;
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+    background-size: 40px 40px;
+    border-radius: 20px;
+}
+
+#event-map {
+    width: 100%;
+    height: 100%;
+    background: var(--cena-bg-subtle);
+}
+
+/* Map Controls - HIDDEN (use touch gestures: 2 fingers zoom, swipe to pan) */
+.cena-map-controls {
+    display: none !important;
+}
+
+.cena-map-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--cena-radius-sm);
+    background: var(--cena-bg);
+    color: var(--cena-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--cena-shadow-md);
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-map-btn:hover {
+    color: var(--cena-text);
+    transform: scale(1.05);
+}
+
+/* Map Legend */
+.cena-map-legend {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 500;
+    background: #ffffff80;
+    border-radius: var(--cena-radius-md);
+    padding: 3px 9px;
+    display: flex;
+    gap: 16px;
+    font-size: 9px!important;
+    box-shadow: var(--cena-shadow-md);
+	corner-shape:squircle;
+}
+
+.cena-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--cena-text-secondary);
+}
+
+.cena-legend-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.cena-legend-dot.confirmado { background: var(--cena-confirmado); }
+.cena-legend-dot.previsto { background: var(--cena-previsto); }
+.cena-legend-dot.adiado { background: var(--cena-adiado); }
+
+/* Leaflet overrides */
+.leaflet-control-container { display: none; }
+
+.leaflet-popup-content-wrapper {
+    background: var(--cena-bg);
+    border-radius: var(--cena-radius-lg);
+    padding: 0;
+    box-shadow: var(--cena-shadow-lg);
+    border: 1px solid var(--cena-border);
+}
+
+.leaflet-popup-content { margin: 0; }
+.leaflet-popup-tip { background: var(--cena-bg); }
+
+.cena-popup {
+    padding: 16px;
+    min-width: 200px;
+}
+
+.cena-popup-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cena-text);
+    margin-bottom: 6px;
+}
+
+.cena-popup-meta {
+    font-size: 12px;
+    color: var(--cena-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ========================================
+   EVENTS GRID
+   ======================================== */
+
+.cena-events-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 5px 0 20px 24px;
+    min-width: 100%;
+}
+
+.cena-events-area > * {
+    padding-right: 16px;
+}
+
+.cena-events-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0px;
+}
+
+.cena-events-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--cena-text);
+    letter-spacing: -0.01em;
+    margin-top: 0px;
+	line-height:1.5!important;
+}
+
+.cena-events-subtitle {
+    font-size: 10px;
+    color: var(--cena-text-tertiary);
+    margin-top: 10px!important;
+	line-height:0.5!important;
+}
+
+.cena-events-count {
+    font-size: 12px;
+    color: var(--cena-text-muted);
+    font-weight: 400;
+}
+
+/* Filter Pills */
+.cena-filters {
+    display: flex;
+    gap: 6px;
+}
+
+.cena-filter-pill {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--cena-border-strong);
+    border-radius: 999px;
+    background: var(--cena-bg);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cena-text-secondary);
+    cursor: pointer;
+    transition: all 150ms var(--cena-ease);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cena-filter-pill:hover {
+    border-color: var(--cena-text-muted);
+}
+
+.cena-filter-pill.active {
+    background: var(--cena-accent);
+    border-color: var(--cena-accent);
+    color: white;
+}
+
+.cena-filter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.cena-filter-pill.active .cena-filter-dot {
+    background: white !important;
+}
+
+/* Events Grid */
+.cena-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+	padding-top: 20px;
+    overflow: visible;
+}
+
+/* Event Card - Compact */
+.cena-event-card {
+    background: rgb(250, 250, 250);
+    border-radius: var(--cena-radius-md);
+    border: 1px solid var(--cena-border);
+    overflow: hidden;
+    transition: all 200ms var(--cena-ease);
+    display: flex;
+    flex-direction: column;
+    max-height: 180px;
+}
+
+.cena-event-card:hover {
+    border-color: var(--cena-border-strong);
+    box-shadow: var(--cena-shadow-md);
+    transform: translateY(-2px);
+}
+
+.cena-event-header {
+    padding: 10px 12px 6px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cena-event-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cena-text);
+    line-height: 1.3;
+    flex: 1;
+}
+
+.cena-event-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.cena-event-badge.confirmado { background: rgba(16, 185, 129, 0.12); color: var(--cena-confirmado); }
+.cena-event-badge.previsto { background: rgba(249, 115, 22, 0.12); color: var(--cena-previsto); }
+.cena-event-badge.adiado { background: rgba(168, 85, 247, 0.12); color: var(--cena-adiado); }
+.cena-event-badge.cancelado { background: rgba(239, 68, 68, 0.12); color: var(--cena-cancelado); }
+
+.cena-event-body {
+    padding: 0 12px 10px;
+    flex: 1;
+}
+
+.cena-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 6px;
+}
+
+.cena-event-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--cena-text-secondary);
+}
+
+.cena-event-row i {
+    font-size: 13px;
+    color: var(--cena-text-muted);
+    width: 14px;
+    text-align: center;
+}
+
+.cena-event-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.cena-event-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--cena-border-strong);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--cena-text-muted);
+    background: var(--cena-bg);
+}
+
+.cena-event-footer {
+    padding: 12px 16px;
+    background: rgb(240, 240, 240);
+    border-top: 1px solid var(--cena-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cena-event-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--cena-text-muted);
+}
+
+.cena-event-author i {
+    font-size: 12px;
+}
+
+.cena-event-actions {
+    display: flex;
+    gap: 2px;
+}
+
+.cena-action-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: var(--cena-radius-sm);
+    background: transparent;
+    color: var(--cena-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 150ms var(--cena-ease);
+    font-size: 12px;
+}
+
+.cena-action-btn:hover {
+    background: var(--cena-bg);
+    color: var(--cena-text);
+}
+
+.cena-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--cena-cancelado);
+}
+
+/* Empty State */
+.cena-empty {
+    grid-column: 1 / -1;
+    padding: 60px 24px;
+    text-align: center;
+}
+
+.cena-empty i {
+    font-size: 48px;
+    color: var(--cena-text-muted);
+    opacity: 0.4;
+    margin-bottom: 16px;
+}
+
+.cena-empty-text {
+    font-size: 14px;
+    color: var(--cena-text-muted);
+}
+
+/* ========================================
+   MODAL - FULL VIEWPORT OVERLAY
+   ======================================== */
+
+.cena-modal-overlay,
+#modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--cena-ease);
+}
+
+.cena-modal-overlay.active,
+#modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cena-modal {
+    background: var(--cena-bg);
+    border-radius: var(--cena-radius-xl);
+    width: 90%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--cena-shadow-lg);
+    transform: scale(0.95) translateY(20px);
+    opacity: 0;
+    transition: all 300ms var(--cena-ease);
+}
+
+.cena-modal-overlay.active .cena-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.cena-modal-header {
+    padding: 20px 24px;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cena-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--cena-text);
+}
+
+.cena-modal-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--cena-radius-sm);
+    background: transparent;
+    color: var(--cena-text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-modal-close:hover {
+    background: var(--cena-bg-hover);
+    color: var(--cena-text);
+}
+
+.cena-modal-body {
+    padding: 24px;
+}
+
+/* Form */
+.cena-form-field {
+    margin-bottom: 18px;
+}
+
+.cena-form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cena-text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cena-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--cena-accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: help;
+    position: relative;
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-tooltip:hover {
+    transform: scale(1.1);
+    background: var(--cena-accent-hover);
+}
+
+.cena-form-input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--cena-border-strong);
+    border-radius: var(--cena-radius-md);
+    font-size: 14px;
+    color: var(--cena-text);
+    background: var(--cena-bg);
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-form-input::placeholder {
+    color: var(--cena-text-muted);
+}
+
+.cena-form-input:focus {
+    outline: none;
+    border-color: var(--cena-accent);
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+}
+
+.cena-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Status Pills */
+.cena-status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.cena-status-option {
+    padding: 14px 8px;
+    text-align: center;
+    border: 2px solid var(--cena-border-strong);
+    border-radius: var(--cena-radius-md);
+    cursor: pointer;
+    transition: all 150ms var(--cena-ease);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--cena-bg);
+}
+
+.cena-status-option i {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.cena-status-option.previsto { color: var(--cena-previsto); }
+.cena-status-option.confirmado { color: var(--cena-confirmado); }
+.cena-status-option.adiado { color: var(--cena-adiado); }
+.cena-status-option.cancelado { color: var(--cena-cancelado); }
+
+.cena-status-option:hover {
+    border-color: currentColor;
+}
+
+.cena-status-option.selected {
+    border-color: currentColor;
+}
+
+.cena-status-option.previsto.selected { background: rgba(249, 115, 22, 0.1); }
+.cena-status-option.confirmado.selected { background: rgba(16, 185, 129, 0.1); }
+.cena-status-option.adiado.selected { background: rgba(168, 85, 247, 0.1); }
+.cena-status-option.cancelado.selected { background: rgba(239, 68, 68, 0.1); }
+
+.cena-form-submit {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: var(--cena-radius-md);
+    background: var(--cena-accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 150ms var(--cena-ease);
+}
+
+.cena-form-submit:hover {
+    background: var(--cena-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--cena-shadow-md);
+}
+
+/* ========================================
+   ANIMATIONS - OVERRIDE APOLLO CDN
+   ======================================== */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0 !important;
+        transform: translateY(8px) !important;
+    }
+    to {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+}
+
+/* FORCE OVERRIDE: Independent sequence for upcoming items (sidebar) - ULTRA FAST */
+.cena-upcoming-item.reveal-up {
+    animation: slideUp 0.15s var(--cena-ease) backwards !important;
+}
+
+.cena-upcoming-item.reveal-up:nth-child(1) { animation-delay: 0.01s !important; }
+.cena-upcoming-item.reveal-up:nth-child(2) { animation-delay: 0.02s !important; }
+.cena-upcoming-item.reveal-up:nth-child(3) { animation-delay: 0.03s !important; }
+.cena-upcoming-item.reveal-up:nth-child(4) { animation-delay: 0.04s !important; }
+.cena-upcoming-item.reveal-up:nth-child(5) { animation-delay: 0.05s !important; }
+.cena-upcoming-item.reveal-up:nth-child(6) { animation-delay: 0.06s !important; }
+.cena-upcoming-item.reveal-up:nth-child(7) { animation-delay: 0.07s !important; }
+.cena-upcoming-item.reveal-up:nth-child(8) { animation-delay: 0.08s !important; }
+
+/* FORCE OVERRIDE: Independent sequence for event cards (main grid) - ULTRA FAST & PARALLEL */
+.cena-event-card.reveal-up {
+    animation: slideUp 0.15s var(--cena-ease) backwards !important;
+}
+
+.cena-event-card.reveal-up:nth-child(1) { animation-delay: 0.01s !important; }
+.cena-event-card.reveal-up:nth-child(2) { animation-delay: 0.02s !important; }
+.cena-event-card.reveal-up:nth-child(3) { animation-delay: 0.03s !important; }
+.cena-event-card.reveal-up:nth-child(4) { animation-delay: 0.04s !important; }
+.cena-event-card.reveal-up:nth-child(5) { animation-delay: 0.05s !important; }
+.cena-event-card.reveal-up:nth-child(6) { animation-delay: 0.06s !important; }
+.cena-event-card.reveal-up:nth-child(7) { animation-delay: 0.07s !important; }
+.cena-event-card.reveal-up:nth-child(8) { animation-delay: 0.08s !important; }
+.cena-event-card.reveal-up:nth-child(9) { animation-delay: 0.09s !important; }
+.cena-event-card.reveal-up:nth-child(10) { animation-delay: 0.10s !important; }
+.cena-event-card.reveal-up:nth-child(11) { animation-delay: 0.11s !important; }
+.cena-event-card.reveal-up:nth-child(12) { animation-delay: 0.12s !important; }
+
+/* ========================================
+   RESPONSIVE - MOBILE FIRST
+   ======================================== */
+
+/* Desktop: 2-column layout */
+@media (min-width: 1025px) {
+    .cena-main {
+        grid-template-columns: 340px 1fr;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .cena-sidebar {
+        border-right: none;
+        border-bottom: none;
+        max-height: none;
+    }
+}
+
+/* Tablet: stack layout */
+@media (max-width: 1024px) {
+    .cena-main {
+        grid-template-columns: 1fr;
+    }
+
+    .cena-sidebar {
+        border-right: none;
+        border-bottom: none;
+        max-height: none;
+    }
+
+    .cena-upcoming {
+        display: none;
+    }
+
+    .cena-map-container {
+        height: 200px;
+        min-height: 200px;
+    }
+
+    .cena-quick-stats {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Allow vertical overflow on mobile */
+    html, body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+.cena-month-nav {
+    padding: 2px 4px 1px;
+    width: 100%;}
+
+.cena-current-month {font-size: .75rem;}
+
+.cena-event-footer {padding: 3px 5px;}
+
+.cena-event-body {padding: 0 12px 8px;}
+
+    .cena-topbar {
+        padding: 0 12px;
+        height: 52px;
+    }
+
+    .cena-nav {
+        display: none;
+    }
+
+    .cena-sidebar {
+        max-height: none;
+    }
+
+    .cena-calendar-mini {
+        padding: 0px 12px 12px 12px;
+		margin-left:8px;
+    }
+
+    .cena-events-area {
+        padding: 12px;
+    }
+
+    .cena-events-grid {
+        grid-template-columns: 1fr;
+        gap: 12px; /* Reduzir gap entre cards */
+    }
+
+    /* Reduzir padding cards mobile */
+    .cena-event-header {
+        padding: 10px 12px 6px;
+        gap: 8px;
+    }
+
+    .cena-event-body {
+        padding: 0 12px 10px;
+    }
+
+    .cena-event-meta {
+        gap: 3px;
+        margin-bottom: 6px;
+    }
+
+    .cena-event-row {
+        gap: 6px;
+        font-size: 11px;
+    }
+
+    .cena-event-title {
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .cena-map-container {
+        height: 180px;
+        min-height: 180px;
+    }
+
+    .cena-map-legend {
+        display: none;
+    }
+
+    .cena-modal {
+        margin: 16px;
+        max-width: calc(100% - 32px);
+    }
+
+    .cena-status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cena-events-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .cena-filters {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .cena-topbar,
+    .cena-map-container,
+    .cena-event-actions,
+    .cena-modal-overlay {
+        display: none !important;
+    }
+
+    .cena-main {
+        display: block;
+    }
+
+    .cena-event-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+
+/* ========================================
+   DISCREET SCROLLBARS - ALL CONTAINERS
+   ======================================== */
+
+/* Target all scrollable containers including modal */
+.cena-events-area,
+.cena-upcoming,
+.cena-modal {
+    /* Firefox Support */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+/* Webkit Support (Chrome, Safari, Edge) */
+.cena-events-area::-webkit-scrollbar,
+.cena-upcoming::-webkit-scrollbar,
+.cena-modal::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+/* Track - Transparent */
+.cena-events-area::-webkit-scrollbar-track,
+.cena-upcoming::-webkit-scrollbar-track,
+.cena-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Thumb - Ultra Discreet Floating Dot */
+.cena-events-area::-webkit-scrollbar-thumb,
+.cena-upcoming::-webkit-scrollbar-thumb,
+.cena-modal::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: background-color 150ms ease;
+}
+
+/* Hover - Slightly More Visible */
+.cena-events-area::-webkit-scrollbar-thumb:hover,
+.cena-upcoming::-webkit-scrollbar-thumb:hover,
+.cena-modal::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+/* Hide Arrows */
+.cena-events-area::-webkit-scrollbar-button,
+.cena-upcoming::-webkit-scrollbar-button,
+.cena-modal::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* ========================================
+   FORCE APOLLO NAVBAR ON TOP
+   ======================================== */
+
+.apollo-navbar,
+#apollo-navbar,
+.ap-header {
+    z-index: 999999 !important;
+}
+

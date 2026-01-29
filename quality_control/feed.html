@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed | Apollo::Rio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+        }
+        .feed-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .post {
+            background: var(--ap-white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        .post-user-info h3 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        .post-time {
+            font-size: 13px;
+            color: var(--ap-gray-700);
+        }
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .post-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--ap-gray-200);
+        }
+        .post-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--ap-gray-700);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .post-action:hover {
+            color: var(--ap-orange-500);
+        }
+    </style>
+</head>
+<body>
+    <div class="feed-container">
+        <h1 style="margin-bottom: 20px; font-size: 28px;">Feed Principal</h1>
+
+        <div class="post">
+            <div class="post-header">
+                <img src="https://via.placeholder.com/48/FF6B35/FFFFFF?text=MC" class="post-avatar">
+                <div class="post-user-info">
+                    <h3>Maria Clara</h3>
+                    <div class="post-time">Há 15 minutos</div>
+                </div>
+            </div>
+            <div class="post-content">
+                Que noite incrível no Sunset Sessions! Obrigada a todos que vieram e curtiram a vibe 🌅🎵✨
+            </div>
+            <img src="https://via.placeholder.com/760x400/FF6B35/FFFFFF?text=EVENTO" class="post-image">
+            <div class="post-actions">
+                <button class="post-action">❤️ 124 Curtidas</button>
+                <button class="post-action">💬 28 Comentários</button>
+                <button class="post-action">🔄 Compartilhar</button>
+            </div>
+        </div>
+
+        <div class="post">
+            <div class="post-header">
+                <img src="https://via.placeholder.com/48/4A90E2/FFFFFF?text=PR" class="post-avatar">
+                <div class="post-user-info">
+                    <h3>Pedro Ribeiro</h3>
+                    <div class="post-time">Há 1 hora</div>
+                </div>
+            </div>
+            <div class="post-content">
+                Acabei de descobrir esse lugar incrível na Lapa! Alguém já foi? 📍🎶
+            </div>
+            <img src="https://via.placeholder.com/760x400/9C27B0/FFFFFF?text=LOCAL" class="post-image">
+            <div class="post-actions">
+                <button class="post-action">❤️ 67 Curtidas</button>
+                <button class="post-action">💬 15 Comentários</button>
+                <button class="post-action">🔄 Compartilhar</button>
+            </div>
+        </div>
+
+        <div class="post">
+            <div class="post-header">
+                <img src="https://via.placeholder.com/48/4CAF50/FFFFFF?text=LC" class="post-avatar">
+                <div class="post-user-info">
+                    <h3>Lucas Costa</h3>
+                    <div class="post-time">Há 3 horas</div>
+                </div>
+            </div>
+            <div class="post-content">
+                Playlist nova para o fim de semana! 100% house music 🎧 Ouçam e me digam o que acharam!
+            </div>
+            <div class="post-actions">
+                <button class="post-action">❤️ 89 Curtidas</button>
+                <button class="post-action">💬 22 Comentários</button>
+                <button class="post-action">🔄 Compartilhar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

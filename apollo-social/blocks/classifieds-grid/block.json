@@ -1,0 +1,125 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/classifieds-grid",
+    "version": "2.0.0",
+    "title": "Grid de Classificados",
+    "category": "apollo-social",
+    "description": "Exibe uma grade de classificados com filtros por categoria e localização.",
+    "keywords": ["classificados", "anúncios", "marketplace", "vendas", "compra", "listings"],
+    "textdomain": "apollo-social",
+    "icon": "store",
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid",
+            "enum": ["grid", "list", "compact", "masonry"]
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        },
+        "limit": {
+            "type": "number",
+            "default": 9
+        },
+        "category": {
+            "type": "array",
+            "default": [],
+            "items": {
+                "type": "number"
+            }
+        },
+        "location": {
+            "type": "string",
+            "default": ""
+        },
+        "orderBy": {
+            "type": "string",
+            "default": "date",
+            "enum": ["date", "price_low", "price_high", "views", "title"]
+        },
+        "status": {
+            "type": "string",
+            "default": "active",
+            "enum": ["active", "sold", "all"]
+        },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCategory": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLocation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAuthor": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCondition": {
+            "type": "boolean",
+            "default": true
+        },
+        "showViews": {
+            "type": "boolean",
+            "default": false
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showContactButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFilters": {
+            "type": "boolean",
+            "default": false
+        },
+        "showSearch": {
+            "type": "boolean",
+            "default": false
+        },
+        "showPagination": {
+            "type": "boolean",
+            "default": true
+        },
+        "imageAspectRatio": {
+            "type": "string",
+            "default": "4/3",
+            "enum": ["1/1", "4/3", "16/9", "3/4"]
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "currentUserOnly": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
+}

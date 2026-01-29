@@ -1,0 +1,593 @@
+/**
+ * Apollo Event Modal Content Styles
+ * ==================================
+ * Path: apollo-events-manager/assets/css/event-modal-content.css
+ *
+ * Styles for single event content when displayed inside the modal popup.
+ * Mobile-first responsive design.
+ *
+ * @package Apollo_Events_Manager
+ * @version 2.0.0
+ */
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================================= */
+
+:root {
+    --event-bg: #fff;
+    --event-surface: #f8fafc;
+    --event-text: rgba(19, 21, 23, .85);
+    --event-text-secondary: rgba(19, 21, 23, .7);
+    --event-text-muted: rgba(19, 21, 23, .5);
+    --event-border: #e0e2e4;
+    --event-accent: #FF6925;
+    --event-radius: 14px;
+    --event-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body.dark-mode,
+.dark,
+[data-theme="dark"] {
+    --event-bg: #131517;
+    --event-surface: #1a1c1e;
+    --event-text: #fdfdfdfa;
+    --event-text-secondary: rgba(255, 255, 255, .7);
+    --event-text-muted: rgba(255, 255, 255, .5);
+    --event-border: #333537;
+}
+
+/* =============================================================================
+   MODAL CONTENT CONTAINER
+   ============================================================================= */
+
+.apollo-event-modal-content {
+    background: var(--event-bg);
+    min-height: 100vh;
+}
+
+.apollo-event-modal-content .mobile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 80px 20px 40px;
+}
+
+@media (min-width: 768px) {
+    .apollo-event-modal-content .mobile-container {
+        padding: 100px 40px 60px;
+    }
+}
+
+/* =============================================================================
+   SECTION BASE
+   ============================================================================= */
+
+.apollo-event-modal-content .section {
+    margin-bottom: 30px;
+}
+
+.apollo-event-modal-content .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--event-text);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =============================================================================
+   HERO SECTION
+   ============================================================================= */
+
+.apollo-event-modal-content .event-hero {
+    margin-bottom: 30px;
+}
+
+.event-hero-image,
+.event-hero-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: var(--event-radius);
+    overflow: hidden;
+    background: var(--event-surface);
+    margin-bottom: 20px;
+}
+
+.event-hero-image img,
+.event-hero-video video,
+.event-hero-video iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-hero-info {
+    text-align: center;
+}
+
+.event-datetime {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.event-date,
+.event-time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--event-text-secondary);
+    background: var(--event-surface);
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.event-title {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--event-text);
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+
+.event-location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--event-text-secondary);
+    font-size: 1rem;
+}
+
+.event-location i {
+    font-size: 1.2rem;
+    color: var(--event-accent);
+}
+
+.event-season {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.season-badge {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, var(--event-accent) 0%, #ff8c00 100%);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =============================================================================
+   QUICK ACTIONS
+   ============================================================================= */
+
+.event-quick-actions {
+    padding: 20px 0;
+    border-top: 1px solid var(--event-border);
+    border-bottom: 1px solid var(--event-border);
+}
+
+.quick-actions-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--event-surface);
+    border: 1px solid var(--event-border);
+    border-radius: var(--event-radius);
+    color: var(--event-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--event-transition);
+    text-decoration: none;
+    font-family: inherit;
+}
+
+.action-btn:hover {
+    border-color: var(--event-text);
+    color: var(--event-text);
+}
+
+.action-btn i {
+    font-size: 1.1rem;
+}
+
+.action-btn.favorite-btn.active {
+    background: rgba(255, 105, 37, 0.1);
+    border-color: var(--event-accent);
+    color: var(--event-accent);
+}
+
+.action-btn.favorite-btn.active i {
+    color: var(--event-accent);
+}
+
+/* =============================================================================
+   RSVP SECTION
+   ============================================================================= */
+
+.event-rsvp {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: var(--event-surface);
+    border-radius: var(--event-radius);
+}
+
+.rsvp-avatars {
+    display: flex;
+}
+
+.rsvp-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--event-bg);
+    margin-left: -10px;
+    object-fit: cover;
+}
+
+.rsvp-avatar:first-child {
+    margin-left: 0;
+}
+
+.rsvp-more {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--event-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--event-text-secondary);
+    margin-left: -10px;
+}
+
+.rsvp-text {
+    font-size: 0.9rem;
+    color: var(--event-text-secondary);
+}
+
+/* =============================================================================
+   DESCRIPTION
+   ============================================================================= */
+
+.event-description .description-content {
+    color: var(--event-text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.event-description .description-content p {
+    margin-bottom: 1em;
+}
+
+.event-description .description-content a {
+    color: var(--event-accent);
+    text-decoration: underline;
+}
+
+/* =============================================================================
+   SOUNDS/GENRES
+   ============================================================================= */
+
+.sounds-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sound-tag {
+    padding: 8px 16px;
+    background: var(--event-surface);
+    border: 1px solid var(--event-border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--event-text-secondary);
+}
+
+/* =============================================================================
+   GALLERY
+   ============================================================================= */
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.gallery-item {
+    aspect-ratio: 1;
+    border-radius: var(--event-radius);
+    overflow: hidden;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+/* =============================================================================
+   LINEUP
+   ============================================================================= */
+
+.lineup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.lineup-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--event-surface);
+    border-radius: var(--event-radius);
+    transition: var(--event-transition);
+}
+
+.lineup-item:hover {
+    background: var(--event-border);
+}
+
+.dj-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--event-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dj-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dj-avatar i {
+    font-size: 1.5rem;
+    color: var(--event-text-muted);
+}
+
+.dj-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dj-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--event-text);
+}
+
+.dj-time {
+    font-size: 0.85rem;
+    color: var(--event-text-muted);
+}
+
+/* =============================================================================
+   VENUE
+   ============================================================================= */
+
+.venue-card {
+    padding: 20px;
+    background: var(--event-surface);
+    border-radius: var(--event-radius);
+}
+
+.venue-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--event-text);
+    margin-bottom: 10px;
+}
+
+.venue-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--event-text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.venue-address i {
+    font-size: 1.1rem;
+    color: var(--event-accent);
+    margin-top: 2px;
+}
+
+.venue-map {
+    aspect-ratio: 16/9;
+    border-radius: var(--event-radius);
+    overflow: hidden;
+    background: var(--event-border);
+    margin-bottom: 15px;
+}
+
+.map-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 10px;
+    color: var(--event-text-secondary);
+    text-decoration: none;
+    transition: var(--event-transition);
+}
+
+.map-placeholder:hover {
+    color: var(--event-accent);
+}
+
+.map-placeholder i {
+    font-size: 2rem;
+}
+
+.venue-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.venue-gallery img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* =============================================================================
+   TICKETS
+   ============================================================================= */
+
+.event-tickets {
+    padding: 25px;
+    background: var(--event-surface);
+    border-radius: var(--event-radius);
+    text-align: center;
+}
+
+.coupon-box {
+    margin-bottom: 20px;
+}
+
+.coupon-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--event-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.coupon-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--event-bg);
+    border: 2px dashed var(--event-accent);
+    border-radius: var(--event-radius);
+}
+
+.coupon-code span {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--event-accent);
+    letter-spacing: 2px;
+}
+
+.copy-coupon {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    color: var(--event-text-muted);
+    transition: var(--event-transition);
+}
+
+.copy-coupon:hover {
+    color: var(--event-accent);
+}
+
+.tickets-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, var(--event-accent) 0%, #ff8c00 100%);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--event-radius);
+    text-decoration: none;
+    transition: var(--event-transition);
+    box-shadow: 0 8px 24px rgba(255, 105, 37, 0.3);
+}
+
+.tickets-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(255, 105, 37, 0.4);
+}
+
+.tickets-btn i {
+    font-size: 1.2rem;
+}
+
+/* =============================================================================
+   PROTECTION NOTICE
+   ============================================================================= */
+
+.respaldo_eve {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--event-text-muted);
+    padding: 20px;
+    border-top: 1px solid var(--event-border);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 480px) {
+    .apollo-event-modal-content .mobile-container {
+        padding: 70px 15px 30px;
+    }
+
+    .quick-actions-row {
+        flex-direction: column;
+    }
+
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .lineup-item {
+        padding: 12px;
+    }
+
+    .dj-avatar {
+        width: 48px;
+        height: 48px;
+    }
+}

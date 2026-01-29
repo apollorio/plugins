@@ -1,0 +1,76 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/featured-events",
+    "version": "2.0.0",
+    "title": "Featured Events",
+    "category": "apollo-events",
+    "icon": "star-filled",
+    "description": "Display featured events in a prominent carousel or grid layout.",
+    "keywords": [ "events", "featured", "highlight", "apollo", "carousel" ],
+    "textdomain": "apollo-events-manager",
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "carousel"
+        },
+        "limit": {
+            "type": "number",
+            "default": 5
+        },
+        "autoplay": {
+            "type": "boolean",
+            "default": true
+        },
+        "autoplaySpeed": {
+            "type": "number",
+            "default": 5000
+        },
+        "showDots": {
+            "type": "boolean",
+            "default": true
+        },
+        "showArrows": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLocation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTicketButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "aspectRatio": {
+            "type": "string",
+            "default": "21/9"
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": [ "wide", "full" ],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "layout": "carousel",
+            "limit": 3
+        }
+    }
+}

@@ -1,0 +1,1 @@
+const CACHE_NAME_MEDIA="apollo-rio-media-cache";self.addEventListener("fetch",e=>{e.request.url.includes("/wp-content/uploads/")&&e.respondWith(caches.open(CACHE_NAME_MEDIA).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(n=>(c.put(e.request,n.clone()),n)))))});

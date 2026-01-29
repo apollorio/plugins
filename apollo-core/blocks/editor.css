@@ -1,0 +1,466 @@
+/**
+ * Apollo Blocks - Editor Styles
+ *
+ * Editor-only styles that match frontend appearance.
+ * Uses Apollo Uni-CSS component classes for consistency.
+ *
+ * @package Apollo_Core
+ * @subpackage Blocks
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   Block Category Icons
+   ========================================================================== */
+
+.block-editor-block-types-list__list-item[class*="apollo"] .block-editor-block-types-list__item-icon {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   Shared Block Styles
+   ========================================================================== */
+
+.wp-block[data-type^="apollo/"] {
+    position: relative;
+}
+
+.wp-block[data-type^="apollo/"] .components-placeholder {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.wp-block[data-type^="apollo/"] .components-placeholder__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.wp-block[data-type^="apollo/"] .components-placeholder__label svg,
+.wp-block[data-type^="apollo/"] .components-placeholder__label i {
+    color: #6366f1;
+}
+
+/* ==========================================================================
+   Apollo Block Wrapper
+   ========================================================================== */
+
+.apollo-block-preview {
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.apollo-block-preview--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    background: #f8fafc;
+}
+
+.apollo-block-preview--error {
+    padding: 2rem;
+    text-align: center;
+    color: #ef4444;
+    background: #fef2f2;
+    border-radius: 8px;
+}
+
+/* ==========================================================================
+   Events Grid Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/events-grid"] .apollo-events-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-events-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-events-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-events-grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__image {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    position: relative;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__content {
+    padding: 1rem;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #1e293b;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.wp-block[data-type="apollo/events-grid"] .apollo-event-card__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ==========================================================================
+   Event Single Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/event-single"] .apollo-event-single {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block[data-type="apollo/event-single"] .apollo-event-single__hero {
+    aspect-ratio: 21 / 9;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    position: relative;
+}
+
+.wp-block[data-type="apollo/event-single"] .apollo-event-single__content {
+    padding: 2rem;
+}
+
+/* ==========================================================================
+   Event Calendar Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/event-calendar"] .apollo-event-calendar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block[data-type="apollo/event-calendar"] .apollo-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.wp-block[data-type="apollo/event-calendar"] .apollo-calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #475569;
+}
+
+.wp-block[data-type="apollo/event-calendar"] .apollo-calendar-day--has-events {
+    background: #eef2ff;
+    color: #4f46e5;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.wp-block[data-type="apollo/event-calendar"] .apollo-calendar-day--today {
+    background: #4f46e5;
+    color: #fff;
+}
+
+/* ==========================================================================
+   Social Feed Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/social-feed"] .apollo-social-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.wp-block[data-type="apollo/social-feed"] .apollo-social-post {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block[data-type="apollo/social-feed"] .apollo-social-post__header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.wp-block[data-type="apollo/social-feed"] .apollo-social-post__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+/* ==========================================================================
+   Social Share Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/social-share"] .apollo-social-share {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: #fff;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button:hover {
+    transform: scale(1.1);
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button--facebook {
+    background: #1877f2;
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button--twitter {
+    background: #000;
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button--whatsapp {
+    background: #25d366;
+}
+
+.wp-block[data-type="apollo/social-share"] .apollo-share-button--linkedin {
+    background: #0a66c2;
+}
+
+/* ==========================================================================
+   User Profile Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/user-profile"] .apollo-user-profile {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block[data-type="apollo/user-profile"] .apollo-user-profile__avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+.wp-block[data-type="apollo/user-profile"] .apollo-user-profile__name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: #1e293b;
+}
+
+.wp-block[data-type="apollo/user-profile"] .apollo-user-profile__bio {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0 0 1rem;
+}
+
+/* ==========================================================================
+   Classifieds Grid Block
+   ========================================================================== */
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classifieds-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classifieds-grid--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classifieds-grid--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classified-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classified-card__image {
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classified-card__content {
+    padding: 1rem;
+}
+
+.wp-block[data-type="apollo/classifieds-grid"] .apollo-classified-card__price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #059669;
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Inspector Controls Enhancements
+   ========================================================================== */
+
+.apollo-inspector-section {
+    margin-bottom: 1rem;
+}
+
+.apollo-inspector-section__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Block Toolbar Enhancements
+   ========================================================================== */
+
+.apollo-block-toolbar-group {
+    display: flex;
+    gap: 4px;
+}
+
+/* ==========================================================================
+   Responsive Preview Adjustments
+   ========================================================================== */
+
+@media (max-width: 782px) {
+    .wp-block[data-type^="apollo/"] .apollo-events-grid,
+    .wp-block[data-type^="apollo/"] .apollo-classifieds-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ==========================================================================
+   Remix Icon Integration
+   ========================================================================== */
+
+.apollo-block-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+}
+
+.apollo-block-icon--events::before {
+    content: "\eb2c";
+    font-family: "remixicon";
+}
+
+.apollo-block-icon--social::before {
+    content: "\ec9f";
+    font-family: "remixicon";
+}
+
+.apollo-block-icon--calendar::before {
+    content: "\eb0b";
+    font-family: "remixicon";
+}
+
+.apollo-block-icon--share::before {
+    content: "\ef1c";
+    font-family: "remixicon";
+}
+
+.apollo-block-icon--user::before {
+    content: "\f264";
+    font-family: "remixicon";
+}
+
+.apollo-block-icon--classifieds::before {
+    content: "\ecfd";
+    font-family: "remixicon";
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+
+.is-dark-theme .wp-block[data-type^="apollo/"] .components-placeholder {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #475569;
+}
+
+.is-dark-theme .wp-block[data-type^="apollo/"] .components-placeholder__label {
+    color: #f1f5f9;
+}
+
+.is-dark-theme .apollo-block-preview {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+.is-dark-theme .apollo-event-card,
+.is-dark-theme .apollo-social-post,
+.is-dark-theme .apollo-user-profile,
+.is-dark-theme .apollo-classified-card {
+    background: #1e293b;
+}
+
+.is-dark-theme .apollo-event-card__title,
+.is-dark-theme .apollo-user-profile__name {
+    color: #f1f5f9;
+}
+
+.is-dark-theme .apollo-event-card__meta,
+.is-dark-theme .apollo-user-profile__bio {
+    color: #94a3b8;
+}

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<ruleset name="Apollo WordPress Coding Standards">
+    <description>Custom PHPCS ruleset for Apollo plugins</description>
+
+    <!-- What to scan -->
+    <file>./src</file>
+    <file>./includes</file>
+
+    <!-- Exclude paths -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/.phpstan-cache/*</exclude-pattern>
+    <exclude-pattern>*/.rector-cache/*</exclude-pattern>
+
+    <!-- Arguments -->
+    <arg value="ps"/>
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="8"/>
+    <arg name="cache" value=".phpcs-cache"/>
+
+    <!-- Rules: WordPress-Extra is the most comprehensive -->
+    <rule ref="WordPress-Extra">
+        <!-- Allow short array syntax -->
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+
+        <!-- Allow PSR-4 class names -->
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+
+        <!-- Allow modern PHP constructs -->
+        <exclude name="Squiz.PHP.DisallowMultipleAssignments.Found"/>
+
+        <!-- Allow arrow functions -->
+        <exclude name="PSR2.ControlStructures.ControlStructureSpacing"/>
+    </rule>
+
+    <!-- Security rules -->
+    <rule ref="WordPress.Security"/>
+
+    <!-- VIP rules for extra security -->
+    <rule ref="WordPress-VIP-Go">
+        <!-- Exclude some VIP-specific rules not applicable -->
+        <exclude name="WordPressVIPMinimum.Performance.LowExpiryCacheTime"/>
+        <exclude name="WordPressVIPMinimum.Files.IncludingFile"/>
+    </rule>
+
+    <!-- PHP Compatibility for PHP 8.0+ -->
+    <rule ref="PHPCompatibilityWP"/>
+    <config name="testVersion" value="8.0-"/>
+
+    <!-- Custom configurations -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="apollo-social"/>
+                <element value="apollo-core"/>
+                <element value="apollo-events"/>
+                <element value="apollo-rio"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Increase line length for modern screens -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="200"/>
+        </properties>
+    </rule>
+
+    <!-- Allow long method names for test methods -->
+    <rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+        <exclude-pattern>*/tests/*</exclude-pattern>
+    </rule>
+</ruleset>

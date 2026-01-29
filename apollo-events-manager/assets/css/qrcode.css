@@ -1,0 +1,387 @@
+/**
+ * Apollo Events Manager - QR Code Module Styles
+ *
+ * @package Apollo_Events_Manager
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+
+:root {
+    --apollo-qr-radius: 12px;
+    --apollo-qr-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --apollo-qr-primary: #7c3aed;
+}
+
+/* ==========================================================================
+   QR Code Base
+   ========================================================================== */
+
+.apollo-qr {
+    display: inline-block;
+    padding: 1rem;
+    background: #fff;
+    border-radius: var(--apollo-qr-radius);
+    box-shadow: var(--apollo-qr-shadow);
+}
+
+.apollo-qr__image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.apollo-qr__canvas {
+    display: block;
+}
+
+/* ==========================================================================
+   QR Download Button
+   ========================================================================== */
+
+.apollo-qr-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--apollo-qr-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.apollo-qr-download-btn:hover {
+    background: #6d28d9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.apollo-qr-download-btn:active {
+    transform: translateY(0);
+}
+
+.apollo-qr-download-btn i {
+    font-size: 1rem;
+}
+
+.apollo-qr-download-btn--small {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+}
+
+.apollo-qr-download-btn.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.apollo-qr-download-btn.is-loading i::before {
+    content: '\f110'; /* fa-spinner */
+    animation: apollo-qr-spin 1s linear infinite;
+}
+
+@keyframes apollo-qr-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   QR Card
+   ========================================================================== */
+
+.apollo-qr-card {
+    max-width: 300px;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: var(--apollo-qr-radius);
+    box-shadow: var(--apollo-qr-shadow);
+    text-align: center;
+}
+
+.apollo-qr-card__header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.apollo-qr-card__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.3;
+}
+
+.apollo-qr-card__date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.apollo-qr-card__date i {
+    color: var(--apollo-qr-primary);
+}
+
+.apollo-qr-card__qr {
+    margin-bottom: 1rem;
+}
+
+.apollo-qr-card__qr .apollo-qr {
+    padding: 0.75rem;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+}
+
+.apollo-qr-card__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.apollo-qr-card__scan {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.apollo-qr-card__scan i {
+    color: #6b7280;
+}
+
+/* ==========================================================================
+   QR Modal
+   ========================================================================== */
+
+.apollo-qr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.apollo-qr-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.apollo-qr-modal__content {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+    background: #fff;
+    border-radius: var(--apollo-qr-radius);
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.apollo-qr-modal.is-open .apollo-qr-modal__content {
+    transform: scale(1);
+}
+
+.apollo-qr-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.apollo-qr-modal__title {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.apollo-qr-modal__qr {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.apollo-qr-modal__actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* ==========================================================================
+   QR Print Styles
+   ========================================================================== */
+
+.apollo-qr-print {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background: #fff;
+}
+
+.apollo-qr-print__logo {
+    max-width: 150px;
+    margin-bottom: 1.5rem;
+}
+
+.apollo-qr-print__qr {
+    margin-bottom: 1.5rem;
+}
+
+.apollo-qr-print__info {
+    text-align: center;
+}
+
+.apollo-qr-print__title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.apollo-qr-print__url {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* ==========================================================================
+   Size Variants
+   ========================================================================== */
+
+.apollo-qr--small {
+    padding: 0.5rem;
+}
+
+.apollo-qr--large {
+    padding: 1.5rem;
+}
+
+/* ==========================================================================
+   Color Variants
+   ========================================================================== */
+
+.apollo-qr--dark {
+    background: #1f2937;
+}
+
+.apollo-qr--gradient {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    padding: 1.25rem;
+}
+
+.apollo-qr--gradient .apollo-qr__image {
+    border-radius: 8px;
+}
+
+/* ==========================================================================
+   Admin Styles
+   ========================================================================== */
+
+.apollo-qr-metabox {
+    text-align: center;
+}
+
+.apollo-qr-metabox__preview {
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.apollo-qr-metabox__preview img {
+    display: block;
+    margin: 0 auto;
+}
+
+.apollo-qr-metabox__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.apollo-qr-metabox__actions .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.apollo-qr-metabox__tip {
+    font-size: 12px;
+    color: #666;
+    margin-top: 12px;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+    .apollo-qr-card {
+        max-width: 100%;
+    }
+
+    .apollo-qr-modal__content {
+        padding: 1.5rem;
+    }
+
+    .apollo-qr-modal__actions {
+        flex-direction: column;
+    }
+
+    .apollo-qr-modal__actions .apollo-qr-download-btn {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .apollo-qr-download-btn,
+    .apollo-qr-modal,
+    .apollo-qr-card__scan {
+        display: none !important;
+    }
+
+    .apollo-qr-card {
+        box-shadow: none;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+
+    .apollo-qr {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

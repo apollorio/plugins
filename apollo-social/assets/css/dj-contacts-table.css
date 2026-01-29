@@ -1,0 +1,239 @@
+/**
+ * DJ CONTACTS GLASS TABLE STYLES
+ *
+ * Production-ready, Apollo CDN compatible
+ * Uses CSS tokens from https://assets.apollo.rio.br/styles/index.css
+ *
+ * @package Apollo_Social
+ * @version 2.0.0
+ */
+
+/* ──────────────────────────────────────
+   GLASS CARD + RESPONSIVE TABLE
+   ────────────────────────────────────── */
+.glass-table-card {
+  background: var(--glass-color);
+  backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--glass-radius);
+  overflow: visible !important;
+  box-shadow: 0 8px 32px var(--card-shadow-light);
+  position: relative;
+}
+
+.glass-table-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--glass-border-thick) solid transparent;
+  background: linear-gradient(45deg,
+    var(--glass-border-color2),
+    var(--glass-border-color1),
+    var(--glass-border-color2)) border-box;
+  mask: linear-gradient(black, black) border-box,
+        linear-gradient(black, black) padding-box;
+  mask-composite: subtract;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.table-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(8px);
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ──────────────────────────────────────
+   TABLE STYLES (pure classes)
+   ────────────────────────────────────── */
+.table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+  font-size: .925rem;
+}
+
+.table th,
+.table td {
+  padding: .9rem 1rem;
+  text-align: left;
+  border-top: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.table th {
+  background: rgba(245,245,245,.06);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.table tbody tr {
+  transition: background .3s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(255,255,255,.05);
+}
+
+/* ──────────────────────────────────────
+   BIGGER AVATAR (1:1)
+   ────────────────────────────────────── */
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--glass-border-color1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+/* ──────────────────────────────────────
+   STICKY ACTIONS COLUMN
+   ────────────────────────────────────── */
+.table th:last-child,
+.table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 12;
+  background: inherit;
+  text-align: center;
+  width: 60px;
+}
+
+.table thead th:last-child {
+  background: rgba(245,245,245,.08);
+}
+
+.table tbody td:last-child {
+  background: var(--glass-color);
+}
+
+/* ──────────────────────────────────────
+   REMIXICON GEAR + GLASS DROPDOWN
+   ────────────────────────────────────── */
+.gear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: color .25s ease;
+}
+
+.gear-btn:hover {
+  color: var(--accent-color);
+}
+
+.gear-menu {
+  position: absolute;
+  top: 100%;
+  right: 8px;
+  min-width: 160px;
+  margin-top: 6px;
+  padding: .5rem 0;
+  background: var(--glass-color);
+  backdrop-filter: blur(var(--glass-blur));
+  border-radius: var(--glass-radius);
+  box-shadow: 0 8px 24px var(--card-shadow-light);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+  z-index: 100;
+}
+
+.gear-cell:hover .gear-menu,
+.gear-cell.active .gear-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.gear-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem 1rem;
+  color: var(--text-primary);
+  font-size: .875rem;
+  text-decoration: none;
+  transition: background .2s ease;
+}
+
+.gear-item:hover {
+  background: rgba(255,255,255,.08);
+}
+
+.gear-item i {
+  font-size: 1rem;
+  opacity: .7;
+}
+
+/* ──────────────────────────────────────
+   BADGES (compatible with Apollo tokens)
+   ────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .25rem .6rem;
+  border-radius: 100px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+
+.badge-success {
+  background: rgba(34, 197, 94, .15);
+  color: #22c55e;
+}
+
+.badge-warning {
+  background: rgba(234, 179, 8, .15);
+  color: #eab308;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, .15);
+  color: #ef4444;
+}
+
+/* ──────────────────────────────────────
+   RESPONSIVE ADJUSTMENTS
+   ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .table {
+    min-width: 600px;
+  }
+
+  .table th,
+  .table td {
+    padding: .7rem .8rem;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+}

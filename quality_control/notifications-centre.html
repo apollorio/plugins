@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificações | Apollo::Rio</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-orange-600: #ff5722;
+            --ap-blue-500: #4a90e2;
+            --ap-green-500: #4caf50;
+            --ap-purple-500: #9c27b0;
+            --ap-red-500: #f44336;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-300: #bdbdbd;
+            --ap-gray-700: #424242;
+            --ap-gray-900: #212121;
+            --ap-white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+            color: var(--ap-gray-900);
+        }
+
+        .page-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: var(--ap-white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--ap-gray-900);
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--ap-gray-700);
+        }
+
+        .notifications-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--ap-gray-300);
+            background: var(--ap-white);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--ap-orange-500);
+            color: var(--ap-orange-500);
+        }
+
+        .filter-btn.active {
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+            border-color: var(--ap-orange-500);
+        }
+
+        .notifications-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-mark-all {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--ap-gray-300);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--ap-gray-700);
+            transition: all 0.2s;
+        }
+
+        .btn-mark-all:hover {
+            background: var(--ap-gray-100);
+        }
+
+        .notifications-list {
+            background: var(--ap-white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ap-gray-200);
+            display: flex;
+            gap: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background: var(--ap-gray-100);
+        }
+
+        .notification-item.unread {
+            background: #fff8f5;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--ap-orange-500);
+        }
+
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .notification-icon.like { background: linear-gradient(135deg, #ff6b9d, #ff5582); }
+        .notification-icon.comment { background: linear-gradient(135deg, var(--ap-blue-500), #357abd); }
+        .notification-icon.follow { background: linear-gradient(135deg, var(--ap-green-500), #388e3c); }
+        .notification-icon.event { background: linear-gradient(135deg, var(--ap-purple-500), #7b1fa2); }
+        .notification-icon.system { background: linear-gradient(135deg, var(--ap-orange-500), var(--ap-orange-600)); }
+        .notification-icon.message { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            background: var(--ap-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+
+        .notification-text strong {
+            font-weight: 600;
+            color: var(--ap-gray-900);
+        }
+
+        .notification-meta {
+            font-size: 13px;
+            color: var(--ap-gray-700);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-notification {
+            padding: 6px 12px;
+            border: 1px solid var(--ap-gray-300);
+            background: var(--ap-white);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-notification.primary {
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+            border-color: var(--ap-orange-500);
+        }
+
+        .btn-notification.primary:hover {
+            background: var(--ap-orange-600);
+        }
+
+        .btn-notification:not(.primary):hover {
+            background: var(--ap-gray-100);
+        }
+
+        .notification-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: var(--ap-gray-700);
+        }
+
+        @media (max-width: 640px) {
+            .notification-item {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .notification-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-notification {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Notificações</h1>
+            <p class="page-subtitle">Mantenha-se atualizado com as últimas interações</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="notifications-filter">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="unread">Não lidas</button>
+            <button class="filter-btn" data-filter="like">Curtidas</button>
+            <button class="filter-btn" data-filter="comment">Comentários</button>
+            <button class="filter-btn" data-filter="follow">Seguidores</button>
+            <button class="filter-btn" data-filter="event">Eventos</button>
+            <button class="filter-btn" data-filter="message">Mensagens</button>
+        </div>
+
+        <!-- Actions -->
+        <div class="notifications-actions">
+            <span class="page-subtitle"><strong>8</strong> não lidas</span>
+            <button class="btn-mark-all" onclick="markAllAsRead()">Marcar todas como lidas</button>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notifications-list" id="notificationsList">
+
+            <!-- Notification 1 - Like - Unread -->
+            <div class="notification-item unread" data-type="like">
+                <div class="notification-icon like">
+                    <div class="notification-badge">❤️</div>
+                    <img src="https://via.placeholder.com/48/FF6B9D/FFFFFF?text=AS" alt="Ana Silva" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Ana Silva</strong> curtiu sua publicação sobre o evento de ontem
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 5 minutos</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification 2 - Comment - Unread -->
+            <div class="notification-item unread" data-type="comment">
+                <div class="notification-icon comment">
+                    <div class="notification-badge">💬</div>
+                    <img src="https://via.placeholder.com/48/4A90E2/FFFFFF?text=PR" alt="Pedro Ribeiro" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Pedro Ribeiro</strong> comentou: "Que foto incrível! Qual foi a câmera que você usou?"
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 15 minutos</span>
+                    </div>
+                </div>
+                <img src="https://via.placeholder.com/60x60/FF6B35/FFFFFF?text=FOTO" alt="Post" class="notification-image">
+            </div>
+
+            <!-- Notification 3 - New Follower - Unread -->
+            <div class="notification-item unread" data-type="follow">
+                <div class="notification-icon follow">
+                    <div class="notification-badge">👤</div>
+                    <img src="https://via.placeholder.com/48/4CAF50/FFFFFF?text=LC" alt="Lucas Costa" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Lucas Costa</strong> começou a seguir você
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 1 hora</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Seguir de volta</button>
+                </div>
+            </div>
+
+            <!-- Notification 4 - Event Invitation - Unread -->
+            <div class="notification-item unread" data-type="event">
+                <div class="notification-icon event">
+                    <div class="notification-badge">🎉</div>
+                    <img src="https://via.placeholder.com/48/9C27B0/FFFFFF?text=MC" alt="Maria Clara" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Maria Clara</strong> convidou você para <strong>Sunset Sessions Vol. 15</strong>
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 2 horas</span>
+                        <span>📍 Mirante do Pasmado</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Confirmar</button>
+                    <button class="btn-notification">Recusar</button>
+                </div>
+            </div>
+
+            <!-- Notification 5 - New Message - Unread -->
+            <div class="notification-item unread" data-type="message">
+                <div class="notification-icon message">
+                    <div class="notification-badge">✉️</div>
+                    <img src="https://via.placeholder.com/48/00BCD4/FFFFFF?text=JS" alt="Júlia Santos" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Júlia Santos</strong> enviou uma mensagem: "Olá! Vi que você também curte techno..."
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 3 horas</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Responder</button>
+                </div>
+            </div>
+
+            <!-- Notification 6 - System - Unread -->
+            <div class="notification-item unread" data-type="system">
+                <div class="notification-icon system">
+                    <div class="notification-badge">🔔</div>
+                    <span style="color: white;">🎵</span>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        Novo evento próximo a você: <strong>Underground Night at Lapa</strong>
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Há 4 horas</span>
+                        <span>📅 Sábado, 1 Fev</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Ver evento</button>
+                </div>
+            </div>
+
+            <!-- Notification 7 - Multiple Likes -->
+            <div class="notification-item" data-type="like">
+                <div class="notification-icon like">
+                    <div class="notification-badge">❤️</div>
+                    <span style="color: white; font-size: 20px;">👥</span>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Rafael Oliveira</strong> e mais <strong>12 pessoas</strong> curtiram sua publicação
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Ontem às 19:45</span>
+                    </div>
+                </div>
+                <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=POST" alt="Post" class="notification-image">
+            </div>
+
+            <!-- Notification 8 - Event Reminder -->
+            <div class="notification-item" data-type="event">
+                <div class="notification-icon event">
+                    <div class="notification-badge">⏰</div>
+                    <span style="color: white;">📅</span>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        Lembrete: <strong>Tech House Night</strong> começa em 2 horas
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 Ontem às 20:00</span>
+                        <span>📍 Club Matrix, Botafogo</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Ver detalhes</button>
+                </div>
+            </div>
+
+            <!-- Notification 9 - Comment Reply -->
+            <div class="notification-item" data-type="comment">
+                <div class="notification-icon comment">
+                    <div class="notification-badge">↩️</div>
+                    <img src="https://via.placeholder.com/48/4A90E2/FFFFFF?text=FB" alt="Fernando Barros" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        <strong>Fernando Barros</strong> respondeu seu comentário: "Concordo totalmente! A vibe estava incrível 🔥"
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 2 dias atrás</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification 10 - Event Confirmation -->
+            <div class="notification-item" data-type="event">
+                <div class="notification-icon system">
+                    <div class="notification-badge">✅</div>
+                    <span style="color: white;">🎫</span>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">
+                        Sua presença em <strong>Eletronika Festival 2026</strong> foi confirmada!
+                    </div>
+                    <div class="notification-meta">
+                        <span class="notification-time">🕐 3 dias atrás</span>
+                        <span>📅 15 Fev - 17 Fev</span>
+                    </div>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-notification primary">Ver ingresso</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Filter notifications
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const notificationItems = document.querySelectorAll('.notification-item');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active button
+                filterButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+
+                notificationItems.forEach(item => {
+                    if (filter === 'all') {
+                        item.style.display = 'flex';
+                    } else if (filter === 'unread') {
+                        item.style.display = item.classList.contains('unread') ? 'flex' : 'none';
+                    } else {
+                        item.style.display = item.dataset.type === filter ? 'flex' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Mark all as read
+        function markAllAsRead() {
+            const unreadItems = document.querySelectorAll('.notification-item.unread');
+            unreadItems.forEach(item => {
+                item.classList.remove('unread');
+            });
+
+            // Update counter
+            document.querySelector('.notifications-actions .page-subtitle').innerHTML = '<strong>0</strong> não lidas';
+        }
+
+        // Mark individual as read on click
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't mark as read if clicking a button
+                if (e.target.tagName === 'BUTTON') return;
+
+                if (this.classList.contains('unread')) {
+                    this.classList.remove('unread');
+                    updateUnreadCount();
+                }
+            });
+        });
+
+        // Update unread count
+        function updateUnreadCount() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            document.querySelector('.notifications-actions .page-subtitle').innerHTML = `<strong>${unreadCount}</strong> não lidas`;
+        }
+    </script>
+
+</body>
+</html>

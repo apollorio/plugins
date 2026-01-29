@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Núcleos | Apollo::Rio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+            padding: 20px;
+        }
+        .page-header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+        }
+        .page-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .nucleos-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .nucleo-card {
+            background: var(--ap-white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .nucleo-cover {
+            height: 150px;
+        }
+        .nucleo-content {
+            padding: 20px;
+        }
+        .nucleo-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--ap-white);
+            margin-top: -40px;
+            margin-bottom: 15px;
+        }
+        .nucleo-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .nucleo-desc {
+            color: var(--ap-gray-700);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .nucleo-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: var(--ap-gray-700);
+            margin-bottom: 15px;
+        }
+        .btn-join {
+            width: 100%;
+            padding: 12px;
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1 class="page-title">Núcleos</h1>
+        <p style="color: var(--ap-gray-700);">Grupos especializados focados em temas específicos da cultura eletrônica</p>
+    </div>
+
+    <div class="nucleos-grid">
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #673AB7, #512DA8);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/673AB7/FFFFFF?text=VL" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo Vinil Lovers</h2>
+                <p class="nucleo-desc">Dedicado aos amantes de vinil. Coleções, dicas de compra, técnicas de mixagem e preservação de discos.</p>
+                <div class="nucleo-stats">
+                    <span>👥 456 membros</span>
+                    <span>🎵 234 discos compartilhados</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #00BCD4, #0097A7);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/00BCD4/FFFFFF?text=PM" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo Produção Musical</h2>
+                <p class="nucleo-desc">Para produtores que querem aprimorar suas técnicas. Tutoriais, feedback de tracks e sessões colaborativas.</p>
+                <div class="nucleo-stats">
+                    <span>👥 823 membros</span>
+                    <span>🎹 567 produções</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #FF5722, #E64A19);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/FF5722/FFFFFF?text=UG" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo Underground</h2>
+                <p class="nucleo-desc">Mapeamento e divulgação de festas underground, raves secretas e eventos alternativos do Rio.</p>
+                <div class="nucleo-stats">
+                    <span>👥 1.2K membros</span>
+                    <span>🎪 89 eventos mapeados</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #8BC34A, #689F38);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/8BC34A/FFFFFF?text=SE" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo Sustentabilidade em Eventos</h2>
+                <p class="nucleo-desc">Promovendo práticas sustentáveis em eventos de música eletrônica. Ecoeficiência e consciência ambiental.</p>
+                <div class="nucleo-stats">
+                    <span>👥 345 membros</span>
+                    <span>🌱 28 iniciativas</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #FFC107, #FFA000);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/FFC107/FFFFFF?text=HE" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo História Eletrônica</h2>
+                <p class="nucleo-desc">Resgatando e documentando a história da música eletrônica no Brasil e no mundo.</p>
+                <div class="nucleo-stats">
+                    <span>👥 567 membros</span>
+                    <span>📚 145 documentos</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+
+        <div class="nucleo-card">
+            <div class="nucleo-cover" style="background: linear-gradient(135deg, #E91E63, #C2185B);"></div>
+            <div class="nucleo-content">
+                <img src="https://via.placeholder.com/80/E91E63/FFFFFF?text=ML" class="nucleo-avatar">
+                <h2 class="nucleo-name">Núcleo Mulheres na Linha</h2>
+                <p class="nucleo-desc">Empoderando mulheres DJs, produtoras e profissionais da música eletrônica. Network e oportunidades.</p>
+                <div class="nucleo-stats">
+                    <span>👥 689 membros</span>
+                    <span>🎤 123 artistas</span>
+                </div>
+                <button class="btn-join">Participar do Núcleo</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

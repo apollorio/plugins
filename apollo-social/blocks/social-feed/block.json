@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/social-feed",
+    "version": "2.0.0",
+    "title": "Social Feed",
+    "category": "apollo-social",
+    "icon": "rss",
+    "description": "Display a social activity feed with posts, comments, and interactions.",
+    "keywords": [ "social", "feed", "activity", "posts", "apollo" ],
+    "textdomain": "apollo-social",
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "list"
+        },
+        "limit": {
+            "type": "number",
+            "default": 10
+        },
+        "showAuthor": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAvatar": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLikes": {
+            "type": "boolean",
+            "default": true
+        },
+        "showComments": {
+            "type": "boolean",
+            "default": true
+        },
+        "showShare": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLoadMore": {
+            "type": "boolean",
+            "default": true
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "userId": {
+            "type": "number",
+            "default": 0
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": [ "wide", "full" ],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "layout": "list",
+            "limit": 5
+        }
+    }
+}

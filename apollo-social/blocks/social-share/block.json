@@ -1,0 +1,73 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/social-share",
+    "version": "2.0.0",
+    "title": "Social Share",
+    "category": "apollo-social",
+    "icon": "share",
+    "description": "Add social sharing buttons for popular networks.",
+    "keywords": [ "social", "share", "buttons", "facebook", "twitter", "whatsapp", "apollo" ],
+    "textdomain": "apollo-social",
+    "attributes": {
+        "networks": {
+            "type": "array",
+            "default": [ "facebook", "twitter", "whatsapp", "linkedin", "telegram" ]
+        },
+        "style": {
+            "type": "string",
+            "default": "icons"
+        },
+        "size": {
+            "type": "string",
+            "default": "medium"
+        },
+        "shape": {
+            "type": "string",
+            "default": "rounded"
+        },
+        "showLabels": {
+            "type": "boolean",
+            "default": false
+        },
+        "showCounts": {
+            "type": "boolean",
+            "default": false
+        },
+        "alignment": {
+            "type": "string",
+            "default": "left"
+        },
+        "customUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "customTitle": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "supports": {
+        "align": true,
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./build/index.js",
+    "render": "file:./render.php",
+    "example": {
+        "attributes": {
+            "networks": [ "facebook", "twitter", "whatsapp" ],
+            "style": "icons",
+            "size": "medium"
+        }
+    }
+}

@@ -1,0 +1,639 @@
+<?php
+
+/**
+ * Plugin Name: Apollo Social Core
+ * Plugin URI:  https://apollo.rio.br/plugins/apollo-social-core
+ * Description: Apollo Social Core - Sistema social completo com perfis, feed, grupos e comunidades. Canvas Mode, rotas dinâmicas e integrações.
+ * Version:     1.0.0
+ * Author:      Apollo::Rio Team
+ * Author URI:  https://apollo.rio.br
+ * Text Domain: apollo-social
+ * Domain Path: /languages
+ * License:     GPL-2.0-or-later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 6.4
+ * Tested up to: 6.7
+ * Requires PHP: 8.1
+ * Requires Plugins: apollo-core
+ *
+ * @package Apollo_Social
+ * @version 1.0.0
+ */
+
+if (! defined('ABSPATH')) {
+	exit;
+	// Exit if accessed directly.
+}
+
+/**
+ * Composer Autoloader - DocuSeal e-signature integration & Delta Parser
+ *
+ * Loads:
+ * - docuseal-php library for DocuSeal e-signature API integration
+ * - nadar/quill-delta-parser for Delta to HTML conversion
+ *
+ * - vendor/autoload.php is optional in local/dev environments
+ * - Required in production if e-signature or document features are needed
+ * - Install via: composer require docusealco/docuseal-php nadar/quill-delta-parser
+ *
+ * @see https://github.com/docusealco/docuseal-php
+ * @see https://github.com/nadar/quill-delta-parser
+ */
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+// Define plugin constants.
+if (! defined('APOLLO_SOCIAL_PLUGIN_FILE')) {
+	define('APOLLO_SOCIAL_PLUGIN_FILE', __FILE__);
+}
+if (! defined('APOLLO_SOCIAL_PLUGIN_DIR')) {
+	define('APOLLO_SOCIAL_PLUGIN_DIR', plugin_dir_path(__FILE__));
+}
+if (! defined('APOLLO_SOCIAL_PLUGIN_URL')) {
+	define('APOLLO_SOCIAL_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+if (! defined('APOLLO_SOCIAL_VERSION')) {
+	define('APOLLO_SOCIAL_VERSION', '1.0.0');
+}
+
+/**
+ * Check if Apollo Core dependency is met
+ *
+ * @return bool True if Apollo Core is active and available
+ */
+if ( ! function_exists( 'apollo_social_dependency_ok' ) ) {
+	function apollo_social_dependency_ok()
+	{
+		// Check if function exists (WordPress loaded).
+		if (function_exists('is_plugin_active')) {
+			// Check if apollo-core is active.
+			if (! is_plugin_active('apollo-core/apollo-core.php')) {
+				return false;
+			}
+		}
+
+		// Check if Apollo Core is bootstrapped.
+		if (! class_exists('Apollo_Core') && ! defined('APOLLO_CORE_BOOTSTRAPPED')) {
+			return false;
+		}
+
+		return true;
+	}
+}
+
+/**
+ * Display admin notice when Apollo Core is missing
+ */
+if ( ! function_exists( 'apollo_social_missing_core_notice' ) ) {
+	function apollo_social_missing_core_notice()
+	{
+	?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<strong><?php esc_html_e('Apollo Social Core', 'apollo-social'); ?></strong>:
+				<?php esc_html_e('O plugin "Apollo Core" não está ativo. Por favor, ative o plugin "apollo-core" para usar o Apollo Social Core.', 'apollo-social'); ?>
+			</p>
+		</div>
+	<?php
+	}
+}
+
+// Early dependency check - prevent fatal errors if core is missing.
+if (! apollo_social_dependency_ok()) {
+	add_action('admin_notices', 'apollo_social_missing_core_notice');
+	// Don't load the rest of the plugin.
+	return;
+}
+
+// Load backward compatibility layer for migrated features
+$compatibility_email = __DIR__ . '/compatibility/email.php';
+if ( file_exists( $compatibility_email ) ) {
+	require_once $compatibility_email;
+}
+
+// Load helper functions (non-class functions)
+require_once __DIR__ . '/src/Helpers/BadgesHelper.php';
+require_once __DIR__ . '/includes/docs-helpers.php';
+require_once __DIR__ . '/includes/docs-signature-helpers.php';
+
+// Load Analytics Bridge (integrates with Apollo Core Analytics).
+require_once __DIR__ . '/includes/class-apollo-social-analytics-bridge.php';
+
+// Load Core Integration (Phase 2 Architecture - hooks into Apollo Core template system).
+$core_integration_file = __DIR__ . '/includes/class-apollo-social-core-integration.php';
+if (file_exists($core_integration_file)) {
+	require_once $core_integration_file;
+}
+
+// Load Apollo Base Assets (base.js from CDN with local fallback - ALL PAGES).
+require_once __DIR__ . '/includes/class-apollo-base-assets.php';
+
+// Load Plano Editor components
+require_once __DIR__ . '/includes/class-plano-editor-assets.php';
+require_once __DIR__ . '/src/Api/Textures.php';
+require_once __DIR__ . '/src/Api/Posts.php';
+require_once __DIR__ . '/includes/class-plano-save-handler.php';
+
+// Load HUB::rio Linktree Editor AJAX handlers
+require_once __DIR__ . '/includes/hub-ajax-handlers.php';
+
+// Load HUB::rio Admin Template Settings
+if (is_admin()) {
+	require_once __DIR__ . '/includes/admin/hub-template-settings.php';
+}
+
+// Load Avatar Online Status Helper (green dot for all non-admin users)
+require_once __DIR__ . '/includes/helpers/avatar-online-status.php';
+
+// BRUTAL FORCE: Hide WordPress admin bar on frontend (show only in wp-admin)
+require_once __DIR__ . '/includes/helpers/force-hide-admin-bar.php';
+
+// Autoload classes (PSR-4).
+spl_autoload_register(
+	function ($class) {
+		$prefix   = 'Apollo\\';
+		$base_dir = __DIR__ . '/src/';
+
+		$len = strlen($prefix);
+		if (strncmp($prefix, $class, $len) !== 0) {
+			return;
+		}
+
+		$relative_class = substr($class, $len);
+		$file           = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+		if (file_exists($file)) {
+			require $file;
+		}
+	}
+);
+
+// Initialize plugin.
+add_action(
+	'plugins_loaded',
+	function () {
+		// =================================================================
+		// FASE 0: Load Infrastructure First (FeatureFlags, Logger, Router)
+		// =================================================================
+
+		// Initialize Feature Flags (controls which modules are enabled).
+		if (class_exists('\Apollo\Infrastructure\FeatureFlags')) {
+			\Apollo\Infrastructure\FeatureFlags::init();
+		}
+
+		// Initialize Apollo Router (centralized rewrite rules).
+		if (class_exists('\Apollo\Infrastructure\Http\Apollo_Router')) {
+			\Apollo\Infrastructure\Http\Apollo_Router::init();
+		}
+
+		// Initialize Endpoint Guard (blocks disabled module endpoints).
+		if (class_exists('\Apollo\Infrastructure\Security\EndpointGuard')) {
+			\Apollo\Infrastructure\Security\EndpointGuard::init();
+		}
+
+		// =================================================================
+		// Schema Upgrade Check (version-gated, idempotent)
+		// =================================================================
+		if (class_exists('\Apollo\Schema')) {
+			$schema = new \Apollo\Schema();
+
+			// Check 1: Normal version upgrade
+			if ($schema->needsUpgrade()) {
+				$result = $schema->upgrade();
+				if (is_wp_error($result) && defined('WP_DEBUG') && WP_DEBUG) {
+					error_log('Apollo Schema upgrade error: ' . $result->get_error_message());
+				}
+			}
+
+			// Check 2: Self-Healing (Force install if tables missing)
+			global $wpdb;
+			$test_table = $wpdb->prefix . 'apollo_points';
+			if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $test_table)) !== $test_table) {
+				// Critical tables missing. Force install even if version matches.
+				$schema->install();
+			}
+		}
+
+		// =================================================================
+		// Core Plugin Bootstrap
+		// =================================================================
+
+		// Constructor automatically calls bootstrap().
+		// phpcs:ignore Generic.CodeAnalysis.UnusedVariable
+		// phpcs:ignore Generic.CodeAnalysis.UnusedVariable -- Plugin instance required for bootstrap.
+		$plugin = new \Apollo\Plugin();
+
+		// Load user-pages module (only if feature enabled).
+		$user_pages_loader = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/user-pages-loader.php';
+		if (file_exists($user_pages_loader) && \Apollo\Infrastructure\FeatureFlags::isEnabled('user_pages')) {
+			require_once $user_pages_loader;
+		}
+
+		// Load Help Menu Admin.
+		if (is_admin()) {
+			$help_menu = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/HelpMenuAdmin.php';
+			if (file_exists($help_menu)) {
+				require_once $help_menu;
+			}
+
+			// Load E-signature Settings Admin.
+			$esign_settings = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EsignSettingsAdmin.php';
+			if (file_exists($esign_settings)) {
+				require_once $esign_settings;
+			}
+
+			// Load Admin Hub Page (central documentation and settings).
+			$admin_hub = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/AdminHubPage.php';
+			if (file_exists($admin_hub)) {
+				require_once $admin_hub;
+			}
+
+			// Load Documents PDF Metabox (admin PDF generation UI).
+			$pdf_metabox = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/DocumentsPdfMetabox.php';
+			if (file_exists($pdf_metabox)) {
+				require_once $pdf_metabox;
+			}
+
+			// Load Diagnostics Admin Page (schema, feature flags, routes).
+			if (class_exists('\Apollo\Admin\DiagnosticsAdmin')) {
+				\Apollo\Admin\DiagnosticsAdmin::init();
+			}
+		} //end if
+
+		// Load Documents PKI Integration (hooks for certificate signing).
+		$pki_integration = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Modules/Documents/DocumentsPkiIntegration.php';
+		if (file_exists($pki_integration)) {
+			require_once $pki_integration;
+		}
+
+		// Load Documents Signature Service (signing flow).
+		$signature_service = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Modules/Documents/DocumentsSignatureService.php';
+		if (file_exists($signature_service)) {
+			require_once $signature_service;
+		}
+
+		// Load Documents PDF Signature Block (visible signature block in PDF).
+		$signature_block = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Modules/Documents/DocumentsPdfSignatureBlock.php';
+		if (file_exists($signature_block)) {
+			require_once $signature_block;
+		}
+
+		// Load Cultura::Rio Admin (membership management - admin only).
+		$cultura_admin = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/CulturaRioAdmin.php';
+		if (file_exists($cultura_admin)) {
+			require_once $cultura_admin;
+		}
+		// Load Apollo Email Hub Admin (unified email management).
+		$email_hub = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EmailHubAdmin.php';
+		if (file_exists($email_hub)) {
+			require_once $email_hub;
+		}
+		// Load Apollo Email Notifications Admin (event notifications settings).
+		$email_notif = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Admin/EmailNotificationsAdmin.php';
+		if (file_exists($email_notif)) {
+			require_once $email_notif;
+		}
+		// Load Apollo Unified Email Service (central email API).
+		$unified_email = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/UnifiedEmailService.php';
+		if (file_exists($unified_email)) {
+			require_once $unified_email;
+		}
+		// Load Apollo Event Notification Hooks (triggers for event changes).
+		$event_hooks = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/EventNotificationHooks.php';
+		if (file_exists($event_hooks)) {
+			require_once $event_hooks;
+		}
+		// Load Apollo Email Bridge (integrates with newsletter & email-templates plugins).
+		$email_bridge = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Email/ApolloEmailBridge.php';
+		if (file_exists($email_bridge)) {
+			require_once $email_bridge;
+		}
+		// Load Apollo Builder (Habbo-style home page builder)
+		// Pattern: Based on WOW Page Builder + Live Composer (GPLv3)
+		// Provides: CPT apollo_home, drag-drop widgets, AJAX save, frontend view.
+		$builder_init = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Builder/init.php';
+		if (file_exists($builder_init)) {
+			require_once $builder_init;
+		}
+		// Load User Dashboard Ajustes Section.
+		$ajustes_section = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Dashboard/UserAjustesSection.php';
+		if (file_exists($ajustes_section)) {
+			require_once $ajustes_section;
+		}
+		// Load AJAX Image Upload Handler for Quill Editor.
+		$image_upload = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/ImageUploadHandler.php';
+		if (file_exists($image_upload)) {
+			require_once $image_upload;
+		}
+		// Load AJAX Document Save Handler for Quill Editor (Delta autosave).
+		$doc_save = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/docaveHandler.php';
+		if (file_exists($doc_save)) {
+			require_once $doc_save;
+		}
+		// Load AJAX PDF Export Handler for document-to-PDF conversion.
+		$pdf_export = APOLLO_SOCIAL_PLUGIN_DIR . 'src/Ajax/PdfExportHandler.php';
+		if (file_exists($pdf_export)) {
+			require_once $pdf_export;
+		}
+		// Load Delta Helper Functions (apollo_delta_to_html, etc.).
+		$delta_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/delta-helpers.php';
+		if (file_exists($delta_helpers)) {
+			require_once $delta_helpers;
+		}
+		// Load Luckysheet Helper Functions (apollo_spreadsheet_to_luckysheet, etc.).
+		$luckysheet_helpers = APOLLO_SOCIAL_PLUGIN_DIR . 'includes/luckysheet-helpers.php';
+		if (file_exists($luckysheet_helpers)) {
+			require_once $luckysheet_helpers;
+		}
+		// Initialize Documents Module (Libraries, Signatures, Audit).
+		// FASE 0: Controlled by FeatureFlags.
+		if (class_exists('\Apollo\Modules\Documents\DocumentsModule') && \Apollo\Infrastructure\FeatureFlags::isEnabled('documents')) {
+			\Apollo\Modules\Documents\DocumentsModule::init();
+		}
+
+		// Initialize Suppliers Module (Cena-Rio • Fornecedores).
+		// FASE 0: Controlled by FeatureFlags.
+		if (class_exists('\Apollo\Modules\Suppliers\SuppliersModule') && \Apollo\Infrastructure\FeatureFlags::isEnabled('classifieds')) {
+			\Apollo\Modules\Suppliers\SuppliersModule::init();
+		}
+
+		// Initialize Chat Module (Mensagens instantâneas).
+		// FASE 0: DISABLED BY DEFAULT - incomplete module.
+		if (class_exists('\Apollo\Modules\Chat\ChatModule') && \Apollo\Infrastructure\FeatureFlags::isEnabled('chat')) {
+			\Apollo\Modules\Chat\ChatModule::init();
+		} elseif (class_exists('\Apollo\Infrastructure\ApolloLogger')) {
+			\Apollo\Infrastructure\ApolloLogger::debug('chat_module_disabled', array('reason' => 'feature_flag_off'), 'feature');
+		}
+
+		// =================================================================
+		// APOLLO SOCIAL NETWORK MODULES (Premium Features)
+		// =================================================================
+
+		// Initialize Social Service Provider (AJAX, REST API, Shortcodes, Cron).
+		if (class_exists('\Apollo\Providers\SocialServiceProvider')) {
+			\Apollo\Providers\SocialServiceProvider::boot();
+		}
+
+		// Initialize Admin Menus (Dashboard, Members, Groups, Moderation, etc).
+		if (is_admin() && class_exists('\Apollo\Admin\AdminMenus')) {
+			\Apollo\Admin\AdminMenus::register();
+		}
+
+		// Register with Apollo Core Integration Bridge when ready.
+		add_action(
+			'apollo_core_ready',
+			function () {
+				/**
+				 * Apollo Social is now connected to Core ecosystem
+				 * Core provides: shared utilities, template system, canvas mode, notifications
+				 */
+				do_action('apollo_social_connected');
+			}
+		);
+
+		// Load Elementor Widgets (when Elementor is active).
+		if (did_action('elementor/loaded')) {
+			$elementor_widgets_file = APOLLO_SOCIAL_PLUGIN_DIR . 'elementor/class-apollo-social-elementor-widgets.php';
+			if (file_exists($elementor_widgets_file)) {
+				require_once $elementor_widgets_file;
+			}
+		}
+	},
+	5
+);
+
+// --- Apollo SchemaOrchestrator Integration ---
+add_action('apollo_register_schema_modules', function ($orchestrator) {
+	if (class_exists('Apollo_Social\Schema\SocialSchemaModule')) {
+		$orchestrator->registerModule(new Apollo_Social\Schema\SocialSchemaModule());
+	}
+}, 10);
+
+// P0-1: Improved activation hook with idempotency checks.
+register_activation_hook(
+	__FILE__,
+	function () {
+		// Check Apollo Core dependency first.
+		if (! function_exists('apollo_social_dependency_ok') || ! apollo_social_dependency_ok()) {
+			// Deactivate this plugin.
+			if (function_exists('deactivate_plugins')) {
+				deactivate_plugins(plugin_basename(__FILE__));
+			}
+
+			// Show error message.
+			wp_die(
+				'<h1>' . esc_html__('Plugin Activation Failed', 'apollo-social') . '</h1>' .
+					'<p>' . esc_html__('Apollo Social Core requires Apollo Core to be active.', 'apollo-social') . '</p>' .
+					'<p>' . esc_html__('Please activate the "Apollo Core" plugin first, then activate Apollo Social Core.', 'apollo-social') . '</p>',
+				esc_html__('Dependency Error', 'apollo-social'),
+				array('back_link' => true)
+			);
+			return;
+		}
+
+		// Check if already activated recently (prevent double runs).
+		// $activation_key  = 'apollo_social_activation_' . APOLLO_SOCIAL_VERSION;
+		// $last_activation = get_option( $activation_key, false );
+
+		// If activated in last 5 minutes, skip (might be double-click or refresh).
+		// if ( $last_activation && ( time() - $last_activation ) < 300 ) {
+		// 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		// 		error_log( '✅ Apollo Social: Activation skipped (already activated recently)' );
+		// 	}
+		// 	return;
+		// }
+
+		// Mark activation start.
+		// update_option( $activation_key, time() );
+
+		try {
+			// Create database tables via unified Schema facade (idempotent).
+			$schema = new \Apollo\Schema();
+			$result = $schema->install();
+			if (is_wp_error($result) && defined('WP_DEBUG') && WP_DEBUG) {
+				error_log('Apollo Schema install error: ' . $result->get_error_message());
+			}
+
+			// Initialize and assign capabilities to all roles
+			if (class_exists('\Apollo\Infrastructure\Security\Caps')) {
+				$caps = new \Apollo\Infrastructure\Security\Caps();
+				$caps->registerCapabilities();
+				$caps->assignCapabilitiesToRoles();
+
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					error_log('✅ Apollo Social: Capabilities assigned to all roles');
+				}
+			}
+
+			// Create Apollo Logger table.
+			if (class_exists('\Apollo\Infrastructure\ApolloLogger')) {
+				\Apollo\Infrastructure\ApolloLogger::createTable();
+			}
+
+			// Create default groups (idempotent - checks existence).
+			if (class_exists('\Apollo\Domain\Groups\DefaultGroups')) {
+				$default_groups = new \Apollo\Domain\Groups\DefaultGroups();
+				$default_groups->createDefaults();
+			}
+
+			// Register routes.
+			$routes = new \Apollo\Infrastructure\Http\Routes();
+			$routes->register();
+
+			// User Pages Module (MODERN PSR-4 - replaces legacy class-user-page-cpt.php)
+			if (class_exists('\Apollo\Modules\UserPages\UserPagesServiceProvider')) {
+				$user_pages_provider = new \Apollo\Modules\UserPages\UserPagesServiceProvider();
+				$user_pages_provider->register();
+			}
+
+			$user_pages_rewrite = APOLLO_SOCIAL_PLUGIN_DIR . 'user-pages/class-user-page-rewrite.php';
+			if (file_exists($user_pages_rewrite)) {
+				require_once $user_pages_rewrite;
+				if (class_exists('Apollo_User_Page_Rewrite')) {
+					Apollo_User_Page_Rewrite::add_rewrite();
+				}
+			}
+
+			// Flush rewrite rules via centralized Apollo Router.
+			if (class_exists('\Apollo\Infrastructure\Http\Apollo_Router')) {
+				\Apollo\Infrastructure\Http\Apollo_Router::onActivation();
+			} else {
+				// Fallback: direct flush (only once per version).
+				flush_rewrite_rules(false);
+			}
+
+			// Mark activation complete.
+			update_option('apollo_social_activated_version', APOLLO_SOCIAL_VERSION);
+
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				error_log('✅ Apollo Social: Activation completed successfully (v' . APOLLO_SOCIAL_VERSION . ')');
+			}
+		} catch (\Exception $e) {
+			// Log error but don't break activation.
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Critical activation error logging.
+				error_log('❌ Apollo Social: Activation error - ' . $e->getMessage());
+			}
+			// Still mark as activated to prevent retry loops.
+			update_option($activation_key, time());
+		} //end try
+	}
+);
+
+// Clean up on deactivation.
+register_deactivation_hook(
+	__FILE__,
+	function () {
+		// Use centralized router for deactivation flush.
+		if (class_exists('\Apollo\Infrastructure\Http\Apollo_Router')) {
+			\Apollo\Infrastructure\Http\Apollo_Router::onDeactivation();
+		} else {
+			flush_rewrite_rules();
+		}
+	}
+);
+
+/**
+ * AJAX Handler: Submit Depoimento (Testimonial)
+ * STRICT MODE: Required for user-page-view.php testimonials form
+ */
+
+add_action('wp_ajax_apollo_submit_depoimento', 'apollo_social_handle_depoimento_submit');
+function apollo_social_handle_depoimento_submit()
+{
+	// Verify nonce.
+	if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'apollo_depoimento_nonce')) {
+		wp_send_json_error(array('message' => 'Nonce inválido.'), 403);
+		return;
+	}
+
+	// Check user is logged in.
+	if (! is_user_logged_in()) {
+		wp_send_json_error(array('message' => 'Você precisa estar logado.'), 401);
+		return;
+	}
+
+	// Validate input.
+	$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+	$content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
+
+	if (! $post_id) {
+		wp_send_json_error(array('message' => 'ID do post inválido.'), 400);
+		return;
+	}
+
+	if (empty($content) || strlen($content) < 5) {
+		wp_send_json_error(array('message' => 'O depoimento deve ter pelo menos 5 caracteres.'), 400);
+		return;
+	}
+
+	if (strlen($content) > 1000) {
+		wp_send_json_error(array('message' => 'O depoimento não pode exceder 1000 caracteres.'), 400);
+		return;
+	}
+
+	// Check post exists and is a user_page.
+	$post = get_post($post_id);
+	if (! $post || $post->post_type !== 'user_page') {
+		wp_send_json_error(array('message' => 'Página de usuário não encontrada.'), 404);
+		return;
+	}
+
+	// Check user is not commenting on own page.
+	$page_owner_id   = $post->post_author;
+	$current_user_id = get_current_user_id();
+
+	if ($page_owner_id === $current_user_id) {
+		wp_send_json_error(array('message' => 'Você não pode deixar depoimento na sua própria página.'), 400);
+		return;
+	}
+
+	// Rate limiting: max 3 depoimentos per user per day.
+	$today_key   = 'apollo_depoimentos_' . date('Y-m-d') . '_' . $current_user_id;
+	$today_count = (int) get_transient($today_key);
+
+	if ($today_count >= 3) {
+		wp_send_json_error(array('message' => 'Limite diário de depoimentos atingido (3 por dia).'), 429);
+		return;
+	}
+
+	// Get current user data.
+	$current_user = wp_get_current_user();
+
+	// Insert comment.
+	$comment_data = array(
+		'comment_post_ID'      => $post_id,
+		'comment_author'       => $current_user->display_name,
+		'comment_author_email' => $current_user->user_email,
+		'comment_author_url'   => $current_user->user_url ?: '',
+		'comment_content'      => $content,
+		'comment_type'         => 'comment',
+		'comment_parent'       => 0,
+		'user_id'              => $current_user_id,
+		'comment_date'         => current_time('mysql'),
+		'comment_date_gmt'     => current_time('mysql', true),
+		'comment_approved'     => 1,
+		// Auto-approve for logged-in users.
+	);
+
+	$comment_id = wp_insert_comment($comment_data);
+
+	if (! $comment_id) {
+		wp_send_json_error(array('message' => 'Erro ao salvar depoimento.'), 500);
+		return;
+	}
+
+	// Increment daily counter.
+	set_transient($today_key, $today_count + 1, DAY_IN_SECONDS);
+
+	// Log for audit.
+	update_user_meta($current_user_id, '_last_depoimento_time', time());
+
+	wp_send_json_success(
+		array(
+			'message'    => 'Depoimento publicado com sucesso!',
+			'comment_id' => $comment_id,
+		)
+	);
+}

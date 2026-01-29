@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>João Dias - Perfil | Apollo::Rio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ap-orange-500: #ff6b35;
+            --ap-blue-500: #4a90e2;
+            --ap-gray-100: #f5f5f5;
+            --ap-gray-200: #e0e0e0;
+            --ap-gray-700: #424242;
+            --ap-white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--ap-gray-100);
+        }
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, var(--ap-orange-500), #ff5722);
+            height: 250px;
+            position: relative;
+        }
+        .profile-info {
+            background: var(--ap-white);
+            padding: 80px 30px 30px;
+            position: relative;
+            border-radius: 0 0 12px 12px;
+        }
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid var(--ap-white);
+            position: absolute;
+            top: -75px;
+            left: 30px;
+            background: linear-gradient(135deg, var(--ap-blue-500), #357abd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: var(--ap-white);
+        }
+        .profile-actions {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--ap-orange-500);
+            color: var(--ap-white);
+        }
+        .btn-secondary {
+            background: var(--ap-gray-200);
+        }
+        .profile-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .profile-username {
+            color: var(--ap-gray-700);
+            margin-bottom: 15px;
+        }
+        .profile-bio {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            padding: 20px 0;
+            border-top: 1px solid var(--ap-gray-200);
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ap-orange-500);
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--ap-gray-700);
+        }
+        .profile-content {
+            padding: 20px;
+        }
+        .tabs {
+            display: flex;
+            gap: 20px;
+            border-bottom: 2px solid var(--ap-gray-200);
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 15px 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+        }
+        .tab.active {
+            border-color: var(--ap-orange-500);
+            color: var(--ap-orange-500);
+        }
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .post-card {
+            background: var(--ap-white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .post-content {
+            padding: 15px;
+        }
+        .post-text {
+            margin-bottom: 10px;
+        }
+        .post-meta {
+            font-size: 13px;
+            color: var(--ap-gray-700);
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header"></div>
+        <div class="profile-info">
+            <div class="profile-avatar">JD</div>
+            <div class="profile-actions">
+                <button class="btn btn-primary">✏️ Editar Perfil</button>
+                <button class="btn btn-secondary">⚙️ Configurações</button>
+            </div>
+            <div style="margin-left: 180px;">
+                <h1 class="profile-name">João Dias</h1>
+                <p class="profile-username">@joaodias • Membro desde Jan 2024</p>
+                <p class="profile-bio">
+                    🎵 Apaixonado por música eletrônica | DJ Amador | House & Techno<br>
+                    📍 Rio de Janeiro, Brasil<br>
+                    🎧 Always looking for the next great set
+                </p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-value">247</div>
+                        <div class="stat-label">Posts</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1.8K</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">892</div>
+                        <div class="stat-label">Seguindo</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">45</div>
+                        <div class="stat-label">Eventos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="tabs">
+                <div class="tab active">Posts</div>
+                <div class="tab">Eventos</div>
+                <div class="tab">Mídia</div>
+                <div class="tab">Sobre</div>
+            </div>
+
+            <div class="posts-grid">
+                <div class="post-card">
+                    <img src="https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=DJ+SET" class="post-image">
+                    <div class="post-content">
+                        <div class="post-text">Que noite incrível no Sunset Sessions! 🌅🎵</div>
+                        <div class="post-meta">❤️ 89 curtidas • 💬 12 comentários • 🕐 Há 2 dias</div>
+                    </div>
+                </div>
+                <div class="post-card">
+                    <img src="https://via.placeholder.com/300x200/4A90E2/FFFFFF?text=EVENTO" class="post-image">
+                    <div class="post-content">
+                        <div class="post-text">Confirmado para o Underground Night! Vai ser épico! 🔥</div>
+                        <div class="post-meta">❤️ 124 curtidas • 💬 28 comentários • 🕐 Há 4 dias</div>
+                    </div>
+                </div>
+                <div class="post-card">
+                    <img src="https://via.placeholder.com/300x200/9C27B0/FFFFFF?text=PLAYLIST" class="post-image">
+                    <div class="post-content">
+                        <div class="post-text">Nova playlist para o fim de semana! Link na bio 🎧</div>
+                        <div class="post-meta">❤️ 67 curtidas • 💬 8 comentários • 🕐 Há 1 semana</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

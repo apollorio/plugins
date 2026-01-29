@@ -1,0 +1,26 @@
+{
+  "name": "apollo-events-manager",
+  "version": "0.1.0",
+  "description": "Apollo Events Manager - WordPress Plugin with Motion.dev",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build required - using design parts'",
+    "dev": "echo 'No watch required - using design parts'"
+  },
+  "dependencies": {
+    "framer-motion": "^11.0.0"
+  },
+  "devDependencies": {
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-tabs": "^1.0.0",
+    "@radix-ui/react-dialog": "^1.0.0"
+  },
+  "keywords": [
+    "wordpress",
+    "events",
+    "motion"
+  ],
+  "author": "Apollo::Rio",
+  "license": "GPL-2.0-or-later"
+}
+

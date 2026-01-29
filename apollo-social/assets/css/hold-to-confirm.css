@@ -1,0 +1,215 @@
+/**
+ * Hold to Confirm Button Styles
+ * Cool visual effects for security hold-to-confirm buttons
+ */
+
+/* Base button styles */
+[data-hold-to-confirm] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+[data-hold-to-confirm]:not(.apollo-complete):not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-hold-to-confirm]:not(.apollo-complete):not(:disabled):active {
+    transform: translateY(0);
+}
+
+/* Progress bar container */
+.apollo-hold-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border-radius: 0 0 inherit inherit;
+}
+
+/* Progress fill */
+.apollo-hold-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transition: background-color 0.3s ease;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* Holding state */
+[data-hold-to-confirm].apollo-holding {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+}
+
+[data-hold-to-confirm].apollo-holding .apollo-hold-progress-fill {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    background-size: 200% 100%;
+    animation: progressShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes progressShimmer {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 200% 0%;
+    }
+}
+
+/* Complete state */
+[data-hold-to-confirm].apollo-complete {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    cursor: default;
+    pointer-events: none;
+}
+
+[data-hold-to-confirm].apollo-complete .apollo-hold-progress-fill {
+    background: rgba(255, 255, 255, 0.3);
+    width: 100% !important;
+}
+
+/* Disabled state */
+[data-hold-to-confirm].apollo-disabled,
+[data-hold-to-confirm]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Button text animation */
+[data-hold-to-confirm] {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+[data-hold-to-confirm].apollo-holding {
+    font-weight: 700;
+}
+
+/* Glow effect during hold */
+[data-hold-to-confirm].apollo-holding::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent);
+    transform: translate(-50%, -50%);
+    animation: glowPulse 1s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+    }
+    50% {
+        width: 150%;
+        height: 150%;
+        opacity: 0.1;
+    }
+}
+
+/* Success checkmark animation */
+[data-hold-to-confirm].apollo-complete::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 2em;
+    color: white;
+    animation: checkmarkPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    pointer-events: none;
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Ripple effect on start */
+[data-hold-to-confirm].apollo-holding::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    animation: ripple 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.8;
+    }
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    [data-hold-to-confirm] {
+        min-height: 48px; /* Better touch target */
+        padding: 12px 24px;
+    }
+
+    .apollo-hold-progress {
+        height: 3px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    [data-hold-to-confirm].apollo-holding .apollo-hold-progress-fill {
+        background: #000;
+    }
+
+    [data-hold-to-confirm].apollo-complete {
+        background: #000;
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    [data-hold-to-confirm],
+    [data-hold-to-confirm] *,
+    [data-hold-to-confirm]::before,
+    [data-hold-to-confirm]::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+

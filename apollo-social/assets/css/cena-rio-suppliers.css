@@ -1,0 +1,458 @@
+/**
+ * Cena-Rio Suppliers CSS
+ *
+ * Styles for the Cena-Rio suppliers catalog.
+ *
+ * @package Apollo\Modules\Suppliers
+ * @since   1.0.0
+ */
+
+/* Base styles for suppliers pages */
+.suppliers-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+.suppliers-header {
+	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+	color: white;
+	padding: 2rem 0;
+	text-align: center;
+	margin-bottom: 2rem;
+}
+
+.suppliers-header h1 {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem 0;
+}
+
+.suppliers-header p {
+	font-size: 1.1rem;
+	opacity: 0.9;
+	margin: 0;
+}
+
+/* Filters */
+.suppliers-filters {
+	background: white;
+	border-radius: 12px;
+	padding: 1.5rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.suppliers-filters .filter-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	align-items: center;
+}
+
+.suppliers-filters label {
+	font-weight: 600;
+	color: #374151;
+	margin-right: 0.5rem;
+}
+
+.suppliers-filters select,
+.suppliers-filters input[type="text"] {
+	padding: 0.5rem 1rem;
+	border: 2px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	min-width: 150px;
+}
+
+.suppliers-filters select:focus,
+.suppliers-filters input[type="text"]:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.suppliers-filters .filter-submit {
+	background: #3b82f6;
+	color: white;
+	border: none;
+	padding: 0.5rem 1.5rem;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.suppliers-filters .filter-submit:hover {
+	background: #2563eb;
+}
+
+/* Suppliers grid */
+.suppliers-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+/* Supplier card */
+.supplier-card {
+	background: white;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s, box-shadow 0.2s;
+	cursor: pointer;
+}
+
+.supplier-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.supplier-card__image {
+	width: 100%;
+	height: 200px;
+	background: #f3f4f6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.supplier-card__image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.supplier-card__content {
+	padding: 1.5rem;
+}
+
+.supplier-card__title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 0.5rem 0;
+	line-height: 1.3;
+}
+
+.supplier-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.supplier-card__badge {
+	background: #dbeafe;
+	color: #1e40af;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.supplier-card__badge--category {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.supplier-card__badge--region {
+	background: #ecfdf5;
+	color: #065f46;
+}
+
+.supplier-card__badge--type {
+	background: #f3e8ff;
+	color: #6b21a8;
+}
+
+.supplier-card__info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 1rem;
+}
+
+.supplier-card__price {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: #059669;
+}
+
+.supplier-card__location {
+	font-size: 0.875rem;
+	color: #6b7280;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.supplier-card__location::before {
+	content: "📍";
+}
+
+/* Modal */
+.supplier-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	padding: 1rem;
+}
+
+.supplier-modal__content {
+	background: white;
+	border-radius: 12px;
+	max-width: 800px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	position: relative;
+}
+
+.supplier-modal__close {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #6b7280;
+	padding: 0.5rem;
+	border-radius: 50%;
+	transition: background-color 0.2s;
+}
+
+.supplier-modal__close:hover {
+	background: #f3f4f6;
+}
+
+.supplier-modal__header {
+	padding: 2rem;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.supplier-modal__title {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 0.5rem 0;
+}
+
+.supplier-modal__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.supplier-modal__body {
+	padding: 2rem;
+}
+
+.supplier-modal__description {
+	color: #374151;
+	line-height: 1.6;
+	margin-bottom: 2rem;
+}
+
+.supplier-modal__details {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2rem;
+}
+
+.supplier-modal__detail {
+	display: flex;
+	flex-direction: column;
+}
+
+.supplier-modal__detail-label {
+	font-weight: 600;
+	color: #374151;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-bottom: 0.25rem;
+}
+
+.supplier-modal__detail-value {
+	color: #111827;
+	font-size: 1rem;
+}
+
+.supplier-modal__actions {
+	padding: 2rem;
+	border-top: 1px solid #e5e7eb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.supplier-modal__contact {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.supplier-modal__btn {
+	padding: 0.75rem 1.5rem;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.2s;
+	border: none;
+	cursor: pointer;
+}
+
+.supplier-modal__btn--primary {
+	background: #3b82f6;
+	color: white;
+}
+
+.supplier-modal__btn--primary:hover {
+	background: #2563eb;
+}
+
+.supplier-modal__btn--secondary {
+	background: #f3f4f6;
+	color: #374151;
+}
+
+.supplier-modal__btn--secondary:hover {
+	background: #e5e7eb;
+}
+
+/* Add form */
+.supplier-add-form {
+	background: white;
+	border-radius: 12px;
+	padding: 2rem;
+	max-width: 600px;
+	margin: 2rem auto;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.supplier-add-form .form-group {
+	margin-bottom: 1.5rem;
+}
+
+.supplier-add-form label {
+	display: block;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+}
+
+.supplier-add-form input[type="text"],
+.supplier-add-form input[type="email"],
+.supplier-add-form input[type="url"],
+.supplier-add-form textarea,
+.supplier-add-form select {
+	width: 100%;
+	padding: 0.75rem;
+	border: 2px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 1rem;
+}
+
+.supplier-add-form input[type="text"]:focus,
+.supplier-add-form input[type="email"]:focus,
+.supplier-add-form input[type="url"]:focus,
+.supplier-add-form textarea:focus,
+.supplier-add-form select:focus {
+	outline: none;
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.supplier-add-form textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+.supplier-add-form .form-submit {
+	background: #3b82f6;
+	color: white;
+	border: none;
+	padding: 0.75rem 2rem;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.supplier-add-form .form-submit:hover {
+	background: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.suppliers-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.suppliers-filters .filter-group {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.suppliers-filters select,
+	.suppliers-filters input[type="text"] {
+		min-width: auto;
+	}
+
+	.supplier-modal__content {
+		margin: 1rem;
+		max-height: calc(100vh - 2rem);
+	}
+
+	.supplier-modal__actions {
+		flex-direction: column;
+		gap: 1rem;
+		align-items: stretch;
+	}
+
+	.supplier-modal__contact {
+		justify-content: center;
+	}
+}
+
+/* Loading states */
+.suppliers-loading {
+	text-align: center;
+	padding: 2rem;
+	color: #6b7280;
+}
+
+.suppliers-empty {
+	text-align: center;
+	padding: 4rem 2rem;
+	color: #6b7280;
+}
+
+.suppliers-empty h3 {
+	color: #374151;
+	margin-bottom: 1rem;
+}
+
+/* Accessibility */
+.supplier-card:focus,
+.supplier-modal__close:focus,
+.supplier-modal__btn:focus {
+	outline: 2px solid #3b82f6;
+	outline-offset: 2px;
+}

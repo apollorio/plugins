@@ -1,0 +1,180 @@
+{
+  "plugin": "apollo-social",
+  "audit_date": "2026-01-04",
+  "files_audited": 20,
+  "compliant": [
+    "templates/users/dashboard-painel.php",
+    "templates/users/dashboard-painel-new.php",
+    "templates/signatures/local-signature-canvas.php",
+    "templates/signatures/document-wizard.php",
+    "templates/memberships/single.php",
+    "templates/memberships/archive.php",
+    "templates/group-status-badge.php",
+    "templates/single-user_page.php",
+    "templates/_canvas/layout.php"
+  ],
+  "issues": [
+    {
+      "file": "templates/apollo-builder.php",
+      "problems": [
+        "Inline <style> tags with hardcoded font overrides (lines 60-68, 116-123)",
+        "Enqueues local CSS 'apollo-builder.css' via plugins_url instead of CDN",
+        "Enqueues 'apollo-uni-css' and 'apollo-social-builder' as local assets",
+        "Uses dashicons instead of RemixIcon (ri-*) for icons",
+        "Contains inline JavaScript config block instead of data attributes"
+      ],
+      "severity": "medium"
+    },
+    {
+      "file": "templates/users/private-profile.php",
+      "problems": [
+        "Inline CSS via wp_add_inline_style with hardcoded styles (lines 47-66)",
+        "Uses var((--bg-main)-muted) malformed CSS variable syntax",
+        "Contains inline JavaScript via wp_add_inline_script",
+        "Inline style attribute: style='background: var(--ap-orange-500); color: white;' (line 148)"
+      ],
+      "severity": "low"
+    },
+    {
+      "file": "templates/user-page-view.php",
+      "problems": [
+        "Uses non-Apollo CSS classes: 'apollo-user-profile-page', 'profile-container', 'profile-cover', etc.",
+        "Missing CDN asset enqueue - relies on theme header",
+        "Does not use ap-* or ap-c-* design system classes"
+      ],
+      "severity": "medium"
+    },
+    {
+      "file": "templates/user-page-editor.php",
+      "problems": [
+        "Uses Tailwind utility classes (max-w-4xl, mx-auto, px-4, py-8, etc.)",
+        "Uses ShadCN class naming convention (btn, btn-outline, btn-primary)",
+        "Inline <script> block with DOM manipulation (lines 118-200+)",
+        "Uses 'shadcn-card', 'shadcn-button-ghost' class names instead of ap-* classes"
+      ],
+      "severity": "high"
+    },
+    {
+      "file": "templates/private-profile.php",
+      "problems": [
+        "Uses Tailwind utility classes extensively (h-14, flex, items-center, border-b, bg-white/80, backdrop-blur, px-3, etc.)",
+        "Inline style attributes with hardcoded colors: 'bg-slate-900 text-white'",
+        "Uses 'aprioEXP-*' non-standard class naming",
+        "Uses 'menutags' undefined class instead of ap-btn",
+        "Hardcoded hex color in class: 'text-[10px]', 'tracking-[0.12em]'"
+      ],
+      "severity": "high"
+    },
+    {
+      "file": "templates/registration/registration-form.php",
+      "problems": [
+        "Enqueues local CSS file: APOLLO_SOCIAL_PLUGIN_URL . 'assets/css/registration.css'",
+        "Uses 'apollo-canvas', 'apollo-registration', 'apollo-registration-container' non-standard classes",
+        "Uses 'apollo-button', 'apollo-button-primary' instead of ap-btn classes",
+        "Inline <script> block for form validation (lines 163-185)"
+      ],
+      "severity": "medium"
+    },
+    {
+      "file": "templates/onboarding/conversational-onboarding.php",
+      "problems": [
+        "Inline CSS via wp_add_inline_style with extensive custom styles (lines 47-68)",
+        "Large inline <style> block (lines 88-320+) with 200+ lines of CSS",
+        "Uses var((--bg-main)-muted) malformed CSS variable syntax multiple times",
+        "Inline <script> with full JavaScript class implementation",
+        "Custom animation keyframes defined inline (@keyframes spin, fadeInUp)"
+      ],
+      "severity": "high"
+    },
+    {
+      "file": "templates/onboarding/chat.php",
+      "problems": [
+        "Large inline <style> block (lines 91-200+) with extensive CSS",
+        "Uses var((--bg-main)-muted) malformed CSS variable syntax",
+        "Defines custom animations inline (@keyframes ap-pulse, ap-slide-up)",
+        "JSON data embedded in <script type='application/json'> block"
+      ],
+      "severity": "medium"
+    },
+    {
+      "file": "templates/plano/editor.php",
+      "problems": [
+        "Uses 'ap-plano-*' class prefix instead of standard 'ap-*' component classes",
+        "Hardcoded color in input: value='#f9a748' (line 65)",
+        "Non-standard icon class: 'ri-XXX' placeholder (line 82)"
+      ],
+      "severity": "low"
+    },
+    {
+      "file": "templates/layout-base.php",
+      "problems": [
+        "Massive inline <style> block (lines 47-320+) with 270+ lines of CSS",
+        "Uses CSS custom properties but with non-Apollo naming (--font-family, --text-primary, --bg-surface, --border-color)",
+        "Hardcoded fallback values: #333, #666, #e0e2e4, #007bff, #f5f5f5",
+        "Does not use ap-* or ap-c-* design system classes",
+        "Uses generic class names: 'sidebar', 'main-content', 'top-bar', 'nav-link'"
+      ],
+      "severity": "high"
+    },
+    {
+      "file": "templates/moderation-actions.php",
+      "problems": [
+        "Large inline <style> block (lines 69-200) with hardcoded colors",
+        "Hardcoded hex colors: #f9fafb, #e5e7eb, #374151, #6b7280, #dc2626, #b91c1c, #111827, #d1d5db",
+        "Uses 'apollo-*' class naming instead of 'ap-*'",
+        "Inline <script> block with event handlers and DOM manipulation"
+      ],
+      "severity": "high"
+    }
+  ],
+  "summary": {
+    "total_files": 20,
+    "compliant_count": 9,
+    "issues_count": 11,
+    "high_severity": 5,
+    "medium_severity": 4,
+    "low_severity": 2,
+    "compliance_rate": "45%"
+  },
+  "common_issues": [
+    {
+      "issue": "Inline <style> blocks",
+      "affected_files": 8,
+      "recommendation": "Move styles to external CSS files or use wp_add_inline_style sparingly with CSS variables only"
+    },
+    {
+      "issue": "Hardcoded hex colors",
+      "affected_files": 5,
+      "recommendation": "Replace with --ap-* CSS variables from design system"
+    },
+    {
+      "issue": "Non-Apollo class naming",
+      "affected_files": 7,
+      "recommendation": "Use ap-*, ap-c-*, ap-u-*, ap-l-* class prefixes consistently"
+    },
+    {
+      "issue": "Local CSS file enqueue",
+      "affected_files": 2,
+      "recommendation": "Use wp_enqueue_script('apollo-cdn-loader') or rely on global CDN assets"
+    },
+    {
+      "issue": "Tailwind utility classes",
+      "affected_files": 3,
+      "recommendation": "Replace with Apollo design system utility classes (ap-u-*)"
+    },
+    {
+      "issue": "Malformed CSS variable syntax",
+      "affected_files": 3,
+      "recommendation": "Fix var((--bg-main)-muted) to proper syntax var(--ap-bg-muted)"
+    }
+  ],
+  "recommendations": [
+    "Create a shared CSS file for common template styles and enqueue from CDN",
+    "Refactor templates to use Apollo design system classes (ap-*, ap-c-*, ap-u-*, ap-l-*)",
+    "Replace all hardcoded colors with --ap-* CSS variables",
+    "Move inline JavaScript to external files and use data-* attributes for config",
+    "Fix malformed CSS variable syntax: var((--bg-main)-*) should be var(--ap-bg-*)",
+    "Standardize on RemixIcon (ri-*) for all icon usage",
+    "Remove Tailwind utility classes and use Apollo utility equivalents"
+  ]
+}

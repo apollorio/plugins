@@ -1,0 +1,108 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "apollo/user-profile",
+    "version": "2.0.0",
+    "title": "Perfil de Usuário",
+    "category": "apollo-social",
+    "description": "Exibe o perfil de um usuário com avatar, informações e estatísticas.",
+    "keywords": ["perfil", "usuário", "autor", "avatar", "social", "membro"],
+    "textdomain": "apollo-social",
+    "icon": "admin-users",
+    "attributes": {
+        "userId": {
+            "type": "number",
+            "default": 0
+        },
+        "layout": {
+            "type": "string",
+            "default": "card",
+            "enum": ["card", "compact", "hero", "minimal"]
+        },
+        "showAvatar": {
+            "type": "boolean",
+            "default": true
+        },
+        "avatarSize": {
+            "type": "string",
+            "default": "large",
+            "enum": ["small", "medium", "large", "xlarge"]
+        },
+        "showName": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBio": {
+            "type": "boolean",
+            "default": true
+        },
+        "showLocation": {
+            "type": "boolean",
+            "default": true
+        },
+        "showWebsite": {
+            "type": "boolean",
+            "default": true
+        },
+        "showSocialLinks": {
+            "type": "boolean",
+            "default": true
+        },
+        "showStats": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFollowButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showMessageButton": {
+            "type": "boolean",
+            "default": false
+        },
+        "showRecentPosts": {
+            "type": "boolean",
+            "default": false
+        },
+        "recentPostsCount": {
+            "type": "number",
+            "default": 3
+        },
+        "showCover": {
+            "type": "boolean",
+            "default": true
+        },
+        "coverHeight": {
+            "type": "number",
+            "default": 200
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showJoinDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "useCurrentUser": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "editorScript": "file:./index.js",
+    "render": "file:./render.php"
+}
